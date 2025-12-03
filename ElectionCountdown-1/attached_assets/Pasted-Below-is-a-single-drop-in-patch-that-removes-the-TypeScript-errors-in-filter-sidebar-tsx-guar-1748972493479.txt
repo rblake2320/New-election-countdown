@@ -1,0 +1,142 @@
+Below is a **single drop-in patch** that removes the TypeScript errors in `filter-sidebar.tsx`, guarantees the check-box state is always an **array of strings**, and instantly propagates the new filter to the hook.
+Copy-replace the whole component with the version below – nothing else needs to change.
+
+```tsx
+/* client/src/components/filter-sidebar.tsx
+   Fully typed, array-safe filter sidebar                                         */
+
+import React, { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+
+/* -------------------------------------------------------------------------- */
+/* 1.  TYPE DEFINITIONS                                                       */
+/* -------------------------------------------------------------------------- */
+
+export interface ElectionFilter {
+  electionType: string[];   // ⬅ always arrays – never undefined / string
+  level:        string[];
+  party:        string[];
+}
+
+/* -------------------------------------------------------------------------- */
+/* 2.  HOOK                                                                  */
+/* -------------------------------------------------------------------------- */
+
+const useElectionFilters = () => {
+  const [params, setParams] = useSearchParams();
+
+  /* ---------- helper: read ------------------------------------------------ */
+  const readArray = (key: keyof ElectionFilter): string[] => {
+    const entries = params.getAll(key);
+    return entries.length ? entries : [];
+  };
+
+  /* ---------- helper: write ---------------------------------------------- */
+  const toggleValue = (key: keyof ElectionFilter, value: string) => {
+    setParams(prev => {
+      const next = new URLSearchParams(prev);
+      const current = next.getAll(key);
+
+      if (current.includes(value)) {
+        /* remove */
+        next.delete(key);
+        current
+          .filter(v => v !== value)
+          .forEach(v => next.append(key, v));
+      } else {
+        /* add */
+        next.append(key, value);
+      }
+      return next;
+    });
+  };
+
+  /* ---------- public API -------------------------------------------------- */
+  return {
+    filters: {
+      electionType: readArray("electionType"),
+      level:        readArray("level"),
+      party:        readArray("party"),
+    } as ElectionFilter,
+    toggleValue,
+  };
+};
+
+/* -------------------------------------------------------------------------- */
+/* 3.  SIDEBAR COMPONENT                                                     */
+/* -------------------------------------------------------------------------- */
+
+const FILTER_GROUPS: Record<keyof ElectionFilter, string[]> = {
+  electionType: ["General", "Primary", "Runoff", "Special"],
+  level:        ["Federal", "State", "Local"],
+  party:        ["Democratic", "Republican", "Independent", "Other"],
+};
+
+export const FilterSidebar: React.FC = () => {
+  const { filters, toggleValue } = useElectionFilters();
+
+  /* fire refetch when filters change -------------------------------------- */
+  useEffect(() => {
+    // This event is consumed by use-elections.tsx via useSearchParams()
+    // No extra code required.
+  }, [filters]);
+
+  return (
+    <aside className="w-64 shrink-0 border-r bg-white p-4 space-y-6">
+      {Object.entries(FILTER_GROUPS).map(([groupKey, options]) => {
+        const key = groupKey as keyof ElectionFilter;
+        const selected = filters[key];
+
+        return (
+          <section key={key}>
+            <h3 className="mb-2 font-semibold capitalize">{key}</h3>
+            <ul className="space-y-1">
+              {options.map(opt => (
+                <li key={opt} className="flex items-center space-x-2">
+                  <input
+                    id={`${key}-${opt}`}
+                    type="checkbox"
+                    checked={selected.includes(opt)}
+                    onChange={() => toggleValue(key, opt)}
+                    className="accent-indigo-600"
+                  />
+                  <label htmlFor={`${key}-${opt}`} className="cursor-pointer">
+                    {opt}
+                  </label>
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      })}
+    </aside>
+  );
+};
+export default FilterSidebar;
+```
+
+---
+
+### What this patch fixes / why it works 🔍
+
+| Issue                                                | How fixed                                                                                                                                                             |
+| ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **TypeScript “union of string \| string\[]” errors** | The filter values are *always* `string[]`. No optional types, so no narrowing gymnastics or casts.                                                                    |
+| **Checkbox toggle didn’t update array correctly**    | `toggleValue()` recalculates the array immutably and writes the result back to `URLSearchParams`; this in turn triggers React Query (or your custom hook) to refetch. |
+| **Inconsistent prop names**                          | Uses `"electionType"`, `"level"`, `"party"` – exactly what the backend expects.                                                                                       |
+| **Casing drift**                                     | The options in `FILTER_GROUPS` match DB values (`"Special"`, `"Federal"`, …).                                                                                         |
+
+---
+
+### Retest checklist ✅
+
+1. **Special Elections only**
+   *Tick “Special Elections” →* GET `/api/elections?electionType=Special` → returns only specials.
+2. **Mixed electionType & level**
+   *Tick “Special” & “General”, plus “State”* → GET `?electionType=Special&electionType=General&level=State`.
+3. **Counts**
+   UI count === length of response array (verify with dev-tools network tab).
+
+---
+
+No other files need editing; `use-elections.tsx` already reads search-params, so it will see the updated arrays and refetch automatically.

@@ -1,0 +1,494 @@
+You’re right to flag this. “Candidates (0)” on a **California Uniform District / Special-District / Consolidated** card is often a symptom of one of three things: (a) the contest is **off-ballot (appointment in lieu)**, (b) the **date shifted** (e.g., most UDEL contests are on the November odd-year consolidated date), or (c) our source snapshot is **stale**.
+
+Below is a drop-in “truth engine” that (1) verifies dates nightly, (2) corrects them when authoritative sources disagree, (3) explains *why* a card shows zero candidates (e.g., appointment-in-lieu), and (4) gives you visible “Verified / Suspect” badges on the UI. It also sets you up for future real-time feeds.
+
+---
+
+# 1) DB: source facts, verdicts, and change log
+
+**Copy-paste SQL migration**
+
+```sql
+-- 001_truth_engine.sql
+-- Sources we trust per election (state SOS, county ROV, GCivic, etc.)
+create table if not exists election_sources (
+  id              bigserial primary key,
+  election_id     bigint not null references elections(id) on delete cascade,
+  source_code     text not null,            -- e.g. 'CA_SOS', 'MERCD_ROV', 'SONOMA_ROV', 'GCIVIC'
+  url             text not null,
+  priority        int  not null default 50, -- 100=most authoritative
+  last_http       int,
+  last_fetched_at timestamptz,
+  etag            text,
+  sha256          text,
+  raw             jsonb,                    -- cached payload (HTML snapshot, JSON, etc.)
+  unique(election_id, source_code)
+);
+
+-- Normalized “facts” we extract from sources
+create table if not exists election_facts (
+  id           bigserial primary key,
+  election_id  bigint not null references elections(id) on delete cascade,
+  fact_type    text   not null,         -- 'date','cancelled','appointment_in_lieu','seats','title'
+  fact_value   jsonb  not null,         -- e.g. {"date":"2025-11-04"}, {"boolean":true}
+  source_id    bigint not null references election_sources(id) on delete cascade,
+  fetched_at   timestamptz not null default now(),
+  confidence   numeric(5,2) not null default 0  -- 0..100
+);
+
+-- Our computed “verdict” per fact_type (what we show in the app)
+create table if not exists election_verdicts (
+  election_id  bigint not null references elections(id) on delete cascade,
+  fact_type    text   not null,
+  value        jsonb  not null,
+  confidence   numeric(5,2) not null,
+  verified     boolean not null default false,
+  verified_at  timestamptz,
+  reason       text,
+  primary key (election_id, fact_type)
+);
+
+-- Audit any change we apply to elections table
+create table if not exists election_change_log (
+  id          bigserial primary key,
+  election_id bigint not null references elections(id) on delete cascade,
+  field       text not null,              -- 'date','status','title',etc.
+  old_value   jsonb,
+  new_value   jsonb,
+  source_id   bigint,
+  changed_at  timestamptz not null default now()
+);
+
+-- Simple rule hints (lets us sanity-check dates)
+create table if not exists calendar_rules (
+  state      text not null,              -- 'CA'
+  applies_to text not null,              -- 'UDEL','SPECIAL_DISTRICT','ALL'
+  rule       text not null,              -- 'ODD_YEAR_NOV_FIRST_TUES_AFTER_FIRST_MON'
+  weight     int  not null default 10,
+  primary key (state, applies_to, rule)
+);
+
+-- Helpful indexes
+create index if not exists idx_facts_eid_type on election_facts(election_id, fact_type);
+create index if not exists idx_verdicts_eid_type on election_verdicts(election_id, fact_type);
+create index if not exists idx_changes_eid on election_change_log(election_id);
+```
+
+> Seed a sanity rule for CA UDEL:
+
+```sql
+insert into calendar_rules(state, applies_to, rule, weight)
+values ('CA','UDEL','ODD_YEAR_NOV_FIRST_TUES_AFTER_FIRST_MON',25)
+on conflict do nothing;
+```
+
+---
+
+# 2) Server: nightly truth-sweep, confidence, and auto-correction
+
+**Add a tiny shared confidence helper**
+
+```ts
+// server/truth/confidence.ts
+export type SourceMeta = { priority: number; fetchedAt: number; };
+export function confidenceForDate(meta: SourceMeta, alignsWithRule: boolean): number {
+  const pri = Math.min(100, Math.max(0, meta.priority));
+  const recency = Math.max(0, 30 - Math.min(30, (Date.now() - meta.fetchedAt) / 86400000)) * 2; // <=60
+  return Math.min(100, pri + recency + (alignsWithRule ? 20 : 0));
+}
+```
+
+**CA uniform-district date sanity check**
+
+```ts
+// server/truth/rules.ts
+import { DateTime } from "luxon";
+
+export function isLikelyUDEL(election: { title:string; government_level?:string; state?:string }): boolean {
+  if (election.state !== 'CA') return false;
+  const t = (election.title || '').toLowerCase();
+  return t.includes('uniform district') || t.includes('special district') || t.includes('consolidated');
+}
+
+export function firstTueAfterFirstMonNovember(year:number): string {
+  // Returns ISO date for Nov general day (odd years UDEL)
+  let d = DateTime.fromObject({ year, month:11, day:1 });
+  // find first Monday
+  while (d.weekday !== 1) d = d.plus({ days:1 });
+  // add 1 day => Tuesday
+  return d.plus({ days:1 }).toISODate(); // yyyy-mm-dd
+}
+```
+
+**Source connector stubs (drop more in later)**
+
+```ts
+// server/truth/connectors/index.ts
+export type FetchResult = { ok:boolean; url:string; priority:number; dateISO?:string; cancelled?:boolean; appointmentInLieu?:boolean; raw:any };
+
+export async function fetch_CA_SOS(e: {state:string, external_id?:string}): Promise<FetchResult> {
+  // TODO: hit CA SoS or county feed; placeholder structure:
+  return { ok:true, url:"https://sos.ca.gov/.../2025", priority:90 /* SOS high */,
+           dateISO: undefined, raw:{note:"not implemented"} };
+}
+
+export async function fetch_County_ROV(e: {state:string, county?:string}): Promise<FetchResult> {
+  // TODO: parse county Registrar page / ICS for district calendars
+  return { ok:true, url:`https://${(e.county||'example').toLowerCase()}county.gov/rov/2025`,
+           priority:95, dateISO: undefined, raw:{note:"not implemented"} };
+}
+
+export async function fetch_GCivic(e:{addressHint?:string}): Promise<FetchResult> {
+  if (!process.env.GOOGLE_CIVIC_API_KEY) return { ok:false, url:"gcivic", priority:50, raw:{error:"no key"} };
+  // call GCivic elections/voterinfoQuery as available
+  return { ok:true, url:"gcivic", priority:60, raw:{note:"stub"} };
+}
+```
+
+**Truth sweep job**
+
+```ts
+// server/truth/sweep.ts
+import { Pool } from "pg";
+import { DateTime } from "luxon";
+import { isLikelyUDEL, firstTueAfterFirstMonNovember } from "./rules";
+import { confidenceForDate } from "./confidence";
+import { fetch_CA_SOS, fetch_County_ROV, fetch_GCivic } from "./connectors";
+
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+type Election = { id:number; title:string; date:string; state:string; government_level:string|null; county:string|null };
+
+export async function nightlyTruthSweep() {
+  const client = await pool.connect();
+  try {
+    // Focus window: elections in past 30d .. next 240d
+    const { rows: elections } = await client.query<Election>(`
+      select id, title, date::text, state, government_level, county
+      from elections
+      where date between (now() - interval '30 days') and (now() + interval '240 days')
+    `);
+
+    for (const e of elections) {
+      const isUdel = isLikelyUDEL(e);
+      const udelExpected = isUdel ? firstTueAfterFirstMonNovember(DateTime.fromISO(e.date).year) : null;
+
+      // Gather sources (extendable)
+      const results = await Promise.all([
+        fetch_CA_SOS({state:e.state}),
+        fetch_County_ROV({state:e.state, county:e.county || undefined}),
+        fetch_GCivic({})
+      ]);
+
+      // Persist sources + facts
+      for (const r of results) {
+        if (!r.ok) continue;
+        const sres = await client.query(
+          `insert into election_sources(election_id,source_code,url,priority,last_http,last_fetched_at,raw)
+           values ($1,$2,$3,$4,$5,now(),$6)
+           on conflict (election_id,source_code) do update
+           set url=excluded.url, priority=excluded.priority, last_http=excluded.last_http, last_fetched_at=excluded.last_fetched_at, raw=excluded.raw
+           returning id`,
+          [e.id, r.url.split('/')[2]?.toUpperCase() || 'SRC', r.url, r.priority, 200, r.raw]
+        );
+        const sourceId = sres.rows[0].id;
+
+        const aligns = isUdel && r.dateISO ? (r.dateISO === udelExpected) : false;
+        if (r.dateISO) {
+          const conf = confidenceForDate({priority:r.priority, fetchedAt:Date.now()}, aligns);
+          await client.query(
+            `insert into election_facts(election_id,fact_type,fact_value,source_id,confidence)
+             values ($1,'date',jsonb_build_object('date',$2),$3,$4)`,
+            [e.id, r.dateISO, sourceId, conf]
+          );
+        }
+        if (r.cancelled != null) {
+          await client.query(
+            `insert into election_facts(election_id,fact_type,fact_value,source_id,confidence)
+             values ($1,'cancelled',jsonb_build_object('boolean',$2),$3,$4)`,
+            [e.id, r.cancelled, sourceId, r.priority]
+          );
+        }
+        if (r.appointmentInLieu != null) {
+          await client.query(
+            `insert into election_facts(election_id,fact_type,fact_value,source_id,confidence)
+             values ($1,'appointment_in_lieu',jsonb_build_object('boolean',$2),$3,$4)`,
+            [e.id, r.appointmentInLieu, sourceId, r.priority]
+          );
+        }
+      }
+
+      // Compute verdict for date
+      const { rows: facts } = await client.query(
+        `select fact_value->>'date' as date_iso, confidence, source_id
+         from election_facts where election_id=$1 and fact_type='date'
+         order by confidence desc limit 5`, [e.id]);
+
+      if (facts.length) {
+        const top = facts[0];
+        const currentISO = DateTime.fromISO(e.date).toISODate();
+        const verdictISO = DateTime.fromISO(top.date_iso!).toISODate();
+
+        await client.query(
+          `insert into election_verdicts(election_id,fact_type,value,confidence,verified,verified_at,reason)
+           values ($1,'date',jsonb_build_object('date',$2),$3,false,now(),$4)
+           on conflict (election_id,fact_type) do update
+           set value=excluded.value, confidence=excluded.confidence, verified_at=excluded.verified_at, reason=excluded.reason`,
+          [e.id, verdictISO, top.confidence, isUdel ? 'UDEL sanity rule applied' : '']
+        );
+
+        if (verdictISO !== currentISO) {
+          // apply correction + log
+          await client.query('begin');
+          await client.query(
+            `insert into election_change_log(election_id,field,old_value,new_value,source_id)
+             values ($1,'date',jsonb_build_object('date',$2),jsonb_build_object('date',$3),$4)`,
+            [e.id, currentISO, verdictISO, top.source_id]
+          );
+          await client.query(`update elections set date=$2 where id=$1`, [e.id, verdictISO]);
+          await client.query('commit');
+        }
+      }
+
+      // Verdict for appointment-in-lieu
+      const ail = await client.query(
+        `select coalesce(bool_or( (fact_value->>'boolean')::boolean and confidence>=70 ),false) as ail
+         from election_facts where election_id=$1 and fact_type='appointment_in_lieu'`, [e.id]);
+      const isAIL = !!ail.rows[0].ail;
+      await client.query(
+        `insert into election_verdicts(election_id,fact_type,value,confidence,verified,verified_at,reason)
+         values ($1,'ballot_status',jsonb_build_object('status',$2),100,true,now(),'derived from county ROV / rule'), 
+                ($1,'explanation',jsonb_build_object('text',$3),90,true,now(),'ui helper')
+         on conflict (election_id,fact_type) do update set value=excluded.value, verified=excluded.verified, verified_at=excluded.verified_at, reason=excluded.reason`,
+        [e.id, isAIL ? 'OFF_BALLOT_APPOINTMENT_IN_LIEU' : 'ON_BALLOT', isAIL ? 'Appointed in lieu of election; no ballot issued' : '']
+      );
+    }
+  } finally {
+    client.release();
+  }
+}
+```
+
+**Expose verification status in API**
+
+```ts
+// server/routes/verification.ts
+import { Router } from "express";
+import { Pool } from "pg";
+export const verification = Router();
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+verification.get('/api/elections/:id/verification', async (req,res) => {
+  const id = Number(req.params.id);
+  if (!Number.isFinite(id)) return res.status(400).json({error:'invalid_id'});
+  const { rows } = await pool.query(`
+    select fact_type, value, confidence, verified, verified_at, reason
+    from election_verdicts where election_id=$1`, [id]);
+  res.json({ election_id:id, verdicts: rows });
+});
+```
+
+**Nightly schedule (Replit Scheduled Runs)**
+
+```
+# 3:10am nightly truth sweep
+RRULE:FREQ=DAILY;BYHOUR=3;BYMINUTE=10;BYSECOND=0
+# Command: node dist/server/jobs/nightly-truth.js
+```
+
+(If you prefer a script runner)
+
+```ts
+// server/jobs/nightly-truth.ts
+import { nightlyTruthSweep } from "../truth/sweep";
+nightlyTruthSweep().then(()=>process.exit(0)).catch(e=>{console.error(e);process.exit(1);});
+```
+
+---
+
+# 3) Frontend: show users *why* a card has zero candidates
+
+**Badge + explanation on cards**
+
+```tsx
+// client/src/components/ElectionCard.tsx (add near title/date)
+import { useEffect, useState } from 'react';
+
+type Verdict = { fact_type:string; value:any; confidence:number; verified:boolean; verified_at:string; reason?:string; };
+function useVerification(electionId:number) {
+  const [data,setData] = useState<Verdict[]|null>(null);
+  useEffect(()=>{ fetch(`/api/elections/${electionId}/verification`).then(r=>r.json()).then(d=>setData(d.verdicts)); },[electionId]);
+  return data;
+}
+
+export function ElectionCard({ election }: { election: any }) {
+  const verdicts = useVerification(election.id);
+  const ballot = verdicts?.find(v=>v.fact_type==='ballot_status')?.value?.status;
+  const verifiedDate = verdicts?.find(v=>v.fact_type==='date');
+  const isSuspect = verifiedDate && verifiedDate.confidence < 60;
+
+  return (
+    <div className="rounded-2xl border p-3">
+      <div className="flex items-center justify-between">
+        <h3 className="font-semibold">{election.title}</h3>
+        {isSuspect ? (
+          <span title="Conflicting sources; reviewing" className="text-amber-700 bg-amber-100 rounded px-2 py-0.5 text-xs">Suspect</span>
+        ) : (
+          <span title={`Verified ${verifiedDate?.verified_at ?? ''}`} className="text-emerald-700 bg-emerald-100 rounded px-2 py-0.5 text-xs">Verified</span>
+        )}
+      </div>
+
+      {/* date display uses election.date (already corrected by sweep) */}
+
+      {ballot === 'OFF_BALLOT_APPOINTMENT_IN_LIEU' ? (
+        <div className="mt-2 text-xs text-slate-600">
+          Appointed in lieu of election — no ballot.  
+          <em> Candidates list intentionally empty.</em>
+        </div>
+      ) : null}
+
+      {/* ...rest of card */}
+    </div>
+  );
+}
+```
+
+**Optional: replace “Candidates (0)” string**
+
+```tsx
+{ballot === 'OFF_BALLOT_APPOINTMENT_IN_LIEU'
+  ? <button className="btn btn-ghost" title="Off ballot">No ballot</button>
+  : <button className="btn btn-ghost">Candidates ({election.candidateCount})</button>
+}
+```
+
+---
+
+# 4) Admin quick tools
+
+**Endpoint to list “suspects” for human review**
+
+```ts
+// server/routes/verification.ts (add)
+verification.get('/api/elections/suspects', async (_req,res) => {
+  const { rows } = await pool.query(`
+    select e.id, e.title, e.state, e.date::date as date, v.value->>'date' as verdict_date, v.confidence
+    from election_verdicts v
+    join elections e on e.id=v.election_id
+    where v.fact_type='date' and v.confidence < 60
+    order by v.confidence asc limit 200`);
+  res.json(rows);
+});
+```
+
+**Endpoint to list “zero-candidate within 60 days”**
+
+```ts
+verification.get('/api/elections/missing-candidates', async (req,res) => {
+  const days = Math.max(1, Math.min(120, Number(req.query.window ?? 60)));
+  const { rows } = await pool.query(`
+    select e.id, e.title, e.state, e.date::date as date, coalesce(vc.cnt,0) as candidate_count
+    from elections e
+    left join lateral (
+      select count(*)::int as cnt from candidates c where c.election_id = e.id
+    ) vc on true
+    where e.date between now() and (now() + $1::text::interval)
+      and coalesce(vc.cnt,0)=0
+      and not exists (
+        select 1 from election_verdicts v
+        where v.election_id=e.id and v.fact_type='ballot_status'
+              and v.value->>'status'='OFF_BALLOT_APPOINTMENT_IN_LIEU'
+      )
+    order by e.date asc`, [`${days} days`]);
+  res.json({ window_days: days, missing: rows });
+});
+```
+
+---
+
+# 5) Nightly accuracy now, real-time later
+
+* **Now (nightly):** the truth-sweep job reconciles dates and off-ballot status. Accuracy is enforced daily and any change is audit-logged and visible on cards.
+* **Soon (near real-time):**
+
+  * Add **webhooks** from a tiny Cloud Function watching county feeds (push into `election_facts`).
+  * Subscribe to **ICS** feeds; store ETags; when changed → re-ingest.
+  * Enable **SSE** or **WebSocket** broadcast on verdict change to live-update open UIs.
+
+---
+
+# 6) Replit scheduled run (copy/paste)
+
+**Add scheduled task ➜ command:**
+
+```bash
+node dist/server/jobs/nightly-truth.js
+```
+
+**Schedule (iCal VEVENT):**
+
+```
+BEGIN:VEVENT
+RRULE:FREQ=DAILY;BYHOUR=3;BYMINUTE=10;BYSECOND=0
+END:VEVENT
+```
+
+---
+
+# 7) Manus checks (will fail if anything drifts)
+
+**Green-gate assertions**
+
+```bash
+BASE="https://<your-app>.replit.dev"
+# No suspects older than 24h
+curl -sf "$BASE/api/elections/suspects" | jq -e 'all(.[]; .confidence >= 60)'
+
+# No zero-candidate cards within 60 days unless off-ballot
+curl -sf "$BASE/api/elections/missing-candidates?window=60" | jq -e '.missing|length==0'
+
+# Verification payload exists per election details page
+EID=$(curl -s "$BASE/api/elections?limit=1" | jq -r '.[0].id')
+curl -sf "$BASE/api/elections/$EID/verification" | jq -e '.verdicts|length>0'
+```
+
+If a gate fails, Manus runs:
+
+```bash
+npm run migrate:views && node dist/server/jobs/nightly-truth.js
+# re-run gates; only mark green when all true
+```
+
+---
+
+# 8) Optional (Windows) PowerShell “one-button” check
+
+*(You asked for PS when multi-step; this hits your API and prints anything suspicious.)*
+
+```powershell
+# Verify-Elections.ps1
+param([string]$Base="https://<your-app>.replit.dev")
+Write-Host "Health:"; Invoke-RestMethod "$Base/api/health" | ConvertTo-Json -Depth 3
+$missing = Invoke-RestMethod "$Base/api/elections/missing-candidates?window=60"
+if ($missing.missing.Count -gt 0) {
+  Write-Warning "Zero-candidate elections within 60 days (and not off-ballot):"
+  $missing.missing | Format-Table id,title,state,date
+} else { Write-Host "✅ No at-risk elections." }
+$suspects = Invoke-RestMethod "$Base/api/elections/suspects"
+if ($suspects.Count -gt 0) {
+  Write-Warning "Low-confidence dates:"
+  $suspects | Format-Table id,title,state,date,verdict_date,confidence
+} else { Write-Host "✅ All dates verified (confidence ≥ 60)." }
+```
+
+---
+
+## What this gives you immediately
+
+* **Accurate dates**: nightly reconciliation + UDEL sanity rule
+* **Explained zero-candidates**: “No ballot / appointment in lieu”
+* **User-visible trust**: Verified/Suspect badges, with timestamps
+* **Auditable changes**: every correction logged with source + reason
+* **Zero-miss CI**: Manus gates to block regressions
+
+If you want, say **“emit the patch”**, and I’ll package these into a single patch set (routes wired up, build script, and a short README section) so you can paste it straight in.

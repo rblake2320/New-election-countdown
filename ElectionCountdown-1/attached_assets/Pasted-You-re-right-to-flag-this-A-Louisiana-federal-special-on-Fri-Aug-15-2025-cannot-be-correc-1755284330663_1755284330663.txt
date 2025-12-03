@@ -1,0 +1,164 @@
+You’re right to flag this. A **“Louisiana – federal special” on Fri, Aug 15, 2025** cannot be correct.
+
+### What’s true
+
+* **Louisiana holds its elections on *Saturdays*** by law. R.S. **18:402** sets the dates for primary/general elections (e.g., the 1st/last/5th **Saturday** patterns). ([Findlaw][1])
+* **Special elections must be scheduled “in accordance with R.S. 18:402.”** That’s in **R.S. 18:591** (vacancies), which means specials also fall on the Saturday schedule—**not** on a Friday. ([Findlaw][2])
+
+So a card that says **“Fri, Aug 15, 2025 – LA – federal special”** is invalid on two counts: the **day-of-week** and the **classification** (“federal special”) without a gubernatorial proclamation.
+
+---
+
+## Immediate hotfix (safe & surgical)
+
+**1) Quarantine the bad record(s)**
+Run this query to hide anything in LA that isn’t on a Saturday or is mislabeled “federal special” on 2025-08-15:
+
+```sql
+-- quarantine any Louisiana election not on a Saturday
+UPDATE elections
+SET visible = FALSE,
+    validation_errors = COALESCE(validation_errors,'') || ';invalid_date_for_state'
+WHERE state = 'LA' AND EXTRACT(DOW FROM "date") <> 6; -- 6 = Saturday
+
+-- extra guard: anything exactly on 2025-08-15 and marked federal/special
+UPDATE elections
+SET visible = FALSE,
+    validation_errors = COALESCE(validation_errors,'') || ';bad_la_federal_special_2025-08-15'
+WHERE state='LA'
+  AND "date"::date = '2025-08-15'
+  AND (LOWER(level) = 'federal' OR LOWER(type) LIKE '%special%');
+```
+
+**2) Flush “Featured” cache** (so the card disappears)
+
+```sql
+DELETE FROM feature_slots WHERE election_id IN (
+  SELECT id FROM elections
+  WHERE state='LA' AND "date"::date='2025-08-15'
+);
+```
+
+---
+
+## Make this impossible to regress
+
+### A) Add a state date-rule validator (backend)
+
+```ts
+// server/validators/stateDateRules.ts
+const saturdayStates = new Set(['LA']);
+
+export function validateElectionDateByState(state: string, date: Date) {
+  if (saturdayStates.has(state)) {
+    const dow = date.getUTCDay(); // 6 = Saturday
+    if (dow !== 6) {
+      return { ok: false, code: 'invalid_date_for_state', message: 'Louisiana elections must be on Saturday (R.S. 18:402).' };
+    }
+  }
+  return { ok: true };
+}
+```
+
+Hook into create/update and import paths (and reject on failure), plus revalidate during nightly audits.
+
+### B) Require provenance for “federal special” in LA
+
+```ts
+// server/validators/provenance.ts
+export function requireProclamationForFederalSpecial(e) {
+  if (e.state === 'LA' && e.level?.toLowerCase()==='federal' && e.type?.toLowerCase().includes('special')) {
+    if (!e.provenance_type || e.provenance_type !== 'governor_proclamation' || !e.provenance_url) {
+      return { ok:false, code:'missing_proclamation', message:'LA federal specials must cite a governor’s proclamation (R.S. 18:591).' };
+    }
+  }
+  return { ok:true };
+}
+```
+
+### C) Put both rules into the Data Steward Bot (autofix ON)
+
+Insert/update your policy rows:
+
+```sql
+-- Policy: LA elections must be on Saturday
+INSERT INTO steward_policies (key, description, enabled, autofix, severity)
+VALUES ('la_saturday_only', 'Louisiana elections must fall on a Saturday per R.S. 18:402', TRUE, TRUE, 'high')
+ON CONFLICT (key) DO UPDATE SET enabled=TRUE, autofix=TRUE;
+
+-- Policy: LA federal specials must have gubernatorial proclamation
+INSERT INTO steward_policies (key, description, enabled, autofix, severity)
+VALUES ('la_federal_special_proclamation', 'LA federal specials require governor proclamation (R.S. 18:591)', TRUE, TRUE, 'high')
+ON CONFLICT (key) DO UPDATE SET enabled=TRUE, autofix=TRUE;
+```
+
+Autofix actions:
+
+* **la\_saturday\_only** → `visible=false` + log;
+* **la\_federal\_special\_proclamation** → `visible=false`, add `needs_proclamation` tag.
+
+Then run:
+
+```
+POST /api/data-steward/run
+{
+  "policies": ["la_saturday_only","la_federal_special_proclamation"],
+  "mode": "autofix"
+}
+```
+
+### D) Add a Playwright guardrail test (CI)
+
+```ts
+// tests/elections.la.spec.ts
+import { test, expect } from '@playwright/test';
+
+test('Louisiana elections are Saturdays and no bogus LA federal special appears', async ({ page }) => {
+  await page.goto('/');
+  // No featured card with LA on a non-Saturday date
+  const laCards = page.locator('[data-test=election-card]:has-text(" LA ")');
+  const count = await laCards.count();
+  for (let i=0; i<count; i++){
+    const text = await laCards.nth(i).textContent();
+    if (text?.includes('LA')) {
+      // crude day-of-week check rendered in UI
+      expect(text).not.toMatch(/\bSun|Mon|Tue|Wed|Thu|Fri\b/);
+    }
+  }
+  // No “LA – federal special” without proclamation badge
+  await expect(page.locator('[data-test=election-card]:has-text("LA"):has-text("federal"):has-text("Special"):not(:has([data-test=proclamation]))')).toHaveCount(0);
+});
+```
+
+---
+
+## (Optional) Strengthen your data model
+
+Add provenance + verification fields so public UI only shows **verified** items.
+
+```sql
+ALTER TABLE elections
+  ADD COLUMN provenance_type TEXT,
+  ADD COLUMN provenance_url TEXT,
+  ADD COLUMN verified_at TIMESTAMPTZ,
+  ADD COLUMN verified_by TEXT;
+
+-- Gate public listings
+CREATE VIEW v_public_elections AS
+SELECT * FROM elections
+WHERE visible = TRUE
+  AND (provenance_type IS NULL OR verified_at IS NOT NULL);
+```
+
+---
+
+## What I just did for you
+
+* **Established ground truth** with statute citations (R.S. 18:402 & 18:591). ([Findlaw][1])
+* Gave you a **one-click DB quarantine** and cache flush.
+* Delivered **backend validators**, **Data Steward Bot policies** (autofix on), and a **Playwright test** so this can’t slip through again.
+
+If you want, I can also add a nightly audit that explicitly reports **any election whose UI weekday ≠ state rule** and auto-hides it until verified.
+
+[1]: https://codes.findlaw.com/la/revised-statutes/la-rev-stat-tit-18-sect-402?utm_source=chatgpt.com "Louisiana Revised Statutes Tit. 18, § 402"
+[2]: https://codes.findlaw.com/la/revised-statutes/la-rev-stat-tit-18-sect-591/?utm_source=chatgpt.com "Louisiana Revised Statutes Tit. 18, § 591"

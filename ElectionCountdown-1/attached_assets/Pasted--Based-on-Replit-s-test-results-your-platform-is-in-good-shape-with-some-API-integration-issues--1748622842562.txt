@@ -1,0 +1,70 @@
+
+● Based on Replit's test results, your platform is in good shape with some API integration issues. Here's what to
+  tell the AI:
+
+  Priority Fixes:
+
+  1. Fix Analytics Schema:
+
+  -- Add missing field:
+  ALTER TABLE interaction_logs
+  ADD COLUMN event_type VARCHAR(50) DEFAULT 'page_view';
+
+  -- Update the analytics service to include:
+  event_types: ['page_view', 'election_click', 'candidate_view', 'search', 'filter_change']
+
+  2. Fix Google Civic Integration:
+
+  // The API key works but needs proper env setup:
+  // In .env file:
+  GOOGLE_CIVIC_API_KEY=AIzaSyBMej0yaFk72o1JXn946EJ1GURC7CbQnWo
+
+  // Update the service to use process.env:
+  const API_KEY = process.env.GOOGLE_CIVIC_API_KEY;
+
+  3. Fix Cache Service Route:
+
+  // Add JSON response header:
+  app.get('/api/cache/stats', (req, res) => {
+    res.json({
+      hits: cacheStats.hits,
+      misses: cacheStats.misses,
+      size: cacheStats.size
+    });
+  });
+
+  4. Populate Candidate Data:
+
+  -- Add sample candidates for testing:
+  INSERT INTO candidates (election_id, name, party, polling_avg)
+  SELECT id, 'Sample Candidate D', 'Democratic', 48.5
+  FROM elections WHERE level = 'federal' LIMIT 10;
+
+  INSERT INTO candidates (election_id, name, party, polling_avg)
+  SELECT id, 'Sample Candidate R', 'Republican', 47.2
+  FROM elections WHERE level = 'federal' LIMIT 10;
+
+  What's Actually Working Well:
+
+  - ✅ 173 real elections with countdown timers
+  - ✅ User authentication system
+  - ✅ Analytics tracking (minus one field)
+  - ✅ Bot prevention ready
+  - ✅ Campaign portal structure
+
+  Tell the AI:
+
+  Fix these issues in order:
+  1. Add event_type column to interaction_logs table
+  2. Set GOOGLE_CIVIC_API_KEY in environment variables
+  3. Fix /api/cache/stats to return JSON not HTML
+  4. Add test candidate data to elections
+
+  Do NOT request new API keys - we have what we need. The Congress.gov API works with the key you already have
+  (cc9mECbK6VKcz0ChKLUo85xZr6kySbIM9kTiy45M).
+
+  The platform is production-ready with these minor fixes. You have:
+  - Real election data
+  - Working authentication
+  - Analytics pipeline
+  - Scalable architecture

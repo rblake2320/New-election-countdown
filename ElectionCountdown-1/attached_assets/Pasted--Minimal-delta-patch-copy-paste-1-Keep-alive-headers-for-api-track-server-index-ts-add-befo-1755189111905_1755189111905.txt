@@ -1,0 +1,92 @@
+Δ Minimal delta patch (copy-paste)
+1) Keep-alive headers for /api/track
+// server/index.ts (add before app.use("/api/track", trackRouter);)
+app.use("/api/track", (req, res, next) => {
+  res.setHeader("Connection", "keep-alive");
+  res.setHeader("Keep-Alive", "timeout=30, max=1000");
+  // Helps through some proxies; safe to set even if not nginx:
+  res.setHeader("X-Accel-Buffering", "no");
+  next();
+});
+
+2) Neon pool tuned for Replit
+// server/db/index.ts
+import { Pool } from "pg";
+
+export const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  max: 5,
+  idleTimeoutMillis: 10_000,
+  connectionTimeoutMillis: 3_000,
+  statement_timeout: 5_000,
+});
+
+3) (Optional, but future-proof) API base helper for Static + Autoscale
+
+If your Static deployment and API Autoscale run on different domains, use a small helper so the client can target the API domain via VITE_API_BASE. If you proxy /api/* on the Static deploy, you can skip this.
+
+// client/src/lib/api.ts
+const BASE = import.meta.env.VITE_API_BASE?.replace(/\/+$/, "") || "";
+export async function api(path: string, init?: RequestInit) {
+  const url = BASE ? `${BASE}${path}` : path;  // if BASE set, use absolute
+  const res = await fetch(url, init);
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  return res;
+}
+
+
+Use gradually (or leave your existing fetch("/api/...") calls if you keep a path proxy):
+
+// example
+const data = await (await api("/api/elections?limit=1000")).json();
+
+4) (Optional) WS keep-alive for Real-Time Monitor
+// server/ws.ts (when you add WS)
+import { WebSocketServer, WebSocket } from "ws";
+import http from "http";
+
+export function attachWS(server: http.Server) {
+  const wss = new WebSocketServer({ server, path: "/ws" });
+
+  const interval = setInterval(() => {
+    wss.clients.forEach((ws: WebSocket) => {
+      if (ws.readyState === WebSocket.OPEN) ws.ping();
+    });
+  }, 30_000);
+
+  wss.on("close", () => clearInterval(interval));
+  return wss;
+}
+
+Deploy layout (matches Replit guidance)
+
+Frontend: Static Deployment
+
+Build: pnpm build
+
+Env: VITE_API_BASE=https://<your-api-domain> (only if NOT proxying /api/*)
+
+API: Autoscale Deployment (Node 20)
+
+Start: node dist/server/index.js (or tsx server/index.ts if you run TS directly)
+
+Env: DATABASE_URL, all server keys (no VITE_ prefix)
+
+Scheduled Deployment (nightly)
+
+Command:
+
+pnpm run refresh:analytics && pnpm run smoke
+
+
+Cron: 0 3 * * *
+Timeout: 10m
+Logs: Deployments → Logs
+
+TL;DR
+
+✅ Bundle stands—no structural changes needed.
+
+🔧 Apply the delta above for best results on Replit (keep-alive + pool + optional base URL/WS).
+
+🚀 Use Static for frontend + Autoscale for API, with either a /api/* proxy or VITE_API_BASE.

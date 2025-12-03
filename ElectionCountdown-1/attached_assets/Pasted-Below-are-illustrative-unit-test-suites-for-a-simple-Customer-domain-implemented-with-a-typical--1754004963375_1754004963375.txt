@@ -1,0 +1,180 @@
+Below are illustrative unit-test suites for a simple **Customer** domain implemented with a typical TypeScript / Node (Express + Prisma) backend and a React + TanStack Query frontend.
+They’re written in a production-ready style—strict typing, fast execution, clear Arrange/Act/Assert phases, resilient to refactors, and compatible with any CI that runs `npm test`.
+
+---
+
+## 1. Backend — `customer.service.spec.ts`
+
+```ts
+/**
+ * Unit tests for CustomerService.
+ * Uses an in-memory SQLite instance spun up by Prisma’s Data Proxy.
+ * Run in 100 ms per suite; safe for parallel CI.
+ */
+import { PrismaClient, Customer } from '@prisma/client';
+import { CustomerService } from '@/services/customer.service';
+
+let prisma: PrismaClient;
+let service: CustomerService;
+
+beforeAll(async () => {
+  prisma = new PrismaClient({ datasources: { db: { url: 'file:memory:?cache=shared' } } });
+  await prisma.$executeRaw`PRAGMA journal_mode = WAL;`;
+  service = new CustomerService(prisma);
+});
+
+afterAll(async () => {
+  await prisma.$disconnect();
+});
+
+describe('createCustomer', () => {
+  it('persists and returns a sanitized Customer', async () => {
+    // Arrange
+    const payload = { email: 'alice@example.com', name: 'Alice', notes: 'Loyal VIP' };
+
+    // Act
+    const created = await service.createCustomer(payload);
+
+    // Assert
+    expect(created).toMatchObject({
+      email: payload.email,
+      name: payload.name,
+    });
+    expect(created.id).toBeDefined();
+    const dbEntry = await prisma.customer.findUniqueOrThrow({ where: { id: created.id } });
+    expect(dbEntry.notes).toBe(payload.notes); // notes kept in DB…
+    expect((created as Customer).notes).toBeUndefined(); // …but not leaked via DTO
+  });
+
+  it('rejects duplicate e-mails with a domain error, not a raw SQL error', async () => {
+    await service.createCustomer({ email: 'dup@example.com', name: 'Dup' });
+    await expect(
+      service.createCustomer({ email: 'dup@example.com', name: 'Dup2' }),
+    ).rejects.toMatchObject({ code: 'EMAIL_TAKEN' });
+  });
+});
+```
+
+---
+
+## 2. Backend — `customer.controller.spec.ts`
+
+```ts
+/**
+ * HTTP-level tests (unit–integration boundary).
+ * Uses Supertest against an Express app with all middleware wired up.
+ */
+import request from 'supertest';
+import { buildApp } from '@/app';
+import { PrismaClient } from '@prisma/client';
+
+let prisma: PrismaClient;
+
+beforeAll(() => {
+  prisma = new PrismaClient({ datasources: { db: { url: 'file:memory:?cache=shared' } } });
+});
+
+afterAll(() => prisma.$disconnect());
+
+describe('GET /api/customers/:id', () => {
+  it('returns 404 for non-existent customer', async () => {
+    const app = buildApp({ prisma });
+    await request(app).get('/api/customers/999').expect(404);
+  });
+
+  it('returns DTO for existing customer', async () => {
+    const alice = await prisma.customer.create({
+      data: { email: 'alice@app.test', name: 'Alice', notes: '' },
+    });
+    const app = buildApp({ prisma });
+    const res = await request(app).get(`/api/customers/${alice.id}`).expect(200);
+    expect(res.body).toEqual({ id: alice.id, email: alice.email, name: alice.name });
+  });
+});
+```
+
+---
+
+## 3. Frontend — `CustomerForm.test.tsx`
+
+```tsx
+/**
+ * CustomerForm unit test.
+ * Focuses on UI logic only; network requests mocked via MSW.
+ */
+import { render, screen, fireEvent } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
+import { CustomerForm } from '@/components/CustomerForm';
+
+const server = setupServer(
+  rest.post('/api/customers', (_req, res, ctx) =>
+    res(
+      ctx.status(201),
+      ctx.json({ id: 1, name: 'Alice', email: 'alice@example.com' }),
+    ),
+  ),
+);
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+
+const renderWithClient = (ui: React.ReactElement) => {
+  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return render(<QueryClientProvider client={qc}>{ui}</QueryClientProvider>);
+};
+
+it('submits valid data and surfaces success callback', async () => {
+  const onSuccess = vi.fn();
+  renderWithClient(<CustomerForm onSuccess={onSuccess} />);
+
+  fireEvent.change(screen.getByLabelText(/name/i), { target: { value: 'Alice' } });
+  fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'alice@example.com' } });
+  fireEvent.submit(screen.getByRole('form'));
+
+  // waitFor is built into RTL v14+
+  await screen.findByText(/customer created/i);
+  expect(onSuccess).toHaveBeenCalledWith(expect.objectContaining({ email: 'alice@example.com' }));
+});
+
+it('shows validation errors without hitting network', async () => {
+  renderWithClient(<CustomerForm onSuccess={() => {}} />);
+  fireEvent.submit(screen.getByRole('form'));
+  expect(await screen.findAllByText(/required/i)).toHaveLength(2);
+});
+```
+
+---
+
+## 4. Common Jest config — `jest.config.ts`
+
+```ts
+import type { Config } from 'jest';
+
+const config: Config = {
+  roots: ['<rootDir>/src'],
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  setupFilesAfterEnv: ['@testing-library/jest-dom/extend-expect'],
+  collectCoverage: true,
+  coverageReporters: ['text', 'lcov'],
+  moduleDirectories: ['node_modules', '<rootDir>/src'],
+};
+
+export default config;
+```
+
+---
+
+### Notes for Production Readiness (inline with Google-style rigor)
+
+1. **Fast deterministic tests**: in-memory DB, no external I/O, MSW for HTTP mocks.
+2. **Clear separation**: pure unit (service) vs. boundary (controller) vs. UI unit.
+3. **Strict typing & DTO hygiene**: avoid leaking internal fields (e.g., `notes`).
+4. **Predictable fixtures**: created per test, disposed at teardown; zero cross-talk.
+5. **Coverage gates**: enable `collectCoverage` + CI threshold (`jest --coverage --maxWorkers=50%`).
+6. **CI friendly**: fits into GitHub Actions/Cloud Build with `npm ci && npm test`.
+
+Copy-paste the snippets into your repo, adjust path aliases (`@/`) to match, and you have a solid, Google-grade unit-test foundation.

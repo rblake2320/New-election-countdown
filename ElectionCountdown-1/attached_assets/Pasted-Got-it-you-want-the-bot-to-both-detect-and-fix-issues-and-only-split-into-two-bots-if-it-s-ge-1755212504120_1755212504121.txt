@@ -1,0 +1,581 @@
+Got it — you want the bot to **both detect and fix** issues, and only split into two bots if it’s genuinely useful. Below is a drop-in bundle that:
+
+* keeps a **single Data Steward Bot** that can **detect + auto-fix** by policy, and
+* optionally lets you run a **separate Fixer worker** (second bot) that’s triggered automatically if you want strict separation of duties.
+
+Everything is **copy-paste ready** for your current Replit stack.
+
+---
+
+# 0) What you’re getting
+
+* **Per-policy auto-fix controls** (off / safe SQL / LLM review / LLM apply)
+* **Job queue** so a detector run can trigger a fixer
+* **Endpoints** to run scans, enqueue fixes, and apply
+* **Worker** that consumes jobs (with optional Anthropic use for complex fixes)
+* **Defaults** that are safe: auto-fix dates + orphans; detect-only for risky items
+
+---
+
+# 1) SQL: extend policy model + job queue
+
+> Run this in your DB (psql or your migration step).
+
+```sql
+-- 1) extend policies with auto-fix knobs
+alter table steward.policies
+  add column if not exists auto_fix_mode text not null default 'off',
+  -- 'off' | 'safe_sql' | 'llm_review' | 'llm_apply'
+  add column if not exists llm_provider text,   -- 'anthropic' | 'openai' | null
+  add column if not exists llm_model text,      -- e.g. 'claude-3-5-sonnet-latest'
+  add column if not exists approvals_required boolean not null default false,
+  add column if not exists severity_autofix_ceiling text default 'warn';
+  -- auto-fix runs only when finding.severity <= ceiling
+
+-- 2) job queue for fixer (optional 2-bot mode, also used by single-bot to defer)
+create table if not exists steward.jobs (
+  id           bigserial primary key,
+  type         text not null,   -- 'fix'
+  finding_id   bigint not null references steward.findings(id) on delete cascade,
+  payload      jsonb not null default '{}'::jsonb,
+  status       text not null default 'queued', -- queued|in_progress|done|failed
+  attempts     int not null default 0,
+  error        text,
+  created_at   timestamptz not null default now(),
+  started_at   timestamptz,
+  finished_at  timestamptz
+);
+
+create index if not exists steward_jobs_status_idx on steward.jobs(status);
+
+-- 3) safe defaults per current policies (feel free to tweak)
+update steward.policies
+   set auto_fix_mode='safe_sql', severity_autofix_ceiling='error'
+ where policy_key in ('election_date_drift', 'orphaned_candidates');
+
+update steward.policies
+   set auto_fix_mode='off'
+ where policy_key in ('congress_count_by_state', 'candidate_coverage_upcoming');
+```
+
+**Rationale (defaults):**
+
+* ✅ `election_date_drift`: safe to apply if your **canonical\_elections** is curated.
+* ✅ `orphaned_candidates`: safe to auto-hide or reassign.
+* ⚠️ `congress_count_by_state` & `candidate_coverage_upcoming`: **detect-only** (human review).
+
+---
+
+# 2) Detector: upgrade the runner to trigger fixes or enqueue jobs
+
+> Replace your existing runner with this enhanced version.
+
+```ts
+// server/steward/run-policies.ts
+import { Pool } from "pg";
+
+const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+
+type FindingRow = {
+  fingerprint: string;
+  ref_table: string;
+  ref_pk: string;
+  title: string;
+  detail: any;
+};
+
+type PolicyMeta = {
+  policy_id: number;
+  version_id: number;
+  policy_key: string;
+  check_sql: string;
+  fix_sql: string | null;
+  auto_fix_mode: 'off'|'safe_sql'|'llm_review'|'llm_apply';
+  severity_ceiling: string; // info|warn|error|critical ceiling
+  llm_provider?: string | null;
+  llm_model?: string | null;
+  approvals_required: boolean;
+};
+
+function severityRank(s: string) {
+  // smaller is safer
+  return { info: 0, warn: 1, error: 2, critical: 3 }[s as any] ?? 1;
+}
+
+async function loadActivePolicy(client: any, policyKey: string): Promise<PolicyMeta | null> {
+  const { rows } = await client.query(
+`select p.id as policy_id, p.policy_key,
+        p.auto_fix_mode, p.llm_provider, p.llm_model, p.approvals_required,
+        coalesce(p.severity_autofix_ceiling,'warn') as severity_ceiling,
+        v.id as version_id, v.check_sql, v.fix_sql
+   from steward.policies p
+   join steward.policy_versions v on v.policy_id = p.id and v.is_active = true
+  where p.enabled = true and p.policy_key = $1
+  order by v.version desc limit 1`, [policyKey]);
+  return rows[0] ?? null;
+}
+
+async function runPolicy(policyKey: string, dryRun: boolean, actor = "system") {
+  const client = await pool.connect();
+  try {
+    await client.query("begin");
+    const meta = await loadActivePolicy(client, policyKey);
+    if (!meta) { await client.query("commit"); return { policyKey, skipped: true }; }
+
+    const { rows: runRows } = await client.query(
+      `insert into steward.runs(policy_id, policy_version_id, dry_run, actor)
+       values ($1,$2,$3,$4) returning id`,
+      [meta.policy_id, meta.version_id, dryRun, actor]
+    );
+    const runId = runRows[0].id;
+
+    const findings = await client.query(meta.check_sql);
+
+    for (const row of findings.rows as FindingRow[]) {
+      // Insert/open finding
+      const ins = await client.query(
+        `insert into steward.findings
+           (run_id, policy_id, policy_version_id, fingerprint, ref_table, ref_pk, title, detail, severity, status, fix_sql_snapshot)
+         select $1,$2,$3,$4,$5,$6,$7,$8,
+                (select severity from steward.policies where id=$2),
+                'open',$9
+         on conflict (policy_id, fingerprint) do update set
+                run_id=excluded.run_id,
+                policy_version_id=excluded.policy_version_id,
+                title=excluded.title,
+                detail=excluded.detail,
+                status = case when steward.findings.status in ('applied','dismissed') then steward.findings.status else 'open' end
+         returning id, severity`,
+        [runId, meta.policy_id, meta.version_id, row.fingerprint, row.ref_table, row.ref_pk, row.title, row.detail, meta.fix_sql || null]
+      );
+      const findingId = ins.rows[0].id;
+      const findingSeverity = ins.rows[0].severity as string;
+
+      // Decide how to remediate
+      const ceilingOK = severityRank(findingSeverity) <= severityRank(meta.severity_ceiling);
+      const canSQL = !!meta.fix_sql && meta.auto_fix_mode === 'safe_sql' && ceilingOK;
+      const wantsLLM = (meta.auto_fix_mode === 'llm_review' || meta.auto_fix_mode === 'llm_apply');
+
+      if (!dryRun && (canSQL || wantsLLM)) {
+        if (canSQL) {
+          // apply SQL fix immediately
+          const appliedSql = (meta.fix_sql as string).replace("{ref_pk}", row.ref_pk);
+          await client.query(appliedSql);
+          await client.query(
+            `update steward.findings
+                set status='applied', resolved_at=now(), resolution='auto-fix', resolution_actor=$2
+              where id=$1`,
+            [findingId, actor]
+          );
+          await client.query(
+            `insert into steward.audit(action, actor, finding_id, meta)
+             values('finding_apply',$1,$2,jsonb_build_object('policy',$3,'fingerprint',$4))`,
+            [actor, findingId, policyKey, row.fingerprint]
+          );
+        } else {
+          // enqueue for Fixer worker (LLM or complex)
+          await client.query(
+            `insert into steward.jobs(type, finding_id, payload)
+             values('fix',$1, jsonb_build_object('policy_key',$2,'mode',$3,'llm_provider',$4,'llm_model',$5))`,
+            [findingId, policyKey, meta.auto_fix_mode, meta.llm_provider, meta.llm_model]
+          );
+          await client.query(
+            `insert into steward.audit(action, actor, finding_id, meta)
+             values('job_enqueued',$1,$2,jsonb_build_object('policy',$3))`,
+            [actor, findingId, policyKey]
+          );
+        }
+      }
+    }
+
+    await client.query(
+      `update steward.runs set status='ok', finished_at=now(),
+         stats=jsonb_build_object('findings',$1) where id=$2`,
+      [findings.rowCount, runId]
+    );
+    await client.query("commit");
+    return { policyKey, runId, findings: findings.rowCount, dryRun };
+  } catch (e) {
+    await pool.query("rollback");
+    throw e;
+  } finally {
+    client.release();
+  }
+}
+
+(async () => {
+  const target = process.argv[2] || "all";
+  const dry = (process.env.STEWARD_DRY_RUN ?? "true").toLowerCase() !== "false";
+  const actor = process.env.STEWARD_ACTOR || "system";
+
+  if (target === "all") {
+    const { rows } = await pool.query(`select policy_key from steward.policies where enabled = true`);
+    for (const r of rows) console.log(await runPolicy(r.policy_key, dry, actor));
+  } else {
+    console.log(await runPolicy(target, dry, actor));
+  }
+  process.exit(0);
+})();
+```
+
+**package.json scripts (update):**
+
+```json
+{
+  "scripts": {
+    "steward:scan": "node dist/server/steward/run-policies.js",
+    "steward:scan:all": "node dist/server/steward/run-policies.js all",
+    "steward:scan:dates": "node dist/server/steward/run-policies.js election_date_drift",
+    "steward:scan:congress": "node dist/server/steward/run-policies.js congress_count_by_state",
+    "steward:scan-and-fix": "STEWARD_DRY_RUN=false node dist/server/steward/run-policies.js all"
+  }
+}
+```
+
+---
+
+# 3) Fixer worker (optional 2-bot or deferred fixes)
+
+> Run as a separate process or scheduled job. Handles queued jobs, including **LLM** remediations when needed.
+
+````ts
+// server/steward/fixer.ts
+import { Pool } from "pg";
+import fetch from "node-fetch";
+
+const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || "";
+const LLM_TIMEOUT_MS = 30_000;
+
+async function takeJob(client: any) {
+  const { rows } = await client.query(
+    `update steward.jobs
+        set status='in_progress', started_at=now(), attempts=attempts+1
+      where id = (
+        select id from steward.jobs
+         where status='queued'
+         order by created_at asc
+         limit 1
+         for update skip locked
+      )
+      returning *`
+  );
+  return rows[0] || null;
+}
+
+async function loadFinding(client: any, findingId: number) {
+  const { rows } = await client.query(
+    `select f.*, p.policy_key, p.auto_fix_mode, p.llm_provider, p.llm_model
+       from steward.findings f
+       join steward.policies p on p.id = f.policy_id
+      where f.id=$1`, [findingId]);
+  return rows[0] || null;
+}
+
+async function applySQLFix(client: any, finding: any) {
+  if (!finding.fix_sql_snapshot) throw new Error("No fix_sql available.");
+  const sql = finding.fix_sql_snapshot.replace("{ref_pk}", String(finding.ref_pk));
+  await client.query("begin");
+  await client.query(sql);
+  await client.query(`update steward.findings
+                         set status='applied', resolved_at=now(),
+                             resolution='fixer-apply', resolution_actor='fixer'
+                       where id=$1`, [finding.id]);
+  await client.query(`insert into steward.audit(action, actor, finding_id)
+                      values('finding_apply','fixer',$1)`, [finding.id]);
+  await client.query("commit");
+}
+
+async function llmProposeFixSQL(policy_key: string, finding: any, llm_model: string) {
+  if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY not set.");
+  const prompt = `
+You are a cautious data remediation assistant. We have a finding:
+
+policy: ${policy_key}
+title: ${finding.title}
+detail: ${JSON.stringify(finding.detail, null, 2)}
+
+Our database tables include "elections", "candidates", "steward.canonical_elections",
+"congress_members".
+
+Propose ONE safe, parameterized SQL UPDATE or no-op for this finding. Use {ref_pk} placeholder
+if you need to reference the primary key from the finding. If no safe fix exists, reply exactly: NO_FIX.
+  `.trim();
+
+  const resp = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "x-api-key": ANTHROPIC_API_KEY,
+      "anthropic-version": "2023-06-01",
+      "content-type": "application/json"
+    },
+    body: JSON.stringify({
+      model: llm_model || "claude-3-5-sonnet-latest",
+      max_tokens: 400,
+      messages: [{ role: "user", content: prompt }]
+    }),
+    timeout: LLM_TIMEOUT_MS as any
+  });
+
+  if (!resp.ok) throw new Error(`Anthropic error: ${resp.status}`);
+  const data = await resp.json();
+  const text = (data?.content?.[0]?.text || "").trim();
+  if (text === "NO_FIX") return null;
+
+  // naive extract: first code block or whole text
+  const match = text.match(/```sql([\s\S]*?)```/i);
+  const sql = match ? match[1].trim() : text;
+  return sql;
+}
+
+async function processJob(job: any) {
+  const client = await pool.connect();
+  try {
+    const finding = await loadFinding(client, job.finding_id);
+    if (!finding) throw new Error("Finding not found.");
+
+    if (finding.auto_fix_mode === 'safe_sql') {
+      await applySQLFix(client, finding);
+    } else if (finding.auto_fix_mode === 'llm_review' || finding.auto_fix_mode === 'llm_apply') {
+      // try LLM to propose SQL; store proposal for review or apply
+      const proposed = await llmProposeFixSQL(finding.policy_key, finding, finding.llm_model);
+      if (!proposed) {
+        await client.query(`update steward.findings set status='ignored', resolution='no-safe-fix', resolved_at=now() where id=$1`, [finding.id]);
+      } else {
+        if (finding.auto_fix_mode === 'llm_review') {
+          // stash proposal for manual review
+          await client.query(`update steward.findings
+                                set resolution='proposal-ready',
+                                    status='open',
+                                    fix_sql_snapshot=$2
+                              where id=$1`, [finding.id, proposed]);
+        } else {
+          // apply right away
+          await client.query("begin");
+          const sql = proposed.replace("{ref_pk}", String(finding.ref_pk));
+          await client.query(sql);
+          await client.query(`update steward.findings
+                                set status='applied', resolved_at=now(),
+                                    resolution='llm-apply', resolution_actor='fixer'
+                              where id=$1`, [finding.id]);
+          await client.query("commit");
+        }
+      }
+    } else {
+      // off -> nothing to do, mark done
+    }
+
+    await pool.query(`update steward.jobs set status='done', finished_at=now(), error=null where id=$1`, [job.id]);
+  } catch (e: any) {
+    await pool.query(`update steward.jobs set status='failed', error=$2 where id=$1`, [job.id, String(e?.message || e)]);
+  } finally {
+    await pool.query(`commit`);
+    pool.release();
+  }
+}
+
+(async function main() {
+  // simple loop - run this as separate process
+  while (true) {
+    const client = await pool.connect();
+    try {
+      const job = await takeJob(client);
+      client.release();
+      if (!job) {
+        await new Promise(r => setTimeout(r, 2000));
+        continue;
+      }
+      await processJob(job);
+    } catch (e) {
+      client.release();
+      await new Promise(r => setTimeout(r, 2000));
+    }
+  }
+})();
+````
+
+**package.json (add):**
+
+```json
+{
+  "scripts": {
+    "steward:fixer": "node dist/server/steward/fixer.js"
+  }
+}
+```
+
+> Replit: you can run **one** always-on server (your app) and a **scheduled job** to drain the queue. If you want a continuously running second worker, use **Autoscale** or trigger `steward:fixer` in **Scheduled deployments** every N minutes (it will process queued jobs and exit when none).
+
+---
+
+# 4) Minimal API additions (scan + fix orchestration)
+
+```ts
+// server/routes/steward.ts (append to your existing file)
+import { Router } from "express";
+import { Pool } from "pg";
+const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+const router = Router();
+
+// run a scan (optionally with auto-fix)
+router.post("/api/steward/scan", async (req, res) => {
+  const policy = (req.query.policy as string) || "all";
+  const auto = String(req.query.auto || "false").toLowerCase() === "true";
+  const actor = (req.body?.actor as string) || "admin";
+  const dry = auto ? "false" : (req.body?.dry_run ?? "true");
+  const { spawn } = await import("child_process");
+
+  // invoke the compiled runner
+  const args = ["dist/server/steward/run-policies.js", policy];
+  const env = { ...process.env, STEWARD_DRY_RUN: dry, STEWARD_ACTOR: actor };
+  const child = spawn("node", args, { env });
+
+  let out = ""; let err = "";
+  child.stdout.on("data", (d) => out += d.toString());
+  child.stderr.on("data", (d) => err += d.toString());
+  child.on("close", (code) => {
+    res.json({ ok: code === 0, code, out, err });
+  });
+});
+
+// enqueue fix for a specific finding (forces fixer route)
+router.post("/api/steward/enqueue/:findingId", async (req,res) => {
+  const findingId = Number(req.params.findingId);
+  await pool.query(`insert into steward.jobs(type, finding_id, payload) values('fix',$1,'{}')`, [findingId]);
+  res.json({ ok: true, findingId });
+});
+
+// list jobs
+router.get("/api/steward/jobs", async (req,res) => {
+  const { rows } = await pool.query(`select * from steward.jobs order by created_at desc limit 200`);
+  res.json(rows);
+});
+
+export default router;
+```
+
+(You already wired `stewardRoutes` earlier; this extends it.)
+
+---
+
+# 5) Replit automation (what to schedule)
+
+* **Nightly detect + fix safe items**
+  Command: `npm run steward:scan-and-fix`
+  Env: `STEWARD_ACTOR=nightly`
+
+* **Every 5–10 mins (optional)** drain queue (LLM or deferred fixes):
+  Command: `npm run steward:fixer`
+  (If continuous worker isn’t feasible in your plan, schedule this.)
+
+---
+
+# 6) What gets fixed automatically now
+
+By default (from the SQL above):
+
+* **Auto-fix (safe\_sql)**
+
+  * `election_date_drift`: syncs `elections.date` to `steward.canonical_elections.official_date`
+  * `orphaned_candidates`: applies the **fix\_sql\_snapshot** you stored (from earlier bundle: usually **hide** or reassign).
+    *If you didn’t set a fix\_sql yet for orphans, I can add a safe one to `hidden=true`.*
+
+* **Detect-only**
+
+  * `congress_count_by_state`
+  * `candidate_coverage_upcoming`
+
+You can flip any policy:
+
+```sql
+update steward.policies
+   set auto_fix_mode='safe_sql'
+ where policy_key='candidate_coverage_upcoming';
+```
+
+(Only do this once you have a safe fix\_sql that, e.g., bulk-creates stubs from a vetted source.)
+
+---
+
+# 7) One bot vs two bots — what we’re actually doing
+
+* **Default (Recommended): One Bot (Detector+Fixer)**
+  The runner **applies safe SQL fixes immediately** (no queue) and **enqueues LLM/complex** work for the optional fixer job. This keeps it simple, fast, and auditable.
+
+* **Two Bots (Separation of duties)**
+
+  * **Detector (Sentinel)** = `steward:scan` — writes findings and enqueues jobs.
+  * **Fixer (Mechanic)** = `steward:fixer` — consumes jobs, may call Anthropic if configured, applies fixes, writes audit.
+    The detector calling `/api/steward/scan?auto=true` **automatically triggers** the fixer via the job queue when policies require it.
+
+You can switch between modes by just changing `auto_fix_mode` on policies and how you schedule the scripts — no code rewrite.
+
+---
+
+# 8) Anthropic (optional) for complex fixes
+
+* Set env in Replit: `ANTHROPIC_API_KEY`
+* For a policy you trust with LLM help:
+
+```sql
+update steward.policies
+   set auto_fix_mode='llm_review', llm_provider='anthropic', llm_model='claude-3-5-sonnet-latest'
+ where policy_key='candidate_coverage_upcoming';
+```
+
+* The fixer will **propose** SQL (kept in `fix_sql_snapshot`) for human review, or you can use `'llm_apply'` to apply automatically (not recommended until proven safe).
+
+---
+
+# 9) Ops quick commands
+
+**Scan only (no changes):**
+
+```bash
+curl -X POST "$APP/api/steward/scan?policy=all&auto=false" -H "content-type: application/json" -d '{"dry_run":"true","actor":"admin"}'
+```
+
+**Scan + auto-fix safe policies:**
+
+```bash
+curl -X POST "$APP/api/steward/scan?policy=all&auto=true" -H "content-type: application/json" -d '{"actor":"admin"}'
+```
+
+**List open findings:**
+
+```bash
+curl "$APP/api/steward/findings?status=open"
+```
+
+**Enqueue fix for a single finding:**
+
+```bash
+curl -X POST "$APP/api/steward/enqueue/123"
+```
+
+**Drain queue now (if you’re not running the fixer continuously):**
+
+```bash
+npm run steward:fixer
+```
+
+---
+
+# 10) Safety rails & audit
+
+* **No hard deletes** (elections & candidates), audit trail for every apply/dismiss.
+* **Severity ceiling** to prevent auto-fixing high-risk findings.
+* **LLM is optional**, gated by policy, and logs proposal vs. applied.
+* **Everything is data-driven**: enable/disable/change behavior via SQL, not code.
+
+---
+
+## TL;DR — Do you need two bots?
+
+**No, not necessarily.** With this bundle:
+
+* The **single bot** will **detect and fix** safely (SQL) immediately.
+* Anything complex gets **queued**, and the optional **Fixer** worker applies it (or proposes via LLM).
+* If you want strict separation, just run the **Fixer** on a separate schedule — the detector already **triggers** it by enqueuing jobs.
+
+Want me to add a **safe `orphaned_candidates` fix\_sql** (auto-hide the record) and a **UI “Auto-fix” toggle per policy** next?

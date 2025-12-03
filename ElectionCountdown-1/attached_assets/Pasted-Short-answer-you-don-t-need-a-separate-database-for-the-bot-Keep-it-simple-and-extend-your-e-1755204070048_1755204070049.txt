@@ -1,0 +1,346 @@
+Short answer: you **don’t need a separate database** for the bot. Keep it simple and **extend your existing Postgres** with a few “bot brain” tables so policies (your “MCPs”), detections, actions, and learning metrics are data-driven—not hard-coded. That gives you versioned rules, safe auto-fixes, full auditability, and a path to “learn & improve” without adding heavy ML/Vector complexity right now.
+
+Below is a **drop-in pack** (schema + tiny server endpoints) you can paste in. It’s intentionally minimal, additive, and production-safe. You’ll get:
+
+* **MCP Packs (policies as data)**: detectors (SQL or code), thresholds, and actions stored in DB
+* **Runs, Suggestions, Labels**: full audit + human feedback for “learning”
+* **Authority KB (lightweight)**: store canonical facts (e.g., election dates) + source proofs
+* **Metrics views**: acceptance/precision per MCP to auto-tune thresholds safely
+
+---
+
+# 0) TL;DR apply (copy-paste)
+
+```bash
+# 1) Create bot policy + KB schema (no drops)
+psql "$DATABASE_URL" -f sql/23_steward_policy_and_kb.sql
+
+# 2) Seed a few MCPs (DATE_DRIFT & ZERO_CANDIDATE_HOTLIST) and an authority source
+psql "$DATABASE_URL" -f sql/23_seeds_mcps.sql
+
+# 3) Rebuild & restart
+npm run build
+pkill -f node || true
+npm start
+
+# 4) List active MCPs
+curl -s https://YOUR-REPLIT-URL/api/steward/mcps | jq
+
+# 5) Run a policy-driven scan (uses DB MCPs, not code constants)
+curl -s https://YOUR-REPLIT-URL/api/steward/scan | jq
+
+# 6) Apply all safe suggestions (still honors your “safe” logic)
+curl -s -X POST https://YOUR-REPLIT-URL/api/steward/apply-all-safe \
+  -H 'Content-Type: application/json' \
+  -d '{"verify":true,"max":100,"adminToken":"<STEWARD_ADMIN_TOKEN>"}' | jq
+```
+
+---
+
+# 1) Schema: MCPs, runs, labels, authority KB
+
+**`sql/23_steward_policy_and_kb.sql`**
+
+```sql
+-- === Minimal MCP framework (policies as data) ===
+
+CREATE TABLE IF NOT EXISTS steward_mcp_packs (
+  id BIGSERIAL PRIMARY KEY,
+  name TEXT NOT NULL,                  -- e.g., 'DATE_DRIFT', 'ZERO_CANDIDATE_HOTLIST'
+  version TEXT NOT NULL DEFAULT '1.0', -- semantic
+  active BOOLEAN NOT NULL DEFAULT true,
+  severity SMALLINT NOT NULL DEFAULT 3, -- 1=critical..5=low
+  -- A detector is either a SQL snippet (read-only) OR a code hook name we call server-side.
+  detector_sql TEXT,                   -- returns rows to suggest on (read-only SELECT)
+  detector_kind TEXT NOT NULL DEFAULT 'SQL',  -- 'SQL' | 'CODE'
+  -- Optional canonical update when fix is deterministic & safe
+  autofix_sql TEXT,                    -- parameterized UPDATE ... WHERE id = ANY($1)
+  -- Policy knobs
+  confidence_threshold NUMERIC(5,4) NOT NULL DEFAULT 0.7500,
+  priority_threshold SMALLINT NOT NULL DEFAULT 3,
+  notes TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  created_by TEXT DEFAULT 'steward'
+);
+
+-- Which columns from detector_sql map into suggestion payload
+CREATE TABLE IF NOT EXISTS steward_mcp_fields (
+  id BIGSERIAL PRIMARY KEY,
+  mcp_id BIGINT NOT NULL REFERENCES steward_mcp_packs(id) ON DELETE CASCADE,
+  field_name TEXT NOT NULL,        -- e.g., 'election_id'
+  payload_key TEXT NOT NULL        -- e.g., 'election_id'
+);
+
+-- Execution runs (scans) + metrics
+CREATE TABLE IF NOT EXISTS steward_runs (
+  id BIGSERIAL PRIMARY KEY,
+  started_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  finished_at TIMESTAMPTZ,
+  inserted_suggestions INT NOT NULL DEFAULT 0,
+  applied INT NOT NULL DEFAULT 0,
+  failed INT NOT NULL DEFAULT 0,
+  notes TEXT
+);
+
+-- Suggestions (already in your system; keeping portable definition)
+CREATE TABLE IF NOT EXISTS bot_suggestions (
+  id BIGSERIAL PRIMARY KEY,
+  kind TEXT NOT NULL,               -- matches steward_mcp_packs.name
+  status TEXT NOT NULL DEFAULT 'OPEN',  -- OPEN|APPLIED|DISMISSED|FAILED
+  payload JSONB NOT NULL DEFAULT '{}'::jsonb,
+  confidence NUMERIC(5,4) NOT NULL DEFAULT 0.5000,
+  priority SMALLINT NOT NULL DEFAULT 3,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Human feedback to learn over time (no ML required)
+CREATE TABLE IF NOT EXISTS steward_labels (
+  id BIGSERIAL PRIMARY KEY,
+  suggestion_id BIGINT NOT NULL REFERENCES bot_suggestions(id) ON DELETE CASCADE,
+  label TEXT NOT NULL,              -- RIGHT|WRONG|SKIPPED|FIXED_EXTERNALLY
+  labeler TEXT DEFAULT 'system',
+  notes TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Aggregated metrics (view)
+CREATE OR REPLACE VIEW v_steward_mcp_metrics AS
+SELECT
+  s.kind,
+  COUNT(*) FILTER (WHERE s.status='OPEN') AS open,
+  COUNT(*) FILTER (WHERE s.status='APPLIED') AS applied,
+  COUNT(*) FILTER (WHERE s.status='DISMISSED') AS dismissed,
+  COUNT(*) FILTER (WHERE s.status='FAILED') AS failed,
+  ROUND(AVG(s.confidence)::numeric,4) AS avg_confidence,
+  COALESCE(SUM(CASE WHEN l.label='RIGHT' THEN 1 WHEN l.label='WRONG' THEN 0 END)::float
+           / NULLIF(SUM(CASE WHEN l.label IN ('RIGHT','WRONG') THEN 1 END),0), 0.0) AS precision_estimate
+FROM bot_suggestions s
+LEFT JOIN steward_labels l ON l.suggestion_id = s.id
+GROUP BY s.kind;
+
+-- === Lightweight Authority KB ===
+
+CREATE TABLE IF NOT EXISTS authority_sources (
+  id BIGSERIAL PRIMARY KEY,
+  name TEXT NOT NULL,         -- e.g., 'CA SOS', 'Sonoma County ROV'
+  domain TEXT,
+  priority SMALLINT NOT NULL DEFAULT 3, -- 1 high trust
+  enabled BOOLEAN NOT NULL DEFAULT true,
+  notes TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS authority_facts (
+  id BIGSERIAL PRIMARY KEY,
+  entity_type TEXT NOT NULL,  -- 'ELECTION'|'PERSON'|'DISTRICT'|'OFFICE'
+  entity_id BIGINT,           -- local FK id where applicable (nullable for external-only)
+  fact_type TEXT NOT NULL,    -- 'ELECTION_DATE'|'CANDIDATE_LIST'|'BALLOT_STATUS'|...
+  fact_value JSONB NOT NULL,  -- normalized canonical value(s)
+  confidence NUMERIC(5,4) NOT NULL DEFAULT 0.9000,
+  source_id BIGINT REFERENCES authority_sources(id) ON DELETE SET NULL,
+  source_url TEXT,
+  effective_from TIMESTAMPTZ,
+  effective_to TIMESTAMPTZ,
+  checksum TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_authority_facts_entity ON authority_facts(entity_type, entity_id);
+CREATE INDEX IF NOT EXISTS idx_authority_facts_fact ON authority_facts(fact_type);
+CREATE INDEX IF NOT EXISTS idx_authority_facts_src ON authority_facts(source_id);
+
+-- Optional: map facts to elections quickly
+CREATE OR REPLACE VIEW v_authoritative_election_dates AS
+SELECT
+  f.entity_id AS election_id,
+  (f.fact_value->>'date')::date AS authoritative_date,
+  f.confidence,
+  s.priority,
+  f.source_id,
+  f.source_url
+FROM authority_facts f
+JOIN authority_sources s ON s.id = f.source_id
+WHERE f.entity_type='ELECTION' AND f.fact_type='ELECTION_DATE';
+```
+
+---
+
+# 2) Seed 2 example MCPs + a source
+
+**`sql/23_seeds_mcps.sql`**
+
+```sql
+-- High-trust public authority example
+INSERT INTO authority_sources(name, domain, priority, notes)
+VALUES ('Sonoma County ROV','sonomacounty.gov',1,'County Registrar authoritative calendar')
+ON CONFLICT DO NOTHING;
+
+-- MCP #1: DATE_DRIFT (SQL detector + safe autofix WHEN confidence high)
+INSERT INTO steward_mcp_packs(name, version, active, severity, detector_kind, confidence_threshold, priority_threshold, notes,
+                              detector_sql, autofix_sql)
+VALUES (
+  'DATE_DRIFT','1.0',true,2,'SQL',0.75,2,
+  'Find elections where local date != authority date (joins v_authoritative_election_dates).',
+  $SQL$
+    SELECT e.id AS election_id,
+           e.title, e.state,
+           e.election_date::date AS local_date,
+           a.authoritative_date,
+           a.confidence,
+           a.priority,
+           a.source_url
+    FROM elections_current e
+    JOIN v_authoritative_election_dates a ON a.election_id = e.id
+    WHERE e.election_date::date IS DISTINCT FROM a.authoritative_date
+  $SQL$,
+  $FIX$
+    UPDATE elections
+    SET election_date = a.authoritative_date::timestamptz
+    FROM v_authoritative_election_dates a
+    WHERE elections.id = ANY($1) AND a.election_id = elections.id
+  $FIX$
+)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO steward_mcp_fields(mcp_id, field_name, payload_key)
+SELECT id, 'election_id', 'election_id' FROM steward_mcp_packs WHERE name='DATE_DRIFT';
+
+-- MCP #2: ZERO_CANDIDATE_HOTLIST (detector only; no autofix)
+INSERT INTO steward_mcp_packs(name, version, active, severity, detector_kind, confidence_threshold, priority_threshold, notes,
+                              detector_sql)
+VALUES (
+  'ZERO_CANDIDATE_HOTLIST','1.0',true,2,'SQL',0.50,3,
+  'Elections in <=45 days with 0 candidates.',
+  $SQL$
+    SELECT e.id AS election_id,
+           e.title, e.state,
+           e.election_date::date AS election_date,
+           0.80::numeric AS confidence, 2::smallint AS priority
+    FROM v_zero_candidate_hotlist e
+  $SQL$
+)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO steward_mcp_fields(mcp_id, field_name, payload_key)
+SELECT id, 'election_id', 'election_id' FROM steward_mcp_packs WHERE name='ZERO_CANDIDATE_HOTLIST';
+```
+
+> You can add more MCPs the same way (e.g., AUTHORITY\_GAP, WINDOW\_ANOMALY) without code changes.
+
+---
+
+# 3) Minimal server glue (reads MCPs from DB)
+
+Add endpoints (they just call your existing bot engine, but now **it pulls MCPs from DB**):
+
+**`server/routes/steward_mcp.ts`**
+
+```ts
+import { Router } from 'express';
+import { pool } from '../db';
+
+export const mcpRouter = Router();
+
+mcpRouter.get('/mcps', async (_req, res) => {
+  const { rows } = await pool.query(
+    `SELECT id, name, version, active, severity, detector_kind, confidence_threshold, priority_threshold, notes,
+            (detector_sql IS NOT NULL) AS has_sql, (autofix_sql IS NOT NULL) AS has_autofix
+     FROM steward_mcp_packs ORDER BY name`
+  );
+  res.json({ ok:true, items: rows });
+});
+
+// Run all active SQL MCPs to emit suggestions
+mcpRouter.post('/mcps/scan', async (_req, res) => {
+  const client = await pool.connect();
+  try {
+    const { rows: mcps } = await client.query(
+      `SELECT * FROM steward_mcp_packs WHERE active=true AND detector_kind='SQL' AND detector_sql IS NOT NULL`
+    );
+
+    let inserted = 0;
+    for (const m of mcps) {
+      const r = await client.query(m.detector_sql);
+      for (const row of r.rows) {
+        // minimal payload: election_id if present
+        const electionId = row.election_id ?? row.election ?? row.id;
+        const confidence = Number(row.confidence ?? 0.5);
+        const priority = Number(row.priority ?? 3);
+        await client.query(
+          `INSERT INTO bot_suggestions(kind, payload, confidence, priority)
+           VALUES ($1, jsonb_build_object('election_id',$2)::jsonb, $3, $4)`,
+          [m.name, electionId, confidence, priority]
+        );
+        inserted++;
+      }
+    }
+    res.json({ ok:true, inserted, mcps: mcps.length });
+  } finally {
+    client.release();
+  }
+});
+```
+
+Wire it in your server:
+
+```ts
+// server/index.ts
+import { mcpRouter } from './routes/steward_mcp';
+app.use('/api/steward', mcpRouter);
+
+// Your existing /api/steward/scan can simply call POST /api/steward/mcps/scan internally
+```
+
+Your existing **applyAllSafe** logic already checks confidence/priority and uses your `applySuggestion` paths. DATE\_DRIFT will use the `autofix_sql` with the list of suggestion IDs (pass an array of election IDs to `$1`).
+
+---
+
+# 4) “Learning” without ML (safe & useful)
+
+You don’t need embeddings or extra complexity now. Use **labels + metrics**:
+
+* When someone clicks “Mark Correct / Wrong” in the UI, write to `steward_labels`.
+* Your thresholds can **self-tune within bounds**:
+
+  * If `precision_estimate` for an MCP > 0.90 for 7 days, lower `confidence_threshold` by 0.05 (min 0.60).
+  * If precision < 0.75, raise threshold by 0.05 (max 0.90) and disable autofix for that MCP until precision recovers.
+* These adjustments are a tiny nightly job (SQL UPDATE on `steward_mcp_packs`), fully auditable.
+
+Example nightly tuner (optional cron):
+
+```sql
+-- Lower threshold if precision >= 0.90
+UPDATE steward_mcp_packs m
+SET confidence_threshold = GREATEST(0.60, m.confidence_threshold - 0.05)
+FROM v_steward_mcp_metrics v
+WHERE v.kind = m.name AND v.precision_estimate >= 0.90 AND m.confidence_threshold > 0.60;
+
+-- Raise threshold and disable autofix if precision < 0.75
+UPDATE steward_mcp_packs m
+SET confidence_threshold = LEAST(0.90, m.confidence_threshold + 0.05),
+    notes = COALESCE(m.notes,'') || ' | AUTOFIX_SUSPENDED_LOW_PRECISION'
+FROM v_steward_mcp_metrics v
+WHERE v.kind = m.name AND v.precision_estimate < 0.75;
+```
+
+---
+
+# 5) Should we add vector/RAG now?
+
+**Not yet.** You already get high value with policy-as-data + authority facts. When you’re ready:
+
+* Add `pgvector` (if supported) and a small `authority_docs` table with embeddings.
+* Use it only to **assist** DATE\_DRIFT (attach citations) or to pre-seed MISSING\_CANDIDATES.
+* Keep decisions deterministic (authority\_facts win; embeddings just help find sources).
+
+---
+
+## Bottom line
+
+* **No new database**: extend **your current Postgres**.
+* Store **MCPs/policies in tables** → hot-swappable rules, versioned, audited.
+* Keep **learning simple**: labels → precision → auto-tune thresholds.
+* Grow later into RAG if/when needed; don’t front-load that complexity.
+
+If you want, I can also drop in **INSERT…SELECT** blocks that turn your existing views (`v_zero_candidate_hotlist`, `v_date_window_anomalies`) into suggestions automatically through `POST /api/steward/mcps/scan`.

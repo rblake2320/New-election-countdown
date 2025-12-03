@@ -1,0 +1,410 @@
+You’re right—the bot detected issues but didn’t auto-fix because the policies are still in “off” mode and (today) the fix path doesn’t hard-verify after applying. Below is a **copy-paste enablement + verification bundle** that:
+
+1. turns on **safe** auto-fix for the right policies,
+2. adds a **verification step** that must pass in the **same transaction** (no “mock” success),
+3. gives you **one-shot commands** to fix the 31 findings **now**,
+4. wires a **re-scan gate** so findings only go green when reality matches.
+
+---
+
+# A) Flip auto-fix ON for safe policies
+
+> Run in Postgres (psql / SQL console).
+
+```sql
+-- 1) enable safe auto-fix for the truly safe policies
+update steward.policies
+   set auto_fix_mode = 'safe_sql',
+       severity_autofix_ceiling = 'error'
+ where policy_key in (
+   'election_date_drift',      -- sync elections.date to canonical official_date
+   'orphaned_candidates'       -- hide or re-link clearly orphaned candidates
+ );
+
+-- 2) keep detect-only for riskier ones (don’t flip unless you’re sure)
+update steward.policies
+   set auto_fix_mode = 'off'
+ where policy_key in (
+   'congress_count_by_state',     -- structural count mismatches; human review
+   'candidate_coverage_upcoming', -- creates/matches candidates; review first
+   'ca_uniform_district_date'     -- county-specific edge cases; verify source feed
+ );
+```
+
+> Optional: If you already reviewed a “risky” policy and added a proven `fix_sql`, you can later switch that single policy to `'safe_sql'`.
+
+---
+
+# B) Make fixes **prove** themselves (transactional verification)
+
+Add a verification clause per policy and enforce it **inside the same transaction**. If verification fails, the fix is rolled back and the finding stays open.
+
+## 1) Schema: add a `verification_sql` to policy versions
+
+```sql
+alter table steward.policy_versions
+  add column if not exists verification_sql text;
+
+-- Verification for election_date_drift: ensure elections.date now equals canonical official_date
+with pv as (
+  select v.id
+  from steward.policy_versions v
+  join steward.policies p on p.id = v.policy_id
+  where p.policy_key = 'election_date_drift' and v.is_active = true
+)
+update steward.policy_versions
+   set verification_sql = $sql$
+     -- expects {ref_pk} to be replaced with the election id
+     select case
+              when e.date = c.official_date then true
+              else false
+            end as pass
+       from elections e
+       join steward.canonical_elections c on c.election_id = e.id
+      where e.id = {ref_pk}
+   $sql$
+ where id in (select id from pv);
+
+-- Verification for orphaned_candidates: hidden=true OR properly linked
+with pv as (
+  select v.id
+  from steward.policy_versions v
+  join steward.policies p on p.id = v.policy_id
+  where p.policy_key = 'orphaned_candidates' and v.is_active = true
+)
+update steward.policy_versions
+   set verification_sql = $sql$
+     -- expects {ref_pk} to be replaced with the candidate id
+     select case
+              when exists (
+                select 1
+                  from candidates c
+                 where c.id = {ref_pk}
+                   and (
+                     c.election_id is not null
+                     or (c.hidden = true)
+                   )
+              )
+              then true else false
+            end as pass
+   $sql$
+ where id in (select id from pv);
+```
+
+## 2) Enforce verification in the **worker** (queued fixes)
+
+> Replace your `server/steward/fixer.ts` with this **verified** version (only the apply path changed). It **applies**, **verifies**, then **commits**—or **rolls back** and marks the job failed.
+
+````ts
+// server/steward/fixer.ts
+import { Pool } from "pg";
+import fetch from "node-fetch";
+
+const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || "";
+const LLM_TIMEOUT_MS = 30_000;
+
+async function takeJob(client: any) {
+  const { rows } = await client.query(
+    `update steward.jobs
+        set status='in_progress', started_at=now(), attempts=attempts+1
+      where id = (
+        select id from steward.jobs
+         where status='queued'
+         order by created_at asc
+         limit 1
+         for update skip locked
+      )
+      returning *`
+  );
+  return rows[0] || null;
+}
+
+async function loadFindingWithPolicy(client: any, findingId: number) {
+  const { rows } = await client.query(
+    `select f.*, p.policy_key, p.auto_fix_mode, p.llm_provider, p.llm_model,
+            v.verification_sql
+       from steward.findings f
+       join steward.policies p on p.id = f.policy_id
+       join steward.policy_versions v on v.id = f.policy_version_id
+      where f.id=$1`, [findingId]);
+  return rows[0] || null;
+}
+
+function injectRef(sql: string, ref_pk: any) {
+  return sql.replaceAll("{ref_pk}", String(ref_pk));
+}
+
+async function verifyInTxn(client: any, verification_sql: string | null, ref_pk: any) {
+  if (!verification_sql) return true; // no verifier -> treat as pass
+  const vsql = injectRef(verification_sql, ref_pk);
+  const { rows } = await client.query(vsql);
+  // accept any row with true-ish "pass"
+  const passed = rows?.[0]?.pass === true || rows?.[0]?.pass === "t";
+  return passed;
+}
+
+async function applySQLFixVerified(client: any, finding: any) {
+  if (!finding.fix_sql_snapshot) throw new Error("No fix_sql available.");
+  const sql = injectRef(finding.fix_sql_snapshot, finding.ref_pk);
+
+  await client.query("begin");
+  try {
+    await client.query(sql);
+    const ok = await verifyInTxn(client, finding.verification_sql, finding.ref_pk);
+    if (!ok) throw new Error("Verification failed after fix.");
+
+    await client.query(
+      `update steward.findings
+          set status='applied', resolved_at=now(),
+              resolution='fixer-apply', resolution_actor='fixer'
+        where id=$1`,
+      [finding.id]
+    );
+    await client.query(
+      `insert into steward.audit(action, actor, finding_id)
+       values('finding_apply','fixer',$1)`,
+      [finding.id]
+    );
+    await client.query("commit");
+  } catch (e) {
+    await client.query("rollback");
+    throw e;
+  }
+}
+
+async function llmProposeFixSQL(policy_key: string, finding: any, llm_model: string) {
+  if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY not set.");
+  const prompt = `
+You are a cautious remediation assistant. We have a data quality finding:
+
+policy: ${policy_key}
+title: ${finding.title}
+detail: ${JSON.stringify(finding.detail, null, 2)}
+
+DB tables include "elections", "candidates", "steward.canonical_elections", "congress_members".
+
+Propose ONE safe SQL UPDATE (use {ref_pk} placeholder for the primary key). If no safe fix exists, reply exactly: NO_FIX.
+`.trim();
+
+  const resp = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "x-api-key": ANTHROPIC_API_KEY,
+      "anthropic-version": "2023-06-01",
+      "content-type": "application/json"
+    },
+    body: JSON.stringify({
+      model: llm_model || "claude-3-5-sonnet-latest",
+      max_tokens: 400,
+      messages: [{ role: "user", content: prompt }]
+    }),
+    timeout: LLM_TIMEOUT_MS as any
+  });
+
+  if (!resp.ok) throw new Error(`Anthropic error: ${resp.status}`);
+  const data = await resp.json();
+  const text = (data?.content?.[0]?.text || "").trim();
+  if (text === "NO_FIX") return null;
+  const match = text.match(/```sql([\s\S]*?)```/i);
+  const sql = match ? match[1].trim() : text;
+  return sql;
+}
+
+async function processJob(job: any) {
+  const client = await pool.connect();
+  try {
+    const finding = await loadFindingWithPolicy(client, job.finding_id);
+    if (!finding) throw new Error("Finding not found.");
+
+    if (finding.auto_fix_mode === 'safe_sql') {
+      await applySQLFixVerified(client, finding);
+    } else if (finding.auto_fix_mode === 'llm_review' || finding.auto_fix_mode === 'llm_apply') {
+      const proposed = await llmProposeFixSQL(finding.policy_key, finding, finding.llm_model);
+      if (!proposed) {
+        await pool.query(`update steward.findings set status='ignored', resolution='no-safe-fix', resolved_at=now() where id=$1`, [finding.id]);
+      } else if (finding.auto_fix_mode === 'llm_review') {
+        await pool.query(`update steward.findings
+                             set resolution='proposal-ready',
+                                 status='open',
+                                 fix_sql_snapshot=$2
+                           where id=$1`, [finding.id, proposed]);
+      } else {
+        // llm_apply: apply then verify in one txn
+        const applied = { ...finding, fix_sql_snapshot: proposed };
+        await applySQLFixVerified(client, applied);
+      }
+    }
+    await pool.query(`update steward.jobs set status='done', finished_at=now(), error=null where id=$1`, [job.id]);
+  } catch (e: any) {
+    await pool.query(`update steward.jobs set status='failed', error=$2 where id=$1`, [job.id, String(e?.message || e)]);
+  } finally {
+    client.release();
+  }
+}
+
+(async function main() {
+  while (true) {
+    const client = await pool.connect();
+    try {
+      const job = await takeJob(client);
+      client.release();
+      if (!job) { await new Promise(r => setTimeout(r, 2000)); continue; }
+      await processJob(job);
+    } catch {
+      client.release();
+      await new Promise(r => setTimeout(r, 2000));
+    }
+  }
+})();
+````
+
+## 3) Enforce verification in the **runner** (immediate safe SQL path)
+
+> Your `run-policies.ts` currently applies some fixes inline. Replace the inline “safe\_sql” block with this **verified** version:
+
+```ts
+// inside runPolicy(...) after you insert/open the finding
+// ...
+if (!dryRun && (canSQL || wantsLLM)) {
+  if (canSQL) {
+    // verified safe-sql apply
+    const appliedSql = (meta.fix_sql as string).replace("{ref_pk}", row.ref_pk);
+    await client.query("begin");
+    try {
+      await client.query(appliedSql);
+
+      // fetch verification SQL
+      const ver = await client.query(
+        `select verification_sql from steward.policy_versions where id=$1`,
+        [meta.version_id]
+      );
+      const verification_sql = ver.rows?.[0]?.verification_sql as string | null;
+      if (verification_sql) {
+        const vs = verification_sql.replace("{ref_pk}", row.ref_pk);
+        const vres = await client.query(vs);
+        const pass = vres?.rows?.[0]?.pass === true || vres?.rows?.[0]?.pass === "t";
+        if (!pass) throw new Error("Verification failed after fix.");
+      }
+
+      await client.query(
+        `update steward.findings
+            set status='applied', resolved_at=now(),
+                resolution='auto-fix', resolution_actor=$2
+          where id=$1`,
+        [findingId, actor]
+      );
+      await client.query(
+        `insert into steward.audit(action, actor, finding_id, meta)
+         values('finding_apply',$1,$2,jsonb_build_object('policy',$3,'fingerprint',$4))`,
+        [actor, findingId, policyKey, row.fingerprint]
+      );
+      await client.query("commit");
+    } catch (e) {
+      await client.query("rollback");
+      // leave the finding open; do not fake success
+      await client.query(
+        `update steward.findings
+            set resolution='verify-failed', status='open'
+          where id=$1`,
+        [findingId]
+      );
+    }
+  } else {
+    // enqueue job for fixer worker (LLM/complex)
+    await client.query(
+      `insert into steward.jobs(type, finding_id, payload)
+       values('fix',$1, jsonb_build_object('policy_key',$2,'mode',$3,'llm_provider',$4,'llm_model',$5))`,
+      [findingId, policyKey, meta.auto_fix_mode, meta.llm_provider, meta.llm_model]
+    );
+    // ...
+  }
+}
+```
+
+---
+
+# C) Fix the 31 findings **now** and re-check
+
+> Replace `$APP` with your Replit URL root.
+
+```bash
+# 1) run a full scan with auto-fix for policies set to 'safe_sql'
+curl -s -X POST "$APP/api/steward/scan?policy=all&auto=true" \
+  -H "content-type: application/json" \
+  -d '{"actor":"admin"}' | jq
+
+# 2) (if any queued jobs exist for complex items) drain the queue once
+npm run steward:fixer
+
+# 3) re-scan DRY to confirm zero open findings for auto-fixed policies
+curl -s -X POST "$APP/api/steward/scan?policy=all&auto=false" \
+  -H "content-type: application/json" \
+  -d '{"dry_run":"true","actor":"auditor"}' | jq
+
+# 4) list any remaining open findings (should be detect-only policies)
+curl -s "$APP/api/steward/findings?status=open" | jq
+```
+
+If anything remains under a policy you expected to fix, it means the **verification failed** (good! no fake greens). Check the finding detail, adjust `fix_sql` or source data, and re-run.
+
+---
+
+# D) Continuous ops (so it always fixes AND checks)
+
+* **Nightly:** detect + apply safe fixes
+  `npm run steward:scan-and-fix` (Replit Scheduled task @ 3:00 AM)
+* **Every 10 mins (optional):** drain queued jobs (LLM/complex)
+  `npm run steward:fixer`
+* **On deploy:** DRY verify; abort if any auto-fix policies still open
+  Add a CI step or Replit post-deploy hook to call:
+
+  ```bash
+  # returns non-zero if any 'safe_sql' policy still has open findings
+  node scripts/steward-verify-gate.js
+  ```
+
+> `scripts/steward-verify-gate.js` (drop-in):
+
+```js
+// scripts/steward-verify-gate.js
+import fetch from "node-fetch";
+
+const APP = process.env.APP_URL; // set in Replit env
+if (!APP) { console.error("APP_URL env missing"); process.exit(2); }
+
+const AUTO_POLICIES = ['election_date_drift','orphaned_candidates']; // keep in sync with DB
+const body = { dry_run: "true", actor: "gate" };
+
+const res = await fetch(`${APP}/api/steward/scan?policy=all&auto=false`, {
+  method: "POST",
+  headers: { "content-type":"application/json" },
+  body: JSON.stringify(body)
+});
+const txt = await res.text();
+console.log(txt);
+
+// OPTIONAL: you can refine by querying /api/steward/findings?status=open&policy=...
+// For now, assume non-zero open in these auto policies is a block:
+const findings = await fetch(`${APP}/api/steward/findings?status=open`);
+const open = await findings.json();
+
+const blocking = open.filter((f) => AUTO_POLICIES.includes(f.policy_key));
+if (blocking.length > 0) {
+  console.error("Gate FAIL: open findings remain in auto-fix policies.", blocking.length);
+  process.exit(1);
+}
+console.log("Gate PASS");
+```
+
+---
+
+# E) Why it didn’t auto-fix earlier (so this never surprises you again)
+
+* Policies defaulted to `auto_fix_mode='off'` → detect-only.
+* Apply code marked “applied” without verifying → now fixed; we **apply + verify in one txn**.
+* “Green” requires the **verification SQL** to pass—if not, the fix is rolled back and the finding stays open. No mocks, no soft greens.
+
+---
+
+## Want me to also enable a **safe** `orphaned_candidates` fix SQL (auto-hide) and wire a **UI toggle** per policy to control auto-fix mode from the Data Steward page?

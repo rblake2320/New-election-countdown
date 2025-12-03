@@ -1,0 +1,333 @@
+Excellent—this is exactly the context I needed. With 611 elections, per-card countdowns are correct; we’ll keep them, but make them **calm, compact, and consistent**. Below is a copy-paste PR you can apply in Replit to fix the look/spacing, remove “Invalid Date/ms”, reduce CTA noise, and harden behavior when ProPublica/OpenAI keys aren’t present.
+
+---
+
+# ✅ What this ships
+
+* Compact **countdown on every card** (two units max; `mm:ss` < 60m; no ms).
+* Correct **date parsing/formatting** (no more “Invalid Date”).
+* Clean **ElectionCard** layout (one primary CTA; chips muted).
+* **Virtualized grid** for 600+ items (smooth scroll).
+* Gentle **loading/empty/error** states and **key-aware UI** (features that need missing keys auto-degrade).
+* A11y: tabular digits, focus rings, aria labels.
+* Replit/Vite HMR stability kept.
+
+---
+
+## 1) Utilities — robust time handling
+
+```ts
+// src/utils/date.ts
+import { DateTime } from "luxon";
+
+export function parseUTC(input?: string | number | Date) {
+  if (!input) return null;
+  const dt = typeof input === "string"
+    ? DateTime.fromISO(input, { zone: "utc" })
+    : DateTime.fromJSDate(new Date(input), { zone: "utc" });
+  return dt.isValid ? dt : null;
+}
+
+export function formatDateLocal(iso?: string, zone = "local") {
+  const dt = parseUTC(iso)?.setZone(zone);
+  return dt ? dt.toFormat("EEE, LLL d, yyyy") : "Date TBD";
+}
+
+/** Calm per-card countdown. Two units max. <60m => mm:ss. No ms. */
+export function formatCountdown(iso?: string, zone = "local") {
+  const t = parseUTC(iso)?.setZone(zone);
+  if (!t) return { label: "TBD", urgent: false, live: false };
+  const diff = t.diffNow(["days", "hours", "minutes", "seconds"]);
+  if (diff.valueOf() <= 0) return { label: "Today", urgent: true, live: false };
+
+  const d = Math.floor(diff.days);
+  const h = Math.floor(diff.hours);
+  const m = Math.floor(diff.minutes);
+  const s = Math.max(0, Math.floor(diff.seconds));
+
+  if (d === 0 && h === 0) return { label: `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`, urgent: true,  live: true  };
+  if (d === 0)             return { label: `${h}h ${m}m`,                                        urgent: true,  live: false };
+  return                           { label: `${d}d ${h}h`,                                        urgent: false, live: false };
+}
+```
+
+```bash
+pnpm add luxon
+```
+
+---
+
+## 2) Countdown pill (drop-in anywhere)
+
+```tsx
+// src/components/Countdown.tsx
+import { useEffect, useMemo, useState } from "react";
+import { DateTime } from "luxon";
+import { formatCountdown } from "@/utils/date";
+
+export default function Countdown({ when }: { when?: string }) {
+  const [now, setNow] = useState(DateTime.now());
+  const { label, urgent, live } = useMemo(
+    () => formatCountdown(when),
+    [when, now.toMillis()]
+  );
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(DateTime.now()), live ? 1000 : 60_000);
+    return () => clearInterval(id);
+  }, [live]);
+
+  return (
+    <span
+      className={`font-mono tabular-nums text-[13px] px-1.5 py-0.5 rounded
+        ${urgent ? "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-300"
+                 : "bg-muted text-foreground/80"}`}
+      aria-label={`Time remaining ${label}`}
+    >
+      {label}
+    </span>
+  );
+}
+```
+
+---
+
+## 3) Clean card (one primary CTA; tidy meta; countdown stays)
+
+```tsx
+// src/components/ElectionCard.tsx
+import Countdown from "@/components/Countdown";
+import { formatDateLocal } from "@/utils/date";
+
+type Election = {
+  id: string;
+  title: string;
+  start_date?: string;  // ISO (UTC)
+  state?: string;       // e.g., "VA"
+  type?: ("general"|"primary"|"runoff"|"special")[];
+  level?: ("federal"|"state"|"local")[];
+  candidates?: number;
+};
+
+export default function ElectionCard({ e }: { e: Election }) {
+  return (
+    <article className="rounded-2xl border shadow-sm p-4 hover:shadow-md transition">
+      <div className="flex items-start justify-between gap-3">
+        <h3 className="text-sm font-semibold leading-tight pr-2">{e.title}</h3>
+        <Countdown when={e.start_date} />
+      </div>
+
+      <div className="mt-1 text-xs text-muted-foreground">
+        {formatDateLocal(e.start_date)} · {e.state ?? "US"}
+      </div>
+
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {(e.type ?? []).map(t => (
+          <span key={t} className="text-[11px] px-2 py-0.5 rounded-full bg-primary/10 text-primary">{t}</span>
+        ))}
+        {(e.level ?? []).map(l => (
+          <span key={l} className="text-[11px] px-2 py-0.5 rounded-full bg-secondary/20 text-secondary-foreground">{l}</span>
+        ))}
+        {e.candidates ? <span className="text-[11px] text-muted-foreground">{e.candidates} candidates</span> : null}
+      </div>
+
+      <div className="mt-3 flex items-center justify-between">
+        <a
+          href={`/elections/${e.id}`}
+          className="inline-flex items-center justify-center text-xs h-8 px-3 rounded-lg border bg-background hover:bg-muted"
+          aria-label={`View details for ${e.title}`}
+        >
+          Details
+        </a>
+        {/* Secondary actions move into the Details page to reduce noise */}
+      </div>
+    </article>
+  );
+}
+```
+
+---
+
+## 4) Virtualized grid (smooth for 611 items)
+
+```tsx
+// src/components/ElectionGrid.tsx
+import { VirtuosoGrid } from "react-virtuoso";
+import ElectionCard from "@/components/ElectionCard";
+
+export default function ElectionGrid({ data }: { data: any[] }) {
+  return (
+    <VirtuosoGrid
+      style={{ height: "calc(100vh - 240px)" }}
+      totalCount={data.length}
+      itemContent={(i) => <ElectionCard e={data[i]} />}
+      listClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3"
+      components={{ Footer: () => <div className="h-2" /> }}
+    />
+  );
+}
+```
+
+```bash
+pnpm add react-virtuoso
+```
+
+---
+
+## 5) Hook it up on the page (TanStack Query + graceful key checks)
+
+```tsx
+// src/pages/Elections.tsx
+import { useQuery } from "@tanstack/react-query";
+import ElectionGrid from "@/components/ElectionGrid";
+
+function useApiKeysStatus() {
+  return {
+    hasPropublica: !!import.meta.env.VITE_PROPUBLICA_KEY,
+    hasOpenAI:     !!import.meta.env.VITE_OPENAI_KEY,
+  };
+}
+
+export default function ElectionsPage() {
+  const keys = useApiKeysStatus();
+
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["elections", { limit: 1000 }],
+    queryFn: async () => {
+      const res = await fetch("/api/elections?limit=1000");
+      if (!res.ok) throw new Error("Failed to fetch elections");
+      return (await res.json()) as any[];
+    }
+  });
+
+  if (isLoading) return <div className="p-6 text-sm text-muted-foreground">Loading elections…</div>;
+  if (isError)   return <div className="p-6 text-sm text-red-600">Could not load elections.</div>;
+  if (!data?.length) return <div className="p-6 text-sm">No elections found.</div>;
+
+  return (
+    <div className="p-4 space-y-3">
+      {!keys.hasPropublica && (
+        <div className="text-xs px-3 py-2 rounded-lg bg-amber-50 text-amber-800 border">
+          ProPublica features are limited until a key is added.
+        </div>
+      )}
+      {!keys.hasOpenAI && (
+        <div className="text-xs px-3 py-2 rounded-lg bg-amber-50 text-amber-800 border">
+          AI features are disabled until an OpenAI key is added.
+        </div>
+      )}
+      <ElectionGrid data={data} />
+    </div>
+  );
+}
+```
+
+> This keeps the UI solid even while **7/9 APIs are working**. Items that need OpenAI/ProPublica simply don’t render action chips until keys exist.
+
+---
+
+## 6) Replace the noisy timer blocks **everywhere** with this line
+
+```tsx
+// On any card/list item:
+<div className="flex items-center justify-between">
+  <span className="text-xs text-muted-foreground">{formatDateLocal(e.start_date)}</span>
+  <Countdown when={e.start_date} />
+</div>
+```
+
+---
+
+## 7) A11y + polish checklist (apply now)
+
+* Keep **one primary CTA** (“Details”) per card; put others on the details screen.
+* All icon buttons have `aria-label`.
+* Don’t remove focus rings; ensure visible focus state.
+* Use `tabular-nums` for countdowns to prevent digit jitter.
+* No `aria-live` on ticking numbers (avoid SR spam).
+* Contrast ≥ 4.5:1 for chips/muted text.
+
+---
+
+## 8) Tests to add (Vitest/RTL) — copy/paste
+
+```ts
+// src/components/__tests__/Countdown.test.tsx
+import { render, screen } from "@testing-library/react";
+import Countdown from "@/components/Countdown";
+
+vi.useFakeTimers();
+
+test("shows mm:ss when under 60 minutes", () => {
+  const future = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+  render(<Countdown when={future} />);
+  expect(screen.getByText(/\d{2}:\d{2}/)).toBeInTheDocument();
+});
+
+test("shows Dd Hh when days remain", () => {
+  const future = new Date(Date.now() + 49 * 60 * 60 * 1000).toISOString();
+  render(<Countdown when={future} />);
+  expect(screen.getByText(/\d+d \d+h/)).toBeInTheDocument();
+});
+
+test("handles invalid date gracefully", () => {
+  render(<Countdown when={undefined} />);
+  expect(screen.getByText(/TBD|Today/)).toBeInTheDocument();
+});
+```
+
+```ts
+// src/utils/__tests__/date.test.ts
+import { formatDateLocal, formatCountdown } from "@/utils/date";
+
+test("formatDateLocal returns friendly date", () => {
+  const s = formatDateLocal("2025-11-03T12:00:00Z");
+  expect(s).toMatch(/\w{3}, \w{3} \d{1,2}, 2025/);
+});
+
+test("formatCountdown caps to two units", () => {
+  const f = formatCountdown("2025-11-03T12:00:00Z");
+  expect(f.label.split(" ").length).toBeLessThanOrEqual(2);
+});
+```
+
+---
+
+## 9) Keep Replit stable (if not already applied)
+
+```ts
+// vite.config.ts (unchanged from earlier guidance)
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+
+const host =
+  process.env.REPL_SLUG && process.env.REPL_OWNER
+    ? `${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`
+    : "localhost";
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    host: true,
+    strictPort: true,
+    port: 5173,
+    hmr: { protocol: host === "localhost" ? "ws" : "wss", host, clientPort: 443, path: "/vite-hmr" },
+    watch: { usePolling: true },
+  },
+  preview: { port: 4173, host: true },
+});
+```
+
+---
+
+## 10) Acceptance (fast QA)
+
+* Every item displays a countdown; **no milliseconds**; never “Invalid Date”.
+* Items under 60 minutes tick `mm:ss`; others tick only once/minute.
+* Cards have **one** clear action; chips are small and quiet.
+* Scrolling the grid of **611 elections** is smooth (virtualized).
+* Axe/Lighthouse a11y score ≥ 95.
+
+---
+
+If you want, say “**make a single patch**” and I’ll output a unified diff that you can `git apply` in Replit to drop all of this in one shot.

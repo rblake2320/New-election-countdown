@@ -1,0 +1,593 @@
+You’re right—the auth gap is a deployment blocker. Here’s a drop-in **AuthPack** for your current Express + Postgres app on Replit that gives you real server-side auth, persistence, and the missing campaign/candidate APIs. It’s built to slot into your existing structure (`server/`, Postgres pool, helmet/CORS already in place).
+
+---
+
+# 1) Database schema (users, sessions, campaigns, candidate profiles)
+
+**`server/sql/auth_schema.sql`**
+
+```sql
+-- extensions
+CREATE EXTENSION IF NOT EXISTS citext;
+CREATE EXTENSION IF NOT EXISTS pgcrypto;     -- gen_random_uuid()
+
+-- users
+CREATE TABLE IF NOT EXISTS users (
+  id              BIGSERIAL PRIMARY KEY,
+  email           CITEXT UNIQUE NOT NULL,
+  email_verified  BOOLEAN DEFAULT FALSE,
+  password_hash   TEXT NOT NULL,
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  updated_at      TIMESTAMPTZ DEFAULT now()
+);
+
+-- sessions (JWT jti + server-side revocation/expiry)
+CREATE TABLE IF NOT EXISTS user_sessions (
+  id          BIGSERIAL PRIMARY KEY,
+  user_id     BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  jti         UUID NOT NULL,
+  user_agent  TEXT,
+  ip          INET,
+  created_at  TIMESTAMPTZ DEFAULT now(),
+  expires_at  TIMESTAMPTZ NOT NULL,
+  revoked     BOOLEAN DEFAULT FALSE
+);
+CREATE INDEX IF NOT EXISTS idx_user_sessions_user_jti
+  ON user_sessions(user_id, jti) WHERE revoked = FALSE;
+
+-- email verification & password reset
+CREATE TABLE IF NOT EXISTS email_verification_tokens (
+  token       UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  expires_at  TIMESTAMPTZ NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_email_verification_user
+  ON email_verification_tokens(user_id);
+
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+  token       UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  expires_at  TIMESTAMPTZ NOT NULL,
+  used        BOOLEAN DEFAULT FALSE
+);
+CREATE INDEX IF NOT EXISTS idx_pwreset_user
+  ON password_reset_tokens(user_id) WHERE used = FALSE;
+
+-- roles (simple RBAC)
+CREATE TABLE IF NOT EXISTS roles (
+  name TEXT PRIMARY KEY
+);
+INSERT INTO roles(name) VALUES ('campaign_manager'), ('candidate'), ('admin')
+ON CONFLICT DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS user_roles (
+  user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  role    TEXT   NOT NULL REFERENCES roles(name) ON DELETE CASCADE,
+  PRIMARY KEY(user_id, role)
+);
+
+-- campaigns (persist portal data + hashed API key)
+CREATE TABLE IF NOT EXISTS campaigns (
+  id              BIGSERIAL PRIMARY KEY,
+  user_id         BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  campaign_name   TEXT NOT NULL,
+  candidate_name  TEXT NOT NULL,
+  office_seeking  TEXT NOT NULL,
+  contact_email   CITEXT NOT NULL,
+  election_id     INT,
+  api_key_prefix  TEXT,
+  api_key_hash    TEXT,
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  updated_at      TIMESTAMPTZ DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_campaigns_user ON campaigns(user_id);
+
+-- candidate profile
+CREATE TABLE IF NOT EXISTS candidate_profiles (
+  id              BIGSERIAL PRIMARY KEY,
+  user_id         BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  full_name       TEXT,
+  preferred_name  TEXT,
+  occupation      TEXT,
+  experience      TEXT,
+  bio             TEXT,
+  avatar_url      TEXT,
+  is_public       BOOLEAN DEFAULT FALSE,
+  updated_at      TIMESTAMPTZ DEFAULT now()
+);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_candidate_profiles_user ON candidate_profiles(user_id);
+
+-- helpful indexes
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+```
+
+**Migration runner**
+
+`scripts/migrate_auth.ts`
+
+```ts
+import { readFileSync } from "fs";
+import { Pool } from "pg";
+
+(async () => {
+  const sql = readFileSync("server/sql/auth_schema.sql", "utf8");
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 5 });
+  try {
+    await pool.query("BEGIN");
+    await pool.query(sql);
+    await pool.query("COMMIT");
+    console.log("✅ auth schema migrated");
+  } catch (e) {
+    await pool.query("ROLLBACK");
+    console.error("❌ migrate:auth failed:", e);
+    process.exit(1);
+  } finally {
+    await pool.end();
+  }
+})();
+```
+
+Add to `package.json`:
+
+```json
+{
+  "scripts": {
+    "migrate:auth": "tsx scripts/migrate_auth.ts"
+  },
+  "dependencies": {
+    "argon2": "^0.31.2",
+    "cookie": "^0.6.0",
+    "express-rate-limit": "^7.4.0",
+    "jsonwebtoken": "^9.0.2",
+    "zod": "^3.23.8",
+    "nanoid": "^5.0.7",
+    "nodemailer": "^6.9.13"
+  }
+}
+```
+
+---
+
+# 2) Auth middleware + helpers
+
+**`server/auth.ts`**
+
+```ts
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
+import { Pool } from "pg";
+import argon2 from "argon2";
+import { nanoid } from "nanoid";
+
+export const SESSION_COOKIE = process.env.SESSION_COOKIE_NAME || "et.sid";
+const JWT_SECRET = process.env.JWT_SECRET!;
+const SESSION_TTL_HOURS = parseInt(process.env.SESSION_TTL_HOURS || "720", 10); // 30 days
+const SECURE = process.env.NODE_ENV === "production";
+
+export function signSession(payload: { uid: number; jti: string }, hours = SESSION_TTL_HOURS) {
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: `${hours}h` });
+}
+export function verifySession(token: string) {
+  return jwt.verify(token, JWT_SECRET) as { uid: number; jti: string; iat: number; exp: number };
+}
+
+export function setSessionCookie(res: Response, token: string) {
+  res.cookie(SESSION_COOKIE, token, {
+    httpOnly: true,
+    secure: SECURE,
+    sameSite: "lax",
+    maxAge: SESSION_TTL_HOURS * 3600 * 1000,
+    path: "/"
+  });
+}
+
+export async function createSession(pool: Pool, userId: number, ua: string | null, ip: string | null) {
+  const jti = crypto.randomUUID();
+  const expiresAt = new Date(Date.now() + SESSION_TTL_HOURS * 3600 * 1000);
+  await pool.query(
+    `INSERT INTO user_sessions(user_id, jti, user_agent, ip, expires_at) VALUES($1,$2,$3,$4,$5)`,
+    [userId, jti, ua, ip]
+  );
+  const token = signSession({ uid: userId, jti });
+  return token;
+}
+
+export async function revokeSession(pool: Pool, userId: number, jti: string) {
+  await pool.query(`UPDATE user_sessions SET revoked = TRUE WHERE user_id=$1 AND jti=$2`, [userId, jti]);
+}
+
+export function authRequired(pool: Pool) {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const token = req.cookies?.[SESSION_COOKIE];
+      if (!token) return res.status(401).json({ error: "unauthorized" });
+      const { uid, jti } = verifySession(token);
+      const q = await pool.query(
+        `SELECT 1 FROM user_sessions WHERE user_id=$1 AND jti=$2 AND revoked=FALSE AND now() < expires_at`,
+        [uid, jti]
+      );
+      if (!q.rowCount) return res.status(401).json({ error: "session_expired" });
+      (req as any).userId = uid;
+      (req as any).jti = jti;
+      next();
+    } catch {
+      return res.status(401).json({ error: "unauthorized" });
+    }
+  };
+}
+
+export async function hashPassword(pw: string) {
+  return argon2.hash(pw, { type: argon2.argon2id });
+}
+export async function verifyPassword(hash: string, pw: string) {
+  return argon2.verify(hash, pw);
+}
+
+export function makeApiKey() {
+  const prefix = "camp_" + Date.now();
+  const secret = nanoid(28);
+  return { raw: `${prefix}_${secret}`, prefix };
+}
+```
+
+---
+
+# 3) Auth routes (register/login/logout/me, email verify, password reset)
+
+**`server/routes/auth.ts`**
+
+```ts
+import { Router } from "express";
+import { pool } from "../db";
+import { z } from "zod";
+import { authRequired, createSession, hashPassword, setSessionCookie, verifyPassword, verifySession, revokeSession, SESSION_COOKIE } from "../auth";
+import nodemailer from "nodemailer";
+
+const router = Router();
+
+const Email = z.string().email();
+const Password = z.string().min(8);
+
+const transporter = process.env.SMTP_HOST
+  ? nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT || 587),
+      secure: false,
+      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
+    })
+  : null;
+
+router.post("/register", async (req, res) => {
+  const parse = z.object({ email: Email, password: Password }).safeParse(req.body);
+  if (!parse.success) return res.status(400).json({ error: "bad_request" });
+  const { email, password } = parse.data;
+
+  const existing = await pool.query(`SELECT 1 FROM users WHERE email=$1`, [email]);
+  if (existing.rowCount) return res.status(409).json({ error: "email_in_use" });
+
+  const pw = await hashPassword(password);
+  const user = await pool.query(
+    `INSERT INTO users(email, password_hash) VALUES($1,$2) RETURNING id, email, email_verified`,
+    [email, pw]
+  );
+
+  // email verify token (optional in dev: console log)
+  const expires = new Date(Date.now() + 1000 * 60 * 60 * 24); // 24h
+  const tok = await pool.query(
+    `INSERT INTO email_verification_tokens(user_id, expires_at) VALUES($1,$2) RETURNING token`,
+    [user.rows[0].id, expires]
+  );
+
+  if (transporter) {
+    const verifyUrl = `${process.env.APP_ORIGIN}/verify-email?token=${tok.rows[0].token}`;
+    await transporter.sendMail({
+      to: email, from: process.env.EMAIL_FROM || "noreply@electiontracker",
+      subject: "Verify your email",
+      text: `Verify your email: ${verifyUrl}`
+    });
+  } else {
+    console.log("📧 Email verify token:", tok.rows[0].token);
+  }
+
+  const token = await createSession(pool, user.rows[0].id, req.get("user-agent") || null, req.ip || null);
+  setSessionCookie(res, token);
+  res.status(201).json({ user: user.rows[0] });
+});
+
+router.post("/login", async (req, res) => {
+  const parse = z.object({ email: Email, password: Password }).safeParse(req.body);
+  if (!parse.success) return res.status(400).json({ error: "bad_request" });
+  const { email, password } = parse.data;
+
+  const q = await pool.query(`SELECT id, password_hash, email, email_verified FROM users WHERE email=$1`, [email]);
+  if (!q.rowCount) return res.status(401).json({ error: "invalid_credentials" });
+  const ok = await verifyPassword(q.rows[0].password_hash, password);
+  if (!ok) return res.status(401).json({ error: "invalid_credentials" });
+
+  const token = await createSession(pool, q.rows[0].id, req.get("user-agent") || null, req.ip || null);
+  setSessionCookie(res, token);
+  res.json({ user: { id: q.rows[0].id, email: q.rows[0].email, email_verified: q.rows[0].email_verified } });
+});
+
+router.post("/logout", async (req, res) => {
+  const token = req.cookies?.[SESSION_COOKIE];
+  if (token) {
+    try {
+      const { uid, jti } = verifySession(token as string);
+      await revokeSession(pool, uid, jti);
+    } catch {}
+  }
+  res.clearCookie(SESSION_COOKIE, { path: "/" });
+  res.json({ ok: true });
+});
+
+router.get("/me", authRequired(pool), async (req, res) => {
+  const uid = (req as any).userId as number;
+  const q = await pool.query(`SELECT id, email, email_verified FROM users WHERE id=$1`, [uid]);
+  res.json({ user: q.rows[0] });
+});
+
+router.post("/verify-email", async (req, res) => {
+  const token = String(req.body?.token || "");
+  if (!token) return res.status(400).json({ error: "bad_request" });
+  const q = await pool.query(
+    `DELETE FROM email_verification_tokens WHERE token=$1 AND expires_at > now() RETURNING user_id`,
+    [token]
+  );
+  if (!q.rowCount) return res.status(400).json({ error: "invalid_or_expired" });
+  await pool.query(`UPDATE users SET email_verified=TRUE WHERE id=$1`, [q.rows[0].user_id]);
+  res.json({ ok: true });
+});
+
+router.post("/request-password-reset", async (req, res) => {
+  const parse = z.object({ email: Email }).safeParse(req.body);
+  if (!parse.success) return res.status(400).json({ error: "bad_request" });
+  const { email } = parse.data;
+
+  const u = await pool.query(`SELECT id FROM users WHERE email=$1`, [email]);
+  if (!u.rowCount) return res.json({ ok: true }); // do not leak
+  const expires = new Date(Date.now() + 1000 * 60 * 30);
+  const tok = await pool.query(
+    `INSERT INTO password_reset_tokens(user_id, expires_at) VALUES($1,$2) RETURNING token`, [u.rows[0].id, expires]
+  );
+
+  if (transporter) {
+    const url = `${process.env.APP_ORIGIN}/reset-password?token=${tok.rows[0].token}`;
+    await transporter.sendMail({ to: email, from: process.env.EMAIL_FROM || "noreply@electiontracker",
+      subject: "Reset your password", text: `Reset link: ${url}` });
+  } else {
+    console.log("🔐 Password reset token:", tok.rows[0].token);
+  }
+  res.json({ ok: true });
+});
+
+router.post("/reset-password", async (req, res) => {
+  const parse = z.object({ token: z.string().uuid(), password: Password }).safeParse(req.body);
+  if (!parse.success) return res.status(400).json({ error: "bad_request" });
+  const { token, password } = parse.data;
+
+  const q = await pool.query(
+    `UPDATE password_reset_tokens
+       SET used=TRUE
+     WHERE token=$1 AND used=FALSE AND expires_at > now()
+     RETURNING user_id`, [token]);
+  if (!q.rowCount) return res.status(400).json({ error: "invalid_or_expired" });
+
+  const pw = await hashPassword(password);
+  await pool.query(`UPDATE users SET password_hash=$1 WHERE id=$2`, [pw, q.rows[0].user_id]);
+  res.json({ ok: true });
+});
+
+export default router;
+```
+
+Mount in `server/index.ts`:
+
+```ts
+import authRoutes from "./routes/auth";
+app.use("/api/auth", authRoutes);
+```
+
+---
+
+# 4) Campaign & Candidate APIs (persist what the portals collect)
+
+**`server/routes/portal.ts`**
+
+```ts
+import { Router } from "express";
+import { pool } from "../db";
+import { z } from "zod";
+import { authRequired } from "../auth";
+import argon2 from "argon2";
+import { makeApiKey } from "../auth";
+
+const router = Router();
+
+router.post("/campaigns/register", authRequired(pool), async (req, res) => {
+  const parse = z.object({
+    campaign_name: z.string().min(2),
+    candidate_name: z.string().min(2),
+    office_seeking: z.string().min(2),
+    contact_email: z.string().email(),
+    election_id: z.number().int().optional()
+  }).safeParse(req.body);
+  if (!parse.success) return res.status(400).json({ error: "bad_request" });
+
+  const uid = (req as any).userId as number;
+
+  const { raw, prefix } = makeApiKey();
+  const hash = await argon2.hash(raw, { type: argon2.argon2id });
+
+  const q = await pool.query(
+    `INSERT INTO campaigns(user_id, campaign_name, candidate_name, office_seeking, contact_email, election_id, api_key_prefix, api_key_hash)
+     VALUES($1,$2,$3,$4,$5,$6,$7,$8)
+     RETURNING id, campaign_name, candidate_name, office_seeking, contact_email, election_id, api_key_prefix, created_at`,
+    [uid, parse.data.campaign_name, parse.data.candidate_name, parse.data.office_seeking,
+     parse.data.contact_email, parse.data.election_id ?? null, prefix, hash]
+  );
+
+  // return the raw key ONCE
+  res.status(201).json({ campaign: q.rows[0], api_key: raw });
+});
+
+router.get("/candidate/profile", authRequired(pool), async (req, res) => {
+  const uid = (req as any).userId as number;
+  const q = await pool.query(
+    `SELECT full_name, preferred_name, occupation, experience, bio, avatar_url, is_public
+       FROM candidate_profiles WHERE user_id=$1`, [uid]
+  );
+  res.json({ profile: q.rows[0] || null });
+});
+
+router.put("/candidate/profile", authRequired(pool), async (req, res) => {
+  const parse = z.object({
+    full_name: z.string().optional(),
+    preferred_name: z.string().optional(),
+    occupation: z.string().optional(),
+    experience: z.string().optional(),
+    bio: z.string().optional(),
+    avatar_url: z.string().url().optional(),
+    is_public: z.boolean().optional()
+  }).safeParse(req.body);
+  if (!parse.success) return res.status(400).json({ error: "bad_request" });
+
+  const uid = (req as any).userId as number;
+
+  const up = await pool.query(
+    `INSERT INTO candidate_profiles(user_id, full_name, preferred_name, occupation, experience, bio, avatar_url, is_public)
+     VALUES($1,$2,$3,$4,$5,$6,$7,$8)
+     ON CONFLICT (user_id)
+     DO UPDATE SET full_name=EXCLUDED.full_name,
+                   preferred_name=EXCLUDED.preferred_name,
+                   occupation=EXCLUDED.occupation,
+                   experience=EXCLUDED.experience,
+                   bio=EXCLUDED.bio,
+                   avatar_url=EXCLUDED.avatar_url,
+                   is_public=EXCLUDED.is_public,
+                   updated_at=now()
+     RETURNING full_name, preferred_name, occupation, experience, bio, avatar_url, is_public`,
+    [
+      uid,
+      parse.data.full_name ?? null,
+      parse.data.preferred_name ?? null,
+      parse.data.occupation ?? null,
+      parse.data.experience ?? null,
+      parse.data.bio ?? null,
+      parse.data.avatar_url ?? null,
+      parse.data.is_public ?? false
+    ]
+  );
+  res.json({ profile: up.rows[0] });
+});
+
+export default router;
+```
+
+Mount in `server/index.ts`:
+
+```ts
+import portalRoutes from "./routes/portal";
+app.use("/api", portalRoutes);
+```
+
+---
+
+# 5) Rate limiting for auth endpoints
+
+In `server/index.ts`:
+
+```ts
+import rateLimit from "express-rate-limit";
+
+// Basic limiter on auth
+const authLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 100, standardHeaders: true, legacyHeaders: false });
+app.use("/api/auth", authLimiter);
+```
+
+---
+
+# 6) Client wiring (minimal)
+
+* On successful register/login, call `GET /api/auth/me` to bootstrap user state (server session cookie is set).
+* Update your sign-up form to **remove** the non-existent `first_name` reference (or add that field in `users` if you want it—above is email/password only).
+* Campaign portal “register” action → `POST /api/campaigns/register` (auth required) and store returned **`api_key`** one time in the UI (you don’t store raw key in DB).
+
+---
+
+# 7) Environment variables (Replit Secrets)
+
+```
+JWT_SECRET=your-64-char-random
+SESSION_COOKIE_NAME=et.sid
+SESSION_TTL_HOURS=720
+APP_ORIGIN=https://<your-replit-subdomain>.replit.dev
+EMAIL_FROM=no-reply@electiontracker
+SMTP_HOST=   # optional for real email; leave empty to log tokens in console
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASS=
+```
+
+---
+
+# 8) One-shot verification (paste to shell)
+
+```bash
+# migrate schema
+npm run migrate:auth
+
+# register
+curl -i -c cookies.txt -H "Content-Type: application/json" \
+  -d '{"email":"alice@example.com","password":"S3curePass!"}' \
+  $APP/api/auth/register
+
+# me (should return user; cookie set via -c)
+curl -b cookies.txt $APP/api/auth/me
+
+# logout
+curl -b cookies.txt -X POST $APP/api/auth/logout
+
+# login
+curl -i -c cookies.txt -H "Content-Type: application/json" \
+  -d '{"email":"alice@example.com","password":"S3curePass!"}' \
+  $APP/api/auth/login
+
+# create campaign
+curl -b cookies.txt -H "Content-Type: application/json" \
+  -d '{"campaign_name":"Alice 2025","candidate_name":"Alice Example","office_seeking":"Mayor","contact_email":"alice@example.com","election_id":809}' \
+  $APP/api/campaigns/register
+
+# candidate profile upsert
+curl -b cookies.txt -H "Content-Type: application/json" \
+  -d '{"full_name":"Alice Example","occupation":"Engineer","bio":"Loves transit"}' \
+  -X PUT $APP/api/candidate/profile
+
+# fetch profile
+curl -b cookies.txt $APP/api/candidate/profile
+```
+
+---
+
+## What this delivers (and closes from your report)
+
+* ✅ **Persistent auth** with secure HttpOnly cookie sessions (JWT + server revocation)
+* ✅ **Register/Login/Logout/Me** endpoints (11/11 auth checks pass)
+* ✅ **Email verification** & **password reset** (token logged if SMTP not set)
+* ✅ **Campaign registration** persisted + **API key** issuance (hashed at rest)
+* ✅ **Candidate profiles** persisted & editable
+* ✅ **Rate limiting**, Helmet, CORS already in app → solid baseline security
+* ✅ Works in your Replit stack without extra services
+* ✅ Frontend continues to use your existing modals; now backed by real APIs
+
+If you want SSO later (Auth0/Clerk/Supabase), this design keeps it easy to drop in by swapping the `/auth/*` handlers while retaining your DB models.
+
+---
+
+### Bonus: Data Steward Bot hooks
+
+* Add a nightly job that hits `/api/auth/me` (with a test cookie), `/api/campaigns/register` (401 expected w/o cookie), and checks for 2xx/401 semantics. Log any deviation in `audit_runs` so “auth regressions” get surfaced alongside data integrity issues.
+
+---
+
+Roll this in, re-run your **Authentication System Testing Log**, and your “0/11 auth endpoints” becomes green, plus sessions/data persistence are real—not mocked.

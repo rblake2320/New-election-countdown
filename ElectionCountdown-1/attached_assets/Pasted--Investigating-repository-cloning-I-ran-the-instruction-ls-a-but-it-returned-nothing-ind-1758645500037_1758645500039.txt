@@ -1,0 +1,73 @@
+ Investigating repository cloning
+
+    I ran the instruction "ls -a," but it returned nothing, indicating either no files exist or maybe the working
+    directory is incorrect. Since I'm on Windows, it's likely the repository hasn't been cloned yet. The user provided a
+     URL for the repository, suggesting we need to clone it. However, our current working directory shows no local copy.
+     I need to address this by cloning the remote repository into the working directory.
+
+    Checking git installation
+
+    I need to try cloning the repository using the command git clone
+    https://github.com/rblake2320/ElectionsCountDown.git. However, before I do that, I should confirm if git is
+    installed. I'll run git --version first to make sure it's set up and ready to use. This way, I can avoid any issues
+    while attempting to clone the repository, ensuring everything runs smoothly for the user.
+
+    command
+
+    $ git --version
+
+    command.stdout (code: 0, duration: 1.9s)
+
+
+    Checking Git clone process
+
+    It looks like something didn't go as expected when I tried to run a command—there's no output, but the exit code is
+    0. That leaves me wondering if it succeeded. Maybe Git isn't installed, but it's not clear. Before I clone again, I
+    should check if there's a local clone in the working directory, though it seems to be empty. So, I’ll proceed with
+    the clone command now. Let’s see the output!
+
+    command
+
+    $ git clone https://github.com/rblake2320/ElectionsCountDown.git
+
+    command.stdout (code: 0, duration: 19.4s)
+
+
+    Investigating git output
+
+    It ran, but there was no output. That’s odd because git clone usually prints messages. Maybe git clone isn't
+    installed? But an exit code of 0 means it executed successfully, which suggests it could be something else.
+    According to the instructions, this is supposed to be a git-backed workspace, so git clone should work. Anyway, now
+    I need to find the directory, so I'll list the contents with ls -a.
+
+    command
+
+    $ ls -a
+
+    command.stdout (code: 0, duration: 1.9s)
+
+
+    Checking working directory issues
+
+    I’m noticing that it still shows nothing, which suggests that our working directory might be different. It’s
+    possible that the container isn't correctly configured for Windows. Maybe the working directory is set to
+    C:\Users\rblak and isn’t mounted? I think the next step is to check the present working directory using the pwd
+    command to confirm what's happening. Let’s figure this out!
+
+    command
+
+    $ pwd
+
+    command.stdout (code: 0, duration: 2.1s)
+
+
+    Troubleshooting interactive shell
+
+    I’m noticing something strange: the pwd command isn’t returning anything. It seems like the container.exec command
+    isn't working as expected. So, I’ll try using the session name "shell" to initiate an interactive shell. I’ll need
+    to allocate a TTY and then run bash to further investigate this issue. Let’s see if this helps resolve the
+    situation!
+
+    command
+
+    $ bash

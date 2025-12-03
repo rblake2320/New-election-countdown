@@ -1,0 +1,346 @@
+You’re right: the Civic Data Aggregator screens should default to human-friendly summaries, not big blobs of JSON/cURL. Keep the “code” for developers, but tuck it behind an explicit toggle. Also add a fast “Candidate ID finder” so people don’t have to paste IDs manually, and only show confidence % when we actually have a signal.
+
+Below is a tight set of UI/API changes that fixes those points without re-architecting anything.
+
+---
+
+# What to change (UX)
+
+1. **API Status tab**
+
+* Card shows: Connected/Disconnected, quota, last success, and a “Try it” button.
+* Add a “Code ▸” expander with tabs: **Response**, **cURL**, **JSON** (collapsed by default).
+
+2. **Policy Comparison tab**
+
+* Replace the free-text “Candidate IDs” input with a **Candidate ID Finder** (typeahead + paste-anything parser).
+* Hide “Confidence: 0%” badges; only render the meter if `confidence > 0`. Otherwise show “No signal from sources.”
+
+3. **Ballot Info tab**
+
+* Show an address box + **map preview** (small, non-interactive) and a clean empty-state: “No ballot information available for this address right now.”
+* “View raw JSON” is a collapsed toggle.
+
+4. **International tab**
+
+* Show a **summary card** (photo, party, seat, dates). Raw JSON behind a toggle.
+
+---
+
+# Frontend (React/TS) drops
+
+### 1) Generic “Code toggle” used on all cards
+
+```tsx
+// components/CodeToggle.tsx
+import {useState} from "react";
+
+export default function CodeToggle({
+  json,
+  curl,
+  response,
+  defaultOpen = false,
+}: { json?: unknown; curl?: string; response?: unknown; defaultOpen?: boolean }) {
+  const [open, setOpen] = useState(defaultOpen);
+  const [tab, setTab] = useState<'resp'|'json'|'curl'>('resp');
+
+  if (!json && !curl && !response) return null;
+
+  return (
+    <div className="mt-3">
+      <button className="text-sm text-primary underline" onClick={() => setOpen(!open)}>
+        {open ? 'Hide code' : 'Show code'}
+      </button>
+      {open && (
+        <div className="mt-2 rounded-lg border bg-muted/30">
+          <div className="flex gap-2 p-2 text-xs">
+            {response && <button className={tab==='resp'?'font-medium':''} onClick={()=>setTab('resp')}>Response</button>}
+            {json && <button className={tab==='json'?'font-medium':''} onClick={()=>setTab('json')}>JSON</button>}
+            {curl && <button className={tab==='curl'?'font-medium':''} onClick={()=>setTab('curl')}>cURL</button>}
+          </div>
+          <pre className="max-h-72 overflow-auto p-3 text-xs">
+            {tab==='resp' && (typeof response === 'string' ? response : JSON.stringify(response, null, 2))}
+            {tab==='json' && JSON.stringify(json, null, 2)}
+            {tab==='curl' && curl}
+          </pre>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+### 2) Confidence meter that hides at 0%
+
+```tsx
+// components/ConfidenceMeter.tsx
+export default function ConfidenceMeter({value}:{value:number}) {
+  if (!value || value <= 0) {
+    return <span className="text-xs text-muted-foreground">No signal</span>;
+  }
+  return (
+    <div className="flex items-center gap-2">
+      <div className="h-1.5 w-28 rounded bg-muted">
+        <div className="h-1.5 rounded bg-green-500" style={{width: `${Math.min(100,value)}%`}} />
+      </div>
+      <span className="text-xs">{Math.round(value)}%</span>
+    </div>
+  );
+}
+```
+
+### 3) Candidate ID Finder (typeahead + paste parser)
+
+```tsx
+// components/CandidateIdFinder.tsx
+import {useEffect, useMemo, useState} from 'react';
+
+type Suggestion = {
+  id: string;            // our canonical id
+  name: string;
+  party?: string;
+  state?: string;
+  fec_id?: string;
+  bioguide_id?: string;
+  votesmart_id?: string;
+};
+
+const ID_PATTERNS = [
+  {key:'fec_id', rx:/\b([HSMP]\d{7}|P\d{5}|C\d{8})\b/i},
+  {key:'bioguide_id', rx:/\b[A-Z]{1}\d{6}\b/},
+  {key:'votesmart_id', rx:/\b\d{4,7}\b/},
+  {key:'wikidata_id', rx:/\bQ\d+\b/i},
+];
+
+export default function CandidateIdFinder({
+  onSelect,
+  placeholder = "Search name, paste FEC/BioGuide/VoteSmart/Wikidata/URL…",
+  initial = [],
+}: {onSelect:(s:Suggestion)=>void; placeholder?:string; initial?:Suggestion[]}) {
+  const [q, setQ] = useState('');
+  const [list, setList] = useState<Suggestion[]>(initial);
+
+  // Try to extract an ID if user pasted one
+  useEffect(()=>{
+    const trimmed = q.trim();
+    if (!trimmed) return;
+    for (const p of ID_PATTERNS) {
+      const m = trimmed.match(p.rx);
+      if (m) {
+        fetch(`/api/candidates/resolve-id?${p.key}=${encodeURIComponent(m[1])}`)
+          .then(r=>r.json()).then((res:Suggestion[])=> setList(res));
+        return;
+      }
+    }
+    // name search fallback
+    const ctrl = new AbortController();
+    fetch(`/api/candidates/search?q=${encodeURIComponent(q)}`, {signal: ctrl.signal})
+      .then(r=>r.json()).then((res:Suggestion[])=> setList(res));
+    return ()=>ctrl.abort();
+  }, [q]);
+
+  return (
+    <div>
+      <input
+        value={q}
+        onChange={e=>setQ(e.target.value)}
+        className="w-full rounded-md border px-3 py-2 text-sm"
+        placeholder={placeholder}
+      />
+      {!!list.length && (
+        <ul className="mt-2 max-h-64 overflow-auto rounded-lg border bg-background">
+          {list.map(s => (
+            <li key={s.id} className="flex items-center justify-between gap-2 border-b p-2 last:border-0">
+              <div className="min-w-0">
+                <div className="truncate text-sm font-medium">{s.name}</div>
+                <div className="truncate text-xs text-muted-foreground">
+                  {s.party || '—'} · {s.state || '—'} · {s.fec_id || s.bioguide_id || s.votesmart_id || s.id}
+                </div>
+              </div>
+              <button className="text-sm underline" onClick={()=>onSelect(s)}>Select</button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+```
+
+Use this in **Policy Comparison** instead of the raw text field; when a user selects, append its canonical `id` to your compare set.
+
+### 4) API Status card without raw code by default
+
+```tsx
+// pages/CivicData/APICard.tsx
+import CodeToggle from "@/components/CodeToggle";
+
+export function APICard({
+  name, status, quota, sampleCurl, lastStatus,
+}:{name:string; status:'connected'|'disconnected'; quota:string; sampleCurl?:string; lastStatus?:string;}) {
+  const okay = status==='connected';
+  return (
+    <div className="rounded-xl border p-4">
+      <div className="mb-2 flex items-center justify-between">
+        <h3 className="text-lg font-semibold">{name}</h3>
+        <span className={`rounded-full px-2 py-0.5 text-xs ${okay?'bg-emerald-100 text-emerald-700':'bg-rose-100 text-rose-700'}`}>
+          {okay ? 'Connected' : 'Disconnected'}
+        </span>
+      </div>
+      <div className="text-sm text-muted-foreground">
+        Quota: {quota} · Last check: {lastStatus || '—'}
+      </div>
+      <div className="mt-3 flex gap-2">
+        <button className="rounded-md border px-3 py-1.5 text-sm">Try request</button>
+        <button className="rounded-md border px-3 py-1.5 text-sm">Copy API key</button>
+      </div>
+      <CodeToggle curl={sampleCurl}/>
+    </div>
+  );
+}
+```
+
+### 5) Ballot Info map stub (no new heavy libs required)
+
+Show a tiny static map image using `maps.googleapis.com` only if you already have a Maps key; otherwise show a simple “location chip”.
+
+```tsx
+// pages/CivicData/BallotInfoPane.tsx
+import CodeToggle from "@/components/CodeToggle";
+export default function BallotInfoPane() {
+  const [addr, setAddr] = useState('');
+  const [data, setData] = useState<any>(null);
+  const [raw, setRaw] = useState<any>(null);
+
+  async function lookup() {
+    const r = await fetch(`/api/ballot?address=${encodeURIComponent(addr)}`);
+    const j = await r.json();
+    setData(j.summary || null);
+    setRaw(j);
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex gap-2">
+        <input className="w-full rounded-md border px-3 py-2 text-sm" placeholder="Enter address" value={addr} onChange={e=>setAddr(e.target.value)}/>
+        <button className="rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground" onClick={lookup}>Check</button>
+      </div>
+
+      {!data && raw && (
+        <div className="rounded-lg border bg-muted/20 p-4 text-sm text-muted-foreground">
+          No ballot information available for this address right now.
+        </div>
+      )}
+
+      {data && (
+        <div className="grid gap-3 md:grid-cols-2">
+          <div className="rounded-lg border p-4">
+            <h4 className="mb-2 font-medium">Your Voting Area</h4>
+            {/* If you have a Maps key, replace with a static map image */}
+            <div className="h-40 rounded-md bg-[linear-gradient(45deg,#eee,#fafafa)]" />
+            <div className="mt-2 text-xs text-muted-foreground">{data.locationText}</div>
+          </div>
+          <div className="rounded-lg border p-4">
+            <h4 className="mb-2 font-medium">Upcoming Elections</h4>
+            <ul className="space-y-2 text-sm">{data.elections?.map((e:any)=>(<li key={e.id}>{e.title} · {e.date}</li>))}</ul>
+          </div>
+        </div>
+      )}
+
+      <CodeToggle json={raw}/>
+    </div>
+  );
+}
+```
+
+---
+
+# Backend: quick endpoints for the ID Finder
+
+### 1) Unified search (fast and forgiving)
+
+```ts
+// server/routes/candidates.ts
+import {Router} from 'express';
+import {pool} from '../db';
+
+const r = Router();
+
+// q: name or fragment
+r.get('/search', async (req,res) => {
+  const q = String(req.query.q||'').trim();
+  if (!q) return res.json([]);
+  // pg_trgm recommended; fallback to ILIKE
+  const rows = await pool.query(`
+    SELECT id, name, party, state, fec_id, bioguide_id, votesmart_id
+    FROM candidates
+    WHERE name ILIKE $1 OR alt_names ILIKE $1
+    ORDER BY similarity(name, $2) DESC NULLS LAST
+    LIMIT 20
+  `, [`%${q}%`, q]);
+  res.json(rows.rows);
+});
+
+// resolve any ID into our canonical row
+r.get('/resolve-id', async (req,res) => {
+  const keys = ['fec_id','bioguide_id','votesmart_id','wikidata_id'] as const;
+  const clauses:string[] = [];
+  const params:any[] = [];
+  keys.forEach((k,i) => {
+    if (req.query[k]) { clauses.push(`${k} = $${params.length+1}`); params.push(req.query[k]); }
+  });
+  if (!clauses.length) return res.json([]);
+  const rows = await pool.query(`
+    SELECT id, name, party, state, fec_id, bioguide_id, votesmart_id
+    FROM candidates
+    WHERE ${clauses.join(' OR ')}
+    LIMIT 10
+  `, params);
+  res.json(rows.rows);
+});
+
+export default r;
+```
+
+### 2) Minimal SQL to support it (plus optional trigram)
+
+```sql
+-- candidates table sketch (you likely have similar already)
+CREATE TABLE IF NOT EXISTS candidates (
+  id             TEXT PRIMARY KEY,
+  name           TEXT NOT NULL,
+  alt_names      TEXT,
+  party          TEXT,
+  state          TEXT,
+  fec_id         TEXT UNIQUE,
+  bioguide_id    TEXT UNIQUE,
+  votesmart_id   TEXT UNIQUE,
+  wikidata_id    TEXT UNIQUE
+);
+
+-- Optional: trigram index for fuzzy search (if pg_trgm is enabled)
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE INDEX IF NOT EXISTS idx_candidates_name_trgm ON candidates USING gin (name gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS idx_candidates_alt_trgm  ON candidates USING gin (alt_names gin_trgm_ops);
+```
+
+---
+
+# Small polish items for this page
+
+* **Don’t show 0%**: either hide the badge or show “No signal”.
+* **Add “Copy cURL”** buttons in the collapsed code area (one click copies).
+* **Keep JSON pretty-printed** but never full-screen; set `max-height: 18rem; overflow: auto;`.
+* **Add a “Find Candidate” prompt** right above policy comparison, wired to the ID Finder above.
+* **Use the same card height** on the three API cards by applying `min-h-[160px]` and `grid md:grid-cols-3 gap-4`.
+
+---
+
+# Why this works
+
+* Defaulting to **summaries** keeps it friendly; code is still one click away for devs.
+* The **ID Finder** removes friction and lets users paste *anything* (names, FEC IDs, links).
+* Hiding 0% confidence avoids the “everything is 0%” optics until you actually have signal.
+* The **Ballot** and **International** tabs stop dumping raw JSON and present recognizable info first.
+
+If you want, I can also sketch the tiny CSS tweaks to make those cards visually identical height across breakpoints (and match the Upcoming Elections tiles).

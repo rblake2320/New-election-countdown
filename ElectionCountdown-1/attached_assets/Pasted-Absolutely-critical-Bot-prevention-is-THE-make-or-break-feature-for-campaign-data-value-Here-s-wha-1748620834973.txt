@@ -1,0 +1,123 @@
+Absolutely critical! Bot prevention is THE make-or-break feature for campaign data value. Here's what to tell the
+   AI:
+
+  Bot Prevention & Human Verification System:
+
+  1. Multi-Layer Bot Detection:
+
+  // Layer 1: Registration
+  - Email verification (no disposable emails)
+  - Phone verification via SMS
+  - CAPTCHA on signup
+  - IP reputation check
+
+  // Layer 2: Behavior Analysis
+  bot_detection_metrics: {
+    mouse_movement_patterns,
+    scroll_behavior,
+    time_between_clicks,
+    form_fill_speed,
+    session_duration_variance
+  }
+
+  // Layer 3: Device Fingerprinting
+  - Browser fingerprint
+  - Canvas fingerprinting
+  - WebGL parameters
+  - Screen resolution patterns
+
+  2. Human Verification Levels:
+
+  -- User trust levels
+  user_verification: {
+    level_0: 'unverified',      // Just signed up
+    level_1: 'email_verified',   // Clicked email link
+    level_2: 'phone_verified',   // SMS code confirmed
+    level_3: 'behavior_verified', // Normal usage patterns
+    level_4: 'id_verified'       // Government ID check
+  }
+
+  -- Only Level 2+ data counts for campaigns
+
+  3. Continuous Verification:
+
+  // Real-time checks:
+  - Unusual voting patterns (100 clicks/minute)
+  - Geographic impossibilities (NYC → LA in 1 hour)
+  - Device switching patterns
+  - API scraping detection
+  - Headless browser detection
+
+  4. Database Schema Updates:
+
+  CREATE TABLE user_verification (
+    user_id UUID PRIMARY KEY,
+    email_verified BOOLEAN DEFAULT FALSE,
+    phone_verified BOOLEAN DEFAULT FALSE,
+    phone_number VARCHAR(20),
+    verification_level INTEGER DEFAULT 0,
+    last_verified TIMESTAMP,
+    risk_score DECIMAL(3,2) -- 0.00 to 1.00
+  );
+
+  CREATE TABLE bot_detection_logs (
+    id SERIAL PRIMARY KEY,
+    user_id UUID,
+    detection_type VARCHAR(50),
+    confidence_score DECIMAL(3,2),
+    action_taken VARCHAR(50),
+    timestamp TIMESTAMP
+  );
+
+  5. User Incentives for Verification:
+
+  // Gamification:
+  - "Verified Voter" badge
+  - Early access to results
+  - Ad-free experience at Level 2+
+  - Influence score for verified users
+  - Entry into prize drawings
+
+  6. Campaign Data Quality Assurance:
+
+  // What campaigns see:
+  {
+    total_interest: 50000,
+    verified_humans: 48500,  // 97% real
+    bot_filtered: 1500,
+    confidence_level: "Very High",
+    demographic_data: {
+      // Only from verified users
+    }
+  }
+
+  7. Progressive Enhancement:
+
+  // Don't block users, classify them:
+  Level 0: Can view, not counted in analytics
+  Level 1: Basic analytics included
+  Level 2: Full analytics, demographics counted
+  Level 3: Premium features, influence metrics
+  Level 4: VIP access, beta features
+
+  8. Third-Party Integrations:
+
+  // Services to integrate:
+  - Twilio Verify (SMS)
+  - Auth0 (identity management)
+  - reCAPTCHA Enterprise
+  - Fingerprint.js Pro
+  - MaxMind GeoIP2
+  - Plaid (ID verification)
+
+  Tell the AI:
+  "Implement a multi-layer bot detection system with email and SMS verification. Create user trust levels where
+  only verified users (Level 2+) count in campaign analytics. Add behavior tracking, device fingerprinting, and
+  continuous verification. Show campaigns the percentage of verified humans in their data. Don't block suspicious
+  users - just exclude them from paid analytics data."
+
+  Why This Works:
+  - Campaigns get 95%+ human data
+  - Users aren't frustrated by over-blocking
+  - Bots can't poison the data pool
+  - Creates network effects (verified users invite real friends)

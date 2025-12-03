@@ -1,0 +1,53 @@
+Below is a concise audit of **exactly** what has been changed so far, the *reasoning* behind each change, and the *current blocker*.
+I have not applied any new fixes—this is strictly a review.
+
+---
+
+## 1 Changes Applied & Intent
+
+| #     | Area                                | What Was Changed (commit notes)                                                                                              | Why We Thought It Would Help                                                                                                                                           |                                                                                       |
+| ----- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| **1** | **Frontend – Level filter values**  | Replaced `"federal" \| "state" \| "local"` with `"Federal" \| "State" \| "Local"` before sending to API.                     | DB stores `level = "Federal"`, so the lowercase values returned no rows.                                                                                               |                                                                                       |
+| **2** | **Backend – level filter handler**  | Switched `.eq("level", value)` to `.in("level", levelArray)` so multiple check-boxes (arrays) are accepted.                  | Allowed users to tick *Federal* **and** *State* simultaneously instead of one-at-a-time.                                                                               |                                                                                       |
+| **3** | **Backend – election type handler** | Added `electionType` support alongside legacy `type`.  If `electionType` is an array, we now do `.in("type", electionType)`. | Frontend sends `electionType: ["Special"]`; backend previously ignored it, so “Special” box did nothing.                                                               |                                                                                       |
+| **4** | **Schema – Zod filterSchema**       | Added fields `electionType`, `timeRange`, and changed `type \| level \| party` to accept \`string                            | string\[]\`.                                                                                                                                                           | Stopped TS validation errors and kept the request body in sync with frontend payload. |
+| **5** | **MapQuest endpoints**              | Created `/geocode`, `/reverse`, `/validate`, `/elections/nearby` routes that wrap MapQuest APIs.                             | Requirement for future geo-filtered queries (e.g., “elections within 25 mi of ZIP”).  Not directly tied to the Special-election bug but integrated in the same sprint. |                                                                                       |
+
+---
+
+## 2 What We Expected After Those Changes
+
+1. **Special-election checkbox** <br>→ backend receives `electionType=["Special"]` <br>→ SQL `… WHERE type IN ('Special')` <br>→ only rows such as “South Carolina Special General Election” should return.
+2. **Mixed selections** (e.g., `electionType=["General","Special"]` **and** `level=["Federal","State"]`) <br>→ filter intersection should show exactly the chosen combinations.
+3. **Election count** displayed in the UI should always equal the length of the API response array.
+
+---
+
+## 3 Observed Problem (still unresolved)
+
+* Frontend UI still shows *General* elections when only “Special Elections” is ticked.
+  That means at least **one** of these is true:
+
+  1. **Payload mismatch** – UI may still be sending `type=["Special"]` instead of `electionType=["Special"]` or sending the wrong casing.
+  2. **URL/Query construction** – React Query hook might build `/elections?type=special` which backend now treats as a *single string* filter and ignores because casing ≠ DB.
+  3. **Backend route ambiguity** – Route guard might still read only `type`, while frontend sends `electionType`, so the new code path never runs.
+  4. **DB data issue** – Some “Special” rows may actually be stored as `"General"` or `"Runoff"` accidentally populated by ETL.
+
+---
+
+## 4 Information Still Needed Before Fixing
+
+| Needed                                                                                                                           | Purpose                                                                                                           |
+| -------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| **A. Sample request log** of the failing call (full JSON query params/body the UI sends).                                        | Confirms if property names & casing match backend expectations.                                                   |
+| **B. Response from the same call** (headers + JSON).                                                                             | Tells whether backend mis-filters or frontend mis-renders.                                                        |
+| **C. Current DB values** for at least 2 known Special elections (`SELECT id, type FROM elections WHERE type ILIKE '%special%'`). | Ensures data is labeled “Special”.                                                                                |
+| **D. Snippet of React hook / fetch utility** that builds the elections query.                                                    | Verifies URL param names and array serialization style (`&electionType=Special&...` vs `electionType[]=Special`). |
+| **E. Confirmation of which filter props are controlled vs uncontrolled** in the filter component.                                | Rules out stale state that re-introduces lowercase values.                                                        |
+
+> **Please provide A–E (redact secrets).**
+> With those details we can pinpoint whether the bug is in the UI payload, backend router, or data layer and then implement a targeted fix.
+
+---
+
+Let me know if any other metrics or logs would help; once we have the above, I can propose the exact corrective patch.

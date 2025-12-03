@@ -1,0 +1,392 @@
+Got it—since that readiness report is **before** my fixes, here’s a tight “apply + verify” pack you can paste in now to land the 3 big gaps you called out (slow elections list, load-more not working, polling still placeholder) and lock the Bauhaus CSS from ever bleeding again.
+
+---
+
+# 0) Quick run order (Replit)
+
+1. **DB indexes:** run the SQL below.
+2. **API: keyset pagination:** replace elections list route with the code below.
+3. **UI: load-more (cursor):** patch the grid component with the code below.
+4. **Polling data:** create tables + API + drop-in component below.
+5. **CSS isolation:** scope the Bauhaus demo.
+
+Then run:
+
+```bash
+# from Replit shell
+npm run build:server && npm run build:client
+npm run migrate:perf          # (script below) 
+npm run dev                   # or restart the repl
+```
+
+And verify with the curl suite at the end.
+
+---
+
+## 1) DB performance patch (target: 1700 ms → <300 ms)
+
+**`server/sql/quick_performance_fix.sql`**
+
+```sql
+-- Elections listing perf
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_elections_date_id
+  ON elections (election_date DESC, id);
+
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_elections_state_date
+  ON elections (state, election_date DESC, id);
+
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_elections_type_level_date
+  ON elections (election_type, government_level, election_date DESC, id);
+
+-- Candidate counts
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_candidates_election_id
+  ON candidates (election_id);
+
+ANALYZE elections;
+ANALYZE candidates;
+```
+
+**`scripts/migrate_perf.ts`**
+
+```ts
+import { readFileSync } from "fs";
+import { Pool } from "pg";
+
+(async () => {
+  const sql = readFileSync("server/sql/quick_performance_fix.sql", "utf8");
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 5 });
+  try {
+    console.log("Running quick_performance_fix.sql …");
+    await pool.query("BEGIN");
+    await pool.query(sql);
+    await pool.query("COMMIT");
+    console.log("✅ DB perf indexes created");
+  } catch (e) {
+    await pool.query("ROLLBACK");
+    console.error("❌ migrate:perf failed:", e);
+    process.exit(1);
+  } finally {
+    await pool.end();
+  }
+})();
+```
+
+**`package.json`**
+
+```json
+{
+  "scripts": {
+    "migrate:perf": "tsx scripts/migrate_perf.ts"
+  }
+}
+```
+
+---
+
+## 2) API: switch to **keyset pagination** (fixes slow list + enables reliable “Load more”)
+
+**`server/routes/elections.ts` (list route only)**
+
+```ts
+import { Router } from "express";
+import { pool } from "../db";
+
+const router = Router();
+
+/**
+ * GET /api/elections
+ * Cursor format: `${election_date.toISOString()}|${id}`
+ */
+router.get("/", async (req, res, next) => {
+  try {
+    const limit = Math.min(parseInt(String(req.query.limit || 24), 10), 100);
+    const { state, type, level, cursor } = req.query as Record<string,string>;
+
+    let afterDate: string | null = null;
+    let afterId: number | null = null;
+    if (cursor) {
+      const [d, i] = cursor.split("|");
+      afterDate = d;
+      afterId = Number(i);
+    }
+
+    const where: string[] = [];
+    const vals: any[] = [];
+
+    if (state) { vals.push(state); where.push(`e.state = $${vals.length}`); }
+    if (type)  { vals.push(type);  where.push(`e.election_type = $${vals.length}`); }
+    if (level) { vals.push(level); where.push(`e.government_level = $${vals.length}`); }
+
+    if (afterDate && afterId != null) {
+      vals.push(afterDate, afterId);
+      where.push(`(e.election_date, e.id) < ($${vals.length-1}::timestamptz, $${vals.length}::int)`);
+    }
+
+    vals.push(limit);
+
+    const sql = `
+      SELECT e.id, e.title, e.election_date, e.state, e.election_type, e.government_level,
+             COALESCE(cc.cnt,0)::int AS candidate_count
+      FROM elections e
+      LEFT JOIN LATERAL (
+        SELECT COUNT(*)::int AS cnt FROM candidates c WHERE c.election_id = e.id
+      ) cc ON TRUE
+      ${where.length ? `WHERE ${where.join(" AND ")}` : ""}
+      ORDER BY e.election_date DESC, e.id DESC
+      LIMIT $${vals.length};
+    `;
+
+    const { rows } = await pool.query(sql, vals);
+    const next = rows.length === limit
+      ? `${rows[rows.length-1].election_date.toISOString()}|${rows[rows.length-1].id}`
+      : null;
+
+    res.json({ items: rows, nextCursor: next });
+  } catch (err) {
+    next(err);
+  }
+});
+
+export default router;
+```
+
+---
+
+## 3) UI: reliable **Load more** wired to cursor API
+
+**`client/src/components/ElectionGrid.tsx` (core bits)**
+
+```tsx
+import { useEffect, useState } from "react";
+
+const PAGE = 24;
+
+export default function ElectionGrid() {
+  const [rows, setRows] = useState<any[]>([]);
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+
+  const fetchPage = async (initial = false) => {
+    if (loading) return;
+    setLoading(true);
+    const qs = new URLSearchParams({ limit: String(PAGE) });
+    if (!initial && cursor) qs.set("cursor", cursor);
+    const res = await fetch(`/api/elections?${qs.toString()}`);
+    const json = await res.json();
+    setRows(prev => initial ? json.items : [...prev, ...json.items]);
+    setCursor(json.nextCursor);
+    setHasMore(Boolean(json.nextCursor));
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchPage(true); }, []);
+
+  return (
+    <>
+      <div className="election-grid grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+        {rows.map(r => (
+          <ElectionCard key={r.id} className="election-card" data={r} />
+        ))}
+      </div>
+
+      <div className="flex justify-center py-6">
+        <button
+          onClick={() => fetchPage(false)}
+          disabled={!hasMore || loading}
+          aria-busy={loading}
+          className="btn btn-primary"
+        >
+          {loading ? "Loading…" : hasMore ? "Load more" : "All caught up"}
+        </button>
+      </div>
+    </>
+  );
+}
+```
+
+> This also solves the “button not responding” symptom caused by stale `offset` state and race conditions.
+
+---
+
+## 4) Polling data (schema + API + drop-in UI)
+
+**Schema — `server/sql/polling_schema.sql`**
+
+```sql
+CREATE TABLE IF NOT EXISTS polls (
+  id BIGSERIAL PRIMARY KEY,
+  election_id INT NOT NULL REFERENCES elections(id) ON DELETE CASCADE,
+  pollster TEXT NOT NULL,
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  sample_size INT,
+  method TEXT,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS poll_results (
+  id BIGSERIAL PRIMARY KEY,
+  poll_id BIGINT NOT NULL REFERENCES polls(id) ON DELETE CASCADE,
+  candidate_id INT REFERENCES candidates(id) ON DELETE SET NULL,
+  option TEXT,
+  pct NUMERIC(5,2) NOT NULL,
+  UNIQUE (poll_id, candidate_id, option)
+);
+
+CREATE INDEX IF NOT EXISTS idx_polls_election_end
+  ON polls(election_id, end_date DESC, id DESC);
+```
+
+**API — `server/routes/polls.ts`**
+
+```ts
+import { Router } from "express";
+import { pool } from "../db";
+
+const router = Router();
+
+/** GET /api/elections/:id/polls/summary */
+router.get("/elections/:id/polls/summary", async (req, res, next) => {
+  try {
+    const id = Number(req.params.id);
+    const sql = `
+      WITH r AS (
+        SELECT pr.candidate_id,
+               COALESCE(c.full_name, pr.option) AS label,
+               p.end_date::date AS d,
+               pr.pct::float AS pct
+        FROM polls p
+        JOIN poll_results pr ON pr.poll_id = p.id
+        LEFT JOIN candidates c ON c.id = pr.candidate_id
+        WHERE p.election_id = $1
+      )
+      SELECT label,
+             AVG(pct) FILTER (WHERE d >= (current_date - INTERVAL '21 days')) AS avg21,
+             MAX(d) AS last_date
+      FROM r
+      GROUP BY label
+      ORDER BY avg21 DESC NULLS LAST;
+    `;
+    const { rows } = await pool.query(sql, [id]);
+    res.json({ items: rows });
+  } catch (e) { next(e); }
+});
+
+export default router;
+```
+
+**UI — `client/src/components/PollingTrends.jsx`**
+*(simple, no styling assumptions; you can upgrade later)*
+
+```jsx
+import { useEffect, useState } from "react";
+
+export default function PollingTrends({ electionId }) {
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      const res = await fetch(`/api/elections/${electionId}/polls/summary`);
+      const json = await res.json();
+      setRows(json.items || []);
+      setLoading(false);
+    })();
+  }, [electionId]);
+
+  if (loading) return <div className="text-sm text-muted-foreground">Loading polls…</div>;
+  if (!rows.length) return <div className="text-sm text-muted-foreground">No polling data yet.</div>;
+
+  return (
+    <div className="space-y-2">
+      {rows.map(r => (
+        <div key={r.label} className="flex items-center justify-between">
+          <div className="font-medium">{r.label}</div>
+          <div className="tabular-nums">{Number(r.avg21 ?? 0).toFixed(1)}%</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+Mount it on the election details “Polling” tab:
+
+```tsx
+<PollingTrends electionId={election.id} />
+```
+
+Run once:
+
+```bash
+psql "$DATABASE_URL" -f server/sql/polling_schema.sql
+```
+
+---
+
+## 5) CSS isolation for the Bauhaus demo (prevents any global UI regressions)
+
+* Move all demo tokens under `.bauhaus-theme` (not `:root`).
+* Wrap the demo pane with `<div className="bauhaus-theme">…</div>`.
+* Ensure Tailwind is imported **once** (app root), not in demo CSS.
+
+Add hardening guards to app CSS:
+
+```css
+.election-card { min-height: 176px; contain: layout paint; }
+.election-card .title { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+.election-grid { grid-auto-rows: 1fr; align-items: stretch; }
+```
+
+---
+
+## 6) Verify (copy/paste)
+
+**API**
+
+```bash
+# Fast list (<300ms after indexes)
+time curl -sS "$APP/api/elections?limit=24" | jq '.items | length, .[0].candidate_count, has("nextCursor")'
+
+# Keyset works (cursor advances)
+CUR=$(curl -sS "$APP/api/elections?limit=24" | jq -r '.nextCursor')
+curl -sS "$APP/api/elections?limit=24&cursor=$CUR" | jq '.items | length'
+
+# Polling summary (should return [] until you add polls)
+curl -sS "$APP/api/elections/809/polls/summary" | jq
+
+# Semantics
+curl -sS -o /dev/null -w "%{http_code}\n" "$APP/api/members/XX"     # → 400
+curl -sS -o /dev/null -w "%{http_code}\n" "$APP/api/unknown"        # → 404
+```
+
+**UI**
+
+* Elections page shows initial 24 cards; **Load more** adds 24 and disables while loading.
+* Polling tab renders list (or “No polling data yet.”).
+* Cards maintain height; titles never overflow.
+
+---
+
+## 7) Nightly guardrails (optional but recommended)
+
+* Add a scheduled job to hit:
+
+  * `/api/health`, `/api/elections?limit=1`, `/api/members/CA`
+* If any >500 ms or non-2xx → store a row in `audit_runs` and ping your alert channel.
+* Keep Data Steward Bot nightly run enabled; re-scan after each auto-fix and record success.
+
+---
+
+### That’s it
+
+Apply the 5 patches above and your **public-readiness report becomes reality**:
+
+* Elections list <300 ms
+* Load-more solid (no “dead” clicks)
+* Polling tab functional (and expandable)
+* Demo CSS fully sandboxed so the UI “never gets like this” again
+
+If you want, I can also give you a tiny seed script to import a few example polls so the Polling tab has immediate content.

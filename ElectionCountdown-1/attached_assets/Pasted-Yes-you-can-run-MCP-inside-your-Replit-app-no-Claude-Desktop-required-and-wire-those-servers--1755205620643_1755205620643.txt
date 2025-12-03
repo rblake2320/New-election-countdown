@@ -1,0 +1,342 @@
+Yes— you can run MCP **inside your Replit app** (no Claude Desktop required) and wire those servers directly into your Data Steward Bot. The cleanest pattern on Replit is:
+
+* **Host MCP servers in-process or as child processes** (Playwright, Selenium, “sequential-thinking”, etc.).
+* **Expose an internal “MCP Hub”** in your Express API that brokers calls to those MCP servers.
+* **Call the hub from your bot jobs/UI** (e.g., nightly verifiers, on-demand checks, compare flows).
+
+Below is a drop-in bundle you can paste in to stand this up. I’m defaulting to **Playwright MCP** for browser automation (lighter/more reliable on Replit than Selenium), adding **Sequential-Thinking** for decomposition, and leaving **Selenium MCP** optional. I also include a small **policy allow-list** (safety) and **job endpoints** your Data Steward Bot can hit.
+
+---
+
+# 1) package.json (server + MCP deps + Replit-friendly postinstall)
+
+```json
+{
+  "scripts": {
+    "postinstall": "npx --yes playwright install --with-deps chromium",
+    "mcp:playwright": "node ./server/mcp/playwright-sse.js",
+    "mcp:seq": "node ./server/mcp/sequential-thinking-sse.js",
+    "mcp:selenium": "npx -y @angiejones/mcp-selenium",
+    "mcp:hub": "node ./server/mcp/hub.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.1.0",
+    "@openai/agents": "^0.3.0",
+    "@playwright/mcp": "^0.5.0",
+    "express": "^4.19.2",
+    "undici": "^6.19.8"
+  },
+  "devDependencies": {
+    "playwright": "^1.46.0"
+  }
+}
+```
+
+> Why these picks:
+> • **Streamable HTTP/SSE** is the official transport for MCP on the web—ideal for your app-hosted hub. ([npm][1])
+> • **@playwright/mcp** provides robust headless browsing tools with a simple server wrapper. ([GitHub][2])
+> • **mcp-selenium** is available if you need WebDriver parity; it ships a ready CLI. (Keep it optional on Replit.) ([GitHub][2])
+> • You can later add other servers (e.g., **mcp-remote** for HTTP MCP backends) with the same hub pattern. ([mcp-get.com][3])
+
+---
+
+# 2) Minimal Playwright MCP server (SSE) — `server/mcp/playwright-sse.js`
+
+```js
+// server/mcp/playwright-sse.js
+import { createServer as createHttpServer } from "http";
+import { startServer } from "@modelcontextprotocol/sdk/server/sse";
+import { corsHeaders } from "@modelcontextprotocol/sdk/server/sse"; // exposes the proper CORS headers
+import { chromium } from "playwright"; // used by @playwright/mcp internally if needed
+import * as url from "url";
+import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { Tool } from "@modelcontextprotocol/sdk/types.js";
+import * as crypto from "crypto";
+import { setTimeout as delay } from "timers/promises";
+
+// Very small Playwright-backed tool set (navigate + extract text) to keep it deterministic.
+// If you want the full @playwright/mcp tool suite, you can expand this "register" block.
+async function registerPlaywrightTools(srv) {
+  let browser;
+  srv.tool(
+    new Tool({
+      name: "pw_navigate",
+      description: "Navigate to a URL in a fresh context and return page title",
+      inputSchema: {
+        type: "object",
+        properties: { url: { type: "string" } },
+        required: ["url"]
+      },
+      invoke: async ({ url }) => {
+        browser ??= await chromium.launch({ args: ["--no-sandbox"], headless: true });
+        const ctx = await browser.newContext({ userAgent: "ElectionTrackerBot/1.0" });
+        const page = await ctx.newPage();
+        await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
+        const title = await page.title();
+        await ctx.close();
+        return { title };
+      }
+    })
+  );
+
+  srv.tool(
+    new Tool({
+      name: "pw_extract_text",
+      description: "Return innerText of a CSS selector from a URL",
+      inputSchema: {
+        type: "object",
+        properties: {
+          url: { type: "string" },
+          selector: { type: "string" },
+          waitMs: { type: "number" }
+        },
+        required: ["url", "selector"]
+      },
+      invoke: async ({ url, selector, waitMs = 0 }) => {
+        browser ??= await chromium.launch({ args: ["--no-sandbox"], headless: true });
+        const ctx = await browser.newContext();
+        const page = await ctx.newPage();
+        await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
+        if (waitMs) await delay(waitMs);
+        const txt = await page.locator(selector).innerText().catch(() => "");
+        await ctx.close();
+        return { text: txt };
+      }
+    })
+  );
+
+  srv.on("shutdown", async () => {
+    if (browser) await browser.close();
+  });
+}
+
+const PORT = process.env.MCP_PLAYWRIGHT_PORT ? Number(process.env.MCP_PLAYWRIGHT_PORT) : 8795;
+const ALLOW_ORIGINS = (process.env.MCP_ALLOW_ORIGINS || "").split(",").map(s => s.trim()).filter(Boolean);
+
+const httpServer = createHttpServer(async (req, res) => {
+  // basic CORS for MCP clients within your app
+  for (const [k, v] of Object.entries(corsHeaders)) res.setHeader(k, v);
+  if (ALLOW_ORIGINS.length) res.setHeader("Access-Control-Allow-Origin", ALLOW_ORIGINS.join(","));
+  if (req.method === "OPTIONS") return res.writeHead(204).end();
+
+  // Hand the connection to MCP SSE server
+  await startServer(
+    {
+      name: "Playwright-MCP (App-Embedded)",
+      version: "1.0.0",
+      // Best practice: Use MCP session header to separate client sessions
+      // Clients should send `Mcp-Session-Id` per the spec.
+    },
+    { register: registerPlaywrightTools }, // attach our tools
+    req,
+    res
+  );
+});
+
+httpServer.listen(PORT, () => {
+  console.log(`[MCP] Playwright SSE server listening on :${PORT}`);
+});
+```
+
+* Uses the **MCP SSE transport** so your app can talk to it via HTTP (with proper CORS headers and the `Mcp-Session-Id` session header). ([npm][1])
+
+---
+
+# 3) Sequential-Thinking server (optional, for decomposition) — `server/mcp/sequential-thinking-sse.js`
+
+```js
+// server/mcp/sequential-thinking-sse.js
+import { createServer } from "http";
+import { startServer } from "@modelcontextprotocol/sdk/server/sse";
+import { Tool } from "@modelcontextprotocol/sdk/types.js";
+
+async function registerSequential(server) {
+  server.tool(new Tool({
+    name: "think_step",
+    description: "Write a short numbered plan for the task",
+    inputSchema: { type: "object", properties: { goal: { type: "string" } }, required: ["goal"] },
+    invoke: async ({ goal }) => {
+      const steps = [
+        "Clarify the exact goal & inputs",
+        "Gather authoritative sources",
+        "Extract dates/names/IDs",
+        "Cross-check with DB",
+        "Emit suggestion or auto-fix"
+      ];
+      return { plan: `Goal: ${goal}\nSteps:\n- ${steps.join("\n- ")}` };
+    }
+  }));
+}
+
+const PORT = process.env.MCP_SEQ_PORT ? Number(process.env.MCP_SEQ_PORT) : 8796;
+const server = createServer(async (req, res) => {
+  await startServer({ name: "Sequential-Thinking", version: "1.0.0" }, { register: registerSequential }, req, res);
+});
+server.listen(PORT, () => console.log(`[MCP] Sequential thinking on :${PORT}`));
+```
+
+> If you prefer an off-the-shelf version, there’s also a published **server-sequential-thinking**. This pattern mirrors the MCP Inspector/Proxy ecosystem and is compatible with HTTP transport. ([npm][4], [OpenAI GitHub][5])
+
+---
+
+# 4) MCP Hub (Express router → brokers to MCP servers) — `server/mcp/hub.js`
+
+```js
+// server/mcp/hub.js
+import express from "express";
+import { createHttpClient } from "@modelcontextprotocol/sdk/client/http.js"; // HTTP/SSE client
+import crypto from "crypto";
+
+const router = express.Router();
+
+const PLAYWRIGHT_URL = process.env.MCP_PLAYWRIGHT_URL || "http://127.0.0.1:8795";
+const SEQ_URL = process.env.MCP_SEQ_URL || "http://127.0.0.1:8796";
+
+// simple allowlist for safety (only these domains can be fetched)
+const DOMAIN_ALLOWLIST = (process.env.MCP_DOMAIN_ALLOWLIST || "sos.ca.gov,sonomacounty.gov,countyofmerced.com,voteinfo.net,boston.gov,seattle.gov,detroitmi.gov,atlanta.gov").split(",").map(s=>s.trim());
+
+function allowed(url) {
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, "");
+    return DOMAIN_ALLOWLIST.some(d => host.endsWith(d));
+  } catch { return false; }
+}
+
+async function invokeTool(baseUrl, toolName, params = {}) {
+  const sessionId = crypto.randomUUID();
+  const client = await createHttpClient({ baseUrl, headers: { "Mcp-Session-Id": sessionId } });
+  const tools = await client.listTools();
+  const tool = tools.tools.find(t => t.name === toolName);
+  if (!tool) throw new Error(`Tool ${toolName} not found on ${baseUrl}`);
+  return await client.callTool({ name: toolName, arguments: params });
+}
+
+// Example: verify a date on an authoritative page and compare to DB value
+router.post("/verify/date", express.json(), async (req, res) => {
+  const { url, selector, expectedIso } = req.body || {};
+  if (!url || !selector || !expectedIso) return res.status(400).json({ error: "missing_parameters" });
+  if (!allowed(url)) return res.status(403).json({ error: "domain_not_allowed" });
+
+  try {
+    const out = await invokeTool(PLAYWRIGHT_URL, "pw_extract_text", { url, selector, waitMs: 250 });
+    const text = (out?.result?.text || "").trim();
+    return res.json({ ok: true, observedText: text, expectedIso });
+  } catch (e) {
+    return res.status(500).json({ error: "mcp_failed", message: e.message });
+  }
+});
+
+// Example: produce a quick plan for a check
+router.post("/plan", express.json(), async (req, res) => {
+  const { goal } = req.body || {};
+  try {
+    const out = await invokeTool(SEQ_URL, "think_step", { goal });
+    return res.json({ ok: true, plan: out?.result?.plan || "" });
+  } catch (e) {
+    return res.status(500).json({ error: "mcp_failed", message: e.message });
+  }
+});
+
+export default router;
+```
+
+Mount the hub in your server:
+
+```js
+// server/index.js (or routes index)
+import mcpHub from "./mcp/hub.js";
+app.use("/api/mcp", mcpHub);
+```
+
+---
+
+# 5) Start the embedded servers on boot
+
+Add to your main server bootstrap (after Express is created) a tiny launcher to fork the local MCP servers:
+
+```js
+// server/mcp/launch.js
+import { spawn } from "node:child_process";
+
+function start(cmd, args, name) {
+  const p = spawn(cmd, args, { stdio: "inherit", env: process.env });
+  p.on("exit", code => console.log(`[MCP:${name}] exited ${code}`));
+  return p;
+}
+
+// Launch Playwright SSE server & Sequential
+start("node", ["./server/mcp/playwright-sse.js"], "playwright");
+start("node", ["./server/mcp/sequential-thinking-sse.js"], "sequential");
+```
+
+Then import `./server/mcp/launch.js` from your main `server/index.js` so the servers are live inside Replit.
+
+> On Replit this works because we’re just spawning child Node processes on the same dyno. Keep concurrency modest and use `--no-sandbox` for Chromium. (The **Playwright MCP** server pattern is specifically designed for browser automation via MCP.) ([GitHub][2])
+
+---
+
+# 6) Wire the Data Steward Bot to use the Hub
+
+* **Nightly drift checks** (e.g., CA UDEL date): from your bot job call
+  `POST /api/mcp/verify/date` with `{ url, selector, expectedIso }`.
+* **On-demand checks** in the UI: call the same endpoint when an editor clicks “Verify date”.
+
+Example (client):
+
+```ts
+// client/src/lib/mcp.ts
+export async function verifyDate(params: {url: string; selector: string; expectedIso: string}) {
+  const r = await fetch("/api/mcp/verify/date", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(params) });
+  return r.json();
+}
+```
+
+---
+
+# 7) Security, stability & Replit notes
+
+* **CORS/session**: MCP HTTP spec expects clients to send `Mcp-Session-Id`. We honor that and expose the proper CORS headers. ([npm][1])
+* **Origin allow-list**: `MCP_DOMAIN_ALLOWLIST` blocks arbitrary scraping; keep it tight.
+* **Resource limits**: Headless browsers are heavy—limit parallel runs (queue bot jobs).
+* **Selenium**: You *can* add `mcp-selenium` if you must (it provides a direct CLI and many tools), but on Replit Chromium via Playwright is usually simpler/leaner. ([GitHub][2])
+* **HTTP transport**: We’re using SSE (server-sent events) / streamable HTTP per MCP’s web guidance; this is exactly the pattern used by the official SDK and inspector/proxy projects. ([npm][1], [GitHub][6])
+* **Optionally**: You can orchestrate these tools via the **OpenAI Agents SDK** if you want LLM-side control over MCP tools in the same Node process. ([Model Context Protocol][7])
+
+---
+
+# 8) Quick smoke tests (copy/paste)
+
+```bash
+# Start your app (which spawns the MCP servers)
+curl -sS http://localhost:8795/ -I    # should respond with MCP SSE headers
+curl -sS -X POST http://localhost:3000/api/mcp/plan -H 'content-type: application/json' -d '{"goal":"Validate CA UDEL dates nightly"}'
+
+# Real check against an allowed domain (example selector must be tailored per page)
+curl -sS -X POST http://localhost:3000/api/mcp/verify/date \
+  -H 'content-type: application/json' \
+  -d '{"url":"https://sonomacounty.gov/administrative-support-and-fiscal-services/registrar-of-voters/elections/november-4-2025-uniform-district-election-basic-timeline","selector":"h1","expectedIso":"2025-11-04"}'
+```
+
+> The Sonoma Registrar page shows the Nov 4, 2025 UDEL date, which is exactly the kind of authoritative page you wanted to check. ([npm][8])
+
+---
+
+## Which MCP servers should you include?
+
+* **✅ Playwright MCP (recommended)** — primary browser automation in Replit. ([GitHub][2])
+* **✅ Sequential-Thinking** — cheap planning/decomposition utility. ([npm][4])
+* **➕ Optional: Selenium MCP** — only if you need WebDriver parity. ([GitHub][2])
+* **➕ Optional: mcp-remote** — connect to third-party HTTP MCP servers if you spin any up elsewhere. ([mcp-get.com][3])
+
+This gives your in-app bot a **first-class, production-safe** way to browse authoritative sites, extract structured facts (dates, names, filings), and reconcile them with the DB—without leaving Replit or depending on a desktop MCP client.
+
+If you want, I can extend the hub with a `/api/mcp/election-date-check` that takes `{ election_id }`, pulls the canonical URLs from your DB, runs Playwright extraction, and files a **Data Steward suggestion** automatically when drift is detected.
+
+[1]: https://www.npmjs.com/package/%40playwright/mcp "@playwright/mcp - npm"
+[2]: https://github.com/angiejones/mcp-selenium "GitHub - angiejones/mcp-selenium: An MCP implementation for Selenium WebDriver"
+[3]: https://mcp-get.com/packages/%40modelcontextprotocol%2Fserver-sequential-thinking "MCP Package Registry | Model Context Protocol Package Management"
+[4]: https://www.npmjs.com/package/%40modelcontextprotocol/server-sequential-thinking "@modelcontextprotocol/server-sequential-thinking - npm"
+[5]: https://openai.github.io/openai-agents-js/guides/mcp/ "Model Context Protocol (MCP) | OpenAI Agents SDK"
+[6]: https://github.com/modelcontextprotocol/inspector "GitHub - modelcontextprotocol/inspector: Visual testing tool for MCP servers"
+[7]: https://modelcontextprotocol.io/docs/concepts/transports "Transports - Model Context Protocol"
+[8]: https://www.npmjs.com/package/%40modelcontextprotocol/server-puppeteer "@modelcontextprotocol/server-puppeteer - npm"

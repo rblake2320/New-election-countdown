@@ -1,0 +1,359 @@
+Perfect—here’s the full bundle to (1) run a **nightly auto-scan + safe-fix** and (2) enforce a **pre-deploy gate** that **fails the deploy** if any “safe” policies still have open findings. All code is copy-paste ready.
+
+---
+
+# 0) Assumptions (match your current bot)
+
+* You already have `/api/steward/scan?policy=all&auto=...` implemented.
+* Your DB has `steward.policies`, `steward.policy_versions`, `steward.findings`.
+* You set `STEWARD_CRON_TOKEN` and `DATABASE_URL` in Replit **Secrets**.
+
+If anything differs, paste what you have and I’ll adjust.
+
+---
+
+# 1) DB: audit/logging for nightly runs + speed indexes
+
+Run in Postgres:
+
+```sql
+begin;
+
+create schema if not exists steward;
+
+-- 1) Runs table to log each nightly job or manual run
+create table if not exists steward.audit_runs (
+  id uuid primary key default gen_random_uuid(),
+  started_at timestamptz not null default now(),
+  finished_at timestamptz,
+  run_type text not null check (run_type in ('nightly','manual','predeploy')),
+  total_findings_before int,
+  fixes_applied int,
+  remaining_open int,
+  pass boolean,
+  notes text,
+  log jsonb default '{}'::jsonb
+);
+
+-- 2) Helpful indexes on findings for gating/checks
+create index if not exists idx_findings_status on steward.findings(status);
+create index if not exists idx_findings_policy_version on steward.findings(policy_version_id);
+
+-- 3) Quick view of “safe” policies (safe_sql and llm_apply are considered “auto-apply eligible”)
+create or replace view steward.v_safe_policies as
+select p.id, p.policy_key, p.title, p.auto_fix_mode
+from steward.policies p
+where p.auto_fix_mode in ('safe_sql', 'llm_apply');
+
+-- 4) Open findings for safe policies (fast gate query)
+create or replace view steward.v_open_safe_findings as
+select f.*
+from steward.findings f
+join steward.policy_versions v on v.id = f.policy_version_id
+join steward.policies p on p.id = v.policy_id
+where f.status = 'open'
+  and p.auto_fix_mode in ('safe_sql','llm_apply');
+
+commit;
+```
+
+---
+
+# 2) (Optional) Protect the scan route for cron
+
+Create `server/routes/steward-cron-guard.ts`:
+
+```ts
+// server/routes/steward-cron-guard.ts
+import { Router } from "express";
+
+const router = Router();
+const TOKEN = process.env.STEWARD_CRON_TOKEN || "";
+
+router.use((req, res, next) => {
+  // Only protect when explicitly flagged as "cron" usage
+  if (req.query.cron === "true") {
+    const auth = req.headers.authorization || "";
+    const expected = `Bearer ${TOKEN}`;
+    if (!TOKEN || auth !== expected) {
+      return res.status(401).json({ error: "unauthorized_cron" });
+    }
+  }
+  next();
+});
+
+export default router;
+```
+
+Mount it **before** your steward routes in `server/index.ts`:
+
+```ts
+// server/index.ts
+import cronGuard from "./routes/steward-cron-guard";
+app.use("/api/steward", cronGuard);  // must come before /api/steward/* routes
+```
+
+Now `/api/steward/scan?...&cron=true` requires `Authorization: Bearer ${STEWARD_CRON_TOKEN}`.
+
+---
+
+# 3) Nightly job script (runs auto-fix, then verifies no “mock” fixes)
+
+Create `scripts/nightly_steward.js`:
+
+```js
+// scripts/nightly_steward.js
+// Node >= 18 (global fetch). Logs to DB and optionally Slack.
+// ENV: APP_URL, STEWARD_CRON_TOKEN, DATABASE_URL, OPTIONAL_SLACK_WEBHOOK
+
+import pg from "pg";
+
+const APP_URL = process.env.APP_URL;                   // e.g., https://<your-replit>.replit.dev
+const TOKEN   = process.env.STEWARD_CRON_TOKEN || "";
+const SLACK   = process.env.OPTIONAL_SLACK_WEBHOOK || "";
+const { Pool } = pg;
+
+if (!APP_URL) {
+  console.error("APP_URL is required.");
+  process.exit(2);
+}
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+});
+
+async function postJSON(path, body) {
+  const res = await fetch(`${APP_URL}${path}`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      ...(TOKEN ? { Authorization: `Bearer ${TOKEN}` } : {}),
+    },
+    body: JSON.stringify(body || {}),
+  });
+  const text = await res.text();
+  let json;
+  try { json = JSON.parse(text); } catch { json = { raw: text }; }
+  return { ok: res.ok, status: res.status, json };
+}
+
+async function queryOpenSafeFindings(client) {
+  const { rows } = await client.query(`select count(*)::int as cnt from steward.v_open_safe_findings`);
+  return rows[0]?.cnt ?? 0;
+}
+
+async function slackNotify(title, text) {
+  if (!SLACK) return;
+  try {
+    await fetch(SLACK, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ text: `*${title}*\n${text}` }),
+    });
+  } catch (e) {
+    console.warn("Slack notify failed:", e.message);
+  }
+}
+
+(async () => {
+  const client = await pool.connect();
+  const run = await client.query(
+    `insert into steward.audit_runs (run_type, notes) values ('nightly','auto-fix + verify') returning id, started_at`
+  );
+  const runId = run.rows[0].id;
+
+  try {
+    // 1) Count BEFORE
+    const before = await queryOpenSafeFindings(client);
+
+    // 2) AUTO-FIX (nightly)
+    const auto = await postJSON(`/api/steward/scan?policy=all&auto=true&cron=true`, { actor: "nightly" });
+
+    // 3) VERIFY (dry run scan to refresh findings, no changes)
+    const verify = await postJSON(`/api/steward/scan?policy=all&auto=false&cron=true`,
+                                  { dry_run: "true", actor: "nightly-verify" });
+
+    // 4) Count AFTER
+    const after = await queryOpenSafeFindings(client);
+
+    // 5) Fixes applied = max(before - after, 0)
+    const fixed = Math.max(before - after, 0);
+    const pass = after === 0;
+
+    await client.query(
+      `update steward.audit_runs
+          set finished_at = now(),
+              total_findings_before = $1,
+              fixes_applied = $2,
+              remaining_open = $3,
+              pass = $4,
+              log = jsonb_strip_nulls(jsonb_build_object(
+                      'auto', $5, 'verify', $6
+                    ))
+        where id = $7`,
+      [before, fixed, after, pass, auto.json ?? null, verify.json ?? null, runId]
+    );
+
+    if (!pass) {
+      await slackNotify(
+        "Data Steward Nightly: Open SAFE findings remain",
+        `Open SAFE findings after auto-fix: ${after} (before: ${before}, fixed: ${fixed})`
+      );
+      // Exit 0 for nightly (we want job to continue scheduling), but Slack will alert.
+      process.exit(0);
+    } else {
+      await slackNotify("Data Steward Nightly: Clean ✅", `No open SAFE findings. Fixed in run: ${fixed}.`);
+      process.exit(0);
+    }
+  } catch (err) {
+    console.error("Nightly error:", err);
+    await client.query(
+      `update steward.audit_runs set finished_at = now(), pass = false, notes = coalesce(notes,'') || ' NIGHTLY_ERROR', log = jsonb_build_object('error',$1) where id = $2`,
+      [String(err?.message || err), runId]
+    );
+    await slackNotify("Data Steward Nightly: FAILED ❌", String(err?.message || err));
+    process.exit(1);
+  } finally {
+    client.release();
+    await pool.end();
+  }
+})();
+```
+
+---
+
+# 4) Pre-deploy gate (hard fail if SAFE findings are open)
+
+Create `scripts/steward_gate.js`:
+
+```js
+// scripts/steward_gate.js
+// Fails (exit 1) if any open findings exist for SAFE auto-fix policies.
+// ENV: DATABASE_URL
+
+import pg from "pg";
+const { Pool } = pg;
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+});
+
+(async () => {
+  const client = await pool.connect();
+  try {
+    const { rows } = await client.query(`select count(*)::int as cnt from steward.v_open_safe_findings`);
+    const open = rows[0]?.cnt ?? 0;
+    if (open > 0) {
+      console.error(`Pre-deploy gate: OPEN SAFE findings: ${open}. Fix or waive before deploy.`);
+      process.exit(1);
+    }
+    console.log("Pre-deploy gate: OK (no open SAFE findings).");
+    process.exit(0);
+  } catch (e) {
+    console.error("Pre-deploy gate error:", e.message);
+    process.exit(2);
+  } finally {
+    client.release();
+    await pool.end();
+  }
+})();
+```
+
+**How it prevents deploys:** run this script **before** your server starts. If it exits non-zero, Replit deployment fails.
+
+---
+
+# 5) Package.json scripts
+
+Add:
+
+```json
+{
+  "scripts": {
+    "steward:nightly": "node scripts/nightly_steward.js",
+    "steward:gate": "node scripts/steward_gate.js",
+    "start": "node server/index.js",
+    "start:guarded": "npm run steward:gate && npm run start"
+  }
+}
+```
+
+* Use **`start:guarded`** as your Replit deploy command so the **gate runs first**.
+
+---
+
+# 6) Replit setup
+
+## A) Secrets (Environment)
+
+Set in **Replit → Tools → Secrets**:
+
+* `DATABASE_URL` = your Neon Postgres URL
+* `STEWARD_CRON_TOKEN` = long random string
+* `APP_URL` = your public app URL (e.g., `https://...replit.dev`)
+* `OPTIONAL_SLACK_WEBHOOK` = (optional) Slack Incoming Webhook URL
+
+## B) Deployment Command
+
+In Replit Deployments, set **Run command** to:
+
+```
+npm run start:guarded
+```
+
+This enforces the **pre-deploy gate**.
+
+## C) Nightly Schedule
+
+Create a **Scheduled Deployment** (cron):
+
+* **Cron**: `0 3 * * *`
+* **Command**:
+
+```
+npm run steward:nightly
+```
+
+That’s it. Each night:
+
+1. auto-scan with safe-fix,
+2. re-scan to verify **no mocked fixes**,
+3. log to DB,
+4. Slack alert if anything remains open.
+
+---
+
+# 7) Manual smoke (copy/paste)
+
+```bash
+# Trigger a manual “nightly” from your laptop (uses public URL)
+curl -s -X POST "$APP_URL/api/steward/scan?policy=all&auto=true&cron=true" \
+  -H "authorization: Bearer $STEWARD_CRON_TOKEN" \
+  -H "content-type: application/json" \
+  -d '{"actor":"manual"}' | jq
+
+curl -s -X POST "$APP_URL/api/steward/scan?policy=all&auto=false&cron=true" \
+  -H "authorization: Bearer $STEWARD_CRON_TOKEN" \
+  -H "content-type: application/json" \
+  -d '{"dry_run":"true","actor":"manual-verify"}' | jq
+
+# Count remaining open SAFE findings (DB)
+psql "$DATABASE_URL" -c "select count(*) as open_safe from steward.v_open_safe_findings;"
+
+# Try the pre-deploy gate locally
+node scripts/steward_gate.js
+```
+
+---
+
+## Why this meets your requirements
+
+* **Auto-fixes actually apply** (nightly job calls your scan with `auto=true`).
+* **No fake greens**: we **verify in a second pass** and log the delta; the pre-deploy gate queries DB directly.
+* **One bot is enough**: detection + fix + verify are orchestrated; if you later want a “Fixer” queue for heavy/LLM fixes, set those policies to `llm_review`/`llm_apply` and keep the gate scoped to `safe_sql` (as above).
+* **Production-safe**: no deletes in safe mode, everything audited in `steward.audit_runs`.
+* **Replit-native**: uses **Scheduled Deployments** and **Run command** to enforce the gate.
+
+Want me to also wire an **/api/steward/audit-runs** GET endpoint and a tiny UI table so you can view nightly history from the Data Steward page?

@@ -1,0 +1,319 @@
+Awesome—let’s flip on **safe auto-fix for `orphaned_candidates`**, wire a **per-policy toggle in the UI**, and guarantee **no “mocked” fixes** by verifying inside the same DB transaction.
+
+Below is a **copy-paste bundle**: DB SQL → server endpoints → runner patch → UI toggle → one-shot verify commands.
+
+---
+
+# 1) Database: enable safe auto-fix + add fix SQL & verifier
+
+> Run this whole block in your Postgres console.
+
+```sql
+begin;
+
+-- Candidates table: make sure we can safely "hide" or mark how/why we fixed
+alter table candidates
+  add column if not exists hidden boolean not null default false,
+  add column if not exists hidden_reason text,
+  add column if not exists updated_at timestamptz not null default now();
+
+-- Steward policy version carries the fix template and the verifier
+alter table steward.policy_versions
+  add column if not exists fix_sql text,
+  add column if not exists verification_sql text;
+
+-- Make sure the orphaned_candidates policy exists and is active
+-- (Skip this insert if you already have the policy; otherwise create it.)
+insert into steward.policies (policy_key, title, auto_fix_mode, severity_autofix_ceiling)
+select 'orphaned_candidates','Candidates with no valid election_id','off','error'
+where not exists (select 1 from steward.policies where policy_key='orphaned_candidates');
+
+-- Ensure there is an active version row
+insert into steward.policy_versions (policy_id, is_active, created_at)
+select p.id, true, now()
+from steward.policies p
+left join steward.policy_versions v on v.policy_id = p.id and v.is_active = true
+where p.policy_key = 'orphaned_candidates' and v.id is null;
+
+-- Set the SAFE fix: if the candidate’s election_id is null/missing, auto-hide it.
+with pv as (
+  select v.id
+  from steward.policy_versions v
+  join steward.policies p on p.id = v.policy_id
+  where p.policy_key = 'orphaned_candidates' and v.is_active = true
+)
+update steward.policy_versions
+   set fix_sql = $fix$
+     /* SAFE, idempotent: hides *only* truly orphaned candidates */
+     update candidates c
+        set hidden = true,
+            hidden_reason = 'auto-hide: orphaned (no valid election_id) by Data Steward',
+            updated_at = now()
+      where c.id = {ref_pk}
+        and (
+              c.election_id is null
+              or not exists (select 1 from elections e where e.id = c.election_id)
+            )
+     ;
+   $fix$
+ where id in (select id from pv);
+
+-- Verifier: after the fix, the candidate must be either linked to a real election or hidden=true.
+with pv as (
+  select v.id
+  from steward.policy_versions v
+  join steward.policies p on p.id = v.policy_id
+  where p.policy_key = 'orphaned_candidates' and v.is_active = true
+)
+update steward.policy_versions
+   set verification_sql = $ver$
+     select case
+              when exists (
+                select 1
+                  from candidates c
+                 where c.id = {ref_pk}
+                   and (
+                        c.election_id is not null
+                        and exists(select 1 from elections e where e.id = c.election_id)
+                       )
+              )
+              or exists (
+                select 1
+                  from candidates c
+                 where c.id = {ref_pk}
+                   and c.hidden = true
+              )
+              then true else false
+            end as pass
+     ;
+   $ver$
+ where id in (select id from pv);
+
+-- Turn ON safe auto-fix for this one policy (keeps others detect-only)
+update steward.policies
+   set auto_fix_mode = 'safe_sql', severity_autofix_ceiling='error'
+ where policy_key = 'orphaned_candidates';
+
+commit;
+```
+
+---
+
+# 2) Server: policy toggle endpoints (enable/disable from UI)
+
+> **Create** `server/routes/steward-policies.ts`
+
+```ts
+// server/routes/steward-policies.ts
+import { Router } from "express";
+import { Pool } from "pg";
+
+const router = Router();
+const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+
+router.get("/policies", async (_req, res) => {
+  const { rows } = await pool.query(`
+    select p.id, p.policy_key, p.title, p.auto_fix_mode, p.severity_autofix_ceiling,
+           v.id as version_id, (v.fix_sql is not null) as has_fix_sql, (v.verification_sql is not null) as has_verifier
+      from steward.policies p
+      left join lateral (
+        select id, fix_sql, verification_sql from steward.policy_versions
+         where policy_id = p.id and is_active = true
+         order by created_at desc limit 1
+      ) v on true
+     order by p.policy_key
+  `);
+  res.json(rows);
+});
+
+router.patch("/policies/:key/auto-fix", async (req, res) => {
+  const { key } = req.params;
+  const { mode } = req.body as { mode: "off" | "safe_sql" | "llm_review" | "llm_apply" };
+
+  if (!["off","safe_sql","llm_review","llm_apply"].includes(String(mode))) {
+    return res.status(400).json({ error: "invalid_mode", allowed: ["off","safe_sql","llm_review","llm_apply"] });
+  }
+
+  const { rowCount } = await pool.query(
+    `update steward.policies set auto_fix_mode=$1 where policy_key=$2`,
+    [mode, key]
+  );
+  if (rowCount === 0) return res.status(404).json({ error: "policy_not_found", key });
+  res.json({ ok: true, policy_key: key, auto_fix_mode: mode });
+});
+
+export default router;
+```
+
+> **Patch** `server/index.ts` to mount these routes (if not already):
+
+```ts
+// server/index.ts (add near your other routers)
+import stewardPolicies from "./routes/steward-policies";
+// ...
+app.use("/api/steward", stewardPolicies);
+```
+
+---
+
+# 3) Runner: use policy version `fix_sql` and keep **apply+verify** atomic
+
+If you already applied my earlier **transactional verifier** in the fixer/runner, you’re good. If not, add/confirm two things:
+
+### A) `run-policies.ts` should read `fix_sql` from the active policy version
+
+```ts
+// server/steward/run-policies.ts (snippet inside your loader for the active policy version)
+const { rows: metaRows } = await client.query(
+  `select v.id as version_id, v.fix_sql, v.verification_sql, p.auto_fix_mode, p.policy_key
+     from steward.policy_versions v
+     join steward.policies p on p.id = v.policy_id
+    where p.policy_key=$1 and v.is_active=true
+    limit 1`,
+  [policyKey]
+);
+const meta = metaRows[0]; // meta.fix_sql will be used below
+```
+
+### B) Use the **verified inline apply** from my previous message
+
+(“inside runPolicy(...) after you insert/open the finding”). That block **begins txn → apply fix\_sql → run verification\_sql → commit or rollback**. If you already replaced it, no change needed.
+
+---
+
+# 4) UI: per-policy toggle switch in Data Steward
+
+> **Add** a small panel to your Data Steward page.
+
+```tsx
+// client/src/components/PolicyTogglePanel.tsx
+import { useEffect, useState } from "react";
+
+type Policy = {
+  id: number;
+  policy_key: string;
+  title: string;
+  auto_fix_mode: "off" | "safe_sql" | "llm_review" | "llm_apply";
+  severity_autofix_ceiling?: string;
+  has_fix_sql: boolean;
+  has_verifier: boolean;
+};
+
+export default function PolicyTogglePanel() {
+  const [policies, setPolicies] = useState<Policy[]>([]);
+  const [saving, setSaving] = useState<string | null>(null);
+
+  const load = async () => {
+    const res = await fetch("/api/steward/policies");
+    setPolicies(await res.json());
+  };
+
+  useEffect(() => { load(); }, []);
+
+  async function setMode(key: string, mode: Policy["auto_fix_mode"]) {
+    setSaving(key);
+    try {
+      const res = await fetch(`/api/steward/policies/${key}/auto-fix`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ mode }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      await load();
+    } finally {
+      setSaving(null);
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold">Auto-Fix Policies</h3>
+      <div className="rounded-xl border p-3">
+        {policies.map((p) => (
+          <div key={p.policy_key} className="flex items-center justify-between py-2 border-b last:border-b-0">
+            <div>
+              <div className="font-medium">{p.title}</div>
+              <div className="text-xs text-muted-foreground">
+                key: <code>{p.policy_key}</code> • fix_sql: {p.has_fix_sql ? "yes" : "no"} • verifier: {p.has_verifier ? "yes" : "no"}
+              </div>
+            </div>
+            <div className="flex gap-2">
+              {(["off","safe_sql","llm_review","llm_apply"] as const).map(mode => (
+                <button
+                  key={mode}
+                  disabled={saving === p.policy_key}
+                  onClick={() => setMode(p.policy_key, mode)}
+                  className={`px-3 py-1 rounded-md border text-sm ${
+                    p.auto_fix_mode === mode ? "bg-black text-white dark:bg-white dark:text-black" : "bg-transparent"
+                  }`}
+                >
+                  {mode}
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+> **Render it** somewhere in your Data-Steward page:
+
+```tsx
+// client/src/pages/DataSteward.tsx (or wherever your Steward screen lives)
+import PolicyTogglePanel from "@/components/PolicyTogglePanel";
+
+export default function DataStewardPage() {
+  return (
+    <div className="space-y-6">
+      {/* ... existing Steward UI ... */}
+      <PolicyTogglePanel />
+      {/* ... AutofixPanel / Findings tables ... */}
+    </div>
+  );
+}
+```
+
+---
+
+# 5) One-shot: run auto-fix + verify + show what’s left
+
+> Replace `$APP` with your live base URL when running locally you can use relative paths.
+
+```bash
+# A) kick a full scan with auto-apply for safe policies (includes orphaned_candidates)
+curl -s -X POST "$APP/api/steward/scan?policy=all&auto=true" \
+  -H "content-type: application/json" \
+  -d '{"actor":"admin"}' | jq
+
+# B) if you’re also using the job-based fixer for LLM/complex items, drain it once
+npm run steward:fixer
+
+# C) re-scan DRY (no changes) – proves fixes really stuck
+curl -s -X POST "$APP/api/steward/scan?policy=all&auto=false" \
+  -H "content-type: application/json" \
+  -d '{"dry_run":"true","actor":"auditor"}' | jq
+
+# D) show any remaining open findings
+curl -s "$APP/api/steward/findings?status=open" | jq
+```
+
+**What you should see:**
+
+* All `orphaned_candidates` findings **move to “applied”** (or remain open if validation failed—no fake greens).
+* Any still open under that policy indicate real verification failure needing human look (e.g., FK blocked or non-orphan condition).
+
+---
+
+## Notes & guardrails
+
+* **Safety first:** This fix template **never deletes**; it only hides truly orphaned candidates. It’s idempotent.
+* **Atomic truth:** Apply + verify in **one transaction**. If verifier fails, **rollback** and keep the finding **open**.
+* **Controls:** You can toggle policies to `off` / `safe_sql` / `llm_review` / `llm_apply` in the new panel.
+* **Extend later:** If you decide to **re-link** instead of hide, add a separate policy (e.g., `orphaned_candidates_relink`) that reads a `suggested_election_id` from your finding detail and write a cautious `fix_sql`. Keep that one at `llm_review` until you trust it.
+
+---
+
+### Want me to also turn on nightly **auto-scan + safe-fix** and a **pre-deploy gate** so deploys fail if any safe policy still has open findings?

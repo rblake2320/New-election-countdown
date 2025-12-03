@@ -1,0 +1,160 @@
+
+
+---
+
+## A) Product/UI: candidates on the card + compare flow (tight)
+
+1. **On-card preview (kept)**
+
+   * Keep the compact pill countdown.
+   * Show a “Candidates (N)” button → expands **lazy-fetched** list with checkboxes (up to 5).
+   * “Compare (N)” button builds `/compare?c=1,2,3…`.
+
+2. **Details page**
+
+   * Clicking card or “Details” opens `/elections/:id`: show countdown, meta, **full candidate list** (with party/incumbent), and sections that light up when keys exist (OpenFEC/OpenStates).
+
+3. **Compare page**
+
+   * Render tiles side-by-side: name, party, state, **profile\_image\_url**, office, incumbent, + **Finance** and **Legislation** sections (only if keys available).
+   * Persist selected IDs in `localStorage` so users can hop between details and compare.
+
+### Drop-in: use numeric IDs everywhere
+
+```ts
+// client/src/adapters/election.ts
+export type UiElection = {
+  id: number;
+  title: string;
+  start_date?: string; // ISO
+  state?: string;
+  type?: string[];
+  level?: string[];
+  candidates?: number;
+};
+```
+
+```tsx
+// client/src/components/CandidatesPreview.tsx (numeric ids)
+async function fetchCandidates(electionId: number) {
+  const r = await fetch(`/api/elections/${electionId}/candidates`);
+  if (!r.ok) throw new Error("fetch candidates failed");
+  return r.json() as Promise<{id:number;name:string;party?:string;incumbent?:boolean}[]>;
+}
+export default function CandidatesPreview({ electionId, count }: { electionId: number; count?: number }) { /* unchanged behavior */ }
+```
+
+```tsx
+// client/src/pages/Compare.tsx (ids are numbers, include profile_image_url)
+const ids = useMemo(
+  () => (new URLSearchParams(location.search).get("c") ?? "")
+          .split(",").map(s => Number(s)).filter(n => Number.isFinite(n)),
+  [location.search]
+);
+const { data = [] } = useQuery({
+  queryKey: ["candidates", ids],
+  queryFn: async () => {
+    if (!ids.length) return [];
+    const r = await fetch(`/api/elections/candidates-by-ids?ids=${ids.join(",")}`);
+    return r.ok ? r.json() : [];
+  }
+});
+```
+
+---
+
+## B) Server: use your schema (no join table), cache, and indexes
+
+### Endpoints (raw SQL, numeric IDs)
+
+```ts
+// server/routes/elections.ts
+import { Router } from "express";
+import { pool } from "../db"; // pg.Pool configured for Neon
+export const electionsRouter = Router();
+
+electionsRouter.get("/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  const { rows: [e] } = await pool.query(
+    `SELECT id, title, date, state, level, type FROM elections WHERE id=$1`,
+    [id]
+  );
+  if (!e) return res.status(404).json({ error: "Not found" });
+
+  const { rows: [c] } = await pool.query(
+    `SELECT COUNT(*)::int AS count FROM candidates WHERE election_id=$1`,
+    [id]
+  );
+  res.json({ ...e, candidates: c?.count ?? 0 });
+});
+
+electionsRouter.get("/:id/candidates", async (req, res) => {
+  const id = Number(req.params.id);
+  const { rows } = await pool.query(
+    `SELECT id, name, party, incumbent, profile_image_url
+       FROM candidates WHERE election_id=$1
+       ORDER BY COALESCE(ballot_position, 9999), name`,
+    [id]
+  );
+  res.json(rows);
+});
+
+electionsRouter.get("/candidates-by-ids", async (req, res) => {
+  const ids = String(req.query.ids ?? "")
+    .split(",").map((s) => Number(s)).filter(Number.isFinite);
+  if (!ids.length) return res.json([]);
+  const { rows } = await pool.query(
+    `SELECT id, name, party, state, office, incumbent, profile_image_url
+       FROM candidates WHERE id = ANY($1::int[])`,
+    [ids]
+  );
+  res.json(rows);
+});
+```
+
+### Indexes (fast dropdowns & counts)
+
+```sql
+-- one-time migration
+CREATE INDEX IF NOT EXISTS idx_candidates_election_id
+  ON candidates (election_id);
+
+CREATE INDEX IF NOT EXISTS idx_candidates_ballot
+  ON candidates (election_id, COALESCE(ballot_position, 9999), name);
+
+CREATE INDEX IF NOT EXISTS idx_elections_date ON elections (date);
+CREATE INDEX IF NOT EXISTS idx_elections_state ON elections (state);
+
+-- optional: materialized counts for huge datasets
+CREATE MATERIALIZED VIEW IF NOT EXISTS election_candidate_counts AS
+SELECT election_id, COUNT(*)::int AS candidate_count
+FROM candidates GROUP BY election_id;
+CREATE UNIQUE INDEX IF NOT EXISTS mv_ecc_pk ON election_candidate_counts (election_id);
+-- refresh nightly (or after imports)
+```
+
+### OpenFEC/OpenStates aggregation (compare page)
+
+Add a server utility that enriches candidate profiles **only when keys are present** (so UI never breaks). Cache results for 10–30 min.
+
+---
+
+## C) Countdown behavior polish (status-aware)
+
+```ts
+// client/src/utils/date.ts
+export function countdownStatus(iso?: string, zone="local") {
+  const t = parseUTC(iso)?.setZone(zone);
+  if (!t) return { label:"TBD", severity:"neutral" as const, live:false };
+
+  const now = DateTime.now().setZone(zone);
+  if (now.hasSame(t, "day")) return { label:"Today", severity:"urgent" as const, live:false };
+  if (now > t)                return { label:"Completed", severity:"neutral" as const, live:false };
+
+  // … keep your 2-unit logic here (dd hh / hh mm / mm:ss)
+}
+```
+
+---
+
+

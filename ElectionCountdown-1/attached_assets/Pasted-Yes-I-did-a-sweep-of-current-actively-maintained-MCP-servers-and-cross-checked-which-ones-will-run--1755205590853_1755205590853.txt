@@ -1,0 +1,210 @@
+Yes—I did a sweep of current, actively-maintained MCP servers and cross-checked which ones will run cleanly on Replit. Below is a Replit-safe bundle that covers what your app needs (data verification, scraping, PDFs, DB sanity checks, scheduled jobs) plus a drop-in launcher you can copy-paste.
+
+---
+
+# Recommended MCP bundle (Replit-safe)
+
+**Core (use these):**
+
+* **OpenAPI MCP** – call external APIs (OpenFEC, ProPublica, Google Civic, etc.) from the bot with typed schemas. Good for key-gated sources. ([GitHub][1], [MCP][2])
+* **Fetch/Reader MCP** – lightweight “get URL → Markdown” for content verification without a headless browser (use Jina Reader / Fetch). ([Awesome MCP Servers][3])
+* **Postgres MCP (read-only)** – lets the bot run **safe** SQL checks against your Neon DB (we wire it to a read-only role). ([Reddit][4])
+* **Scheduler MCP** – simple cron-style tasks for nightly re-verification (dates drift, candidate deltas). ([GitHub][5])
+* **KV MCP** – small, durable key-value memory for bot state (what it fixed, last scan watermark). ([GitHub][6])
+
+**Optional (use if/when needed):**
+
+* **Puppeteer MCP** – full browser automation (captchas, JS-heavy sites). Works on Replit, but heavier; pass Chromium flags (`--no-sandbox`, `--disable-dev-shm-usage`). If you’d rather offload, use **Browserbase** remote MCP. ([Anthropic][7], [Awesome MCP Servers][3])
+* **PDF Reader / Extraction MCP** – read VIGs, county PDFs, do OCR where needed. Choose one of the maintained servers below. ([npm][8], [PulseMCP][9], [npm][10])
+* **Firecrawl MCP** – robust crawling + extraction via API (nice fallback when headless browsers are flaky on free tiers). ([docs.firecrawl.dev][11], [GitHub][12])
+* **Remote MCP** – connect to any hosted MCP over SSE/WebSocket (handy for Browserbase/Firecrawl or your own remote tools). ([npm][13], [GitHub][14])
+
+> Reference directories that track active servers (good for future add-ons): **mcpservers.org** and **mcp.dev/servers**. ([Awesome MCP Servers][3], [npm][15])
+
+---
+
+# Replit compatibility notes (what will “just work”)
+
+* **Use stdio** transports (spawn as child processes with `npx -y …`) so you don’t need extra ports in Replit. (All servers below support this.) ([npm][15])
+* **Prefer Fetch/OpenAPI over headless browsers** for routine verification; only enable **Puppeteer** when sites need a real DOM. Replit can run Chromium but it’s heavier; **Browserbase** remote MCP avoids those container limits. ([Awesome MCP Servers][3])
+* **DB access**: point Postgres MCP at a **read-only user** to keep the bot safe while it runs the SQL sanity suite. ([Reddit][4])
+* **Nightly tasks**: wire Scheduler MCP to your existing “Scheduled Deployments”/cron; the bot requests a run, Replit executes on schedule. ([GitHub][5])
+
+---
+
+# Drop-in launcher (spawns MCP servers inside your app)
+
+Create `server/mcp/launch.ts`:
+
+```ts
+// server/mcp/launch.ts
+import { spawn } from "node:child_process";
+import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+
+type Provider = {
+  name: string;
+  cmd: string;
+  args: string[];
+  env?: NodeJS.ProcessEnv;
+};
+
+const providers: Provider[] = [
+  // OpenAPI (wire your OpenFEC/ProPublica/Civic specs)
+  {
+    name: "openapi",
+    cmd: "npx",
+    args: ["-y", "mcp", "openapi", "--spec", "./server/openapi/openfec.yaml"],
+    env: { OPENFEC_API_KEY: process.env.OPENFEC_API_KEY ?? "" },
+  },
+  // Lightweight web fetcher (URL -> markdown)
+  {
+    name: "jina-reader",
+    cmd: "npx",
+    args: ["-y", "jina-reader-mcp"],
+  },
+  // Read-only Postgres for sanity SQL
+  {
+    name: "postgres-ro",
+    cmd: "npx",
+    args: ["-y", "@modelcontextprotocol/postgres-mcp"],
+    env: {
+      DATABASE_URL: process.env.DATABASE_URL_READONLY ?? process.env.DATABASE_URL ?? "",
+      PGSSLMODE: "require",
+    },
+  },
+  // Scheduler
+  {
+    name: "scheduler",
+    cmd: "npx",
+    args: ["-y", "@modelcontextprotocol/scheduler"],
+  },
+  // KV store (small bot memory)
+  {
+    name: "kv",
+    cmd: "npx",
+    args: ["-y", "@modelcontextprotocol/kv"],
+  },
+
+  // ------- Optional (enable when needed) -------
+  // Headless browser (local). Consider offloading to Browserbase in production.
+  {
+    name: "puppeteer",
+    cmd: "npx",
+    args: ["-y", "@modelcontextprotocol/server-puppeteer"],
+    env: {
+      PUPPETEER_EXECUTABLE_PATH: process.env.PUPPETEER_EXECUTABLE_PATH ?? "",
+      PUPPETEER_ARGS: "--no-sandbox --disable-dev-shm-usage",
+    },
+  },
+  // PDF reader / OCR (pick one)
+  // { name: "pdf-reader", cmd: "npx", args: ["-y", "@vlasky/pdf-reader-mcp"] },
+  // { name: "pdf-extraction", cmd: "npx", args: ["-y", "mcp-pdf-extraction-server"] },
+
+  // Remote MCP proxy (e.g., Browserbase, Firecrawl)
+  // { name: "remote", cmd: "npx", args: ["-y", "mcp-remote", "https://api.browserbase.com/mcp"] },
+];
+
+export async function launchMcpServers() {
+  const clients: Record<string, Client> = {};
+
+  for (const p of providers) {
+    try {
+      const child = spawn(p.cmd, p.args, {
+        stdio: ["pipe", "pipe", "pipe"],
+        env: { ...process.env, ...(p.env || {}) },
+      });
+
+      const transport = new StdioClientTransport(child.stdin!, child.stdout!);
+      const client = new Client(
+        { name: "electiontracker-bot", version: "1.0.0" },
+        { capabilities: {} },
+        transport
+      );
+
+      // Important: propagate errors so a bad server doesn't crash the app
+      child.on("error", (e) => console.error(`[MCP:${p.name}] spawn error`, e));
+      child.stderr?.on("data", (d) => console.warn(`[MCP:${p.name}]`, d.toString()));
+
+      await client.connect();
+      clients[p.name] = client;
+      console.log(`[MCP:${p.name}] connected`);
+    } catch (e) {
+      console.error(`[MCP:${p.name}] failed to start`, e);
+    }
+  }
+
+  return clients;
+}
+```
+
+Wire it once at server boot (e.g., in `server/index.ts`):
+
+```ts
+import { launchMcpServers } from "./mcp/launch";
+
+(async () => {
+  if (process.env.ENABLE_MCP === "true") {
+    await launchMcpServers();
+  }
+})();
+```
+
+**Install & env (Replit):**
+
+```bash
+npm i -S @modelcontextprotocol/sdk
+# add servers you enabled above:
+npm i -D mcp jina-reader-mcp @modelcontextprotocol/postgres-mcp \
+       @modelcontextprotocol/scheduler @modelcontextprotocol/kv \
+       @modelcontextprotocol/server-puppeteer
+# optional:
+npm i -D @vlasky/pdf-reader-mcp mcp-pdf-extraction-server mcp-remote
+# playwright/puppeteer deps if you keep local browser:
+npx playwright install chromium || true
+```
+
+---
+
+# Minimal policies (safe defaults on Replit)
+
+* **Postgres MCP**: connect with a **read-only** DB role (no `INSERT/UPDATE/DELETE`), set `statement_timeout=5000ms`. ([Reddit][4])
+* **Fetch/Reader MCP**: set **rate limits** + user-agent; prefer official API via **OpenAPI MCP** when available. ([GitHub][1])
+* **Browser automation**: default **OFF** in production; turn on only per task or use **Browserbase** via `mcp-remote`. ([Awesome MCP Servers][3])
+* **Scheduler MCP**: schedule nightly “date drift” checks and candidate coverage scans; log results to your `data_steward_suggestions` table (you already have it). ([GitHub][5])
+
+---
+
+# Why these choices (and where they come from)
+
+* **OpenAPI MCP** is the sanctioned way to expose external REST APIs as tools (keeps everything typed and key-safe). ([GitHub][1])
+* **Reader/Fetch MCP** are lightweight and widely used for URL→text; less brittle than running a full browser on small containers. ([Awesome MCP Servers][3])
+* **Postgres MCP** exists specifically to give an MCP client guarded SQL access—perfect for your SQL sanity suite checks. ([Reddit][4])
+* **Puppeteer MCP** is official and works; **Browserbase** is an official remote server to offload compute if the container is tight. ([Anthropic][7], [Awesome MCP Servers][3])
+* **PDF MCP** servers (pdf-reader / pdf-extraction) are maintained and used across MCP directories for extraction/OCR. ([npm][8], [PulseMCP][9], [npm][10])
+* **Remote/Scheduler/KV** are official utilities for connecting to remote MCPs, cron-style runs, and small state. ([npm][13], [GitHub][5])
+
+---
+
+If you want, I can fold this into your existing Data Steward Bot so it:
+
+* uses **OpenAPI MCP** for authoritative checks (OpenFEC/ProPublica/Google Civic),
+* falls back to **Reader**/**PDF** for county PDFs and VIGs,
+* runs your **SQL sanity suite** through **Postgres MCP**, and
+* schedules the nightly drift scan via **Scheduler MCP**—all from inside Replit.
+
+[1]: https://github.com/syahiidkamil/mcp-postgres-full-access?utm_source=chatgpt.com "PostgreSQL Full Access MCP Server"
+[2]: https://mcp.so/server/postgres/antonorlov?utm_source=chatgpt.com "PostgreSQL MCP Server"
+[3]: https://mcpservers.org/category/web-scraping "Awesome MCP Servers"
+[4]: https://www.reddit.com/r/Anthropic/comments/1h2buuv/github_awesome_mcp_servers_a_collection_of_model/?utm_source=chatgpt.com "[GitHub] Awesome MCP Servers: A collection of model ..."
+[5]: https://github.com/crystaldba/postgres-mcp?utm_source=chatgpt.com "Postgres MCP Pro provides configurable read/write access ..."
+[6]: https://github.com/modelcontextprotocol/servers?utm_source=chatgpt.com "modelcontextprotocol/servers: Model Context Protocol ..."
+[7]: https://www.anthropic.com/news/model-context-protocol?utm_source=chatgpt.com "Introducing the Model Context Protocol"
+[8]: https://www.npmjs.com/package/%40vlasky/pdf-reader-mcp?utm_source=chatgpt.com "vlasky/pdf-reader-mcp"
+[9]: https://www.pulsemcp.com/servers/xraywu-pdf-extraction?utm_source=chatgpt.com "PDF Extraction MCP Server by xraywu"
+[10]: https://npmjs.com/package/%40shtse8/pdf-reader-mcp?ref=pkgstats.com&utm_source=chatgpt.com "shtse8/pdf-reader-mcp"
+[11]: https://docs.firecrawl.dev/mcp-server?utm_source=chatgpt.com "Firecrawl MCP Server"
+[12]: https://github.com/mendableai/firecrawl-mcp-server?utm_source=chatgpt.com "mendableai/firecrawl-mcp-server"
+[13]: https://www.npmjs.com/package/%40supabase/mcp-server-postgrest?utm_source=chatgpt.com "supabase/mcp-server-postgrest"
+[14]: https://github.com/madhukarkumar/anthropic-mcp-servers?utm_source=chatgpt.com "madhukarkumar/anthropic-mcp-servers: Model Context ..."
+[15]: https://www.npmjs.com/package/%40modelcontextprotocol/server-postgres?utm_source=chatgpt.com "modelcontextprotocol/server-postgres"

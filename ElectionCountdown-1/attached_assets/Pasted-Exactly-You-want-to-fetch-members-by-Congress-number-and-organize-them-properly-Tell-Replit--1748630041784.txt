@@ -1,0 +1,140 @@
+Exactly! You want to fetch members by Congress number and organize them properly. Tell Replit:
+
+  Implement Congress-Specific Member Fetching:
+
+  // Create a comprehensive member fetching system by Congress
+
+  async function syncMembersByCongress(congressNumber) {
+    console.log(`Fetching all members from ${congressNumber}th Congress...`);
+
+    let allMembers = [];
+    let offset = 0;
+
+    while (true) {
+      const response = await fetch(
+        `https://api.congress.gov/v3/member/congress/${congressNumber}?api_key=${CONGRESS_API_KEY}&limit=250&offset
+  =${offset}`
+      );
+      const data = await response.json();
+
+      if (!data.members || data.members.length === 0) break;
+
+      allMembers = allMembers.concat(data.members);
+
+      if (!data.pagination?.next) break;
+      offset += 250;
+    }
+
+    console.log(`${congressNumber}th Congress: ${allMembers.length} members`);
+
+    // Store with congress number
+    for (const member of allMembers) {
+      await db.insert(congressMembers).values({
+        bioguide_id: member.bioguideId,
+        name: member.name,
+        state: member.state,
+        district: member.district,
+        party: member.partyName,
+        chamber: member.terms?.item?.[0]?.chamber,
+        congress_number: congressNumber, // ADD THIS FIELD
+        photo_url: member.depiction?.imageUrl,
+        updated_at: new Date()
+      }).onConflictDoUpdate({
+        target: congressMembers.bioguide_id,
+        set: {
+          congress_number: congressNumber,
+          updated_at: new Date()
+        }
+      });
+    }
+
+    return allMembers;
+  }
+
+  // Sync multiple congresses
+  async function syncAllRecentCongresses() {
+    const congresses = [119, 118, 117, 116, 115]; // Recent 5 congresses
+    const results = {};
+
+    for (const num of congresses) {
+      const members = await syncMembersByCongress(num);
+      results[num] = members.length;
+    }
+
+    return results;
+  }
+
+  // Update the UI to show Congress selector
+  function CongressMembersTab({ selectedCongress = 118 }) {
+    const [congress, setCongress] = useState(selectedCongress);
+    const [members, setMembers] = useState([]);
+
+    useEffect(() => {
+      fetchMembersByCongress(congress);
+    }, [congress]);
+
+    return (
+      <div>
+        <Select value={congress} onChange={setCongress}>
+          <option value={119}>119th Congress (2025-2027) - Current</option>
+          <option value={118}>118th Congress (2023-2025)</option>
+          <option value={117}>117th Congress (2021-2023)</option>
+          <option value={116}>116th Congress (2019-2021)</option>
+          <option value={115}>115th Congress (2017-2019)</option>
+        </Select>
+
+        <div className="member-count">
+          Showing {members.length} members from {congress}th Congress
+        </div>
+
+        {/* Member grid */}
+      </div>
+    );
+  }
+
+  Database Schema Update:
+
+  -- Add congress tracking
+  ALTER TABLE congress_members
+  ADD COLUMN congress_number INTEGER;
+
+  -- Create index for fast filtering
+  CREATE INDEX idx_members_congress ON congress_members(congress_number);
+
+  -- Track member history
+  CREATE TABLE member_congress_history (
+    bioguide_id VARCHAR(20),
+    congress_number INTEGER,
+    chamber VARCHAR(10),
+    state VARCHAR(2),
+    district INTEGER,
+    start_date DATE,
+    end_date DATE,
+    PRIMARY KEY (bioguide_id, congress_number)
+  );
+
+  Expected Results:
+
+  // Each Congress should return approximately:
+  {
+    119: 250,  // Still being seated (as of 2025)
+    118: 554,  // Full Congress with replacements
+    117: 551,  // Full Congress
+    116: 549,  // Full Congress
+    115: 547   // Full Congress
+  }
+
+  // The variation is due to:
+  // - Special elections
+  // - Deaths/resignations
+  // - Appointments to fill vacancies
+
+  Tell Replit:
+  "Implement Congress-specific member fetching:
+  1. Add congress_number field to the database
+  2. Create a dropdown to select which Congress (115-119)
+  3. Fetch and store members by Congress number
+  4. Show the count for each Congress
+  5. Default to 118th Congress (most recent complete one)
+
+  This way users can see current members OR historical members by Congress session."

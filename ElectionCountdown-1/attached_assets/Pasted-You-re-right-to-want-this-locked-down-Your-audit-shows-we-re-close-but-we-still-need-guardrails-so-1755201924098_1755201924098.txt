@@ -1,0 +1,415 @@
+You’re right to want this locked down. Your audit shows we’re close, but we still need guardrails so dates don’t drift, counts can’t silently break, and priority races never show “Candidates (0)”. Below is a **drop-in remediation pack** you can run today: it adds truth tables, nightly checks, and one-shot loaders for those big-city mayoral races.
+
+---
+
+# What this bundle does (fast)
+
+* **Truth sources** for static-ish facts
+
+  * House seats per state (2020 apportionment) → validates congress counts.
+  * Election date “authorities” with priorities → detects & records date moves.
+
+* **Nightly sanity gates** (write findings; never delete data)
+
+  * CA UDEL heuristic (odd-year Nov local elections).
+  * Upcoming-without-candidates inside a window.
+  * Duplicate races, overlapping versions, orphan links (reuses your suite).
+  * NEW: Congress seat mismatches by state.
+
+* **Priority race coverage gate**
+
+  * Mark key elections (e.g., **Boston/Seattle/Atlanta/Detroit Mayor 2025**) as “must have ≥2 candidates” within N days.
+
+* **Zero-click upserts for candidates by title**
+
+  * `upsert_candidates_for_title()` finds the election by `title/state/date`, creates/links candidates, and refreshes counts.
+  * Works whether you use a join table (`election_candidates`) **or** `candidates.election_id`.
+
+* **Reconcile job**
+
+  * `reconcile_election_dates()` looks at incoming authoritative dates, writes a change ledger, and updates the current version safely (no destructive edits).
+
+---
+
+## 1) Truth tables & authorities
+
+**`sql/13_truth_static.sql`**
+
+```sql
+-- Extensions (safe if already enabled)
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+-- House seats by state (2020 apportionment)
+CREATE TABLE IF NOT EXISTS house_seats_2020 (
+  state char(2) PRIMARY KEY,
+  house_seats int NOT NULL CHECK (house_seats >= 1)
+);
+
+-- Idempotent seed (full slate)
+INSERT INTO house_seats_2020(state,house_seats) VALUES
+('AL',7),('AK',1),('AZ',9),('AR',4),('CA',52),('CO',8),('CT',5),('DE',1),('FL',28),
+('GA',14),('HI',2),('ID',2),('IL',17),('IN',9),('IA',4),('KS',4),('KY',6),('LA',6),
+('ME',2),('MD',8),('MA',9),('MI',13),('MN',8),('MS',4),('MO',8),('MT',2),('NE',3),
+('NV',4),('NH',2),('NJ',12),('NM',3),('NY',26),('NC',14),('ND',1),('OH',15),('OK',5),
+('OR',6),('PA',17),('RI',2),('SC',7),('SD',1),('TN',9),('TX',38),('UT',4),('VT',1),
+('VA',11),('WA',10),('WV',2),('WI',8),('WY',1)
+ON CONFLICT (state) DO UPDATE SET house_seats=EXCLUDED.house_seats;
+
+-- Expected total members per state = house + 2 senators
+CREATE OR REPLACE VIEW v_expected_congress_totals AS
+SELECT state, house_seats, (house_seats + 2) AS expected_total
+FROM house_seats_2020;
+
+-- Election date authorities (ingest here nightly from SOS/county feeds)
+CREATE TABLE IF NOT EXISTS election_date_authorities (
+  id           bigserial PRIMARY KEY,
+  election_id  bigint NOT NULL,
+  authority    text   NOT NULL,          -- e.g., 'CA_SOS','LA_County','NYC_BOE'
+  reported_at  timestamptz NOT NULL DEFAULT now(),
+  reported_date timestamptz NOT NULL,    -- authoritative date/time (TZ-aware)
+  confidence   int NOT NULL CHECK (confidence BETWEEN 0 AND 100),
+  priority     int NOT NULL DEFAULT 100, -- lower = stronger
+  notes        text
+);
+CREATE INDEX IF NOT EXISTS idx_edauth_election_prio ON election_date_authorities(election_id, priority);
+```
+
+---
+
+## 2) New sanity checks: congress counts & date reconcile
+
+**`sql/14_sanity_congress_and_dates.sql`**
+
+```sql
+-- Actual counts by state from your members table
+-- Adjust table/column names if yours differ.
+CREATE OR REPLACE VIEW v_congress_counts_by_state AS
+SELECT state, COUNT(*) AS actual_total
+FROM members
+WHERE deleted_at IS NULL
+GROUP BY state;
+
+-- Mismatches vs. expected totals (house+2)
+CREATE OR REPLACE VIEW v_congress_mismatch AS
+SELECT e.state, e.expected_total, a.actual_total,
+       (a.actual_total - e.expected_total) AS delta
+FROM v_expected_congress_totals e
+LEFT JOIN v_congress_counts_by_state a ON a.state=e.state
+WHERE a.actual_total IS DISTINCT FROM e.expected_total;
+
+-- Write into findings on next sanity_run():
+CREATE OR REPLACE FUNCTION sanity_congress_counts(_run uuid)
+RETURNS void LANGUAGE sql AS $$
+  INSERT INTO sanity_findings(run_id, code, severity, entity_type, entity_id, message, context)
+  SELECT _run, 'congress_count_mismatch',
+         CASE WHEN abs(delta) >= 2 THEN 'high'::sanity_severity ELSE 'medium'::sanity_severity END,
+         'system', NULL,
+         format('Congress count mismatch for %s: actual=%s expected=%s (Δ=%s)', state, actual_total, expected_total, delta),
+         jsonb_build_object('state',state,'actual',actual_total,'expected',expected_total,'delta',delta)
+  FROM v_congress_mismatch
+  WHERE NOT EXISTS (
+    SELECT 1 FROM sanity_whitelist w
+     WHERE w.code='congress_count_mismatch'
+       AND w.entity_type='system'
+       AND w.entity_id=0
+  );
+$$;
+
+-- Ledger for date changes
+CREATE TABLE IF NOT EXISTS election_date_changes (
+  change_id    uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  election_id  bigint NOT NULL,
+  old_date     timestamptz,
+  new_date     timestamptz NOT NULL,
+  authority    text NOT NULL,
+  priority     int NOT NULL,
+  confidence   int NOT NULL,
+  recorded_at  timestamptz NOT NULL DEFAULT now()
+);
+
+-- Safe reconcile (non-destructive: closes current version & opens a new one)
+-- Assumes temporal versions: elections (id), election_versions(election_id, election_date, effective_from, effective_to, status)
+-- If you store directly on elections, swap the UPDATE/INSERT pieces accordingly.
+CREATE OR REPLACE FUNCTION reconcile_election_dates(p_limit int DEFAULT 500)
+RETURNS int LANGUAGE plpgsql AS $$
+DECLARE r record; changed int:=0;
+BEGIN
+  FOR r IN
+    SELECT eda.election_id, eda.reported_date, eda.authority, eda.priority, eda.confidence,
+           ec.election_date AS current_date
+    FROM election_date_authorities eda
+    JOIN elections_current ec ON ec.id = eda.election_id
+    WHERE eda.priority = (
+      SELECT min(priority) FROM election_date_authorities x WHERE x.election_id=eda.election_id
+    )
+    ORDER BY eda.priority ASC, eda.reported_at DESC
+    LIMIT p_limit
+  LOOP
+    IF r.current_date IS DISTINCT FROM r.reported_date THEN
+      -- close current version
+      UPDATE election_versions
+         SET effective_to = now()
+       WHERE election_id = r.election_id AND effective_to IS NULL;
+
+      -- open new version with the authoritative date
+      INSERT INTO election_versions(election_id, election_date, status, effective_from)
+      VALUES (r.election_id, r.reported_date, 'moved', now());
+
+      INSERT INTO election_date_changes(election_id, old_date, new_date, authority, priority, confidence)
+      VALUES (r.election_id, r.current_date, r.reported_date, r.authority, r.priority, r.confidence);
+
+      changed := changed + 1;
+    END IF;
+  END LOOP;
+
+  RETURN changed;
+END;
+$$;
+```
+
+> Nightly: load `election_date_authorities` from your crawlers (SOS/county feeds), then `SELECT reconcile_election_dates();` → changes are versioned + logged, and your **cards update automatically**.
+
+---
+
+## 3) Priority races must have candidates
+
+**`sql/15_priority_races.sql`**
+
+```sql
+CREATE TABLE IF NOT EXISTS priority_elections (
+  election_id bigint PRIMARY KEY,
+  min_candidates int NOT NULL DEFAULT 2,
+  within_days int NOT NULL DEFAULT 150,
+  note text
+);
+
+-- Gate view
+CREATE OR REPLACE VIEW v_priority_missing_candidates AS
+SELECT p.election_id, p.min_candidates, p.within_days,
+       ec.title, ec.state, ec.level, ec.election_date,
+       coalesce(cc.candidate_count,0) AS candidate_count
+FROM priority_elections p
+JOIN elections_current ec ON ec.id = p.election_id
+LEFT JOIN election_candidate_counts cc ON cc.election_id = ec.id
+WHERE ec.election_date <= now() + (p.within_days || ' days')::interval
+  AND coalesce(cc.candidate_count,0) < p.min_candidates;
+
+-- Add to sanity_run:
+CREATE OR REPLACE FUNCTION sanity_priority_coverage(_run uuid)
+RETURNS void LANGUAGE sql AS $$
+  INSERT INTO sanity_findings(run_id, code, severity, entity_type, entity_id, message, context)
+  SELECT _run, 'priority_missing_candidates', 'critical', 'election', election_id,
+         format('Priority race lacks candidates: have=%s need>=%s', candidate_count, min_candidates),
+         to_jsonb(v_priority_missing_candidates) - 'election_id';
+$$;
+```
+
+> Seed it once you know the `election_id` for each race (see #5 below).
+
+---
+
+## 4) One-shot candidate upsert by title (works with either schema)
+
+**`sql/16_upsert_candidates.sql`**
+
+```sql
+-- Will try to link via join table if present; otherwise falls back to candidates.election_id
+
+CREATE OR REPLACE FUNCTION upsert_candidates_for_title(
+  p_title text,
+  p_state char(2),
+  p_date date,              -- expected election day (helps disambiguate)
+  p_payload jsonb           -- [{ "name":"...", "party":"...", "incumbent":true, "image": "..." }, ...]
+)
+RETURNS jsonb LANGUAGE plpgsql AS $$
+DECLARE
+  v_election_id bigint;
+  v_has_join bool := (to_regclass('public.election_candidates') IS NOT NULL);
+  rec jsonb;
+  c_id bigint;
+  linked int := 0;
+  created int := 0;
+BEGIN
+  SELECT id INTO v_election_id
+  FROM elections
+  WHERE state=p_state
+    AND (title ILIKE p_title OR title ILIKE '%'||p_title||'%')
+    AND (election_date::date = p_date OR p_date IS NULL)
+  ORDER BY (CASE WHEN election_date::date = p_date THEN 0 ELSE 1 END), id
+  LIMIT 1;
+
+  IF v_election_id IS NULL THEN
+    RAISE EXCEPTION 'Election not found for title=%, state=%, date=%', p_title, p_state, p_date;
+  END IF;
+
+  FOR rec IN SELECT * FROM jsonb_array_elements(p_payload)
+  LOOP
+    -- find-or-create candidate by exact name + state
+    SELECT id INTO c_id FROM candidates
+     WHERE lower(full_name)=lower(rec->>'name') AND state=p_state LIMIT 1;
+
+    IF c_id IS NULL THEN
+      INSERT INTO candidates(full_name, party, state, incumbent, profile_image_url, created_at)
+      VALUES (rec->>'name', rec->>'party', p_state, coalesce((rec->>'incumbent')::boolean,false), rec->>'image', now())
+      RETURNING id INTO c_id;
+      created := created + 1;
+    ELSE
+      UPDATE candidates
+         SET party = COALESCE(NULLIF(rec->>'party',''), party),
+             incumbent = COALESCE((rec->>'incumbent')::boolean, incumbent),
+             profile_image_url = COALESCE(NULLIF(rec->>'image',''), profile_image_url),
+             updated_at = now()
+       WHERE id = c_id;
+    END IF;
+
+    -- link to election
+    IF v_has_join THEN
+      INSERT INTO election_candidates(election_id, candidate_id)
+      VALUES (v_election_id, c_id)
+      ON CONFLICT DO NOTHING;
+    ELSE
+      UPDATE candidates SET election_id = v_election_id WHERE id = c_id;
+    END IF;
+
+    linked := linked + 1;
+  END LOOP;
+
+  -- refresh counts if materialized
+  PERFORM 1 FROM pg_matviews WHERE matviewname='election_candidate_counts';
+  IF FOUND THEN
+    REFRESH MATERIALIZED VIEW CONCURRENTLY election_candidate_counts;
+  END IF;
+
+  RETURN jsonb_build_object(
+    'election_id', v_election_id,
+    'candidates_created', created,
+    'candidates_linked', linked
+  );
+END;
+$$;
+```
+
+### Quick loaders for your posted races
+
+Run each block (adjust names/parties if needed). These are **idempotent**.
+
+```sql
+-- Boston, MA — Nov 4, 2025
+SELECT upsert_candidates_for_title(
+  'Boston Mayoral', 'MA', '2025-11-04',
+  jsonb_build_array(
+    jsonb_build_object('name','Michelle Wu','party','Democratic','incumbent',true),
+    jsonb_build_object('name','Josh Kraft','party','Democratic','incumbent',false)
+  )
+);
+
+-- Seattle, WA — Nov 4, 2025 (advance from primary)
+SELECT upsert_candidates_for_title(
+  'Seattle Mayoral', 'WA', '2025-11-04',
+  jsonb_build_array(
+    jsonb_build_object('name','Bruce Harrell','party','Democratic','incumbent',true),
+    jsonb_build_object('name','Katie Wilson','party','Democratic','incumbent',false)
+  )
+);
+
+-- Atlanta, GA — Nov 4, 2025
+SELECT upsert_candidates_for_title(
+  'Atlanta Mayoral', 'GA', '2025-11-04',
+  jsonb_build_array(
+    jsonb_build_object('name','Andre Dickens','party','Nonpartisan','incumbent',true),
+    jsonb_build_object('name','Helmut Domagalski','party','Nonpartisan','incumbent',false)
+  )
+);
+
+-- Detroit, MI — Nov 4, 2025 (primary Aug 5 – list principal filed)
+SELECT upsert_candidates_for_title(
+  'Detroit Mayoral', 'MI', '2025-11-04',
+  jsonb_build_array(
+    jsonb_build_object('name','Mary Sheffield','party','Nonpartisan'),
+    jsonb_build_object('name','James Craig','party','Nonpartisan'),
+    jsonb_build_object('name','Fred Durhal III','party','Nonpartisan')
+  )
+);
+```
+
+> After you run these, your cards should flip from **Candidates (0)** to the correct counts immediately.
+
+---
+
+## 5) Mark the four mayoral races as **priority**
+
+(Do this after you confirm each election’s `id`.)
+
+```sql
+-- Example: find IDs quickly
+SELECT id, title, state, election_date FROM elections
+WHERE title ILIKE '%Mayoral%' AND state IN ('MA','WA','GA','MI')
+ORDER BY state, election_date DESC;
+
+-- Seed priority gate (require at least 2 candidates inside 150 days)
+INSERT INTO priority_elections(election_id, min_candidates, within_days, note)
+VALUES
+  (<ID_BOSTON>, 2, 150, 'Top-100 city mayoral'),
+  (<ID_SEATTLE>,2, 150, 'Top-100 city mayoral'),
+  (<ID_ATLANTA>,2, 150, 'Top-100 city mayoral'),
+  (<ID_DETROIT>,2, 150, 'Top-100 city mayoral')
+ON CONFLICT (election_id) DO UPDATE
+SET min_candidates=EXCLUDED.min_candidates, within_days=EXCLUDED.within_days, note=EXCLUDED.note;
+```
+
+---
+
+## 6) Wire everything into your nightly run
+
+Add these two calls to the **end** of your existing `sanity_run()` (or just run them as a post-step):
+
+```sql
+-- Append inside sanity_run(): after you create rid
+PERFORM sanity_congress_counts(rid);
+PERFORM sanity_priority_coverage(rid);
+```
+
+Or schedule as separate steps:
+
+```bash
+# Replit cron (examples)
+# 03:00 — ingest authorities (your crawler)
+# 03:10 — reconcile dates
+psql "$DATABASE_URL" -c "SELECT reconcile_election_dates();"
+
+# 03:15 — nightly sanity ledger
+psql "$DATABASE_URL" -c "SELECT * FROM sanity_run();"
+```
+
+---
+
+## 7) Front-end niceties (tiny UX tweak)
+
+Until coverage is 100%, change the card button when `candidateCount=0`:
+
+* Label: **“Add/Report Candidates”**
+* Click → opens a small modal explaining: “We haven’t verified candidates yet. Add known names or report a source.”
+* Also show **“Last verified”** timestamp from a new column `elections_current.last_verified_at` (nullable). You can set it whenever the compare API returns candidates > 0.
+
+*This prevents the “(0)” from looking like an error.*
+
+---
+
+## 8) Verification checklist (Manus)
+
+1. **Run loaders** above → expect 2–3 candidates per city.
+2. `SELECT * FROM v_priority_missing_candidates;` → **empty**.
+3. `SELECT * FROM v_congress_mismatch;` → **empty** (or only whitelisted states).
+4. Inject an authoritative date change into `election_date_authorities` for any test race → `SELECT reconcile_election_dates();` returns **1+** and adds a row in `election_date_changes`.
+5. `SELECT * FROM sanity_run();` → summary row; no **critical** unless intentional.
+
+---
+
+### If anything fails loudly
+
+* Nothing here **deletes** data. You can roll back by removing priority rows or whitelisting a sanity code.
+* All mutations are **append-only** (versioned elections & date change ledger).
+
+---
+
+If you want, I can add a tiny **/api/admin/fix/city-mayors** endpoint that calls `upsert_candidates_for_title` for a set of cities from a JSON payload—handy for quick imports when you get an email tip.

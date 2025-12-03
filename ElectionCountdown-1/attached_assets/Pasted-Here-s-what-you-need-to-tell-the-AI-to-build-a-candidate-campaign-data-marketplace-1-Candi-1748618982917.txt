@@ -1,0 +1,62 @@
+Here's what you need to tell the AI to build a
+  candidate/campaign data marketplace:
+
+  1. Candidate Portal System:
+  -- New tables needed:
+  campaign_accounts: id, candidate_name, office_seeking, verified_status, subscription_tier
+  campaign_access_logs: campaign_id, data_accessed, timestamp, cost
+  data_purchases: campaign_id, dataset_type, price, download_date
+  polling_results: location, demographic, candidate_preferences, sample_size, margin_error
+
+  2. Revenue & Pricing Model:
+  // Subscription tiers:
+  - Basic: $99/month - View aggregated state data
+  - Pro: $499/month - District-level analytics
+  - Enterprise: $2,499/month - Individual user insights (anonymized)
+  - Custom: Contact for raw data exports
+
+  3. Data Products for Campaigns:
+  - Heat maps of supporter concentration
+  - Demographic breakdowns of who's watching their race
+  - Engagement metrics (how long people view their info)
+  - Comparison data vs opponents
+  - Trend analysis over time
+  - Voter registration correlation data
+
+  4. Privacy-Compliant Data Collection:
+  -- Anonymized data aggregation:
+  user_segments: segment_id, criteria, user_count (no individual data)
+  polling_responses: anonymous_id, responses, demographics (no PII)
+  geographic_clusters: zip_code, interest_level, party_lean
+
+  5. Campaign Dashboard Features:
+  // Real-time analytics for campaigns:
+  - Live view counts on their election page
+  - Demographic breakdown of viewers
+  - Questions voters are asking (via search)
+  - Sentiment analysis from interactions
+  - Competitor comparison metrics
+
+  6. API Access for Campaigns:
+  // Authenticated endpoints:
+  /api/campaign/analytics/{election_id}
+  /api/campaign/demographics/{region}
+  /api/campaign/polling/{date_range}
+  /api/campaign/export/{dataset}
+
+  7. Value Proposition Tracking:
+  -- Track what makes users valuable:
+  high_value_users: frequent_visitors, shares_content, influences_others
+  user_influence_score: based_on_referrals, engagement, network_size
+  predictive_voter_model: likelihood_to_vote, candidate_preference_strength
+
+  8. Monetization Controls:
+  // User consent options:
+  - Opt-in to share anonymized data
+  - Premium ad-free experience
+  - Rewards for poll participation
+  - Control what data is shareable
+
+  Tell the AI: "Add a candidate portal with tiered access to anonymized user analytics. Users must opt-in to data
+  sharing. Create a dashboard showing real-time engagement metrics that campaigns can purchase access to. Ensure
+  all data is aggregated and anonymized - no individual user data should be accessible."

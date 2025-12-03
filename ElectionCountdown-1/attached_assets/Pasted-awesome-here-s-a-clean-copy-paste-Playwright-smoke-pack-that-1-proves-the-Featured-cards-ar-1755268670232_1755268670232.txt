@@ -1,0 +1,160 @@
+awesome — here’s a clean, copy-paste Playwright smoke pack that (1) proves the **Featured** cards are the same height as the **Upcoming** cards, and (2) verifies the **Data Integrity / Run Auto-fix** widget is **not visible** to normal users.
+
+---
+
+## 0) Install & project scripts
+
+```bash
+# from your repo root
+npm i -D @playwright/test
+npx playwright install --with-deps
+```
+
+Add scripts to `package.json`:
+
+```json
+{
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ui": "playwright test --ui"
+  }
+}
+```
+
+---
+
+## 1) `playwright.config.ts`
+
+```ts
+import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  timeout: 30_000,
+  expect: { timeout: 5_000 },
+  testDir: 'tests',
+  fullyParallel: true,
+  retries: process.env.CI ? 1 : 0,
+  reporter: [['list'], ['html', { open: 'never' }]],
+  use: {
+    baseURL: process.env.BASE_URL || 'http://localhost:3000',
+    headless: true,
+    trace: 'retain-on-failure',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+    viewport: { width: 1366, height: 900 }
+  },
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+  ],
+});
+```
+
+> Run against your Replit by setting:
+> `BASE_URL=https://61d708f8-536c-456b-b628-19504ff7d54a-00-20vd971bkgzji.picard.replit.dev npm run test:e2e`
+
+---
+
+## 2) Tests
+
+### `tests/featured-layout.spec.ts`
+
+```ts
+import { test, expect } from '@playwright/test';
+
+test.describe('Featured vs Upcoming layout', () => {
+  test('Featured cards render with equal heights & CTAs', async ({ page }) => {
+    await page.goto('/');
+
+    // Wait for Featured section
+    const featuredSection = page.getByRole('heading', { name: /featured elections/i }).locator('..');
+    await expect(featuredSection).toBeVisible();
+
+    // Prefer stable data-testid if available; fall back to semantic selector
+    const featuredCards = page.locator('[data-testid="featured-card"], section:has(h2:has-text("Featured Elections")) article, section:has-text("Featured Elections") article');
+    await expect(featuredCards).toHaveCountGreaterThan(0);
+
+    // Check each card has the two CTAs
+    const cardCount = await featuredCards.count();
+    for (let i = 0; i < cardCount; i++) {
+      const card = featuredCards.nth(i);
+      await expect(card.getByRole('button', { name: /view details/i })).toBeVisible();
+      await expect(card.getByRole('button', { name: /compare/i })).toBeVisible();
+    }
+
+    // Ensure equal heights (allow minor 1-4px variance for subpixel rounding)
+    const heights = await featuredCards.evaluateAll(els => els.map(e => e.getBoundingClientRect().height));
+    const min = Math.min(...heights);
+    const max = Math.max(...heights);
+    expect(max - min, `heights=${JSON.stringify(heights)}`).toBeLessThanOrEqual(4);
+  });
+
+  test('Upcoming grid exists & cards are stretched to equal heights', async ({ page }) => {
+    await page.goto('/');
+
+    const upcomingSection = page.getByRole('heading', { name: /upcoming elections/i }).locator('..');
+    await expect(upcomingSection).toBeVisible();
+
+    const upcomingCards = page.locator('[data-testid="election-card"], .et-grid-eq article, [role="list"] article'); // supports Virtuoso grid
+    await expect(upcomingCards.first()).toBeVisible();
+
+    // sample a handful on the first screen
+    const sampleCount = Math.min(6, await upcomingCards.count());
+    const heights = [];
+    for (let i = 0; i < sampleCount; i++) {
+      const h = await upcomingCards.nth(i).evaluate(el => el.getBoundingClientRect().height);
+      heights.push(h);
+    }
+    const min = Math.min(...heights);
+    const max = Math.max(...heights);
+    expect(max - min, `heights=${JSON.stringify(heights)}`).toBeLessThanOrEqual(6);
+  });
+});
+```
+
+### `tests/admin-widget-visibility.spec.ts`
+
+```ts
+import { test, expect } from '@playwright/test';
+
+test('Data Integrity / Run Auto-fix is hidden for public users', async ({ page }) => {
+  await page.goto('/');
+
+  // It should not be visible to normal users
+  const adminWidget = page.locator('[data-testid="data-integrity-widget"]');
+  await expect(adminWidget).toHaveCount(0);
+
+  // Also ensure "Run Auto-fix" isn’t accidentally present
+  await expect(page.getByRole('button', { name: /run auto-fix/i })).toHaveCount(0);
+  await expect(page.getByText(/data integrity/i)).toHaveCount(0);
+});
+```
+
+---
+
+## 3) (Optional but **highly recommended**) add stable test ids
+
+These make the tests robust and independent of styling:
+
+* In your **Featured** renderer: `<article data-testid="featured-card" …>`
+* In the **Upcoming** item: `<article data-testid="election-card" …>`
+* On the admin widget root: `<section data-testid="data-integrity-widget" …>`
+
+You already have the equal-height helpers (`et-card`, `et-grid-eq`). The tests above will pass once:
+
+* Featured uses the same `ElectionCard` + equal-height classes, and
+* the Data Integrity widget is gated behind `VITE_ADMIN_FEATURES=1` or an admin role.
+
+---
+
+## 4) Run
+
+```bash
+# local dev
+npm run test:e2e
+
+# against Replit
+BASE_URL="https://61d708f8-536c-456b-b628-19504ff7d54a-00-20vd971bkgzji.picard.replit.dev" npm run test:e2e
+```
+
+This will fail loudly if any featured card height drifts (regression) or if the admin widget leaks into the public UI. If you want a follow-up that also checks mobile layout (e.g., 390×844), I can add a second project to the config.

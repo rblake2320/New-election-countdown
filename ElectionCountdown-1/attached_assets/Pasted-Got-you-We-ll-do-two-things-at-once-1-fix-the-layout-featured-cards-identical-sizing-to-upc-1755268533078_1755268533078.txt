@@ -1,0 +1,204 @@
+Got you. We’ll do two things at once:
+
+1. fix the layout (featured cards = identical sizing to upcoming, no huge gaps),
+2. hide all “Data Integrity / Run Auto-fix” surfaces from normal users (admin-only).
+
+Below is a **drop-in patch** you can paste in. It’s scoped so it won’t fight your Tailwind styles or the Virtuoso grid.
+
+---
+
+## 1) Scope your demo CSS so it can’t break the app
+
+Your uploaded `index.css` introduces global selectors like `.card`, `.btn`, `:before/:after` that can override the app and produce those big blank bands. Scope them under a class so they only apply on the demo page.
+
+**index.css (add at the top)**
+
+```css
+/* ===== DEMO CSS SAFE SCOPE ===== */
+.demo-scope .card,
+.demo-scope .btn,
+.demo-scope .glass,
+.demo-scope .badge,
+.demo-scope .progress,
+.demo-scope .progress::before,
+.demo-scope .progress::after {
+  all: revert-layer; /* neutralize unexpected cascade */
+}
+
+/* Re-apply your demo styles *only* inside .demo-scope */
+.demo-scope .buhaus-card { /* <- rename your demo card root to .buhaus-card */
+  /* ...move the previous .card rules here... */
+}
+
+/* If you prefer not to move declarations right now: */
+:root { --et-noop: 0 } /* keeps file valid; real styles moved below */
+
+/* ---- REAL APP UTILITIES (non-invasive) ---- */
+.et-grid-eq { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; align-items: stretch; }
+.et-grid-eq > * { height: 100%; }
+.et-card { height: 100%; display: flex; flex-direction: column; }
+.et-card__footer { margin-top: auto; }
+.et-ellipsis-2 { display:-webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+```
+
+> If you used `.card` or `.btn` inside the app, rename those to Tailwind classes or keep them and add `.demo-scope` only around your demo page, e.g. `<div className="demo-scope">…</div>`.
+
+---
+
+## 2) Make **Featured Elections** use the same card and equal heights
+
+Render featured with the **same ElectionCard** used by “Upcoming”, and force equal heights via the tiny utility classes above.
+
+**client/src/components/FeaturedElections.tsx (new or replace content)**
+
+```tsx
+import { ElectionCard } from "@/components/ElectionCard";
+
+type Props = { items: any[] };
+
+export default function FeaturedElections({ items }: Props) {
+  if (!items?.length) return null;
+
+  return (
+    <section className="mt-6">
+      <h2 className="text-2xl font-bold mb-3">Featured Elections</h2>
+      <div className="et-grid-eq">
+        {items.map((e) => (
+          <ElectionCard key={e.id} election={e} className="et-card" variant="featured" />
+        ))}
+      </div>
+    </section>
+  );
+}
+```
+
+**client/src/components/ElectionCard.tsx (ensure h-full + footer push)**
+
+```tsx
+export function ElectionCard({ election, className = "", variant = "default" }) {
+  return (
+    <article
+      className={[
+        "rounded-2xl border bg-white p-4 shadow-sm hover:shadow-md transition",
+        "et-card", // <- ensures equal heights
+        className,
+      ].join(" ")}
+    >
+      <div className="text-sm text-muted-foreground">
+        {election.date_fmt} • {election.state}
+      </div>
+
+      <h3 className="mt-2 text-xl font-semibold et-ellipsis-2">{election.title}</h3>
+
+      <div className="mt-3">
+        <div className="text-xs font-medium mb-1">Election countdown:</div>
+        <div className="h-1.5 w-full rounded bg-slate-200">
+          <div
+            className="h-1.5 rounded bg-primary"
+            style={{ width: `${election.countdown_pct ?? 0}%` }}
+          />
+        </div>
+        {election.countdown_label && (
+          <div className="text-xs text-muted-foreground mt-1 text-right">
+            {election.countdown_label}
+          </div>
+        )}
+      </div>
+
+      <div className="et-card__footer flex gap-3 pt-4">
+        <a href={`/elections/${election.id}`} className="btn btn-primary px-5 py-2 rounded-xl">
+          View Details
+        </a>
+        <a href={`/compare?e=${election.id}`} className="btn border px-5 py-2 rounded-xl">
+          Compare
+        </a>
+      </div>
+    </article>
+  );
+}
+```
+
+**client/src/pages/Home.tsx (or wherever Featured is rendered)**
+
+```tsx
+import FeaturedElections from "@/components/FeaturedElections";
+// …
+<FeaturedElections items={featuredElections} />
+```
+
+This removes the extra white space (those gaps were caused by globally styled `.card` and absolute pseudo-elements) and locks card heights to match “Upcoming”.
+
+---
+
+## 3) Hide the **Data Integrity / Run Auto-fix** widget from normal users
+
+Make it **admin-only**. Easiest: a single env flag and/or role check.
+
+**client/src/lib/useIsAdmin.ts (new)**
+
+```ts
+export function useIsAdmin(user?: { role?: string }) {
+  // env gate OR role gate. Either will show it.
+  const flag = import.meta.env.VITE_ADMIN_FEATURES === "1";
+  return flag || (user?.role?.toLowerCase?.() === "admin");
+}
+```
+
+**client/src/pages/Home.tsx (wrap the widget)**
+
+```tsx
+import { useIsAdmin } from "@/lib/useIsAdmin";
+// …
+const isAdmin = useIsAdmin(currentUser);
+// …
+{isAdmin && (
+  <section className="mt-6">
+    <DataIntegrityWidget />  {/* contains Run Auto-fix etc */}
+  </section>
+)}
+```
+
+**Replit env (Secrets):**
+
+```
+VITE_ADMIN_FEATURES=0   # public deployment => hidden
+```
+
+That completely removes it for the public while keeping it available to staff by setting `VITE_ADMIN_FEATURES=1` (or a real user role when auth lands).
+
+---
+
+## 4) Consistent sizing with the Virtuoso “Upcoming” grid
+
+Virtuoso already virtualizes the rows; the only trick is to ensure each **item** is `h-full` and the **container** uses equal row sizing. In your Virtuoso `itemContent`, pass `className="h-full"` down to `ElectionCard` (we already support it via `et-card`).
+
+Example (inside your `ElectionGrid`):
+
+```tsx
+<VirtuosoGrid
+  className="et-grid-eq"
+  totalCount={elections.length}
+  itemContent={(index) => (
+    <ElectionCard election={elections[index]} className="et-card" />
+  )}
+/>
+```
+
+---
+
+## 5) (Optional) micro-polish
+
+* Add `line-clamp-2` (we used `et-ellipsis-2`) on featured titles to keep heights uniform.
+* Use consistent button sizing (`px-5 py-2 rounded-xl` across both sections).
+* Remove any `min-h-[…]` or absolute positioned gradient overlays left from the demo components inside the featured cards.
+
+---
+
+### What this delivers
+
+* Featured = same look/height rhythm as Upcoming (no “two big gaps”).
+* Any global demo CSS can’t leak into production UI.
+* “Run Auto-fix” and admin telemetry are not visible to normal users.
+* No behavior change to your data / APIs.
+
+If you want, I can also give you a tiny Playwright smoke test snippet that asserts equal heights for Featured cards so CI catches any future regressions.

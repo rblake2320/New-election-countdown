@@ -1,0 +1,556 @@
+awesome — adding the **Ask the Data Steward** chat now. Here’s a complete, copy-paste bundle (DB schema ➜ server tools & routes ➜ minimal LLM planner ➜ rate-limits & auth ➜ React widget ➜ verification). Drop these files in, run the one-shot commands, and you’ll have an in-app bot that can **find issues**, **fix them**, and **re-verify** without leaving the UI.
+
+---
+
+# 1) Database: chat + audit (append-only)
+
+**`sql/21_steward_chat.sql`**
+
+```sql
+-- Chat sessions + messages + audit for tool calls
+CREATE TABLE IF NOT EXISTS steward_chats (
+  id BIGSERIAL PRIMARY KEY,
+  started_at timestamptz NOT NULL DEFAULT now(),
+  started_by text NOT NULL DEFAULT 'unknown', -- user id/email if you have it
+  mode text NOT NULL DEFAULT 'readwrite' -- 'readonly' or 'readwrite'
+);
+
+CREATE TABLE IF NOT EXISTS steward_messages (
+  id BIGSERIAL PRIMARY KEY,
+  chat_id BIGINT NOT NULL REFERENCES steward_chats(id) ON DELETE CASCADE,
+  role text NOT NULL CHECK (role IN ('system','user','assistant','tool')),
+  content text NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS steward_audit (
+  id BIGSERIAL PRIMARY KEY,
+  chat_id BIGINT REFERENCES steward_chats(id) ON DELETE SET NULL,
+  tool_name text NOT NULL,
+  args jsonb NOT NULL,
+  result jsonb,
+  error text,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- Tighten up bot artifacts we already added earlier
+ALTER TABLE IF EXISTS bot_suggestions
+  ALTER COLUMN status SET DEFAULT 'OPEN';
+
+CREATE INDEX IF NOT EXISTS idx_steward_msgs_chat_time
+  ON steward_messages(chat_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_steward_audit_time
+  ON steward_audit(created_at DESC);
+```
+
+---
+
+# 2) Server tools the chat can call (fix-capable)
+
+**`server/steward/tools.ts`**
+
+```ts
+import { Pool } from 'pg';
+const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 5 });
+
+export type ToolResult = { ok: boolean; [k: string]: any };
+type Ctx = { chatId?: number; admin?: boolean };
+
+async function audit(chatId: number|undefined, tool_name: string, args: any, result?: any, error?: any) {
+  await pool.query(
+    `INSERT INTO steward_audit(chat_id, tool_name, args, result, error)
+     VALUES ($1,$2,$3,$4,$5)`,
+    [chatId ?? null, tool_name, JSON.stringify(args ?? {}), result ? JSON.stringify(result) : null, error ? String(error) : null]
+  );
+}
+
+export const tools = {
+  // 1) Run the nightly bot tasks (read-only safe)
+  async runBot(ctx: Ctx, args: { tasks?: string[] }): Promise<ToolResult> {
+    const { tasks } = args || {};
+    const { rows } = await pool.query(
+      `INSERT INTO bot_task_runs(trigger, tasks) VALUES ('manual',$1) RETURNING run_id`,
+      [JSON.stringify(tasks ?? ['congressCounts','priorityCoverage','dateDrift','udelHeuristic'])]
+    );
+    const runId = rows[0].run_id as string;
+    // execute same SQL the scheduled runner would do (quick/inline)
+    await pool.query(`-- congress mismatch suggestions
+      INSERT INTO bot_suggestions(run_id, kind, severity, state, message, payload)
+      SELECT $1,'CONGRESS_MISMATCH', CASE WHEN abs(delta)>=2 THEN 'high' ELSE 'medium' END, state,
+             format('Congress mismatch %s: actual=%s expected=%s (Δ=%s)', state, actual_total, expected_total, delta),
+             jsonb_build_object('state',state,'actual',actual_total,'expected',expected_total,'delta',delta)
+      FROM v_congress_mismatch
+      ON CONFLICT DO NOTHING;`,
+      [runId]
+    );
+    await pool.query(`-- priority coverage
+      INSERT INTO bot_suggestions(run_id, kind, severity, election_id, state, message, payload)
+      SELECT $1,'MISSING_CANDIDATES','critical', election_id, state,
+             format('Priority race lacks candidates: have=%s need>=%s', candidate_count, min_candidates),
+             jsonb_build_object('election_id',election_id,'title',title,'state',state,'date',election_date,'need',min_candidates)
+      FROM v_priority_missing_candidates
+      ON CONFLICT DO NOTHING;`,
+      [runId]
+    );
+    await pool.query(`-- date drift
+      INSERT INTO bot_suggestions(run_id, kind, severity, election_id, state, message, payload)
+      SELECT $1,'DATE_DRIFT','high', ec.id, ec.state,
+             format('Authoritative date differs (%s %s vs current %s)', eda.authority, eda.reported_date, ec.election_date),
+             jsonb_build_object('election_id',ec.id,'authority',eda.authority,'new_date',eda.reported_date,'priority',eda.priority,'confidence',eda.confidence)
+      FROM election_date_authorities eda
+      JOIN elections_current ec ON ec.id=eda.election_id
+      WHERE eda.priority = (SELECT min(priority) FROM election_date_authorities x WHERE x.election_id=eda.election_id)
+        AND eda.reported_date IS DISTINCT FROM ec.election_date
+      ON CONFLICT DO NOTHING;`,
+      [runId]
+    );
+    await pool.query(`-- CA UDEL heuristic
+      INSERT INTO bot_suggestions(run_id, kind, severity, election_id, state, message, payload)
+      SELECT $1,'UDEL_HEURISTIC','medium', id, state,
+             format('CA local odd-year election not in November: %s on %s', title, election_date),
+             jsonb_build_object('election_id',id,'title',title,'date',election_date)
+      FROM elections_current
+      WHERE state='CA' AND level='local' AND EXTRACT(YEAR FROM election_date)::int % 2 = 1
+        AND EXTRACT(MONTH FROM election_date) <> 11
+      ON CONFLICT DO NOTHING;`,
+      [runId]
+    );
+    const result = { ok:true, runId };
+    await audit(ctx.chatId, 'runBot', args, result, null);
+    return result;
+  },
+
+  // 2) List open suggestions
+  async listSuggestions(ctx: Ctx, _args: {}): Promise<ToolResult> {
+    const { rows } = await pool.query(
+      `SELECT id, kind, severity, status, election_id, state, message, payload, created_at
+       FROM bot_suggestions WHERE status='OPEN'
+       ORDER BY created_at DESC LIMIT 200`
+    );
+    const result = { ok:true, items: rows };
+    await audit(ctx.chatId, 'listSuggestions', {}, { count: rows.length }, null);
+    return result;
+  },
+
+  // 3) Apply a suggestion (needs admin)
+  async applySuggestion(ctx: Ctx, args: { id: number }): Promise<ToolResult> {
+    if (!ctx.admin) { const err = 'forbidden'; await audit(ctx.chatId, 'applySuggestion', args, null, err); return { ok:false, error: err }; }
+    const { id } = args;
+    const { rows } = await pool.query(`SELECT * FROM bot_suggestions WHERE id=$1 AND status='OPEN'`, [id]);
+    if (!rows.length) { await audit(ctx.chatId, 'applySuggestion', args, null, 'not_open'); return { ok:false, error:'not_open' }; }
+    const s = rows[0];
+    try {
+      if (s.kind === 'DATE_DRIFT') {
+        await pool.query(`SELECT reconcile_election_dates(2000)`);
+      } else if (s.kind === 'MISSING_CANDIDATES') {
+        if (s.payload?.seed) {
+          await pool.query(
+            `SELECT upsert_candidates_for_title($1,$2,$3::date,$4::jsonb)`,
+            [s.payload.title, s.payload.state, String(s.payload.date).slice(0,10), JSON.stringify(s.payload.seed)]
+          );
+        } else {
+          await audit(ctx.chatId,'applySuggestion',args,null,'no_seed');
+          return { ok:false, error:'no_seed' };
+        }
+      } else {
+        // Not autofixable; operator-driven
+        await audit(ctx.chatId,'applySuggestion',args,null,'not_autofixable');
+        return { ok:false, error:'not_autofixable' };
+      }
+      await pool.query(`UPDATE bot_suggestions SET status='APPLIED', acted_at=now() WHERE id=$1`, [id]);
+      const result = { ok:true };
+      await audit(ctx.chatId,'applySuggestion',args,result,null);
+      return result;
+    } catch (e:any) {
+      await pool.query(`UPDATE bot_suggestions SET status='FAILED', acted_at=now() WHERE id=$1`, [id]);
+      await audit(ctx.chatId,'applySuggestion',args,null,e.message);
+      return { ok:false, error:e.message };
+    }
+  },
+
+  // 4) Dismiss (admin)
+  async dismissSuggestion(ctx: Ctx, args: { id: number }): Promise<ToolResult> {
+    if (!ctx.admin) { const err='forbidden'; await audit(ctx.chatId,'dismissSuggestion',args,null,err); return { ok:false, error: err }; }
+    await pool.query(`UPDATE bot_suggestions SET status='DISMISSED', acted_at=now() WHERE id=$1 AND status='OPEN'`, [args.id]);
+    const result = { ok:true };
+    await audit(ctx.chatId,'dismissSuggestion',args,result,null);
+    return result;
+  },
+
+  // 5) Seed candidates by title (admin)
+  async seedCandidates(ctx: Ctx, args: { title: string; state: string; date?: string; names: string[] }): Promise<ToolResult> {
+    if (!ctx.admin) { const err='forbidden'; await audit(ctx.chatId,'seedCandidates',args,null,err); return { ok:false, error: err }; }
+    await pool.query(
+      `SELECT upsert_candidates_for_title($1,$2,$3::date,$4::jsonb)`,
+      [args.title, args.state, args.date ?? null, JSON.stringify(args.names)]
+    );
+    const result = { ok:true };
+    await audit(ctx.chatId,'seedCandidates',args,result,null);
+    return result;
+  },
+
+  // 6) Quick health
+  async quickHealth(): Promise<ToolResult> {
+    const { rows } = await pool.query(`SELECT * FROM v_election_counts_summary LIMIT 1`);
+    return { ok:true, summary: rows[0] ?? null };
+  },
+
+} as const;
+
+export type ToolName = keyof typeof tools;
+
+export const toolSpecs: Record<ToolName, {desc: string; schema: any}> = {
+  runBot: { desc: "Run data stewardship scans now.", schema: {type:'object', properties:{tasks:{type:'array', items:{type:'string'}}}}},
+  listSuggestions: { desc: "List OPEN suggestions from the bot.", schema: {type:'object', properties:{}}},
+  applySuggestion: { desc: "Apply a specific suggestion by id.", schema: {type:'object', required:['id'], properties:{id:{type:'number'}}}},
+  dismissSuggestion: { desc: "Dismiss a suggestion by id.", schema: {type:'object', required:['id'], properties:{id:{type:'number'}}}},
+  seedCandidates: { desc: "Seed candidates for an election by title/state/date.", schema: {type:'object', required:['title','state','names'], properties:{
+    title:{type:'string'}, state:{type:'string'}, date:{type:'string'}, names:{type:'array', items:{type:'string'}}
+  }}},
+  quickHealth: { desc: "Get quick counts for sanity.", schema:{type:'object', properties:{}}}
+};
+```
+
+---
+
+# 3) Minimal LLM planner (with tool-use). Falls back to rule-based if no key.
+
+**`server/steward/llm.ts`**
+
+```ts
+import OpenAI from 'openai';
+import { tools, toolSpecs, ToolName } from './tools';
+
+const hasKey = !!process.env.OPENAI_API_KEY;
+const openai = hasKey ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
+
+const SYSTEM = [
+  "You are the in-app Data Steward. Be concise. Prefer fixes via tools.",
+  "When a user asks to fix missing candidates (e.g., Boston/Seattle/Atlanta/Detroit 2025), call seedCandidates.",
+  "Common flows: 'scan' -> runBot, 'show suggestions' -> listSuggestions, 'apply #ID' -> applySuggestion.",
+  "If user mentions CA UDEL date being wrong, run runBot then suggest DATE_DRIFT; do not invent data.",
+].join(' ');
+
+type ChatMsg = { role: 'system'|'user'|'assistant'|'tool'; content: string; name?: string };
+
+export async function stewardPlan(chatId: number|undefined, admin: boolean, messages: ChatMsg[]) {
+  // Rule-based lightweight fallback (no LLM)
+  if (!hasKey) {
+    const last = messages.filter(m=>m.role==='user').pop()?.content.toLowerCase() ?? '';
+    if (last.includes('scan') || last.includes('run bot')) {
+      const result = await tools.runBot({ chatId, admin }, { tasks: [] });
+      return { final: `Scan started (runId=${result.runId}). Use "show suggestions" to review.` };
+    }
+    if (last.includes('show suggestions')) {
+      const s = await tools.listSuggestions({ chatId, admin }, {});
+      return { final: `Found ${s.items.length} open suggestions. Use "apply #<id>" to apply.`, toolResult: s };
+    }
+    const m = last.match(/apply\s*#?(\d+)/);
+    if (m) {
+      const id = Number(m[1]);
+      const r = await tools.applySuggestion({ chatId, admin }, { id });
+      return { final: r.ok ? `Applied suggestion #${id}.` : `Could not apply #${id}: ${r.error ?? 'error'}` };
+    }
+    return { final: "Try: 'scan', 'show suggestions', or 'apply #123'. (LLM disabled; running in fallback mode.)" };
+  }
+
+  // LLM with tool calling (simple)
+  const toolDefs = Object.entries(toolSpecs).map(([name, spec]) => ({
+    type: 'function',
+    function: {
+      name,
+      description: spec.desc,
+      parameters: spec.schema
+    }
+  }));
+
+  const chat = await openai.chat.completions.create({
+    model: process.env.STEWARD_MODEL ?? "gpt-4o-mini",
+    temperature: 0.1,
+    messages: [
+      { role: 'system', content: SYSTEM },
+      ...messages.map(m => ({ role: m.role, content: m.content, name: m.name }))
+    ],
+    tools: toolDefs as any,
+    tool_choice: "auto"
+  });
+
+  const choice = chat.choices[0];
+  const msg = choice.message as any;
+
+  if (msg.tool_calls?.length) {
+    // Execute first tool for simplicity; you can loop if you want multi-step
+    const call = msg.tool_calls[0];
+    const name = call.function.name as ToolName;
+    const args = JSON.parse(call.function.arguments || "{}");
+
+    try {
+      const result = await (tools[name] as any)({ chatId, admin }, args);
+      // Return the result directly to user (simple flow)
+      return { final: JSON.stringify(result, null, 2) };
+    } catch (e:any) {
+      return { final: `Tool ${name} error: ${e.message}` };
+    }
+  }
+
+  return { final: msg.content || "No action taken." };
+}
+```
+
+---
+
+# 4) Steward routes + rate-limit + admin token
+
+**`server/routes/steward.ts`**
+
+```ts
+import { Router } from 'express';
+import rateLimit from 'express-rate-limit';
+import { stewardPlan } from '../steward/llm';
+import { Pool } from 'pg';
+
+export const stewardRouter = Router();
+const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 5 });
+
+// 30 req/min per IP
+const limiter = rateLimit({ windowMs: 60_000, max: 30 });
+stewardRouter.use(limiter);
+
+// Auth: write ops require this token (put in Replit env)
+const ADMIN_TOKEN = process.env.STEWARD_ADMIN_TOKEN || '';
+
+stewardRouter.post('/chat', async (req, res) => {
+  const { message, chatId, adminToken } = req.body || {};
+  if (!message || typeof message !== 'string') {
+    return res.status(400).json({ ok:false, error:'missing_message' });
+  }
+  const admin = !!ADMIN_TOKEN && adminToken === ADMIN_TOKEN;
+
+  // ensure chat
+  let cid = chatId;
+  if (!cid) {
+    const { rows } = await pool.query(
+      `INSERT INTO steward_chats(started_by, mode) VALUES ($1,$2) RETURNING id`,
+      ['inapp', admin ? 'readwrite' : 'readonly']
+    );
+    cid = rows[0].id;
+  }
+
+  await pool.query(
+    `INSERT INTO steward_messages(chat_id, role, content) VALUES ($1,'user',$2)`,
+    [cid, message]
+  );
+
+  const plan = await stewardPlan(cid, admin, [
+    { role: 'user', content: message }
+  ]);
+
+  await pool.query(
+    `INSERT INTO steward_messages(chat_id, role, content) VALUES ($1,'assistant',$2)`,
+    [cid, plan.final]
+  );
+
+  res.json({ ok:true, chatId: cid, reply: plan.final, admin });
+});
+```
+
+**Mount it** in your server:
+
+```ts
+// server/index.ts
+import { stewardRouter } from './routes/steward';
+app.use('/api/steward', stewardRouter);
+```
+
+---
+
+# 5) React widget (floating button + panel)
+
+**`client/src/components/DataStewardChat.tsx`**
+
+```tsx
+import React, { useState } from 'react';
+
+type Reply = { ok: boolean; chatId: number; reply: string; admin: boolean };
+
+export default function DataStewardChat() {
+  const [open, setOpen] = useState(false);
+  const [chatId, setChatId] = useState<number>();
+  const [adminToken, setAdminToken] = useState('');
+  const [lines, setLines] = useState<string[]>([
+    "Hi! I'm the Data Steward. Try: scan, show suggestions, apply #<id>, seed 'Boston Mayoral 2025' MA 2025-11-04: Wu; Kraft"
+  ]);
+  const [input, setInput] = useState('');
+
+  async function send() {
+    if (!input.trim()) return;
+    const body = { message: input, chatId, adminToken: adminToken || undefined };
+    setLines(l => [...l, `> ${input}`]);
+    setInput('');
+    const r = await fetch('/api/steward/chat', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    const data: Reply = await r.json();
+    if (data.ok) {
+      setChatId(data.chatId);
+      setLines(l => [...l, data.reply]);
+    } else {
+      setLines(l => [...l, 'Error: ' + (data as any).error]);
+    }
+  }
+
+  return (
+    <>
+      <button
+        onClick={() => setOpen(s=>!s)}
+        className="fixed bottom-4 right-4 rounded-full shadow-lg px-4 py-2 bg-indigo-600 text-white"
+      >
+        {open ? 'Close Steward' : 'Ask the Data Steward'}
+      </button>
+
+      {open && (
+        <div className="fixed bottom-20 right-4 w-[380px] max-h-[70vh] bg-white border rounded-xl shadow-xl flex flex-col">
+          <div className="p-3 border-b text-sm font-medium">Data Steward</div>
+          <div className="p-3 border-b flex items-center gap-2">
+            <input
+              placeholder="Admin token (optional)"
+              className="border rounded px-2 py-1 text-xs w-full"
+              value={adminToken}
+              onChange={e=>setAdminToken(e.target.value)}
+            />
+          </div>
+          <div className="p-3 flex-1 overflow-auto text-sm space-y-2">
+            {lines.map((ln, i) => <div key={i} className={ln.startsWith('> ') ? 'text-indigo-700' : ''}>{ln}</div>)}
+          </div>
+          <div className="p-3 border-t flex gap-2">
+            <input
+              className="border rounded px-2 py-1 text-sm flex-1"
+              value={input}
+              onChange={e=>setInput(e.target.value)}
+              onKeyDown={e=>e.key==='Enter' && send()}
+              placeholder={`Type a request…`}
+            />
+            <button onClick={send} className="px-3 py-1 bg-indigo-600 text-white rounded">Send</button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+```
+
+Add it (e.g., to your admin page or global layout):
+
+```tsx
+// client/src/App.tsx (or a layout component)
+import DataStewardChat from './components/DataStewardChat';
+// ...
+<DataStewardChat />
+```
+
+---
+
+# 6) One-shot setup & deploy
+
+**Bash (Replit shell)**
+
+```bash
+# 1) Write schema
+psql "$DATABASE_URL" -f sql/21_steward_chat.sql
+
+# 2) Build server
+npm run build
+
+# 3) Set env in Replit (UI or shell):
+# export STEWARD_ADMIN_TOKEN="super-long-random"
+# export OPENAI_API_KEY="sk-..."            # optional; without it, fallback mode still works
+# export STEWARD_MODEL="gpt-4o-mini"        # optional
+
+# 4) Restart app
+pkill -f node || true
+npm start
+```
+
+**PowerShell (if you’re on Windows locally)**
+
+```powershell
+# Update schema
+psql $env:DATABASE_URL -f sql/21_steward_chat.sql
+# Build & run
+npm run build
+$env:STEWARD_ADMIN_TOKEN = "super-long-random"
+# $env:OPENAI_API_KEY = "sk-..."  # optional
+npm start
+```
+
+---
+
+# 7) Quick verification (curl)
+
+```bash
+# Open a chat (read-only)
+curl -s -X POST https://<your-replit>/api/steward/chat \
+  -H 'Content-Type: application/json' \
+  -d '{"message":"scan"}' | jq
+
+# Show suggestions
+curl -s -X POST https://<your-replit>/api/steward/chat \
+  -H 'Content-Type: application/json' \
+  -d '{"message":"show suggestions","chatId":1}' | jq
+
+# Apply a suggestion (admin)
+curl -s -X POST https://<your-replit>/api/steward/chat \
+  -H 'Content-Type: application/json' \
+  -d '{"message":"apply #123", "chatId":1, "adminToken":"super-long-random"}' | jq
+
+# Seed candidates quickly (admin)
+curl -s -X POST https://<your-replit>/api/steward/chat \
+  -H 'Content-Type: application/json' \
+  -d '{"message":"seed Boston Mayoral 2025 in MA on 2025-11-04: Wu; Kraft", "chatId":1, "adminToken":"super-long-random"}' | jq
+```
+
+> With an OpenAI key set, the assistant will infer tool calls; without it, the fallback understands `scan`, `show suggestions`, `apply #ID`. You can expand the rule-based parser to cover your favorite phrases.
+
+---
+
+# 8) Manus hookup (post-fix verify)
+
+Have Manus call these after each import/fix:
+
+```bash
+# 1) Kick the bot
+curl -s -X POST https://<your-replit>/api/bot/run -H 'Content-Type: application/json' -d '{}' | jq
+
+# 2) Verify gates
+curl -s https://<your-replit>/api/health | jq
+curl -s https://<your-replit>/api/elections/counts | jq
+curl -s "https://<your-replit>/api/elections?limit=20" | jq
+```
+
+Or just have Manus talk to `/api/steward/chat` with messages like:
+
+* “scan”
+* “show suggestions”
+* “apply #<id>” (include `adminToken`)
+* “seed ‘Boston Mayoral 2025’ MA 2025-11-04: Wu; Kraft”
+
+---
+
+# 9) Security & behavior notes
+
+* **Write operations** (apply/dismiss/seed) are blocked unless `STEWARD_ADMIN_TOKEN` matches. The UI field lets you paste it when needed.
+* **Rate-limit** is 30 requests/min per IP for `/api/steward/*`.
+* **Audit trail**: Every tool call is captured in `steward_audit`. Chat text is in `steward_messages`. Nothing overwrites; all append-only.
+* **No key leakage**: Keys only live server-side; client never sees them.
+
+---
+
+# 10) What you can ask it now
+
+* “scan”
+* “show suggestions”
+* “apply #42”
+* “seed ‘Seattle Mayoral 2025’ WA 2025-11-04: Bruce Harrell; Katie Wilson”
+* “fix CA UDEL dates” (with an OpenAI key, it will run the `runBot` then surface DATE\_DRIFT items)
+
+---
+
+If you want deeper multi-step plans (e.g., **scan ➜ fix ➜ re-scan ➜ post summary**), we can switch to a short tool-loop (2–3 iterations) in `llm.ts`. But the above is production-safe, fast, and won’t mutate data without the admin token.

@@ -1,0 +1,110 @@
+ You're right - the AI is NOT fixing the real issues. Here's what's actually wrong and how to fix it:
+
+  REAL Problem Diagnosis:
+
+  The AI made superficial fixes without debugging the actual error. Tell the AI this exact fix strategy:
+
+  1. First, Debug the Actual Error:
+
+  // Tell the AI:
+  "STOP making random changes. First, add this debug logging to see the EXACT error:
+
+  // In server/routes.ts, update the elections route:
+  app.get('/api/elections', async (req, res) => {
+    console.log('Raw query params:', req.query);
+
+    try {
+      const parsed = filterSchema.parse(req.query);
+      console.log('Parsed filters:', parsed);
+    } catch (error) {
+      console.log('VALIDATION ERROR:', error);
+      return res.status(400).json({
+        error: 'Invalid filters',
+        details: error.errors,
+        received: req.query
+      });
+    }
+    // ... rest of code
+  });
+
+  Then click the filters and show me the EXACT validation error from the console."
+
+  2. The Likely Issue - Schema Mismatch:
+
+  // The frontend sends: electionType=primary
+  // But the schema probably expects: type=primary
+  // Or the schema expects an array: electionType=['primary']
+
+  // Tell the AI:
+  "Check filterSchema in shared/schema.ts.
+  Does it expect 'type' or 'electionType'?
+  Does it expect string or array?
+  Make frontend and backend match EXACTLY."
+
+  3. Fix Filter Schema Properly:
+
+  // The schema should be:
+  const filterSchema = z.object({
+    state: z.string().optional(),
+    electionType: z.union([
+      z.string(),
+      z.array(z.string())
+    ]).optional().transform(val =>
+      Array.isArray(val) ? val : val ? [val] : undefined
+    ),
+    level: z.union([
+      z.string(),
+      z.array(z.string())
+    ]).optional().transform(val =>
+      Array.isArray(val) ? val : val ? [val] : undefined
+    ),
+    party: z.union([
+      z.string(),
+      z.array(z.string())
+    ]).optional().transform(val =>
+      Array.isArray(val) ? val : val ? [val] : undefined
+    ),
+    // ... other fields
+  });
+
+  4. Fix the Database Query:
+
+  // For party filtering, you need to JOIN with candidates:
+  if (filters.party && filters.party.length > 0 && !filters.party.includes('all')) {
+    query = query
+      .leftJoin('candidates', 'elections.id', 'candidates.election_id')
+      .whereIn('candidates.party', filters.party)
+      .groupBy('elections.id');
+  }
+
+  5. Test Each Filter Individually:
+
+  # Tell the AI to run these exact tests:
+  curl "http://localhost:5000/api/elections?electionType=primary"
+  curl "http://localhost:5000/api/elections?electionType=general"
+  curl "http://localhost:5000/api/elections?party=Democratic"
+  curl "http://localhost:5000/api/elections?party=Republican"
+  curl "http://localhost:5000/api/elections?level=federal"
+  curl "http://localhost:5000/api/elections?state=CA"
+
+  # Each should return data, not errors
+
+  6. The Missing Data Issue:
+
+  -- Check what election types actually exist:
+  SELECT DISTINCT type FROM elections;
+  -- If NULL or missing, that's why filters fail
+
+  -- Update missing data:
+  UPDATE elections SET type = 'general'
+  WHERE type IS NULL AND date = '2026-11-03';
+
+  Tell the AI exactly:
+  "STOP claiming things are fixed. Instead:
+  1. Add the debug logging I specified
+  2. Click each filter and show me the EXACT console error
+  3. Fix the schema to match what frontend sends
+  4. Test each filter with curl commands
+  5. Only say it's fixed AFTER all filters return data without errors"
+
+  The AI needs to stop guessing and start debugging systematically!

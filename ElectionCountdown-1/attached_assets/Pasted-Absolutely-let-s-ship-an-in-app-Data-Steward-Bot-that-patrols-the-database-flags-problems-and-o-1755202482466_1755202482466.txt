@@ -1,0 +1,386 @@
+Absolutely—let’s ship an in-app “Data Steward Bot” that patrols the database, flags problems, and (optionally) fixes them, then re-runs the checks. Below is a drop-in bundle: schema, worker, API routes, and a tiny UI panel. It builds directly on the sanity views/functions we added (priority coverage, congress mismatch, date authorities, candidate upserts, etc.).
+
+---
+
+# 1) Minimal schema for a fix-capable bot
+
+```sql
+-- sql/20_bot_schema.sql
+CREATE TYPE bot_suggestion_kind AS ENUM
+  ('DATE_DRIFT','MISSING_CANDIDATES','CONGRESS_MISMATCH','UDEL_HEURISTIC','DUPLICATE_ELECTION');
+
+CREATE TYPE bot_suggestion_status AS ENUM ('OPEN','APPLIED','DISMISSED','FAILED');
+
+CREATE TABLE IF NOT EXISTS bot_task_runs (
+  run_id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  started_at timestamptz NOT NULL DEFAULT now(),
+  finished_at timestamptz,
+  trigger text NOT NULL,              -- 'manual' | 'schedule' | 'webhook'
+  tasks jsonb NOT NULL DEFAULT '[]'::jsonb
+);
+
+CREATE TABLE IF NOT EXISTS bot_suggestions (
+  id bigserial PRIMARY KEY,
+  run_id uuid REFERENCES bot_task_runs(run_id) ON DELETE SET NULL,
+  kind bot_suggestion_kind NOT NULL,
+  severity sanity_severity NOT NULL DEFAULT 'medium',
+  status bot_suggestion_status NOT NULL DEFAULT 'OPEN',
+  election_id bigint,
+  state char(2),
+  message text NOT NULL,
+  payload jsonb NOT NULL,             -- everything the bot needs to apply a fix
+  created_at timestamptz NOT NULL DEFAULT now(),
+  acted_at timestamptz
+);
+
+CREATE INDEX IF NOT EXISTS idx_bot_suggestions_status ON bot_suggestions(status, kind);
+```
+
+> We’ll reuse the earlier **v\_congress\_mismatch**, **v\_priority\_missing\_candidates**, **election\_date\_authorities**, **reconcile\_election\_dates()**, and **upsert\_candidates\_for\_title()**.
+
+---
+
+# 2) Bot engine (Node/TS worker)
+
+```ts
+// server/bot/engine.ts
+import { Pool } from 'pg';
+import type { Request, Response } from 'express';
+
+const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 5 });
+
+type TaskName =
+  | 'congressCounts'
+  | 'priorityCoverage'
+  | 'dateDrift'
+  | 'udelHeuristic';
+
+async function startRun(trigger: string, tasks: TaskName[]) {
+  const { rows } = await pool.query(
+    `INSERT INTO bot_task_runs(trigger, tasks) VALUES ($1, $2) RETURNING run_id`,
+    [trigger, JSON.stringify(tasks)]
+  );
+  return rows[0].run_id as string;
+}
+
+async function finishRun(runId: string) {
+  await pool.query(`UPDATE bot_task_runs SET finished_at=now() WHERE run_id=$1`, [runId]);
+}
+
+/** helper to insert a suggestion */
+async function suggest(runId: string, kind: string, severity: 'low'|'medium'|'high'|'critical',
+  electionId: number|null, state: string|null, message: string, payload: any) {
+  await pool.query(
+    `INSERT INTO bot_suggestions(run_id, kind, severity, election_id, state, message, payload)
+     VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+    [runId, kind, severity, electionId, state, message, payload]
+  );
+}
+
+/** Task: congress counts vs expected house+2 */
+async function taskCongressCounts(runId: string) {
+  const { rows } = await pool.query(`
+    SELECT state, expected_total, actual_total, (actual_total-expected_total) AS delta
+    FROM v_congress_mismatch
+  `);
+  for (const r of rows) {
+    const sev = Math.abs(r.delta) >= 2 ? 'high' : 'medium';
+    await suggest(
+      runId, 'CONGRESS_MISMATCH', sev as any, null, r.state,
+      `Congress mismatch ${r.state}: actual=${r.actual_total} expected=${r.expected_total} (Δ=${r.delta})`,
+      { state: r.state, actual: r.actual_total, expected: r.expected_total, delta: r.delta }
+    );
+  }
+}
+
+/** Task: priority elections missing candidates */
+async function taskPriorityCoverage(runId: string) {
+  const { rows } = await pool.query(`SELECT * FROM v_priority_missing_candidates`);
+  for (const r of rows) {
+    await suggest(
+      runId, 'MISSING_CANDIDATES', 'critical',
+      r.election_id, r.state,
+      `Priority race lacks candidates: have=${r.candidate_count} need>=${r.min_candidates}`,
+      {
+        election_id: r.election_id,
+        title: r.title,
+        state: r.state,
+        date: r.election_date,
+        need: r.min_candidates
+      }
+    );
+  }
+}
+
+/** Task: date drift (lowest-priority authority says the date moved) */
+async function taskDateDrift(runId: string) {
+  const { rows } = await pool.query(`
+    SELECT eda.election_id, eda.authority, eda.reported_date, eda.priority, eda.confidence,
+           ec.title, ec.state, ec.election_date AS current_date
+    FROM election_date_authorities eda
+    JOIN elections_current ec ON ec.id = eda.election_id
+    WHERE eda.priority = (
+      SELECT min(priority) FROM election_date_authorities x WHERE x.election_id=eda.election_id
+    )
+      AND eda.reported_date IS DISTINCT FROM ec.election_date
+  `);
+  for (const r of rows) {
+    await suggest(
+      runId, 'DATE_DRIFT', 'high',
+      r.election_id, r.state,
+      `Authoritative date differs (${r.authority} ${r.reported_date} vs current ${r.current_date})`,
+      {
+        election_id: r.election_id,
+        authority: r.authority,
+        new_date: r.reported_date,
+        priority: r.priority,
+        confidence: r.confidence
+      }
+    );
+  }
+}
+
+/** Task: CA UDEL heuristic (odd-year Nov) – warn if any CA local w/ odd-year not in Nov  */
+async function taskUdelHeuristic(runId: string) {
+  const { rows } = await pool.query(`
+    SELECT id AS election_id, title, state, election_date
+    FROM elections_current
+    WHERE state='CA' AND level='local' AND EXTRACT(YEAR FROM election_date)::int % 2 = 1
+      AND EXTRACT(MONTH FROM election_date) <> 11
+  `);
+  for (const r of rows) {
+    await suggest(
+      runId, 'UDEL_HEURISTIC', 'medium',
+      r.election_id, 'CA',
+      `CA local odd-year election not in November: ${r.title} on ${r.election_date}`,
+      { election_id: r.election_id, title: r.title, date: r.election_date }
+    );
+  }
+}
+
+/** Apply fixes **/
+export async function applySuggestion(id: number) {
+  const { rows } = await pool.query(`SELECT * FROM bot_suggestions WHERE id=$1 AND status='OPEN'`, [id]);
+  if (!rows.length) return { ok:false, error:'not_open' };
+  const s = rows[0];
+
+  try {
+    if (s.kind === 'DATE_DRIFT') {
+      // We assume the authority row already exists; simply run reconcile
+      await pool.query(`SELECT reconcile_election_dates(1000)`);
+    } else if (s.kind === 'MISSING_CANDIDATES' && s.payload?.title && s.payload?.state) {
+      // Attempt a best-effort upsert by title (payload may be enriched by operators later)
+      // No names provided => keep the suggestion OPEN and let an operator add names in UI.
+      if (Array.isArray(s.payload.seed)) {
+        await pool.query(
+          `SELECT upsert_candidates_for_title($1,$2,$3::date,$4::jsonb)`,
+          [s.payload.title, s.payload.state, s.payload.date?.slice(0,10), JSON.stringify(s.payload.seed)]
+        );
+      } else {
+        // Nothing to upsert yet
+        return { ok:false, error:'no_seed' };
+      }
+    } else {
+      // Non-autofixable suggestions are handled by operators
+      return { ok:false, error:'not_autofixable' };
+    }
+
+    await pool.query(`UPDATE bot_suggestions SET status='APPLIED', acted_at=now() WHERE id=$1`, [id]);
+    return { ok:true };
+  } catch (e:any) {
+    await pool.query(`UPDATE bot_suggestions SET status='FAILED', acted_at=now() WHERE id=$1`, [id]);
+    return { ok:false, error:e.message };
+  }
+}
+
+/** Run a set of tasks now */
+export async function runBot(trigger='manual', tasks: TaskName[]=['congressCounts','priorityCoverage','dateDrift','udelHeuristic']) {
+  const runId = await startRun(trigger, tasks);
+  try {
+    for (const t of tasks) {
+      if (t==='congressCounts') await taskCongressCounts(runId);
+      if (t==='priorityCoverage') await taskPriorityCoverage(runId);
+      if (t==='dateDrift') await taskDateDrift(runId);
+      if (t==='udelHeuristic') await taskUdelHeuristic(runId);
+    }
+  } finally {
+    await finishRun(runId);
+  }
+  return { ok:true, runId };
+}
+```
+
+---
+
+# 3) Bot API routes
+
+```ts
+// server/routes/bot.ts
+import { Router } from 'express';
+import { runBot, applySuggestion } from '../bot/engine';
+import { Pool } from 'pg';
+
+const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 5 });
+export const botRouter = Router();
+
+botRouter.post('/run', async (req, res) => {
+  const tasks = (req.body?.tasks ?? []) as any[];
+  const result = await runBot('manual', tasks.length ? tasks : undefined as any);
+  res.json(result);
+});
+
+botRouter.get('/suggestions', async (req, res) => {
+  const { rows } = await pool.query(
+    `SELECT id, kind, severity, status, election_id, state, message, payload, created_at
+     FROM bot_suggestions
+     WHERE status = COALESCE($1::bot_suggestion_status, status)
+     ORDER BY created_at DESC
+     LIMIT 200`,
+    [req.query.status ?? null]
+  );
+  res.json(rows);
+});
+
+botRouter.post('/suggestions/:id/apply', async (req, res) => {
+  const id = Number(req.params.id);
+  const result = await applySuggestion(id);
+  res.status(result.ok ? 200 : 400).json(result);
+});
+
+botRouter.post('/suggestions/:id/dismiss', async (req, res) => {
+  const id = Number(req.params.id);
+  await pool.query(`UPDATE bot_suggestions SET status='DISMISSED', acted_at=now() WHERE id=$1 AND status='OPEN'`, [id]);
+  res.json({ ok:true });
+});
+```
+
+Mount it:
+
+```ts
+// server/index.ts
+import { botRouter } from './routes/bot';
+app.use('/api/bot', botRouter);
+```
+
+---
+
+# 4) Tiny Admin UI panel
+
+```tsx
+// client/src/components/BotPanel.tsx
+import React, { useEffect, useState } from 'react';
+
+type Suggestion = {
+  id: number; kind: string; severity: 'low'|'medium'|'high'|'critical';
+  status: 'OPEN'|'APPLIED'|'DISMISSED'|'FAILED';
+  election_id?: number; state?: string; message: string;
+  payload: any; created_at: string;
+};
+
+export default function BotPanel() {
+  const [items, setItems] = useState<Suggestion[]>([]);
+  const [busy, setBusy] = useState(false);
+
+  const load = async () => {
+    const r = await fetch('/api/bot/suggestions?status=OPEN'); setItems(await r.json());
+  };
+  useEffect(() => { load(); }, []);
+
+  const run = async () => { setBusy(true); await fetch('/api/bot/run', {method:'POST'}); setBusy(false); load(); };
+  const apply = async (id:number) => { await fetch(`/api/bot/suggestions/${id}/apply`, {method:'POST'}); load(); };
+  const dismiss = async (id:number) => { await fetch(`/api/bot/suggestions/${id}/dismiss`, {method:'POST'}); load(); };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <button className="btn btn-primary" onClick={run} disabled={busy}>
+          {busy ? 'Running…' : 'Run Bot Now'}
+        </button>
+        <span className="text-sm text-gray-500">{items.length} open suggestions</span>
+      </div>
+      <ul className="divide-y rounded border">
+        {items.map(s => (
+          <li key={s.id} className="p-3 flex items-start justify-between">
+            <div>
+              <div className="font-medium">{s.kind} <span className="ml-2 text-xs px-2 py-0.5 rounded bg-gray-100">{s.severity}</span></div>
+              <div className="text-sm text-gray-700">{s.message}</div>
+              {s.payload?.title && <div className="text-xs text-gray-500 mt-1">{s.payload.title} • {s.payload.state} • {new Date(s.payload.date ?? '').toDateString()}</div>}
+            </div>
+            <div className="flex gap-2">
+              <button className="btn btn-success" onClick={() => apply(s.id)}>Apply</button>
+              <button className="btn btn-ghost" onClick={() => dismiss(s.id)}>Dismiss</button>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+```
+
+Add it to an admin page (e.g., Congress Admin or a new “Data Steward” page).
+
+---
+
+# 5) Scheduling on Replit
+
+**Nightly job (cron)**: run all tasks, reconcile dates, then run your full sanity suite.
+
+```bash
+# Scheduled command (03:05 UTC)
+node dist/server/bot/schedule.js
+```
+
+And the tiny runner:
+
+```ts
+// server/bot/schedule.ts
+import { runBot } from './engine';
+(async () => { await runBot('schedule'); process.exit(0); })();
+```
+
+(*You can also call `/api/bot/run` from Manus after an ETL/import to force a pass.*)
+
+---
+
+# 6) What the bot catches & fixes (out of the box)
+
+* **Date drift**: If the “best” authority says a date moved (e.g., CA UDEL → Nov 4), a suggestion is filed. Apply = `reconcile_election_dates()` + ledger entry.
+* **Priority elections missing candidates** (Boston/Seattle/Atlanta/Detroit 2025 and any you add):
+
+  * Bot raises a **critical** suggestion.
+  * If the suggestion carries `payload.seed` (names you provide), Apply = `upsert_candidates_for_title(...)` + refresh counts.
+* **Congress mismatches**: Files medium/high severity suggestions with expected vs actual; no auto-fix (operator action required).
+* **CA UDEL heuristic**: Flags odd-year local CA elections not in November.
+
+> Nothing deletes data. Every change is logged (date ledger, suggestions → APPLIED). You can always dismiss suggestions to quiet noise.
+
+---
+
+# 7) Optional: auto-retest loop with Manus
+
+After Apply, have Manus hit:
+
+* `POST /api/bot/run` (light)
+* `GET /api/health`, `GET /api/elections/counts`, `GET /api/elections/:id/candidates`
+* If anything regresses, the job **reopens** the suggestion by inserting a new one with `kind`=`REGRESSION` (you can add that enum later).
+
+---
+
+# 8) Seed the four big-city races once (so cards stop showing “(0)”)
+
+Use the upsert calls I gave earlier (Boston/Seattle/Atlanta/Detroit). If you prefer the bot to do it, add a `seed` array to the suggestion payload in the UI and click **Apply**.
+
+---
+
+## Bottom line
+
+Yes—this embeds a **self-auditing, fix-capable bot** *inside your app*. It:
+
+* Scans nightly (and on demand),
+* Files actionable suggestions,
+* Applies safe, append-only fixes for the most common issues,
+* Keeps an audit trail,
+* And plugs right into Manus for verify-after-fix.
+
+If you want me to also wire the **“Ask the Data Steward”** chat widget (so you can type “fix Boston mayoral candidates”), I can add that on top of this base.

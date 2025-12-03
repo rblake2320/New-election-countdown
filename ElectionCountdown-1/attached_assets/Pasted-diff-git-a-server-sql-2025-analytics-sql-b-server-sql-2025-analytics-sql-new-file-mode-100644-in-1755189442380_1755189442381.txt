@@ -1,0 +1,595 @@
+diff --git a/server/sql/2025-analytics.sql b/server/sql/2025-analytics.sql
+new file mode 100644
+index 0000000..1111111
+--- /dev/null
++++ b/server/sql/2025-analytics.sql
+@@ -0,0 +1,124 @@
++-- analytics foundation (Neon Postgres)
++CREATE SCHEMA IF NOT EXISTS analytics;
++
++-- Sessions (no PII; coarse fields allowed)
++CREATE TABLE IF NOT EXISTS analytics.sessions (
++  id              BIGSERIAL PRIMARY KEY,
++  created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
++  anon_id         UUID        NOT NULL,
++  user_id         INTEGER     NULL,
++  ua              TEXT        NULL,
++  referrer        TEXT        NULL,
++  utm_source      TEXT        NULL,
++  utm_medium      TEXT        NULL,
++  utm_campaign    TEXT        NULL,
++  utm_term        TEXT        NULL,
++  utm_content     TEXT        NULL,
++  ip_trunc        INET        NULL,
++  country         TEXT        NULL,
++  region          TEXT        NULL
++);
++CREATE INDEX IF NOT EXISTS idx_an_sessions_created_at ON analytics.sessions (created_at DESC);
++CREATE INDEX IF NOT EXISTS idx_an_sessions_user ON analytics.sessions (user_id);
++
++-- Events (monthly partitions)
++CREATE TABLE IF NOT EXISTS analytics.events (
++  id             BIGSERIAL NOT NULL,
++  ts             TIMESTAMPTZ NOT NULL DEFAULT now(),
++  session_id     BIGINT NOT NULL REFERENCES analytics.sessions(id) ON DELETE CASCADE,
++  name           TEXT   NOT NULL,
++  page           TEXT   NULL,
++  election_id    INTEGER NULL,
++  candidate_id   INTEGER NULL,
++  value_num      NUMERIC NULL,
++  payload        JSONB  NULL,
++  PRIMARY KEY (id, ts)
++) PARTITION BY RANGE (ts);
++
++DO $$
++DECLARE
++  start_month DATE := date_trunc('month', now())::date;
++  next_month  DATE := (date_trunc('month', now()) + interval '1 month')::date;
++BEGIN
++  EXECUTE format('CREATE TABLE IF NOT EXISTS analytics.events_%s PARTITION OF analytics.events FOR VALUES FROM (%L) TO (%L);',
++    to_char(start_month, 'YYYYMM'), start_month, next_month);
++  EXECUTE format('CREATE TABLE IF NOT EXISTS analytics.events_%s PARTITION OF analytics.events FOR VALUES FROM (%L) TO (%L);',
++    to_char(next_month, 'YYYYMM'), next_month, (next_month + interval '1 month')::date);
++END$$;
++
++-- Aggregates
++CREATE MATERIALIZED VIEW IF NOT EXISTS analytics.mv_event_daily AS
++SELECT date_trunc('day', ts) AS day, name, count(*)::int AS events
++FROM analytics.events
++GROUP BY 1,2;
++
++CREATE MATERIALIZED VIEW IF NOT EXISTS analytics.mv_compare_daily AS
++SELECT date_trunc('day', ts) AS day, election_id, count(*)::int AS compares
++FROM analytics.events
++WHERE name = 'compare_launched'
++GROUP BY 1,2;
++
++-- Helpful runtime indexes pattern (add on new partitions as needed)
++-- Example: CREATE INDEX IF NOT EXISTS idx_events_YYYYMM_name_ts ON analytics.events_YYYYMM (name, ts DESC);
+diff --git a/scripts/migrate_analytics.ts b/scripts/migrate_analytics.ts
+new file mode 100644
+index 0000000..2222222
+--- /dev/null
++++ b/scripts/migrate_analytics.ts
+@@ -0,0 +1,33 @@
++import { readFile } from "fs/promises";
++import path from "path";
++import { pool } from "../server/db";
++
++async function main() {
++  const sqlPath = path.resolve(__dirname, "../server/sql/2025-analytics.sql");
++  const sql = await readFile(sqlPath, "utf8");
++  await pool.query(sql);
++  console.log("✅ Analytics schema migrated.");
++}
++
++main()
++  .then(() => process.exit(0))
++  .catch((err) => {
++    console.error(err);
++    process.exit(1);
++  });
+diff --git a/scripts/refresh_analytics.ts b/scripts/refresh_analytics.ts
+new file mode 100644
+index 0000000..3333333
+--- /dev/null
++++ b/scripts/refresh_analytics.ts
+@@ -0,0 +1,43 @@
++import { pool } from "../server/db";
++
++const refreshSQL = `
++REFRESH MATERIALIZED VIEW CONCURRENTLY analytics.mv_event_daily;
++REFRESH MATERIALIZED VIEW CONCURRENTLY analytics.mv_compare_daily;
++
++DO $$
++DECLARE
++  start_month DATE := date_trunc('month', now())::date;
++  next_month  DATE := (date_trunc('month', now()) + interval '1 month')::date;
++BEGIN
++  EXECUTE format('CREATE TABLE IF NOT EXISTS analytics.events_%s PARTITION OF analytics.events FOR VALUES FROM (%L) TO (%L);',
++    to_char(start_month, 'YYYYMM'), start_month, next_month);
++  EXECUTE format('CREATE TABLE IF NOT EXISTS analytics.events_%s PARTITION OF analytics.events FOR VALUES FROM (%L) TO (%L);',
++    to_char(next_month, 'YYYYMM'), next_month, (next_month + interval '1 month')::date);
++END$$;
++`;
++
++async function main() {
++  await pool.query(refreshSQL);
++  console.log("✅ Analytics aggregates refreshed & partitions ensured.");
++}
++
++main()
++  .then(() => process.exit(0))
++  .catch((err) => {
++    console.error(err);
++    process.exit(1);
++  });
+diff --git a/server/routes/track.ts b/server/routes/track.ts
+new file mode 100644
+index 0000000..4444444
+--- /dev/null
++++ b/server/routes/track.ts
+@@ -0,0 +1,96 @@
++import { Router } from "express";
++import type { Request, Response } from "express";
++import { pool } from "../db";
++
++export const trackRouter = Router();
++
++type TrackBody = {
++  session: {
++    anon_id: string;
++    user_id?: number | null;
++    utm_source?: string; utm_medium?: string; utm_campaign?: string; utm_term?: string; utm_content?: string;
++  };
++  events: Array<{
++    name: string; ts?: string; page?: string;
++    election_id?: number; candidate_id?: number; value_num?: number;
++    payload?: Record<string, unknown>;
++  }>;
++};
++
++trackRouter.post("/", async (req: Request, res: Response) => {
++  const body = req.body as TrackBody;
++  if (!body?.session?.anon_id || !Array.isArray(body.events)) return res.status(400).json({ ok: false });
++
++  const ua = String(req.headers["user-agent"] || "");
++  const ref = String(req.headers.referer || "");
++  // Replit behind proxy: trust proxy set in server/index.ts
++  const ip = req.ip || null;
++
++  // create or retrieve session
++  const { rows: [sess] } = await pool.query(
++    `INSERT INTO analytics.sessions (anon_id, user_id, ua, referrer, utm_source, utm_medium, utm_campaign, utm_term, utm_content, ip_trunc)
++     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
++     ON CONFLICT DO NOTHING
++     RETURNING id`,
++    [
++      body.session.anon_id,
++      body.session.user_id ?? null,
++      ua, ref,
++      body.session.utm_source ?? null,
++      body.session.utm_medium ?? null,
++      body.session.utm_campaign ?? null,
++      body.session.utm_term ?? null,
++      body.session.utm_content ?? null,
++      ip
++    ]
++  );
++
++  let sessionId: number;
++  if (sess?.id) {
++    sessionId = sess.id;
++  } else {
++    const { rows: [s] } = await pool.query(
++      `SELECT id FROM analytics.sessions WHERE anon_id=$1 ORDER BY created_at DESC LIMIT 1`,
++      [body.session.anon_id]
++    );
++    sessionId = s.id;
++  }
++
++  if (!body.events.length) return res.json({ ok: true });
++
++  const vals: any[] = [];
++  const chunks: string[] = [];
++  body.events.forEach((e, i) => {
++    const base = i * 8;
++    chunks.push(`($${base+1}, COALESCE($${base+2}, now()), $${base+3}, $${base+4}, $${base+5}, $${base+6}, $${base+7}, $${base+8})`);
++    vals.push(
++      sessionId,
++      e.ts ?? null,
++      e.name,
++      e.page ?? null,
++      e.election_id ?? null,
++      e.candidate_id ?? null,
++      e.value_num ?? null,
++      e.payload ?? null
++    );
++  });
++
++  await pool.query(
++    `INSERT INTO analytics.events (session_id, ts, name, page, election_id, candidate_id, value_num, payload)
++     VALUES ${chunks.join(",")}`,
++    vals
++  );
++
++  return res.json({ ok: true });
++});
+diff --git a/server/routes/analytics.ts b/server/routes/analytics.ts
+new file mode 100644
+index 0000000..5555555
+--- /dev/null
++++ b/server/routes/analytics.ts
+@@ -0,0 +1,37 @@
++import { Router } from "express";
++import { pool } from "../db";
++
++export const analyticsRouter = Router();
++
++// Public summary (gate with auth if needed)
++analyticsRouter.get("/summary", async (_req, res) => {
++  const { rows } = await pool.query(
++    `SELECT to_char(day, 'YYYY-MM-DD') AS day, name, events
++       FROM analytics.mv_event_daily
++       ORDER BY day DESC, name ASC
++       LIMIT 300`
++  );
++  res.json(rows);
++});
++
++analyticsRouter.get("/top-compares", async (_req, res) => {
++  const { rows } = await pool.query(
++    `SELECT candidate_id, COUNT(*)::int AS compares
++       FROM analytics.events
++       WHERE name='candidate_checked_for_compare'
++         AND ts >= now() - interval '7 days'
++       GROUP BY candidate_id
++       ORDER BY compares DESC
++       LIMIT 50`
++  );
++  res.json(rows);
++});
+diff --git a/server/routes/health.ts b/server/routes/health.ts
+new file mode 100644
+index 0000000..6666666
+--- /dev/null
++++ b/server/routes/health.ts
+@@ -0,0 +1,24 @@
++import { Router } from "express";
++import { pool } from "../db";
++
++export const healthRouter = Router();
++
++healthRouter.get("/", async (_req, res) => {
++  try {
++    const [{ rows: [e] }, { rows: [c] }, { rows: [m] }] = await Promise.all([
++      pool.query(`SELECT COUNT(*)::int AS elections FROM elections`),
++      pool.query(`SELECT COUNT(*)::int AS candidates FROM candidates`),
++      pool.query(`SELECT COUNT(*)::int AS congress FROM congress_members`)
++    ]);
++    res.json({
++      ok: true,
++      elections: e?.elections ?? 0,
++      candidates: c?.candidates ?? 0,
++      congress: m?.congress ?? 0
++    });
++  } catch {
++    res.status(200).json({ ok: true });
++  }
++});
+diff --git a/server/ws.ts b/server/ws.ts
+new file mode 100644
+index 0000000..7777777
+--- /dev/null
++++ b/server/ws.ts
+@@ -0,0 +1,21 @@
++import { WebSocketServer, WebSocket } from "ws";
++import type http from "http";
++
++export function attachWS(server: http.Server) {
++  const wss = new WebSocketServer({ server, path: "/ws" });
++  const interval = setInterval(() => {
++    wss.clients.forEach((ws: WebSocket) => {
++      if (ws.readyState === WebSocket.OPEN) ws.ping();
++    });
++  }, 30_000);
++  wss.on("close", () => clearInterval(interval));
++  return wss;
++}
+diff --git a/server/index.ts b/server/index.ts
+index 1234567..8888888 100644
+--- a/server/index.ts
++++ b/server/index.ts
+@@ -1,10 +1,41 @@
+-import express from "express";
+-import { pool } from "./db";
++import express from "express";
++import cors from "cors";
++import compression from "compression";
++import helmet from "helmet";
++import { pool } from "./db";
++import { trackRouter } from "./routes/track";
++import { analyticsRouter } from "./routes/analytics";
++import { healthRouter } from "./routes/health";
+ 
+ const app = express();
++app.set("trust proxy", 1);
++app.use(helmet({ contentSecurityPolicy: false }));
++app.use(cors());
++app.use(compression());
++app.use(express.json({ limit: "256kb" }));
+ 
+-// existing routes...
++// Keep-alive / proxy friendliness for ingestion
++app.use("/api/track", (req, res, next) => {
++  res.setHeader("Connection", "keep-alive");
++  res.setHeader("Keep-Alive", "timeout=30, max=1000");
++  res.setHeader("X-Accel-Buffering", "no");
++  next();
++});
++
++// Mount analytics routes
++app.use("/api/track", trackRouter);
++app.use("/api/analytics", analyticsRouter);
++app.use("/api/health", healthRouter);
+ 
+ // server start
+ const PORT = process.env.PORT || 5000;
+ app.listen(PORT, () => {
+   console.log(`[express] serving on port ${PORT}`);
+ });
+diff --git a/client/src/lib/api.ts b/client/src/lib/api.ts
+new file mode 100644
+index 0000000..9999999
+--- /dev/null
++++ b/client/src/lib/api.ts
+@@ -0,0 +1,9 @@
++const BASE = import.meta.env.VITE_API_BASE?.replace(/\/+$/, "") || "";
++export async function api(path: string, init?: RequestInit) {
++  const url = BASE ? `${BASE}${path}` : path; // if Static + Autoscale on different origins
++  const res = await fetch(url, init);
++  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
++  return res;
++}
++export async function j<T = any>(path: string, init?: RequestInit) {
++  return (await api(path, init)).json() as Promise<T>;
++}
+diff --git a/client/src/analytics/index.ts b/client/src/analytics/index.ts
+new file mode 100644
+index 0000000..aaaaaaa
+--- /dev/null
++++ b/client/src/analytics/index.ts
+@@ -0,0 +1,79 @@
++const KEY = "et:anon_id";
++function uuid() {
++  // Prefer Web Crypto; fallback to simple method
++  // @ts-ignore
++  return (crypto?.randomUUID?.() ?? (Math.random().toString(16).slice(2) + Date.now())) as string;
++}
++
++let anonId = localStorage.getItem(KEY);
++if (!anonId) { anonId = uuid(); localStorage.setItem(KEY, anonId); }
++
++type Session = {
++  anon_id: string; user_id?: number;
++  utm_source?: string; utm_medium?: string; utm_campaign?: string; utm_term?: string; utm_content?: string;
++};
++
++const session: Session = { anon_id };
++(() => {
++  const url = new URL(location.href);
++  session.utm_source   = url.searchParams.get("utm_source")   ?? undefined;
++  session.utm_medium   = url.searchParams.get("utm_medium")   ?? undefined;
++  session.utm_campaign = url.searchParams.get("utm_campaign") ?? undefined;
++  session.utm_term     = url.searchParams.get("utm_term")     ?? undefined;
++  session.utm_content  = url.searchParams.get("utm_content")  ?? undefined;
++})();
++
++let queue: any[] = [];
++let flushing = false;
++
++export function identify(user_id?: number) { session.user_id = user_id; }
++
++export function track(name: string, props: Record<string, any> = {}) {
++  queue.push({
++    name,
++    page: location.pathname,
++    election_id: props.election_id ?? null,
++    candidate_id: props.candidate_id ?? null,
++    value_num: props.value_num ?? null,
++    payload: props.payload ?? null,
++  });
++  if (queue.length >= 10) flush();
++}
++
++export async function flush(): Promise<void> {
++  if (flushing || queue.length === 0) return;
++  flushing = true;
++  const events = queue.splice(0, queue.length);
++  try {
++    await fetch("/api/track", {
++      method: "POST",
++      headers: { "content-type": "application/json" },
++      keepalive: true,
++      body: JSON.stringify({ session, events })
++    });
++  } catch { /* swallow */ }
++  finally { flushing = false; }
++}
++
++window.addEventListener("beforeunload", () => { flush(); });
+diff --git a/client/src/hooks/useLocalStorage.ts b/client/src/hooks/useLocalStorage.ts
+new file mode 100644
+index 0000000..bbbbbbb
+--- /dev/null
++++ b/client/src/hooks/useLocalStorage.ts
+@@ -0,0 +1,16 @@
++import { useEffect, useState } from "react";
++export function useLocalStorage<T>(key: string, initial: T) {
++  const [v, setV] = useState<T>(() => {
++    try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : initial; }
++    catch { return initial; }
++  });
++  useEffect(() => {
++    try { localStorage.setItem(key, JSON.stringify(v)); } catch {}
++  }, [key, v]);
++  return [v, setV] as const;
++}
+diff --git a/client/src/App.tsx b/client/src/App.tsx
+index abcdef0..ccccccc 100644
+--- a/client/src/App.tsx
++++ b/client/src/App.tsx
+@@ -1,6 +1,17 @@
+ import React from "react";
++import { useEffect } from "react";
++import { track } from "./analytics";
++import { useLocation } from "wouter";
+ 
+ export default function App() {
++  const [loc] = useLocation();
++  useEffect(() => {
++    track("page_view", { payload: { path: loc } });
++  }, [loc]);
++
+   return (
+     <div>
+       {/* ...existing routes/components... */}
+     </div>
+   );
+ }
+diff --git a/client/src/components/CandidatesPreview.tsx b/client/src/components/CandidatesPreview.tsx
+index 1234abc..ddddddd 100644
+--- a/client/src/components/CandidatesPreview.tsx
++++ b/client/src/components/CandidatesPreview.tsx
+@@ -1,12 +1,27 @@
+ import { useState } from "react";
+ import { useQuery, useQueryClient } from "@tanstack/react-query";
++import { track } from "../analytics";
+ 
+ export default function CandidatesPreview({ electionId, count }: { electionId: number; count?: number }) {
+   const qc = useQueryClient();
+   const [open, setOpen] = useState(false);
+ 
+   const q = useQuery({
+     queryKey: ["election", electionId, "candidates"],
+-    queryFn: async () => (await fetch(`/api/elections/${electionId}/candidates`)).json(),
++    queryFn: async () => (await fetch(`/api/elections/${electionId}/candidates`)).json(),
+     enabled: open
+   });
+ 
++  const onToggle = () => {
++    if (!open) track("candidates_dropdown_opened", { election_id: electionId });
++    setOpen(v => !v);
++  };
++
+   const prefetch = () => qc.prefetchQuery({ queryKey: ["election", electionId, "candidates"], queryFn: async () => (await fetch(`/api/elections/${electionId}/candidates`)).json() });
+ 
+   return (
+     <div className="mt-2">
+-      <button onClick={() => setOpen(v=>!v)} onMouseEnter={prefetch} className="text-xs px-2 py-1 rounded-lg border hover:bg-muted" aria-expanded={open}>
++      <button
++        data-testid="candidates-toggle"
++        onClick={onToggle}
++        onMouseEnter={prefetch}
++        className="text-xs px-2 py-1 rounded-lg border hover:bg-muted"
++        aria-expanded={open}
++      >
+         {open ? "Hide" : "Candidates"}{typeof count === "number" ? ` (${count})` : ""}
+       </button>
+ 
+@@ -15,11 +30,18 @@ export default function CandidatesPreview({ electionId, count }: { electionId: number; count?: number }) {
+         <div className="mt-2 border rounded-xl p-2 space-y-1">
+           {q.isLoading && <div className="text-xs text-muted-foreground">Loading…</div>}
+           {q.data?.map((c: any, idx: number) => {
+-            const checked = false; // your compare state logic elsewhere
++            const checked = false; // your compare state logic elsewhere
+             return (
+-              <label key={c.id} className="flex items-center justify-between text-sm gap-3">
++              <label key={c.id} className="flex items-center justify-between text-sm gap-3" data-testid="candidate-row">
+                 <div className="truncate">
+                   <span className="font-medium">{c.name}</span>
+                   {c.party && <span className="ml-2 text-xs text-muted-foreground">{c.party}</span>}
+                   {c.incumbent && <span className="ml-2 text-[11px] px-1 rounded bg-amber-50 text-amber-800">Incumbent</span>}
+                 </div>
+-                <input type="checkbox" checked={checked} onChange={() => {/* toggle elsewhere */}} />
++                <input
++                  type="checkbox"
++                  checked={checked}
++                  onChange={() => {
++                    track("candidate_checked_for_compare", { election_id: electionId, candidate_id: c.id, value_num: idx });
++                    /* toggle elsewhere */
++                  }}
++                />
+               </label>
+             );
+           })}
+diff --git a/client/src/components/ElectionCard.tsx b/client/src/components/ElectionCard.tsx
+index 56789ab..eeeeeee 100644
+--- a/client/src/components/ElectionCard.tsx
++++ b/client/src/components/ElectionCard.tsx
+@@ -1,10 +1,18 @@
+ import React from "react";
++import { track } from "../analytics";
+ 
+ export default function ElectionCard({ e }: { e: any }) {
+   return (
+-    <article className="rounded-2xl border shadow-sm p-4 hover:shadow-md transition">
+-      <h3 className="text-sm font-semibold leading-tight pr-2">{e.title}</h3>
++    <article className="rounded-2xl border shadow-sm p-4 hover:shadow-md transition" data-testid="election-card" data-election-id={e.id}>
++      <h3 className="text-sm font-semibold leading-tight pr-2" data-testid="election-title">{e.title}</h3>
+       {/* date + countdown rendered elsewhere */}
+-      <a href={`/elections/${e.id}`} className="inline-flex items-center justify-center text-xs h-8 px-3 rounded-lg border bg-background hover:bg-muted">Details</a>
++      <a
++        data-testid="election-details"
++        href={`/elections/${e.id}`}
++        className="inline-flex items-center justify-center text-xs h-8 px-3 rounded-lg border bg-background hover:bg-muted"
++        onClick={() => track("election_clicked", { election_id: e.id })}
++      >
++        Details
++      </a>
+     </article>
+   );
+ }
+diff --git a/client/src/pages/Compare.tsx b/client/src/pages/Compare.tsx
+index eee1111..fffffff 100644
+--- a/client/src/pages/Compare.tsx
++++ b/client/src/pages/Compare.tsx
+@@ -1,7 +1,16 @@
+ import React, { useMemo } from "react";
+ import { useLocation } from "wouter";
++import { track } from "../analytics";
+ 
+ export default function ComparePage() {
+   const [loc] = useLocation();
+   const ids = useMemo(() =>
+     (new URLSearchParams(loc.split("?")[1] ?? "").get("c") ?? "")
+       .split(",").map((s) => Number(s)).filter(Number.isFinite),
+     [loc]
+   );
++
++  React.useEffect(() => {
++    if (ids.length) {
++      track("compare_launched", { payload: { ids } });
++    }
++  }, [ids]);
+   // ... existing rendering
+ }
+diff --git a/package.json b/package.json
+index 2468ace..aaaaaaa 100644
+--- a/package.json
++++ b/package.json
+@@ -5,6 +5,15 @@
+   "scripts": {
+     "dev": "vite",
+     "build": "vite build",
+     "preview": "vite preview --host 0.0.0.0 --port 4173",
++    "migrate:analytics": "tsx scripts/migrate_analytics.ts",
++    "refresh:analytics": "tsx scripts/refresh_analytics.ts",
++    "smoke": "tsx scripts/smoke.ts"
+   },
++  "dependencies": {
++    "compression": "^1.7.4",
++    "helmet": "^7.1.0",
++    "cors": "^2.8.5"
++  }
+ }

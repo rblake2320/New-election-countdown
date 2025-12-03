@@ -1,0 +1,199 @@
+Exactly! Tell Replit to implement smart filtering that gets you exactly what you need:
+
+  Smart Member Filtering System:
+
+  // API endpoint with intelligent filters
+  app.get('/api/members/current', async (req, res) => {
+    const { chamber, state, party, limit } = req.query;
+
+    // Get CURRENT serving members (from most recent data)
+    let query = db.select().from(congressMembers)
+      .where('congress_number', 118) // Most recent complete Congress
+      .orderBy('state', 'asc')
+      .orderBy('district', 'asc');
+
+    // Apply filters
+    if (chamber === 'house') {
+      query = query.where('chamber', 'House');
+      // Should return exactly 435
+    } else if (chamber === 'senate') {
+      query = query.where('chamber', 'Senate');
+      // Should return exactly 100
+    }
+    // No filter = all 535
+
+    if (state) {
+      query = query.where('state', state);
+    }
+
+    if (party) {
+      query = query.where('party', party);
+    }
+
+    const members = await query;
+
+    res.json({
+      members,
+      count: members.length,
+      expected: chamber === 'house' ? 435 : chamber === 'senate' ? 100 : 535
+    });
+  });
+
+  // Special endpoints for exact counts
+  app.get('/api/members/all-current-535', async (req, res) => {
+    // Force fetch EXACTLY 535 current members
+    const house = await db.select().from(congressMembers)
+      .where('congress_number', 118)
+      .where('chamber', 'House')
+      .limit(435);
+
+    const senate = await db.select().from(congressMembers)
+      .where('congress_number', 118)
+      .where('chamber', 'Senate')
+      .limit(100);
+
+    const all = [...house, ...senate];
+
+    if (all.length !== 535) {
+      // Something's wrong - trigger resync
+      await syncMissingMembers();
+    }
+
+    res.json({
+      members: all,
+      house_count: house.length,
+      senate_count: senate.length,
+      total: all.length,
+      complete: all.length === 535
+    });
+  });
+
+  Frontend Filter Component:
+
+  function MemberFilters({ onFilterChange }) {
+    const [filters, setFilters] = useState({
+      view: 'all', // all, house, senate
+      state: '',
+      party: '',
+      search: ''
+    });
+
+    return (
+      <div className="member-filters">
+        {/* Quick filters for exact counts */}
+        <div className="quick-filters">
+          <button
+            onClick={() => setFilters({...filters, view: 'all'})}
+            className={filters.view === 'all' ? 'active' : ''}
+          >
+            All 535 Members
+          </button>
+          <button
+            onClick={() => setFilters({...filters, view: 'house'})}
+            className={filters.view === 'house' ? 'active' : ''}
+          >
+            House (435)
+          </button>
+          <button
+            onClick={() => setFilters({...filters, view: 'senate'})}
+            className={filters.view === 'senate' ? 'active' : ''}
+          >
+            Senate (100)
+          </button>
+        </div>
+
+        {/* Additional filters */}
+        <select
+          value={filters.state}
+          onChange={(e) => setFilters({...filters, state: e.target.value})}
+        >
+          <option value="">All States</option>
+          {STATES.map(state => (
+            <option key={state} value={state}>{state}</option>
+          ))}
+        </select>
+
+        <select
+          value={filters.party}
+          onChange={(e) => setFilters({...filters, party: e.target.value})}
+        >
+          <option value="">All Parties</option>
+          <option value="Republican">Republican</option>
+          <option value="Democratic">Democratic</option>
+          <option value="Independent">Independent</option>
+        </select>
+
+        {/* Member count display */}
+        <div className="member-count">
+          Showing: {filteredCount} members
+          {filters.view === 'house' && filteredCount !== 435 &&
+            <span className="warning"> (Expected 435)</span>
+          }
+          {filters.view === 'senate' && filteredCount !== 100 &&
+            <span className="warning"> (Expected 100)</span>
+          }
+        </div>
+      </div>
+    );
+  }
+
+  Verification Queries:
+
+  -- These MUST return correct counts
+  SELECT
+    COUNT(*) as total,
+    COUNT(CASE WHEN chamber = 'House' THEN 1 END) as house,
+    COUNT(CASE WHEN chamber = 'Senate' THEN 1 END) as senate
+  FROM congress_members
+  WHERE congress_number = 118;
+
+  -- By state representation
+  SELECT
+    state,
+    COUNT(CASE WHEN chamber = 'Senate' THEN 1 END) as senators,
+    COUNT(CASE WHEN chamber = 'House' THEN 1 END) as representatives
+  FROM congress_members
+  WHERE congress_number = 118
+  GROUP BY state
+  ORDER BY state;
+
+  Fix Missing Members:
+
+  async function validateAndFixMemberCount() {
+    const counts = await db.select(
+      count().as('total'),
+      sql`COUNT(CASE WHEN chamber = 'House' THEN 1 END)`.as('house'),
+      sql`COUNT(CASE WHEN chamber = 'Senate' THEN 1 END)`.as('senate')
+    ).from(congressMembers)
+    .where('congress_number', 118);
+
+    const { total, house, senate } = counts[0];
+
+    if (house < 435 || senate < 100) {
+      console.log(`Missing members! House: ${house}/435, Senate: ${senate}/100`);
+
+      // Fetch missing members by state
+      const states = await db.select('state', count().as('count'))
+        .from(congressMembers)
+        .where('congress_number', 118)
+        .groupBy('state');
+
+      for (const { state, count } of states) {
+        const expected = state === 'DC' ? 1 : 2 + HOUSE_SEATS_BY_STATE[state];
+        if (count < expected) {
+          console.log(`${state} missing ${expected - count} members`);
+          // Fetch specific state members
+        }
+      }
+    }
+  }
+
+  Tell Replit:
+  "Add these exact filters:
+  1. Quick buttons: 'All 535', 'House (435)', 'Senate (100)'
+  2. Each button shows count and warns if wrong
+  3. State and party filters work on top of chamber filter
+  4. Create /api/members/current endpoint with smart filtering
+  5. If counts are wrong, highlight in RED and offer 'Fix Missing Members' button"
+
+  This gives users exactly what they want - see all 535, just the 435 House members, or just the 100 Senators!

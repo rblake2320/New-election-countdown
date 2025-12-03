@@ -1,0 +1,252 @@
+Great audit—nice work getting the stack to “good + stable.” Two things are still biting us:
+
+1. some races show **Candidates (0)** even though we know the names,
+2. we need a **facts+guardrail** layer so election dates and “static” truths can’t silently drift.
+
+Below is a complete, paste-in bundle that solves both:
+
+---
+
+# A) “Facts + Guards” (no silent drift)
+
+## 1) Truth tables (immutable facts + provenance)
+
+```sql
+-- Immutable facts with proofs (used by RAG and guards)
+CREATE TABLE IF NOT EXISTS election_facts (
+  fact_id        BIGSERIAL PRIMARY KEY,
+  election_id    BIGINT,                 -- nullable for not-yet-linked facts
+  scope          TEXT NOT NULL,          -- 'date','type','location_rule','candidate_list','note'
+  fact_json      JSONB NOT NULL,         -- your canonical value(s)
+  source_url     TEXT NOT NULL,
+  source_title   TEXT,
+  observed_at    TIMESTAMPTZ NOT NULL,   -- when we saw it
+  verified_at    TIMESTAMPTZ,            -- when a human verified it
+  verifier       TEXT,
+  UNIQUE (election_id, scope, fact_json)
+);
+
+-- Current “truth” snapshot we enforce in the app
+CREATE TABLE IF NOT EXISTS election_truth (
+  election_id  BIGINT PRIMARY KEY,
+  as_of        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  date_utc     TIMESTAMPTZ,              -- normalized canonical date
+  confidence   INT NOT NULL DEFAULT 80,  -- 0..100
+  lock_reason  TEXT                      -- e.g., "County certified", "State rule (UDEL)"
+);
+```
+
+## 2) Nightly guards (date drift, rule conformance)
+
+```sql
+-- If a truth record exists, keep elections_current in sync nightly
+CREATE OR REPLACE FUNCTION reconcile_election_dates() RETURNS VOID
+LANGUAGE plpgsql AS $$
+BEGIN
+  UPDATE elections_current e
+  SET election_date = t.date_utc
+  FROM election_truth t
+  WHERE t.election_id = e.id
+    AND t.date_utc IS NOT NULL
+    AND e.election_date IS DISTINCT FROM t.date_utc;
+END; $$;
+
+-- Detect California UDEL off-cycle locals (keeps your previous heuristic)
+CREATE OR REPLACE VIEW guard_ca_udel AS
+SELECT ec.id, ec.state, ec.level, ec.office, ec.election_date
+FROM elections_current ec
+WHERE ec.state='CA' AND ec.level='local'
+  AND ec.status IN ('scheduled','moved')
+  AND NOT is_ca_udel_date(ec.election_date);
+```
+
+**Nightly job order**
+
+```sql
+-- 1) refresh candidate counts/materialized views (if you use MVs)
+-- REFRESH MATERIALIZED VIEW CONCURRENTLY election_candidate_counts;
+
+-- 2) enforce truths → app stays consistent
+SELECT reconcile_election_dates();
+
+-- 3) run your sanity suite (from earlier message)
+SELECT * FROM sanity_run();
+```
+
+> Result: dates, counts, and rules cannot silently regress; any anomaly is logged in the **sanity\_findings** ledger and (optionally) pushed to Slack/Email.
+
+---
+
+# B) Zero-candidate cards → link fast using a staging lane
+
+This safely gets Boston/Seattle/Atlanta/Detroit (and any future city) into your DB **today**, without waiting on external connectors.
+
+## 1) Staging table
+
+```sql
+CREATE TABLE IF NOT EXISTS staging_muni_candidates (
+  city           TEXT NOT NULL,
+  state          TEXT NOT NULL CHECK (char_length(state)=2),
+  election_date  DATE,                       -- leave NULL if unknown, we’ll match by title
+  office_hint    TEXT,                       -- e.g. 'Mayor'
+  candidate_name TEXT NOT NULL,
+  party          TEXT,
+  incumbent      BOOLEAN DEFAULT FALSE,
+  source_url     TEXT,
+  loaded_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_staging_muni_city ON staging_muni_candidates(lower(city), state);
+```
+
+## 2) Drop in the four cities (examples you supplied)
+
+```sql
+-- BOSTON (MA)
+INSERT INTO staging_muni_candidates(city,state,election_date,office_hint,candidate_name,party,incumbent,source_url) VALUES
+('Boston','MA','2025-11-04','Mayor','Michelle Wu','Democratic', TRUE ,'https://en.wikipedia.org/wiki/2025_Boston_mayoral_election'),
+('Boston','MA','2025-11-04','Mayor','Josh Kraft','Democratic', FALSE,'https://en.wikipedia.org/wiki/2025_Boston_mayoral_election'),
+('Boston','MA','2025-11-04','Mayor','Kerry Augustin','Democratic', FALSE,'https://www.progressivemass.com/...'),
+('Boston','MA','2025-11-04','Mayor','Domingos DaRosa','Independent', FALSE,'https://www.boston.com/...'),
+('Boston','MA','2025-11-04','Mayor','Jorge Mendoza-Iturralde','Independent', FALSE,'https://www.boston.com/...');
+
+-- SEATTLE (WA) – general finalists + (optional) eliminated
+INSERT INTO staging_muni_candidates VALUES
+('Seattle','WA','2025-11-04','Mayor','Bruce Harrell','Democratic', TRUE ,'https://en.wikipedia.org/wiki/2025_Seattle_mayoral_election'),
+('Seattle','WA','2025-11-04','Mayor','Katie Wilson','Democratic', FALSE,'https://en.wikipedia.org/wiki/2025_Seattle_mayoral_election');
+
+-- ATLANTA (GA)
+INSERT INTO staging_muni_candidates VALUES
+('Atlanta','GA','2025-11-04','Mayor','Andre Dickens',NULL, TRUE ,'https://en.wikipedia.org/wiki/2025_Atlanta_mayoral_election'),
+('Atlanta','GA','2025-11-04','Mayor','Helmut Domagalski',NULL, FALSE,'https://en.wikipedia.org/wiki/2025_Atlanta_mayoral_election'),
+('Atlanta','GA','2025-11-04','Mayor','Kalema Jackson',NULL, FALSE,'https://www.wabe.org/...');
+
+-- DETROIT (MI)
+INSERT INTO staging_muni_candidates VALUES
+('Detroit','MI','2025-11-04','Mayor','Mary Sheffield',NULL, FALSE,'https://www.wxyz.com/...'),
+('Detroit','MI','2025-11-04','Mayor','Fred Durhal III',NULL, FALSE,'https://www.bridgedetroit.com/...'),
+('Detroit','MI','2025-11-04','Mayor','James Craig',NULL, FALSE,'https://www.cbsnews.com/detroit/...'),
+('Detroit','MI','2025-11-04','Mayor','Todd Perkins',NULL, FALSE,'https://www.cbsnews.com/detroit/...'),
+('Detroit','MI','2025-11-04','Mayor','DaNetta Simpson',NULL, FALSE,'https://www.cbsnews.com/detroit/...'),
+('Detroit','MI','2025-11-04','Mayor','Jonathan Barlow',NULL, FALSE,'https://www.cbsnews.com/detroit/...'),
+('Detroit','MI','2025-11-04','Mayor','Joel Haashiim',NULL, FALSE,'https://www.cbsnews.com/detroit/...'),
+('Detroit','MI','2025-11-04','Mayor','Solomon Kinloch Jr.',NULL, FALSE,'https://www.cbsnews.com/detroit/...');
+```
+
+## 3) Safe upsert + auto-linker
+
+```sql
+-- Normalizes and links every staging row to the correct election, then to candidates
+CREATE OR REPLACE FUNCTION link_staged_muni_candidates() RETURNS INT
+LANGUAGE plpgsql AS $$
+DECLARE r RECORD; v_election_id BIGINT; v_candidate_id BIGINT; n INT := 0;
+BEGIN
+  FOR r IN
+    SELECT *
+    FROM staging_muni_candidates
+    ORDER BY loaded_at
+  LOOP
+    -- Find the election: state + 'mayor' in office + city in office/district/title + (optional) date proximity
+    SELECT ec.id
+      INTO v_election_id
+    FROM elections_current ec
+    WHERE ec.state = r.state
+      AND ec.level = 'local'
+      AND (
+           lower(ec.office) LIKE '%mayor%'
+        OR lower(coalesce(ec.district,'')) LIKE '%mayor%'
+      )
+      AND (
+           lower(ec.office) LIKE '%'||lower(r.city)||'%'
+        OR lower(coalesce(ec.district,'')) LIKE '%'||lower(r.city)||'%'
+      )
+      AND (
+           r.election_date IS NULL
+           OR ec.election_date::date BETWEEN (r.election_date - INTERVAL '7 days')::date
+                                        AND (r.election_date + INTERVAL '7 days')::date
+      )
+    ORDER BY abs(EXTRACT(EPOCH FROM (coalesce(ec.election_date,now()) - coalesce(r.election_date::timestamptz, now())))) ASC
+    LIMIT 1;
+
+    IF v_election_id IS NULL THEN
+      CONTINUE; -- Nothing to link yet; keep the staging row for later
+    END IF;
+
+    -- Upsert candidate (by name+state); add party/incumbent if provided
+    INSERT INTO candidates (full_name, state, party, incumbent, profile_image_url)
+    VALUES (r.candidate_name, r.state, NULLIF(r.party,''), coalesce(r.incumbent,false), NULL)
+    ON CONFLICT (full_name, state) DO UPDATE
+      SET party = COALESCE(EXCLUDED.party, candidates.party),
+          incumbent = COALESCE(EXCLUDED.incumbent, candidates.incumbent)
+    RETURNING id INTO v_candidate_id;
+
+    -- Link candidate to election (ignore if exists)
+    INSERT INTO election_candidates (election_id, candidate_id, source_url)
+    VALUES (v_election_id, v_candidate_id, r.source_url)
+    ON CONFLICT DO NOTHING;
+
+    n := n + 1;
+  END LOOP;
+  RETURN n;
+END; $$;
+
+-- Run it:
+SELECT link_staged_muni_candidates();
+
+-- If you materialize counts, refresh them:
+-- REFRESH MATERIALIZED VIEW CONCURRENTLY election_candidate_counts;
+```
+
+> Result: those cards flip from **Candidates (0)** to correct counts the moment this runs. You can keep appending staging rows for other cities/states and re-run the function idempotently.
+
+---
+
+# C) “Static” reference for RAG + never-delete
+
+To align with your “stack and never lose” requirement:
+
+* **Never hard-delete.** Ensure `deleted_at` soft-deletes exist for elections/candidates/link tables.
+* **Facts are write-once.** Use `election_facts` for scraped PDFs, calendars, certified lists, etc.
+* **Truths are the snapshot** the app uses. If a county moves a date, we:
+
+  1. insert a new **fact** (with URL + timestamp),
+  2. update **election\_truth** (date\_utc + reason = “County notice”),
+  3. let **reconcile\_election\_dates()** apply it,
+  4. your **sanity\_run()** ledger records the change.
+
+---
+
+# D) Manus work orders (zero-miss loop)
+
+1. **Deploy “Facts + Guards”**
+
+   * Apply the SQL above.
+   * Add cron: `03:05 UTC → SELECT reconcile_election_dates(); SELECT * FROM sanity_run();`
+
+2. **Load the four city slates** (staging inserts) and run `link_staged_muni_candidates()`
+   **Accept:** Election cards for Boston/Seattle/Atlanta/Detroit show `Candidates (≥2)` and the Compare flow lists the names.
+
+3. **CA UDEL guard**
+
+   * Add a truth record for CA UDEL “rule” and (optionally) `lock_reason='State rule (UDEL)'` in `election_truth` for any canonical local date.
+   * **Accept:** `guard_ca_udel` returns 0 rows (or the rows are whitelisted with a note if a county certifies an off-cycle date).
+
+4. **Congress discrepancies**
+
+   * Keep your existing audit list; add truths for any state with fixes (or whitelist in `sanity_whitelist` until the import lands).
+   * **Accept:** state counts match your target list.
+
+5. **Alerts** (optional quick add)
+
+   * Pipe `sanity_findings` for `critical/high` created today to Slack/email.
+
+---
+
+# E) UI niceties (tiny, high-impact)
+
+* On each card, show a **shield badge**: `Verified • <relative time>` when a `election_truth` row exists.
+* When candidate\_count = 0 but we have a truth “candidate\_list” fact, show “Pending import (N)” instead of “(0)”.
+* Tooltip: “Date enforced by state rule” when `lock_reason` is present.
+
+---
+
+If you want, I can also give you a ready-to-paste **Slack notifier** SQL/Node snippet for the sanity ledger, but the pieces above will immediately fix the empty-candidate cards and prevent future date drift while preserving every fact you collect.

@@ -1,0 +1,356 @@
+Awesome—here’s the **complete SQL sanity suite** you asked for. It plugs right into the temporal schema I gave you earlier (versioned elections/candidates + current views) and gives you:
+
+* nightly **assertions** (no date regressions, no overlaps, no dupes, “CA UDEL must be November”, upcoming-without-candidates, etc.)
+* a **findings ledger** with severities + run IDs (so nothing gets lost)
+* a **whitelist** (suppress known anomalies)
+* a one-call **sanity\_run()** that writes findings + returns a compact summary
+* simple **cron** wiring + quick **PSQL scripts** to run on Replit
+
+You can paste these as four migration files and run them immediately.
+
+---
+
+# 09\_sanity\_config.sql
+
+```sql
+-- === Sanity framework: config, severities, whitelists =====================
+
+CREATE TYPE sanity_severity AS ENUM ('critical','high','medium','low','info');
+
+CREATE TABLE IF NOT EXISTS sanity_config (
+  key       TEXT PRIMARY KEY,
+  value     TEXT NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- sensible defaults (idempotent upserts)
+INSERT INTO sanity_config(key,value) VALUES
+ ('upcoming_window_days','120'),
+ ('min_candidates_upcoming','1'),
+ ('ca_udel_enforce','true')
+ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
+
+-- Suppress specific known issues (by code + entity reference)
+CREATE TABLE IF NOT EXISTS sanity_whitelist (
+  code        TEXT NOT NULL,
+  entity_type TEXT NOT NULL,   -- 'election','candidate','version'
+  entity_id   BIGINT NOT NULL,
+  note        TEXT,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (code, entity_type, entity_id)
+);
+```
+
+---
+
+# 10\_sanity\_checks.sql
+
+```sql
+-- === Findings ledger + helpers ===========================================
+
+CREATE TABLE IF NOT EXISTS sanity_runs (
+  run_id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  started_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  finished_at TIMESTAMPTZ
+);
+
+CREATE TABLE IF NOT EXISTS sanity_findings (
+  run_id      UUID NOT NULL REFERENCES sanity_runs(run_id),
+  code        TEXT NOT NULL,                    -- stable machine code
+  severity    sanity_severity NOT NULL,
+  entity_type TEXT NOT NULL,                    -- 'election','candidate','version','system'
+  entity_id   BIGINT,                           -- may be null for system-wide
+  message     TEXT NOT NULL,
+  context     JSONB,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_sanity_findings_run ON sanity_findings(run_id);
+CREATE INDEX IF NOT EXISTS idx_sanity_findings_code ON sanity_findings(code);
+
+-- Helper: is first Tuesday after first Monday of a month?
+CREATE OR REPLACE FUNCTION is_first_tuesday_after_first_monday(p_date DATE)
+RETURNS BOOLEAN LANGUAGE sql IMMUTABLE AS $$
+  SELECT EXTRACT(ISODOW FROM $1)::INT = 2 -- Tuesday
+     AND (EXTRACT(DAY FROM $1)::INT BETWEEN 2 AND 8)
+     AND EXTRACT(ISODOW FROM (date_trunc('month',$1)::date + 1))::INT <= 1;
+$$;
+
+-- Helper: "CA UDEL" heuristic: odd year + Nov + TOTAFM
+CREATE OR REPLACE FUNCTION is_ca_udel_date(p_ts TIMESTAMPTZ)
+RETURNS BOOLEAN LANGUAGE sql IMMUTABLE AS $$
+  SELECT (EXTRACT(YEAR FROM $1 AT TIME ZONE 'America/Los_Angeles')::INT % 2 = 1)
+     AND EXTRACT(MONTH FROM $1 AT TIME ZONE 'America/Los_Angeles')::INT = 11
+     AND is_first_tuesday_after_first_monday( ($1 AT TIME ZONE 'America/Los_Angeles')::date );
+$$;
+
+-- Helper: fetch config integer with default
+CREATE OR REPLACE FUNCTION cfg_int(p_key TEXT, p_default INT)
+RETURNS INT LANGUAGE plpgsql AS $$
+DECLARE v TEXT; n INT;
+BEGIN
+  SELECT value INTO v FROM sanity_config WHERE key = p_key;
+  IF v IS NULL THEN RETURN p_default; END IF;
+  n := NULLIF(v,'')::INT;
+  IF n IS NULL THEN RETURN p_default; END IF;
+  RETURN n;
+END;
+$$;
+
+-- Helper: fetch config boolean with default
+CREATE OR REPLACE FUNCTION cfg_bool(p_key TEXT, p_default BOOLEAN)
+RETURNS BOOLEAN LANGUAGE plpgsql AS $$
+DECLARE v TEXT; b BOOLEAN;
+BEGIN
+  SELECT value INTO v FROM sanity_config WHERE key = p_key;
+  IF v IS NULL THEN RETURN p_default; END IF;
+  b := NULLIF(v,'')::BOOLEAN;
+  IF b IS NULL THEN RETURN p_default; END IF;
+  RETURN b;
+END;
+$$;
+
+-- === Core assertions (insert-only) =======================================
+
+-- 1) Exactly one current version per election (no overlap / no missing current)
+CREATE OR REPLACE VIEW v_sanity_current_versions AS
+SELECT e.id AS election_id,
+       COUNT(*) FILTER (WHERE v.effective_to IS NULL) AS current_versions
+FROM elections e
+LEFT JOIN election_versions v ON v.election_id = e.id
+GROUP BY 1;
+
+-- 2) Duplicate current rows: same (state,level,office,district,date)
+CREATE OR REPLACE VIEW v_sanity_dup_current AS
+SELECT state, level, office, coalesce(district,'') AS district, election_date,
+       array_agg(id ORDER BY id) AS election_ids, COUNT(*) AS n
+FROM elections_current
+GROUP BY 1,2,3,4,5
+HAVING COUNT(*) > 1;
+
+-- 3) Upcoming-without-candidates gate (within window days, not cancelled/moved)
+CREATE OR REPLACE VIEW v_sanity_upcoming_zero_candidates AS
+SELECT ec.id, ec.state, ec.level, ec.office, ec.district, ec.status, ec.election_date,
+       coalesce(cc.candidate_count,0) AS candidate_count
+FROM elections_current ec
+LEFT JOIN election_candidate_counts cc ON cc.election_id = ec.id
+WHERE ec.status IN ('scheduled','certified','results_in')  -- 'moved' doesn't count here
+  AND ec.election_date IS NOT NULL
+  AND ec.election_date <= (now() + (cfg_int('upcoming_window_days',120) || ' days')::interval)
+  AND coalesce(cc.candidate_count,0) < cfg_int('min_candidates_upcoming',1);
+
+-- 4) CA UDEL sanity: Local (CA) elections not on UDEL date → flag (heuristic)
+CREATE OR REPLACE VIEW v_sanity_ca_udel_mismatch AS
+SELECT ec.*
+FROM elections_current ec
+WHERE cfg_bool('ca_udel_enforce',true) = true
+  AND ec.state = 'CA'
+  AND ec.level = 'local'
+  AND ec.status IN ('scheduled','moved')   -- ignore cancelled
+  AND ec.election_date IS NOT NULL
+  AND NOT is_ca_udel_date(ec.election_date);
+
+-- 5) Overlapping versions per election (two open or overlapping periods)
+CREATE OR REPLACE VIEW v_sanity_overlaps AS
+WITH spans AS (
+  SELECT election_id,
+         version_id,
+         coalesce(effective_from, '-infinity'::timestamptz) AS from_ts,
+         coalesce(effective_to,   'infinity'::timestamptz)   AS to_ts
+  FROM election_versions
+)
+SELECT a.election_id, a.version_id AS v1, b.version_id AS v2
+FROM spans a
+JOIN spans b ON a.election_id = b.election_id AND a.version_id < b.version_id
+WHERE a.from_ts < b.to_ts AND b.from_ts < a.to_ts;
+
+-- 6) Orphaned links (election_candidates → missing or soft-deleted)
+CREATE OR REPLACE VIEW v_sanity_orphan_links AS
+SELECT ec.election_id, ec.candidate_id, e.deleted_at AS election_deleted, c.deleted_at AS candidate_deleted
+FROM election_candidates ec
+LEFT JOIN elections e   ON e.id = ec.election_id
+LEFT JOIN candidates c  ON c.id = ec.candidate_id
+WHERE e.id IS NULL OR c.id IS NULL OR e.deleted_at IS NOT NULL OR c.deleted_at IS NOT NULL;
+```
+
+---
+
+# 11\_sanity\_run.sql
+
+```sql
+-- === One-call runner that writes a ledger & returns a compact summary =====
+
+CREATE OR REPLACE FUNCTION sanity_run()
+RETURNS TABLE (
+  run_id UUID,
+  total INT,
+  critical INT,
+  high INT,
+  medium INT,
+  low INT,
+  info INT
+) LANGUAGE plpgsql AS $$
+DECLARE rid UUID;
+BEGIN
+  INSERT INTO sanity_runs DEFAULT VALUES RETURNING run_id INTO rid;
+
+  -- 1) Missing/Multiple current versions
+  INSERT INTO sanity_findings(run_id, code, severity, entity_type, entity_id, message, context)
+  SELECT rid, 'current_version_count', 'critical', 'election', s.election_id,
+         format('Election %s has %s current versions (expected 1)', s.election_id, s.current_versions),
+         jsonb_build_object('current_versions', s.current_versions)
+  FROM v_sanity_current_versions s
+  WHERE s.current_versions <> 1
+    AND NOT EXISTS (
+      SELECT 1 FROM sanity_whitelist w WHERE w.code='current_version_count' AND w.entity_type='election' AND w.entity_id=s.election_id
+    );
+
+  -- 2) Duplicate current rows
+  INSERT INTO sanity_findings(run_id, code, severity, entity_type, entity_id, message, context)
+  SELECT rid, 'duplicate_current', 'high', 'election', unnest(election_ids) AS election_id,
+         format('Duplicate key (state=%s,level=%s,office=%s,district=%s,date=%s)',
+           state, level, office, district, election_date::date),
+         jsonb_build_object('siblings', election_ids, 'n', n, 'state',state,'level',level,'office',office,'district',district,'date',election_date)
+  FROM v_sanity_dup_current
+  WHERE NOT EXISTS (
+    SELECT 1 FROM sanity_whitelist w WHERE w.code='duplicate_current' AND w.entity_type='election' AND w.entity_id = ANY (election_ids)
+  );
+
+  -- 3) Upcoming with zero candidates
+  INSERT INTO sanity_findings(run_id, code, severity, entity_type, entity_id, message, context)
+  SELECT rid, 'upcoming_zero_candidates', 'high', 'election', s.id,
+         format('Upcoming election %s within %s days has %s candidates (< %s)',
+           s.id, cfg_int('upcoming_window_days',120), s.candidate_count, cfg_int('min_candidates_upcoming',1)),
+         to_jsonb(s) - 'id'
+  FROM v_sanity_upcoming_zero_candidates s
+  WHERE NOT EXISTS (
+    SELECT 1 FROM sanity_whitelist w WHERE w.code='upcoming_zero_candidates' AND w.entity_type='election' AND w.entity_id=s.id
+  );
+
+  -- 4) CA UDEL mismatch (heuristic)
+  INSERT INTO sanity_findings(run_id, code, severity, entity_type, entity_id, message, context)
+  SELECT rid, 'ca_udel_mismatch', 'medium', 'election', s.id,
+         format('CA local election %s not on UDEL (odd-year November TOTAFM). Verify or mark moved/cancelled.', s.id),
+         to_jsonb(s) - 'id'
+  FROM v_sanity_ca_udel_mismatch s
+  WHERE NOT EXISTS (
+    SELECT 1 FROM sanity_whitelist w WHERE w.code='ca_udel_mismatch' AND w.entity_type='election' AND w.entity_id=s.id
+  );
+
+  -- 5) Overlapping versions
+  INSERT INTO sanity_findings(run_id, code, severity, entity_type, entity_id, message, context)
+  SELECT rid, 'version_overlap', 'critical', 'election', s.election_id,
+         format('Election %s has overlapping versions (%s, %s)', s.election_id, s.v1, s.v2),
+         jsonb_build_object('v1', s.v1, 'v2', s.v2)
+  FROM v_sanity_overlaps s
+  WHERE NOT EXISTS (
+    SELECT 1 FROM sanity_whitelist w WHERE w.code='version_overlap' AND w.entity_type='election' AND w.entity_id=s.election_id
+  );
+
+  -- 6) Orphaned links
+  INSERT INTO sanity_findings(run_id, code, severity, entity_type, entity_id, message, context)
+  SELECT rid, 'orphan_link', 'high', 'election', election_id,
+         format('Orphaned link election_id=%s candidate_id=%s (deleted or missing)', election_id, candidate_id),
+         jsonb_build_object('candidate_id', candidate_id, 'election_deleted', election_deleted, 'candidate_deleted', candidate_deleted)
+  FROM v_sanity_orphan_links s
+  WHERE NOT EXISTS (
+    SELECT 1 FROM sanity_whitelist w WHERE w.code='orphan_link' AND w.entity_type='election' AND w.entity_id=s.election_id
+  );
+
+  -- Close run
+  UPDATE sanity_runs SET finished_at = now() WHERE run_id = rid;
+
+  RETURN QUERY
+  WITH counts AS (
+    SELECT
+      COUNT(*) AS total,
+      COUNT(*) FILTER (WHERE severity='critical') AS critical,
+      COUNT(*) FILTER (WHERE severity='high')     AS high,
+      COUNT(*) FILTER (WHERE severity='medium')   AS medium,
+      COUNT(*) FILTER (WHERE severity='low')      AS low,
+      COUNT(*) FILTER (WHERE severity='info')     AS info
+    FROM sanity_findings WHERE run_id = rid
+  )
+  SELECT rid, total, critical, high, medium, low, info FROM counts;
+END;
+$$;
+
+-- Fast dashboard summaries
+CREATE OR REPLACE VIEW sanity_summary AS
+SELECT
+  date_trunc('day', f.created_at) AS day,
+  f.severity,
+  COUNT(*) AS findings
+FROM sanity_findings f
+GROUP BY 1,2
+ORDER BY 1 DESC, 2;
+
+CREATE OR REPLACE VIEW sanity_open_findings AS
+SELECT *
+FROM sanity_findings f
+WHERE NOT EXISTS (
+  SELECT 1 FROM sanity_whitelist w
+  WHERE w.code=f.code AND w.entity_type=f.entity_type AND w.entity_id=coalesce(f.entity_id,0)
+);
+```
+
+---
+
+# 12\_sanity\_examples.sql (quick run + knobs)
+
+```sql
+-- Run once (manually or via cron job) and see a result row
+SELECT * FROM sanity_run();
+
+-- See detailed open issues (not whitelisted)
+SELECT * FROM sanity_open_findings ORDER BY severity, created_at DESC;
+
+-- Tweak gates
+UPDATE sanity_config SET value='150' WHERE key='upcoming_window_days';
+UPDATE sanity_config SET value='2'   WHERE key='min_candidates_upcoming';
+
+-- Whitelist a known special-case (example election_id=809)
+INSERT INTO sanity_whitelist(code, entity_type, entity_id, note)
+VALUES ('ca_udel_mismatch','election',809,'County confirmed off-cycle date');
+
+-- Re-run after a fix to confirm the ledger reflects improvement
+SELECT * FROM sanity_run();
+```
+
+---
+
+## How to wire on Replit
+
+**package.json**
+
+```json
+{
+  "scripts": {
+    "migrate:sanity": "psql \"$DATABASE_URL\" -f sql/09_sanity_config.sql && psql \"$DATABASE_URL\" -f sql/10_sanity_checks.sql && psql \"$DATABASE_URL\" -f sql/11_sanity_run.sql && psql \"$DATABASE_URL\" -f sql/12_sanity_examples.sql",
+    "sanity:run": "psql \"$DATABASE_URL\" -c \"SELECT * FROM sanity_run();\""
+  }
+}
+```
+
+**Scheduled Deployments (cron)**
+
+```
+# Nightly sanity gate (before verify job if you want)
+5 4 * * *  npm run sanity:run
+```
+
+---
+
+## What you’ll get immediately
+
+* A **nightly ledger** of anomalies that never overwrites old results.
+* **Hard gates** that catch the stuff you flagged:
+
+  * weird California local dates (UDEL heuristic),
+  * duplicate races,
+  * overlapping/missing current versions,
+  * orphan candidate links,
+  * **upcoming-without-candidates** inside a configurable window.
+* A one-line **summary** for dashboards and alerting.
+* A **whitelist** so you can accept exceptions without deleting data.
+
+If you want me to add more state-specific calendaring (e.g., *federal = even years, first Tue after first Mon Nov; LA municipal odd years; NYC cycles; etc.*), I can extend the rule set by dropping in a `calendar_rules` table + a validator function that compares each election to its state rule.

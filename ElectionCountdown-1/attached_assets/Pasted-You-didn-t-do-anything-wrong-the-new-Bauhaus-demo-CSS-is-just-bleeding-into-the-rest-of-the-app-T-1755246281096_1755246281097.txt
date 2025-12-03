@@ -1,0 +1,211 @@
+You didn’t do anything “wrong”—the new Bauhaus demo CSS is just bleeding into the rest of the app. Two things are causing the mess:
+
+1. the demo CSS re-imports Tailwind (`@import "tailwindcss"`) which re-runs Tailwind’s preflight reset a second time, and
+2. variables are defined on `:root` (and `.dark`) so they override your whole site.
+
+Let’s isolate the demo styles so they never touch the rest of ElectionTracker, and lock the card layout so it can’t visually break.
+
+---
+
+# 1) Scope the demo CSS (no more global overrides)
+
+**Replace your demo `index.css` with a namespaced theme file** and remove Tailwind imports. (This file should be imported only by the Bauhaus demo, not at the app root.)
+
+```diff
+- @import "tailwindcss";
+- @import "tw-animate-css";
+
+/* This file is ONLY a theme capsule for the Bauhaus card demo.
+   Do not import Tailwind or any base resets here. */
+
+- :root {
++ .bauhaus-theme {
+  --bauhaus-card-bg: #f0f4fb;
+  --bauhaus-card-separator: #d3dce8;
+  --bauhaus-card-accent: #156ef6;
+  --bauhaus-card-radius: 2em;
+  --bauhaus-card-border-width: 2px;
+  --bauhaus-card-inscription-top: #3b4252;
+  --bauhaus-card-inscription-main: #111014;
+  --bauhaus-card-inscription-sub: #5e6473;
+  --bauhaus-card-inscription-progress-label: #454f55;
+  --bauhaus-card-inscription-progress-value: #1c2541;
+  --bauhaus-card-progress-bar-bg: #e5e7eb;
+  --bauhaus-chronicle-bg: #151419;
+  --bauhaus-chronicle-fg: #fff;
+  --bauhaus-chronicle-hover-fg: #fff;
+}
+
+- .dark {
++ .dark .bauhaus-theme {
+  --bauhaus-card-bg: #151419;
+  --bauhaus-card-separator: #2F2B2A;
+  --bauhaus-card-accent: #156ef6;
+  --bauhaus-card-radius: 2em;
+  --bauhaus-card-border-width: 2px;
+  --bauhaus-card-inscription-top: #bfc7d5;
+  --bauhaus-card-inscription-main: #f0f0f1;
+  --bauhaus-card-inscription-sub: #a0a1b3;
+  --bauhaus-card-inscription-progress-label: #b5b6c4;
+  --bauhaus-card-inscription-progress-value: #e7e7f7;
+  --bauhaus-card-progress-bar-bg: #363636;
+  --bauhaus-chronicle-bg: #fff;
+  --bauhaus-chronicle-fg: #151419;
+  --bauhaus-chronicle-hover-fg: #fff;
+}
+```
+
+> Why: your current file re-imports Tailwind and sets tokens on `:root`, so it resets and restyles the entire app. Namespacing everything under `.bauhaus-theme` keeps it self-contained.&#x20;
+
+---
+
+# 2) Wrap the demo with the theme class
+
+In your demo component, add the wrapper class so those variables only apply inside the demo.
+
+```diff
+// demo.tsx
+- <div className="w-full p-8 rounded-lg min-h-[300px] flex flex-wrap gap-6 items-center justify-center relative">
++ <div className="bauhaus-theme w-full p-8 rounded-lg min-h-[300px] flex flex-wrap gap-6 items-center justify-center relative">
+```
+
+Keep using your `Component` props as-is; no other changes needed.&#x20;
+
+---
+
+# 3) Make the election cards “unbreakable”
+
+Even when other CSS sneaks in, these guards keep the cards from stretching, wrapping, or collapsing:
+
+**Add once to your app CSS (not the demo CSS):**
+
+```css
+/* Card stability guards */
+.election-card {
+  min-height: 176px;        /* consistent row height */
+  contain: layout paint;    /* isolate layout */
+}
+
+.election-card .title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;             /* prevents flex overflow */
+}
+
+.election-card .meta {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+/* Grid never shifts: equal rows, smooth wrap */
+.election-grid {
+  grid-auto-rows: 1fr;
+  align-items: stretch;
+}
+```
+
+Then ensure the card/grid containers use those classes:
+
+```tsx
+// where you render the grid
+<div className="election-grid grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+  <ElectionCard className="election-card" ... />
+  ...
+</div>
+```
+
+---
+
+# 4) Keep Tailwind preflight from running twice
+
+Make sure you **only import Tailwind once** (in your main `index.css` / app entry). If you need extra utilities for the demo, put them under `@layer utilities` in the main CSS, not in the demo CSS.
+
+Example:
+
+```css
+/* app/index.css (the one and only Tailwind import) */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .content-vis-auto { content-visibility: auto; contain-intrinsic-size: 240px; }
+}
+```
+
+---
+
+# 5) Optional: hard isolation (if you ever embed third-party cards)
+
+If you want a bulletproof boundary, render the demo card into a shadow root so absolutely nothing can leak:
+
+```tsx
+import {useRef, useEffect} from "react";
+export function ShadowWrapper({children}: {children: React.ReactNode}) {
+  const hostRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!hostRef.current) return;
+    const shadow = hostRef.current.attachShadow({mode: "open"});
+    const mount = document.createElement("div");
+    shadow.appendChild(mount);
+    // hydrate with React 18
+    import("react-dom/client").then(({createRoot}) => createRoot(mount).render(children));
+  }, []);
+  return <div ref={hostRef} />;
+}
+```
+
+Use:
+
+```tsx
+<ShadowWrapper>
+  <div className="bauhaus-theme">
+    <Component ... />
+  </div>
+</ShadowWrapper>
+```
+
+(Shadow DOM is usually overkill inside a single app, but it’s there if you need ironclad isolation.)
+
+---
+
+# 6) Visual regression guard (so it “never gets like this” again)
+
+Add a tiny Playwright test to pin the layout:
+
+```ts
+// tests/ui.election-cards.spec.ts
+import { test, expect } from '@playwright/test';
+
+test('election grid stays intact', async ({ page }) => {
+  await page.goto(process.env.BASE_URL || 'http://localhost:3000');
+  await page.waitForSelector('.election-grid');
+
+  // No overflowing titles
+  const overflows = await page.$$eval('.election-card .title', els =>
+    els.some(el => el.scrollWidth > el.clientWidth + 2)
+  );
+  expect(overflows).toBeFalsy();
+
+  // Snapshot the grid
+  await expect(page.locator('.election-grid')).toHaveScreenshot('election-grid.png', {
+    maxDiffPixelRatio: 0.01
+  });
+});
+```
+
+Run in Replit CI after each deploy to catch any future CSS drift.
+
+---
+
+## Quick checklist to apply now
+
+1. Replace the demo CSS with the **scoped** version above (no Tailwind import, wrap with `.bauhaus-theme`).
+2. Wrap the demo container in `<div className="bauhaus-theme">`.
+3. Add the **card stability** CSS + classes to your election grid/card.
+4. Confirm Tailwind is imported **only once** in the app.
+5. (Optional) Add the Playwright snapshot test to lock the layout.
+
+Do those and the Bauhaus demo will look great **without** touching the rest of your UI, and your election cards will stay tidy and consistent.

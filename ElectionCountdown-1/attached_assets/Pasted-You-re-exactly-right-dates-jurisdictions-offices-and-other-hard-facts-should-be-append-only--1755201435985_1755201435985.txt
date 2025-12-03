@@ -1,0 +1,507 @@
+You’re exactly right: dates, jurisdictions, offices, and other “hard facts” should be **append-only, versioned facts** that power both your UI **and** your RAG layer. That gives you accuracy today, auditability tomorrow, and zero silent data loss.
+
+Below is a **copy-paste, drop-in bundle** that adds:
+
+* immutable, versioned storage for elections & candidates,
+* source attestation + audit log,
+* “current view” materialized views,
+* delete-guards,
+* nightly verifiers (cron on Replit) that detect moved/cancelled dates,
+* a RAG corpus for static bios/timelines using `pgvector` (optional if keys aren’t set).
+
+---
+
+# 1) PostgreSQL: temporal facts, audit, and “current” views
+
+Run this as a migration (Neon supports these extensions).
+
+```sql
+-- 01_extensions.sql
+CREATE EXTENSION IF NOT EXISTS pgcrypto;  -- uuids, hashes
+CREATE EXTENSION IF NOT EXISTS pg_trgm;   -- fuzzy search
+CREATE EXTENSION IF NOT EXISTS vector;    -- for RAG (pgvector)
+
+-- 02_sources.sql
+CREATE TABLE IF NOT EXISTS sources(
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name         TEXT NOT NULL,
+  url          TEXT,
+  authority    TEXT,        -- "CA SOS", "Sonoma County ROV", "ProPublica", etc.
+  reliability  INTEGER NOT NULL DEFAULT 80 CHECK (reliability BETWEEN 0 AND 100),
+  UNIQUE(name, url)
+);
+
+-- 03_elections_temporal.sql
+-- Stable identity of an election (never delete). One row per race.
+CREATE TABLE IF NOT EXISTS elections(
+  id                BIGSERIAL PRIMARY KEY,
+  slug              TEXT UNIQUE,        -- e.g., 'CA-los-banos-d1-2025-08-26'
+  jurisdiction_fips TEXT,               -- FIPS/county/city code
+  state             CHAR(2) NOT NULL,
+  level             TEXT NOT NULL,      -- 'federal'|'state'|'local'
+  office            TEXT NOT NULL,      -- 'Mayor','State House','U.S. Senate', etc.
+  district          TEXT,               -- 'D1','AD-63', etc.
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  deleted_at        TIMESTAMPTZ,        -- soft delete only via function
+  CONSTRAINT no_hard_delete CHECK (TRUE) -- placeholder for trigger
+);
+
+-- Time-versioned attributes for the election (date, status, etc.)
+CREATE TYPE election_status AS ENUM ('scheduled','moved','cancelled','certified','results_in');
+
+CREATE TABLE IF NOT EXISTS election_versions(
+  election_id       BIGINT  NOT NULL REFERENCES elections(id),
+  version_id        BIGSERIAL PRIMARY KEY,
+  effective_from    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  effective_to      TIMESTAMPTZ,                  -- null = current
+  status            election_status NOT NULL DEFAULT 'scheduled',
+  election_date     TIMESTAMPTZ NOT NULL,
+  timezone          TEXT NOT NULL DEFAULT 'America/Los_Angeles',
+  source_id         UUID REFERENCES sources(id),
+  source_snapshot   TEXT,                         -- JSON/URL/notes
+  confidence        INTEGER NOT NULL DEFAULT 80 CHECK (confidence BETWEEN 0 AND 100)
+);
+
+CREATE INDEX IF NOT EXISTS idx_ev_current ON election_versions(election_id) WHERE effective_to IS NULL;
+CREATE INDEX IF NOT EXISTS idx_ev_date    ON election_versions(election_date);
+
+-- 04_candidates_temporal.sql
+CREATE TABLE IF NOT EXISTS candidates(
+  id             BIGSERIAL PRIMARY KEY,
+  slug           TEXT UNIQUE,                 -- 'natasha-johnson-ca-ad-63-2025'
+  full_name      TEXT NOT NULL,
+  profile_image_url TEXT,
+  party          TEXT,
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+  deleted_at     TIMESTAMPTZ
+);
+
+CREATE TABLE IF NOT EXISTS candidate_versions(
+  candidate_id   BIGINT NOT NULL REFERENCES candidates(id),
+  version_id     BIGSERIAL PRIMARY KEY,
+  effective_from TIMESTAMPTZ NOT NULL DEFAULT now(),
+  effective_to   TIMESTAMPTZ,
+  incumbent      BOOLEAN,
+  website        TEXT,
+  bio            TEXT,    -- long-form bio for RAG extraction
+  source_id      UUID REFERENCES sources(id),
+  confidence     INTEGER NOT NULL DEFAULT 80 CHECK (confidence BETWEEN 0 AND 100)
+);
+
+-- Candidate↔Election linkage (append-only; never delete, only supersede with effective_to)
+CREATE TABLE IF NOT EXISTS election_candidates(
+  election_id     BIGINT NOT NULL REFERENCES elections(id),
+  candidate_id    BIGINT NOT NULL REFERENCES candidates(id),
+  linked_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  unlinked_at     TIMESTAMPTZ,
+  source_id       UUID REFERENCES sources(id),
+  PRIMARY KEY (election_id, candidate_id, linked_at)
+);
+
+-- 05_views_current.sql
+-- “Current truth” views (what UI + APIs read)
+CREATE MATERIALIZED VIEW IF NOT EXISTS elections_current AS
+SELECT DISTINCT ON (e.id)
+  e.id,
+  e.slug,
+  e.state,
+  e.level,
+  e.office,
+  e.district,
+  v.status,
+  v.election_date,
+  v.timezone,
+  v.source_id,
+  v.confidence
+FROM elections e
+JOIN election_versions v ON v.election_id = e.id
+WHERE v.effective_to IS NULL
+ORDER BY e.id, v.effective_from DESC;
+
+CREATE MATERIALIZED VIEW IF NOT EXISTS election_candidate_counts AS
+SELECT
+  ec.election_id,
+  COUNT(*) FILTER (WHERE ec.unlinked_at IS NULL) AS candidate_count
+FROM election_candidates ec
+GROUP BY 1;
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_elec_cur_pk ON elections_current(id);
+
+-- 06_delete_guards.sql
+-- Disallow hard deletes; enforce soft delete only through a function.
+CREATE OR REPLACE FUNCTION forbid_delete() RETURNS trigger AS $$
+BEGIN
+  RAISE EXCEPTION 'Hard deletes are disabled; use soft_delete_*()';
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_no_delete_elections
+BEFORE DELETE ON elections
+FOR EACH ROW EXECUTE FUNCTION forbid_delete();
+
+CREATE TRIGGER trg_no_delete_candidates
+BEFORE DELETE ON candidates
+FOR EACH ROW EXECUTE FUNCTION forbid_delete();
+
+-- Safe soft-delete helpers
+CREATE OR REPLACE FUNCTION soft_delete_election(p_id BIGINT) RETURNS VOID AS $$
+BEGIN
+  UPDATE elections SET deleted_at = now() WHERE id = p_id;
+END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION soft_delete_candidate(p_id BIGINT) RETURNS VOID AS $$
+BEGIN
+  UPDATE candidates SET deleted_at = now() WHERE id = p_id;
+END; $$ LANGUAGE plpgsql;
+
+-- Versioning helper: supersede current row by setting effective_to and inserting a new version.
+CREATE OR REPLACE FUNCTION upsert_election_version(
+  p_election_id BIGINT,
+  p_election_date TIMESTAMPTZ,
+  p_status election_status,
+  p_source UUID,
+  p_timezone TEXT DEFAULT 'America/Los_Angeles',
+  p_confidence INTEGER DEFAULT 80,
+  p_source_snapshot TEXT DEFAULT NULL
+) RETURNS BIGINT AS $$
+DECLARE cur_id BIGINT;
+BEGIN
+  -- close current version (if changed)
+  UPDATE election_versions
+     SET effective_to = now()
+   WHERE election_id = p_election_id
+     AND effective_to IS NULL
+     AND (election_date, status, timezone) IS DISTINCT FROM (p_election_date, p_status, p_timezone);
+
+  INSERT INTO election_versions(election_id, election_date, status, timezone, source_id, confidence, source_snapshot)
+  VALUES (p_election_id, p_election_date, p_status, p_timezone, p_source, p_confidence, p_source_snapshot)
+  RETURNING version_id INTO cur_id;
+
+  RETURN cur_id;
+END; $$ LANGUAGE plpgsql;
+
+-- 07_refresh_helpers.sql
+CREATE OR REPLACE FUNCTION refresh_current_materializations() RETURNS VOID AS $$
+BEGIN
+  REFRESH MATERIALIZED VIEW CONCURRENTLY elections_current;
+  REFRESH MATERIALIZED VIEW CONCURRENTLY election_candidate_counts;
+END; $$ LANGUAGE plpgsql;
+```
+
+---
+
+# 2) Drizzle models (TypeScript)
+
+```ts
+// drizzle/schema/elections.ts
+import { pgTable, serial, text, timestamp, varchar, uuid, primaryKey, boolean, integer, pgEnum } from "drizzle-orm/pg-core";
+
+export const electionStatus = pgEnum('election_status', ['scheduled','moved','cancelled','certified','results_in']);
+
+export const elections = pgTable('elections', {
+  id: serial('id').primaryKey(),
+  slug: text('slug').unique(),
+  jurisdictionFips: text('jurisdiction_fips'),
+  state: varchar('state', { length: 2 }).notNull(),
+  level: text('level').notNull(),
+  office: text('office').notNull(),
+  district: text('district'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  deletedAt: timestamp('deleted_at', { withTimezone: true }),
+});
+
+export const electionVersions = pgTable('election_versions', {
+  versionId: serial('version_id').primaryKey(),
+  electionId: integer('election_id').notNull().references(() => elections.id),
+  effectiveFrom: timestamp('effective_from', { withTimezone: true }).defaultNow().notNull(),
+  effectiveTo: timestamp('effective_to', { withTimezone: true }),
+  status: electionStatus('status').$type<'scheduled'|'moved'|'cancelled'|'certified'|'results_in'>().default('scheduled').notNull(),
+  electionDate: timestamp('election_date', { withTimezone: true }).notNull(),
+  timezone: text('timezone').default('America/Los_Angeles').notNull(),
+  sourceId: uuid('source_id'),
+  sourceSnapshot: text('source_snapshot'),
+  confidence: integer('confidence').default(80).notNull(),
+});
+```
+
+---
+
+# 3) API: idempotent upserts + safe reads
+
+```ts
+// server/routes/electionFacts.ts
+import { Router } from 'express';
+import { pool } from '../db';
+
+export const electionFacts = Router();
+
+// Upsert a date/status change with full audit/versioning
+electionFacts.post('/:id/version', async (req, res) => {
+  const id = Number(req.params.id);
+  const { dateISO, status = 'scheduled', sourceId, timezone = 'America/Los_Angeles', confidence = 90, snapshot } = req.body ?? {};
+  if (!id || !dateISO) return res.status(400).json({ error: 'missing_params' });
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const r = await client.query(
+      `SELECT upsert_election_version($1,$2,$3::election_status,$4,$5,$6,$7) AS ver_id`,
+      [id, new Date(dateISO).toISOString(), status, sourceId, timezone, confidence, snapshot ?? null]
+    );
+    await client.query(`SELECT refresh_current_materializations()`);
+    await client.query('COMMIT');
+    res.json({ ok: true, versionId: r.rows[0].ver_id });
+  } catch (e:any) {
+    await client.query('ROLLBACK');
+    res.status(500).json({ error: 'version_upsert_failed', detail: e.message });
+  } finally {
+    client.release();
+  }
+});
+
+// Read “current truth”
+electionFacts.get('/current', async (_req, res) => {
+  const { rows } = await pool.query(`
+    SELECT ec.*, coalesce(cc.candidate_count,0) AS candidate_count
+    FROM elections_current ec
+    LEFT JOIN election_candidate_counts cc ON cc.election_id = ec.id
+    ORDER BY ec.election_date NULLS LAST, ec.id
+    LIMIT 100
+  `);
+  res.json(rows);
+});
+```
+
+---
+
+# 4) Nightly *and* live verification (accurate dates & cancellations)
+
+### Scheduler (Replit)
+
+Add this cron in your Scheduled Deployment:
+
+```
+0 4 * * *  node dist/server/jobs/verify-elections.js   # nightly 4am UTC
+*/5 * * * * node dist/server/jobs/ping-sources.js      # every 5m (lightweight)
+```
+
+### Verifier job (provider-adapter pattern)
+
+```ts
+// server/jobs/verify-elections.ts
+import { pool } from '../db';
+import fetch from 'node-fetch';
+
+type Probe = {
+  name: string;
+  enabled: boolean;
+  fetcher: (e: any) => Promise<{status: string, dateISO: string | null, confidence: number, snapshot?: string} | null>;
+};
+
+// Example: county site or SOS (replace with your sources when keys exist)
+const probes: Probe[] = [
+  {
+    name: 'CA_SOS_UDEL',
+    enabled: true,
+    fetcher: async (e) => {
+      if (e.state !== 'CA' || e.level !== 'local') return null;
+      // PLACEHOLDER: you’ll wire to real SOS/county endpoints later.
+      // For now we only sanity-check “Mon Aug 25, 2025” which is suspicious for UDEL (usually November).
+      const suspicious = e.election_date && new Date(e.election_date).getMonth() === 7 && new Date(e.election_date).getDate() === 25;
+      if (suspicious) {
+        return {
+          status: 'moved',
+          dateISO: new Date('2025-11-04T08:00:00-08:00').toISOString(), // typical CA UDEL date
+          confidence: 60,
+          snapshot: 'auto-adjust: UDEL pattern heuristic; awaiting authoritative confirmation'
+        };
+      }
+      return null;
+    }
+  },
+  // Add Google Civic / county adapters here when keys available.
+];
+
+(async () => {
+  const client = await pool.connect();
+  try {
+    const { rows: cur } = await client.query(`SELECT * FROM elections_current ec LIMIT 5000`);
+    for (const e of cur) {
+      for (const p of probes) {
+        if (!p.enabled) continue;
+        try {
+          const result = await p.fetcher(e);
+          if (!result) continue;
+
+          await client.query('BEGIN');
+          // upsert version if changed (append-only)
+          await client.query(
+            `SELECT upsert_election_version($1,$2,$3::election_status,$4,$5,$6,$7)`,
+            [
+              e.id,
+              result.dateISO ?? e.election_date,
+              result.status,
+              null,                 // unknown source yet (fill when integrated)
+              e.timezone ?? 'America/Los_Angeles',
+              result.confidence,
+              result.snapshot ?? null
+            ]
+          );
+          await client.query(`SELECT refresh_current_materializations()`);
+          await client.query('COMMIT');
+        } catch (err) {
+          await client.query('ROLLBACK');
+          console.error('Verifier error:', err);
+        }
+      }
+    }
+  } finally {
+    client.release();
+  }
+})();
+```
+
+> **Why this helps now:** Even before APIs are wired, you prevent bad dates from persisting by applying **heuristics + versioning**. As real sources come online (CA SOS, counties, Google Civic), swap the probe implementations to fetch live data; the job remains the same.
+
+---
+
+# 5) RAG corpus (immutable static knowledge)
+
+Use `pgvector` to store embedded chunks of bios, offices, timelines—**append-only** with version pointers.
+
+```sql
+-- 08_rag.sql
+CREATE TABLE IF NOT EXISTS rag_documents(
+  id           BIGSERIAL PRIMARY KEY,
+  entity_type  TEXT NOT NULL,        -- 'candidate','office','election','jurisdiction'
+  entity_id    BIGINT,               -- link back to elections/candidates
+  title        TEXT,
+  source_id    UUID REFERENCES sources(id),
+  url          TEXT,
+  fetched_at   TIMESTAMPTZ DEFAULT now(),
+  checksum     TEXT,                 -- SHA256 of raw
+  UNIQUE (entity_type, entity_id, checksum)
+);
+
+CREATE TABLE IF NOT EXISTS rag_chunks(
+  id           BIGSERIAL PRIMARY KEY,
+  document_id  BIGINT NOT NULL REFERENCES rag_documents(id) ON DELETE CASCADE,
+  ord          INTEGER NOT NULL,
+  content      TEXT NOT NULL,
+  embedding    vector(1536),         -- adjust to your model
+  created_at   TIMESTAMPTZ DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_rag_chunks_doc ON rag_chunks(document_id);
+CREATE INDEX IF NOT EXISTS idx_rag_chunks_vector ON rag_chunks USING ivfflat (embedding vector_cosine_ops);
+```
+
+**Indexer (optional now, becomes powerful later):**
+
+```ts
+// server/jobs/index-rag.ts
+import { pool } from '../db';
+import fetch from 'node-fetch';
+
+const EMBED_API = process.env.OPENAI_API_KEY ? 'openai' : null;
+
+async function embed(text: string): Promise<number[]|null> {
+  if (!EMBED_API) return null; // degrade gracefully if no key
+  const r = await fetch('https://api.openai.com/v1/embeddings',{
+    method:'POST',
+    headers:{'Authorization':`Bearer ${process.env.OPENAI_API_KEY}`,'Content-Type':'application/json'},
+    body: JSON.stringify({input: text, model: 'text-embedding-3-small'})
+  });
+  const j = await r.json();
+  return j.data?.[0]?.embedding ?? null;
+}
+
+(async ()=>{
+  const client = await pool.connect();
+  try {
+    const { rows: docs } = await client.query(`SELECT id FROM rag_documents WHERE id NOT IN (SELECT DISTINCT document_id FROM rag_chunks) LIMIT 100`);
+    for (const d of docs) {
+      const { rows: raw } = await client.query(`SELECT title FROM rag_documents WHERE id=$1`,[d.id]);
+      const chunks = [raw[0]?.title ?? '']; // replace with your splitter
+      let ord = 0;
+      for (const c of chunks) {
+        const vec = await embed(c);
+        await client.query(`INSERT INTO rag_chunks(document_id, ord, content, embedding) VALUES ($1,$2,$3,$4)`, [d.id, ord++, c, vec]);
+      }
+    }
+  } finally {
+    client.release();
+  }
+})();
+```
+
+---
+
+# 6) UI guarantees (no silent “Candidates (0)”)
+
+* When `election_candidate_counts.candidate_count = 0` **and** there exists any `rag_documents` for that election or office, show a **“Pending verification”** pill with a link to submit a source (or open an internal moderation queue).
+* Display a **“Verified from {source}”** caption using `elections_current.source_id` so users understand why a date is what it is.
+* Add a tiny badge when `status = 'moved' | 'cancelled'`.
+
+Minimal API for the card:
+
+```ts
+// server/routes/electionsPublic.ts
+router.get('/cards', async (_req,res)=>{
+  const { rows } = await pool.query(`
+    SELECT c.*, coalesce(cc.candidate_count,0) AS candidate_count,
+           CASE WHEN EXISTS (
+             SELECT 1 FROM rag_documents rd WHERE rd.entity_type='election' AND rd.entity_id=c.id
+           ) THEN true ELSE false END AS has_rag_hint
+    FROM elections_current c
+    LEFT JOIN election_candidate_counts cc ON cc.election_id=c.id
+    ORDER BY c.election_date NULLS LAST
+    LIMIT 100
+  `);
+  res.json(rows);
+});
+```
+
+---
+
+# 7) Operational safety rails
+
+* **No hard deletes** (triggers already included).
+* **Time-travel & snapshots**: create a Neon branch nightly (or `pg_dump` to object storage).
+* **Idempotent loaders**: upsert by **natural keys** (`state+office+district+date`) to avoid dupes.
+* **Audit fields**: every version row stores `source_id`, `confidence`, `snapshot`.
+* **Manual override workflow**: expose an internal endpoint that calls `upsert_election_version()` with `source_id = <“manual_override”>` and a mandatory `snapshot` note.
+
+---
+
+# 8) Replit wiring (quick)
+
+**package.json scripts**
+
+```json
+{
+  "scripts": {
+    "migrate:temporal": "psql \"$DATABASE_URL\" -f sql/01_extensions.sql && psql \"$DATABASE_URL\" -f sql/02_sources.sql && psql \"$DATABASE_URL\" -f sql/03_elections_temporal.sql && psql \"$DATABASE_URL\" -f sql/04_candidates_temporal.sql && psql \"$DATABASE_URL\" -f sql/05_views_current.sql && psql \"$DATABASE_URL\" -f sql/06_delete_guards.sql && psql \"$DATABASE_URL\" -f sql/07_refresh_helpers.sql && psql \"$DATABASE_URL\" -f sql/08_rag.sql",
+    "verify:nigthly": "node dist/server/jobs/verify-elections.js",
+    "rag:index": "node dist/server/jobs/index-rag.js"
+  }
+}
+```
+
+**Scheduled Deployments (Replit)**
+
+```
+0 4 * * *  npm run verify:nigthly
+```
+
+---
+
+## What this gives you
+
+* **Accuracy now:** UI reads only from `elections_current` (continuously refreshed, sourced, confident).
+* **Never lose data:** every change becomes a **new version**; nothing is deleted.
+* **Explains itself:** each version row carries **where/why** (source + snapshot).
+* **RAG-ready:** bios/timelines/doc pages flow into `rag_documents`/`rag_chunks` without replacing DB truth.
+* **Nightly sanity:** verifiers catch obvious anomalies (like mis-dated CA UDEL) and record a “moved” status until an authoritative source confirms.
+* **Future-proof:** when live feeds are ready, just add an adapter; the temporal model already handles continuous updates.
+
+If you want, I can also provide a short **SQL sanity suite** (assertions) to run nightly (e.g., “no UDEL in August unless status=cancelled/moved,” “no city mayor races on odd Tuesdays outside state rules,” etc.).

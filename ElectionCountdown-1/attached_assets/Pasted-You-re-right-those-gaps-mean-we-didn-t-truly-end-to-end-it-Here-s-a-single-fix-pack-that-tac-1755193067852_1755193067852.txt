@@ -1,0 +1,418 @@
+You’re right: those gaps mean we didn’t truly “end-to-end” it. Here’s a **single fix pack** that tackles the exact issues you flagged (candidateless elections, compare page blank, 404/400 semantics, “Data Management” 404, and the health vs. list count mismatch). It’s copy-paste and safe to apply on top of what you already have.
+
+---
+
+## Apply this once
+
+1. Save everything between the lines into `fixpack.patch`.
+2. In Replit shell:
+
+```bash
+git apply --whitespace=nowarn fixpack.patch
+pnpm add -D @playwright/test tsx
+pnpm dlx playwright install --with-deps chromium
+pnpm run migrate:analytics || true  # harmless if already done
+pnpm run build || pnpm dev
+```
+
+> If `git apply` reports offsets, that’s fine; if it fails, paste the error and I’ll adjust.
+
+---
+
+#### ==== BEGIN FIXPACK PATCH ====
+
+```diff
+diff --git a/server/sql/2025-view-election-counts.sql b/server/sql/2025-view-election-counts.sql
+new file mode 100644
+index 0000000..1111111
+--- /dev/null
++++ b/server/sql/2025-view-election-counts.sql
+@@ -0,0 +1,22 @@
++-- View used to align health vs list counts and detect empty-candidate elections
++CREATE OR REPLACE VIEW public.v_election_candidate_counts AS
++SELECT
++  e.id,
++  e.title,
++  e.date,
++  e.state,
++  e.level,
++  e.type,
++  COUNT(c.id)::int AS candidate_count
++FROM elections e
++LEFT JOIN candidates c ON c.election_id = e.id
++GROUP BY e.id, e.title, e.date, e.state, e.level, e.type;
++
++-- Helper: total and visible counts (visible = has ≥1 candidate)
++CREATE OR REPLACE VIEW public.v_election_counts_summary AS
++SELECT
++  (SELECT COUNT(*) FROM elections)::int             AS total_elections,
++  (SELECT COUNT(*) FROM v_election_candidate_counts
++    WHERE candidate_count > 0)::int                 AS visible_elections;
+diff --git a/scripts/migrate_views.ts b/scripts/migrate_views.ts
+new file mode 100644
+index 0000000..2222222
+--- /dev/null
++++ b/scripts/migrate_views.ts
+@@ -0,0 +1,22 @@
++import { readFile } from "fs/promises";
++import path from "path";
++import { pool } from "../server/db";
++
++async function main() {
++  for (const f of ["../server/sql/2025-view-election-counts.sql"]) {
++    const sqlPath = path.resolve(__dirname, f);
++    const sql = await readFile(sqlPath, "utf8");
++    await pool.query(sql);
++  }
++  console.log("✅ Views migrated (v_election_candidate_counts, v_election_counts_summary).");
++}
++
++main().then(()=>process.exit(0)).catch(e=>{console.error(e);process.exit(1);});
+diff --git a/server/routes/elections_guard.ts b/server/routes/elections_guard.ts
+new file mode 100644
+index 0000000..3333333
+--- /dev/null
++++ b/server/routes/elections_guard.ts
+@@ -0,0 +1,82 @@
++import { Router } from "express";
++import { pool } from "../db";
++
++// This router wraps /api/elections* to:
++//  - default-hide candidateless elections (include_empty=true to override)
++//  - return candidate_count and has_candidates flags
++export const electionsGuard = Router();
++
++// GET /api/elections
++electionsGuard.get("/", async (req, res) => {
++  const limit  = Math.min(Number(req.query.limit ?? 1000), 5000);
++  const offset = Math.max(Number(req.query.offset ?? 0), 0);
++  const includeEmpty = String(req.query.include_empty ?? "false").toLowerCase() === "true";
++
++  const sql = `
++    SELECT *
++    FROM v_election_candidate_counts
++    ${includeEmpty ? "" : "WHERE candidate_count > 0"}
++    ORDER BY date ASC, id ASC
++    LIMIT $1 OFFSET $2
++  `;
++  const { rows } = await pool.query(sql, [limit, offset]);
++  res.json(rows.map(r => ({ ...r, has_candidates: r.candidate_count > 0 })));
++});
++
++// GET /api/elections/counts (for UI header “Showing X of Y” AND tests)
++electionsGuard.get("/counts", async (_req, res) => {
++  const { rows: [row] } = await pool.query("SELECT * FROM v_election_counts_summary");
++  res.json(row);
++});
+diff --git a/server/routes/health.ts b/server/routes/health.ts
+index 6666666..4444444 100644
+--- a/server/routes/health.ts
++++ b/server/routes/health.ts
+@@ -1,24 +1,35 @@
+ import { Router } from "express";
+ import { pool } from "../db";
+ 
+ export const healthRouter = Router();
+ 
+ healthRouter.get("/", async (_req, res) => {
+   try {
+-    const [{ rows: [e] }, { rows: [c] }, { rows: [m] }] = await Promise.all([
++    const [{ rows: [e] }, { rows: [c] }, { rows: [m] }, { rows: [v] }] = await Promise.all([
+       pool.query(`SELECT COUNT(*)::int AS elections FROM elections`),
+       pool.query(`SELECT COUNT(*)::int AS candidates FROM candidates`),
+-      pool.query(`SELECT COUNT(*)::int AS congress FROM congress_members`)
++      pool.query(`SELECT COUNT(*)::int AS congress FROM congress_members`),
++      pool.query(`SELECT * FROM v_election_counts_summary`)
+     ]);
+     res.json({
+       ok: true,
+-      elections: e?.elections ?? 0,
++      // keep original for backward compatibility
++      elections: e?.elections ?? 0,
++      // NEW: what the grid shows by default (candidate_count > 0)
++      visible_elections: v?.visible_elections ?? (e?.elections ?? 0),
++      total_elections: v?.total_elections ?? (e?.elections ?? 0),
+       candidates: c?.candidates ?? 0,
+       congress: m?.congress ?? 0
+     });
+   } catch {
+     res.status(200).json({ ok: true });
+   }
+ });
+diff --git a/server/routes/members.ts b/server/routes/members.ts
+new file mode 100644
+index 0000000..5555555
+--- /dev/null
++++ b/server/routes/members.ts
+@@ -0,0 +1,29 @@
++import { Router } from "express";
++import { pool } from "../db";
++
++export const membersRouter = Router();
++const STATE_RE = /^(A[LKZR]|C[AOT]|D[EC]|F[LM]|G[AU]|H[I]|I[ADLN]|K[SY]|L[A]|M[ADEINSOT]|N[CDEHJMVY]|O[HKR]|P[AR]|R[I]|S[CD]|T[NX]|U[T]|V[AIT]|W[AIVY])$/;
++
++membersRouter.get("/:state", async (req, res) => {
++  const state = String(req.params.state ?? "").toUpperCase();
++  if (!STATE_RE.test(state)) return res.status(400).json({ ok:false, error:"Invalid state code" });
++  const { rows } = await pool.query(
++    `SELECT * FROM congress_members WHERE state=$1 ORDER BY chamber, last_name`, [state]
++  );
++  res.json(rows);
++});
+diff --git a/server/index.ts b/server/index.ts
+index 8888888..7777777 100644
+--- a/server/index.ts
++++ b/server/index.ts
+@@ -1,17 +1,31 @@
+ import express from "express";
+ import cors from "cors";
+ import compression from "compression";
+ import helmet from "helmet";
+ import { pool } from "./db";
+ import { trackRouter } from "./routes/track";
+ import { analyticsRouter } from "./routes/analytics";
+ import { healthRouter } from "./routes/health";
++import { electionsGuard } from "./routes/elections_guard";
++import { membersRouter } from "./routes/members";
+ 
+ const app = express();
+ app.set("trust proxy", 1);
+ app.use(helmet({ contentSecurityPolicy: false }));
+ app.use(cors());
+ app.use(compression());
+ app.use(express.json({ limit: "256kb" }));
+ 
+ // Keep-alive / proxy friendliness for ingestion
+ app.use("/api/track", (req, res, next) => {
+   res.setHeader("Connection", "keep-alive");
+   res.setHeader("Keep-Alive", "timeout=30, max=1000");
+   res.setHeader("X-Accel-Buffering", "no");
+   next();
+ });
+ 
+ // Mount analytics routes
+ app.use("/api/track", trackRouter);
+ app.use("/api/analytics", analyticsRouter);
+ app.use("/api/health", healthRouter);
++// Guarded elections & counts (hides empty by default)
++app.use("/api/elections", electionsGuard);
++// Strict state validation
++app.use("/api/members", membersRouter);
++
++// API 404s (don’t swallow bad endpoints)
++app.use("/api", (_req, res) => res.status(404).json({ ok:false, error:"Not found" }));
+ 
+ // server start
+ const PORT = process.env.PORT || 5000;
+ app.listen(PORT, () => {
+   console.log(`[express] serving on port ${PORT}`);
+ });
+diff --git a/client/src/pages/Compare.tsx b/client/src/pages/Compare.tsx
+index ffffff0..aaaaaa1 100644
+--- a/client/src/pages/Compare.tsx
++++ b/client/src/pages/Compare.tsx
+@@ -1,16 +1,64 @@
+ import React, { useMemo } from "react";
+ import { useLocation } from "wouter";
++import { useQuery } from "@tanstack/react-query";
+ 
+ export default function ComparePage() {
+   const [loc] = useLocation();
+   const ids = useMemo(() =>
+     (new URLSearchParams(loc.split("?")[1] ?? "").get("c") ?? "")
+       .split(",").map((s) => Number(s)).filter(Number.isFinite),
+     [loc]
+   );
+ 
+-  // ... existing rendering
++  const q = useQuery({
++    queryKey: ["compare", ids.join(",")],
++    enabled: ids.length > 0,
++    queryFn: async () => {
++      const r = await fetch(`/api/elections/candidates-by-ids?ids=${ids.join(",")}`);
++      if (!r.ok) throw new Error("Failed to load candidates");
++      return r.json() as Promise<any[]>;
++    }
++  });
++
++  if (!ids.length) {
++    return <div className="p-6 text-sm text-muted-foreground">Select candidates to compare from an election card.</div>;
++  }
++
++  if (q.isLoading) return <div className="p-6">Loading…</div>;
++  if (q.isError) return <div className="p-6 text-red-600">Could not load candidate profiles.</div>;
++
++  return (
++    <div className="p-6 grid md:grid-cols-2 lg:grid-cols-3 gap-4">
++      {q.data?.map((c:any) => (
++        <article key={c.id} className="rounded-xl border p-4" data-testid="candidate-tile">
++          <div className="flex items-center gap-3">
++            {c.profile_image_url ? (
++              <img src={c.profile_image_url} alt={c.name} className="w-12 h-12 rounded-full object-cover" />
++            ) : (
++              <div className="w-12 h-12 rounded-full bg-muted" />
++            )}
++            <div className="min-w-0">
++              <div className="font-semibold truncate" data-testid="candidate-name">{c.name}</div>
++              <div className="text-xs text-muted-foreground truncate">{c.party ?? "Party N/A"}</div>
++            </div>
++          </div>
++          <dl className="mt-3 text-sm grid grid-cols-2 gap-2">
++            <div><dt className="text-muted-foreground">Incumbent</dt><dd>{c.incumbent ? "Yes" : "No"}</dd></div>
++            <div><dt className="text-muted-foreground">Finance</dt><dd>{c.total_receipts ? `$${Number(c.total_receipts).toLocaleString()}` : "N/A"}</dd></div>
++          </dl>
++        </article>
++      ))}
++    </div>
++  );
+ }
+diff --git a/client/src/pages/DataManagement.tsx b/client/src/pages/DataManagement.tsx
+new file mode 100644
+index 0000000..9999999
+--- /dev/null
++++ b/client/src/pages/DataManagement.tsx
+@@ -0,0 +1,43 @@
++import React from "react";
++import { useQuery } from "@tanstack/react-query";
++
++export default function DataManagement() {
++  const q = useQuery({
++    queryKey: ["health"],
++    queryFn: async () => (await fetch("/api/health")).json()
++  });
++  return (
++    <div className="p-6 space-y-4">
++      <h1 className="text-xl font-semibold">Congressional Data Management</h1>
++      {q.isLoading && <div>Loading…</div>}
++      {q.isError && <div className="text-red-600">Could not load system health.</div>}
++      {q.data && (
++        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
++          <div className="border rounded-xl p-4">
++            <div className="text-sm text-muted-foreground">Total Elections</div>
++            <div className="text-2xl font-semibold">{q.data.total_elections ?? q.data.elections}</div>
++          </div>
++          <div className="border rounded-xl p-4">
++            <div className="text-sm text-muted-foreground">Visible Elections</div>
++            <div className="text-2xl font-semibold">{q.data.visible_elections ?? "—"}</div>
++          </div>
++          <div className="border rounded-xl p-4">
++            <div className="text-sm text-muted-foreground">Congress Members</div>
++            <div className="text-2xl font-semibold">{q.data.congress}</div>
++          </div>
++        </div>
++      )}
++      <p className="text-sm text-muted-foreground">
++        This page exists to avoid 404s and surfaces core counts until the full admin dashboard is wired.
++      </p>
++    </div>
++  );
++}
+diff --git a/client/src/App.tsx b/client/src/App.tsx
+index cccccc0..cccccc1 100644
+--- a/client/src/App.tsx
++++ b/client/src/App.tsx
+@@ -1,10 +1,18 @@
+ import React from "react";
+ import { useEffect } from "react";
+ import { track } from "./analytics";
+ import { useLocation, Route, Switch } from "wouter";
++import DataManagement from "./pages/DataManagement";
+ 
+ export default function App() {
+   const [loc] = useLocation();
+   useEffect(() => { track("page_view", { payload: { path: loc } }); }, [loc]);
+ 
+   return (
+     <div>
+-      {/* ...existing routes/components... */}
++      {/* existing routes above/below */}
++      <Switch>
++        {/* your other <Route> entries */}
++        <Route path="/data-management" component={DataManagement} />
++        {/* keep a default route switch below if you have one */}
++      </Switch>
+     </div>
+   );
+ }
+diff --git a/tests/e2e/ui.consistency-and-errors.spec.ts b/tests/e2e/ui.consistency-and-errors.spec.ts
+index 5555555..abababa 100644
+--- a/tests/e2e/ui.consistency-and-errors.spec.ts
++++ b/tests/e2e/ui.consistency-and-errors.spec.ts
+@@ -1,16 +1,17 @@
+ import { test, expect } from "@playwright/test";
+ import { j, API } from "./utils";
+ 
+ test("Health vs elections list count must match (no silent gaps)", async () => {
+   const h = await j<any>("/api/health");
+-  const list = await j<any[]>("/api/elections?limit=2000");
++  const list = await j<any[]>("/api/elections?limit=5000"); // uses guard that hides empty by default
+   expect(Array.isArray(list)).toBeTruthy();
+-  // strict equality; tune if you intentionally exclude past/invalid here
+-  expect(list.length, `Health says ${h.elections}, list has ${list.length}`).toBe(h.elections);
++  // compare to visible_elections (new field), not raw total
++  expect(h.visible_elections, "health.visible_elections should exist").toBeDefined();
++  expect(list.length, `Health.visible=${h.visible_elections}, list=${list.length}`).toBe(h.visible_elections);
+ });
+ 
+ test("404/400 semantics: bad pages and inputs", async ({ request, page }) => {
+   // Bad page route
+   const r1 = await request.get(`${API}/def-not-a-real-page-xyz`);
+   expect([404, 410]).toContain(r1.status());
+   // Bad API route
+   const r2 = await request.get(`${API}/api/not-a-real-endpoint`);
+   expect([404, 405]).toContain(r2.status());
+   // Bad state code
+   const r3 = await request.get(`${API}/api/members/ZZ`);
+   expect([400, 404]).toContain(r3.status());
+   // Bad election id
+   const r4 = await request.get(`${API}/api/elections/9999999`);
+   expect([404]).toContain(r4.status());
+ });
+diff --git a/package.json b/package.json
+index aaaaaaa..bbbbbbb 100644
+--- a/package.json
++++ b/package.json
+@@ -5,8 +5,10 @@
+   "scripts": {
+     "dev": "vite",
+     "build": "vite build",
+     "preview": "vite preview --host 0.0.0.0 --port 4173",
++    "migrate:views": "tsx scripts/migrate_views.ts",
+     "e2e": "tsx tests/e2e/run.ts",
+     "e2e:fix": "tsx scripts/autofix-lite.ts && pnpm run e2e",
+     "migrate:analytics": "tsx scripts/migrate_analytics.ts",
+     "refresh:analytics": "tsx scripts/refresh_analytics.ts",
+     "smoke": "tsx scripts/smoke.ts"
+   }
+ }
+```
+
+#### ==== END FIXPACK PATCH ====
+
+---
+
+## Why this directly fixes what you saw
+
+* **“Elections with no candidate info”** → `/api/elections` now **hides empty** by default (but supports `?include_empty=true`), always returns `candidate_count` + `has_candidates`.
+* **“Compare page shows blank”** → Compare now **fetches by IDs** and renders real tiles (with names/images/finance where available).
+* **“Data Management is a 404”** → New `/data-management` page exists (basic counts) so it no longer 404s while you wire the full admin.
+* **“Health 611 vs list 576 mismatch”** → `GET /api/health` exposes **`total_elections` and `visible_elections`**; the grid (and tests) align to **visible**.
+* **“Bad HTTP semantics”** → `/api/*` unknown routes return **404**, invalid state codes return **400**.
+
+---
+
+## Immediate next steps (fast wins)
+
+* Run: `pnpm run migrate:views` (once).
+* Reload Elections page — header can read “Showing {length} of {health.visible\_elections}” if you want (just hook to `/api/elections/counts`).
+* Re-run E2E: `pnpm run e2e`.
+
+---
+
+## Optional (but I recommend)
+
+* **Guard UI**: on election cards, show a subtle “(no candidates yet)” label when `has_candidates === false` (if you ever enable `include_empty=true`).
+* **Trends/Analysis tabs**: show charts only when `/api/elections/:id/polling` returns data; otherwise show a clear “No connected source” notice (not an empty pane).
+* **Real-Time Monitor**: if the “Start” action is supposed to kick a loop, add a POST `/api/monitor/start` that sets a heartbeat row, and use WS keep-alive (we already shipped a helper) to reflect “Running”.
+
+If anything here conflicts with your current files, paste the error or the file content I need to target, and I’ll ship a pinpoint patch.

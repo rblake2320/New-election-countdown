@@ -1,0 +1,457 @@
+Awesome — here’s the **complete, copy-paste bundle** to add an **Audit Runs API + UI** so you can see every nightly/ manual/ pre-deploy run, filter it, export CSV, and drill into logs — all *inside your app*.
+
+---
+
+# 1) SQL — indexes for fast listing & filtering
+
+> Run once in Postgres.
+
+```sql
+begin;
+
+-- Speed up listing / filtering
+create index if not exists idx_steward_audit_runs_started_at on steward.audit_runs(started_at desc);
+create index if not exists idx_steward_audit_runs_run_type   on steward.audit_runs(run_type);
+create index if not exists idx_steward_audit_runs_pass       on steward.audit_runs(pass);
+
+commit;
+```
+
+---
+
+# 2) Server — Audit Runs routes (list, detail, CSV)
+
+> **Create:** `server/routes/steward-audit.ts`
+
+```ts
+// server/routes/steward-audit.ts
+import { Router } from "express";
+import { Pool } from "pg";
+
+const router = Router();
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+});
+
+type QueryVal = string | number | boolean | null;
+
+function toBool(v: any): boolean | undefined {
+  if (v === undefined) return undefined;
+  if (typeof v === "boolean") return v;
+  const s = String(v).toLowerCase();
+  if (["true","1","yes","y"].includes(s)) return true;
+  if (["false","0","no","n"].includes(s)) return false;
+  return undefined;
+}
+
+/**
+ * GET /api/steward/audit-runs
+ * Query: limit, offset, run_type, pass, from, to  (ISO or yyyy-mm-dd)
+ */
+router.get("/audit-runs", async (req, res) => {
+  const limit = Math.min(parseInt(String(req.query.limit ?? "25"), 10) || 25, 200);
+  const offset = Math.max(parseInt(String(req.query.offset ?? "0"), 10) || 0, 0);
+  const runType = req.query.run_type ? String(req.query.run_type) : undefined; // nightly|manual|predeploy
+  const passFlag = toBool(req.query.pass); // true|false|undefined
+  const from = req.query.from ? new Date(String(req.query.from)) : undefined;
+  const to = req.query.to ? new Date(String(req.query.to)) : undefined;
+
+  const where: string[] = [];
+  const params: QueryVal[] = [];
+
+  if (runType) { params.push(runType); where.push(`run_type = $${params.length}`); }
+  if (passFlag !== undefined) { params.push(passFlag); where.push(`pass = $${params.length}`); }
+  if (!isNaN(from?.getTime() ?? NaN)) { params.push(from!.toISOString()); where.push(`started_at >= $${params.length}`); }
+  if (!isNaN(to?.getTime() ?? NaN))   { params.push(to!.toISOString());   where.push(`started_at <= $${params.length}`); }
+
+  const whereSql = where.length ? `where ${where.join(" and ")}` : "";
+  const pageParams = [...params, limit, offset];
+
+  const baseSelect = `
+    select id, run_type, started_at, finished_at, pass,
+           total_findings_before, fixes_applied, remaining_open,
+           round(extract(epoch from (coalesce(finished_at, now()) - started_at)))::int as duration_s
+      from steward.audit_runs
+      ${whereSql}
+     order by started_at desc
+     limit $${params.length+1} offset $${params.length+2}
+  `;
+  const countSql = `select count(*)::int as total from steward.audit_runs ${whereSql}`;
+
+  const [rowsRes, countRes] = await Promise.all([
+    pool.query(baseSelect, pageParams),
+    pool.query(countSql, params),
+  ]);
+
+  res.json({
+    total: countRes.rows[0]?.total ?? 0,
+    limit, offset,
+    items: rowsRes.rows,
+  });
+});
+
+/**
+ * GET /api/steward/audit-runs/:id
+ * Returns full row including log JSON
+ */
+router.get("/audit-runs/:id", async (req, res) => {
+  const { id } = req.params;
+  const { rows } = await pool.query(
+    `select id, run_type, started_at, finished_at, pass,
+            total_findings_before, fixes_applied, remaining_open, notes, log
+       from steward.audit_runs
+      where id = $1`,
+    [id]
+  );
+  if (rows.length === 0) return res.status(404).json({ error: "not_found", id });
+  res.json(rows[0]);
+});
+
+/**
+ * GET /api/steward/audit-runs.csv
+ * Same filters as list; returns CSV for export.
+ */
+router.get("/audit-runs.csv", async (req, res) => {
+  const runType = req.query.run_type ? String(req.query.run_type) : undefined;
+  const passFlag = toBool(req.query.pass);
+  const from = req.query.from ? new Date(String(req.query.from)) : undefined;
+  const to = req.query.to ? new Date(String(req.query.to)) : undefined;
+
+  const where: string[] = [];
+  const params: QueryVal[] = [];
+
+  if (runType) { params.push(runType); where.push(`run_type = $${params.length}`); }
+  if (passFlag !== undefined) { params.push(passFlag); where.push(`pass = $${params.length}`); }
+  if (!isNaN(from?.getTime() ?? NaN)) { params.push(from!.toISOString()); where.push(`started_at >= $${params.length}`); }
+  if (!isNaN(to?.getTime() ?? NaN))   { params.push(to!.toISOString());   where.push(`started_at <= $${params.length}`); }
+
+  const whereSql = where.length ? `where ${where.join(" and ")}` : "";
+  const { rows } = await pool.query(
+    `select id, run_type, started_at, finished_at, pass,
+            total_findings_before, fixes_applied, remaining_open,
+            round(extract(epoch from (coalesce(finished_at, now()) - started_at)))::int as duration_s
+       from steward.audit_runs
+       ${whereSql}
+      order by started_at desc`,
+    params
+  );
+
+  res.setHeader("content-type", "text/csv; charset=utf-8");
+  res.setHeader("content-disposition", `attachment; filename="steward_audit_runs.csv"`);
+
+  const header = [
+    "id","run_type","started_at","finished_at","pass",
+    "total_findings_before","fixes_applied","remaining_open","duration_s"
+  ].join(",");
+
+  const lines = rows.map(r => ([
+    r.id,
+    r.run_type,
+    new Date(r.started_at).toISOString(),
+    r.finished_at ? new Date(r.finished_at).toISOString() : "",
+    r.pass === true ? "true" : r.pass === false ? "false" : "",
+    r.total_findings_before ?? "",
+    r.fixes_applied ?? "",
+    r.remaining_open ?? "",
+    r.duration_s ?? ""
+  ].map(v => `"${String(v).replaceAll(`"`,`""`)}"`).join(",")));
+
+  res.send([header, ...lines].join("\n"));
+});
+
+export default router;
+```
+
+> **Mount the routes** in `server/index.ts` (add near your other routers):
+
+```ts
+import stewardAudit from "./routes/steward-audit";
+// ...
+app.use("/api/steward", stewardAudit);
+```
+
+---
+
+# 3) Client — AuditRunsPanel (table + filters + CSV + details)
+
+> **Create:** `client/src/components/AuditRunsPanel.tsx`
+
+```tsx
+import { useEffect, useMemo, useState } from "react";
+import { DateTime } from "luxon";
+
+type AuditItem = {
+  id: string;
+  run_type: "nightly" | "manual" | "predeploy";
+  started_at: string;    // ISO
+  finished_at: string | null;
+  pass: boolean | null;
+  total_findings_before: number | null;
+  fixes_applied: number | null;
+  remaining_open: number | null;
+  duration_s: number | null;
+};
+
+type ListResp = {
+  total: number;
+  limit: number;
+  offset: number;
+  items: AuditItem[];
+};
+
+function Badge({ ok }: { ok: boolean | null }) {
+  if (ok === true) return <span className="px-2 py-0.5 rounded-full text-xs bg-green-600 text-white">pass</span>;
+  if (ok === false) return <span className="px-2 py-0.5 rounded-full text-xs bg-red-600 text-white">fail</span>;
+  return <span className="px-2 py-0.5 rounded-full text-xs bg-gray-400 text-white">pending</span>;
+}
+
+function TypePill({ t }: { t: string }) {
+  const cls = {
+    nightly: "bg-indigo-600",
+    manual: "bg-slate-600",
+    predeploy: "bg-amber-600",
+  }[t as keyof typeof TypePill];
+  return <span className={`px-2 py-0.5 rounded-full text-xs text-white ${cls ?? "bg-slate-600"}`}>{t}</span>;
+}
+
+export default function AuditRunsPanel() {
+  const [items, setItems] = useState<AuditItem[]>([]);
+  const [total, setTotal] = useState(0);
+  const [limit, setLimit] = useState(25);
+  const [offset, setOffset] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  // filters
+  const [runType, setRunType] = useState<"" | "nightly" | "manual" | "predeploy">("");
+  const [passFilter, setPassFilter] = useState<"" | "true" | "false">("");
+  const [range, setRange] = useState<"7d"|"30d"|"90d"|"all">("30d");
+
+  const qp = useMemo(() => {
+    const q = new URLSearchParams();
+    q.set("limit", String(limit));
+    q.set("offset", String(offset));
+    if (runType) q.set("run_type", runType);
+    if (passFilter) q.set("pass", passFilter);
+    if (range !== "all") {
+      const from = DateTime.now().minus({ days: range === "7d" ? 7 : range === "30d" ? 30 : 90 }).toISO();
+      q.set("from", from!);
+    }
+    return q.toString();
+  }, [limit, offset, runType, passFilter, range]);
+
+  async function load() {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/steward/audit-runs?${qp}`);
+      const json: ListResp = await res.json();
+      setItems(json.items);
+      setTotal(json.total);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [qp]);
+
+  function csvHref() {
+    const q = new URLSearchParams(qp);
+    return `/api/steward/audit-runs.csv?${q.toString()}`;
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold">Audit Runs</h3>
+        <div className="flex gap-2">
+          <a href={csvHref()} className="px-3 py-1 rounded-md border text-sm">Export CSV</a>
+          <button onClick={load} className="px-3 py-1 rounded-md border text-sm">Refresh</button>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-2 items-center">
+        <div className="flex items-center gap-1">
+          <span className="text-sm text-muted-foreground">Type:</span>
+          {["", "nightly","manual","predeploy"].map((t) => (
+            <button
+              key={t || "all"}
+              onClick={() => { setOffset(0); setRunType(t as any); }}
+              className={`px-2 py-1 rounded-md border text-xs ${runType===t ? "bg-black text-white dark:bg-white dark:text-black" : ""}`}
+            >
+              {t || "all"}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="text-sm text-muted-foreground">Result:</span>
+          {["", "true","false"].map((p) => (
+            <button
+              key={p || "any"}
+              onClick={() => { setOffset(0); setPassFilter(p as any); }}
+              className={`px-2 py-1 rounded-md border text-xs ${passFilter===p ? "bg-black text-white dark:bg-white dark:text-black" : ""}`}
+            >
+              {p==="" ? "any" : p==="true" ? "pass" : "fail"}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="text-sm text-muted-foreground">Range:</span>
+          {(["7d","30d","90d","all"] as const).map(r => (
+            <button
+              key={r}
+              onClick={() => { setOffset(0); setRange(r); }}
+              className={`px-2 py-1 rounded-md border text-xs ${range===r ? "bg-black text-white dark:bg-white dark:text-black" : ""}`}
+            >
+              {r}
+            </button>
+          ))}
+        </div>
+        {loading && <span className="text-xs text-muted-foreground">Loading…</span>}
+      </div>
+
+      <div className="rounded-xl border overflow-x-auto">
+        <table className="min-w-full text-sm">
+          <thead className="bg-muted/50">
+            <tr className="text-left">
+              <th className="px-3 py-2">Started</th>
+              <th className="px-3 py-2">Duration</th>
+              <th className="px-3 py-2">Type</th>
+              <th className="px-3 py-2">Before</th>
+              <th className="px-3 py-2">Fixed</th>
+              <th className="px-3 py-2">Remaining</th>
+              <th className="px-3 py-2">Result</th>
+              <th className="px-3 py-2"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((it) => {
+              const start = DateTime.fromISO(it.started_at).toFormat("yyyy-LL-dd HH:mm");
+              const dur = it.duration_s ?? 0;
+              const durTxt = dur < 120 ? `${dur}s` : `${Math.round(dur/60)}m`;
+              return (
+                <Row key={it.id} it={it} start={start} durTxt={durTxt} />
+              );
+            })}
+            {items.length === 0 && !loading && (
+              <tr><td colSpan={8} className="px-3 py-6 text-center text-muted-foreground">No runs</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="flex items-center justify-between text-xs">
+        <div>Total: {total.toLocaleString()}</div>
+        <div className="flex gap-2">
+          <button
+            disabled={offset<=0}
+            onClick={() => setOffset(Math.max(0, offset - limit))}
+            className="px-2 py-1 rounded-md border disabled:opacity-50"
+          >Prev</button>
+          <button
+            disabled={offset + limit >= total}
+            onClick={() => setOffset(offset + limit)}
+            className="px-2 py-1 rounded-md border disabled:opacity-50"
+          >Next</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Row({ it, start, durTxt }: { it: AuditItem, start: string, durTxt: string }) {
+  const [open, setOpen] = useState(false);
+  const [detail, setDetail] = useState<any | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function toggle() {
+    if (open) { setOpen(false); return; }
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/steward/audit-runs/${it.id}`);
+      const json = await res.json();
+      setDetail(json);
+      setOpen(true);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <>
+      <tr className="border-t">
+        <td className="px-3 py-2">{start}</td>
+        <td className="px-3 py-2">{durTxt}</td>
+        <td className="px-3 py-2"><TypePill t={it.run_type} /></td>
+        <td className="px-3 py-2">{it.total_findings_before ?? 0}</td>
+        <td className="px-3 py-2">{it.fixes_applied ?? 0}</td>
+        <td className="px-3 py-2">{it.remaining_open ?? 0}</td>
+        <td className="px-3 py-2"><Badge ok={it.pass} /></td>
+        <td className="px-3 py-2 text-right">
+          <button onClick={toggle} className="px-2 py-1 rounded-md border text-xs">
+            {open ? "Hide" : "View"}
+          </button>
+        </td>
+      </tr>
+      {open && (
+        <tr className="border-t bg-muted/30">
+          <td colSpan={8} className="px-3 py-3">
+            {loading && <div className="text-xs text-muted-foreground">Loading details…</div>}
+            {!loading && detail && (
+              <div className="space-y-2">
+                <div className="text-xs text-muted-foreground">Run ID: <code>{detail.id}</code></div>
+                {detail.notes && <div className="text-xs">Notes: {detail.notes}</div>}
+                <div className="text-xs">Log:</div>
+                <pre className="text-xs p-2 rounded-md border overflow-x-auto bg-white dark:bg-black">
+{JSON.stringify(detail.log ?? {}, null, 2)}
+                </pre>
+              </div>
+            )}
+          </td>
+        </tr>
+      )}
+    </>
+  );
+}
+```
+
+> **Mount in your Steward page**, below your other panels:
+
+```tsx
+// client/src/pages/DataSteward.tsx
+import AuditRunsPanel from "@/components/AuditRunsPanel";
+// ...
+export default function DataStewardPage() {
+  return (
+    <div className="space-y-8">
+      {/* existing: toggles, findings, autofix, etc. */}
+      <AuditRunsPanel />
+    </div>
+  );
+}
+```
+
+---
+
+# 4) Smoke test (manual)
+
+```bash
+# List (last 30d default via UI component; via API you can pass filters)
+curl -s "$APP_URL/api/steward/audit-runs?limit=10" | jq
+
+# One detail
+curl -s "$APP_URL/api/steward/audit-runs/<RUN_ID>" | jq
+
+# CSV export
+curl -s "$APP_URL/api/steward/audit-runs.csv?run_type=nightly&pass=true" -o audit_runs.csv
+```
+
+---
+
+## What you get
+
+* **/api/steward/audit-runs** — paged, filterable list.
+* **/api/steward/audit-runs/\:id** — full row + `log` JSON (auto/verify request bodies from the nightly job).
+* **/api/steward/audit-runs.csv** — one-click CSV export matching your filters.
+* **AuditRunsPanel** — light, responsive table with filters, pass/fail badges, duration, CSV, refresh, detail view.
+
+This slots cleanly into the Steward console you already have (Policy toggles, Autofix tabs, etc.). If you want, I can also add a **“re-run now”** button that calls your `/api/steward/scan?policy=all&auto=true` with `actor=ui` and then refreshes the table; just say the word.
