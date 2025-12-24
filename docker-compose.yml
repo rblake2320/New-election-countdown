@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: electiontracker-db
+    environment:
+      POSTGRES_DB: electiontracker
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme123}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - electiontracker
+
+  # ElectionTracker Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: electiontracker-app
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://postgres:${DB_PASSWORD:-changeme123}@postgres:5432/electiontracker
+      GOOGLE_CIVIC_API_KEY: ${GOOGLE_CIVIC_API_KEY}
+      OPENFEC_API_KEY: ${OPENFEC_API_KEY}
+      PROPUBLICA_API_KEY: ${PROPUBLICA_API_KEY}
+      CENSUS_API_KEY: ${CENSUS_API_KEY}
+      JWT_SECRET: ${JWT_SECRET:-change-this-in-production-use-64-chars-min}
+      SESSION_SECRET: ${SESSION_SECRET:-change-this-in-production-use-64-chars}
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - electiontracker
+
+  # Redis Cache (Optional - for future scaling)
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: electiontracker-redis
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis_data:/data
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 10s
+  #     timeout: 3s
+  #     retries: 5
+  #   networks:
+  #     - electiontracker
+
+volumes:
+  postgres_data:
+    driver: local
+  # redis_data:
+  #   driver: local
+
+networks:
+  electiontracker:
+    driver: bridge

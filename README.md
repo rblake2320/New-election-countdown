@@ -5,17 +5,18 @@ A comprehensive, real-time election tracking platform serving as the authoritati
 ## 🚀 Features
 
 ### Core Platform
-- **Real-time Election Tracking**: 601+ elections with live countdown timers
-- **Authentic Data Only**: All polling percentages from verified API sources
+- **Real-time Election Tracking**: Comprehensive election database with live countdown timers
 - **Multi-source Integration**: Google Civic API, OpenFEC, ProPublica Congress, Census Bureau
 - **Advanced Filtering**: By type, level, state, timeframe, and party affiliation
-- **Candidate Management**: Comprehensive candidate profiles with authentic polling data
+- **Candidate Management**: Only REAL, verified candidates - never mock or placeholder data
+- **Initial Seed**: 33 real elections (June 2025 - November 2026) with 7 verified candidates
+- **Production Sync**: Auto-scales to 585+ elections via Google Civic API (100% midterm coverage)
 
 ### Data Authenticity System
 - **Quality Indicators**: hasAuthenticPolling, pollingConfidence, dataQuality scoring
-- **Source Validation**: Clear indicators for static vs. live data
-- **No Mock Data**: Eliminated all placeholder percentage values
-- **Live Data Monitoring**: Continuous sync to maintain election count
+- **Source Validation**: Clear indicators for static vs. live data  
+- **Live Data Monitoring**: Continuous sync from verified government APIs
+- **No Mock Data**: Only real, confirmed candidates are displayed - empty until populated by APIs
 
 ### Michigan Primary Integration
 - **Real Candidates**: 9 authenticated candidates including Elissa Slotkin, Mike Rogers, Tom Barrett

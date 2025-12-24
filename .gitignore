@@ -18,6 +18,33 @@ build/
 .env.development.local
 .env.test.local
 .env.production.local
+.env.*.local
+
+# Screenshots and test images (keep documentation screenshots in docs/ folder)
+*.png
+!docs/**/*.png
+*.jpg
+*.jpeg
+!docs/**/*.jpg
+!docs/**/*.jpeg
+attached_assets/
+screenshots/
+
+# One-off migration and test scripts
+*-audit.js
+*-test-suite.js
+bulk-*.js
+comprehensive-*.js
+*-enhancement.js
+*-integration.js
+*-discovery.js
+*-scraper.js
+populate-*.js
+integrate-*.js
+analyze-*.js
+load_*.js
+clean-*.js
+fix-*.js
 
 # Editor directories and files
 .vscode/*

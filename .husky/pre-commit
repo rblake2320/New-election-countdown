@@ -1,0 +1,32 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Prevent committing sensitive files
+echo "🔍 Checking for sensitive files..."
+
+# Check if .env is being committed
+if git diff --cached --name-only | grep -q "^\.env$"; then
+    echo "❌ ERROR: Attempting to commit .env file!"
+    echo "   Remove it from staging with: git reset HEAD .env"
+    exit 1
+fi
+
+# Check for API keys in staged files
+if git diff --cached | grep -iE "(api[_-]?key|secret|password|token).*=.*[a-zA-Z0-9]{20,}"; then
+    echo "⚠️  WARNING: Potential API key or secret detected in staged files!"
+    echo "   Please review your changes carefully."
+    echo "   To bypass this check (NOT RECOMMENDED): git commit --no-verify"
+    read -p "Continue anyway? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        exit 1
+    fi
+fi
+
+# Check for hardcoded localhost URLs in production code
+if git diff --cached | grep -E "localhost:[0-9]+" | grep -v "\.test\.\|\.spec\.\|README\|SETUP"; then
+    echo "⚠️  WARNING: Found hardcoded localhost URLs in code"
+    echo "   Consider using environment variables instead"
+fi
+
+echo "✅ Pre-commit checks passed!"
