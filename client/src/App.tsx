@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ModernLayout } from "@/components/modern-layout";
 import { NavigationSidebar } from "@/components/navigation-sidebar";
 import { ServiceStatusBanner } from "@/components/service-status-banner";
@@ -26,6 +27,8 @@ import DataSteward from "@/pages/DataSteward";
 import AuthPage from "@/pages/auth";
 import PreferencesPage from "@/pages/preferences";
 import AdminResultsEntry from "@/pages/admin-results-entry";
+import AdminSettings from "@/pages/admin-settings";
+import InvestorDashboard from "@/pages/investor-dashboard";
 import HappeningNow from "@/pages/happening-now";
 import NotFound from "@/pages/not-found";
 
@@ -53,6 +56,8 @@ function Router() {
             <Route path="/data-steward" component={DataSteward} />
             <Route path="/preferences" component={PreferencesPage} />
             <Route path="/admin/results" component={AdminResultsEntry} />
+            <Route path="/admin-settings" component={AdminSettings} />
+            <Route path="/investor-dashboard" component={InvestorDashboard} />
             <Route path="/happening-now" component={HappeningNow} />
             <Route component={NotFound} />
           </Switch>
@@ -66,19 +71,21 @@ function App() {
   const { isOpen, handleClose } = useWelcomeModal();
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <CompareProvider>
-          <TooltipProvider>
-            <div className="min-h-screen bg-app-bg text-app-fg font-sans antialiased">
-              <Toaster />
-              <Router />
-              <WelcomeModal open={isOpen} onOpenChange={handleClose} />
-            </div>
-          </TooltipProvider>
-        </CompareProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <CompareProvider>
+            <TooltipProvider>
+              <div className="min-h-screen bg-app-bg text-app-fg font-sans antialiased">
+                <Toaster />
+                <Router />
+                <WelcomeModal open={isOpen} onOpenChange={handleClose} />
+              </div>
+            </TooltipProvider>
+          </CompareProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
