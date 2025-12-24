@@ -97,21 +97,35 @@ app.use((req, res, next) => {
   const server = await registerRoutes(app);
   
   // Start automated results ingestion service for live election tracking
+  let resultsIngestionServiceInstance: any = null;
   try {
     const { resultsIngestionService } = await import("./results-ingestion-service");
+    resultsIngestionServiceInstance = resultsIngestionService;
     await resultsIngestionService.startPolling(30); // Poll every 30 seconds
     log("✅ Live results ingestion service started (30s polling)");
   } catch (error: any) {
     log(`⚠️  Results ingestion service failed to start: ${error.message}`);
   }
   
-  // Seed November 4 election results on startup for demo
+  // Graceful shutdown handler for results ingestion service
+  const shutdownHandler = () => {
+    log("🛑 Shutting down gracefully...");
+    if (resultsIngestionServiceInstance) {
+      resultsIngestionServiceInstance.stopPolling();
+      log("✅ Results ingestion service stopped");
+    }
+  };
+  
+  process.on('SIGTERM', shutdownHandler);
+  process.on('SIGINT', shutdownHandler);
+  
+  // Seed database on first run
   try {
-    const { default: seedNovemberResults } = await import("./seed-november-results-inline.ts");
-    await seedNovemberResults();
-    log("✅ November 4 election results seeded");
+    const { seedDatabase } = await import("./seed-data.ts");
+    await seedDatabase();
+    log("✅ Database seeded successfully");
   } catch (error: any) {
-    log(`⚠️  Failed to seed November results: ${error.message}`);
+    log(`⚠️  Failed to seed database: ${error.message}`);
   }
   
   // Add 404 handler for unknown API routes

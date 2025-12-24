@@ -244,7 +244,10 @@ router.post("/logout", async (req, res) => {
     try {
       const { uid, jti } = verifySession(token as string);
       await revokeSession(uid, jti);
-    } catch {}
+    } catch (error) {
+      // Token verification or revocation failed - log but continue with logout
+      console.error('Session revocation error during logout:', error instanceof Error ? error.message : error);
+    }
   }
   res.clearCookie(SESSION_COOKIE, { path: "/" });
   res.json({ ok: true });
