@@ -33,13 +33,6 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     'https://localhost:5000'
   ];
   
-  if (process.env.REPLIT_DOMAINS) {
-    const replitDomains = process.env.REPLIT_DOMAINS.split(',');
-    replitDomains.forEach(domain => {
-      allowedOrigins.push(`https://${domain.trim()}`);
-    });
-  }
-  
   if (!origin || allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin || '*');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -157,12 +150,11 @@ app.use((req, res, next) => {
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = 5000;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
+  const port = parseInt(process.env.PORT ?? "5000", 10);
+  // 0.0.0.0 for containers/production; localhost binding for Windows dev
+  // (binding 0.0.0.0 raises ENOTSUP under some Windows socket layers)
+  const host = process.env.HOST ?? (process.platform === "win32" ? "127.0.0.1" : "0.0.0.0");
+  server.listen(port, host, () => {
+    log(`serving on http://${host}:${port}`);
   });
 })();

@@ -7,12 +7,14 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { Request, Response, NextFunction } from 'express';
 import { globalWriteGuard, healthAwareErrorHandler, requireHealthyDatabase } from '../../server/middleware/health-guard';
 
-// Mock the module before using it
+// Mock the module before using it (vi.hoisted so tests can configure the mocks)
+const mockStorageFactory = vi.hoisted(() => ({
+  isDatabaseAvailable: vi.fn(),
+  getHealthStatus: vi.fn()
+}));
+
 vi.mock('../../server/storage-factory', () => ({
-  storageFactory: {
-    isDatabaseAvailable: vi.fn(),
-    getHealthStatus: vi.fn()
-  }
+  storageFactory: mockStorageFactory
 }));
 
 // Helper function to create mock request/response/next

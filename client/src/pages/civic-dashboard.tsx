@@ -52,11 +52,11 @@ interface PolicyComparison {
 }
 
 export default function CivicDashboard() {
-  const [candidateIds, setCandidateIds] = useState("H001075,S001193");
-  const [policyCategories, setPolicyCategories] = useState("Economy & Jobs,Healthcare,Education");
-  const [address, setAddress] = useState("123 Main St, Columbus, OH 43215");
-  const [internationalCandidate, setInternationalCandidate] = useState("Boris Johnson");
-  const [country, setCountry] = useState("UK");
+  const [candidateIds, setCandidateIds] = useState("");
+  const [policyCategories, setPolicyCategories] = useState("");
+  const [address, setAddress] = useState("");
+  const [internationalCandidate, setInternationalCandidate] = useState("");
+  const [country, setCountry] = useState("");
 
   // Get civic aggregator status
   const { data: status } = useQuery({

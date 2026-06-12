@@ -13,16 +13,16 @@ import {
   comprehensiveHealthCheck 
 } from '../../server/middleware/autofix-security';
 
-// Mock dependencies
-const mockPool = {
+// Mock dependencies (vi.hoisted so the hoisted vi.mock factories can see them)
+const mockPool = vi.hoisted(() => ({
   query: vi.fn()
-};
+}));
 
-const mockStorageFactory = {
+const mockStorageFactory = vi.hoisted(() => ({
   isDatabaseAvailable: vi.fn()
-};
+}));
 
-const mockSql = vi.fn();
+const mockSql = vi.hoisted(() => vi.fn());
 
 const mockProcess = {
   env: {},
@@ -447,7 +447,10 @@ describe('validateAutofixPolicies Middleware', () => {
 
       await validateAutofixPolicies(req, res, next);
 
-      expect(mockSql).toHaveBeenCalledWith(expect.stringContaining('low'));
+      // sql`...` is a tagged template — args are [stringsArray, ...values].
+      // The severity value appears in the policy-compatibility query (2nd call).
+      const allCallArgs = mockSql.mock.calls.flat(Infinity).join(' ');
+      expect(allCallArgs).toContain('low');
       expect(next).toHaveBeenCalledOnce();
     });
 

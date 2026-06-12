@@ -67,8 +67,10 @@ export function ServiceStatusBanner({ className }: ServiceStatusBannerProps) {
   const [isDismissed, setIsDismissed] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
 
-  // Don't show banner if loading, no issues, or manually dismissed
-  const shouldShow = shouldShowNotification || hasHealthCriticalFailures || hasHealthDegradation;
+  // Only surface CRITICAL failures to visitors. Missing optional enhancers
+  // (extra data-source API keys) are an admin concern shown on the
+  // System Configuration page, not a public banner.
+  const shouldShow = hasHealthCriticalFailures || hasCriticalIssues;
   if (isLoadingSummary || isLoadingHealth || !shouldShow || isDismissed) {
     return null;
   }

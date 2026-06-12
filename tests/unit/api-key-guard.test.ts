@@ -15,13 +15,14 @@ import {
   getCriticalServiceStatus 
 } from '../../server/middleware/api-key-guard';
 
-// Mock the API key validation service
-const mockApiKeyValidationService = {
+// Mock the API key validation service (vi.hoisted so the vi.mock factory,
+// which is hoisted to the top of the file, can reference it)
+const mockApiKeyValidationService = vi.hoisted(() => ({
   isKeyAvailable: vi.fn(),
   generateMissingKeyError: vi.fn(),
   checkAllKeys: vi.fn(),
   getNotificationSummary: vi.fn()
-};
+}));
 
 vi.mock('../../server/api-key-validation-service', () => ({
   apiKeyValidationService: mockApiKeyValidationService

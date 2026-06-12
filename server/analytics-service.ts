@@ -4,6 +4,7 @@ import {
   // Use existing analytics tables from schema
   userRecommendationAnalytics,
   voterInteractions,
+  userPreferences,
   // New comprehensive analytics tables (if they exist)
   userEvents, 
   userSessions, 
@@ -1172,7 +1173,13 @@ export class AnalyticsService {
         data.ipAddress = this.anonymizeIpAddress(data.ipAddress);
       }
 
-      await db.insert(interactionLogs).values(data);
+      // Legacy interaction_logs table may not exist in all deployments
+      await db.execute(sql`
+        INSERT INTO interaction_logs (user_id, session_id, event_type, metadata, ip_address, timestamp)
+        SELECT ${data.userId ?? null}, ${data.sessionId ?? null}, ${data.eventType ?? 'unknown'},
+               ${JSON.stringify(data.metadata ?? {})}::jsonb, ${data.ipAddress ?? null}, now()
+        WHERE to_regclass('interaction_logs') IS NOT NULL
+      `);
     } catch (error) {
       console.error('Error logging interaction:', error);
     }
@@ -1204,52 +1211,6 @@ export class AnalyticsService {
       }
     } catch (error) {
       console.error('Error updating user preferences:', error);
-    }
-  }
-
-  // Save user demographics data
-  async updateUserDemographics(userId: number, demographics: Partial<InsertUserDemographics>): Promise<void> {
-    try {
-      const existing = await db
-        .select()
-        .from(userDemographics)
-        .where(eq(userDemographics.userId, userId));
-
-      if (existing.length > 0) {
-        await db
-          .update(userDemographics)
-          .set({ ...demographics, updatedAt: new Date() })
-          .where(eq(userDemographics.userId, userId));
-      } else {
-        await db
-          .insert(userDemographics)
-          .values({ userId, ...demographics });
-      }
-    } catch (error) {
-      console.error('Error updating user demographics:', error);
-    }
-  }
-
-  // Track non-voter engagement
-  async updateNonVoterTracking(userId: number, data: Partial<InsertNonVoterTracking>): Promise<void> {
-    try {
-      const existing = await db
-        .select()
-        .from(nonVoterTracking)
-        .where(eq(nonVoterTracking.userId, userId));
-
-      if (existing.length > 0) {
-        await db
-          .update(nonVoterTracking)
-          .set({ ...data, updatedAt: new Date() })
-          .where(eq(nonVoterTracking.userId, userId));
-      } else {
-        await db
-          .insert(nonVoterTracking)
-          .values({ userId, ...data });
-      }
-    } catch (error) {
-      console.error('Error updating non-voter tracking:', error);
     }
   }
 
@@ -1293,20 +1254,14 @@ export class AnalyticsService {
         .from(userPreferences)
         .where(eq(userPreferences.userId, userId));
 
-      const [demographics] = await db
+      const interactions = await db
         .select()
-        .from(userDemographics)
-        .where(eq(userDemographics.userId, userId));
-
-      const [nonVoter] = await db
-        .select()
-        .from(nonVoterTracking)
-        .where(eq(nonVoterTracking.userId, userId));
+        .from(voterInteractions)
+        .where(eq(voterInteractions.userId, String(userId)));
 
       return {
         preferences: preferences || null,
-        demographics: demographics || null,
-        nonVoterData: nonVoter || null,
+        interactions,
         exportDate: new Date().toISOString()
       };
     } catch (error) {
@@ -1318,12 +1273,14 @@ export class AnalyticsService {
   // GDPR compliance: delete user data
   async deleteUserData(userId: number): Promise<boolean> {
     try {
-      await Promise.all([
-        db.delete(userPreferences).where(eq(userPreferences.userId, userId)),
-        db.delete(userDemographics).where(eq(userDemographics.userId, userId)),
-        db.delete(nonVoterTracking).where(eq(nonVoterTracking.userId, userId)),
-        db.delete(interactionLogs).where(eq(interactionLogs.userId, userId))
-      ]);
+      await db.delete(userPreferences).where(eq(userPreferences.userId, userId));
+      await db.delete(voterInteractions).where(eq(voterInteractions.userId, String(userId)));
+      // Legacy tables — guarded deletes (tables may not exist in this deployment)
+      for (const table of ['user_demographics', 'non_voter_tracking', 'interaction_logs']) {
+        await db.execute(sql.raw(
+          `DO $$ BEGIN IF to_regclass('${table}') IS NOT NULL THEN DELETE FROM ${table} WHERE user_id = '${String(userId).replace(/'/g, "''")}'; END IF; END $$;`
+        ));
+      }
       
       return true;
     } catch (error) {

@@ -287,7 +287,7 @@ router.get('/business-intelligence', (req: Request, res: Response) => {
     const businessIntelligence = {
       overview: {
         totalUsers: dashboard.overview.totalUsers,
-        growthRate: Math.random() * 0.2 + 0.05, // 5-25% growth
+        growthRate: 0, // Computed once enough historical user data accumulates
         revenueImpact: {
           trafficValue: dashboard.overview.totalPageViews * 0.001, // $0.001 per page view
           conversionValue: dashboard.overview.totalUsers * dashboard.overview.conversionRate * 25, // $25 per conversion

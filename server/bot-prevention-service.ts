@@ -317,7 +317,7 @@ export class BotPreventionService {
     const botFiltered = totalInterest - verifiedHumans;
 
     return {
-      total_interest: totalInterest + Math.floor(Math.random() * 1000), // Include some unverified for totals
+      total_interest: totalInterest,
       verified_humans: verifiedHumans,
       bot_filtered: botFiltered,
       confidence_level: verifiedHumans / (totalInterest || 1) > 0.95 ? "Very High" : "High",
@@ -345,7 +345,7 @@ export class BotPreventionService {
     if (ipAddress.startsWith('10.') || ipAddress.startsWith('192.168.')) {
       return 0.1; // Local networks are low risk
     }
-    return Math.random() * 0.3; // Simulate low to moderate risk
+    return 0.2; // Neutral default until a real IP-reputation provider is wired
   }
 
   private isValidPhoneNumber(phone: string): boolean {
@@ -420,14 +420,14 @@ export class BotPreventionService {
     return []; // Implement location jump detection
   }
 
-  private async analyzeVotingPatterns(userId: number): Promise<any> {
-    // Analyze user's interaction patterns
-    return { clicksPerMinute: Math.random() * 50 }; // Simulate
+  private async analyzeVotingPatterns(_userId: number): Promise<any> {
+    // No real click-rate telemetry wired yet — return neutral (non-bot) value
+    return { clicksPerMinute: 0 };
   }
 
-  private async detectDeviceSwitching(userId: number): Promise<number> {
-    // Count device switches in recent period
-    return Math.floor(Math.random() * 3); // Simulate
+  private async detectDeviceSwitching(_userId: number): Promise<number> {
+    // No device fingerprint history yet — report no switching
+    return 0;
   }
 }
 

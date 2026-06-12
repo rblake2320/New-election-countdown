@@ -1,12 +1,9 @@
 import { db } from './db';
-import { 
-  interactionLogs, 
-  userAnalytics, 
-  campaignAccessLogs,
-  elections,
-  engagementMetrics 
-} from '@shared/schema';
-import { lt, and, eq } from 'drizzle-orm';
+import { campaignAccessLogs, elections } from '@shared/schema';
+import { lt, and, eq, sql } from 'drizzle-orm';
+
+// interaction_logs / engagement_metrics are legacy tables that may not exist
+// in every deployment — archival for them runs via guarded raw SQL.
 
 export class DataArchivalService {
   
@@ -29,9 +26,8 @@ export class DataArchivalService {
         WHERE timestamp < $1
       `, [ninetyDaysAgo]);
       
-      // Delete old records from main table
-      await db.delete(interactionLogs)
-        .where(lt(interactionLogs.timestamp, ninetyDaysAgo));
+      // Delete old records from main table (guarded — table may not exist)
+      await db.execute(sql`DELETE FROM interaction_logs WHERE timestamp < ${ninetyDaysAgo}`);
       
       console.log(`Archived interaction logs older than ${ninetyDaysAgo.toISOString()}`);
     } catch (error) {
@@ -142,9 +138,8 @@ export class DataArchivalService {
         ON CONFLICT DO NOTHING
       `, [thirtyDaysAgo]);
       
-      // Delete aggregated records
-      await db.delete(engagementMetrics)
-        .where(lt(engagementMetrics.createdAt, thirtyDaysAgo));
+      // Delete aggregated records (guarded — table may not exist)
+      await db.execute(sql`DELETE FROM engagement_metrics WHERE created_at < ${thirtyDaysAgo}`);
       
       console.log('Aggregated engagement metrics into summary tables');
     } catch (error) {

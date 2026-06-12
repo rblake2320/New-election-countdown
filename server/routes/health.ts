@@ -45,7 +45,7 @@ healthRouter.get("/", async (req, res) => {
         total_elections: stats.total,
         visible_elections: stats.total,
         elections: stats.total,
-        candidates: Object.values(stats.byType).reduce((a, b) => a + b, 0),
+        candidates: (await storageFactory.getCandidates()).length,
         congress: 0, // This would need a separate method  
         congress_total: 0
       });
@@ -62,7 +62,7 @@ healthRouter.get("/", async (req, res) => {
       total_elections: stats.total,
       visible_elections: stats.total, // Simplified for now
       elections: stats.total,
-      candidates: Object.values(stats.byType).reduce((a, b) => a + b, 0),
+      candidates: (await storageFactory.getCandidates()).length,
       congress: 0, // This would need a separate method
       congress_total: 0,
       queueLength: healthStatus.queueLength,

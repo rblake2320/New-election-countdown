@@ -314,17 +314,14 @@ export class IncidentRunbookService {
   private async executeAutomatedStep(step: RunbookStep, context: RunbookExecutionContext): Promise<any> {
     console.log(`[RunbookService] Executing automated step: ${step.stepTitle}`);
     
-    // In a real implementation, this would execute the automation script
-    // For now, simulate automation execution
-    const executionTime = Math.random() * 3000 + 1000;
-    await this.simulateStepExecution(executionTime);
-    
+    // Automation scripts are not wired to an executor yet — report honestly
+    // instead of claiming success, so operators perform the step manually.
     return {
       type: 'automated',
-      script: step.automationScript || 'default_script.sh',
-      executionTime: Math.round(executionTime),
-      result: 'success',
-      output: 'Automated action completed successfully',
+      script: step.automationScript || null,
+      executionTime: 0,
+      result: 'skipped',
+      output: 'Automation executor not configured — perform this step manually',
       timestamp: new Date()
     };
   }

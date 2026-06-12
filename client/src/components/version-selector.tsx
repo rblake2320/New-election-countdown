@@ -60,10 +60,12 @@ export function VersionSelector({ currentVersion, onVersionChange }: VersionSele
         </SelectContent>
       </Select>
 
-      <div className="text-xs text-muted-foreground flex items-center gap-1">
-        <Calendar className="h-3 w-3" />
-        Target: {new Date(selectedVersion.targetDate).toLocaleDateString()}
-      </div>
+      {selectedVersion.targetDate && !isNaN(new Date(selectedVersion.targetDate).getTime()) && (
+        <div className="text-xs text-muted-foreground flex items-center gap-1">
+          <Calendar className="h-3 w-3" />
+          Target: {new Date(selectedVersion.targetDate).toLocaleDateString()}
+        </div>
+      )}
     </div>
   );
 }

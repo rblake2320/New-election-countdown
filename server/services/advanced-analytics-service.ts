@@ -505,7 +505,7 @@ class AdvancedAnalyticsService {
       .map(([pathKey, data]) => ({
         path: pathKey.split(' -> '),
         count: data.count,
-        conversionRate: Math.random() * 0.3 + 0.1, // Mock conversion rate
+        conversionRate: 0, // No conversion events defined yet — real tracking pending
         averageDuration: data.durations.length > 0 
           ? data.durations.reduce((sum, d) => sum + d, 0) / data.durations.length / 1000
           : 0
@@ -587,17 +587,26 @@ class AdvancedAnalyticsService {
   }
 
   private calculateConversionRate(): number {
-    // Mock conversion rate - in real implementation, define conversion events
-    return Math.random() * 0.15 + 0.05; // 5-20%
+    // No conversion events defined yet — returns 0 until real events are wired
+    return 0;
   }
 
   private calculateDropOffPoints(): Array<{ page: string; dropOffRate: number }> {
-    // Mock implementation - analyze where users leave most frequently
-    const pages = ['/elections', '/candidates', '/congress', '/monitoring'];
-    return pages.map(page => ({
-      page,
-      dropOffRate: Math.random() * 0.3 + 0.1 // 10-40%
-    }));
+    // Computed from real session exit pages; empty until enough sessions exist
+    const exits = new Map<string, number>();
+    let total = 0;
+    this.sessions.forEach((session: any) => {
+      const lastPage = session.pageViews?.[session.pageViews.length - 1]?.page;
+      if (lastPage) {
+        exits.set(lastPage, (exits.get(lastPage) ?? 0) + 1);
+        total++;
+      }
+    });
+    if (total === 0) return [];
+    return Array.from(exits.entries())
+      .map(([page, count]) => ({ page, dropOffRate: count / total }))
+      .sort((a, b) => b.dropOffRate - a.dropOffRate)
+      .slice(0, 10);
   }
 
   private generateHeatmapData(): Record<string, Array<{ x: number; y: number; value: number }>> {
@@ -648,7 +657,7 @@ class AdvancedAnalyticsService {
   private calculateEngagementTrend(): any[] { return []; }
   private calculateRetentionCohorts(): any[] { return []; }
   private getHistoricalData(): any { return {}; }
-  private forecastTraffic(hours: number): number { return Math.random() * 1000; }
+  private forecastTraffic(_hours: number): number { return this.sessions.size; } // naive: current active sessions
   private forecastElectionNightTraffic(): number { return 10000; }
   private predictChurn(): any[] { return []; }
   private predictEngagement(): any[] { return []; }

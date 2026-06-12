@@ -53,7 +53,7 @@ export interface RestoreResult {
 }
 
 export class NeonSnapshotService {
-  private config: NeonSnapshotConfig;
+  private config: NeonSnapshotConfig | null = null;
   private readonly baseUrl: string;
   private readonly headers: HeadersInit;
 
@@ -62,31 +62,46 @@ export class NeonSnapshotService {
     const projectId = config?.projectId || process.env.NEON_PROJECT_ID;
     const branchId = config?.branchId || process.env.NEON_BRANCH_ID || 'main';
 
-    if (!apiKey) {
-      throw new Error('NEON_API_KEY environment variable is required');
-    }
-    if (!projectId) {
-      throw new Error('NEON_PROJECT_ID environment variable is required');
+    if (!apiKey || !projectId) {
+      // Neon snapshots only apply to Neon-hosted databases. With standard
+      // PostgreSQL (pg_dump backups via backup-service), this service stays
+      // disabled rather than crashing the server at startup.
+      this.baseUrl = '';
+      this.headers = {};
+      console.warn('Neon snapshot service disabled (NEON_API_KEY/NEON_PROJECT_ID not set — using pg-based backups instead)');
+      return;
     }
 
-    this.config = {
+    const resolved: NeonSnapshotConfig = {
       apiKey,
       projectId,
       branchId,
       baseUrl: config?.baseUrl || 'https://console.neon.tech/api/v2'
     };
+    this.config = resolved;
 
-    this.baseUrl = this.config.baseUrl!;
+    this.baseUrl = resolved.baseUrl!;
     this.headers = {
-      'Authorization': `Bearer ${this.config.apiKey}`,
+      'Authorization': `Bearer ${resolved.apiKey}`,
       'Content-Type': 'application/json',
       'User-Agent': 'ElectionTracker-DisasterRecovery/1.0'
     };
 
     console.log('✅ Neon Snapshot Service initialized', {
-      projectId: this.config.projectId,
-      branchId: this.config.branchId
+      projectId: resolved.projectId,
+      branchId: resolved.branchId
     });
+  }
+
+  get isEnabled(): boolean {
+    return this.config !== null;
+  }
+
+  private requireConfig(): NeonSnapshotConfig {
+    if (!this.config) {
+      throw new Error('Neon snapshot service is disabled (no NEON_API_KEY configured)');
+    }
+    return this.config;
   }
 
   /**
@@ -108,7 +123,7 @@ export class NeonSnapshotService {
     try {
       // Build API request URL
       const url = new URL(
-        `/projects/${this.config.projectId}/branches/${this.config.branchId}/snapshot`,
+        `/projects/${this.requireConfig().projectId}/branches/${this.requireConfig().branchId}/snapshot`,
         this.baseUrl
       );
       
@@ -140,7 +155,7 @@ export class NeonSnapshotService {
       const snapshot: SnapshotInfo = {
         id: neonResponse.snapshot?.id || nanoid(),
         name: snapshotName,
-        branchId: this.config.branchId,
+        branchId: this.requireConfig().branchId,
         createdAt: new Date(neonResponse.snapshot?.created_at || new Date()),
         expiresAt: options.expiresAt,
         size: neonResponse.snapshot?.size_bytes,
@@ -157,10 +172,10 @@ export class NeonSnapshotService {
         completedAt: new Date(),
         duration,
         sourceDatabase: process.env.DATABASE_URL?.split('@')[1]?.split('/')[0] || 'unknown',
-        sourceBranch: this.config.branchId,
+        sourceBranch: this.requireConfig().branchId,
         neonSnapshotId: snapshot.id,
-        neonBranchId: this.config.branchId,
-        neonProjectId: this.config.projectId,
+        neonBranchId: this.requireConfig().branchId,
+        neonProjectId: this.requireConfig().projectId,
         backupSize: snapshot.size || 0,
         tags: options.tags || ['automated'],
         triggeredBy: 'api',
@@ -192,8 +207,8 @@ export class NeonSnapshotService {
           startedAt: new Date(startTime),
           duration,
           errorMessage,
-          sourceBranch: this.config.branchId,
-          neonProjectId: this.config.projectId,
+          sourceBranch: this.requireConfig().branchId,
+          neonProjectId: this.requireConfig().projectId,
           tags: options.tags || ['automated'],
           triggeredBy: 'api',
           metadata: options.metadata || {}
@@ -211,7 +226,7 @@ export class NeonSnapshotService {
    */
   async listSnapshots(): Promise<SnapshotInfo[]> {
     try {
-      const url = `${this.baseUrl}/projects/${this.config.projectId}/branches/${this.config.branchId}/snapshots`;
+      const url = `${this.baseUrl}/projects/${this.requireConfig().projectId}/branches/${this.requireConfig().branchId}/snapshots`;
       
       const response = await fetch(url, {
         method: 'GET',
@@ -246,7 +261,7 @@ export class NeonSnapshotService {
    */
   async getSnapshot(snapshotId: string): Promise<SnapshotInfo | null> {
     try {
-      const url = `${this.baseUrl}/projects/${this.config.projectId}/snapshots/${snapshotId}`;
+      const url = `${this.baseUrl}/projects/${this.requireConfig().projectId}/snapshots/${snapshotId}`;
       
       const response = await fetch(url, {
         method: 'GET',
@@ -289,7 +304,7 @@ export class NeonSnapshotService {
     console.log(`🔄 Starting restore from snapshot ${snapshotId}`);
 
     try {
-      const url = `${this.baseUrl}/projects/${this.config.projectId}/snapshots/${snapshotId}/restore`;
+      const url = `${this.baseUrl}/projects/${this.requireConfig().projectId}/snapshots/${snapshotId}/restore`;
       
       const requestBody = {
         target_branch_id: options.targetBranchId,
@@ -342,7 +357,7 @@ export class NeonSnapshotService {
    */
   async deleteSnapshot(snapshotId: string): Promise<boolean> {
     try {
-      const url = `${this.baseUrl}/projects/${this.config.projectId}/snapshots/${snapshotId}`;
+      const url = `${this.baseUrl}/projects/${this.requireConfig().projectId}/snapshots/${snapshotId}`;
       
       const response = await fetch(url, {
         method: 'DELETE',
@@ -460,11 +475,11 @@ export class NeonSnapshotService {
     let lastSnapshot: SnapshotInfo | undefined;
 
     // Check configuration
-    if (!this.config.apiKey) {
+    if (!this.requireConfig().apiKey) {
       errors.push('Missing NEON_API_KEY');
       isHealthy = false;
     }
-    if (!this.config.projectId) {
+    if (!this.requireConfig().projectId) {
       errors.push('Missing NEON_PROJECT_ID');
       isHealthy = false;
     }
@@ -484,9 +499,9 @@ export class NeonSnapshotService {
     return {
       isHealthy,
       config: {
-        projectId: this.config.projectId,
-        branchId: this.config.branchId,
-        baseUrl: this.config.baseUrl
+        projectId: this.requireConfig().projectId,
+        branchId: this.requireConfig().branchId,
+        baseUrl: this.requireConfig().baseUrl
       },
       lastSnapshot,
       totalSnapshots,

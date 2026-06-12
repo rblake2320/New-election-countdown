@@ -1,0 +1,48 @@
+# Production stack for Hostinger VPS
+# Usage:
+#   1. Copy .env.production (DATABASE_URL points at the db service below)
+#   2. docker compose -f docker-compose.prod.yml up -d --build
+#   3. First boot auto-seeds verified 2026 election data
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+      PORT: "5000"
+      HOST: 0.0.0.0
+      DATABASE_URL: postgresql://elections:${POSTGRES_PASSWORD:?set in .env}@db:5432/elections
+      JWT_SECRET: ${JWT_SECRET:?set in .env}
+      SESSION_SECRET: ${SESSION_SECRET:?set in .env}
+      COOKIE_SECURE: "true"
+      # Optional data-source keys — services degrade gracefully when blank
+      OPENSTATES_API_KEY: ${OPENSTATES_API_KEY:-}
+      GOOGLE_CIVIC_API_KEY: ${GOOGLE_CIVIC_API_KEY:-}
+      OPENFEC_API_KEY: ${OPENFEC_API_KEY:-}
+      CENSUS_API_KEY: ${CENSUS_API_KEY:-}
+      CONGRESS_API_KEY: ${CONGRESS_API_KEY:-}
+      MAPQUEST_API_KEY: ${MAPQUEST_API_KEY:-}
+      PERPLEXITY_API_KEY: ${PERPLEXITY_API_KEY:-}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: elections
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
+      POSTGRES_DB: elections
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U elections -d elections"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:

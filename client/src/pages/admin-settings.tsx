@@ -1,159 +1,80 @@
-import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
-import { 
-  Key, 
-  Database, 
-  Shield, 
-  Settings, 
-  CheckCircle2, 
-  XCircle, 
-  AlertCircle,
-  Eye,
-  EyeOff,
-  Save,
-  RefreshCw
+import {
+  Key,
+  Database,
+  Shield,
+  Settings,
+  CheckCircle2,
+  XCircle,
+  RefreshCw,
+  ExternalLink,
 } from 'lucide-react';
 
-interface ApiKey {
-  name: string;
+interface ServiceKey {
   key: string;
-  description: string;
-  status: 'active' | 'inactive' | 'error';
+  service: string;
   required: boolean;
+  available: boolean;
+  purpose: string;
+  setupUrl?: string;
+}
+
+interface ServicesStatus {
+  allRequired: boolean;
+  allOptional: boolean;
+  missing: ServiceKey[];
+  available: ServiceKey[];
+  timestamp: string;
+}
+
+interface HealthStatus {
+  ok: boolean;
+  mode: string;
+  dbHealthy: boolean;
+  elections: number;
+  candidates: number;
 }
 
 /**
- * Admin Settings Page - API Key Management & System Configuration
- * For investor demos and easy configuration
+ * Admin Settings — live system status driven entirely by real endpoints.
+ * API keys are configured via environment variables (.env) and require a
+ * server restart; this page reports their actual state, it does not edit them.
  */
 export default function AdminSettings() {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const [showKeys, setShowKeys] = useState<Record<string, boolean>>({});
-  const [editingKeys, setEditingKeys] = useState<Record<string, string>>({});
-  // Fetch current API key status
-  const { data: apiStatus } = useQuery({
-    queryKey: ['/api/admin/api-keys'],
+  const {
+    data: services,
+    refetch: refetchServices,
+    isFetching,
+  } = useQuery<ServicesStatus>({
+    queryKey: ['/api/services/status'],
     queryFn: async () => {
-      const response = await fetch('/api/admin/api-keys');
-      if (!response.ok) throw new Error('Failed to fetch API keys');
+      const response = await fetch('/api/services/status');
+      if (!response.ok) throw new Error('Failed to fetch service status');
       return response.json();
     },
   });
 
-  // Save API key mutation
-  const saveKeyMutation = useMutation({
-    mutationFn: async ({ name, value }: { name: string; value: string }) => {
-      const response = await fetch('/api/admin/api-keys', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, value }),
-      });
-      if (!response.ok) throw new Error('Failed to save API key');
+  const { data: health } = useQuery<HealthStatus>({
+    queryKey: ['/api/health'],
+    queryFn: async () => {
+      const response = await fetch('/api/health');
+      if (!response.ok) throw new Error('Failed to fetch health');
       return response.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/api-keys'] });
-      toast({
-        title: 'API Key Saved',
-        description: 'The API key has been updated successfully.',
-      });
-    },
-    onError: () => {
-      toast({
-        title: 'Error',
-        description: 'Failed to save API key. Please try again.',
-        variant: 'destructive',
-      });
-    },
+    refetchInterval: 30000,
   });
 
-
-
-  const handleSaveKey = (name: string) => {
-    const value = editingKeys[name];
-    if (value) {
-      saveKeyMutation.mutate({ name, value });
-      setEditingKeys({ ...editingKeys, [name]: '' });
-    }
-  };
-
-  const handleTestConnection = async (name: string) => {
-    toast({
-      title: 'Testing Connection',
-      description: `Verifying ${name} API key...`,
-    });
-    // Test connection logic would go here
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'active':
-        return <CheckCircle2 className="h-4 w-4 text-green-500" />;
-      case 'inactive':
-        return <XCircle className="h-4 w-4 text-gray-400" />;
-      case 'error':
-        return <AlertCircle className="h-4 w-4 text-red-500" />;
-      default:
-        return <AlertCircle className="h-4 w-4 text-yellow-500" />;
-    }
-  };
-
-  const maskKey = (key: string) => {
-    if (!key || key.length < 8) return '••••••••';
-    return `${key.substring(0, 4)}••••${key.substring(key.length - 4)}`;
-  };
-
-  // Mock API keys for display
-  const apiKeys: ApiKey[] = [
-    {
-      name: 'GOOGLE_CIVIC_API_KEY',
-      key: process.env.GOOGLE_CIVIC_API_KEY || '',
-      description: 'Federal and state election data',
-      status: 'active',
-      required: true,
-    },
-    {
-      name: 'OPENFEC_API_KEY',
-      key: process.env.OPENFEC_API_KEY || '',
-      description: 'Campaign finance data',
-      status: 'active',
-      required: true,
-    },
-    {
-      name: 'PROPUBLICA_API_KEY',
-      key: process.env.PROPUBLICA_API_KEY || '',
-      description: 'Congressional voting records',
-      status: 'inactive',
-      required: true,
-    },
-    {
-      name: 'OPENSTATES_API_KEY',
-      key: process.env.OPENSTATES_API_KEY || '',
-      description: 'State legislature data',
-      status: 'inactive',
-      required: false,
-    },
-    {
-      name: 'VOTESMART_API_KEY',
-      key: process.env.VOTESMART_API_KEY || '',
-      description: 'Candidate voting records',
-      status: 'inactive',
-      required: false,
-    },
-  ];
+  const allKeys: ServiceKey[] = [
+    ...(services?.available ?? []),
+    ...(services?.missing ?? []),
+  ].sort((a, b) => Number(b.available) - Number(a.available) || a.service.localeCompare(b.service));
 
   return (
     <div className="container mx-auto py-8 space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
@@ -161,14 +82,20 @@ export default function AdminSettings() {
             System Configuration
           </h1>
           <p className="text-muted-foreground">
-            Manage API keys and system settings - Live data from real sources
+            Live service and data-source status
           </p>
         </div>
         <div className="flex items-center gap-4">
-          <Badge variant="default" className="gap-2">
-            <CheckCircle2 className="h-3 w-3" />
-            Live Data Active
-          </Badge>
+          {health && (
+            <Badge variant={health.dbHealthy ? 'default' : 'destructive'} className="gap-2">
+              {health.dbHealthy ? (
+                <CheckCircle2 className="h-3 w-3" />
+              ) : (
+                <XCircle className="h-3 w-3" />
+              )}
+              Database {health.dbHealthy ? 'Healthy' : 'Unavailable'}
+            </Badge>
+          )}
         </div>
       </div>
 
@@ -176,7 +103,7 @@ export default function AdminSettings() {
         <TabsList>
           <TabsTrigger value="api-keys">
             <Key className="h-4 w-4 mr-2" />
-            API Keys
+            Data Sources
           </TabsTrigger>
           <TabsTrigger value="database">
             <Database className="h-4 w-4 mr-2" />
@@ -188,210 +115,127 @@ export default function AdminSettings() {
           </TabsTrigger>
         </TabsList>
 
-        {/* API Keys Tab */}
         <TabsContent value="api-keys" className="space-y-4">
-          {/* System Status Banner */}
-          <Card className="border-green-200 bg-green-50">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <CheckCircle2 className="h-6 w-6 text-green-600" />
-                <div>
-                  <p className="font-semibold text-green-900">Real-Time Data Connection</p>
-                  <p className="text-sm text-green-700">
-                    Connected to live election APIs - All data is authentic and up-to-date
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              API keys are set in the server's <code>.env</code> file (restart required).
+              Services without keys degrade gracefully — core election data is served from the database.
+            </p>
+            <Button variant="outline" size="sm" onClick={() => refetchServices()} disabled={isFetching}>
+              <RefreshCw className={`h-4 w-4 mr-2 ${isFetching ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+          </div>
 
-          {/* API Keys List */}
-          <div className="grid gap-4">
-            {apiKeys.map((apiKey) => (
-              <Card key={apiKey.name}>
-                <CardHeader>
+          <div className="grid gap-3">
+            {allKeys.map((svc) => (
+              <Card key={svc.key}>
+                <CardHeader className="py-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <CardTitle className="text-base">{apiKey.name}</CardTitle>
-                      {apiKey.required && (
+                      <CardTitle className="text-base">{svc.service}</CardTitle>
+                      {svc.required && (
                         <Badge variant="destructive" className="text-xs">
                           Required
                         </Badge>
                       )}
-                      {getStatusIcon(apiKey.status)}
                     </div>
-                    <Badge variant={apiKey.status === 'active' ? 'default' : 'secondary'}>
-                      {apiKey.status}
+                    <Badge variant={svc.available ? 'default' : 'secondary'}>
+                      {svc.available ? 'Configured' : 'Not configured'}
                     </Badge>
                   </div>
-                  <CardDescription>{apiKey.description}</CardDescription>
+                  <CardDescription className="flex items-center justify-between">
+                    <span>{svc.purpose}</span>
+                    {!svc.available && svc.setupUrl && (
+                      <a
+                        href={svc.setupUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline inline-flex items-center gap-1 text-xs shrink-0 ml-4"
+                      >
+                        Get key <ExternalLink className="h-3 w-3" />
+                      </a>
+                    )}
+                  </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor={apiKey.name}>API Key</Label>
-                    <div className="flex gap-2">
-                      <div className="relative flex-1">
-                        <Input
-                          id={apiKey.name}
-                          type={showKeys[apiKey.name] ? 'text' : 'password'}
-                          placeholder={apiKey.key ? maskKey(apiKey.key) : 'Enter API key'}
-                          value={editingKeys[apiKey.name] || ''}
-                          onChange={(e) =>
-                            setEditingKeys({ ...editingKeys, [apiKey.name]: e.target.value })
-                          }
-                        />
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="absolute right-0 top-0 h-full"
-                          onClick={() =>
-                            setShowKeys({ ...showKeys, [apiKey.name]: !showKeys[apiKey.name] })
-                          }
-                        >
-                          {showKeys[apiKey.name] ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </div>
-                      <Button
-                        onClick={() => handleSaveKey(apiKey.name)}
-                        disabled={!editingKeys[apiKey.name]}
-                      >
-                        <Save className="h-4 w-4 mr-2" />
-                        Save
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => handleTestConnection(apiKey.name)}
-                      >
-                        <RefreshCw className="h-4 w-4 mr-2" />
-                        Test
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  {apiKey.status === 'error' && (
-                    <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                      <p className="text-sm text-destructive">
-                        ⚠️ Connection failed. Please verify the API key is correct.
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
               </Card>
             ))}
+            {allKeys.length === 0 && (
+              <Card>
+                <CardContent className="py-8 text-center text-muted-foreground">
+                  Loading service status…
+                </CardContent>
+              </Card>
+            )}
           </div>
-
-          {/* Quick Links */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Get API Keys</CardTitle>
-              <CardDescription>Links to sign up for each service</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="grid grid-cols-2 gap-2">
-                <a
-                  href="https://console.cloud.google.com/apis/credentials"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-blue-600 hover:underline"
-                >
-                  → Google Civic API
-                </a>
-                <a
-                  href="https://api.open.fec.gov/developers/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-blue-600 hover:underline"
-                >
-                  → OpenFEC API
-                </a>
-                <a
-                  href="https://www.propublica.org/datastore/api/propublica-congress-api"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-blue-600 hover:underline"
-                >
-                  → ProPublica Congress API
-                </a>
-                <a
-                  href="https://openstates.org/accounts/profile/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-blue-600 hover:underline"
-                >
-                  → OpenStates API
-                </a>
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
 
-        {/* Database Tab */}
         <TabsContent value="database" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Database Connection</CardTitle>
-              <CardDescription>PostgreSQL connection status</CardDescription>
+              <CardDescription>PostgreSQL connection status (live)</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-green-500" />
-                  <span className="font-medium">Connected</span>
+                  {health?.dbHealthy ? (
+                    <>
+                      <CheckCircle2 className="h-5 w-5 text-green-500" />
+                      <span className="font-medium">Connected</span>
+                    </>
+                  ) : (
+                    <>
+                      <XCircle className="h-5 w-5 text-red-500" />
+                      <span className="font-medium">Unavailable</span>
+                    </>
+                  )}
                 </div>
-                <Badge>Healthy</Badge>
+                <Badge variant={health?.dbHealthy ? 'default' : 'destructive'}>
+                  {health?.mode ?? 'unknown'} mode
+                </Badge>
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-muted-foreground">Provider</p>
-                  <p className="font-medium">Neon PostgreSQL</p>
+                  <p className="text-muted-foreground">Elections in database</p>
+                  <p className="font-medium">{health?.elections ?? '—'}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Latency</p>
-                  <p className="font-medium">45ms</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Pool Size</p>
-                  <p className="font-medium">2/10 connections</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Last Backup</p>
-                  <p className="font-medium">2 hours ago</p>
+                  <p className="text-muted-foreground">Candidates in database</p>
+                  <p className="font-medium">{health?.candidates ?? '—'}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        {/* Security Tab */}
         <TabsContent value="security" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Security Settings</CardTitle>
-              <CardDescription>Authentication and access control</CardDescription>
+              <CardDescription>Authentication and access control (configured at server level)</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">JWT Authentication</p>
-                  <p className="text-sm text-muted-foreground">Token-based authentication enabled</p>
+                  <p className="font-medium">Cookie Session Authentication</p>
+                  <p className="text-sm text-muted-foreground">
+                    JWT-signed httpOnly session cookies with database-backed revocation
+                  </p>
                 </div>
                 <CheckCircle2 className="h-5 w-5 text-green-500" />
               </div>
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium">Rate Limiting</p>
-                  <p className="text-sm text-muted-foreground">100 requests per 15 minutes</p>
+                  <p className="text-sm text-muted-foreground">Tiered request limits per 15 minutes</p>
                 </div>
                 <CheckCircle2 className="h-5 w-5 text-green-500" />
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">CORS Protection</p>
-                  <p className="text-sm text-muted-foreground">Restricted origins configured</p>
+                  <p className="font-medium">Security Headers</p>
+                  <p className="text-sm text-muted-foreground">Helmet, CORS restrictions, XSS protection</p>
                 </div>
                 <CheckCircle2 className="h-5 w-5 text-green-500" />
               </div>

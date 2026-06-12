@@ -1,13 +1,11 @@
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import ws from "ws";
+import pg from 'pg';
+const { Pool: PgPool } = pg;
+import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from "@shared/schema";
 
-// Configure Neon for optimal serverless performance
-neonConfig.webSocketConstructor = ws;
-neonConfig.useSecureWebSocket = true;
-neonConfig.pipelineConnect = false; // Disable pipelining for better error handling
-neonConfig.fetchConnectionCache = true;
+// Load .env for local dev (Node 20+ native)
+import { config } from 'dotenv';
+config();
 
 if (!process.env.DATABASE_URL) {
   throw new Error(
@@ -15,23 +13,17 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-// Enhanced connection pool configuration for Neon serverless
 const poolConfig = {
   connectionString: process.env.DATABASE_URL,
-  max: 10, // Maximum pool size
-  min: 2, // Minimum pool size
-  connectionTimeoutMillis: 10000, // 10 seconds
-  idleTimeoutMillis: 30000, // 30 seconds
-  allowExitOnIdle: true, // Allow process to exit when idle
-  // Retry configuration for transient failures
-  retryDelay: 1000, // 1 second between retries
-  retryAttempts: 3, // Retry up to 3 times
+  max: 10,
+  min: 2,
+  connectionTimeoutMillis: 10000,
+  idleTimeoutMillis: 30000,
+  allowExitOnIdle: true,
 };
 
-// Create connection pool with enhanced error handling
-export const pool = new Pool(poolConfig);
+export const pool = new PgPool(poolConfig);
 
-// Handle pool errors gracefully
 pool.on('error', (err) => {
   console.error('Database pool error:', {
     message: err.message,
@@ -49,7 +41,6 @@ pool.on('remove', () => {
   console.log('🔌 Database connection removed from pool');
 });
 
-// Enhanced database client with error handling
 export const db = drizzle({ client: pool, schema });
 
 // Connection health check utility

@@ -261,7 +261,9 @@ export default function CandidatePortal() {
       {/* Main Content */}
       <div className="container mx-auto p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          {/* Positions / Public View / Settings tabs ship when their
+              backends are complete — hidden rather than shown as stubs */}
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="dashboard" className="flex items-center space-x-2">
               <TrendingUp className="h-4 w-4" />
               <span>Dashboard</span>
@@ -269,18 +271,6 @@ export default function CandidatePortal() {
             <TabsTrigger value="profile" className="flex items-center space-x-2">
               <UserIcon className="h-4 w-4" />
               <span>Profile</span>
-            </TabsTrigger>
-            <TabsTrigger value="positions" className="flex items-center space-x-2">
-              <FileText className="h-4 w-4" />
-              <span>Positions</span>
-            </TabsTrigger>
-            <TabsTrigger value="public" className="flex items-center space-x-2">
-              <Globe className="h-4 w-4" />
-              <span>Public View</span>
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center space-x-2">
-              <Settings className="h-4 w-4" />
-              <span>Settings</span>
             </TabsTrigger>
           </TabsList>
 
@@ -438,53 +428,6 @@ export default function CandidatePortal() {
           </TabsContent>
 
           {/* Other tabs would be implemented similarly */}
-          <TabsContent value="positions">
-            <Card>
-              <CardHeader>
-                <CardTitle>Policy Positions</CardTitle>
-                <CardDescription>
-                  Define your stance on key issues
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 dark:text-gray-400">
-                  Policy position management coming soon...
-                </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="public">
-            <Card>
-              <CardHeader>
-                <CardTitle>Public Profile Preview</CardTitle>
-                <CardDescription>
-                  How voters see your profile
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 dark:text-gray-400">
-                  Public profile preview coming soon...
-                </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="settings">
-            <Card>
-              <CardHeader>
-                <CardTitle>Campaign Settings</CardTitle>
-                <CardDescription>
-                  Manage your account and campaign preferences
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 dark:text-gray-400">
-                  Campaign settings coming soon...
-                </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
         </Tabs>
       </div>
     </div>

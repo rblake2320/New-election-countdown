@@ -9,11 +9,9 @@ export interface ElectionValidation {
 // Louisiana elections must be on Saturday
 const SATURDAY_STATES = new Set(['LA']);
 
-// Mock data patterns to reject
-const MOCK_PATTERNS = [
-  'test', 'demo', 'example', 'placeholder', 
-  'mock', 'sample', 'dummy', 'fake'
-];
+// Mock data patterns to reject — word-boundary regex so 'demo' does not
+// match the word "Democratic" (or 'test' match "contest", etc.)
+const MOCK_PATTERN_RE = /(test|demo|example|placeholder|mock|sample|dummy|fake)/i;
 
 export function validateElectionDate(
   state: string, 
@@ -57,20 +55,13 @@ export function validateNotMockData(election: {
   subtitle?: string;
 }): ElectionValidation {
   const errors: string[] = [];
-  
-  const titleLower = (election.title || '').toLowerCase();
-  const descLower = (election.description || '').toLowerCase();
-  const subtitleLower = (election.subtitle || '').toLowerCase();
-  
-  for (const pattern of MOCK_PATTERNS) {
-    if (titleLower.includes(pattern) || 
-        descLower.includes(pattern) || 
-        subtitleLower.includes(pattern)) {
-      errors.push(`Election appears to be mock/test data (contains '${pattern}')`);
-      break;
-    }
+
+  const text = `${election.title || ''} ${election.subtitle || ''} ${election.description || ''}`;
+  const match = text.match(MOCK_PATTERN_RE);
+  if (match) {
+    errors.push(`Election appears to be mock/test data (contains '${match[1]}')`);
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors

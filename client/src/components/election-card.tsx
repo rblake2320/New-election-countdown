@@ -45,11 +45,14 @@ const electionLevelColors = {
 };
 
 function formatElectionDate(date: string): string {
+  // Election dates are calendar dates stored at midnight UTC — render in UTC
+  // so they don't shift back a day in western timezones.
   return new Date(date).toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
+    timeZone: 'UTC'
   });
 }
 

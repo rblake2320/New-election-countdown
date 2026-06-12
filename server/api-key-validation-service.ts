@@ -57,9 +57,9 @@ export class APIKeyValidationService {
     {
       key: 'GOOGLE_CIVIC_API_KEY',
       service: 'Google Civic',
-      required: true,
+      required: false,
       available: false,
-      purpose: 'Voter information, polling locations, election data'
+      purpose: 'Voter information, polling locations, election data (live-sync enhancement; core data served from database)'
     },
     {
       key: 'PERPLEXITY_API_KEY',

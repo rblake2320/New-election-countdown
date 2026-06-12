@@ -237,7 +237,7 @@ export default function GlobalDashboard() {
                           <div className="flex-1">
                             <h3 className="font-medium">{election.title}</h3>
                             <p className="text-sm text-muted-foreground">
-                              {election.country} • {new Date(election.date).toLocaleDateString()}
+                              {election.country} • {new Date(election.date).toLocaleDateString(undefined, { timeZone: 'UTC' })}
                             </p>
                           </div>
                           <Badge className={getElectionStatusBadge(election.status)}>
@@ -373,7 +373,7 @@ export default function GlobalDashboard() {
                       </p>
                       <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                         <span>Type: {event.type}</span>
-                        <span>Date: {new Date(event.date).toLocaleDateString()}</span>
+                        <span>Date: {new Date(event.date).toLocaleDateString(undefined, { timeZone: 'UTC' })}</span>
                         {event.data.location && <span>Location: {event.data.location}</span>}
                       </div>
                     </div>

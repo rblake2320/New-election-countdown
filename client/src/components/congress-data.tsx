@@ -198,7 +198,7 @@ export function CongressData() {
                   onChange={(e) => setMemberSearch(e.target.value)}
                 />
                 <Select value={memberPartyFilter} onValueChange={setMemberPartyFilter}>
-                  <SelectTrigger>
+                  <SelectTrigger aria-label="Filter by party">
                     <SelectValue placeholder="Filter by party" />
                   </SelectTrigger>
                   <SelectContent>
@@ -215,7 +215,7 @@ export function CongressData() {
                   maxLength={2}
                 />
                 <Select value={memberChamberFilter} onValueChange={setMemberChamberFilter}>
-                  <SelectTrigger>
+                  <SelectTrigger aria-label="Filter by chamber">
                     <SelectValue placeholder="Filter by chamber" />
                   </SelectTrigger>
                   <SelectContent>

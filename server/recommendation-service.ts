@@ -476,16 +476,25 @@ export class RecommendationService {
    * Get election engagement data (simulated for now)
    */
   private async getElectionEngagementData(electionIds: number[]): Promise<{[id: number]: {views: number, watchlistAdds: number}}> {
-    // Simulate engagement data - in production this would come from analytics
+    // Real engagement: watchlist adds per election from the database.
+    // Views start at 0 until interaction tracking accumulates data.
     const data: {[id: number]: {views: number, watchlistAdds: number}} = {};
-    
-    for (const id of electionIds) {
-      data[id] = {
-        views: Math.floor(Math.random() * 2000),
-        watchlistAdds: Math.floor(Math.random() * 100)
-      };
+    for (const id of electionIds) data[id] = { views: 0, watchlistAdds: 0 };
+    try {
+      const { db } = await import('./db');
+      const { watchlist } = await import('@shared/schema');
+      const { inArray, sql } = await import('drizzle-orm');
+      const rows = await db
+        .select({ electionId: watchlist.electionId, count: sql<number>`count(*)` })
+        .from(watchlist)
+        .where(inArray(watchlist.electionId, electionIds))
+        .groupBy(watchlist.electionId);
+      for (const row of rows) {
+        if (data[row.electionId]) data[row.electionId].watchlistAdds = Number(row.count);
+      }
+    } catch {
+      // DB unavailable — keep zeros rather than inventing numbers
     }
-    
     return data;
   }
 

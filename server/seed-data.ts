@@ -1,398 +1,128 @@
 /**
- * Comprehensive Database Seeding Script
- * Populates database with real election data for demo/production
- * Run with: npm run db:seed OR automatically on first server start
+ * Database seeding — verified 2026 election cycle data only.
+ * Sources: Ballotpedia, NCSL, state SOS sites, AP/NPR/CNN, Cook Political Report
+ * (compiled and verified 2026-06-11). No placeholder or invented data.
+ * Run with: npm run db:seed (or automatically on first server start)
  */
 
 import { db } from './db';
-import { elections, candidates, congressMembers } from '../shared/schema';
+import { elections, candidates } from '../shared/schema';
 import { sql } from 'drizzle-orm';
+import {
+  SENATE_RACES,
+  GOVERNOR_RACES,
+  UPCOMING_PRIMARIES,
+  UPCOMING_RUNOFFS,
+  HOUSE_SPECIALS,
+  type SeedRace,
+} from './seed-data-2026';
+
+// 2020-census House apportionment — every district is up Nov 3, 2026
+const HOUSE_SEATS: Record<string, number> = {
+  CA: 52, TX: 38, FL: 28, NY: 26, PA: 17, IL: 17, OH: 15, GA: 14, NC: 14, MI: 13,
+  NJ: 12, VA: 11, WA: 10, AZ: 9, IN: 9, MA: 9, TN: 9, MD: 8, MN: 8, MO: 8,
+  WI: 8, CO: 8, AL: 7, SC: 7, LA: 6, KY: 6, OR: 6, OK: 5, CT: 5, IA: 4,
+  AR: 4, KS: 4, MS: 4, NV: 4, UT: 4, NM: 3, NE: 3, WV: 2, ID: 2, HI: 2,
+  ME: 2, NH: 2, RI: 2, MT: 2, ND: 1, SD: 1, DE: 1, VT: 1, WY: 1, AK: 1,
+};
+
+function houseRaces(): SeedRace[] {
+  const races: SeedRace[] = [];
+  for (const [state, seats] of Object.entries(HOUSE_SEATS)) {
+    for (let d = 1; d <= seats; d++) {
+      const district = seats === 1 ? 'At-Large' : `District ${d}`;
+      races.push({
+        state,
+        title: `U.S. House Election - ${state}-${seats === 1 ? 'AL' : String(d).padStart(2, '0')}`,
+        subtitle: `${state} ${district}`,
+        type: 'general',
+        level: 'federal',
+        office: 'U.S. House of Representatives',
+        date: '2026-11-03',
+        description: `${state} ${district} U.S. House seat — general election November 3, 2026.`,
+        candidates: [],
+      });
+    }
+  }
+  return races;
+}
 
 export async function seedDatabase() {
-  console.log('🌱 Starting database seed...');
-  
+  console.log('🌱 Starting database seed (verified 2026 data)...');
+
   try {
-    // Check if already seeded
-    const existingElections = await db.select().from(elections).limit(1);
-    if (existingElections.length > 0) {
+    const existing = await db.select().from(elections).limit(1);
+    if (existing.length > 0) {
       console.log('✅ Database already seeded, skipping...');
       return;
     }
 
-    // Seed elections
-    console.log('📊 Seeding elections...');
-    await seedElections();
-    
-    // Seed candidates
-    console.log('👥 Seeding candidates...');
-    await seedCandidates();
-    
-    // Seed congress members
-    console.log('🏛️ Seeding congress members...');
-    await seedCongress();
-    
-    console.log('✅ Database seeding complete!');
-    console.log('📈 Summary:');
-    
+    const allRaces: SeedRace[] = [
+      ...SENATE_RACES,
+      ...GOVERNOR_RACES,
+      ...houseRaces(),
+      ...UPCOMING_PRIMARIES,
+      ...UPCOMING_RUNOFFS,
+      ...HOUSE_SPECIALS,
+    ];
+
+    console.log(`📊 Seeding ${allRaces.length} elections...`);
+    for (const race of allRaces) {
+      const [inserted] = await db
+        .insert(elections)
+        .values({
+          title: race.title,
+          subtitle: race.subtitle,
+          location: race.state,
+          state: race.state,
+          date: new Date(race.date),
+          type: race.type,
+          level: race.level,
+          offices: [race.office],
+          description: race.description,
+          isActive: true,
+        })
+        .returning({ id: elections.id });
+
+      if (race.candidates.length > 0) {
+        await db.insert(candidates).values(
+          race.candidates.map((c) => ({
+            name: c.name,
+            party: c.party,
+            electionId: inserted.id,
+            isIncumbent: c.isIncumbent,
+            description: c.description,
+            // Polling fields stay null until real polls are ingested
+            pollingSupport: null,
+            pollingTrend: null,
+          })),
+        );
+      }
+    }
+
     const stats = await getStats();
+    console.log('✅ Database seeding complete!');
     console.log(`   Elections: ${stats.elections}`);
     console.log(`   Candidates: ${stats.candidates}`);
-    console.log(`   Congress Members: ${stats.congress}`);
-    
+    console.log('   Congress members: populated via scripts/sync_congress.ts when CONGRESS_API_KEY is set');
   } catch (error) {
     console.error('❌ Seed error:', error);
     throw error;
   }
 }
 
-async function seedElections() {
-  const electionData = [
-    // 2024 Presidential
-    {
-      title: '2024 Presidential Election',
-      subtitle: 'General Election',
-      location: 'United States',
-      state: 'US',
-      date: new Date('2024-11-05'),
-      type: 'general',
-      level: 'federal',
-      offices: ['President', 'Vice President'],
-      description: '2024 United States Presidential Election',
-      isActive: false,
-    },
-    
-    // 2026 Midterms - Senate
-    {
-      title: 'U.S. Senate Election - California',
-      subtitle: 'Class III Senate Seat',
-      location: 'California',
-      state: 'CA',
-      date: new Date('2026-11-03'),
-      type: 'general',
-      level: 'federal',
-      offices: ['U.S. Senate'],
-      description: 'California U.S. Senate race',
-      isActive: true,
-    },
-    {
-      title: 'U.S. Senate Election - New York',
-      subtitle: 'Class III Senate Seat',
-      location: 'New York',
-      state: 'NY',
-      date: new Date('2026-11-03'),
-      type: 'general',
-      level: 'federal',
-      offices: ['U.S. Senate'],
-      description: 'New York U.S. Senate race',
-      isActive: true,
-    },
-    {
-      title: 'U.S. Senate Election - Texas',
-      subtitle: 'Class II Senate Seat',
-      location: 'Texas',
-      state: 'TX',
-      date: new Date('2026-11-03'),
-      type: 'general',
-      level: 'federal',
-      offices: ['U.S. Senate'],
-      description: 'Texas U.S. Senate race',
-      isActive: true,
-    },
-    {
-      title: 'U.S. Senate Election - Florida',
-      subtitle: 'Class III Senate Seat',
-      location: 'Florida',
-      state: 'FL',
-      date: new Date('2026-11-03'),
-      type: 'general',
-      level: 'federal',
-      offices: ['U.S. Senate'],
-      description: 'Florida U.S. Senate race',
-      isActive: true,
-    },
-    
-    // 2026 - Gubernatorial
-    {
-      title: 'California Gubernatorial Election',
-      subtitle: 'Governor Race',
-      location: 'California',
-      state: 'CA',
-      date: new Date('2026-11-03'),
-      type: 'general',
-      level: 'state',
-      offices: ['Governor'],
-      description: 'California Governor Election',
-      isActive: true,
-    },
-    {
-      title: 'Texas Gubernatorial Election',
-      subtitle: 'Governor Race',
-      location: 'Texas',
-      state: 'TX',
-      date: new Date('2026-11-03'),
-      type: 'general',
-      level: 'state',
-      offices: ['Governor'],
-      description: 'Texas Governor Election',
-      isActive: true,
-    },
-    {
-      title: 'New York Gubernatorial Election',
-      subtitle: 'Governor Race',
-      location: 'New York',
-      state: 'NY',
-      date: new Date('2026-11-03'),
-      type: 'general',
-      level: 'state',
-      offices: ['Governor'],
-      description: 'New York Governor Election',
-      isActive: true,
-    },
-    {
-      title: 'Florida Gubernatorial Election',
-      subtitle: 'Governor Race',
-      location: 'Florida',
-      state: 'FL',
-      date: new Date('2026-11-03'),
-      type: 'general',
-      level: 'state',
-      offices: ['Governor'],
-      description: 'Florida Governor Election',
-      isActive: true,
-    },
-    
-    // 2026 - House Races (sample)
-    {
-      title: 'U.S. House Election - CA-12',
-      subtitle: 'San Francisco District',
-      location: 'San Francisco, CA',
-      state: 'CA',
-      date: new Date('2026-11-03'),
-      type: 'general',
-      level: 'federal',
-      offices: ['U.S. House of Representatives'],
-      description: 'California 12th Congressional District',
-      isActive: true,
-    },
-    {
-      title: 'U.S. House Election - TX-21',
-      subtitle: 'Austin Area District',
-      location: 'Austin, TX',
-      state: 'TX',
-      date: new Date('2026-11-03'),
-      type: 'general',
-      level: 'federal',
-      offices: ['U.S. House of Representatives'],
-      description: 'Texas 21st Congressional District',
-      isActive: true,
-    },
-    {
-      title: 'U.S. House Election - NY-14',
-      subtitle: 'Queens/Bronx District',
-      location: 'New York, NY',
-      state: 'NY',
-      date: new Date('2026-11-03'),
-      type: 'general',
-      level: 'federal',
-      offices: ['U.S. House of Representatives'],
-      description: 'New York 14th Congressional District',
-      isActive: true,
-    },
-    
-    // 2026 Special Elections (updated date to future)
-    {
-      title: 'Virginia Special Election - HD-21',
-      subtitle: 'House District 21',
-      location: 'Loudoun County, VA',
-      state: 'VA',
-      date: new Date('2026-02-10'),
-      type: 'special',
-      level: 'state',
-      offices: ['State House'],
-      description: 'Special election to fill vacancy',
-      isActive: true,
-    },
-    
-    // 2026 Primaries
-    {
-      title: 'California Primary Election',
-      subtitle: 'Statewide Primary',
-      location: 'California',
-      state: 'CA',
-      date: new Date('2026-06-02'),
-      type: 'primary',
-      level: 'state',
-      offices: ['All Offices'],
-      description: 'California Primary for all 2026 races',
-      isActive: true,
-    },
-    {
-      title: 'Texas Primary Election',
-      subtitle: 'Statewide Primary',
-      location: 'Texas',
-      state: 'TX',
-      date: new Date('2026-03-03'),
-      type: 'primary',
-      level: 'state',
-      offices: ['All Offices'],
-      description: 'Texas Primary for all 2026 races',
-      isActive: true,
-    },
-  ];
-
-  await db.insert(elections).values(electionData);
-  console.log(`   ✅ Inserted ${electionData.length} elections`);
-}
-
-async function seedCandidates() {
-  // Get elections to attach candidates
-  const allElections = await db.select().from(elections);
-  
-  const candidateData = [];
-  
-  // Only seed REAL, CONFIRMED candidates - no placeholders
-  // For elections where we have confirmed candidate names
-  for (const election of allElections) {
-    if (election.level === 'federal' && election.offices?.includes('U.S. Senate')) {
-      // Only add candidates we can verify as real
-      if (election.state === 'CA') {
-        candidateData.push({
-          name: 'Adam Schiff',
-          party: 'D',
-          electionId: election.id,
-          isIncumbent: false,
-          description: 'U.S. Representative, CA-30. Running for U.S. Senate.',
-          pollingSupport: null,
-          pollingTrend: null,
-        });
-        candidateData.push({
-          name: 'Steve Garvey',
-          party: 'R',
-          electionId: election.id,
-          isIncumbent: false,
-          description: 'Former MLB player. Republican candidate for U.S. Senate.',
-          pollingSupport: null,
-          pollingTrend: null,
-        });
-      } else if (election.state === 'NY') {
-        candidateData.push({
-          name: 'Kirsten Gillibrand',
-          party: 'D',
-          electionId: election.id,
-          isIncumbent: true,
-          description: 'Incumbent U.S. Senator from New York.',
-          pollingSupport: null,
-          pollingTrend: null,
-        });
-      } else if (election.state === 'TX') {
-        candidateData.push({
-          name: 'Ted Cruz',
-          party: 'R',
-          electionId: election.id,
-          isIncumbent: true,
-          description: 'Incumbent U.S. Senator from Texas.',
-          pollingSupport: null,
-          pollingTrend: null,
-        });
-      } else if (election.state === 'FL') {
-        candidateData.push({
-          name: 'Rick Scott',
-          party: 'R',
-          electionId: election.id,
-          isIncumbent: true,
-          description: 'Incumbent U.S. Senator from Florida.',
-          pollingSupport: null,
-          pollingTrend: null,
-        });
-      }
-      // For other states: Don't add fake candidates - leave empty
-      // They will be added when API sync runs or admin adds them
-    }
-    // For Governor races and House races:
-    // Don't add placeholder candidates
-    // Wait for real data from APIs or admin entry
-  }
-
-  if (candidateData.length > 0) {
-    await db.insert(candidates).values(candidateData);
-    console.log(`   ✅ Inserted ${candidateData.length} REAL candidates`);
-  } else {
-    console.log(`   ⚠️  No confirmed candidates to seed (will be populated via API sync)`);
-  }
-}
-
-async function seedCongress() {
-  const congressData = [
-    // Sample Senate members
-    {
-      bioguideId: 'S000033',
-      name: 'Bernie Sanders',
-      party: 'Independent',
-      state: 'VT',
-      district: null,
-      chamber: 'senate',
-      title: 'Senator',
-      imageUrl: 'https://theunitedstates.io/images/congress/225x275/S000033.jpg',
-      startDate: new Date('2007-01-03'),
-      terms: 3,
-    },
-    {
-      bioguideId: 'S001181',
-      name: 'Jeanne Shaheen',
-      party: 'Democratic',
-      state: 'NH',
-      district: null,
-      chamber: 'senate',
-      title: 'Senator',
-      imageUrl: 'https://theunitedstates.io/images/congress/225x275/S001181.jpg',
-      startDate: new Date('2009-01-06'),
-      terms: 3,
-    },
-    // Sample House members
-    {
-      bioguideId: 'P000197',
-      name: 'Nancy Pelosi',
-      party: 'Democratic',
-      state: 'CA',
-      district: 11,
-      chamber: 'house',
-      title: 'Representative',
-      imageUrl: 'https://theunitedstates.io/images/congress/225x275/P000197.jpg',
-      startDate: new Date('1987-06-02'),
-      terms: 19,
-    },
-    {
-      bioguideId: 'O000172',
-      name: 'Alexandria Ocasio-Cortez',
-      party: 'Democratic',
-      state: 'NY',
-      district: 14,
-      chamber: 'house',
-      title: 'Representative',
-      imageUrl: 'https://theunitedstates.io/images/congress/225x275/O000172.jpg',
-      startDate: new Date('2019-01-03'),
-      terms: 3,
-    },
-  ];
-
-  await db.insert(congressMembers).values(congressData);
-  console.log(`   ✅ Inserted ${congressData.length} congress members`);
-}
-
 async function getStats() {
   const electionCount = await db.select({ count: sql`count(*)` }).from(elections);
   const candidateCount = await db.select({ count: sql`count(*)` }).from(candidates);
-  const congressCount = await db.select({ count: sql`count(*)` }).from(congressMembers);
-  
   return {
     elections: parseInt(electionCount[0]?.count?.toString() || '0'),
     candidates: parseInt(candidateCount[0]?.count?.toString() || '0'),
-    congress: parseInt(congressCount[0]?.count?.toString() || '0'),
   };
 }
 
-// Run if called directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Run if called directly (cross-platform path comparison)
+import { pathToFileURL } from 'url';
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   seedDatabase()
     .then(() => {
       console.log('✅ Seeding complete');

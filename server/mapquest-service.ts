@@ -29,17 +29,23 @@ interface LocationData {
 }
 
 export class MapQuestService {
-  private apiKey: string;
-  private baseUrl = 'http://www.mapquestapi.com/geocoding/v1';
+  private apiKey: string | null;
+  private baseUrl = 'https://www.mapquestapi.com/geocoding/v1';
 
   constructor() {
-    if (!process.env.MAPQUEST_API_KEY) {
-      throw new Error('MAPQUEST_API_KEY environment variable is required');
+    // Geocoding is an optional enhancement — service runs disabled without a key
+    this.apiKey = process.env.MAPQUEST_API_KEY || null;
+    if (!this.apiKey) {
+      console.warn('MAPQUEST_API_KEY not set — geocoding features disabled');
     }
-    this.apiKey = process.env.MAPQUEST_API_KEY;
+  }
+
+  get isEnabled(): boolean {
+    return this.apiKey !== null;
   }
 
   async geocodeAddress(address: string): Promise<LocationData | null> {
+    if (!this.apiKey) return null;
     try {
       const encodedAddress = encodeURIComponent(address);
       const url = `${this.baseUrl}/address?key=${this.apiKey}&location=${encodedAddress}`;
@@ -74,6 +80,7 @@ export class MapQuestService {
   }
 
   async reverseGeocode(latitude: number, longitude: number): Promise<LocationData | null> {
+    if (!this.apiKey) return null;
     try {
       const url = `${this.baseUrl}/reverse?key=${this.apiKey}&location=${latitude},${longitude}`;
       

@@ -20,16 +20,21 @@ export function formatCountdown(iso?: string, zone = "local") {
   if (!t) return { label: "TBD", urgent: false, live: false, severity: "neutral" as const };
   
   const now = DateTime.now().setZone(zone);
-  if (now.hasSame(t, "day")) return { label: "Today", urgent: true, live: false, severity: "urgent" as const };
-  if (now > t) return { label: "Completed", urgent: false, live: false, severity: "neutral" as const };
-  
+  if (now > t) {
+    // Still election day after the moment passes — show "Today", then "Completed"
+    if (now.hasSame(t, "day")) return { label: "Today", urgent: true, live: false, severity: "urgent" as const };
+    return { label: "Completed", urgent: false, live: false, severity: "neutral" as const };
+  }
+
   const diff = t.diffNow(["days", "hours", "minutes", "seconds"]);
   const d = Math.floor(diff.days);
   const h = Math.floor(diff.hours);
   const m = Math.floor(diff.minutes);
   const s = Math.max(0, Math.floor(diff.seconds));
 
+  // Under an hour away: precise mm:ss ticker beats a generic "Today"
   if (d === 0 && h === 0) return { label: `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`, urgent: true,  live: true, severity: "urgent" as const  };
+  if (now.hasSame(t, "day")) return { label: "Today", urgent: true, live: false, severity: "urgent" as const };
   if (d === 0)             return { label: `${h}h ${m}m`,                                        urgent: true,  live: false, severity: "urgent" as const };
   return                           { label: `${d}d ${h}h`,                                        urgent: false, live: false, severity: "normal" as const };
 }

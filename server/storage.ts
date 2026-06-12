@@ -63,7 +63,7 @@ export interface IStorage {
   searchElectionsWithAI(query: string): Promise<string>;
   expandElectionData(): Promise<void>;
   
-  // User Authentication (Replit Auth)
+  // User Authentication
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
   
@@ -1267,7 +1267,7 @@ export class DatabaseStorage implements IStorage {
 
   // Removed duplicate implementations - proper implementations are below in User Authentication Methods section
 
-  // Replit Authentication Methods (Required for Replit Auth)
+  // User Authentication Methods
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;

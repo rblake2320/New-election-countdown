@@ -100,3 +100,22 @@ export function makeApiKey() {
   const secret = nanoid(28);
   return { raw: `${prefix}_${secret}`, prefix };
 }
+
+// ── App-level auth wiring (JWT cookie sessions) ──
+
+import type { Express, RequestHandler } from "express";
+
+export async function setupAuth(_app: Express) {
+  // Auth is handled via JWT cookies — no OIDC setup needed
+}
+
+// Maps req.user.claims.sub → req.userId for protected routes
+export const isAuthenticated: RequestHandler = async (req: any, res, next) => {
+  const middleware = authRequired();
+  return middleware(req, res, (err?: any) => {
+    if (err) return next(err);
+    // Expose req.user.claims.sub for routes that read the OIDC-style shape
+    req.user = { claims: { sub: String(req.userId) } };
+    next();
+  });
+};

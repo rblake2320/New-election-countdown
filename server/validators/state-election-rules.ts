@@ -114,23 +114,22 @@ function isNovember(date: Date): boolean {
   return date.getUTCMonth() === 10; // 0-indexed, November = 10
 }
 
-// Validate that election is not mock/placeholder data
+// Validate that election is not mock/placeholder data.
+// Word-boundary matching is required: a substring check on 'demo' would
+// block every election that mentions the word "Democratic".
+const MOCK_INDICATOR_RE = /(test|demo|example|placeholder|mock|sample|dummy)/i;
+
 export function validateNotMockData(election: any): ValidationResult {
-  const mockIndicators = [
-    'test', 'demo', 'example', 'placeholder', 'mock', 'sample', 'dummy'
-  ];
-  
-  const titleLower = (election.title || '').toLowerCase();
-  const descLower = (election.description || '').toLowerCase();
-  
-  for (const indicator of mockIndicators) {
-    if (titleLower.includes(indicator) || descLower.includes(indicator)) {
-      return {
-        ok: false,
-        code: 'mock_data_detected',
-        message: `Election appears to be mock/test data (contains '${indicator}')`
-      };
-    }
+  const title = election.title || '';
+  const desc = election.description || '';
+
+  const match = title.match(MOCK_INDICATOR_RE) || desc.match(MOCK_INDICATOR_RE);
+  if (match) {
+    return {
+      ok: false,
+      code: 'mock_data_detected',
+      message: `Election appears to be mock/test data (contains '${match[1]}')`
+    };
   }
   
   // Check for obviously fake data patterns

@@ -7,7 +7,7 @@ import {
   RtoRpoMeasurement,
   PerformanceBenchmark
 } from '@shared/schema';
-import { isAuthenticated } from '../replitAuth';
+import { isAuthenticated } from '../auth';
 
 const router = Router();
 

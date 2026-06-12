@@ -237,7 +237,7 @@ function ElectionResultCard({ election }: { election: Election }) {
               </span>
               <span className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
-                {new Date(election.date).toLocaleDateString()}
+                {new Date(election.date).toLocaleDateString(undefined, { timeZone: 'UTC' })}
               </span>
               <Badge variant="outline">{election.type}</Badge>
               <Badge variant="outline">{election.level}</Badge>

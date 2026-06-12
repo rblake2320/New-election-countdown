@@ -5,8 +5,11 @@ import {
   NotificationPreferences,
   Election,
   Candidate,
-  ElectionResult
+  ElectionResult,
+  watchlist
 } from '@shared/schema';
+import { db } from '../db';
+import { eq } from 'drizzle-orm';
 import { notificationQueueService } from './notification-queue-service';
 import { notificationPreferencesService } from './notification-preferences-service';
 
@@ -342,12 +345,16 @@ export class AlertEngineService {
     context: EventContext
   ): Promise<string[]> {
     try {
-      // In real implementation, query database for users with matching preferences
-      // For now, return mock user IDs
-      const mockUsers = ['user1', 'user2', 'user3'];
-      
-      console.log(`👥 Found ${mockUsers.length} affected users for trigger: ${trigger.name}`);
-      return mockUsers;
+      // Users who have the affected election on their watchlist
+      const electionId = context.election?.id;
+      if (!electionId) return [];
+      const rows = await db
+        .select({ userId: watchlist.userId })
+        .from(watchlist)
+        .where(eq(watchlist.electionId, electionId));
+      const userIds = Array.from(new Set(rows.map(r => r.userId).filter(Boolean))) as string[];
+      console.log(`👥 Found ${userIds.length} affected users for trigger: ${trigger.name}`);
+      return userIds;
     } catch (error) {
       console.error('Failed to get affected users:', error);
       return [];
@@ -448,7 +455,7 @@ export class AlertEngineService {
       case 'urgent':
         return 'sms'; // SMS for urgent alerts
       case 'high':
-        return Math.random() > 0.7 ? 'sms' : 'email'; // Mostly email, some SMS
+        return 'email'; // Email for high priority (SMS reserved for urgent)
       default:
         return 'email'; // Email for normal/low priority
     }

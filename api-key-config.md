@@ -1,7 +1,7 @@
 # API Key Configuration Guide
 
 ## Provided API Key
-Key: `3637e88c-cbbc-496d-9ebc-a8c40d57d8c2`
+Key: (moved to .env — never commit keys)
 
 ## Required API Keys for Full Platform Functionality
 

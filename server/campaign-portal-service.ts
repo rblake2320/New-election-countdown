@@ -7,11 +7,12 @@ import {
   geographicClusters,
   pollingResults,
   elections,
+  voterInteractions,
   type InsertCampaignAccount,
   type InsertCampaignAccessLog,
   type InsertDataPurchase
 } from '@shared/schema';
-import { eq, and, gte, lte, count, avg, sum } from 'drizzle-orm';
+import { eq, and, gte, lte, count, avg, sum, sql } from 'drizzle-orm';
 import crypto from 'crypto';
 
 // Subscription tier pricing (in cents)
@@ -227,13 +228,30 @@ export class CampaignPortalService {
   }
 
   private async getTotalViews(electionId: number): Promise<number> {
-    // This would aggregate from interaction logs
-    return Math.floor(Math.random() * 10000) + 1000; // Placeholder
+    // Aggregate real interaction counts; 0 until tracking accumulates data
+    try {
+      const result = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(voterInteractions)
+        .where(eq(voterInteractions.electionId, electionId));
+      return Number(result[0]?.count ?? 0);
+    } catch {
+      return 0;
+    }
   }
 
   private async getEngagementScore(electionId: number): Promise<number> {
-    // Calculate based on time spent, interactions, etc.
-    return Math.floor(Math.random() * 100) + 1; // Placeholder
+    // Engagement = distinct real interaction types, scaled 0-100.
+    // Returns 0 until real interaction data accumulates.
+    try {
+      const result = await db
+        .select({ count: sql<number>`count(distinct ${voterInteractions.interactionType})` })
+        .from(voterInteractions)
+        .where(eq(voterInteractions.electionId, electionId));
+      return Math.min(100, Number(result[0]?.count ?? 0) * 20);
+    } catch {
+      return 0;
+    }
   }
 
   private async getStateLevelData(electionId: number): Promise<any> {

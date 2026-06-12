@@ -8,7 +8,7 @@ import { eq } from "drizzle-orm";
 import { getCongressBillService } from "./congress-bill-service";
 import { perplexityCongressService } from "./perplexity-congress-service";
 import { congressImportService } from "./congress-import-service";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, isAuthenticated } from "./auth";
 import { requireAdmin } from "./middleware/require-admin";
 import { mapQuestService } from "./mapquest-service";
 import { realTimeMonitor } from "./real-time-monitor";
@@ -139,7 +139,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     next();
   });
   
-  // Setup Replit authentication
+  // Setup authentication
   await setupAuth(app);
   
   // Register candidate portal routes
@@ -2007,7 +2007,10 @@ Please provide detailed, current information about this specific election.`;
           id: year,
           name: `${year} Election Cycle`,
           year,
-          slug: year.toString()
+          slug: year.toString(),
+          startDate: `${year}-01-01T00:00:00.000Z`,
+          endDate: `${year}-12-31T23:59:59.999Z`,
+          isActive: year === new Date().getFullYear()
         }));
       res.json(cycles);
     } catch (error: any) {

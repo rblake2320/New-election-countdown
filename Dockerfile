@@ -5,9 +5,9 @@ FROM node:24-alpine AS builder
 # Set working directory
 WORKDIR /app
 
-# Install dependencies first (better layer caching)
+# Install all dependencies (build requires devDependencies: vite, esbuild)
 COPY package*.json ./
-RUN npm ci --only=production && \
+RUN npm ci && \
     npm cache clean --force
 
 # Copy source code
@@ -32,16 +32,22 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install only production dependencies
-RUN npm ci --only=production && \
+# Full install (drizzle-kit/tsx needed for `db:push` schema management on the VPS)
+RUN npm ci && \
     npm cache clean --force
 
-# Copy built application from builder
+# Copy built application + schema tooling from builder
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
 COPY --from=builder --chown=nodejs:nodejs /app/shared ./shared
+COPY --from=builder --chown=nodejs:nodejs /app/server ./server
+COPY --from=builder --chown=nodejs:nodejs /app/drizzle.config.ts ./drizzle.config.ts
 
 # Switch to non-root user
 USER nodejs
+
+# Production environment
+ENV NODE_ENV=production
+ENV PORT=5000
 
 # Expose port
 EXPOSE 5000

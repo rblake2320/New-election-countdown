@@ -83,7 +83,12 @@ export default function ElectionDetails() {
     );
   }
 
-  const electionDate = election ? new Date(election.date) : new Date();
+  // Election dates are calendar dates at midnight UTC — re-anchor to local
+  // midnight so date-fns format() doesn't render the previous day.
+  const rawDate = election ? new Date(election.date) : new Date();
+  const electionDate = election
+    ? new Date(rawDate.getUTCFullYear(), rawDate.getUTCMonth(), rawDate.getUTCDate())
+    : rawDate;
   const isUpcoming = electionDate > new Date();
   const hasResults = candidates.some(c => c.votePercentage !== null);
 
@@ -142,11 +147,10 @@ export default function ElectionDetails() {
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="polling">Polling Trends</TabsTrigger>
           <TabsTrigger value="candidates">Candidates</TabsTrigger>
-          <TabsTrigger value="analysis">Analysis</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -260,28 +264,6 @@ export default function ElectionDetails() {
           )}
         </TabsContent>
 
-        <TabsContent value="analysis" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Election Analysis
-              </CardTitle>
-              <CardDescription>
-                AI-powered insights and trend analysis
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Advanced election analysis coming soon</p>
-                <p className="text-sm mt-2">
-                  This will include AI-powered insights, voting patterns, and predictive analytics
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
 
       {/* Candidate Details Modal */}

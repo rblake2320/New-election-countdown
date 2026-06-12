@@ -22,6 +22,15 @@ interface VersionSwitcherProps {
   compact?: boolean;
 }
 
+/** Formats the cycle date range, or returns null when dates are missing/invalid. */
+function formatCycleRange(cycle: ElectionCycle): string | null {
+  const start = new Date(cycle.startDate);
+  const end = new Date(cycle.endDate);
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) return null;
+  const opts = { timeZone: 'UTC' } as const;
+  return `${start.toLocaleDateString(undefined, opts)} - ${end.toLocaleDateString(undefined, opts)}`;
+}
+
 export function VersionSwitcher({ currentCycle, onCycleChange, compact = false }: VersionSwitcherProps) {
   const [selectedCycle, setSelectedCycle] = useState(currentCycle || "2026-midterm");
 
@@ -30,7 +39,7 @@ export function VersionSwitcher({ currentCycle, onCycleChange, compact = false }
     queryFn: async () => {
       const response = await fetch('/api/election-cycles');
       if (!response.ok) throw new Error('Failed to fetch election cycles');
-      return response.json() as ElectionCycle[];
+      return (await response.json()) as ElectionCycle[];
     },
   });
 
@@ -111,14 +120,13 @@ export function VersionSwitcher({ currentCycle, onCycleChange, compact = false }
 
         {selectedCycleData && (
           <div className="space-y-3 text-sm">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Calendar className="h-4 w-4" />
-              <span>
-                {new Date(selectedCycleData.startDate).toLocaleDateString()} - {' '}
-                {new Date(selectedCycleData.endDate).toLocaleDateString()}
-              </span>
-            </div>
-            
+            {formatCycleRange(selectedCycleData) && (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Calendar className="h-4 w-4" />
+                <span>{formatCycleRange(selectedCycleData)}</span>
+              </div>
+            )}
+
             <div className="flex items-center gap-2 text-muted-foreground">
               <Clock className="h-4 w-4" />
               <span>
@@ -126,10 +134,12 @@ export function VersionSwitcher({ currentCycle, onCycleChange, compact = false }
               </span>
             </div>
 
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Users className="h-4 w-4" />
-              <span className="capitalize">{selectedCycleData.type} Election Cycle</span>
-            </div>
+            {selectedCycleData.type && (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Users className="h-4 w-4" />
+                <span className="capitalize">{selectedCycleData.type} Election Cycle</span>
+              </div>
+            )}
           </div>
         )}
 

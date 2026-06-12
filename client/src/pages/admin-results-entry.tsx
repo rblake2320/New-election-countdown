@@ -300,7 +300,7 @@ export default function AdminResultsEntry() {
             <SelectContent>
               {elections.map(election => (
                 <SelectItem key={election.id} value={election.id.toString()}>
-                  {election.title} - {election.location} - {new Date(election.date).toLocaleDateString()}
+                  {election.title} - {election.location} - {new Date(election.date).toLocaleDateString(undefined, { timeZone: 'UTC' })}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -316,7 +316,7 @@ export default function AdminResultsEntry() {
             <AlertDescription>
               <strong>{selectedElection.title}</strong> - {selectedElection.location}
               <br />
-              Date: {new Date(selectedElection.date).toLocaleDateString()} | 
+              Date: {new Date(selectedElection.date).toLocaleDateString(undefined, { timeZone: 'UTC' })} | 
               Type: {selectedElection.type} | 
               Level: {selectedElection.level}
             </AlertDescription>

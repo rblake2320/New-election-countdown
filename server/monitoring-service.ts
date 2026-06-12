@@ -265,7 +265,7 @@ export class MonitoringService {
         revenueMetrics: {
           // Calculate based on subscription tiers
           monthlyRecurringRevenue: this.calculateMRR(campaignStats.rows),
-          dataExportRevenue: Math.floor(Math.random() * 50000) + 10000 // Simulated
+          dataExportRevenue: 0 // No data-export sales recorded yet
         }
       };
     } catch (error) {

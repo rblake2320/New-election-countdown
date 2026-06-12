@@ -42,6 +42,7 @@ export function AuthModal({ isOpen, onClose, onAuth }: AuthModalProps) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(formData),
       });
 
@@ -51,10 +52,8 @@ export function AuthModal({ isOpen, onClose, onAuth }: AuthModalProps) {
         throw new Error(data.error || 'Authentication failed');
       }
 
-      // Store token in localStorage
-      localStorage.setItem('authToken', data.token);
-      
-      onAuth(data.user, data.token);
+      // Session is established via httpOnly cookie set by the server
+      onAuth(data.user, data.sessionId);
       onClose();
       
       toast({

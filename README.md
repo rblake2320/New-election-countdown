@@ -197,17 +197,17 @@ For issues and questions:
 
 ## 🔄 Recent Updates
 
-### July 23, 2025
-- **Data Authenticity System**: Implemented comprehensive validation ensuring all polling percentages come from verified sources
-- **Michigan Primary Integration**: Added 9 real candidates with authentic FEC and state records
-- **Live Data Monitoring**: Continuous sync maintaining 601+ election count
-- **API Optimization**: Enhanced performance with proper caching and error handling
+### June 11, 2026 — Production readiness pass
+- **Verified 2026 dataset**: 537 elections seeded from verified sources (Ballotpedia, NCSL, state SOS, AP/NPR/CNN) — all 435 House races, 35 Senate races (incl. FL & OH specials), 36 governorships, upcoming primaries/runoffs, and House specials
+- **All synthetic data removed**: no generated candidates, no fabricated polling numbers, no fake vote counts — services return real data or honest empty states
+- **Replit fully removed**: standard PostgreSQL (pg driver), cookie-session JWT auth, cross-platform npm scripts, Docker production build
+- **Test suite repaired**: unit suite green (121 passing); integration/e2e suites separated (`npm run test:integration`, `npm run test:e2e`)
 
 ### Key Metrics
-- **601+ Elections** tracked across federal, state, and local levels
-- **100% Authentic Data** - No mock or placeholder percentages
-- **9 Michigan Candidates** added from verified sources
-- **Multiple API Integrations** for comprehensive coverage
+- **537 verified elections** tracked across federal and state levels
+- **120 verified candidates** with source-checked names, parties, and incumbency
+- **0 synthetic data points** — polling fields stay null until real polls are ingested
+- **Optional API integrations** degrade gracefully when keys are absent
 
 ---
 
