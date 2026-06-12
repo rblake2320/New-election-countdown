@@ -39,6 +39,21 @@ interface HealthStatus {
   candidates: number;
 }
 
+interface ProvenanceLayer {
+  dataSource: string;
+  sourceStatus: string;
+  ballotStatus: string;
+  total: number;
+  lastSynced: string | null;
+  sourceFileSha256: string | null;
+}
+
+interface Provenance {
+  cycle: number;
+  layers: ProvenanceLayer[];
+  labels: Record<string, string>;
+}
+
 /**
  * Admin Settings — live system status driven entirely by real endpoints.
  * API keys are configured via environment variables (.env) and require a
@@ -66,6 +81,15 @@ export default function AdminSettings() {
       return response.json();
     },
     refetchInterval: 30000,
+  });
+
+  const { data: provenance } = useQuery<Provenance>({
+    queryKey: ['/api/data-provenance'],
+    queryFn: async () => {
+      const response = await fetch('/api/data-provenance');
+      if (!response.ok) throw new Error('Failed to fetch provenance');
+      return response.json();
+    },
   });
 
   const allKeys: ServiceKey[] = [
@@ -116,6 +140,51 @@ export default function AdminSettings() {
         </TabsList>
 
         <TabsContent value="api-keys" className="space-y-4">
+          {provenance && (
+            <Card>
+              <CardHeader className="py-4">
+                <CardTitle className="text-base">Candidate Data Provenance — {provenance.cycle} cycle</CardTitle>
+                <CardDescription>
+                  Ballot status is <strong>not certified</strong> unless confirmed by a state
+                  election authority. FEC registration is a filing record, not ballot access.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {provenance.layers.map((layer) => (
+                  <div
+                    key={`${layer.dataSource}-${layer.sourceStatus}-${layer.ballotStatus}`}
+                    className="flex items-start justify-between gap-4 text-sm border-b last:border-b-0 pb-2 last:pb-0"
+                  >
+                    <div>
+                      <div className="font-medium">
+                        {layer.dataSource === 'fec_bulk' ? 'FEC Candidate Master' :
+                         layer.dataSource === 'editorial_verified' ? 'Editorial (source-verified)' :
+                         layer.dataSource}
+                        {' '}— {layer.total.toLocaleString()} candidates
+                      </div>
+                      <div className="text-muted-foreground text-xs mt-0.5">
+                        {provenance.labels[layer.sourceStatus] ?? layer.sourceStatus}
+                      </div>
+                      <div className="text-muted-foreground text-xs mt-0.5">
+                        Ballot status: <Badge variant="outline" className="text-xs">{layer.ballotStatus}</Badge>
+                        {layer.lastSynced && (
+                          <span className="ml-2">
+                            Last synced: {new Date(layer.lastSynced).toLocaleString()}
+                          </span>
+                        )}
+                      </div>
+                      {layer.sourceFileSha256 && (
+                        <div className="text-muted-foreground text-xs mt-0.5 font-mono">
+                          source sha256: {layer.sourceFileSha256.slice(0, 16)}…
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
               API keys are set in the server's <code>.env</code> file (restart required).

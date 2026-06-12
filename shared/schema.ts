@@ -41,6 +41,16 @@ export const candidates = pgTable("candidates", {
   dataSource: text("data_source"), // 'fec_bulk' | 'fec_api' | 'editorial_verified' | 'state_ballot'
   sourceStatus: text("source_status"), // 'fec_registered' | 'ballot_certified' | 'editorial_verified'
   fecStatus: text("fec_status"), // raw FEC CAND_STATUS: C=statutory candidate, F=future, N=not yet, P=prior
+  normalizedName: text("normalized_name"), // lowercase a-z0-9 for dedupe/collision checks
+  // Ballot certification layer — FEC registration is NOT ballot access.
+  // Only state SOS / board-of-elections ingestion may set 'certified'.
+  ballotStatus: text("ballot_status").default("not_certified"), // 'not_certified' | 'certified' | 'withdrawn' | 'disqualified'
+  ballotSourceName: text("ballot_source_name"), // e.g. 'Texas Secretary of State'
+  ballotSourceUrl: text("ballot_source_url"),
+  ballotVerifiedAt: timestamp("ballot_verified_at"),
+  sourceFileSha256: text("source_file_sha256"), // hash of the bulk file this row came from
+  sourceSyncedAt: timestamp("source_synced_at"),
+  altFecIds: text("alt_fec_ids"), // comma-separated duplicate FEC registrations merged into this row
   // Candidate Management Fields
   isVerified: boolean("is_verified").default(false), // platform verified candidate
   subscriptionTier: text("subscription_tier"), // 'basic', 'premium', 'enterprise'
@@ -51,7 +61,11 @@ export const candidates = pgTable("candidates", {
   socialMedia: jsonb("social_media"), // {twitter, facebook, instagram, tiktok, youtube}
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-});
+}, (table) => [
+  index("idx_candidates_fec_candidate_id").on(table.fecCandidateId),
+  index("idx_candidates_ballot_status").on(table.ballotStatus),
+  index("idx_candidates_election_normalized").on(table.electionId, table.normalizedName),
+]);
 
 export const electionResults = pgTable("election_results", {
   id: serial("id").primaryKey(),

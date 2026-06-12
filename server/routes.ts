@@ -222,6 +222,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Data provenance — what each candidate layer is and when it was synced
+  app.get("/api/data-provenance", async (_req, res) => {
+    try {
+      const { db } = await import('./db');
+      const { sql } = await import('drizzle-orm');
+      const result: any = await db.execute(sql`
+        SELECT data_source, source_status, ballot_status,
+               COUNT(*)::int AS total,
+               MAX(source_synced_at) AS last_synced,
+               MAX(source_file_sha256) AS source_file_sha256
+        FROM candidates
+        GROUP BY data_source, source_status, ballot_status
+        ORDER BY total DESC
+      `);
+      const rows: any[] = result.rows ?? result;
+      res.json({
+        cycle: 2026,
+        layers: rows.map((r) => ({
+          dataSource: r.data_source,
+          sourceStatus: r.source_status,
+          ballotStatus: r.ballot_status,
+          total: r.total,
+          lastSynced: r.last_synced,
+          sourceFileSha256: r.source_file_sha256,
+        })),
+        labels: {
+          fec_registered:
+            'FEC Candidate Master — FEC-registered. NOT ballot-certified unless confirmed by a state election authority.',
+          editorial_verified:
+            'Editorially verified against Ballotpedia/NCSL/state sources (2026-06-11 research pass).',
+          ballot_certified:
+            'Confirmed on an official state ballot list (Secretary of State / Board of Elections).',
+        },
+      });
+    } catch (error) {
+      console.error('Provenance query failed:', error);
+      res.status(500).json({ error: 'provenance_unavailable' });
+    }
+  });
+
   // Frontend notification summary for missing API keys
   app.get("/api/services/notification-summary", async (req, res) => {
     try {

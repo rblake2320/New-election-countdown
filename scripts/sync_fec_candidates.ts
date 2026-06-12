@@ -25,6 +25,7 @@ config();
 
 import { execSync } from 'child_process';
 import { existsSync, readFileSync, mkdirSync, writeFileSync } from 'fs';
+import { createHash } from 'crypto';
 import path from 'path';
 import JSZip from 'jszip';
 
@@ -69,6 +70,7 @@ interface FecRow {
   district: string;   // '00'..'53'
   ici: string;        // I=incumbent, C=challenger, O=open seat
   status: string;     // C, F, N, P
+  pcc: string;        // principal campaign committee ID ('' if none)
 }
 
 function parseArgs() {
@@ -96,7 +98,7 @@ function titleCase(s: string): string {
     .replace(/\bMc([a-z])/g, (_m, c) => `Mc${c.toUpperCase()}`);
 }
 
-async function fetchCandidateMaster(workDir: string): Promise<string> {
+async function fetchCandidateMaster(workDir: string): Promise<{ text: string; sha256: string }> {
   mkdirSync(workDir, { recursive: true });
   const zipPath = path.join(workDir, 'cn26.zip');
 
@@ -107,14 +109,16 @@ async function fetchCandidateMaster(workDir: string): Promise<string> {
     console.log(`📦 Using cached ${zipPath}`);
   }
 
-  const zip = await JSZip.loadAsync(readFileSync(zipPath));
+  const zipBytes = readFileSync(zipPath);
+  const sha256 = createHash('sha256').update(zipBytes).digest('hex');
+  const zip = await JSZip.loadAsync(zipBytes);
   const entry = Object.values(zip.files).find((f) => f.name.toLowerCase().endsWith('.txt'));
   if (!entry) throw new Error('cn26.zip contains no .txt data file');
   const text = await entry.async('string');
   const txtPath = path.join(workDir, 'cn26.txt');
   writeFileSync(txtPath, text);
-  console.log(`✅ Extracted ${entry.name} (${text.length.toLocaleString()} bytes)`);
-  return text;
+  console.log(`✅ Extracted ${entry.name} (${text.length.toLocaleString()} bytes, zip sha256 ${sha256.slice(0, 16)}…)`);
+  return { text, sha256 };
 }
 
 function parseRows(raw: string, includePrior: boolean): FecRow[] {
@@ -126,7 +130,7 @@ function parseRows(raw: string, includePrior: boolean): FecRow[] {
     const f = line.split('|');
     // cn header: CAND_ID|CAND_NAME|CAND_PTY_AFFILIATION|CAND_ELECTION_YR|CAND_OFFICE_ST|
     //            CAND_OFFICE|CAND_OFFICE_DISTRICT|CAND_ICI|CAND_STATUS|CAND_PCC|...
-    const [candId, name, partyRaw, electionYr, state, office, district, ici, status] = f;
+    const [candId, name, partyRaw, electionYr, state, office, district, ici, status, pcc] = f;
     if (electionYr !== CYCLE) continue;
     if (office !== 'H' && office !== 'S') continue;
     if (!STATES_50.has(state)) continue;
@@ -145,6 +149,7 @@ function parseRows(raw: string, includePrior: boolean): FecRow[] {
       district: (district || '00').padStart(2, '0'),
       ici: ici || '',
       status,
+      pcc: (pcc || '').trim(),
     });
   }
   return rows;
@@ -156,9 +161,30 @@ async function main() {
   const { elections, candidates } = await import('../shared/schema');
   const { eq, and, sql } = await import('drizzle-orm');
 
-  const raw = await fetchCandidateMaster(path.join(process.cwd(), 'election-data-2026'));
-  const rows = parseRows(raw, includePrior);
+  const { text: raw, sha256 } = await fetchCandidateMaster(path.join(process.cwd(), 'election-data-2026'));
+  const syncedAt = new Date();
+  let rows = parseRows(raw, includePrior);
   console.log(`📋 ${rows.length} FEC 2026 House/Senate candidate records (statuses: ${includePrior ? 'C,F,N,P' : 'C,F'})`);
+
+  // Merge duplicate registrations: one person, one race, multiple FEC IDs
+  // (re-filed Form 2s). Canonical row = has principal campaign committee,
+  // tie-break newest candidate ID; alternates preserved in alt_fec_ids.
+  const grouped = new Map<string, FecRow[]>();
+  for (const r of rows) {
+    const key = `${r.office}|${r.state}|${r.district}|${normalizeName(r.displayName)}|${r.party}`;
+    const g = grouped.get(key) ?? [];
+    g.push(r);
+    grouped.set(key, g);
+  }
+  const altIdsByCanonical = new Map<string, string[]>();
+  rows = Array.from(grouped.values()).map((g) => {
+    if (g.length === 1) return g[0];
+    g.sort((a, b) => (b.pcc ? 1 : 0) - (a.pcc ? 1 : 0) || b.candId.localeCompare(a.candId));
+    altIdsByCanonical.set(g[0].candId, g.slice(1).map((r) => r.candId));
+    return g[0];
+  });
+  const mergedDupes = Array.from(altIdsByCanonical.values()).reduce((a, b) => a + b.length, 0);
+  if (mergedDupes > 0) console.log(`🔀 Merged ${mergedDupes} duplicate FEC registrations into canonical rows`);
 
   // Build race → electionId lookup from the seeded general elections
   const allElections = await db.select().from(elections);
@@ -214,7 +240,15 @@ async function main() {
       continue;
     }
 
-    if (byFecId.has(row.candId)) {
+    const known = byFecId.get(row.candId);
+    if (known) {
+      // Refresh sync metadata + status on already-imported rows
+      if (!dryRun) {
+        await db
+          .update(candidates)
+          .set({ fecStatus: row.status, sourceFileSha256: sha256, sourceSyncedAt: syncedAt, updatedAt: new Date() })
+          .where(eq(candidates.id, known.id));
+      }
       skippedExisting++;
       continue;
     }
@@ -225,7 +259,13 @@ async function main() {
       if (!dryRun) {
         await db
           .update(candidates)
-          .set({ fecCandidateId: row.candId, fecStatus: row.status, updatedAt: new Date() })
+          .set({
+            fecCandidateId: row.candId,
+            fecStatus: row.status,
+            sourceFileSha256: sha256,
+            sourceSyncedAt: syncedAt,
+            updatedAt: new Date(),
+          })
           .where(eq(candidates.id, editorialMatch.id));
       }
       enriched++;
@@ -243,6 +283,11 @@ async function main() {
         dataSource: 'fec_bulk',
         sourceStatus: 'fec_registered',
         fecStatus: row.status,
+        normalizedName: normalizeName(row.displayName),
+        ballotStatus: 'not_certified',
+        altFecIds: altIdsByCanonical.get(row.candId)?.join(',') ?? null,
+        sourceFileSha256: sha256,
+        sourceSyncedAt: syncedAt,
         pollingSupport: null,
         pollingTrend: null,
       });
@@ -250,13 +295,56 @@ async function main() {
     inserted++;
   }
 
-  // Stamp provenance on the editorial seed rows that still lack it
+  // Stamp provenance on the editorial seed rows that still lack it,
+  // and backfill normalized_name everywhere for collision checks
   if (!dryRun) {
     await db.execute(sql`
       UPDATE candidates
       SET data_source = 'editorial_verified', source_status = 'editorial_verified'
       WHERE data_source IS NULL
     `);
+    await db.execute(sql`
+      UPDATE candidates
+      SET normalized_name = lower(regexp_replace(name, '[^a-zA-Z0-9]', '', 'g'))
+      WHERE normalized_name IS NULL
+    `);
+  }
+
+  // Self-heal: collapse same-person duplicate rows already in the DB
+  // (same election + normalized name + party, all fec_bulk). Keep the row
+  // whose FEC ID survived dedupe above (or the newest), merge alternates.
+  if (!dryRun) {
+    const dupGroups = await db.execute(sql`
+      SELECT election_id, normalized_name, party,
+             array_agg(id ORDER BY fec_candidate_id DESC) AS ids,
+             array_agg(fec_candidate_id ORDER BY fec_candidate_id DESC) AS fec_ids
+      FROM candidates
+      WHERE data_source = 'fec_bulk'
+      GROUP BY election_id, normalized_name, party
+      HAVING COUNT(*) > 1
+    `);
+    const dupRows: any[] = (dupGroups as any).rows ?? dupGroups;
+    let collapsed = 0;
+    for (const g of dupRows) {
+      const ids: number[] = g.ids;
+      const fecIds: string[] = g.fec_ids;
+      // Prefer the canonical id chosen by this run's dedupe if present
+      let keepIdx = fecIds.findIndex((fid) => altIdsByCanonical.has(fid));
+      if (keepIdx === -1) keepIdx = 0; // newest FEC ID
+      const keepId = ids[keepIdx];
+      const dropIds = ids.filter((id) => id !== keepId);
+      const altIds = fecIds.filter((_, i) => ids[i] !== keepId);
+      const dropList = dropIds.map((id) => parseInt(String(id), 10)).filter(Number.isFinite);
+      await db.execute(sql`
+        UPDATE candidates SET alt_fec_ids = ${altIds.join(',')}
+        WHERE id = ${keepId}
+      `);
+      if (dropList.length > 0) {
+        await db.execute(sql.raw(`DELETE FROM candidates WHERE id IN (${dropList.join(',')})`));
+      }
+      collapsed += dropIds.length;
+    }
+    if (collapsed > 0) console.log(`🧹 Collapsed ${collapsed} pre-existing duplicate rows (alt IDs preserved)`);
   }
 
   console.log('— Sync complete —');
@@ -270,10 +358,11 @@ async function main() {
   const manifest = {
     source_name: 'FEC bulk candidate master (cn26)',
     source_url: FEC_BULK_URL,
+    source_file_sha256: sha256,
     cycle: CYCLE,
     statuses: includePrior ? ['C', 'F', 'N', 'P'] : ['C', 'F'],
     label: 'fec_registered (NOT state ballot certification)',
-    fetched_at: new Date().toISOString(),
+    fetched_at: syncedAt.toISOString(),
     records_parsed: rows.length,
     inserted, enriched, skippedExisting, unmatchedRace,
   };

@@ -197,16 +197,19 @@ For issues and questions:
 
 ## 🔄 Recent Updates
 
-### June 11, 2026 — Production readiness pass
-- **Verified 2026 dataset**: 537 elections seeded from verified sources (Ballotpedia, NCSL, state SOS, AP/NPR/CNN) — all 435 House races, 35 Senate races (incl. FL & OH specials), 36 governorships, upcoming primaries/runoffs, and House specials
+### June 11, 2026 — Production readiness pass + FEC backbone
+- **2026 race shells**: 537 election events seeded with source-checked dates and offices (Ballotpedia, NCSL, state SOS) — all 435 House seats, 35 Senate races (incl. FL & OH specials), 36 governorships, upcoming primaries/runoffs, and House specials
+- **FEC candidate layer**: 2,237 FEC-registered congressional candidate records ingested from the official FEC Candidate Master (cycle 2026, statuses C/F), with FEC IDs, sha256 source hashes, sync timestamps, and duplicate-registration merging
+- **Honest labeling**: FEC records are *FEC-registered*, not ballot-certified — ballot status stays `not_certified` until confirmed against official state ballot lists (`scripts/ingest_state_ballot_certification.ts` is the next layer)
 - **All synthetic data removed**: no generated candidates, no fabricated polling numbers, no fake vote counts — services return real data or honest empty states
 - **Replit fully removed**: standard PostgreSQL (pg driver), cookie-session JWT auth, cross-platform npm scripts, Docker production build
 - **Test suite repaired**: unit suite green (121 passing); integration/e2e suites separated (`npm run test:integration`, `npm run test:e2e`)
 
 ### Key Metrics
-- **537 verified elections** tracked across federal and state levels
-- **120 verified candidates** with source-checked names, parties, and incumbency
+- **537 election events** (2026 race shells with source-checked dates/offices)
+- **2,237 FEC-registered candidates** from official FEC filings + **120 editorially source-verified** records
 - **0 synthetic data points** — polling fields stay null until real polls are ingested
+- **Ballot certification pending** — every record carries `ballot_status: not_certified` until state ingestion confirms it
 - **Optional API integrations** degrade gracefully when keys are absent
 
 ---
