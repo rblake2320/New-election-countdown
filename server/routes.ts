@@ -1662,72 +1662,9 @@ Please provide detailed, current information about this specific election.`;
     }
   });
 
-  // Watchlist endpoints
-  app.get('/api/watchlist', async (req, res) => {
-    try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
-      if (!user) {
-        return res.status(401).json({ error: 'Invalid token' });
-      }
-
-      const watchlist = await storage.getUserWatchlist(user.id);
-      res.json(watchlist);
-    } catch (error: any) {
-      console.error('Error fetching watchlist:', error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-
-  app.post('/api/watchlist', async (req, res) => {
-    try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
-      if (!user) {
-        return res.status(401).json({ error: 'Invalid token' });
-      }
-
-      const { electionId } = req.body;
-      if (!electionId) {
-        return res.status(400).json({ error: 'Election ID is required' });
-      }
-
-      await storage.addToWatchlist(user.id, electionId);
-      res.json({ message: 'Added to watchlist' });
-    } catch (error: any) {
-      console.error('Error adding to watchlist:', error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-
-  app.delete('/api/watchlist/:electionId', async (req, res) => {
-    try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
-      if (!user) {
-        return res.status(401).json({ error: 'Invalid token' });
-      }
-
-      const electionId = parseInt(req.params.electionId);
-      await storage.removeFromWatchlist(user.id, electionId);
-      res.json({ message: 'Removed from watchlist' });
-    } catch (error: any) {
-      console.error('Error removing from watchlist:', error);
-      res.status(500).json({ error: error.message });
-    }
-  });
+  // NOTE: /api/watchlist routes are defined once, later in this file, using
+  // cookie-session auth (isAuthenticated). Bearer-token duplicates that
+  // shadowed them were removed.
 
   // Initialize recommendation service
   const recommendationService = new RecommendationService(storage);

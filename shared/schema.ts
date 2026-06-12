@@ -1,5 +1,5 @@
 import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar, numeric, bigint, index } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -93,13 +93,49 @@ export const sessions = pgTable(
 
 // User storage table for auth
 export const users = pgTable("users", {
-  id: varchar("id").primaryKey().notNull(),
+  // varchar id (kept for legacy FK compatibility) — now auto-generated
+  id: varchar("id").primaryKey().notNull().default(sql`gen_random_uuid()`),
   email: varchar("email").unique(),
+  passwordHash: text("password_hash"),
+  emailVerified: boolean("email_verified").default(false),
+  role: varchar("role").default("user"), // 'user' | 'admin'
+  lastLogin: timestamp("last_login"),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Auth sessions (cookie JWT sessions w/ revocation).
+// NOTE: distinct from `user_sessions`, which is the analytics sessions table.
+export const authSessions = pgTable("auth_sessions", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  jti: varchar("jti").notNull(),
+  userAgent: text("user_agent"),
+  ip: text("ip"),
+  revoked: boolean("revoked").default(false),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_auth_sessions_user_jti").on(table.userId, table.jti),
+]);
+
+export const emailVerificationTokens = pgTable("email_verification_tokens", {
+  token: varchar("token").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  used: boolean("used").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const passwordResetTokens = pgTable("password_reset_tokens", {
+  token: varchar("token").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  used: boolean("used").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 // Enhanced Watchlist with Organization Features

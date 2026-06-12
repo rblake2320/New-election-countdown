@@ -16,12 +16,12 @@ if (!process.env.JWT_SECRET) {
   console.log("⚠️  Generated JWT_SECRET - add to .env for production");
 }
 
-export function signSession(payload: { uid: number; jti: string }, hours = SESSION_TTL_HOURS) {
+export function signSession(payload: { uid: string; jti: string }, hours = SESSION_TTL_HOURS) {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: `${hours}h` });
 }
 
 export function verifySession(token: string) {
-  return jwt.verify(token, JWT_SECRET) as { uid: number; jti: string; iat: number; exp: number };
+  return jwt.verify(token, JWT_SECRET) as { uid: string; jti: string; iat: number; exp: number };
 }
 
 export function setSessionCookie(res: Response, token: string) {
@@ -34,19 +34,20 @@ export function setSessionCookie(res: Response, token: string) {
   });
 }
 
-export async function createSession(userId: number, ua: string | null, ip: string | null) {
+export async function createSession(userId: string, ua: string | null, ip: string | null) {
   const jti = crypto.randomUUID();
   const expiresAt = new Date(Date.now() + SESSION_TTL_HOURS * 3600 * 1000);
+  // auth_sessions, NOT user_sessions (that's the analytics table)
   await pool.query(
-    `INSERT INTO user_sessions(user_id, jti, user_agent, ip, expires_at) VALUES($1,$2,$3,$4,$5)`,
+    `INSERT INTO auth_sessions(user_id, jti, user_agent, ip, expires_at) VALUES($1,$2,$3,$4,$5)`,
     [userId, jti, ua, ip, expiresAt]
   );
   const token = signSession({ uid: userId, jti });
   return token;
 }
 
-export async function revokeSession(userId: number, jti: string) {
-  await pool.query(`UPDATE user_sessions SET revoked = TRUE WHERE user_id=$1 AND jti=$2`, [userId, jti]);
+export async function revokeSession(userId: string, jti: string) {
+  await pool.query(`UPDATE auth_sessions SET revoked = TRUE WHERE user_id=$1 AND jti=$2`, [userId, jti]);
 }
 
 export function authRequired() {
@@ -61,7 +62,7 @@ export function authRequired() {
       // Try database validation first if available
       try {
         const q = await pool.query(
-          `SELECT 1 FROM user_sessions WHERE user_id=$1 AND jti=$2 AND revoked=FALSE AND now() < expires_at`,
+          `SELECT 1 FROM auth_sessions WHERE user_id=$1 AND jti=$2 AND revoked=FALSE AND now() < expires_at`,
           [uid, jti]
         );
         

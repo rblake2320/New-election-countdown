@@ -133,12 +133,12 @@ router.post("/register", async (req, res) => {
     // Create session - fallback to memory-only mode during database outages
     let token;
     try {
-      token = await createSession(Number(userData.id), req.get("user-agent") || null, req.ip || null);
+      token = await createSession(String(userData.id), req.get("user-agent") || null, req.ip || null);
     } catch (sessionError) {
       console.log("⚠️ Database session creation failed, using temporary session");
       // Generate temporary JWT token for memory-only mode using proper auth format
       const jti = crypto.randomUUID();
-      token = signSession({ uid: Number(userData.id), jti });
+      token = signSession({ uid: String(userData.id), jti });
     }
   setSessionCookie(res, token);
 

@@ -1,143 +1,109 @@
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import { db } from './db';
-import { users, sessions, type User, type UpsertUser } from '@shared/schema';
-import { eq } from 'drizzle-orm';
+import { users, authSessions, type User } from '@shared/schema';
+import { eq, and, gt } from 'drizzle-orm';
+import { hashPassword, verifyPassword, signSession, verifySession } from './auth';
+import crypto from 'crypto';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
+const SESSION_TTL_HOURS = parseInt(process.env.SESSION_TTL_HOURS || '720', 10); // 30 days
 
 export interface AuthResponse {
   user: Omit<User, 'passwordHash'>;
   token: string;
 }
 
+/**
+ * User account service. Password hashing uses argon2 via ./auth helpers —
+ * the same primitives the /api/auth/login route verifies with. Sessions are
+ * JWT (uid + jti) backed by the auth_sessions table for revocation.
+ */
 export class AuthService {
   async signup(email: string, password: string): Promise<AuthResponse> {
-    // Check if user already exists
     const existingUser = await this.getUserByEmail(email);
     if (existingUser) {
       throw new Error('User already exists with this email');
     }
 
-    // Hash password
-    const saltRounds = 10;
-    const passwordHash = await bcrypt.hash(password, saltRounds);
+    const passwordHash = await hashPassword(password);
 
-    // Create user
     const [newUser] = await db
       .insert(users)
-      .values({
-        email,
-        passwordHash,
-      })
+      .values({ email, passwordHash })
       .returning();
 
-    // Create session
     const token = await this.createSession(newUser.id);
 
-    return {
-      user: this.sanitizeUser(newUser),
-      token,
-    };
+    return { user: this.sanitizeUser(newUser), token };
   }
 
   async signin(email: string, password: string): Promise<AuthResponse> {
-    // Find user
     const user = await this.getUserByEmail(email);
-    if (!user) {
+    if (!user || !user.passwordHash) {
       throw new Error('Invalid credentials');
     }
 
-    // Verify password
-    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+    const isPasswordValid = await verifyPassword(user.passwordHash, password);
     if (!isPasswordValid) {
       throw new Error('Invalid credentials');
     }
 
-    // Update last login
-    await db
-      .update(users)
-      .set({ lastLogin: new Date() })
-      .where(eq(users.id, user.id));
+    await db.update(users).set({ lastLogin: new Date() }).where(eq(users.id, user.id));
 
-    // Create session
     const token = await this.createSession(user.id);
 
-    return {
-      user: this.sanitizeUser(user),
-      token,
-    };
+    return { user: this.sanitizeUser(user), token };
   }
 
   async validateSession(token: string): Promise<User | null> {
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as { userId: number; sessionId: string };
-      
-      // Check if session exists and is valid
+      const { uid, jti } = verifySession(token);
+
       const [session] = await db
         .select()
-        .from(userSessions)
-        .where(eq(userSessions.sessionToken, token));
+        .from(authSessions)
+        .where(
+          and(
+            eq(authSessions.userId, uid),
+            eq(authSessions.jti, jti),
+            eq(authSessions.revoked, false),
+            gt(authSessions.expiresAt, new Date()),
+          ),
+        );
+      if (!session) return null;
 
-      if (!session || session.expiresAt < new Date()) {
-        return null;
-      }
-
-      // Get user
-      const user = await this.getUserById(decoded.userId);
-      return user;
-    } catch (error) {
+      return await this.getUserById(uid);
+    } catch {
       return null;
     }
   }
 
   async signout(token: string): Promise<void> {
     try {
-      // Remove session from database
+      const { uid, jti } = verifySession(token);
       await db
-        .delete(userSessions)
-        .where(eq(userSessions.sessionToken, token));
+        .update(authSessions)
+        .set({ revoked: true })
+        .where(and(eq(authSessions.userId, uid), eq(authSessions.jti, jti)));
     } catch (error) {
       console.error('Error during signout:', error);
     }
   }
 
-  private async createSession(userId: number): Promise<string> {
-    const sessionToken = jwt.sign(
-      { userId, sessionId: `session_${Date.now()}` },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
+  private async createSession(userId: string): Promise<string> {
+    const jti = crypto.randomUUID();
+    const expiresAt = new Date(Date.now() + SESSION_TTL_HOURS * 3600 * 1000);
 
-    const expiresAt = new Date(Date.now() + SESSION_DURATION);
+    await db.insert(authSessions).values({ userId, jti, expiresAt });
 
-    await db
-      .insert(userSessions)
-      .values({
-        userId,
-        sessionToken,
-        expiresAt,
-      });
-
-    return sessionToken;
+    return signSession({ uid: userId, jti });
   }
 
   private async getUserByEmail(email: string): Promise<User | null> {
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.email, email));
-    
+    const [user] = await db.select().from(users).where(eq(users.email, email));
     return user || null;
   }
 
-  private async getUserById(id: number): Promise<User | null> {
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, id));
-    
+  private async getUserById(id: string): Promise<User | null> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
     return user || null;
   }
 
