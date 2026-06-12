@@ -36,6 +36,11 @@ export const candidates = pgTable("candidates", {
   votePercentage: numeric("vote_percentage", { precision: 5, scale: 2 }), // percentage of total votes
   isWinner: boolean("is_winner").default(false), // election winner
   isProjectedWinner: boolean("is_projected_winner").default(false), // early projection
+  // Data provenance — where this candidate record came from
+  fecCandidateId: text("fec_candidate_id"), // e.g. 'H6TX21301' — unique FEC ID
+  dataSource: text("data_source"), // 'fec_bulk' | 'fec_api' | 'editorial_verified' | 'state_ballot'
+  sourceStatus: text("source_status"), // 'fec_registered' | 'ballot_certified' | 'editorial_verified'
+  fecStatus: text("fec_status"), // raw FEC CAND_STATUS: C=statutory candidate, F=future, N=not yet, P=prior
   // Candidate Management Fields
   isVerified: boolean("is_verified").default(false), // platform verified candidate
   subscriptionTier: text("subscription_tier"), // 'basic', 'premium', 'enterprise'
