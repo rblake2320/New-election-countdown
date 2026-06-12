@@ -322,11 +322,32 @@ export const UPCOMING_PRIMARIES: SeedRace[] = [
 
 // ── Upcoming runoffs (after 2026-06-11) ──
 export const UPCOMING_RUNOFFS: SeedRace[] = [
-  { state: "AL", title: "Alabama Primary Runoff", subtitle: "Senate runoffs (both parties)", type: "runoff", level: "state", office: "U.S. Senate", date: "2026-06-16", description: "GOP: Barry Moore vs Jared Hudson. Dem: Dakarai Larriett vs Everett Wess.", candidates: [] },
-  { state: "GA", title: "Georgia Primary Runoff", subtitle: "GOP Senate and Governor runoffs", type: "runoff", level: "state", office: "U.S. Senate / Governor", date: "2026-06-16", description: "Senate GOP: Mike Collins vs Derek Dooley. Governor GOP: Burt Jones vs Rick Jackson.", candidates: [] },
-  { state: "SC", title: "South Carolina Primary Runoff", subtitle: "GOP Governor runoff", type: "runoff", level: "state", office: "Governor", date: "2026-06-23", description: "GOP: Pamela Evette vs Alan Wilson.", candidates: [] },
-  { state: "LA", title: "Louisiana Primary Runoff", subtitle: "Senate runoffs (both parties)", type: "runoff", level: "state", office: "U.S. Senate", date: "2026-06-27", description: "GOP: Julia Letlow vs John Fleming. Dem: Gary Crockett vs Jamie Davis.", candidates: [] },
-  { state: "SD", title: "South Dakota Primary Runoff", subtitle: "GOP Governor runoff", type: "runoff", level: "state", office: "Governor", date: "2026-07-28", description: "GOP: Larry Rhoden vs Toby Doeden.", candidates: [] },
+  { state: "AL", title: "Alabama Primary Runoff", subtitle: "Senate runoffs (both parties)", type: "runoff", level: "state", office: "U.S. Senate", date: "2026-06-16", description: "GOP: Barry Moore vs Jared Hudson. Dem: Dakarai Larriett vs Everett Wess.", candidates: [
+    { name: "Barry Moore", party: "R", isIncumbent: false, description: "U.S. Representative (AL-01); GOP Senate runoff candidate (Trump-endorsed)." },
+    { name: "Jared Hudson", party: "R", isIncumbent: false, description: "Former Navy SEAL; GOP Senate runoff candidate." },
+    { name: "Dakarai Larriett", party: "D", isIncumbent: false, description: "Businessman; Democratic Senate runoff candidate." },
+    { name: "Everett Wess", party: "D", isIncumbent: false, description: "Pastor; Democratic Senate runoff candidate." },
+  ]},
+  { state: "GA", title: "Georgia Primary Runoff", subtitle: "GOP Senate and Governor runoffs", type: "runoff", level: "state", office: "U.S. Senate / Governor", date: "2026-06-16", description: "Senate GOP: Mike Collins vs Derek Dooley. Governor GOP: Burt Jones vs Rick Jackson.", candidates: [
+    { name: "Mike Collins", party: "R", isIncumbent: false, description: "U.S. Representative (GA-10); GOP Senate runoff candidate." },
+    { name: "Derek Dooley", party: "R", isIncumbent: false, description: "Former Tennessee football head coach; GOP Senate runoff candidate." },
+    { name: "Burt Jones", party: "R", isIncumbent: false, description: "Lieutenant Governor of Georgia; GOP Governor runoff candidate." },
+    { name: "Rick Jackson", party: "R", isIncumbent: false, description: "Businessman; GOP Governor runoff candidate." },
+  ]},
+  { state: "SC", title: "South Carolina Primary Runoff", subtitle: "GOP Governor runoff", type: "runoff", level: "state", office: "Governor", date: "2026-06-23", description: "GOP: Pamela Evette vs Alan Wilson.", candidates: [
+    { name: "Pamela Evette", party: "R", isIncumbent: false, description: "Lieutenant Governor of South Carolina; GOP Governor runoff candidate." },
+    { name: "Alan Wilson", party: "R", isIncumbent: false, description: "South Carolina Attorney General; GOP Governor runoff candidate." },
+  ]},
+  { state: "LA", title: "Louisiana Primary Runoff", subtitle: "Senate runoffs (both parties)", type: "runoff", level: "state", office: "U.S. Senate", date: "2026-06-27", description: "GOP: Julia Letlow vs John Fleming. Dem: Gary Crockett vs Jamie Davis.", candidates: [
+    { name: "Julia Letlow", party: "R", isIncumbent: false, description: "U.S. Representative (LA-05); GOP Senate runoff candidate." },
+    { name: "John Fleming", party: "R", isIncumbent: false, description: "Louisiana State Treasurer and former U.S. Representative; GOP Senate runoff candidate." },
+    { name: "Gary Crockett", party: "D", isIncumbent: false, description: "Democratic Senate runoff candidate." },
+    { name: "Jamie Davis", party: "D", isIncumbent: false, description: "Democratic Senate runoff candidate." },
+  ]},
+  { state: "SD", title: "South Dakota Primary Runoff", subtitle: "GOP Governor runoff", type: "runoff", level: "state", office: "Governor", date: "2026-07-28", description: "GOP: Larry Rhoden vs Toby Doeden.", candidates: [
+    { name: "Larry Rhoden", party: "R", isIncumbent: true, description: "Incumbent Governor of South Dakota; GOP runoff candidate." },
+    { name: "Toby Doeden", party: "R", isIncumbent: false, description: "Businessman; GOP runoff candidate." },
+  ]},
 ];
 
 // ── 2026 House special elections (upcoming as of June 11) ──
