@@ -1,0 +1,215 @@
+{
+  "image": "electiontracker:security-m3",
+  "builder": "electiontracker:security-m3-builder",
+  "network": "internal, no published ports",
+  "passed": true,
+  "http": [
+    {
+      "path": "/",
+      "status": 200,
+      "bytes": 1832
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "bytes": 239
+    },
+    {
+      "path": "/api/elections",
+      "status": 200,
+      "bytes": 231032
+    }
+  ],
+  "elections": {
+    "total": 537,
+    "distinct": 537
+  },
+  "boundary": "production-only paths verified",
+  "imageId": "sha256:d301ba6bbef58b87b75b430dd4d4c97d4747bcf161333912b9d93a88af339d9d",
+  "userFlow": [
+    {
+      "path": "/api/auth/register",
+      "status": 201
+    },
+    {
+      "path": "/api/auth/me",
+      "status": 200
+    },
+    {
+      "path": "/api/auth/dashboard",
+      "status": 200
+    },
+    {
+      "path": "/api/recommendations",
+      "status": 200
+    },
+    {
+      "path": "/api/watchlist",
+      "status": 200
+    }
+  ],
+  "backupRestore": {
+    "status": "Worked",
+    "backupHttpStatus": 200,
+    "restoredTables": 84,
+    "allTableDigestsMatch": true,
+    "applicationQuery": {
+      "elections": 537
+    },
+    "scope": "Harness-owned private database, local archive only; no off-host recovery claim"
+  },
+  "electionTimezone": {
+    "synthetic_private_database": true,
+    "source_database_untouched": true,
+    "postgres_actual_execution": true,
+    "outcomes": [
+      {
+        "scenario": "upcoming",
+        "time": "2026-11-04T03:30:00Z",
+        "expected": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "actual": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      {
+        "scenario": "upcoming",
+        "time": "2026-11-04T05:30:00Z",
+        "expected": [
+          2,
+          3,
+          4
+        ],
+        "actual": [
+          2,
+          3,
+          4
+        ]
+      },
+      {
+        "scenario": "upcoming",
+        "time": "2026-11-04T11:01:00Z",
+        "expected": [
+          4
+        ],
+        "actual": [
+          4
+        ]
+      },
+      {
+        "scenario": "legacy NULL party is Other",
+        "expected": [
+          1
+        ],
+        "actual": [
+          1
+        ]
+      },
+      {
+        "scenario": "calendar month clamps to February end",
+        "expected": [
+          5
+        ],
+        "actual": [
+          5
+        ]
+      }
+    ]
+  },
+  "listingContract": [
+    {
+      "query": "",
+      "status": 200,
+      "rows": 507,
+      "membershipAndCountsMatch": true
+    },
+    {
+      "query": "?timeframe=upcoming",
+      "status": 200,
+      "rows": 506,
+      "membershipAndCountsMatch": true
+    },
+    {
+      "query": "?timeframe=next-30-days",
+      "status": 200,
+      "rows": 506,
+      "membershipAndCountsMatch": true
+    },
+    {
+      "query": "?level=federal",
+      "status": 200,
+      "rows": 470,
+      "membershipAndCountsMatch": true
+    },
+    {
+      "query": "?level=Federal",
+      "status": 200,
+      "rows": 470,
+      "membershipAndCountsMatch": true
+    },
+    {
+      "query": "?party=D",
+      "status": 200,
+      "rows": 55,
+      "membershipAndCountsMatch": true
+    },
+    {
+      "query": "?party=Democratic",
+      "status": 200,
+      "rows": 55,
+      "membershipAndCountsMatch": true
+    },
+    {
+      "query": "?timeframe=typo",
+      "status": 400
+    }
+  ],
+  "pollHours": {
+    "dryRunUnchanged": true,
+    "injectedRollback": true,
+    "repeatUnchanged": true,
+    "applySummary": [
+      "2026-11-03: 506 rows; 506 need changes; states missing from table: none",
+      "applied: 506 rows updated; after: 0 of 506 election-day rows lack timezone/basis (close may be null where basis=local_variable)"
+    ],
+    "compiledHttp": {
+      "rows": 506,
+      "fieldComparisons": 3036,
+      "mismatches": 0
+    }
+  },
+  "fecIngestion": {
+    "outcome": "worked",
+    "fixture": "isolated synthetic PostgreSQL",
+    "checks": {
+      "dry_run_no_writes": true,
+      "atomic_apply": true,
+      "exact_repeat_no_candidate_changes": true,
+      "missing_migration_refuses_without_writes": true,
+      "migration_idempotent": true,
+      "existing_ballot_hash_and_timestamp_preserved": true,
+      "separate_fec_source_retained": true,
+      "transactional_apply_receipt": true,
+      "committed_receipt_survives_local_disk_failure": true,
+      "registration_never_certified": true,
+      "unknown_party_not_independent": true,
+      "parameterized_apostrophe_name": true,
+      "injected_failure_full_rollback": true,
+      "concurrent_apply_one_identity": true,
+      "imported_party_refresh": true,
+      "historical_source_reactivation_updates_current_version": true
+    },
+    "first_actions": 3,
+    "repeated_actions": 0
+  },
+  "nomineeIngestion": {
+    "skipped": "scripts/refresh_general_candidates.ts not in this tree (PR #8 / ET-9 not merged); FEC ingestion above still enforced"
+  }
+}
