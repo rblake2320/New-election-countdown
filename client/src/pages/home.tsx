@@ -274,12 +274,15 @@ export default function Home() {
             
             {/* Featured Election Cards */}
             {!isLoading && elections.length > 0 && (
-              <FeaturedElectionCards elections={elections} />
+              // Desktop only: on phones three long cards pushed search scope, filters
+              // and the result count out of the first screen, and the same races
+              // repeat in the list right below (owner UX review, ET-28/ET-30).
+              <div className="hidden lg:block"><FeaturedElectionCards elections={elections} /></div>
             )}
             
             {/* Dashboard Header */}
             <div style={{ marginBottom: 'var(--section-spacing)' }}>
-              <div className="flex items-center justify-between" style={{ marginBottom: 'var(--content-spacing)' }}>
+              <div className="flex flex-wrap items-center justify-between gap-3" style={{ marginBottom: 'var(--content-spacing)' }}>
                 <div>
                   <h2 className="text-2xl font-bold">{isUpcomingTimeframe(filters.timeframe) ? "Upcoming Elections" : "All Elections"}</h2>
                   <p className="text-muted-foreground">
@@ -290,7 +293,7 @@ export default function Home() {
                     )}
                   </p>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Sheet>
                     <SheetTrigger asChild>
                       <Button variant="outline" size="sm" className="lg:hidden">
