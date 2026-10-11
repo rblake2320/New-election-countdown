@@ -174,6 +174,7 @@ async function runFecSyncOnce(pool: Pool, rows: FecRow[], sha256: string, apply:
 }
 
 export async function runFecSync(pool: Pool, rows: FecRow[], sha256: string, apply: boolean, syncedAt = new Date()): Promise<FecPlan> {
+  if(apply && rows.some(row=>!['C','F'].includes(row.status)))throw new Error('Prior/not-yet FEC statuses are audit-only; apply accepts current or future status');
   for (let attempt = 0; ; attempt++) {
     try { return await runFecSyncOnce(pool, rows, sha256, apply, syncedAt); }
     catch (error) {

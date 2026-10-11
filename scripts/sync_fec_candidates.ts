@@ -12,6 +12,7 @@ const args = process.argv.slice(2);
 const known = args.every(a => ['--dry-run', '--apply', '--include-prior'].includes(a) || /^--expect-sha256=[a-f0-9]{64}$/.test(a));
 if (!known || (args.includes('--apply') && args.includes('--dry-run'))) throw new Error('Use --dry-run (default), --include-prior, or --apply --expect-sha256=<reviewed-source-hash>');
 const apply = args.includes('--apply');
+if(apply && args.includes('--include-prior'))throw new Error('--include-prior is read-only audit mode and cannot be applied');
 const expectedHash = args.find(a => a.startsWith('--expect-sha256='))?.slice('--expect-sha256='.length);
 if (apply && !expectedHash) throw new Error('Apply requires the source SHA256 from a reviewed dry-run');
 const MAX_BYTES = 64 * 1024 * 1024;
