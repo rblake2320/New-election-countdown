@@ -281,7 +281,7 @@ export function RecommendationCard({
 
             {/* Countdown */}
             <CountdownTimer 
-              targetDate={recommendation.election.date} 
+              election={recommendation.election} 
               size="sm"
               className="text-sm"
             />
@@ -359,7 +359,7 @@ export function RecommendationCard({
 
           {/* Countdown */}
           <CountdownTimer 
-            targetDate={recommendation.election.date} 
+            election={recommendation.election} 
             size="sm"
             className="text-sm"
           />

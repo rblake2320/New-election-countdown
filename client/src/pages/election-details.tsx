@@ -137,7 +137,7 @@ export default function ElectionDetails() {
             </div>
             {isUpcoming && election && (
               <CountdownTimer 
-                targetDate={election.date}
+                election={election}
                 className="text-sm font-medium"
               />
             )}

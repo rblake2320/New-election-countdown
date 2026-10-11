@@ -693,7 +693,7 @@ export function EnhancedUserWatchlist() {
                         {/* Footer Row */}
                         <div className="flex items-center justify-between pt-2 border-t">
                           <CountdownTimer 
-                            targetDate={item.election.date} 
+                            election={item.election} 
                             size="sm"
                             className="text-sm"
                           />
@@ -775,7 +775,7 @@ export function EnhancedUserWatchlist() {
                           </p>
 
                           <CountdownTimer 
-                            targetDate={rec.election.date} 
+                            election={rec.election} 
                             size="sm"
                             className="text-sm"
                           />
