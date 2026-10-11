@@ -543,6 +543,22 @@ export class MemStorage implements IStorage {
     return newAccount;
   }
 
+  async getCandidateAccountById(id: number): Promise<CandidateAccount | null> {
+    return this.candidateAccounts.get(id) ?? null;
+  }
+
+  async listCandidateAccounts(filter: { isActive?: boolean } = {}): Promise<CandidateAccount[]> {
+    return Array.from(this.candidateAccounts.values()).filter(a => filter.isActive === undefined || a.isActive === filter.isActive);
+  }
+
+  async setCandidateAccountActive(id: number, isActive: boolean, accessLevel?: string): Promise<CandidateAccount | null> {
+    const existing = this.candidateAccounts.get(id);
+    if (!existing) return null;
+    const updated = { ...existing, isActive, accessLevel: accessLevel ?? existing.accessLevel, updatedAt: new Date() };
+    this.candidateAccounts.set(id, updated);
+    return updated;
+  }
+
   async getCandidateProfile(candidateId: number): Promise<CandidateProfile | null> {
     return this.candidateProfiles.get(candidateId) || null;
   }

@@ -9,12 +9,18 @@ import { globalWriteGuard, healthAwareErrorHandler } from "./middleware/health-g
 import { createGracefulShutdown } from './graceful-shutdown';
 import { pool } from './db';
 import { stopStorageBackground } from './storage';
+import { requestIdMiddleware, publicErrorBody, internalErrorRecord, getRequestId } from "./security-events";
 
 const app = express();
 
 // Behind nginx/Hostinger proxy: first hop is trusted so req.ip, rate limits
 // and secure cookies key off the real client address.
 app.set("trust proxy", 1);
+
+// Request correlation id (BG-3/BG-4): first middleware so body-parser and security
+// rejections already carry it; propagated or generated, echoed as X-Request-Id, present
+// on every access-log line, security decision and error response.
+app.use(requestIdMiddleware);
 
 // One helmet instance (CSP on) — see security-middleware.ts
 app.use(securityHeaders);
@@ -56,11 +62,11 @@ app.use("/api", globalWriteGuard);
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
-  // Method, path, status and duration only: response bodies (user objects,
+  // Method, path, status, duration and request id only: response bodies (user objects,
   // session details) must not be written to stdout/log aggregators.
   res.on("finish", () => {
     if (path.startsWith("/api")) {
-      log(`${req.method} ${path} ${res.statusCode} in ${Date.now() - start}ms`);
+      log(`${req.method} ${path} ${res.statusCode} in ${Date.now() - start}ms rid=${getRequestId(req)}`);
     }
   });
   next();
@@ -68,7 +74,7 @@ app.use((req, res, next) => {
 
 (async () => {
   const server = await registerRoutes(app);
-  
+
   // Start automated results ingestion service for live election tracking
   let resultsIngestionServiceInstance: any = null;
   try {
@@ -95,7 +101,7 @@ app.use((req, res, next) => {
   
   process.on('SIGTERM', shutdownHandler);
   process.on('SIGINT', shutdownHandler);
-  
+
   // Seed database on first run
   try {
     const { seedDatabase } = await import("./seed-data.ts");
@@ -104,7 +110,7 @@ app.use((req, res, next) => {
   } catch (error: any) {
     log(`⚠️  Failed to seed database: ${error.message}`);
   }
-  
+
   // Add 404 handler for unknown API routes
   app.use("/api", (_req, res) => {
     return res.status(404).json({ error: "not_found", path: "api" });
@@ -112,14 +118,15 @@ app.use((req, res, next) => {
 
   // Health-aware error handler - catches and downgrades DB errors
   app.use(healthAwareErrorHandler);
-  
+
   // Global error handler
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const code = Number(err?.status || err?.code || 500);
-    res.status(Number.isFinite(code) ? code : 500).json({
-      error: "server_error",
-      message: err?.message ?? "Unhandled error",
-    });
+  // BG-4: public errors carry a bounded status, a fixed public message and the request
+  // id; the internal exception text stays in the server log under the same id.
+  app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
+    const { status, body } = publicErrorBody(err, getRequestId(req));
+    console.error(internalErrorRecord(err, req, status));
+    if (res.headersSent) return;
+    res.status(status).json(body);
   });
 
   // importantly only setup vite in development and after

@@ -5,6 +5,7 @@ import argon2 from "argon2";
 import { nanoid } from "nanoid";
 import crypto from "crypto";
 import { getRequiredSecret } from "./config/secrets";
+import { recordSecurityDecision } from "./security-events";
 
 export const SESSION_COOKIE = process.env.SESSION_COOKIE_NAME || "et.sid";
 const JWT_SECRET = getRequiredSecret("JWT_SECRET");
@@ -50,7 +51,10 @@ export function authRequired() {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const token = req.cookies?.[SESSION_COOKIE];
-      if (!token) return res.status(401).json({ error: "unauthorized" });
+      if (!token) {
+        recordSecurityDecision(req, { action: "auth.session", result: "deny", actor: null, reason: "no_session_cookie" });
+        return res.status(401).json({ error: "unauthorized" });
+      }
       
       // Verify JWT token signature and extract payload
       const { uid, jti } = verifySession(token);
@@ -71,10 +75,13 @@ export function authRequired() {
       } catch (dbError) {
         // Fail closed: without the session table we cannot honour revocation.
         console.error('Session store unavailable; refusing authenticated request');
+        recordSecurityDecision(req, { action: "auth.session", result: "error", actor: String(uid), reason: "session_store_unavailable" });
         return res.status(503).json({ error: "session_store_unavailable" });
       }
+      recordSecurityDecision(req, { action: "auth.session", result: "deny", actor: String(uid), reason: "session_revoked_or_expired" });
       return res.status(401).json({ error: "unauthorized" });
     } catch (jwtError) {
+      recordSecurityDecision(req, { action: "auth.session", result: "deny", actor: null, reason: "invalid_session_token" });
       return res.status(401).json({ error: "unauthorized" });
     }
   };

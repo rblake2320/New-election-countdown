@@ -368,6 +368,11 @@ export class ReplicaStorage implements IStorage {
   async getElectionCycle(slug: string): Promise<any> { return null; }
   async logInteraction(data: any): Promise<void> {}
   async authenticateCandidate(email: string, password: string): Promise<CandidateAccount | null> { return null; }
+  async getCandidateAccountById(_id: number): Promise<CandidateAccount | null> { return null; }
+  async listCandidateAccounts(_filter: { isActive?: boolean } = {}): Promise<CandidateAccount[]> { return []; }
+  async setCandidateAccountActive(_id: number, _isActive: boolean, _accessLevel?: string): Promise<CandidateAccount | null> {
+    throw new Error('Replica storage is read-only');
+  }
   async getCandidateDataSources(candidateId: number): Promise<CandidateDataSource[]> { return []; }
   async recordDataSource(source: InsertCandidateDataSource): Promise<CandidateDataSource> { throw new Error('Write operations not supported on read-only replica'); }
   async getCandidateWithRAG(candidateId: number): Promise<any> { return null; }

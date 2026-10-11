@@ -36,12 +36,26 @@ export interface SecretValidationRule {
 export interface RotationResult {
   rotationId: string;
   secretId: number;
-  status: 'completed' | 'failed' | 'partial';
-  oldValue: string;
-  newValue: string;
+  // 'manual_required' = this service cannot mint a credential for the provider; nothing changed.
+  status: 'completed' | 'failed' | 'partial' | 'manual_required';
+  // Y-02: results carry hashes only; plaintext credentials never leave the vault layer.
+  oldValueHash: string;
+  newValueHash?: string;
   validationResults: ValidationResult[];
   duration: number;
   error?: string;
+}
+
+export interface VaultStatus {
+  ready: boolean;
+  reason: string | null;
+}
+
+export class VaultNotConfiguredError extends Error {
+  status = 503;
+  publicCode = 'vault_unconfigured';
+  publicMessage = 'Secrets vault is not configured on this deployment';
+  constructor(reason: string) { super(`Secrets vault unavailable: ${reason}`); this.name = 'VaultNotConfiguredError'; }
 }
 
 export interface ValidationResult {
@@ -65,6 +79,8 @@ export interface ServiceAPIConfig {
 export class SecretsRotationService {
   private config: SecretRotationConfig;
   private encryptionKey: Buffer;
+  private vaultReady = false;
+  private vaultReason: string | null = null;
   private serviceConfigs: Map<string, ServiceAPIConfig> = new Map();
   private validationRules: Map<string, SecretValidationRule> = new Map();
   private rotationSchedule: NodeJS.Timeout | null = null;
@@ -85,18 +101,35 @@ export class SecretsRotationService {
       validationTimeout: 30000,
       emergencyRotationEnabled: true,
       notificationChannels: ['email', 'webhook'],
-      encryptionKey: process.env.BACKUP_ENCRYPTION_KEY || 'default-key-change-me',
+      // Y-01: no fallback key. Missing/short material leaves the vault unavailable (fail closed).
+      encryptionKey: process.env.BACKUP_ENCRYPTION_KEY ?? '',
       ...config
     };
 
     this.encryptionKey = Buffer.from(this.config.encryptionKey, 'utf8');
+    if (this.encryptionKey.length < 32) {
+      this.vaultReady = false;
+      this.vaultReason = 'BACKUP_ENCRYPTION_KEY is missing or shorter than 32 bytes';
+      console.warn(`⚠️ Secrets vault unavailable: ${this.vaultReason}. Vault operations will be refused; the application keeps running.`);
+    } else {
+      this.vaultReady = true;
+    }
     this.setupServiceConfigurations();
     this.setupValidationRules();
-    
+
     console.log('✅ Secrets Rotation Service initialized', {
       enabledServices: this.config.enabledServices.length,
       rotationFrequency: this.config.rotationFrequencyDays + ' days'
     });
+  }
+
+  /** Y-01: whether encrypt/decrypt can run at all on this deployment. */
+  vaultStatus(): VaultStatus {
+    return { ready: this.vaultReady, reason: this.vaultReason };
+  }
+
+  private assertVaultReady(): void {
+    if (!this.vaultReady) throw new VaultNotConfiguredError(this.vaultReason ?? 'not configured');
   }
 
   /**
@@ -174,11 +207,9 @@ export class SecretsRotationService {
       apiKeyName: 'SENDGRID_API_KEY',
       baseUrl: 'https://api.sendgrid.com/v3',
       testEndpoint: '/user/profile',
-      rotationSupported: true,
-      customRotationHandler: async (currentKey: string) => {
-        // In real implementation, would call SendGrid API to create new key
-        return `sg.${nanoid(32)}.${nanoid(32)}`;
-      },
+      // Y-02: credentials for this provider are issued in the provider console; nothing here can
+      // mint one, so rotation is reported as manual_required instead of fabricated.
+      rotationSupported: false,
       validationHandler: async (apiKey: string) => {
         const response = await fetch('https://api.sendgrid.com/v3/user/profile', {
           headers: { 'Authorization': `Bearer ${apiKey}` }
@@ -193,15 +224,13 @@ export class SecretsRotationService {
       apiKeyName: 'TWILIO_AUTH_TOKEN',
       baseUrl: 'https://api.twilio.com/2010-04-01',
       testEndpoint: '/Accounts.json',
-      rotationSupported: true,
-      customRotationHandler: async (currentKey: string) => {
-        // In real implementation, would call Twilio API to create new auth token
-        return nanoid(32);
-      },
+      // Y-02: credentials for this provider are issued in the provider console; nothing here can
+      // mint one, so rotation is reported as manual_required instead of fabricated.
+      rotationSupported: false,
       validationHandler: async (apiKey: string) => {
         const accountSid = process.env.TWILIO_ACCOUNT_SID;
         if (!accountSid) return false;
-        
+
         const auth = Buffer.from(`${accountSid}:${apiKey}`).toString('base64');
         const response = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${accountSid}.json`, {
           headers: { 'Authorization': `Basic ${auth}` }
@@ -216,11 +245,9 @@ export class SecretsRotationService {
       apiKeyName: 'NEON_API_KEY',
       baseUrl: 'https://console.neon.tech/api/v2',
       testEndpoint: '/projects',
-      rotationSupported: true,
-      customRotationHandler: async (currentKey: string) => {
-        // In real implementation, would call Neon API to create new key
-        return `neon_${nanoid(48)}`;
-      },
+      // Y-02: credentials for this provider are issued in the provider console; nothing here can
+      // mint one, so rotation is reported as manual_required instead of fabricated.
+      rotationSupported: false,
       validationHandler: async (apiKey: string) => {
         const response = await fetch('https://console.neon.tech/api/v2/projects', {
           headers: { 'Authorization': `Bearer ${apiKey}` }
@@ -265,10 +292,14 @@ export class SecretsRotationService {
    * Initialize secrets vault with current environment variables
    */
   async initializeSecretsVault(): Promise<void> {
+    if (!this.vaultReady) {
+      console.warn(`⚠️ Secrets vault not initialized: ${this.vaultReason}`);
+      return;
+    }
     console.log('🔐 Initializing secrets vault...');
-    
+
     const { storage } = await import('../storage');
-    
+
     for (const serviceName of this.config.enabledServices) {
       const serviceConfig = this.serviceConfigs.get(serviceName);
       if (!serviceConfig) continue;
@@ -335,7 +366,7 @@ export class SecretsRotationService {
    */
   async checkAndRotateExpiredSecrets(): Promise<void> {
     console.log('🔍 Checking for expired secrets...');
-    
+
     const { storage } = await import('../storage');
     const expiredSecrets = await storage.getExpiredSecrets?.() || [];
 
@@ -345,7 +376,7 @@ export class SecretsRotationService {
         await this.rotateSecret(secret.id, 'scheduled');
       } catch (error) {
         console.error(`❌ Failed to rotate secret ${secret.secretName}:`, error);
-        
+
         // Log critical event
         await this.logCriticalEvent(
           'secret_rotation_failed',
@@ -365,7 +396,7 @@ export class SecretsRotationService {
 
     const { storage } = await import('../storage');
     const secret = await storage.getSecretById?.(secretId);
-    
+
     if (!secret) {
       throw new Error(`Secret not found: ${secretId}`);
     }
@@ -402,11 +433,37 @@ export class SecretsRotationService {
       if (serviceConfig.rotationSupported && serviceConfig.customRotationHandler) {
         console.log(`🔧 Using custom rotation handler for ${serviceConfig.serviceName}`);
         newValue = await serviceConfig.customRotationHandler(currentValue);
+        if (!newValue || newValue === currentValue) {
+          throw new Error(`Rotation handler for ${serviceConfig.serviceName} returned no new credential`);
+        }
       } else {
-        console.log(`⚠️ Service ${serviceConfig.serviceName} requires manual rotation`);
-        // For services without automated rotation, generate a placeholder
-        // In real implementation, would notify administrators
-        newValue = currentValue; // Keep current value, mark for manual rotation
+        // Y-02: no provider API issues credentials from here. Record that honestly and change
+        // nothing - no lastRotated, no nextRotation bump, no "completed".
+        console.log(`⚠️ ${serviceConfig.serviceName} requires manual rotation in the provider console`);
+        if (storage.updateSecretRotationHistory) {
+          await storage.updateSecretRotationHistory(rotationId, {
+            status: 'manual_required',
+            completedAt: new Date(),
+            rollbackRequired: false,
+            error: 'Provider credential must be rotated in the provider console and re-deployed; vault value unchanged',
+          });
+        }
+        await this.logPlatformEvent(
+          'secret_rotation_manual_required',
+          'security',
+          'warning',
+          `Manual rotation required: ${secret.secretName}`,
+          `${serviceConfig.serviceName} credentials cannot be issued by this service; rotate in the provider console`,
+          { rotationId, rotationType }
+        );
+        return {
+          rotationId,
+          secretId,
+          status: 'manual_required',
+          oldValueHash: this.hashSecret(secret.currentValue),
+          validationResults: [],
+          duration: Date.now() - startTime,
+        };
       }
 
       // Validate new secret
@@ -450,8 +507,8 @@ export class SecretsRotationService {
         rotationId,
         secretId,
         status: 'completed',
-        oldValue: currentValue,
-        newValue,
+        oldValueHash: this.hashSecret(secret.currentValue),
+        newValueHash: this.hashSecret(newValue),
         validationResults,
         duration: Date.now() - startTime
       };
@@ -483,8 +540,7 @@ export class SecretsRotationService {
         rotationId,
         secretId,
         status: 'failed',
-        oldValue: this.decryptSecret(secret.currentValue),
-        newValue: '',
+        oldValueHash: this.hashSecret(secret.currentValue),
         validationResults: [],
         duration: Date.now() - startTime,
         error: error instanceof Error ? error.message : String(error)
@@ -512,11 +568,11 @@ export class SecretsRotationService {
 
     if (serviceConfig.validationHandler) {
       const startTime = Date.now();
-      
+
       try {
         const success = await Promise.race([
           serviceConfig.validationHandler(apiKey),
-          new Promise<boolean>((_, reject) => 
+          new Promise<boolean>((_, reject) =>
             setTimeout(() => reject(new Error('Validation timeout')), this.config.validationTimeout)
           )
         ]);
@@ -545,10 +601,10 @@ export class SecretsRotationService {
    */
   async emergencyRotateSecret(secretName: string, reason: string): Promise<RotationResult> {
     console.log(`🚨 Emergency rotation triggered for: ${secretName}`);
-    
+
     const { storage } = await import('../storage');
     const secret = await storage.getSecretByName?.(secretName);
-    
+
     if (!secret) {
       throw new Error(`Secret not found: ${secretName}`);
     }
@@ -567,6 +623,7 @@ export class SecretsRotationService {
    * Get secrets rotation status and health
    */
   async getRotationStatus(): Promise<{
+    vault: VaultStatus;
     totalSecrets: number;
     activeSecrets: number;
     secretsNeedingRotation: number;
@@ -575,7 +632,7 @@ export class SecretsRotationService {
     recentFailures: number;
   }> {
     const { storage } = await import('../storage');
-    
+
     const allSecrets = await storage.getAllSecrets?.() || [];
     const expiredSecrets = await storage.getExpiredSecrets?.() || [];
     const recentFailures = await storage.getRecentRotationFailures?.(7) || []; // Last 7 days
@@ -595,6 +652,7 @@ export class SecretsRotationService {
       .sort((a, b) => b.getTime() - a.getTime())[0];
 
     return {
+      vault: this.vaultStatus(),
       totalSecrets: allSecrets.length,
       activeSecrets: allSecrets.filter(s => s.isActive).length,
       secretsNeedingRotation: expiredSecrets.length,
@@ -609,7 +667,7 @@ export class SecretsRotationService {
    */
   async testAllSecrets(): Promise<ValidationResult[]> {
     console.log('🧪 Testing all secrets connectivity...');
-    
+
     const { storage } = await import('../storage');
     const allSecrets = await storage.getAllSecrets?.() || [];
     const results: ValidationResult[] = [];
@@ -639,16 +697,17 @@ export class SecretsRotationService {
    * Encrypt secret value
    */
   private encryptSecret(value: string): string {
+    this.assertVaultReady();
     try {
       const iv = randomBytes(16);
       const salt = randomBytes(32);
       const key = scryptSync(this.encryptionKey, salt, 32);
-      
+
       const cipher = createCipheriv('aes-256-gcm', key, iv);
       let encrypted = cipher.update(value, 'utf8', 'hex');
       encrypted += cipher.final('hex');
       const authTag = cipher.getAuthTag();
-      
+
       return salt.toString('hex') + ':' + iv.toString('hex') + ':' + authTag.toString('hex') + ':' + encrypted;
     } catch (error) {
       console.error('❌ Failed to encrypt secret:', error);
@@ -660,6 +719,7 @@ export class SecretsRotationService {
    * Decrypt secret value
    */
   private decryptSecret(encryptedValue: string): string {
+    this.assertVaultReady();
     try {
       const parts = encryptedValue.split(':');
       if (parts.length !== 4) {
@@ -670,9 +730,9 @@ export class SecretsRotationService {
       const iv = Buffer.from(parts[1], 'hex');
       const authTag = Buffer.from(parts[2], 'hex');
       const encrypted = parts[3];
-      
+
       const key = scryptSync(this.encryptionKey, salt, 32);
-      
+
       const decipher = createDecipheriv('aes-256-gcm', key, iv);
       decipher.setAuthTag(authTag);
       let decrypted = decipher.update(encrypted, 'hex', 'utf8');
@@ -703,7 +763,7 @@ export class SecretsRotationService {
     metadata: any
   ): Promise<void> {
     const { storage } = await import('../storage');
-    
+
     const event: InsertPlatformContinuityEvents = {
       eventId: nanoid(),
       eventType,
@@ -736,7 +796,7 @@ export class SecretsRotationService {
    */
   async cleanupRotationHistory(retentionDays: number = 365): Promise<void> {
     console.log(`🧹 Cleaning up rotation history older than ${retentionDays} days`);
-    
+
     const { storage } = await import('../storage');
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - retentionDays);
