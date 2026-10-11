@@ -19,8 +19,8 @@ export default function CodeToggle({
       {open && (
         <div className="mt-2 rounded-lg border bg-muted/30">
           <div className="flex gap-2 p-2 text-xs">
-            {response && <button className={tab==='resp'?'font-medium':''} onClick={()=>setTab('resp')}>Response</button>}
-            {json && <button className={tab==='json'?'font-medium':''} onClick={()=>setTab('json')}>JSON</button>}
+            {!!response && <button className={tab==='resp'?'font-medium':''} onClick={()=>setTab('resp')}>Response</button>}
+            {!!json && <button className={tab==='json'?'font-medium':''} onClick={()=>setTab('json')}>JSON</button>}
             {curl && <button className={tab==='curl'?'font-medium':''} onClick={()=>setTab('curl')}>cURL</button>}
           </div>
           <pre className="max-h-72 overflow-auto p-3 text-xs">
