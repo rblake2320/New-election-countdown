@@ -1657,7 +1657,8 @@ Please provide detailed, current information about this specific election.`;
         return res.status(401).json({ error: 'Invalid token' });
       }
 
-      await storage.refreshRecommendationCache(user.id);
+      // No cache layer exists; "refresh" regenerates recommendations for the user.
+      await recommendationService.generateRecommendations(user.id, { forceRefresh: true } as any);
       res.json({ message: 'Recommendation cache refreshed' });
     } catch (error: any) {
       console.error('Error refreshing recommendations:', error);
@@ -3008,7 +3009,7 @@ function registerNotificationRoutes(app: Express) {
   // Get user notification preferences
   app.get("/api/notifications/preferences", isAuthenticated, async (req, res) => {
     try {
-      const userId = req.user?.id;
+      const userId = String((req as any).userId); // cookie session (isAuthenticated sets req.userId)
       if (!userId) {
         return res.status(401).json({ error: "User authentication required" });
       }
@@ -3030,7 +3031,7 @@ function registerNotificationRoutes(app: Express) {
   // Update user notification preferences
   app.patch("/api/notifications/preferences", isAuthenticated, validateInput, async (req, res) => {
     try {
-      const userId = req.user?.id;
+      const userId = String((req as any).userId); // cookie session (isAuthenticated sets req.userId)
       if (!userId) {
         return res.status(401).json({ error: "User authentication required" });
       }
@@ -3052,7 +3053,7 @@ function registerNotificationRoutes(app: Express) {
   // Get user subscriptions
   app.get("/api/notifications/subscriptions", isAuthenticated, async (req, res) => {
     try {
-      const userId = req.user?.id;
+      const userId = String((req as any).userId); // cookie session (isAuthenticated sets req.userId)
       if (!userId) {
         return res.status(401).json({ error: "User authentication required" });
       }
@@ -3066,12 +3067,12 @@ function registerNotificationRoutes(app: Express) {
   });
 
   // Create notification campaign
-  app.post("/api/notifications/campaigns", isAuthenticated, validateInput, async (req, res) => {
+  app.post("/api/notifications/campaigns", isAuthenticated, requireAdmin, validateInput, async (req, res) => {
     try {
       const campaignData = {
         ...req.body,
         status: 'draft' as const,
-        createdBy: req.user?.id || 'system'
+        createdBy: String((req as any).userId)
       };
       
       const campaign = await storage.createNotificationCampaign(campaignData);
@@ -3087,10 +3088,10 @@ function registerNotificationRoutes(app: Express) {
   // Get delivery status
   app.get("/api/notifications/deliveries", isAuthenticated, async (req, res) => {
     try {
-      const userId = req.user?.id;
-      const deliveries = userId ? 
-        await storage.getUserNotificationDeliveries(userId) : 
-        await storage.getNotificationDeliveries();
+      const userId = String((req as any).userId); // cookie session (isAuthenticated sets req.userId)
+      // Always scoped to the signed-in user: the unscoped branch returned every
+      // user's deliveries (recipient addresses included) when the session id was read from the wrong field (always undefined).
+      const deliveries = await storage.getNotificationDeliveries(undefined, userId);
       
       res.json(deliveries);
     } catch (error) {

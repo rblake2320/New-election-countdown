@@ -125,7 +125,9 @@ router.post("/register", authLimiter, async (req, res) => {
           text: `Verify your email: ${verifyUrl}`
         });
       } else {
-        console.log("📧 Email verify token:", tok.rows[0].token);
+        // Never log the token itself: logs are shipped to aggregators. Without SMTP the
+        // verification link is unavailable; operators must configure SMTP/SendGrid.
+        console.log("📧 Email verification token created (not logged); configure SMTP to deliver it");
       }
     } catch (emailVerifyError) {
       console.log("⚠️ Email verification token creation skipped (database unavailable)");
@@ -423,7 +425,8 @@ router.post("/request-password-reset", authLimiter, async (req, res) => {
       text: `Reset link: ${url}` 
     });
   } else {
-    console.log("🔐 Password reset token:", tok.rows[0].token);
+    // Never log the reset token (see register handler).
+    console.log("🔐 Password reset token created (not logged); configure SMTP to deliver it");
   }
   res.json({ ok: true });
 });
