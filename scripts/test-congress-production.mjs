@@ -9,8 +9,11 @@ const execute = promisify(execFile);
 const suffix = `${process.pid}-${randomBytes(4).toString('hex')}`;
 const network = `et-congress-prod-${suffix}`;
 const db = `${network}-db`, app = `${network}-app`;
+const browserNetwork = `${network}-browser`;
 const image = process.env.CONGRESS_PRODUCTION_IMAGE;
 const builder = process.env.CONGRESS_BUILDER_IMAGE;
+const previewPort = Number(process.env.CONGRESS_BROWSER_PREVIEW_PORT || 0);
+if (previewPort && (!Number.isInteger(previewPort) || previewPort < 1024 || previewPort > 65535)) throw new Error('Invalid loopback preview port');
 if (!image || !builder) throw new Error('Explicit production and builder image tags are required');
 const evidence = `test-results/congress-production-${suffix}`;
 await mkdir(evidence, { recursive: true });
@@ -50,7 +53,11 @@ try {
   for (let i = 0; i < 30; i++) { try { await docker('exec', db, 'pg_isready', '-U', 'et_congress_production_test'); ready = true; break; } catch { await new Promise(r => setTimeout(r, 1000)); } }
   check('owned PostgreSQL ready', ready);
   await writeFile(`${evidence}/schema.txt`, await docker('run', '--rm', '--network', network, '-e', `DATABASE_URL=${url}`, '--entrypoint', 'node_modules/.bin/drizzle-kit', builder, 'push', '--force'));
-  await docker('run', '-d', '--name', app, '--network', network, '-e', `DATABASE_URL=${url}`, '-e', `JWT_SECRET=${password}`, '-e', `CANDIDATE_JWT_SECRET=${password}`, '-e', 'APP_ORIGIN=http://127.0.0.1:5000', image);
+  await docker('run', '-d', '--name', app, '--network', network, ...(previewPort ? ['-p', `127.0.0.1:${previewPort}:5000`] : []), '-e', `DATABASE_URL=${url}`, '-e', `JWT_SECRET=${password}`, '-e', `CANDIDATE_JWT_SECRET=${password}`, '-e', 'APP_ORIGIN=http://127.0.0.1:5000', image);
+  if (previewPort) {
+    await docker('network', 'create', browserNetwork);
+    await docker('network', 'connect', browserNetwork, app);
+  }
   ready = false;
   for (let i = 0; i < 60; i++) { try { await run("const r=await fetch('http://127.0.0.1:5000/api/health');if(r.status!==200)throw Error('health '+r.status)"); ready = true; break; } catch { await new Promise(r => setTimeout(r, 1000)); } }
   check('actual packaged HTTP server healthy', ready);
@@ -133,7 +140,7 @@ try {
   check('shipped audit migration repeat preserves durable audit rows byte-for-byte', auditDigest === await sql(auditDigestSQL));
   report.positiveRepeat = { changedCount: repeat.receipt.changedCount, xminDigest: firstXmin, catalog: firstCatalog, auditDigest };
   const membersCapture = JSON.parse(await run(`import pg from 'pg';import {createHash} from 'node:crypto';
-    const response=await fetch('http://127.0.0.1:5000/api/members');
+    const response=await fetch('http://127.0.0.1:5000/api/members?scope=all');
     const bytes=Buffer.from(await response.arrayBuffer());
     if(response.status!==200)throw Error('members status '+response.status);
     const actual=JSON.parse(bytes.toString('utf8'));if(!Array.isArray(actual))throw Error('members must be an array');
@@ -150,15 +157,26 @@ try {
   await writeFile(`${evidence}/members-response.json`, Buffer.from(membersCapture.bodyBase64, 'base64'));
   await writeFile(`${evidence}/members-sql-projection.json`, JSON.stringify(membersCapture.sqlProjection, null, 2));
   const { bodyBase64, sqlProjection, ...membersMetadata } = membersCapture;
-  report.membersReceiving = { ...membersMetadata, path: '/api/members', sourceBase: 'http://127.0.0.1:5000 inside owned runtime container', imageId: report.imageId, manifestSha256: report.boundary.manifestSha256, phase: 'after guarded 539-member apply and zero-write repeat', actualSourceMembers: 539, syntheticPreservationControls: 2, responseFile: 'members-response.json', sqlFile: 'members-sql-projection.json' };
+  report.membersReceiving = { ...membersMetadata, path: '/api/members?scope=all', sourceBase: 'http://127.0.0.1:5000 inside owned runtime container', imageId: report.imageId, manifestSha256: report.boundary.manifestSha256, phase: 'after guarded 539-member apply and zero-write repeat', actualSourceMembers: 539, syntheticPreservationControls: 2, responseFile: 'members-response.json', sqlFile: 'members-sql-projection.json' };
   await writeFile(`${evidence}/members-receiving.json`, JSON.stringify(report.membersReceiving, null, 2));
   check('actual GET members payload matches independent SQL for all 541 rows and exposed fields', membersMetadata.mismatches === 0 && membersMetadata.duplicateIds === 0);
+  report.scopes = JSON.parse(await run(`import pg from 'pg';const pool=new pg.Pool({connectionString:process.env.DATABASE_URL});try{
+    const cases=[['/api/members',539,"congress=119 AND bioguide_id ~ '^[A-Z][0-9]{6}$'"],['/api/members?scope=history',1,'congress<>119'],['/api/members?scope=legacy',1,"congress=119 AND bioguide_id !~ '^[A-Z][0-9]{6}$'"],...['PR','GU','AS','MP','VI'].map(s=>['/api/members/'+s,1,"state='"+s+"'"])];const out=[];
+    for(const [path,count,where] of cases){const r=await fetch('http://127.0.0.1:5000'+path),body=await r.json();const {rows}=await pool.query('SELECT bioguide_id FROM congress_members WHERE '+where);if(r.status!==200||body.length!==count||JSON.stringify(body.map(x=>x.bioguideId).sort())!==JSON.stringify(rows.map(x=>x.bioguide_id).sort()))throw Error('scope mismatch '+path);out.push({path,status:r.status,count:body.length,scope:r.headers.get('x-congress-scope')});}console.log(JSON.stringify(out));
+  }finally{await pool.end();}`));
+  check('actual current/history/legacy and five territory reads match independent SQL', report.scopes.length === 8);
   report.outcome = 'Worked';
 } catch (error) { report.error = error.message; process.exitCode = 1; }
 finally {
-  await docker('rm', '-f', app).catch(() => {});
-  await docker('rm', '-f', db).catch(() => {});
-  await docker('network', 'rm', network).catch(() => {});
+  if (previewPort && report.outcome === 'Worked') {
+    report.preview = { url: `http://127.0.0.1:${previewPort}`, app, db, network, browserNetwork };
+    report.network = 'internal database network; app published only to loopback for browser receiving';
+  } else {
+    await docker('rm', '-f', app).catch(() => {});
+    await docker('rm', '-f', db).catch(() => {});
+    await docker('network', 'rm', network).catch(() => {});
+    if (previewPort) await docker('network', 'rm', browserNetwork).catch(() => {});
+  }
   await writeFile(`${evidence}/receipt.json`, JSON.stringify(report, null, 2));
 }
 console.log(JSON.stringify(report));

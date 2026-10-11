@@ -1,0 +1,30 @@
+[
+  {
+    "path": "/api/bills",
+    "status": 200,
+    "body": null
+  },
+  {
+    "path": "/api/bills/119",
+    "status": 503,
+    "body": {
+      "service": "Congressional Data",
+      "reason": "missing_api_key",
+      "message": "At least one congressional data API key is required (ProPublica, Congress.gov, or OpenStates)",
+      "path": "/api/bills/119",
+      "method": "GET",
+      "availableServices": [],
+      "requiredServices": [
+        "ProPublica",
+        "Congress.gov",
+        "OpenStates"
+      ],
+      "timestamp": "2026-10-11T17:55:39.89Z"
+    }
+  },
+  {
+    "path": "/api/committees",
+    "status": 200,
+    "body": null
+  }
+]
