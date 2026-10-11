@@ -17,11 +17,13 @@ async function main(){
   const sha=createHash('sha256').update(bytes).digest('hex');if(expected&&expected!==sha)throw new Error('Manifest changed since review');
   const manifest=parseNomineeManifest(JSON.parse(bytes.toString('utf8')));
   if(!process.env.DATABASE_URL)throw new Error('DATABASE_URL required');
+  // Local path creation must fail before any database effect, not after commit.
+  const directory=resolve('election-data-2026');mkdirSync(directory,{recursive:true});
   const pool=new pg.Pool({connectionString:process.env.DATABASE_URL,max:1,connectionTimeoutMillis:10_000,options:apply?undefined:'-c default_transaction_read_only=on'});
   try{
     const plan=await runNomineeRefresh(pool,manifest,sha,apply);
-    const receipt={mode:apply?'applied':'read-only-dry-run',database_audit_id:plan.auditId??null,manifest_sha256:sha,sourceIds:manifest.sources.map(s=>s.id),records:manifest.candidates.length,candidateInserts:plan.candidateInserts??null,sourceChanges:plan.sourceChanges??null,plannedNew:plan.actions.filter(a=>a.candidateId==null).length,plannedExisting:plan.actions.filter(a=>a.candidateId!=null).length,unresolved:plan.unresolved,ballotStatusChanged:false,profilesOverwritten:false};
-    const directory=resolve('election-data-2026');mkdirSync(directory,{recursive:true});
+    const plannedNew=apply?plan.candidateInserts??0:plan.actions.filter(a=>a.candidateId==null).length;
+    const receipt={mode:apply?'applied':'read-only-dry-run',database_audit_id:plan.auditId??null,manifest_sha256:sha,sourceIds:manifest.sources.map(s=>s.id),records:manifest.candidates.length,candidateInserts:plan.candidateInserts??null,sourceChanges:plan.sourceChanges??null,plannedNew,plannedExisting:plan.actions.length-plannedNew,unresolved:plan.unresolved,ballotStatusChanged:false,profilesOverwritten:false};
     const persisted=persistFecManifest(directory,sha,receipt);
     console.log(JSON.stringify({...persisted,...receipt}));
   }finally{await pool.end();}
