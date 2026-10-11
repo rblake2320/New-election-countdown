@@ -16,12 +16,17 @@ export const securityLogger = winston.createLogger({
   ]
 });
 
-// SQL injection pattern detection
+// Hostile-input detection. Real SQL safety comes from parameterised queries
+// (drizzle / pg placeholders); this list only catches obvious attack strings so
+// they can be logged and rejected. It deliberately does NOT match apostrophes
+// or the words "or"/"and" — "O'Brien" and "governor and senate" are searches.
 const sqlPatterns = [
-  /(\'|\"|\\|;|\/\*|--|\*\/|\bor\b|\band\b|\bunion\b|\bselect\b|\binsert\b|\bupdate\b|\bdelete\b|\bdrop\b|\bcreate\b|\balter\b)/i,
-  /\'\s*or\s*\d+\s*=\s*\d+/i,
-  /\'\s*and\s*\d+\s*=\s*\d+/i,
-  /\'\s*or\s*\'\d+\'\s*=\s*\'\d+/i
+  /\bunion\b[\s\S]{0,40}\bselect\b/i,
+  /;\s*(drop|delete|insert|update|alter|create|truncate)\b/i,
+  /\/\*[\s\S]*\*\//,
+  /--\s*$/m,
+  /\b(xp_cmdshell|information_schema|pg_sleep|sleep\s*\()/i,
+  /'\s*(or|and)\s*['\d]+\s*=\s*['\d]+/i,
 ];
 
 // Log suspicious activity
@@ -61,65 +66,30 @@ const isMonitoringEndpoint = (path: string): boolean => {
   );
 };
 
-// Check if request is from legitimate monitoring/testing client
-const isLegitimateMonitoringClient = (req: Request): boolean => {
-  const userAgent = req.get('User-Agent') || '';
-  const host = req.get('Host') || '';
-  const ip = req.ip || req.connection.remoteAddress || '';
-  
-  // Allow HeadlessChrome (Playwright/Puppeteer testing)
-  if (userAgent.includes('HeadlessChrome') || userAgent.includes('Playwright')) {
-    return true;
-  }
-  
-  // Allow localhost requests
-  if (ip === '127.0.0.1' || ip === '::1' || ip.startsWith('127.') || 
-      host.includes('localhost') || host.includes('127.0.0.1')) {
-    return true;
-  }
-  
-  // Allow internal monitoring services
-  if (userAgent.includes('ElectionTracker') || userAgent.includes('Replit-Agent')) {
-    return true;
-  }
-  
-  // Allow health check requests without suspicious patterns
-  if (isMonitoringEndpoint(req.path)) {
-    return true;
-  }
-  
-  return false;
-};
 
-// Input validation middleware
+// Input validation middleware — applied uniformly (no Host/User-Agent based
+// bypass: those headers are attacker-controlled). Caps length and rejects only
+// clearly hostile strings; see sqlPatterns.
+const MAX_QUERY_PARAM_LENGTH = 200;
 export const validateInput = (req: Request, res: Response, next: NextFunction) => {
-  // Skip SQL injection checks for monitoring endpoints and legitimate clients
-  if (isMonitoringEndpoint(req.path) || isLegitimateMonitoringClient(req)) {
-    return next();
-  }
+  if (isMonitoringEndpoint(req.path)) return next();
 
   const { search, state, type, q } = req.query;
-  
-  // Check all query parameters for SQL injection
   const params = [search, state, type, q].filter(Boolean);
-  
+
   for (const param of params) {
-    if (typeof param === 'string' && checkForSQLInjection(param)) {
-      // Don't log legitimate monitoring clients as suspicious
-      if (!isLegitimateMonitoringClient(req)) {
-        logSuspiciousActivity(req, 'SQL_INJECTION_ATTEMPT', { 
-          parameter: param,
-          endpoint: req.path
-        });
+    const values = Array.isArray(param) ? param : [param];
+    for (const value of values) {
+      if (typeof value !== 'string') continue;
+      if (value.length > MAX_QUERY_PARAM_LENGTH) {
+        return res.status(400).json({ error: 'Invalid input', message: `Query parameters are limited to ${MAX_QUERY_PARAM_LENGTH} characters` });
       }
-      
-      return res.status(400).json({ 
-        error: 'Invalid input detected',
-        message: 'Search terms cannot contain SQL commands'
-      });
+      if (checkForSQLInjection(value)) {
+        logSuspiciousActivity(req, 'SQL_INJECTION_ATTEMPT', { parameter: value.slice(0, 80), endpoint: req.path });
+        return res.status(400).json({ error: 'Invalid input detected', message: 'Search terms contain disallowed content' });
+      }
     }
   }
-  
   next();
 };
 

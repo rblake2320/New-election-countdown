@@ -66,3 +66,11 @@ Cause: /api/auth/dashboard mapped users.first_name/last_name NULL into a z.strin
 Fix: server/dashboard-user.ts buildDashboardUser() (null -> undefined, real emailVerified, days clamped >= 0); schema names nullish; regression tests/unit/dashboard-user.test.ts (3).
 Live: register (no names) -> GET /api/auth/dashboard -> 200, user.emailVerified=false, daysSinceJoining=0.
 Unit suite: 8 files, 124 passed, 3 skipped. verify-admin-gates.sh PASS.
+
+--- commit 9 (2026-10-11 ~12:45) — search "firewall" blocked real searches in production; spoofable bypass removed
+Before (production-like client: Host=electiontracker.app + X-Forwarded-For): search=O'Brien -> 400, "governor and senate" -> 400. The regex denylist matched apostrophes and the words or/and; it was only invisible locally because any request with Host containing "localhost" or a HeadlessChrome/ElectionTracker User-Agent bypassed it (attacker-controlled headers).
+After: hostile-only patterns (UNION SELECT, ;DROP, /* */, trailing --, pg_sleep/information_schema, 'OR 1=1), 200-char cap, no header-based bypass; real protection remains parameterised queries.
+  O'Brien / governor and senate / select the best -> 200 200 200
+  ' OR 1=1 -- / x UNION SELECT password / 1; DROP TABLE users / a /* c */ b / pg_sleep(5) -> 400 x5
+  201-char search -> 400
+Request logger no longer writes response bodies (user objects) to stdout. verify-admin-gates.sh PASS; unit suite 124 pass / 3 skip.
