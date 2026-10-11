@@ -1,6 +1,9 @@
-import fetch from 'node-fetch';
+import { boundedUpstreamFetch, withBudget, memoize, UPSTREAM_DEFAULTS } from './upstream-fetch';
 import { cacheService } from './cache-service';
 import { voteSmartService, type VoteSmartBio, type VoteSmartPosition, type VoteSmartVotingRecord, type VoteSmartRating } from './services/votesmart-service';
+
+export type CandidateDataField = 'propublica' | 'fec' | 'votesmart' | 'openstates' | 'polling';
+export const ALL_CANDIDATE_DATA_FIELDS: readonly CandidateDataField[] = Object.freeze(['propublica', 'fec', 'votesmart', 'openstates', 'polling']);
 
 interface CandidateData {
   id: string;
@@ -68,11 +71,20 @@ export class CivicAggregatorService {
     }
   }
 
-  async getComprehensiveCandidateData(candidateIds: string[], electionId: string): Promise<CandidateData[]> {
-    const cacheKey = `civic-agg-${candidateIds.join('-')}-${electionId}`;
-    
+  /**
+   * Enrichment is best-effort and bounded: each candidate gets at most
+   * UPSTREAM_DEFAULTS.enrichmentBudgetMs across all providers, then local data wins.
+   * Callers name the providers they actually read (`fields`) so request paths never
+   * pay for data they discard (the elections route only reads VoteSmart).
+   */
+  async getComprehensiveCandidateData(candidateIds: string[], electionId: string, fields: readonly CandidateDataField[] = ALL_CANDIDATE_DATA_FIELDS): Promise<CandidateData[]> {
     const candidateData = await Promise.allSettled(
-      candidateIds.map(id => this.aggregateCandidateData(id, electionId))
+      candidateIds.map(id => withBudget(
+        `enrich ${id}`,
+        UPSTREAM_DEFAULTS.enrichmentBudgetMs,
+        () => this.aggregateCandidateData(id, electionId, fields),
+        { id, name: '', party: '', office: '' } as CandidateData,
+      ))
     );
 
     const results = candidateData
@@ -82,7 +94,7 @@ export class CivicAggregatorService {
     return results;
   }
 
-  private async aggregateCandidateData(candidateId: string, electionId: string): Promise<CandidateData> {
+  private async aggregateCandidateData(candidateId: string, electionId: string, fields: readonly CandidateDataField[] = ALL_CANDIDATE_DATA_FIELDS): Promise<CandidateData> {
     const baseData: CandidateData = {
       id: candidateId,
       name: '',
@@ -90,7 +102,9 @@ export class CivicAggregatorService {
       office: ''
     };
 
-    // Run all API calls in parallel
+    // Only the requested providers run, in parallel, each individually bounded.
+    const want = new Set(fields);
+    const skip = Promise.resolve(null);
     const [
       propublicaData,
       fecData,
@@ -98,11 +112,11 @@ export class CivicAggregatorService {
       openStatesData,
       pollingData
     ] = await Promise.allSettled([
-      this.fetchPropublicaData(candidateId),
-      this.fetchFECData(candidateId),
-      this.fetchVoteSmartData(candidateId),
-      this.fetchOpenStatesData(candidateId),
-      this.fetchPollingData(candidateId)
+      want.has('propublica') ? this.fetchPropublicaData(candidateId) : skip,
+      want.has('fec') ? this.fetchFECData(candidateId) : skip,
+      want.has('votesmart') ? this.fetchVoteSmartData(candidateId) : skip,
+      want.has('openstates') ? this.fetchOpenStatesData(candidateId) : skip,
+      want.has('polling') ? this.fetchPollingData(candidateId) : skip,
     ]);
 
     // Merge successful results
@@ -138,7 +152,7 @@ export class CivicAggregatorService {
     if (!this.propublicaKey) return null;
 
     try {
-      const response = await fetch(`https://api.propublica.org/congress/v1/members/${candidateId}.json`, {
+      const response = await boundedUpstreamFetch(`https://api.propublica.org/congress/v1/members/${candidateId}.json`, {
         headers: {
           'X-API-Key': this.propublicaKey
         }
@@ -157,7 +171,7 @@ export class CivicAggregatorService {
     if (!this.openFecKey) return null;
 
     try {
-      const response = await fetch(`https://api.open.fec.gov/v1/candidates/search/?api_key=${this.openFecKey}&candidate_id=${candidateId}&per_page=1`);
+      const response = await boundedUpstreamFetch(`https://api.open.fec.gov/v1/candidates/search/?api_key=${this.openFecKey}&candidate_id=${candidateId}&per_page=1`);
       if (!response.ok) throw new Error(`OpenFEC API error: ${response.status}`);
       const data = await response.json() as any;
       return data.results?.[0];
@@ -185,12 +199,12 @@ export class CivicAggregatorService {
     try {
       // Get comprehensive candidate data using the new VoteSmart service
       const comprehensiveData = await voteSmartService.getComprehensiveCandidateData(candidateId);
-      
+
       // Extract photo URL from biography data if available
-      const photoUrl = comprehensiveData.bio?.photo || 
-                      comprehensiveData.detailedBio?.photo || 
+      const photoUrl = comprehensiveData.bio?.photo ||
+                      comprehensiveData.detailedBio?.photo ||
                       null;
-      
+
       return {
         bio: comprehensiveData.bio,
         detailedBio: comprehensiveData.detailedBio,
@@ -201,7 +215,7 @@ export class CivicAggregatorService {
         issues: comprehensiveData.issues,
         lastUpdated: comprehensiveData.lastUpdated
       };
-      
+
     } catch (error) {
       console.error(`VoteSmart comprehensive data error for candidate ${candidateId}:`, error);
       return {
@@ -222,20 +236,20 @@ export class CivicAggregatorService {
 
     try {
       // First try to get person by ID
-      const response = await fetch(`https://v3.openstates.org/people/${candidateId}?apikey=${this.openStatesKey}`);
-      
+      const response = await boundedUpstreamFetch(`https://v3.openstates.org/people/${candidateId}?apikey=${this.openStatesKey}`);
+
       if (!response.ok) {
         // If direct lookup fails, search by name
-        const searchResponse = await fetch(`https://v3.openstates.org/people?apikey=${this.openStatesKey}&jurisdiction=us&name=${candidateId}&per_page=1`);
-        
+        const searchResponse = await boundedUpstreamFetch(`https://v3.openstates.org/people?apikey=${this.openStatesKey}&jurisdiction=us&name=${candidateId}&per_page=1`);
+
         if (searchResponse.ok) {
           const searchData = await searchResponse.json() as any;
           return searchData.results?.[0];
         }
-        
+
         throw new Error(`OpenStates API error: ${response.status}`);
       }
-      
+
       const data = await response.json() as any;
       return data;
     } catch (error) {
@@ -244,37 +258,35 @@ export class CivicAggregatorService {
     }
   }
 
-  private async fetchPollingData(candidateId: string): Promise<any> {
-    try {
-      // FiveThirtyEight polling data from GitHub raw files
-      const response = await fetch('https://raw.githubusercontent.com/fivethirtyeight/data/master/polls/polls.csv');
-      if (!response.ok) throw new Error(`FiveThirtyEight data error: ${response.status}`);
-      
-      const csvData = await response.text();
-      // Simple CSV parsing - in production, use a proper CSV parser
-      const lines = csvData.split('\n');
-      const polls = lines.slice(1).map(line => {
-        const values = line.split(',');
-        return {
-          pollster: values[0],
-          date: values[1],
-          candidate: values[2],
-          pct: parseFloat(values[3]) || 0
-        };
-      });
+  // The FiveThirtyEight CSV is a shared, large, slowly-changing file. It is fetched at
+  // most once per 6 h (10 min negative cache after a failure), bounded to 8 s / 10 MB,
+  // and never on a request path more than once concurrently. Override the URL with
+  // POLLING_CSV_URL (tests, air-gapped runs).
+  private static pollingCsv = memoize<Array<{ pollster: string; date: string; candidate: string; pct: number }>>(6 * 60 * 60 * 1000, 10 * 60 * 1000, async () => {
+    const url = process.env.POLLING_CSV_URL || 'https://raw.githubusercontent.com/fivethirtyeight/data/master/polls/polls.csv';
+    const response = await boundedUpstreamFetch(url, {}, { timeoutMs: 8_000, maxBodyBytes: 10_000_000, label: 'polling-csv' });
+    if (!response.ok) throw new Error(`FiveThirtyEight data error: ${response.status}`);
+    const lines = (await response.text()).split('\n');
+    return lines.slice(1).map(line => {
+      const values = line.split(',');
+      return { pollster: values[0], date: values[1], candidate: values[2], pct: parseFloat(values[3]) || 0 };
+    });
+  });
 
-      return polls.filter(poll => poll.candidate?.toLowerCase().includes(candidateId.toLowerCase()));
-    } catch (error) {
-      console.error('Polling data error:', error);
-      return null;
-    }
+  /** Test hook. */
+  static resetPollingCache(): void { CivicAggregatorService.pollingCsv.reset(); }
+
+  private async fetchPollingData(candidateId: string): Promise<any> {
+    const polls = await CivicAggregatorService.pollingCsv.get();
+    if (!polls) return null;
+    return polls.filter(poll => poll.candidate?.toLowerCase().includes(candidateId.toLowerCase()));
   }
 
   async fetchGoogleCivicData(address: string): Promise<any> {
     if (!this.googleCivicKey) return null;
 
     try {
-      const response = await fetch(`https://civicinfo.googleapis.com/civicinfo/v2/voterinfo?key=${this.googleCivicKey}&address=${encodeURIComponent(address)}`);
+      const response = await boundedUpstreamFetch(`https://civicinfo.googleapis.com/civicinfo/v2/voterinfo?key=${this.googleCivicKey}&address=${encodeURIComponent(address)}`);
       if (!response.ok) throw new Error(`Google Civic API error: ${response.status}`);
       return await response.json();
     } catch (error) {
@@ -287,13 +299,13 @@ export class CivicAggregatorService {
     if (country.toLowerCase() === 'uk' || country.toLowerCase() === 'united kingdom') {
       return this.fetchUKParliamentData(candidateName);
     }
-    
+
     return this.fetchWikidataGlobal(candidateName, country);
   }
 
   private async fetchUKParliamentData(candidateName: string): Promise<any> {
     try {
-      const response = await fetch(`https://members-api.parliament.uk/api/Members/Search?Name=${encodeURIComponent(candidateName)}`);
+      const response = await boundedUpstreamFetch(`https://members-api.parliament.uk/api/Members/Search?Name=${encodeURIComponent(candidateName)}`);
       if (!response.ok) throw new Error(`UK Parliament API error: ${response.status}`);
       return await response.json();
     } catch (error) {
@@ -318,7 +330,7 @@ export class CivicAggregatorService {
         LIMIT 5
       `;
 
-      const response = await fetch('https://query.wikidata.org/sparql', {
+      const response = await boundedUpstreamFetch('https://query.wikidata.org/sparql', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -337,7 +349,7 @@ export class CivicAggregatorService {
 
   async comparePolicies(candidateIds: string[], policyCategories: string[]): Promise<PolicyComparison[]> {
     const candidateData = await this.getComprehensiveCandidateData(candidateIds, 'comparison');
-    
+
     return policyCategories.map(category => ({
       category,
       positions: candidateData.map(candidate => ({
@@ -354,7 +366,7 @@ export class CivicAggregatorService {
   private extractPolicyPosition(candidate: CandidateData, category: string): string {
     // Extract policy positions from VoteSmart positions data
     if (candidate.voteSmartData?.positions && candidate.voteSmartData.positions.length > 0) {
-      const position = candidate.voteSmartData.positions.find((p) => 
+      const position = candidate.voteSmartData.positions.find((p) =>
         p.categoryName?.toLowerCase().includes(category.toLowerCase()) ||
         p.position?.toLowerCase().includes(category.toLowerCase())
       );
@@ -454,12 +466,12 @@ export class CivicAggregatorService {
     if (candidate.voteSmartData?.ratings && candidate.voteSmartData.ratings.length > 0) {
       return 'VoteSmart.org - Interest group ratings';
     }
-    
+
     // Fallback to other sources
     if (candidate.propublicaData?.votes) return 'ProPublica Congress API';
     if (candidate.openStatesData?.bills) return 'Open States';
     if (candidate.fecData) return 'Federal Election Commission';
-    
+
     return 'Multiple government sources';
   }
 
@@ -471,7 +483,7 @@ export class CivicAggregatorService {
     if (candidate.voteSmartData?.votingRecord && candidate.voteSmartData.votingRecord.length > 0) score += 0.25;
     if (candidate.voteSmartData?.ratings && candidate.voteSmartData.ratings.length > 0) score += 0.15;
     if (candidate.voteSmartData?.bio || candidate.voteSmartData?.detailedBio) score += 0.1;
-    
+
     // Other data sources
     if (candidate.propublicaData?.votes) score += 0.1;
     if (candidate.fecData) score += 0.05;

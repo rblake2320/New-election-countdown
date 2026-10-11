@@ -261,7 +261,7 @@ electionsRouter.get("/:id/candidates", async (req, res) => {
         const votesmartId = candidate.votesmartId ?? candidate.votesmart_id;
         if (votesmartId || candidate.name) {
           const searchId = votesmartId || candidate.name;
-          const comprehensiveData = await civicAggregatorService.getComprehensiveCandidateData([searchId], id.toString());
+          const comprehensiveData = await civicAggregatorService.getComprehensiveCandidateData([searchId], id.toString(), ['votesmart']);
 
           if (comprehensiveData && comprehensiveData.length > 0) {
             const enrichedData = comprehensiveData[0];
@@ -413,7 +413,7 @@ electionsRouter.get("/:electionId/candidates/:candidateId", async (req, res) => 
     try {
       // Get comprehensive candidate data using CivicAggregator
       const searchId = candidate.votesmartId ?? candidate.votesmart_id ?? candidate.name;
-      const comprehensiveData = await civicAggregatorService.getComprehensiveCandidateData([searchId], electionId.toString());
+      const comprehensiveData = await civicAggregatorService.getComprehensiveCandidateData([searchId], electionId.toString(), ['votesmart']);
 
       const baseResponse = {
         // Basic candidate information
