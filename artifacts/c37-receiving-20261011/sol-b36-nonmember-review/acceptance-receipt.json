@@ -1,0 +1,287 @@
+{
+  "oldHead": "dea5bf21967d742f6b8853653082dd370c8871d2",
+  "newHead": "96201290851fe8e0e39dcece19a6891abc77fb6c",
+  "dEvidenceHead": "2252e667f6cd36c6c0a73445b8a2ae7047bcd191",
+  "oldWholePageOutcome": "Failed",
+  "newWholePageOutcome": "Worked",
+  "passed": 11,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "old dea5 exact D503 crashes whole page even while Members tab is selected",
+      "outcome": "Worked",
+      "details": {
+        "oldOutcome": "Failed",
+        "rootCause": "503 object admitted as query data; hidden Bills JSX eagerly calls .filter",
+        "exactD503Body": {
+          "service": "Congressional Data",
+          "reason": "missing_api_key",
+          "message": "At least one congressional data API key is required (ProPublica, Congress.gov, or OpenStates)",
+          "path": "/api/bills/119",
+          "method": "GET",
+          "availableServices": [],
+          "requiredServices": [
+            "ProPublica",
+            "Congress.gov",
+            "OpenStates"
+          ],
+          "timestamp": "2026-10-11T17:55:39.89Z"
+        }
+      },
+      "requests": [
+        {
+          "path": "/api/bills",
+          "method": "GET",
+          "credentials": null
+        },
+        {
+          "path": "/api/bills/119",
+          "method": "GET",
+          "credentials": null
+        },
+        {
+          "path": "/api/committees",
+          "method": "GET",
+          "credentials": null
+        }
+      ],
+      "consoleErrors": [
+        "Error: Uncaught [TypeError: billsList?.filter is not a function]\n    at reportException (D:\\projects\\et-wt\\lane-b-et36\\node_modules\\jsdom\\lib\\jsdom\\living\\helpers\\runtime-script-errors.js:66:24)\n    at innerInvokeEventListeners (D:\\projects\\et-wt\\lane-b-et36\\node_modules\\jsdom\\lib\\jsdom\\living\\events\\EventTarget-impl.js:353:9)\n    at invokeEventListeners (D:\\projects\\et-wt\\lane-b-et36\\node_modules\\jsdom\\lib\\jsdom\\living\\events\\EventTarget-impl.js:286:3)\n    at HTMLUnknownElementImpl._dispatch (D:\\projects\\et-wt\\lane-b-et36\\node_modules\\jsdom\\lib\\jsdom\\living\\events\\EventTarget-impl.js:233:9)\n    at HTMLUnknownElementImpl.dispatchEvent (D:\\projects\\et-wt\\lane-b-et36\\node_modules\\jsdom\\lib\\jsdom\\living\\events\\EventTarget-impl.js:104:17)\n    at HTMLUnknownElement.dispatchEvent (D:\\projects\\et-wt\\lane-b-et36\\node_modules\\jsdom\\lib\\jsdom\\living\\generated\\EventTarget.js:241:34)\n    at Object.invokeGuardedCallbackDev (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:18444:24)\n    at invokeGuardedCallback (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:18478:39)\n    at beginWork$1 (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:34557:15)\n    at performUnitOfWork (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:33993:20) TypeError: billsList?.filter is not a function\n    at filterBills (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:81906:23)\n    at CongressData (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:82160:500)\n    at renderWithHooks (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:26335:26)\n    at updateFunctionComponent (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:29369:28)\n    at beginWork (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:30711:22)\n    at HTMLUnknownElement.callCallback2 (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:18419:22)\n    at HTMLUnknownElement.callTheUserObjectsOperation (D:\\projects\\et-wt\\lane-b-et36\\node_modules\\jsdom\\lib\\jsdom\\living\\generated\\EventListener.js:26:30)\n    at innerInvokeEventListeners (D:\\projects\\et-wt\\lane-b-et36\\node_modules\\jsdom\\lib\\jsdom\\living\\events\\EventTarget-impl.js:350:25)\n    at invokeEventListeners (D:\\projects\\et-wt\\lane-b-et36\\node_modules\\jsdom\\lib\\jsdom\\living\\events\\EventTarget-impl.js:286:3)\n    at HTMLUnknownElementImpl._dispatch (D:\\projects\\et-wt\\lane-b-et36\\node_modules\\jsdom\\lib\\jsdom\\living\\events\\EventTarget-impl.js:233:9)",
+        "Error: Uncaught [TypeError: billsList?.filter is not a function]\n    at reportException (D:\\projects\\et-wt\\lane-b-et36\\node_modules\\jsdom\\lib\\jsdom\\living\\helpers\\runtime-script-errors.js:66:24)\n    at innerInvokeEventListeners (D:\\projects\\et-wt\\lane-b-et36\\node_modules\\jsdom\\lib\\jsdom\\living\\events\\EventTarget-impl.js:353:9)\n    at invokeEventListeners (D:\\projects\\et-wt\\lane-b-et36\\node_modules\\jsdom\\lib\\jsdom\\living\\events\\EventTarget-impl.js:286:3)\n    at HTMLUnknownElementImpl._dispatch (D:\\projects\\et-wt\\lane-b-et36\\node_modules\\jsdom\\lib\\jsdom\\living\\events\\EventTarget-impl.js:233:9)\n    at HTMLUnknownElementImpl.dispatchEvent (D:\\projects\\et-wt\\lane-b-et36\\node_modules\\jsdom\\lib\\jsdom\\living\\events\\EventTarget-impl.js:104:17)\n    at HTMLUnknownElement.dispatchEvent (D:\\projects\\et-wt\\lane-b-et36\\node_modules\\jsdom\\lib\\jsdom\\living\\generated\\EventTarget.js:241:34)\n    at Object.invokeGuardedCallbackDev (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:18444:24)\n    at invokeGuardedCallback (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:18478:39)\n    at beginWork$1 (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:34557:15)\n    at performUnitOfWork (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:33993:20) TypeError: billsList?.filter is not a function\n    at filterBills (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:81906:23)\n    at CongressData (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:82160:500)\n    at renderWithHooks (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:26335:26)\n    at updateFunctionComponent (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:29369:28)\n    at beginWork (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:30711:22)\n    at HTMLUnknownElement.callCallback2 (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:18419:22)\n    at HTMLUnknownElement.callTheUserObjectsOperation (D:\\projects\\et-wt\\lane-b-et36\\node_modules\\jsdom\\lib\\jsdom\\living\\generated\\EventListener.js:26:30)\n    at innerInvokeEventListeners (D:\\projects\\et-wt\\lane-b-et36\\node_modules\\jsdom\\lib\\jsdom\\living\\events\\EventTarget-impl.js:350:25)\n    at invokeEventListeners (D:\\projects\\et-wt\\lane-b-et36\\node_modules\\jsdom\\lib\\jsdom\\living\\events\\EventTarget-impl.js:286:3)\n    at HTMLUnknownElementImpl._dispatch (D:\\projects\\et-wt\\lane-b-et36\\node_modules\\jsdom\\lib\\jsdom\\living\\events\\EventTarget-impl.js:233:9)",
+        "The above error occurred in the <CongressData> component:\n\n    at CongressData (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:81846:78)\n    at ErrorBoundary (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:82241:5)\n    at QueryClientProvider3 (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:6616:7)\n\nReact will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.",
+        "Error logged: {\"message\":\"billsList?.filter is not a function\",\"stack\":\"TypeError: billsList?.filter is not a function\\n    at filterBills (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:81906:23)\\n    at CongressData (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:82160:500)\\n    at renderWithHooks (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:26335:26)\\n    at updateFunctionComponent (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:29369:28)\\n    at beginWork (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:30711:22)\\n    at beginWork$1 (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:34545:22)\\n    at performUnitOfWork (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:33993:20)\\n    at workLoopSync (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:33929:13)\\n    at renderRootSync (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:33908:15)\\n    at recoverFromConcurrentError (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:33525:28)\",\"componentStack\":\"\\n    at CongressData (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:81846:78)\\n    at ErrorBoundary (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:82241:5)\\n    at QueryClientProvider3 (file:///C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/old-runtime.mjs:6616:7)\"}"
+      ]
+    },
+    {
+      "name": "new 962 actual D503 leaves Members539 mounted",
+      "outcome": "Worked",
+      "requests": [
+        {
+          "path": "/api/bills",
+          "method": "GET",
+          "credentials": "include"
+        },
+        {
+          "path": "/api/bills/119",
+          "method": "GET",
+          "credentials": "include"
+        },
+        {
+          "path": "/api/committees",
+          "method": "GET",
+          "credentials": "include"
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "name": "new Bills tab shows exact D503 missing-source error and captured200empty honestly",
+      "outcome": "Worked",
+      "requests": [
+        {
+          "path": "/api/bills",
+          "method": "GET",
+          "credentials": "include"
+        },
+        {
+          "path": "/api/bills/119",
+          "method": "GET",
+          "credentials": "include"
+        },
+        {
+          "path": "/api/committees",
+          "method": "GET",
+          "credentials": "include"
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "name": "new Committees captured200array shows explicit empty state",
+      "outcome": "Worked",
+      "requests": [
+        {
+          "path": "/api/bills",
+          "method": "GET",
+          "credentials": "include"
+        },
+        {
+          "path": "/api/bills/119",
+          "method": "GET",
+          "credentials": "include"
+        },
+        {
+          "path": "/api/committees",
+          "method": "GET",
+          "credentials": "include"
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "name": "new exact parsed D200null receipt bodies are errors, never successful empty lists",
+      "outcome": "Worked",
+      "details": {
+        "scope": "D parsed receipt carries null for200 bodies; separate raw captures are200[]; tested both explicitly without asserting they are byte-identical"
+      },
+      "requests": [
+        {
+          "path": "/api/bills",
+          "method": "GET",
+          "credentials": "include"
+        },
+        {
+          "path": "/api/bills/119",
+          "method": "GET",
+          "credentials": "include"
+        },
+        {
+          "path": "/api/committees",
+          "method": "GET",
+          "credentials": "include"
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "name": "new Bills loading settles to actual captured empty list",
+      "outcome": "Worked",
+      "requests": [
+        {
+          "path": "/api/bills",
+          "method": "GET",
+          "credentials": "include"
+        },
+        {
+          "path": "/api/bills/119",
+          "method": "GET",
+          "credentials": "include"
+        },
+        {
+          "path": "/api/committees",
+          "method": "GET",
+          "credentials": "include"
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "name": "new Committees loading settles to actual captured empty list",
+      "outcome": "Worked",
+      "requests": [
+        {
+          "path": "/api/bills",
+          "method": "GET",
+          "credentials": "include"
+        },
+        {
+          "path": "/api/bills/119",
+          "method": "GET",
+          "credentials": "include"
+        },
+        {
+          "path": "/api/committees",
+          "method": "GET",
+          "credentials": "include"
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "name": "new Committees bad-list receipt retries to captured200array with real query",
+      "outcome": "Worked",
+      "requests": [
+        {
+          "path": "/api/bills",
+          "method": "GET",
+          "credentials": "include"
+        },
+        {
+          "path": "/api/bills/119",
+          "method": "GET",
+          "credentials": "include"
+        },
+        {
+          "path": "/api/committees",
+          "method": "GET",
+          "credentials": "include"
+        },
+        {
+          "path": "/api/committees",
+          "method": "GET",
+          "credentials": "include"
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "name": "new Bills-by-Congress actual503 retries without inventing records",
+      "outcome": "Worked",
+      "details": {
+        "scope": "finite receiver recovery control using captured200[]; no live provider configuration or successful production recovery claimed"
+      },
+      "requests": [
+        {
+          "path": "/api/bills",
+          "method": "GET",
+          "credentials": "include"
+        },
+        {
+          "path": "/api/bills/119",
+          "method": "GET",
+          "credentials": "include"
+        },
+        {
+          "path": "/api/committees",
+          "method": "GET",
+          "credentials": "include"
+        },
+        {
+          "path": "/api/bills/119",
+          "method": "GET",
+          "credentials": "include"
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "name": "new nonnumeric Congress causes no invalid endpoint request",
+      "outcome": "Worked",
+      "requests": [
+        {
+          "path": "/api/bills",
+          "method": "GET",
+          "credentials": "include"
+        },
+        {
+          "path": "/api/bills/119",
+          "method": "GET",
+          "credentials": "include"
+        },
+        {
+          "path": "/api/committees",
+          "method": "GET",
+          "credentials": "include"
+        }
+      ],
+      "consoleErrors": []
+    },
+    {
+      "name": "typed actual503 status/reason survive loader and member counts unchanged",
+      "outcome": "Worked",
+      "requests": [
+        {
+          "path": "/api/bills/119",
+          "method": "GET",
+          "credentials": "include"
+        }
+      ],
+      "consoleErrors": []
+    }
+  ],
+  "hookMocks": 0,
+  "liveNetworkCalls": 0,
+  "browserUse": 0,
+  "serverOrDBWrites": 0,
+  "fixtureBoundary": "Actual D parsed503 body/receipt plus separately pinned raw200[] captures; Promise delays and retry recovery are labelled finite receiving controls, not new production HTTP observations"
+}

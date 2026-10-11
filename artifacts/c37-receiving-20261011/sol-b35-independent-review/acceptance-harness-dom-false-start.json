@@ -1,0 +1,127 @@
+{
+  "head": "dea5bf21967d742f6b8853653082dd370c8871d2",
+  "inputSha256": "4e2b8e72e1e56dc114f055e9e704bde76dd9fcda4ee0ee764e5c1ae9d8d1ebb0",
+  "outcome": "Failed",
+  "passed": 13,
+  "failed": 3,
+  "checks": [
+    {
+      "name": "real A current scope excludes legacy/history and retains539 source records",
+      "outcome": "Worked"
+    },
+    {
+      "name": "actual helper R filter 274",
+      "outcome": "Worked",
+      "details": {
+        "newCount": 274,
+        "oldLabelSubstringCount": 0
+      }
+    },
+    {
+      "name": "actual helper D filter 262",
+      "outcome": "Worked",
+      "details": {
+        "newCount": 262,
+        "oldLabelSubstringCount": 0
+      }
+    },
+    {
+      "name": "actual helper I filter 3",
+      "outcome": "Worked",
+      "details": {
+        "newCount": 3,
+        "oldLabelSubstringCount": 0
+      }
+    },
+    {
+      "name": "actual helper counts433 voting/6 nonvoting/100 Senate and clean issues",
+      "outcome": "Worked",
+      "details": {
+        "congress": 119,
+        "total": 539,
+        "otherCongress": 0,
+        "senate": 100,
+        "houseVoting": 433,
+        "houseNonVoting": 6,
+        "unrecognizedHouseSeat": 0,
+        "otherChamber": 0,
+        "byParty": {
+          "Republican": 274,
+          "Democratic": 262,
+          "Independent": 3
+        },
+        "senateStateIssues": [],
+        "duplicateHouseSeats": []
+      }
+    },
+    {
+      "name": "raw retained backward-compatible response reports540 records/one issue, excludes history",
+      "outcome": "Worked"
+    },
+    {
+      "name": "actual member labels preserve at-large/resident commissioner/delegate",
+      "outcome": "Worked"
+    },
+    {
+      "name": "real component / real QueryClient renders scoped539 with correct composition",
+      "outcome": "Failed",
+      "error": "ReferenceError: DocumentFragment is not defined\n    at file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:94984:23\n    at commitHookEffectListMount (file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:31708:34)\n    at commitLayoutEffectOnFiber (file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:31800:21)\n    at commitLayoutMountEffects_complete (file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:32775:17)\n    at commitLayoutEffects_begin (file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:32764:15)\n    at commitLayoutEffects (file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:32715:11)\n    at commitRootImpl (file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:34151:13)\n    at commitRoot (file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:34075:13)\n    at performSyncWorkOnRoot (file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:33693:11)\n    at flushSyncCallbacks (file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:23911:30)"
+    },
+    {
+      "name": "real component party interaction showsR274",
+      "outcome": "Failed",
+      "error": "ReferenceError: DocumentFragment is not defined\n    at file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:94984:23\n    at commitHookEffectListMount (file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:31708:34)\n    at commitLayoutEffectOnFiber (file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:31800:21)\n    at commitLayoutMountEffects_complete (file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:32775:17)\n    at commitLayoutEffects_begin (file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:32764:15)\n    at commitLayoutEffects (file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:32715:11)\n    at commitRootImpl (file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:34151:13)\n    at commitRoot (file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:34075:13)\n    at performSyncWorkOnRoot (file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:33693:11)\n    at flushSyncCallbacks (file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:23911:30)"
+    },
+    {
+      "name": "real component state interaction showsVT3 / exact source labels",
+      "outcome": "Failed",
+      "error": "ReferenceError: DocumentFragment is not defined\n    at file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:94984:23\n    at commitHookEffectListMount (file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:31708:34)\n    at commitLayoutEffectOnFiber (file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:31800:21)\n    at commitLayoutMountEffects_complete (file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:32775:17)\n    at commitLayoutEffects_begin (file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:32764:15)\n    at commitLayoutEffects (file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:32715:11)\n    at commitRootImpl (file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:34151:13)\n    at commitRoot (file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:34075:13)\n    at performSyncWorkOnRoot (file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:33693:11)\n    at flushSyncCallbacks (file:///C:/Users/techai/.codex/tmp/sol-b35-independent-review/runtime.mjs:23911:30)"
+    },
+    {
+      "name": "real admin component counts539 and flags two vacancies honestly",
+      "outcome": "Worked"
+    },
+    {
+      "name": "real typed admin refusal /api/congress/import",
+      "outcome": "Worked"
+    },
+    {
+      "name": "real typed admin refusal /api/congress/sync-all",
+      "outcome": "Worked"
+    },
+    {
+      "name": "real admin mutation422 does not report completed import",
+      "outcome": "Worked"
+    },
+    {
+      "name": "member search component has no obsolete sync mutation/control",
+      "outcome": "Worked"
+    },
+    {
+      "name": "real search component labels historical response rather than implying sitting",
+      "outcome": "Worked"
+    }
+  ],
+  "transport": [
+    {
+      "url": "/api/congress/import",
+      "method": "POST",
+      "credentials": "include"
+    },
+    {
+      "url": "/api/congress/sync-all",
+      "method": "POST",
+      "credentials": "include"
+    },
+    {
+      "url": "/api/congress/import",
+      "method": "POST",
+      "credentials": "include"
+    }
+  ],
+  "liveNetworkCalls": 0,
+  "hookMocks": 0,
+  "browserUse": 0,
+  "serverOrDBWrites": 0,
+  "environment": "Native Node24/JSDOM and actual real React QueryClient; standard missing DOM pointer/scroll APIs shimmed only"
+}

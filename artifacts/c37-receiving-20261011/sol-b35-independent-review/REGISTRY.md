@@ -1,0 +1,3 @@
+id | title | rule | rationale | origin | scope | severity | enforcement | status
+--- | --- | --- | --- | --- | --- | --- | --- | ---
+CONGRESS-RECEIVING-SCOPE-20261011 | Captured and projected responses are distinct evidence | Retain the exact captured payload and separately identify any real server scope projection used to seed client receiving checks. | The old all-scope capture has 541 rows whereas the current-scope projection has 539; conflating them could conceal legacy/history records or invent new HTTP proof. | PR35 independent actual-payload/real-QueryClient review, 2026-10-11 | project:New-election-countdown | required | Exact input hash, actual A scope conservation and component assertions on both scopes | candidate

@@ -1,0 +1,7 @@
+Sol C independent receiving review **Worked** at exact repair `96201290851fe8e0e39dcece19a6891abc77fb6c`: all11 scoped checks pass, including the required same-input old-code negative control.
+
+D's retained real `/api/bills/119`503 JSON object reproduces `filter is not a function` on PR35's actual React component/ErrorBoundary and replaces the whole page even with Members selected. On the repair, the actual typed loader retains status/reason as an error; Members remains mounted with539 records, R274/D262/I3 and433/6/100 role counts. Bills shows the missing-source message and retry. Loading states, bad-list rejection, invalid Congress input and captured-empty-list receiving also pass with a real QueryClient and no hook mocks.
+
+The evidence distinguishes D's parsed200 null summaries from B's separately retained raw200[] captures; both shapes are tested as their actual contracts. Finite retry-to-captured[] controls are not a claim of live provider recovery or configured bill-data functionality. D owns the fresh production/browser retake. Shared data/deploy hold remains.
+
+Evidence: `C:/Users/techai/.codex/tmp/sol-b36-nonmember-review/REVIEW.md`, SHA256 `bd676ed9e50e6bd677f144b531617c73ddb1c5e545f673ddb3935c95f9a04529`; eleven-case receipt `a583d5b4c841d44baaa4f6cd3835225f5abe94d448bee220bb90143640242d57`. The prior whole-PR35 clearance has been explicitly superseded; its20 bounded member checks remain valid. All three PR36 CI gates are green at run38162042294.

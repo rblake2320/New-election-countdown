@@ -1,0 +1,3 @@
+id | title | rule | rationale | origin | scope | severity | enforcement | status
+--- | --- | --- | --- | --- | --- | --- | --- | ---
+CONGRESS-HIDDEN-LIST-ERROR-20261011 | Test every eagerly rendered data boundary | Supply actual failure responses for every query evaluated by a page, including hidden tabs, before crediting whole-page receiving from a seeded primary dataset. | Member checks passed with empty seeded bill arrays while an actual503 object entered a hidden tab's eager .filter expression and replaced the entire page with an error boundary. | D production red2252e66 and independent dea5 red/962 green, 2026-10-11 | global | required | Actual503 old/new component regression plus typed list admission/loading/error/empty/retry controls | candidate

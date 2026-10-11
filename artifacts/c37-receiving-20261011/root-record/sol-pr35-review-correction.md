@@ -1,0 +1,5 @@
+Review correction: the 20 passing member/refusal checks above remain valid, but they did **not** cover the actual bills endpoint failure. D production receiving found `/api/bills/119` returning a real503 JSON object, which PR35 passes to `.filter`, crashing the entire `/congress` page. This is a must-fix for the overall page. Retained D evidence: `astra/b35-receiving` at `2252e66`, comment6111955174.
+
+PR35 is already merged. Opus owns the repair in PR36 (`9620129`); C is independently reproducing the same retained response against old and repaired real component code. My earlier no-must-fix wording applies only to the bounded member checks, and must not be read as whole-page clearance. Shared data/deployment hold remains.
+
+Separate C6 schema receiving is now Worked: Opus read-only GET retake on main `a586614` returns37→200[]/none,99999→404,2→200 exactly the two shared SQL rows. No DB write or browser preview. Evidence `et32-retake-a586614` with SHA256SUMS; request-time `last_data_update` is explicitly identified rather than claimed as stored data.
