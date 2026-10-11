@@ -126,13 +126,13 @@ describe("lane C review probes (PR #4)", () => {
 
 describe("C3 contract fields (proposed: poll_close_kind, poll_hours_basis)", () => {
   const base = { date: "2026-11-03T00:00:00.000Z", pollsOpen: "07:00", pollsClose: "20:00", timezone: "America/Los_Angeles" };
-  it("ballot_return deadlines are not presented as polls closing", () => {
+  it("ballot_return is a ballot drop-off deadline, not polls closing or a postmark rule", () => {
     const e = { ...base, pollsOpen: null, pollCloseKind: "ballot_return" as const, pollHoursBasis: "statewide_latest" as const };
     const during = getElectionTiming(e, new Date("2026-11-03T20:00:00Z"));
-    expect(during.targetLabel).toBe("until ballot return deadline");
-    expect(during.statusLabel).toBe("Ballots due today");
+    expect(during.targetLabel).toBe("until ballot drop-off deadline");
+    expect(during.statusLabel).toBe("Election Day · ballot drop-off open");
     expect(during.statusLabel).not.toMatch(/Polls/);
-    expect(getElectionTiming(e, new Date("2026-11-04T05:00:00Z")).statusLabel).toBe("Ballot deadline passed · results pending");
+    expect(getElectionTiming(e, new Date("2026-11-04T05:00:00Z")).statusLabel).toBe("Ballot drop-off closed · results pending");
   });
   it("local_variable hours are never exact", () => {
     const t = getElectionTiming({ ...base, pollHoursBasis: "local_variable" as const }, new Date("2026-11-03T20:00:00Z"));

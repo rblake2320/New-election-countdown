@@ -12,7 +12,7 @@ export interface ElectionTimingInput {
   pollsOpen?: string | null;
   pollsClose?: string | null;
   timezone?: string | null;
-  /** What the close time is (proposed C3 contract): polls closing, or a mail-ballot return deadline. */
+  /** What the close time is (proposed C3 contract): polls closing, or the ballot drop-off deadline. */
   pollCloseKind?: "polls" | "ballot_return" | null;
   /** How the close was derived; only a latest-close basis makes a countdown exact. */
   pollHoursBasis?: "statewide_latest" | "district_latest" | "local_variable" | null;
@@ -158,8 +158,9 @@ export function phaseAt(s: ElectionSchedule, now: Date): ElectionTiming {
   if (s.opens && t < s.opens.getTime() && !ballots) return out("upcoming", s.opens, "until polls open", "Upcoming");
   if ((!s.opens || ballots) && t < s.dayStart.getTime()) return out("upcoming", s.dayStart, "until Election Day", "Upcoming");
   if (t < s.closes.getTime()) {
-    // A mail-ballot state's deadline is not a polls close.
-    if (ballots) return out("election-day", s.closes, "until ballot return deadline", "Ballots due today");
+    // Ballot drop-off deadline (vote-by-mail states). Not a polls close, and not
+    // a postmark or mail-receipt deadline, which follow other rules.
+    if (ballots) return out("election-day", s.closes, "until ballot drop-off deadline", "Election Day · ballot drop-off open");
     // "Polls open" only when both ends are published; an unknown opening time
     // (e.g. towns that set their own hours) must not be reported as open at 00:30.
     if (s.opens && s.closeKnown) return out("polls-open", s.closes, "until polls close", "Polls open");
@@ -168,7 +169,7 @@ export function phaseAt(s: ElectionSchedule, now: Date): ElectionTiming {
       : out("election-day", s.closes, "left on Election Day", "Election Day");
   }
   if (t < s.closes.getTime() + POLLS_CLOSED_WINDOW_DAYS * DAY_MS) {
-    return out("polls-closed", null, "", ballots ? "Ballot deadline passed · results pending" : "Polls closed · results pending");
+    return out("polls-closed", null, "", ballots ? "Ballot drop-off closed · results pending" : "Polls closed · results pending");
   }
   return out("completed", null, "", "Election held");
 }
