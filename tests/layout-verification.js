@@ -26,7 +26,8 @@ console.log(`  - Uses et-card__footer: ${hasEtCardFooter ? '✅ YES' : '❌ NO'}
 
 // Check FeaturedElectionCards
 const featuredPath = path.join(__dirname, '../client/src/components/featured-election-cards.tsx');
-const featuredContent = fs.readFileSync(featuredPath, 'utf8');
+// Featured block removed from the home page (owner decision 2026-10-11, ET-30).
+const featuredContent = fs.existsSync(featuredPath) ? fs.readFileSync(featuredPath, 'utf8') : '';
 
 const usesElectionCard = featuredContent.includes('ElectionCard');
 const usesEtGrid = featuredContent.includes('et-grid-eq');

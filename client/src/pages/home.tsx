@@ -10,7 +10,6 @@ import { MobileContainer, ResponsiveGrid, useIsMobile, MobileNavigation } from "
 import FilterSidebar from "@/components/filter-sidebar-new";
 import { ElectionCard } from "@/components/election-card";
 import ElectionGrid from "@/components/ElectionGrid";
-import { FeaturedElectionCards } from "@/components/featured-election-cards";
 import { VoterInfoLookup } from "@/components/voter-info-lookup";
 import { AIElectionSearch } from "@/components/ai-election-search";
 // import { AuthModal } from "@/components/auth-modal";
@@ -319,14 +318,10 @@ export default function Home() {
               onToggleGuidance={setGuidanceEnabled}
             />
             
-            {/* Featured Election Cards */}
-            {!isLoading && elections.length > 0 && (
-              // Desktop only: on phones three long cards pushed search scope, filters
-              // and the result count out of the first screen, and the same races
-              // repeat in the list right below (owner UX review, ET-28/ET-30).
-              <div className="hidden lg:block"><FeaturedElectionCards elections={elections} /></div>
-            )}
-            
+            {/* No separate Featured block: it repeated the first races of the list and
+                pushed the result count far down. Owner decision 2026-10-11: results
+                first on every screen size (ET-30). */}
+
             {/* Dashboard Header */}
             <div style={{ marginBottom: 'var(--section-spacing)' }}>
               <div className="flex flex-wrap items-center justify-between gap-3" style={{ marginBottom: 'var(--content-spacing)' }}>
