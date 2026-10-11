@@ -1,10 +1,7 @@
-export function useIsAdmin(user?: { role?: string; email?: string }) {
-  // env gate OR role gate. Either will show it.
-  const flag = import.meta.env.VITE_ADMIN_FEATURES === "1";
-  
-  // Check if user is admin by role or email domain
-  const isAdminRole = user?.role?.toLowerCase?.() === "admin";
-  const isAdminEmail = user?.email?.endsWith?.("@admin.com");
-  
-  return flag || isAdminRole || isAdminEmail;
+// UI hint only: decides whether to SHOW admin tools. The server is the
+// authority (requireAdmin loads users.role). The VITE_ADMIN_FEATURES flag and
+// the "@admin.com" email rule made every signed-in user look like an admin and
+// are removed here in step with the server fix (lane A, A2).
+export function useIsAdmin(user?: { role?: string | null }) {
+  return user?.role?.toLowerCase?.() === "admin";
 }

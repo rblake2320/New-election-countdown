@@ -14,7 +14,8 @@ import { apiRequest } from "@/lib/queryClient";
 import { cn } from "@/lib/utils";
 import type { Election, Candidate } from "@shared/schema";
 import { useCandidates, useElectionResults } from "@/hooks/use-elections";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
+import { rememberPendingWatch, signInUrl, takePendingWatch } from "@/lib/auth-return";
 import { PoliticalLeaningBorder } from "@/components/ui/political-leaning-border";
 import { calculateAdvancedPoliticalLeaningWithMomentum } from "@/lib/political-analysis";
 
@@ -31,17 +32,17 @@ interface ElectionCardProps {
 }
 
 const electionTypeColors = {
-  primary: "bg-blue-500/20 text-blue-700 dark:text-blue-300",
-  general: "bg-green-500/20 text-green-700 dark:text-green-300",
-  special: "bg-orange-500/20 text-orange-700 dark:text-orange-300",
-  runoff: "bg-purple-500/20 text-purple-700 dark:text-purple-300"
+  primary: "bg-blue-500/20 text-blue-800 dark:text-blue-300",
+  general: "bg-green-500/20 text-green-800 dark:text-green-300",
+  special: "bg-orange-500/20 text-orange-800 dark:text-orange-300",
+  runoff: "bg-purple-500/20 text-purple-800 dark:text-purple-300"
 };
 
 const electionLevelColors = {
-  federal: "bg-red-500/20 text-red-700 dark:text-red-300",
-  state: "bg-blue-500/20 text-blue-700 dark:text-blue-300",
-  local: "bg-green-500/20 text-green-700 dark:text-green-300",
-  municipal: "bg-yellow-500/20 text-yellow-700 dark:text-yellow-300"
+  federal: "bg-red-500/20 text-red-800 dark:text-red-300",
+  state: "bg-blue-500/20 text-blue-800 dark:text-blue-300",
+  local: "bg-green-500/20 text-green-800 dark:text-green-300",
+  municipal: "bg-yellow-500/20 text-yellow-800 dark:text-yellow-300"
 };
 
 function formatElectionDate(date: string): string {
@@ -60,6 +61,7 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const { user, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
 
@@ -142,13 +144,19 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
     },
   });
 
+  // Finish a Watch that was started before sign-in, once the watchlist has loaded.
+  useEffect(() => {
+    if (!isAuthenticated || !Array.isArray(watchlist)) return;
+    if (!takePendingWatch(election.id)) return;
+    if (!isInWatchlist) addToWatchlistMutation.mutate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, watchlist, election.id]);
+
   const toggleWatchlist = () => {
     if (!isAuthenticated) {
-      toast({
-        title: "Sign In Required",
-        description: "Please sign in to add elections to your watchlist.",
-        variant: "destructive",
-      });
+      // Keep the intent: sign in, come back here, and the watch completes.
+      rememberPendingWatch(election.id);
+      setLocation(signInUrl(window.location.pathname + window.location.search));
       return;
     }
 
@@ -291,7 +299,7 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
           <CountdownTimer 
             election={election} 
             size={viewMode === "grid" ? "md" : "sm"} 
-            className="text-foreground font-mono"
+            className="text-foreground"
           />
         </div>
       </div>
@@ -449,7 +457,7 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
       )}
 
       {/* Action Row - Footer */}
-      <footer className="mt-auto flex justify-between items-center pt-4 border-t border-border/20">
+      <footer className="mt-auto flex flex-wrap justify-between items-center gap-2 pt-4 border-t border-border/20">
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
@@ -474,7 +482,7 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
           </Button>
         </div>
         
-        <div className="flex items-center gap-1.5">
+        <div className="flex flex-wrap items-center gap-1.5">
           {/* View Trends Button */}
           <Link href={`/elections/${election.id}`}>
             <Button 

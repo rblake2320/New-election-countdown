@@ -7,6 +7,8 @@ export interface User {
   firstName?: string;
   lastName?: string;
   profileImageUrl?: string;
+  /** 'user' | 'admin' (users.role); a UI hint only, the server authorizes. */
+  role?: string | null;
 }
 
 export function useAuth() {

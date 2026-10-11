@@ -54,7 +54,12 @@ export function normalizeFilters(filters: ElectionFilters): ElectionFilters {
   };
 }
 
-/** Upcoming-only timeframes never include races whose calendar date has passed. */
+/**
+ * The home list is "Upcoming Elections": with no timeframe chosen, or any
+ * upcoming-only one, races whose calendar date has passed are dropped. The
+ * API's default keeps the last 30 days for other consumers (happening-now),
+ * so the guard runs client-side and works with old and new servers alike.
+ */
 export function isUpcomingTimeframe(timeframe: string | undefined): boolean {
-  return !!timeframe && timeframe.startsWith("next-");
+  return timeframe === undefined || timeframe === "upcoming" || timeframe.startsWith("next-");
 }

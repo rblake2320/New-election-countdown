@@ -1,24 +1,26 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { LoginForm } from "@/components/auth/login-form";
 import { OnboardingFlow } from "@/components/onboarding-flow";
 import { useAuth } from "@/hooks/use-auth";
+import { safeReturnTo } from "@/lib/auth-return";
 
 export default function AuthPage() {
   const [, setLocation] = useLocation();
   const { isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState("login");
-  
-  // Redirect if already authenticated
-  if (isAuthenticated) {
-    setLocation("/dashboard");
-    return null;
-  }
+  // Return to the page that sent the visitor here (e.g. Watch on an election).
+  const returnTo = safeReturnTo(new URLSearchParams(window.location.search).get("returnTo"));
+
+  useEffect(() => {
+    if (isAuthenticated) setLocation(returnTo);
+  }, [isAuthenticated, returnTo, setLocation]);
+  if (isAuthenticated) return null;
   
   const handleSuccess = () => {
-    setLocation("/dashboard");
+    setLocation(returnTo);
   };
   
   // For registration flow, use the complete onboarding experience
