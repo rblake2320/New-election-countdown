@@ -909,10 +909,11 @@ export class StorageFactory {
   }
 
   async updateCandidatePolling(candidateId: number, pollingData: {
-    pollingSupport?: number;
-    pollingTrend?: string;
-    lastPollingUpdate?: Date;
-    pollingSource?: string;
+    // null clears a value (the data-audit endpoint removes static polling numbers)
+    pollingSupport?: number | null;
+    pollingTrend?: string | null;
+    lastPollingUpdate?: Date | null;
+    pollingSource?: string | null;
   }): Promise<void> {
     if (this.isReadOnlyMode) {
       throw new Error('Cannot perform write operation in read-only mode');

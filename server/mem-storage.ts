@@ -228,10 +228,11 @@ export class MemStorage implements IStorage {
   }
 
   async updateCandidatePolling(candidateId: number, pollingData: {
-    pollingSupport?: number;
-    pollingTrend?: string;
-    lastPollingUpdate?: Date;
-    pollingSource?: string;
+    // null clears a value (the data-audit endpoint removes static polling numbers)
+    pollingSupport?: number | null;
+    pollingTrend?: string | null;
+    lastPollingUpdate?: Date | null;
+    pollingSource?: string | null;
   }): Promise<void> {
     const candidate = this.candidates.get(candidateId);
     if (candidate) {

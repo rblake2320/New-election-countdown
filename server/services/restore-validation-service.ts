@@ -579,7 +579,7 @@ export class RestoreValidationService {
    * Run sample data checks on specific tables
    */
   private async runSampleDataChecks(connection: DatabaseConnection): Promise<any[]> {
-    const results = [];
+    const results: Array<{ tableName: string; query: string; success: boolean; error?: string; recordCount: number; duration: number }> = [];
 
     for (const check of this.config.sampleDataChecks) {
       try {
@@ -640,7 +640,7 @@ export class RestoreValidationService {
    * Run validation queries against the test database
    */
   private async runValidationQueries(connection: DatabaseConnection): Promise<any[]> {
-    const results = [];
+    const results: Array<{ query: string; success: boolean; result?: unknown; error?: string; duration: number }> = [];
 
     for (const query of this.validationQueries) {
       try {
@@ -672,7 +672,7 @@ export class RestoreValidationService {
    * Run benchmark queries for performance measurement
    */
   private async runBenchmarkQueries(connection: DatabaseConnection): Promise<any[]> {
-    const results = [];
+    const results: Array<{ query: string; success: boolean; result?: unknown; error?: string; duration: number }> = [];
 
     for (const query of this.benchmarkQueries) {
       try {
