@@ -1,0 +1,25 @@
+{
+  "scope": "read-only schema check after C6 main merge",
+  "sharedWrites": false,
+  "columns": [
+    {
+      "column_name": "official_results_source",
+      "is_nullable": "YES",
+      "data_type": "jsonb"
+    },
+    {
+      "column_name": "official_results_url",
+      "is_nullable": "YES",
+      "data_type": "text"
+    }
+  ],
+  "auditTablePresent": true,
+  "counts": {
+    "elections": 537,
+    "candidates": 136
+  },
+  "mainResultsQuery": {
+    "outcome": "Worked"
+  },
+  "outcome": "Worked"
+}

@@ -1,0 +1,58 @@
+{
+  "operation": "schema-only",
+  "sourceHead": "0a717fecf838b5f8ab5c56805519537d3621ef28",
+  "migrationSha256": "70ab0e157d735472d25124e850af60c51c690b53ea96f317a878ae4682f6a0cd",
+  "sourceOrPollValueImport": false,
+  "committed": true,
+  "addedColumns": [
+    "official_results_url",
+    "official_results_source"
+  ],
+  "before": {
+    "elections": 537,
+    "electionOldFieldsAndXminSha256": "238772b38447a439de089d1cbe634bac2c4cd6d220a7433609381e9575ec2092",
+    "candidates": 136,
+    "candidateFullRowsAndXminSha256": "c1cfc114fb42435f63d020229e0a82b202b2cf092bde0246f029bbc6c7b355b3"
+  },
+  "columns": [
+    {
+      "column_name": "official_results_source",
+      "data_type": "jsonb",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "official_results_url",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    }
+  ],
+  "after": {
+    "elections": 537,
+    "electionOldFieldsAndXminSha256": "238772b38447a439de089d1cbe634bac2c4cd6d220a7433609381e9575ec2092",
+    "candidates": 136,
+    "candidateFullRowsAndXminSha256": "c1cfc114fb42435f63d020229e0a82b202b2cf092bde0246f029bbc6c7b355b3"
+  },
+  "auditRows": 0,
+  "repeat": {
+    "elections": 537,
+    "electionOldFieldsAndXminSha256": "238772b38447a439de089d1cbe634bac2c4cd6d220a7433609381e9575ec2092",
+    "candidates": 136,
+    "candidateFullRowsAndXminSha256": "c1cfc114fb42435f63d020229e0a82b202b2cf092bde0246f029bbc6c7b355b3"
+  },
+  "fresh": {
+    "elections": 537,
+    "electionOldFieldsAndXminSha256": "238772b38447a439de089d1cbe634bac2c4cd6d220a7433609381e9575ec2092",
+    "candidates": 136,
+    "candidateFullRowsAndXminSha256": "c1cfc114fb42435f63d020229e0a82b202b2cf092bde0246f029bbc6c7b355b3"
+  },
+  "mainQuery": [
+    {
+      "id": 37,
+      "official_results_url": null,
+      "official_results_source": null
+    }
+  ],
+  "outcome": "Worked"
+}
