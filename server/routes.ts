@@ -1080,28 +1080,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
   // Congressional member search - MUST come before /:state route
-  app.get('/api/members/search', searchLimiter, validateInput, async (req, res) => {
-    try {
-      const searchTerm = (req.query.q || req.query.searchTerm) as string;
-      console.log('[ROUTES] Congressional search endpoint hit with term:', searchTerm);
-      if (!searchTerm) {
-        console.log('[ROUTES] No search term provided');
-        return res.status(400).json({ error: 'Search query is required' });
-      }
-      console.log('[ROUTES] Calling storage.searchCongressMembers...');
-      const members = await storage.searchCongressMembers(searchTerm);
-      console.log(`[ROUTES] Search for "${searchTerm}" returned ${members.length} results`);
-      res.json(members);
-    } catch (error: any) {
-      console.error('[ROUTES] Error searching congress members:', error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-
-
-
-  // Congress member reads: current official roster by default, 56 jurisdictions incl.
-  // territories, explicit ?scope=history|legacy|all (server/congress-members-routes.ts).
+  // Congress member reads + search: current official roster by default, 56 jurisdictions
+  // incl. territories, explicit ?scope=history|legacy|all, party by stored code + label
+  // aliases, 503 when the read fails (server/congress-members-routes.ts).
+  app.use('/api/members/search', searchLimiter, validateInput);
   registerCongressMembersRoutes(app, () => db.select().from(congressMembers));
 
   app.get('/api/committees', async (req, res) => {
@@ -1171,21 +1153,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin Congress import (extracted: server/congress-import-routes.ts). The importer is
   // injected so Lane C's source-bound importer can replace the legacy one here only.
   registerCongressImportRoutes(app, async () => (await import('./congress-import-service')).congressImportService);
-
-  app.post('/api/congress/find-member', isAuthenticated, requireAdmin, requireCongressionalAPI, async (req, res) => {
-    try {
-      const { memberName } = req.body;
-      if (!memberName) {
-        return res.status(400).json({ error: 'Member name is required' });
-      }
-
-      const result = await storage.findMissingCongressMember();
-      res.json(result);
-    } catch (error: any) {
-      console.error('Error finding congress member:', error);
-      res.status(500).json({ error: error.message });
-    }
-  });
 
   // Election results endpoint
   app.get('/api/elections/:id/results', async (req, res) => {

@@ -5,7 +5,7 @@ import { join } from "path";
 // Sol's actual API gap on main: /api/members/:state admitted 50 states + DC and rejected
 // the real 539-member source's PR/GU/AS/MP/VI; /api/members returned preserved history and
 // unreviewed legacy rows mixed with the current roster.
-const { registerCongressMembersRoutes, CONGRESS_JURISDICTIONS, memberScope, filterMembers, parseScope } = await import("../../server/congress-members-routes");
+const { registerCongressMembersRoutes, CONGRESS_JURISDICTIONS, memberScope, filterMembers, parseScope, searchMembers, SEARCH_LIMIT } = await import("../../server/congress-members-routes");
 
 const rows = [
   { id: 1, bioguideId: "G000582", name: "Jenniffer González-Colón", party: "R", state: "PR", district: "00", chamber: "House", congress: 119 },
@@ -16,10 +16,10 @@ const rows = [
 ];
 
 type Handler = (req: any, res: any) => any;
-function build() {
+function build(list: () => Promise<any[]> = async () => rows as any) {
   const routes = new Map<string, Handler>();
   const app: any = { get: (path: string, h: Handler) => routes.set(path, h) };
-  registerCongressMembersRoutes(app, async () => rows as any);
+  registerCongressMembersRoutes(app, list);
   return async (path: string, params: any = {}, query: any = {}) => {
     const res: any = { statusCode: 200, headers: {} as Record<string, string>, body: undefined, status(c: number) { res.statusCode = c; return res; }, json(b: any) { res.body = b; return res; }, setHeader(k: string, v: string) { res.headers[k] = v; } };
     await routes.get(path)!({ params, query }, res);
@@ -80,12 +80,67 @@ describe("GET /api/members and /api/members/:state", () => {
 });
 
 describe("routes.ts composition", () => {
-  it("uses the extracted module after the search route and carries no inline state regex", () => {
+  it("uses the extracted module for every member read incl. search and carries no inline state regex", () => {
     const routes = readFileSync(join(__dirname, "..", "..", "server", "routes.ts"), "utf8");
     expect(routes).toContain("registerCongressMembersRoutes(app");
     expect(routes).not.toMatch(/app\.get\('\/api\/members'/);
     expect(routes).not.toMatch(/app\.get\('\/api\/members\/:state'/);
+    expect(routes).not.toMatch(/app\.get\('\/api\/members\/search'/);
     expect(routes).not.toMatch(/const STATE_RE\s*=/);
-    expect(routes.indexOf("app.get('/api/members/search'")).toBeLessThan(routes.indexOf("registerCongressMembersRoutes(app"));
+    // the search limiter + input validation are mounted before the module registers the handler
+    expect(routes.indexOf("app.use('/api/members/search', searchLimiter, validateInput);")).toBeLessThan(routes.indexOf("registerCongressMembersRoutes(app"));
+  });
+});
+
+describe("member search (ET-2: party by stored code, 503 on read failure)", () => {
+  it("matches party labels and codes against the stored code, never by substring", () => {
+    expect(searchMembers(rows, "democrat").map((r) => r.id)).toEqual([4, 5]);
+    expect(searchMembers(rows, "D").map((r) => r.id)).toEqual([4, 5]);
+    expect(searchMembers(rows, "GOP").map((r) => r.id)).toEqual([1, 2, 3]);
+    // "d" used to ILIKE-match every name containing a d; now it is the party code only
+    expect(searchMembers(rows, "d").map((r) => r.id)).toEqual([4, 5]);
+    expect(searchMembers(rows, "an")).toEqual([]); // two letters, not a code: no name scan
+  });
+
+  it("matches state and Bioguide exactly and names without diacritics", () => {
+    expect(searchMembers(rows, "ak").map((r) => r.id)).toEqual([3, 4]);
+    expect(searchMembers(rows, "s001198").map((r) => r.id)).toEqual([3]);
+    expect(searchMembers(rows, "gonzalez").map((r) => r.id)).toEqual([1]);
+    expect(searchMembers(rows, "zzz")).toEqual([]);
+    expect(searchMembers(rows, "   ")).toEqual([]);
+  });
+
+  it("caps results at the search limit", () => {
+    const many = Array.from({ length: SEARCH_LIMIT + 10 }, (_, i) => ({ ...rows[0], id: 100 + i, name: `Member ${i}` }));
+    expect(searchMembers(many, "member")).toHaveLength(SEARCH_LIMIT);
+  });
+
+  it("GET /api/members/search defaults to the current roster, honours scope, and 400s without a term", async () => {
+    const call = build();
+    const current = await call("/api/members/search", {}, { q: "ak" });
+    expect(current.statusCode).toBe(200);
+    expect(current.body.map((r: any) => r.id)).toEqual([3]);
+    expect(current.headers["X-Congress-Scope"]).toBe("current");
+    const all = await call("/api/members/search", {}, { q: "ak", scope: "all" });
+    expect(all.body.map((r: any) => r.id)).toEqual([3, 4]);
+    const missing = await call("/api/members/search", {}, {});
+    expect(missing.statusCode).toBe(400);
+    expect(missing.body.error).toBe("search_term_required");
+  });
+
+  it("answers 503 members_unavailable when the read fails instead of 200 []", async () => {
+    const call = build(async () => { throw new Error("connection refused"); });
+    for (const [path, params, query] of [["/api/members/search", {}, { q: "ak" }], ["/api/members", {}, {}], ["/api/members/:state", { state: "AK" }, {}]] as const) {
+      const res = await call(path, params, query);
+      expect(res.statusCode, path).toBe(503);
+      expect(res.body.error, path).toBe("members_unavailable");
+    }
+  });
+
+  it("the search and find-member routes no longer live in routes.ts", () => {
+    const routes = readFileSync(join(__dirname, "..", "..", "server", "routes.ts"), "utf8");
+    expect(routes).not.toContain("app.get('/api/members/search'");
+    expect(routes).not.toContain("/api/congress/find-member'");
+    expect(routes).toContain("app.use('/api/members/search', searchLimiter, validateInput);");
   });
 });
