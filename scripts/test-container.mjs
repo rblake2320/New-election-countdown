@@ -73,6 +73,17 @@ try {
   report.boundary = await docker('exec', app, 'node', '-e',
     `const fs=require('fs');for(const p of ['node_modules/vite','node_modules/vitest','node_modules/@playwright/test','node_modules/tailwindcss','server','shared'])if(fs.existsSync(p))throw Error('Unexpected runtime path '+p);console.log('production-only paths verified')`);
   report.imageId = await docker('inspect', '--format', '{{.Image}}', app);
+  if (process.env.TEST_ELECTION_TIMEZONE === '1') {
+    // Fixture script refuses any database other than this dedicated name.
+    // This database exists only inside this harness-owned disposable container.
+    await docker('exec', db, 'psql', '-U', 'et_test', '-d', 'et_test', '-c',
+      'create database et_sol_c_timezone_test;');
+    const timezoneURL = databaseURL.replace(/\/et_test$/, '/et_sol_c_timezone_test');
+    const output = await docker('run', '--rm', '--network', network,
+      '-e', `DATABASE_URL=${timezoneURL}`, '--entrypoint', 'sh', builder, '-c',
+      'node_modules/.bin/esbuild scripts/verify_election_timezone.ts --bundle --platform=node --format=esm --packages=external --outfile=timezone-acceptance.mjs && node timezone-acceptance.mjs');
+    report.electionTimezone = JSON.parse(output);
+  }
   if (process.env.TEST_LISTING_CONTRACT === '1') {
     const listingProbe = `
       const {default:pg}=await import('pg');
