@@ -5,6 +5,13 @@
  */
 
 import { z } from 'zod';
+import { AsyncLocalStorage } from 'node:async_hooks';
+import { boundedUpstreamFetch, UpstreamAbortedError } from '../upstream-fetch';
+
+// Per-call cancellation scope: getComprehensiveCandidateData() runs its five lookups inside
+// this store so makeRequest() can link every provider request to the caller's budget
+// signal without threading a parameter through each public method.
+const requestSignal = new AsyncLocalStorage<AbortSignal | undefined>();
 
 // Zod schemas for API validation
 export const VoteSmartCandidateSchema = z.object({
@@ -124,11 +131,11 @@ export class VoteSmartService {
    */
   private async makeRequest<T>(endpoint: string, params: Record<string, string> = {}, schema?: z.ZodSchema<T>): Promise<T | null> {
     const url = new URL(`${this.baseUrl}/${endpoint}`);
-    
+
     // Add API key and format
     url.searchParams.set('key', this.apiKey);
     url.searchParams.set('o', 'JSON');
-    
+
     // Add other parameters
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
@@ -137,33 +144,31 @@ export class VoteSmartService {
     });
 
     let lastError: Error | null = null;
-    
+
+    const signal = requestSignal.getStore();
     for (let attempt = 0; attempt <= this.retries; attempt++) {
+      if (signal?.aborted) return null; // caller budget gone: no retries, no new requests
       try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), this.timeout);
-        
-        const response = await fetch(url.toString(), {
-          signal: controller.signal,
+        // Bounded, de-duplicated transport linked to the caller's signal (ET-5 cancellation).
+        const response = await boundedUpstreamFetch(url.toString(), {
+          signal,
           headers: {
             'User-Agent': 'ElectionTracker/1.0 (Replit Election Platform)',
             'Accept': 'application/json'
           }
-        });
-        
-        clearTimeout(timeoutId);
-        
+        }, { timeoutMs: this.timeout, label: 'votesmart' });
+
         if (!response.ok) {
-          throw new Error(`VoteSmart API error: ${response.status} ${response.statusText}`);
+          throw new Error(`VoteSmart API error: ${response.status}`);
         }
-        
+
         const data = await response.json();
-        
+
         // Handle VoteSmart API error responses
         if (data.error) {
           throw new Error(`VoteSmart API error: ${data.error.errorMessage || data.error}`);
         }
-        
+
         // Validate response if schema provided
         if (schema) {
           try {
@@ -174,19 +179,20 @@ export class VoteSmartService {
             return data as T;
           }
         }
-        
+
         return data as T;
-        
+
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
-        
+        if (error instanceof UpstreamAbortedError || signal?.aborted) return null;
+
         if (attempt < this.retries) {
           console.warn(`VoteSmart API attempt ${attempt + 1} failed for ${endpoint}, retrying in ${this.retryDelay}ms:`, lastError.message);
           await this.sleep(this.retryDelay);
         }
       }
     }
-    
+
     console.error(`VoteSmart API failed after ${this.retries + 1} attempts for ${endpoint}:`, lastError?.message);
     return null;
   }
@@ -207,23 +213,23 @@ export class VoteSmartService {
   }): Promise<VoteSmartCandidate[]> {
     try {
       const params: Record<string, string> = {};
-      
+
       if (query.firstName) params.firstName = query.firstName;
       if (query.lastName) params.lastName = query.lastName;
       if (query.office) params.office = query.office;
       if (query.state) params.state = query.state;
       if (query.electionYear) params.electionYear = query.electionYear;
-      
+
       const response = await this.makeRequest('Candidates.getByOfficeState', params);
-      
+
       if (!response || !response.candidateList) {
         return [];
       }
-      
-      const candidates = Array.isArray(response.candidateList.candidate) 
-        ? response.candidateList.candidate 
+
+      const candidates = Array.isArray(response.candidateList.candidate)
+        ? response.candidateList.candidate
         : [response.candidateList.candidate];
-        
+
       return candidates
         .map(candidate => {
           try {
@@ -233,7 +239,7 @@ export class VoteSmartService {
           }
         })
         .filter((candidate): candidate is VoteSmartCandidate => candidate !== null);
-        
+
     } catch (error) {
       console.error('VoteSmart candidate search error:', error);
       return [];
@@ -246,13 +252,13 @@ export class VoteSmartService {
   async getCandidateBio(candidateId: string): Promise<VoteSmartBio | null> {
     try {
       const response = await this.makeRequest('CandidateBio.getBio', { candidateId });
-      
+
       if (!response || !response.bio) {
         return null;
       }
-      
+
       return VoteSmartBioSchema.parse(response.bio);
-      
+
     } catch (error) {
       console.error(`VoteSmart bio error for candidate ${candidateId}:`, error);
       return null;
@@ -265,13 +271,13 @@ export class VoteSmartService {
   async getDetailedCandidateBio(candidateId: string): Promise<VoteSmartBio | null> {
     try {
       const response = await this.makeRequest('CandidateBio.getDetailedBio', { candidateId });
-      
+
       if (!response || !response.bio) {
         return null;
       }
-      
+
       return VoteSmartBioSchema.parse(response.bio);
-      
+
     } catch (error) {
       console.error(`VoteSmart detailed bio error for candidate ${candidateId}:`, error);
       return null;
@@ -285,15 +291,15 @@ export class VoteSmartService {
     try {
       const params: Record<string, string> = { candidateId };
       if (categoryId) params.categoryId = categoryId;
-      
+
       const response = await this.makeRequest('Npat.getNpat', params);
-      
+
       if (!response || !response.npat) {
         return [];
       }
-      
+
       const positions = Array.isArray(response.npat) ? response.npat : [response.npat];
-      
+
       return positions
         .map(position => {
           try {
@@ -303,7 +309,7 @@ export class VoteSmartService {
           }
         })
         .filter((position): position is VoteSmartPosition => position !== null);
-        
+
     } catch (error) {
       console.error(`VoteSmart positions error for candidate ${candidateId}:`, error);
       return [];
@@ -318,15 +324,15 @@ export class VoteSmartService {
       const params: Record<string, string> = { candidateId };
       if (categoryId) params.categoryId = categoryId;
       if (year) params.year = year;
-      
+
       const response = await this.makeRequest('Votes.getByCandidate', params);
-      
+
       if (!response || !response.votes) {
         return [];
       }
-      
+
       const votes = Array.isArray(response.votes.vote) ? response.votes.vote : [response.votes.vote];
-      
+
       return votes
         .map(vote => {
           try {
@@ -336,7 +342,7 @@ export class VoteSmartService {
           }
         })
         .filter((vote): vote is VoteSmartVotingRecord => vote !== null);
-        
+
     } catch (error) {
       console.error(`VoteSmart voting record error for candidate ${candidateId}:`, error);
       return [];
@@ -349,15 +355,15 @@ export class VoteSmartService {
   async getCandidateRatings(candidateId: string): Promise<VoteSmartRating[]> {
     try {
       const response = await this.makeRequest('Rating.getCandidateRating', { candidateId });
-      
+
       if (!response || !response.candidateRating) {
         return [];
       }
-      
-      const ratings = Array.isArray(response.candidateRating.rating) 
-        ? response.candidateRating.rating 
+
+      const ratings = Array.isArray(response.candidateRating.rating)
+        ? response.candidateRating.rating
         : [response.candidateRating.rating];
-        
+
       return ratings
         .map(rating => {
           try {
@@ -367,7 +373,7 @@ export class VoteSmartService {
           }
         })
         .filter((rating): rating is VoteSmartRating => rating !== null);
-        
+
     } catch (error) {
       console.error(`VoteSmart ratings error for candidate ${candidateId}:`, error);
       return [];
@@ -377,15 +383,15 @@ export class VoteSmartService {
   /**
    * Get comprehensive candidate data combining biography, positions, voting record, and ratings
    */
-  async getComprehensiveCandidateData(candidateId: string) {
+  async getComprehensiveCandidateData(candidateId: string, signal?: AbortSignal) {
     try {
-      const [bio, detailedBio, positions, votingRecord, ratings] = await Promise.allSettled([
+      const [bio, detailedBio, positions, votingRecord, ratings] = await requestSignal.run(signal, () => Promise.allSettled([
         this.getCandidateBio(candidateId),
         this.getDetailedCandidateBio(candidateId),
         this.getCandidatePositions(candidateId),
         this.getVotingRecord(candidateId),
         this.getCandidateRatings(candidateId)
-      ]);
+      ]));
 
       const result = {
         candidateId,
@@ -406,7 +412,7 @@ export class VoteSmartService {
       if (ratings.status === 'rejected') result.issues.push('Rating data unavailable');
 
       return result;
-      
+
     } catch (error) {
       console.error(`VoteSmart comprehensive data error for candidate ${candidateId}:`, error);
       return {
@@ -428,20 +434,20 @@ export class VoteSmartService {
   async getIssueCategories(): Promise<Array<{ categoryId: string; name: string }>> {
     try {
       const response = await this.makeRequest('Npat.getCategories');
-      
+
       if (!response || !response.categories) {
         return [];
       }
-      
-      const categories = Array.isArray(response.categories.category) 
-        ? response.categories.category 
+
+      const categories = Array.isArray(response.categories.category)
+        ? response.categories.category
         : [response.categories.category];
-        
+
       return categories.map(cat => ({
         categoryId: cat.categoryId || '',
         name: cat.name || ''
       }));
-      
+
     } catch (error) {
       console.error('VoteSmart categories error:', error);
       return [];
@@ -453,29 +459,29 @@ export class VoteSmartService {
    */
   async healthCheck(): Promise<{ available: boolean; message: string; responseTime?: number }> {
     const startTime = Date.now();
-    
+
     try {
       // Try to get categories as a simple health check
       const response = await this.makeRequest('Npat.getCategories');
       const responseTime = Date.now() - startTime;
-      
+
       if (response) {
-        return { 
-          available: true, 
+        return {
+          available: true,
           message: 'VoteSmart API is available and responding',
           responseTime
         };
       } else {
-        return { 
-          available: false, 
-          message: 'VoteSmart API returned empty response' 
+        return {
+          available: false,
+          message: 'VoteSmart API returned empty response'
         };
       }
-      
+
     } catch (error) {
       const responseTime = Date.now() - startTime;
-      return { 
-        available: false, 
+      return {
+        available: false,
         message: `VoteSmart API health check failed: ${error instanceof Error ? error.message : String(error)}`,
         responseTime
       };
@@ -486,7 +492,7 @@ export class VoteSmartService {
 // Factory function with graceful fallback
 export function createVoteSmartService(): VoteSmartService | null {
   const apiKey = process.env.VOTESMART_API_KEY;
-  
+
   if (!apiKey) {
     console.warn('VOTESMART_API_KEY not found - VoteSmart features will be unavailable');
     return null;

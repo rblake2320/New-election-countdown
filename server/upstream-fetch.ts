@@ -1,12 +1,15 @@
 /**
- * Bounded upstream access for enrichment providers (ET-5 concurrency finding, 2026-10-12).
+ * Bounded, cancellable, de-duplicated upstream access for enrichment providers.
  *
- * Every provider call made on a request path must be cancellable and must have a
- * deadline, otherwise one unreachable host (no egress, DNS black-hole, slow CDN)
- * pins the whole response: Astra's 120-concurrent run saw all 30 ordinary
- * /api/elections/37/candidates requests abort at 15 s because one enrichment fetch
- * never returned. Local data (exact ids, profiles, provenance) is always served;
- * enrichment is best-effort within a budget.
+ * ET-5 concurrency findings (Astra 2026-10-12, Sol retake of 83138cc):
+ *  1. A request path must never wait on an unreachable provider -> deadline + body cap.
+ *  2. When the caller's budget expires, the provider request must actually stop: the
+ *     caller's AbortSignal is LINKED to the transport signal (previously overwritten).
+ *  3. 120 concurrent HTTP requests for the same races fanned out into 450 identical
+ *     provider requests -> identical in-flight GETs are shared (single-flight) and only
+ *     cancelled when every subscriber has gone away.
+ *  4. upstreamInFlight() exposes the number of provider requests still open so a
+ *     receiving test can assert they settle to zero after the HTTP response.
  */
 
 export type FetchLike = (url: string, init?: any) => Promise<any>;
@@ -17,7 +20,7 @@ const envInt = (name: string, fallback: number) => {
 };
 
 export const UPSTREAM_DEFAULTS = Object.freeze({
-  /** Per-call ceiling for a single provider request. */
+  /** Per-call ceiling for a single provider request (headers + body). */
   timeoutMs: envInt('UPSTREAM_FETCH_TIMEOUT_MS', 4_000),
   /** Largest body any provider may hand us on a request path. */
   maxBodyBytes: envInt('UPSTREAM_FETCH_MAX_BYTES', 5_000_000),
@@ -39,6 +42,13 @@ export class UpstreamTimeoutError extends Error {
   }
 }
 
+export class UpstreamAbortedError extends Error {
+  constructor(public readonly label: string) {
+    super(`${label}: cancelled by caller`);
+    this.name = 'UpstreamAbortedError';
+  }
+}
+
 export interface BoundedResponse {
   ok: boolean;
   status: number;
@@ -46,24 +56,97 @@ export interface BoundedResponse {
   json(): Promise<any>;
 }
 
+interface InFlight {
+  key: string;
+  label: string;
+  controller: AbortController;
+  timer: NodeJS.Timeout;
+  timedOut: boolean;
+  headers: Promise<any>;
+  body: Promise<string> | null;
+  subscribers: number;
+  settled: boolean;
+}
+
+const inflight = new Map<string, InFlight>();
+const active = new Set<InFlight>();
+
+/** Number of provider requests whose transport has not yet settled (headers+body or error). */
+export function upstreamInFlight(): number {
+  return active.size;
+}
+
+function settle(entry: InFlight): void {
+  if (entry.settled) return;
+  entry.settled = true;
+  clearTimeout(entry.timer);
+  active.delete(entry);
+  if (inflight.get(entry.key) === entry) inflight.delete(entry.key);
+}
+
+function stableKey(method: string, url: string, init: Record<string, any>): string {
+  const headers = init.headers ? JSON.stringify(Object.entries(init.headers).sort()) : '';
+  return `${method} ${url} ${headers}`;
+}
+
 /**
- * fetch with an AbortController deadline and a body-size cap. Resolves to a small
- * response wrapper whose body readers enforce the cap; rejects with
- * UpstreamTimeoutError on deadline.
+ * fetch with: an AbortController deadline, a body-size cap, linkage to the caller's
+ * signal (init.signal / opts.signal), and single-flight sharing of identical GET/HEAD
+ * requests. Rejects with UpstreamTimeoutError on deadline, UpstreamAbortedError when the
+ * caller cancelled.
  */
 export async function boundedUpstreamFetch(
   url: string,
   init: Record<string, any> = {},
-  opts: { timeoutMs?: number; maxBodyBytes?: number; label?: string } = {},
+  opts: { timeoutMs?: number; maxBodyBytes?: number; label?: string; signal?: AbortSignal } = {},
 ): Promise<BoundedResponse> {
   const timeoutMs = opts.timeoutMs ?? UPSTREAM_DEFAULTS.timeoutMs;
   const maxBodyBytes = opts.maxBodyBytes ?? UPSTREAM_DEFAULTS.maxBodyBytes;
   const label = opts.label ?? new URL(url).host;
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  const deadline = new Promise<never>((_, reject) => {
-    controller.signal.addEventListener('abort', () => reject(new UpstreamTimeoutError(label, timeoutMs)), { once: true });
+  const callerSignal: AbortSignal | undefined = opts.signal ?? init.signal;
+  if (callerSignal?.aborted) throw new UpstreamAbortedError(label);
+
+  const method = String(init.method ?? 'GET').toUpperCase();
+  const shareable = method === 'GET' || method === 'HEAD';
+  const key = stableKey(method, url, init);
+
+  let entry = shareable ? inflight.get(key) : undefined;
+  if (!entry) {
+    const controller = new AbortController();
+    const created: InFlight = {
+      key, label, controller, timedOut: false, body: null, subscribers: 0, settled: false,
+      // The deadline also settles the entry: a body nobody ever reads cannot stay "active".
+      timer: setTimeout(() => { created.timedOut = true; controller.abort(); settle(created); }, timeoutMs),
+      headers: Promise.resolve().then(() => fetchImpl(url, { ...init, signal: controller.signal })),
+    };
+    created.headers.catch(() => settle(created));
+    entry = created;
+    active.add(entry);
+    if (shareable) inflight.set(key, entry);
+  }
+  const shared = entry;
+  shared.subscribers++;
+
+  // One subscriber leaving does not cancel a shared request; the last one does.
+  let released = false;
+  const release = () => {
+    if (released) return;
+    released = true;
+    callerSignal?.removeEventListener('abort', onCallerAbort);
+    shared.subscribers--;
+    if (shared.subscribers <= 0 && !shared.settled) { shared.controller.abort(); settle(shared); }
+  };
+  const callerAbort = new Promise<never>((_, reject) => {
+    (callerSignal ?? new AbortController().signal).addEventListener('abort', () => reject(new UpstreamAbortedError(label)), { once: true });
   });
+  callerAbort.catch(() => {});
+  function onCallerAbort() { release(); }
+  callerSignal?.addEventListener('abort', onCallerAbort, { once: true });
+
+  const deadline = new Promise<never>((_, reject) => {
+    shared.controller.signal.addEventListener('abort', () => reject(shared.timedOut ? new UpstreamTimeoutError(label, timeoutMs) : new UpstreamAbortedError(label)), { once: true });
+  });
+  deadline.catch(() => {});
 
   const readBody = async (response: any): Promise<string> => {
     const declared = Number(response.headers?.get?.('content-length') ?? 0);
@@ -73,8 +156,6 @@ export async function boundedUpstreamFetch(
       const chunks: Buffer[] = []; let received = 0;
       for await (const chunk of body as AsyncIterable<Uint8Array>) {
         received += chunk.byteLength;
-        // Throw without aborting the controller: the abort listener would turn this
-        // into a timeout error and win the race below. Leaving the loop drops the stream.
         if (received > maxBodyBytes) throw new Error(`${label}: body exceeds ${maxBodyBytes} bytes`);
         chunks.push(Buffer.from(chunk));
       }
@@ -86,26 +167,31 @@ export async function boundedUpstreamFetch(
   };
 
   try {
-    const response: any = await Promise.race([fetchImpl(url, { ...init, signal: controller.signal }), deadline]);
-    let cached: Promise<string> | null = null;
-    const text = () => (cached ??= Promise.race([readBody(response), deadline]));
+    const response: any = await Promise.race([shared.headers, deadline, callerAbort]);
+    const text = () => {
+      shared.body ??= readBody(response).then((t) => { settle(shared); return t; }, (e) => { settle(shared); throw e; });
+      return Promise.race([shared.body, deadline, callerAbort]).finally(release);
+    };
     return {
       ok: !!response.ok,
       status: Number(response.status ?? 0),
       text,
       json: async () => JSON.parse(await text()),
     };
-  } finally {
-    // The timer must outlive the headers: body reads race the same deadline above.
-    // Clear it once the deadline can no longer matter (after a tick, when callers
-    // have either consumed the body or dropped the response).
-    setTimeout(() => clearTimeout(timer), timeoutMs).unref?.();
+  } catch (error) {
+    // A caller leaving only releases its subscription; release() settles the shared
+    // request when the last subscriber is gone. Transport/deadline failures have
+    // already settled it via the headers catch above.
+    release();
+    if (shared.controller.signal.aborted) settle(shared);
+    throw error;
   }
 }
 
 /**
  * Run best-effort work under a ceiling. On deadline or error the fallback is returned
- * and the work is told to stop via the signal; it never throws.
+ * and the work is told to stop via the signal (which boundedUpstreamFetch now honours);
+ * it never throws.
  */
 export async function withBudget<T>(label: string, ms: number, work: (signal: AbortSignal) => Promise<T>, fallback: T): Promise<T> {
   const controller = new AbortController();
@@ -116,7 +202,9 @@ export async function withBudget<T>(label: string, ms: number, work: (signal: Ab
   try {
     return await Promise.race([
       work(controller.signal).catch((error) => {
-        if (!(error instanceof UpstreamTimeoutError)) console.warn(`${label}: enrichment failed, serving local data:`, error instanceof Error ? error.message : String(error));
+        if (!(error instanceof UpstreamTimeoutError) && !(error instanceof UpstreamAbortedError)) {
+          console.warn(`${label}: enrichment failed, serving local data:`, error instanceof Error ? error.message : String(error));
+        }
         return fallback;
       }),
       deadline,
@@ -134,7 +222,6 @@ export function memoize<T>(ttlMs: number, negativeTtlMs: number, loader: () => P
   return {
     get(): Promise<T | null> {
       const now = Date.now();
-      // One load at a time: concurrent callers share the in-flight promise.
       if (value && (pending || now < expires)) return value;
       pending = true;
       const attempt = loader().then(
