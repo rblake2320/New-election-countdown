@@ -1,3 +1,4 @@
+import { HttpError, httpErrorFrom, isRetryable, retryDelayMs, MAX_RETRIES } from "@/lib/http-error";
 import { useQuery } from "@tanstack/react-query";
 import { type Election, type Candidate, type ElectionFilters } from "@shared/schema";
 
@@ -40,16 +41,17 @@ export function useElections(filters?: ElectionFilters) {
 }
 
 export function useElection(id: number) {
-  return useQuery({
+  return useQuery<Election, HttpError | Error>({
     queryKey: ['/api/elections', id],
     queryFn: async () => {
       const response = await fetch(`/api/elections/${id}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch election');
-      }
+      if (!response.ok) throw await httpErrorFrom(response);
       return response.json() as Promise<Election>;
     },
     enabled: !!id,
+    // Busy (429) and server/network failures are retried; a 404 is final.
+    retry: (count, err) => isRetryable(err) && count < MAX_RETRIES,
+    retryDelay: (attempt, err) => retryDelayMs(attempt, err),
   });
 }
 
