@@ -1,0 +1,5841 @@
+{
+  "mode": "baseline",
+  "providerBoundary": "no key/no provider work",
+  "http": {
+    "requests": 120,
+    "concurrency": 120,
+    "deadlineMs": 15000,
+    "maxMs": 598,
+    "p95Ms": 588,
+    "expectedRace37Ids": [
+      900001,
+      900002,
+      900003
+    ],
+    "passed": true,
+    "outcomes": [
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 224,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 199,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 268,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 591,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 550,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 322,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 280,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 598,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 551,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 371,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 189,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 587,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 538,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 196,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 191,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 586,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 538,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 199,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 197,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 581,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 540,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 241,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 224,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 582,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 541,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 258,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 256,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 589,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 544,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 279,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 276,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 586,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 546,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 295,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 293,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 589,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 546,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 316,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 313,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 588,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 553,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 341,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 335,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 588,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 552,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 342,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 338,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 585,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 545,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 422,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 357,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 588,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 547,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 362,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 357,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 587,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 554,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 399,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 392,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 592,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 549,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 401,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 393,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 582,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 549,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 418,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 411,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 582,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 550,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 422,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 413,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 588,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 554,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 441,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 435,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 587,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 551,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 443,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 434,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 586,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 551,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 503,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 463,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 584,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 554,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 473,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 464,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 584,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 554,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 474,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 495,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 587,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 556,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 504,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 493,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 588,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 557,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 505,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 494,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 588,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 559,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 532,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 522,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 585,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 559,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 532,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 524,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 585,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 561,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 546,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 534,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 584,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 562,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 541,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 533,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 587,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "elapsedMs": 563,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections?timeframe=upcoming",
+        "status": 200,
+        "elapsedMs": 543,
+        "valid": true,
+        "checks": []
+      },
+      {
+        "path": "/api/elections/37/candidates",
+        "status": 200,
+        "elapsedMs": 534,
+        "valid": true,
+        "checks": [
+          {
+            "id": 900001,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900001,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900002,
+            "field": "external_ids.fec_id",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "description",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "campaign_bio",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "website",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "profile_image_url",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "is_verified",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "party",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.data_source",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.source_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.ballot_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "source.fec_status",
+            "equal": true
+          },
+          {
+            "id": 900003,
+            "field": "external_ids.fec_id",
+            "equal": true
+          }
+        ]
+      },
+      {
+        "path": "/api/elections/37/general-candidates",
+        "status": 200,
+        "elapsedMs": 586,
+        "valid": true,
+        "checks": []
+      }
+    ]
+  },
+  "resourceSettled": true,
+  "fullCandidateRowsUnchanged": true
+}

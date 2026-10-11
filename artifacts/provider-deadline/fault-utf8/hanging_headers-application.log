@@ -1,0 +1,633 @@
+MemStorage initialized empty (failover cache; database is source of truth)
+ℹ️ No replica configurations found - running with primary database only
+✅ Delivery Tracking Service initialized
+⚠️ Analytics temporarily using in-memory queue (database unavailable)
+✅ Infrastructure-as-Code Service initialized
+✅ Secrets Rotation Service initialized { enabledServices: 8, rotationFrequency: '90 days' }
+⏰ Artifact cleanup scheduler started
+✅ Artifact Retention Service initialized {
+  storageBasePath: '/app/artifacts',
+  compressionEnabled: true,
+  defaultRetentionDays: 90
+}
+✅ Environment Bootstrap Service initialized { environment: 'development', timeoutMinutes: 30 }
+[BackupAlertService] Initializing backup monitoring
+✅ RTO/RPO Performance Dashboard Service initialized
+✅ RTO/RPO Performance Dashboard Service initialized
+🔄 Storage: memory mode; DB unhealthy—writes gated
+ℹ️  Database operations will be queued until health is restored
+Initial sync with Google Civic API completed
+🔄 Storage System Initialized:
+  - Mode: memory
+  - Database Health: ❌ Unhealthy
+  - Current Storage: memory
+  - Queue Length: 0
+  - Last Health Check: 1970-01-01T00:00:00.000Z
+✅ Notification management routes registered
+Starting automated results ingestion (every 30 seconds)
+[Results Ingestion] Starting ingestion cycle...
+[Results Ingestion] Found 0 active elections
+4:10:32 PM [express] ✅ Live results ingestion service started (30s polling)
+🌱 Starting database seed (verified 2026 data)...
+✅ Database connection established
+✅ Primary database connection restored { latency: '84ms', attempts: 0, consecutiveFailures: 0 }
+🔄 Orchestrating failover: memory → database { trigger: 'automatic', reason: 'Primary database restored' }
+✅ Failover completed: memory → database (0ms) {
+  trigger: 'automatic',
+  reason: 'Primary database restored',
+  readOnlyMode: false
+}
+✅ Restore Validation Service initialized {
+  timeoutSeconds: 3600,
+  rtoTarget: '300s',
+  validationQueries: 3,
+  benchmarkQueries: 3
+}
+✅ Schema Drift Detection Service initialized
+✅ Disaster Recovery Coordinator initialized {
+  scheduledBackups: true,
+  automaticValidation: true,
+  schemaDriftMonitoring: true
+}
+ℹ️ Could not notify disaster recovery coordinator: disasterRecoveryCoordinator2.recordFailoverEvent is not a function
+✅ Database connection established
+📊 Seeding 537 elections...
+✅ Database seeding complete!
+   Elections: 537
+   Candidates: 136
+   Congress members: populated via scripts/sync_congress.ts when CONGRESS_API_KEY is set
+4:10:39 PM [express] ✅ Database seeded successfully
+4:10:39 PM [express] serving on http://0.0.0.0:5000
+4:10:40 PM [express] GET /api/health 200 in 37ms rid=b32efcb6-bf12-499b-8a4f-162c2012a111
+4:10:41 PM [express] GET /api/health 200 in 16ms rid=6e18af90-5124-4390-95ef-593caab46875
+4:10:41 PM [express] GET /api/elections 200 in 134ms rid=b748ebd4-3db5-42f2-bc3f-5010d0e4f63c
+4:10:41 PM [express] GET /api/elections 200 in 149ms rid=7b78a2bd-ec6b-4fba-9c63-e579cabcd42e
+4:10:41 PM [express] GET /api/elections 200 in 176ms rid=b1883f3a-1a70-4e64-bd6a-6c4ecc4b46dc
+4:10:41 PM [express] GET /api/elections 200 in 218ms rid=bff42cbe-8e9b-4a4c-9004-a4287850bf32
+✅ Database connection established
+✅ Database connection established
+✅ Database connection established
+✅ Database connection established
+4:10:41 PM [express] GET /api/elections 200 in 240ms rid=2211bd91-334b-4b39-9921-8198a18e77ae
+✅ Database connection established
+✅ Database connection established
+✅ Database connection established
+✅ Database connection established
+4:10:41 PM [express] GET /api/elections 200 in 282ms rid=aeecbeaf-021c-4de3-b799-a53475469faf
+4:10:41 PM [express] GET /api/elections 200 in 404ms rid=7cd14239-2646-4240-8364-a200eb3e03e0
+4:10:41 PM [express] GET /api/elections 200 in 429ms rid=6371f032-1124-40d8-8b8b-64a38be8376a
+4:10:41 PM [express] GET /api/elections 200 in 454ms rid=e68a8768-623e-4cc2-91ed-75a7addff12f
+4:10:41 PM [express] GET /api/elections 200 in 461ms rid=3ef89245-b448-49d0-9002-af10da9d3232
+4:10:41 PM [express] GET /api/elections 200 in 477ms rid=cab0b5a5-813f-4506-a30d-7dd85c9eaa6e
+4:10:41 PM [express] GET /api/elections 200 in 496ms rid=6e11db07-078e-4e37-8020-fd180cd0767d
+4:10:41 PM [express] GET /api/elections 200 in 499ms rid=48bd1b6b-dd8f-47ff-9054-305fa0a92630
+4:10:41 PM [express] GET /api/elections 200 in 494ms rid=91d88276-9a25-4004-8178-772354647789
+4:10:41 PM [express] GET /api/health 200 in 555ms rid=6957e585-3503-4252-b0ee-fdc3cff7b314
+4:10:41 PM [express] GET /api/elections 200 in 538ms rid=9ed26f40-e977-4548-a7cf-1073c4ed9ee2
+4:10:41 PM [express] GET /api/elections 200 in 537ms rid=81f62a56-9718-4be9-a54f-3cc24db38e7e
+4:10:41 PM [express] GET /api/elections 200 in 535ms rid=cb728e6b-9e42-49ed-98ce-ed1645514a2b
+4:10:41 PM [express] GET /api/elections 200 in 567ms rid=a7681a5d-03cc-4838-bb7f-3c8c636aff38
+4:10:41 PM [express] GET /api/elections 200 in 564ms rid=71b6dd2d-a39b-43df-b7d3-6bef17813e5f
+4:10:41 PM [express] GET /api/elections 200 in 605ms rid=6af3553f-20e9-44d0-a379-304ba3fd3513
+4:10:41 PM [express] GET /api/elections 200 in 598ms rid=1549e8ba-7d44-4ed5-9b71-219a9de183c9
+4:10:42 PM [express] GET /api/elections 200 in 633ms rid=b0b67c92-2f13-4bed-8ddc-f4928477f4cf
+4:10:42 PM [express] GET /api/elections 200 in 633ms rid=b612f178-f7aa-44a9-8b0c-a7cd62571177
+4:10:42 PM [express] GET /api/elections 200 in 633ms rid=50d40624-d005-4894-9e35-a2c1afbfd5e4
+4:10:42 PM [express] GET /api/health 200 in 737ms rid=7823f385-3c71-47c0-a4da-ee8b1ab6b7d3
+4:10:42 PM [express] GET /api/health 200 in 745ms rid=58e1bc55-38cc-4b38-ad05-1c50686a9075
+4:10:42 PM [express] GET /api/elections 200 in 688ms rid=bf2613c7-6d73-4315-afcb-23c74a8f4be1
+4:10:42 PM [express] GET /api/elections 200 in 688ms rid=17f8a039-31b1-47b2-9694-b7daa7ecf40b
+4:10:42 PM [express] GET /api/health 200 in 755ms rid=9b97b558-ef46-4186-b010-a59233cda11c
+4:10:42 PM [express] GET /api/health 200 in 760ms rid=c538bcbe-e909-4b7d-a35e-5ecd4a2369be
+4:10:42 PM [express] GET /api/elections 200 in 732ms rid=1311f0c0-1009-45d0-b0a4-8081a40c0616
+4:10:42 PM [express] GET /api/elections 200 in 688ms rid=5c16e3dc-61b3-4f3a-88cd-6a4922f31d08
+4:10:42 PM [express] GET /api/health 200 in 787ms rid=360aa443-ba97-404a-b29b-7b16be420b6c
+4:10:42 PM [express] GET /api/health 200 in 791ms rid=6db7a5c6-c72d-4729-80e0-d94e1ab4af92
+4:10:42 PM [express] GET /api/health 200 in 817ms rid=7aa5115f-c602-435d-aa82-b66276325704
+4:10:42 PM [express] GET /api/elections 200 in 639ms rid=df86efa6-866b-4255-a764-a9887477966d
+4:10:42 PM [express] GET /api/health 200 in 799ms rid=1b65aa80-3714-4db6-b034-01c688a03c4e
+4:10:42 PM [express] GET /api/health 200 in 820ms rid=c530c33a-7bc7-4e09-9ad9-349a01c872f0
+4:10:42 PM [express] GET /api/health 200 in 800ms rid=359ecdf7-9629-46a9-8978-4585124b928d
+4:10:42 PM [express] GET /api/health 200 in 797ms rid=06a11c03-158c-46b7-8f50-a4729916d102
+4:10:42 PM [express] GET /api/health 200 in 797ms rid=31664075-0ae0-4de6-a33e-b98f5fd31af0
+4:10:42 PM [express] GET /api/health 200 in 797ms rid=f7298498-3d6f-4ac6-b1f1-17145d264ba7
+4:10:42 PM [express] GET /api/elections 200 in 593ms rid=7c026efc-bbfa-40f6-9c5b-4b027f946be3
+4:10:42 PM [express] GET /api/health 200 in 796ms rid=b41bf493-d495-4825-9fd8-c9cab0e0837d
+4:10:42 PM [express] GET /api/health 200 in 796ms rid=aba31e4e-b37d-4a1a-bc9c-b4179057cd87
+4:10:42 PM [express] GET /api/health 200 in 795ms rid=65b95260-2e26-437e-9e30-4365174f8602
+4:10:42 PM [express] GET /api/health 200 in 785ms rid=770960aa-9a74-4ad6-93c6-fe113968a2e7
+4:10:42 PM [express] GET /api/health 200 in 784ms rid=ee30de2e-6080-4887-b035-f286e6eaab92
+4:10:42 PM [express] GET /api/health 200 in 783ms rid=735cb355-3353-43ef-a957-a40cb5d3af34
+4:10:42 PM [express] GET /api/health 200 in 777ms rid=f00f8de2-3f78-4ed7-aef4-403bcb7dd799
+4:10:42 PM [express] GET /api/health 200 in 776ms rid=0253fb54-e58d-4045-af7d-427d49bbfae4
+4:10:42 PM [express] GET /api/health 200 in 776ms rid=d5a3db26-cd26-473e-b83b-505cd70fd68b
+4:10:42 PM [express] GET /api/health 200 in 775ms rid=f88bd783-7183-43bb-bd02-0ed219e0add4
+4:10:42 PM [express] GET /api/health 200 in 775ms rid=bb262824-2de7-411b-be30-c1e0b52c4d23
+4:10:42 PM [express] GET /api/health 200 in 775ms rid=2aca1650-63af-413b-b2cc-1b90d5c58933
+4:10:42 PM [express] GET /api/health 200 in 752ms rid=13993c65-49a1-46c1-8434-d22d51c74806
+4:10:42 PM [express] GET /api/health 200 in 782ms rid=7794b78f-c6ac-4074-8838-d8353fcff449
+4:10:42 PM [express] GET /api/health 200 in 680ms rid=7f9ab5c2-48fb-443e-94d7-2a66c04a7ad4
+4:10:42 PM [express] GET /api/health 200 in 632ms rid=65a35c17-728b-46cf-b175-d257dbd201a5
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 844ms rid=532711bc-a673-4faa-a35d-3a33d879db34
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 858ms rid=447bf3c2-78b9-442b-89fa-8baf5680dfc2
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 843ms rid=6c34961f-9256-4dfa-a2f4-97abdafb0d46
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 852ms rid=d91e8126-d5c6-4201-bf1a-629b34a42a70
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 842ms rid=560bcb44-7d90-4f34-a8b5-94b6293e72eb
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 841ms rid=c33e6fd8-b220-47b6-81bc-a7d7c4346489
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 824ms rid=96c4a2df-4ad4-47d2-9708-07082b22c177
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 823ms rid=bee17de3-6b8b-4add-9e2c-b4be5d348f04
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 822ms rid=0304fb89-57e4-47b2-8a59-d2902ad49cfc
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 828ms rid=6ec3b5df-28f2-48e1-b504-27a3686bb0ed
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 837ms rid=11e56d8c-b376-44ab-8185-17b6683985e9
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 843ms rid=a247eb4b-52eb-40df-b57f-bf02c5f275cf
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 861ms rid=c2968cbd-9b2d-4b3d-892f-b64d18f598b9
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 841ms rid=31e9c9f2-8c66-4db8-907c-7a2c00a23db2
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 837ms rid=446f0925-ed75-4517-825d-714bd0789a02
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 834ms rid=6694eb46-3bf4-4be1-87e9-33606d263188
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 802ms rid=1c0b9eab-c969-4b11-b46b-5aae8828b93d
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 801ms rid=cb52e713-0677-420d-bfa1-ea8e8bb5082a
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 801ms rid=fd8382b5-8d9b-4f3a-8a53-a35bb0c41e1b
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 818ms rid=b0852cd7-5b9b-4e23-a094-71b0ca10e66e
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 815ms rid=fff5f139-eb54-4923-af21-b9831df19cc4
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 814ms rid=8c146d86-91d6-426e-b9ae-1e87605e8a55
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 807ms rid=f11e7b13-5e0d-4bae-b655-fe2d49c39822
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 798ms rid=a0c3896a-2fd7-4d4d-b128-a436a0dd8845
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 718ms rid=3cceb93e-a83a-411f-9610-f18040a6d85e
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 803ms rid=63ba2184-50d1-4da3-9ae2-86d187e77fb7
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 801ms rid=cec6c3c1-1dfb-44a0-9560-7fd12f9afe7d
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 800ms rid=c80d85c7-c486-4464-a471-830cc05f228c
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 600ms rid=19b89f29-8892-4982-98fc-56f2edcd0509
+4:10:42 PM [express] GET /api/elections/37/general-candidates 200 in 660ms rid=c3524833-0305-413c-b6ab-6ad9c091c34e
+4:10:44 PM [express] GET /api/elections/37/candidates 200 in 3606ms rid=7039c3ac-206d-459e-aa07-bc8282b1d2c9
+4:10:44 PM [express] GET /api/elections/37/candidates 200 in 3635ms rid=b87b81a1-94bf-4818-9e71-64b1451f8249
+4:10:44 PM [express] GET /api/elections/37/candidates 200 in 3664ms rid=2863f67d-8241-4b03-a7e1-6389f0bb6e5f
+4:10:45 PM [express] GET /api/elections/37/candidates 200 in 3680ms rid=5d93312a-39ea-441d-9013-ae5fb2f3c9f1
+4:10:45 PM [express] GET /api/elections/37/candidates 200 in 3719ms rid=8e4d994a-d6fe-4f7c-80e0-1d94a2c5c1b2
+4:10:45 PM [express] GET /api/elections/37/candidates 200 in 3750ms rid=f93d3f5f-96e4-4792-8b1f-3d41688a52a0
+4:10:45 PM [express] GET /api/elections/37/candidates 200 in 3785ms rid=a60fff05-2bbb-45f2-b3d6-426d69aed08d
+4:10:45 PM [express] GET /api/elections/37/candidates 200 in 3796ms rid=dade1f14-0e0c-45e0-985a-7f57013c58d6
+4:10:45 PM [express] GET /api/elections/37/candidates 200 in 3777ms rid=7f4732d6-86b3-43c5-bb53-5c6bbc0f9505
+4:10:45 PM [express] GET /api/elections/37/candidates 200 in 3846ms rid=4ce43ec5-7dff-4d0e-8085-bc459397bee4
+4:10:45 PM [express] GET /api/elections/37/candidates 200 in 3871ms rid=b1d8f63c-b951-4630-a795-94f3c410800a
+4:10:45 PM [express] GET /api/elections/37/candidates 200 in 3880ms rid=c0300a80-bef5-452c-bbc1-7361b2ca2148
+4:10:45 PM [express] GET /api/elections/37/candidates 200 in 3923ms rid=eca10544-c4bc-44d6-8de2-45612c944256
+4:10:45 PM [express] GET /api/elections/37/candidates 200 in 3939ms rid=a2d672a0-c30f-46ce-9557-3c16ecd73b03
+4:10:45 PM [express] GET /api/elections/37/candidates 200 in 3956ms rid=e7613846-0c52-47a9-9a90-61962303d191
+4:10:45 PM [express] GET /api/elections/37/candidates 200 in 3970ms rid=6afd2bb6-e0b9-40c5-8830-cb51c45f7663
+4:10:45 PM [express] GET /api/elections/37/candidates 200 in 3986ms rid=cf7f3428-b7f3-46fe-9703-bf1f41c3275a
+4:10:45 PM [express] GET /api/elections/37/candidates 200 in 4005ms rid=d3dd824a-26ce-458f-ac58-054dad868e79
+4:10:45 PM [express] GET /api/elections/37/candidates 200 in 4016ms rid=0e207b3d-58ce-4367-9314-e71e79968b7c
+4:10:45 PM [express] GET /api/elections/37/candidates 200 in 4027ms rid=bef56386-09d7-4563-bc33-e8fb93ac6163
+4:10:45 PM [express] GET /api/elections/37/candidates 200 in 4041ms rid=aa732f8b-781a-4fd7-a4db-dbb391e4a6f1
+4:10:45 PM [express] GET /api/elections/37/candidates 200 in 4058ms rid=9d10b2c8-8cdf-442b-acc2-acada0767e20
+4:10:45 PM [express] GET /api/elections/37/candidates 200 in 4070ms rid=4b455033-8665-4f2f-b598-7bae3fa0c044
+4:10:45 PM [express] GET /api/elections/37/candidates 200 in 4089ms rid=b27e65e4-2171-4245-b169-46ab371d55f7
+4:10:45 PM [express] GET /api/elections/37/candidates 200 in 4106ms rid=d8d9a51b-c37b-484c-bd62-fc39acc9264a
+4:10:45 PM [express] GET /api/elections/37/candidates 200 in 4116ms rid=e479850e-a467-4617-84ac-35fa68457211
+4:10:45 PM [express] GET /api/elections/37/candidates 200 in 4164ms rid=1bde79fe-53ff-4f6b-9783-a711557a5959
+4:10:45 PM [express] GET /api/elections/37/candidates 200 in 4113ms rid=036b695f-6b4e-4d58-b31e-2fec365ef712
+4:10:45 PM [express] GET /api/elections/37/candidates 200 in 4086ms rid=32d8137c-6388-48de-b851-efddc85f6ac1
+4:10:45 PM [express] GET /api/elections/37/candidates 200 in 4064ms rid=d56218dc-bd82-4238-9f7c-26f0fbafc258
+PERPLEXITY_API_KEY not found in environment variables
+MAPQUEST_API_KEY not set — geocoding features disabled
+Missing API keys: PROPUBLICA_API_KEY, GOOGLE_CIVIC_API_KEY, OPENFEC_API_KEY, OPENSTATES_API_KEY. Some features may be limited.
+OPENSTATES_API_KEY not configured. OpenStates features unavailable.
+SENDGRID_API_KEY not found - email notifications will be disabled
+⚠️ Secrets vault unavailable: BACKUP_ENCRYPTION_KEY is missing or shorter than 32 bytes. Vault operations will be refused; the application keeps running.
+GOOGLE_CIVIC_API_KEY not found in environment variables
+Neon snapshot service disabled (NEON_API_KEY/NEON_PROJECT_ID not set — using pg-based backups instead)
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: This operation was aborted
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: This operation was aborted

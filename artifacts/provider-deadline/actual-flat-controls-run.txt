@@ -1,0 +1,28 @@
+Exception in thread Thread-44 (_readerthread):
+Exception in thread Thread-43 (_readerthread):
+Traceback (most recent call last):
+Traceback (most recent call last):
+  File "C:\Python312\Lib\threading.py", line 1075, in _bootstrap_inner
+  File "C:\Python312\Lib\threading.py", line 1075, in _bootstrap_inner
+    self.run()
+  File "C:\Python312\Lib\threading.py", line 1012, in run
+    self.run()
+  File "C:\Python312\Lib\threading.py", line 1012, in run
+    self._target(*self._args, **self._kwargs)
+    self._target(*self._args, **self._kwargs)
+  File "C:\Python312\Lib\subprocess.py", line 1599, in _readerthread
+  File "C:\Python312\Lib\subprocess.py", line 1599, in _readerthread
+    buffer.append(fh.read())
+    buffer.append(fh.read())
+                  ^^^^^^^^^
+                  ^^^^^^^^^
+  File "C:\Python312\Lib\encodings\cp1252.py", line 23, in decode
+  File "C:\Python312\Lib\encodings\cp1252.py", line 23, in decode
+    return codecs.charmap_decode(input,self.errors,decoding_table)[0]
+    return codecs.charmap_decode(input,self.errors,decoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'charmap' codec can't decode byte 0x8f in position 80: character maps to <undefined>
+UnicodeDecodeError: 'charmap' codec can't decode byte 0x8f in position 465: character maps to <undefined>
+{"capturedAt": "2026-10-11T16:07:32.430346+00:00", "network": "internal; no published ports", "fixture": "explicit synthetic local profiles in real owned PostgreSQL; real compiled routes/storage; provider transport only maps VoteSmart to internal broken/hanging HTTP fixture", "sourceHead": "d46e4efc164935b7f63fb24361fd27720d13390e", "image": "electiontracker:sol-provider-flat", "builder": "electiontracker:sol-provider-builder-flat", "passed": false, "imageId": "sha256:9cd706b3cdb84f577ec668430736b7cf3c7685a038140955f71a21539eaa5991", "builderImageId": "sha256:85d6c2deb17953285bfeae33d54ec73e76beade0dd417e97d10b69538410dcea", "clientTreeSha256": "f13ed9c660057b38b138775b18b78c8369dffbdeb24f98227e4dc45e29fa5615", "mainClientTreeSha256": "f13ed9c660057b38b138775b18b78c8369dffbdeb24f98227e4dc45e29fa5615", "fixtureFiles": {"preload.mjs": "b42e11848799d2f0cc01d57e8e9c947b96d2eb02b8e20c9300f6e0593310bdec", "probe.mjs": "d4fe42784e2da6801ccde2738ce6d82e7a981ece8588ca824d790f7814209332", "upstream.mjs": "618dca4a76f5b539906864dcdd85dc3e03bf66bd4420a12f8dbbde6deae20d55"}, "lastStartupError": "docker exec failed: node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\n[TypeError: fetch failed] {\n  [cause]: Error: connect ECONNREFUSED 127.0.0.1:5000\n      at TCPConnectWrap.afterConnect [as oncomplete] (node:net:2021:16) {\n    errno: -111,\n    code: 'ECONNREFUSED',\n    syscall: 'connect',\n    address: '127.0.0.1',\n    port: 5000\n  }\n}\n\nNode.js v24.21.0\n", "electionContext": [{"id": 2, "title": "U.S. Senate Election - Alaska", "state": "AK", "type": "general", "offices": ["U.S. Senate"]}, {"id": 37, "title": "Alaska Gubernatorial Election", "state": "AK", "type": "general", "offices": ["Governor"]}], "error": "unsupported operand type(s) for +: 'NoneType' and 'NoneType'", "cleanupAttempted": true}
+[{"mode": "baseline", "httpPassed": true, "maxMs": 633, "resourceSettled": true, "unchanged": true}]
