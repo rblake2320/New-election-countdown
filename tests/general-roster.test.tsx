@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen, waitFor, cleanup } from "@testing-library/react";
+import { render, screen, waitFor, within, cleanup } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { GeneralRoster } from "../client/src/components/general-roster";
 import { rosterParty, safeSourceUrl } from "../client/src/lib/general-roster";
@@ -34,7 +34,7 @@ describe("GeneralRoster", () => {
     expect(roster.textContent).toContain("Democratic");
     expect(roster.textContent).toContain("Incumbent");
     expect(roster.textContent).toContain("Write-in");
-    expect(roster.textContent).not.toMatch(/certified(?! of results)/i); // only the disclaimer may mention certification
+    for (const r of within(screen.getByRole("list")).getAllByRole("listitem")) expect(r.textContent).not.toMatch(/certif/i);
     const link = screen.getByRole("link", { name: "Texas Secretary of State" });
     expect(link.getAttribute("href")).toBe("https://www.sos.state.tx.us/elections/candidates/");
     expect(screen.queryByRole("link", { name: "Bad Source" })).toBeNull(); // javascript: never linked

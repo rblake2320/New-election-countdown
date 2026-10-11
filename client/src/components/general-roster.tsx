@@ -6,7 +6,10 @@ import { useGeneralRoster } from "@/hooks/use-general-roster";
 
 const fmtDate = (iso: string | null) => {
   if (!iso) return null;
-  const d = new Date(iso);
+  // A bare calendar date ("2026-08-21") is the publisher's date, not an instant:
+  // format it as-is so a viewer west of UTC does not see the day before.
+  const ymd = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+  const d = ymd ? new Date(Number(ymd[1]), Number(ymd[2]) - 1, Number(ymd[3])) : new Date(iso);
   return Number.isNaN(d.getTime()) ? null : d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 };
 
@@ -53,9 +56,11 @@ export function GeneralRoster({ electionId }: { electionId: number }) {
               {rosterSources(data.candidates).map(s => {
                 const href = safeSourceUrl(s.url);
                 const checked = fmtDate(s.checkedAt);
+                const published = fmtDate(s.publishedAt);
                 return (
                   <p key={`${s.name}|${s.url}`}>
                     Source: {href ? <a href={href} target="_blank" rel="noopener noreferrer" className="underline">{s.name}</a> : s.name}
+                    {published && <> (published {published})</>}
                     {checked && <> · checked {checked}</>}
                   </p>
                 );

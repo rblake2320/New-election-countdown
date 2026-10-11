@@ -33,14 +33,21 @@ export interface GeneralRosterResponse {
   candidates: GeneralRosterCandidate[];
 }
 
-/** Party as the official list gives it. Unknown stays empty (e.g. write-ins), never guessed. */
+/**
+ * Party as the official list gives it. A stated preference (top-two states such
+ * as WA: "(Prefers Republican Party)") is shown as the preference, not as party
+ * nomination. Unknown stays empty (e.g. write-ins), never guessed.
+ */
 export function rosterParty(c: GeneralRosterCandidate): string | null {
+  const raw = c.generalListSource?.partyRaw?.trim();
+  if (c.generalListSource?.partyBasis === "preference" && raw) {
+    return raw.replace(/^\((.*)\)$/, "$1");
+  }
   if (c.party && c.party.trim()) {
     const code = c.party.trim();
     const label = partyLabel(code);
     return label !== code ? label : code;
   }
-  const raw = c.generalListSource?.partyRaw?.trim();
   return raw ? raw : null;
 }
 
@@ -50,14 +57,14 @@ export function isWriteIn(c: GeneralRosterCandidate): boolean {
 
 /** Distinct sources across the list, for one attribution line per source. */
 export function rosterSources(cands: GeneralRosterCandidate[]) {
-  const seen = new Map<string, { name: string; url: string | null; checkedAt: string | null }>();
+  const seen = new Map<string, { name: string; url: string | null; checkedAt: string | null; publishedAt: string | null }>();
   for (const c of cands) {
     const name = c.generalListSource?.sourceName?.trim() || "Official state list";
     const key = `${name}|${c.generalListSourceUrl ?? ""}`;
     const prev = seen.get(key);
     const checked = c.generalListCheckedAt ?? null;
     if (!prev || (checked && (!prev.checkedAt || checked > prev.checkedAt))) {
-      seen.set(key, { name, url: c.generalListSourceUrl ?? null, checkedAt: checked });
+      seen.set(key, { name, url: c.generalListSourceUrl ?? null, checkedAt: checked, publishedAt: c.generalListSource?.publishedAt ?? null });
     }
   }
   return Array.from(seen.values());
