@@ -160,7 +160,13 @@ export function phaseAt(s: ElectionSchedule, now: Date): ElectionTiming {
   if (t < s.closes.getTime()) {
     // Ballot drop-off deadline (vote-by-mail states). Not a polls close, and not
     // a postmark or mail-receipt deadline, which follow other rules.
-    if (ballots) return out("election-day", s.closes, "until ballot drop-off deadline", "Election Day · ballot drop-off open");
+    if (ballots) {
+      // "Open" only once a published opening time has passed; otherwise just the
+      // pending deadline (lane C: never claim drop-off is open at midnight).
+      const open = s.opens !== null && t >= s.opens.getTime();
+      return out("election-day", s.closes, "until ballot drop-off deadline",
+        open ? "Election Day · ballot drop-off open" : "Election Day · ballot drop-off deadline pending");
+    }
     // "Polls open" only when both ends are published; an unknown opening time
     // (e.g. towns that set their own hours) must not be reported as open at 00:30.
     if (s.opens && s.closeKnown) return out("polls-open", s.closes, "until polls close", "Polls open");

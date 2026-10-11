@@ -16,6 +16,7 @@ import type { Election, Candidate } from "@shared/schema";
 import { useCandidates, useElectionResults } from "@/hooks/use-elections";
 import { Link, useLocation } from "wouter";
 import { rememberPendingWatch, signInUrl, takePendingWatch } from "@/lib/auth-return";
+import { isUpcomingElection } from "@/lib/election-timing";
 import { PoliticalLeaningBorder } from "@/components/ui/political-leaning-border";
 
 interface ElectionDetailsResponse {
@@ -200,8 +201,12 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
   };
 
   // Calculate urgency color
-  const daysUntil = Math.ceil((new Date(election.date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-  const urgencyColor = daysUntil <= 7 ? "bg-brand-error" : 
+  // Urgency stripe from the shared timing rules; a race that has been held is
+  // neutral (the old midnight-UTC day count left past races red forever).
+  const daysUntil = isUpcomingElection(election)
+    ? Math.max(0, Math.ceil((new Date(election.date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+    : Infinity;
+  const urgencyColor = !isUpcomingElection(election) ? "bg-muted" : daysUntil <= 7 ? "bg-brand-error" : 
                       daysUntil <= 30 ? "bg-brand-accent" : 
                       "bg-brand-primary";
 

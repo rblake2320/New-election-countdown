@@ -130,7 +130,13 @@ describe("C3 contract fields (proposed: poll_close_kind, poll_hours_basis)", () 
     const e = { ...base, pollsOpen: null, pollCloseKind: "ballot_return" as const, pollHoursBasis: "statewide_latest" as const };
     const during = getElectionTiming(e, new Date("2026-11-03T20:00:00Z"));
     expect(during.targetLabel).toBe("until ballot drop-off deadline");
-    expect(during.statusLabel).toBe("Election Day · ballot drop-off open");
+    expect(during.statusLabel).toBe("Election Day · ballot drop-off deadline pending"); // no opening hours published
+    expect(during.statusLabel).not.toMatch(/open/);
+    const midnight = getElectionTiming(e, new Date("2026-11-03T08:05:00Z")); // 00:05 PST
+    expect(midnight.statusLabel).not.toMatch(/open/);
+    const withOpen = { ...e, pollsOpen: "08:00" };
+    expect(getElectionTiming(withOpen, new Date("2026-11-03T15:00:00Z")).statusLabel).toBe("Election Day · ballot drop-off deadline pending"); // 07:00 PST, before opening
+    expect(getElectionTiming(withOpen, new Date("2026-11-03T20:00:00Z")).statusLabel).toBe("Election Day · ballot drop-off open");
     expect(during.statusLabel).not.toMatch(/Polls/);
     expect(getElectionTiming(e, new Date("2026-11-04T05:00:00Z")).statusLabel).toBe("Ballot drop-off closed · results pending");
   });
