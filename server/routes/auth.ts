@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { authLimiter } from "../security-middleware";
 import { pool } from "../db";
 import { z } from "zod";
 import { authRequired, createSession, hashPassword, setSessionCookie, verifyPassword, verifySession, revokeSession, signSession, SESSION_COOKIE } from "../auth";
@@ -53,7 +54,7 @@ function getOperatingSystem(userAgent?: string): string {
   return 'other';
 }
 
-router.post("/register", async (req, res) => {
+router.post("/register", authLimiter, async (req, res) => {
   console.log("🔵 Registration attempt started:", req.body.email);
   const parse = z.object({ email: Email, password: Password }).safeParse(req.body);
   if (!parse.success) return res.status(400).json({ error: "bad_request", details: parse.error.issues });
@@ -170,7 +171,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-router.post("/login", async (req, res) => {
+router.post("/login", authLimiter, async (req, res) => {
   const parse = z.object({ email: Email, password: Password }).safeParse(req.body);
   if (!parse.success) return res.status(400).json({ error: "bad_request", details: parse.error.issues });
   const { email, password } = parse.data;
@@ -411,7 +412,7 @@ router.post("/verify-email", async (req, res) => {
   res.json({ ok: true });
 });
 
-router.post("/request-password-reset", async (req, res) => {
+router.post("/request-password-reset", authLimiter, async (req, res) => {
   const parse = z.object({ email: Email }).safeParse(req.body);
   if (!parse.success) return res.status(400).json({ error: "bad_request" });
   const { email } = parse.data;
@@ -438,7 +439,7 @@ router.post("/request-password-reset", async (req, res) => {
   res.json({ ok: true });
 });
 
-router.post("/reset-password", async (req, res) => {
+router.post("/reset-password", authLimiter, async (req, res) => {
   const parse = z.object({ 
     token: z.string(), 
     password: Password 
