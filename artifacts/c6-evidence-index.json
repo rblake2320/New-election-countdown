@@ -1,0 +1,168 @@
+{
+  "sourceHead": "554ab9020a0c2937a2df5bbc56a5e963444a3be9",
+  "baseHead": "426c7095b900795c8e6fdc3a18e58f123a584a9e",
+  "branch": "lane-c/c6-results-routes",
+  "outcome": "Worked",
+  "manifestSha256": "edbc1deff97cba8a154f3322e305be08427be1db358761635e59153328e04c86",
+  "states": 50,
+  "healthyDestinations": 49,
+  "blockedState": "NH",
+  "publishedCurrentStates": 0,
+  "privateFinal": "c6-private-81224-3e46a2/harness-receipt.json",
+  "http": {
+    "outcome": "Worked",
+    "details": 537,
+    "listings": 506,
+    "fieldComparisons": 2086,
+    "mismatches": 0,
+    "quotaWaits": 1,
+    "durationMs": 56209
+  },
+  "units": {
+    "passed": 363,
+    "skipped": 3,
+    "failed": 0,
+    "receipt": "c6-all-unit-ready.txt"
+  },
+  "types": {
+    "sourceHead": "554ab9020a0c2937a2df5bbc56a5e963444a3be9",
+    "baselineErrors": 963,
+    "currentErrors": 949,
+    "clientErrors": 0,
+    "additionalByFile": {},
+    "deltas": {
+      "server/election-data-builder.ts": -1,
+      "server/mem-storage.ts": -8,
+      "server/storage.ts": -4,
+      "shared/schema.ts": -1
+    },
+    "C6StrictErrors": 0
+  },
+  "dependencyProvenance": {
+    "physicalNpmCi": true,
+    "nodeModulesReparsePoint": false,
+    "packageLockSha256": "7fdc202b54634987e81da56d44cc5d20a7c65e7dbab5a9758254480ddd8fc921",
+    "packageChanges": false
+  },
+  "retainedFailures": [
+    {
+      "receipt": "c6-private-59852-7bc63b/receipt.json",
+      "cause": "JSONB JSONnull parameter did not match SQLNULL preimage",
+      "repair": "SQLNULL parameter for nullable JSONB; apply rollback/repeat retested"
+    },
+    {
+      "receipt": "c6-private-71952-dd1558/receipt.json",
+      "cause": "first mounted GET/id reduced projection shadowed later full route",
+      "repair": "two validated results fields added in actual receiving projection; all537details retested"
+    },
+    {
+      "receipt": "c6-private-29024-92e201/harness-receipt.json",
+      "cause": "Drizzle tablesFilter CLI option bypassed automatic default config, leaving dialect/schema missing",
+      "repair": "explicit filtered config;7 populated audit rows and fullcatalog survived schema sync"
+    }
+  ],
+  "gitByteProof": "c6-git-byte-ready.json",
+  "postcommitReceiptFault": {
+    "outcome": "Worked",
+    "scenario": "actual non-root chmod denies postcommit rename",
+    "durableAuditPreserved": true,
+    "temporaryReceiptPreserved": true,
+    "operatorOutcome": "Applied",
+    "runId": "c5e8f670-c7e0-47ae-8b83-dd29efa6c541",
+    "changedCount": 506,
+    "preflightBeforeDB": true
+  },
+  "sourceProofLayout": {
+    "source-reviews/initial-14.json": "source-reviews/initial-14-receipts/<original-receipt-basename>",
+    "source-reviews/remaining-36.json": "source-reviews/remaining-36-receipts/<original-receipt-basename>"
+  },
+  "implementationHead": "554ab9020a0c2937a2df5bbc56a5e963444a3be9",
+  "harnessHead": "c09686038af8658ee0cbf8d21aa5a70d7a0cf8e7",
+  "actualPayloads": [
+    "c6-private-81224-3e46a2/actual-detail-payloads.json",
+    "c6-private-81224-3e46a2/actual-upcoming-payloads.json",
+    "c6-private-81224-3e46a2/independent-sql-results-fields.json"
+  ],
+  "evidenceHashes": [
+    {
+      "file": "artifacts/c6-all-unit-ready.txt",
+      "sha256": "461b43bd7e535711035689c2ab887819de1929fd9527a7aac6150a1824b28307"
+    },
+    {
+      "file": "artifacts/c6-git-byte-ready.json",
+      "sha256": "9bc277f087d71fab0e6a47d861a7c1f97e6ce2a6ba7ae4389e12aadc1b4860ce"
+    },
+    {
+      "file": "artifacts/c6-private-81224-3e46a2/actual-detail-payloads.json",
+      "sha256": "401e79f55b0db62d3e790f694e1f2650422f3fc229d6c6f65d7377914c5d5d82"
+    },
+    {
+      "file": "artifacts/c6-private-81224-3e46a2/actual-upcoming-payloads.json",
+      "sha256": "b8ea7f72e7015f3f8a2b496d817d5b59b5fa97eb2ab666a4d3ad739e66311cf8"
+    },
+    {
+      "file": "artifacts/c6-private-81224-3e46a2/apply.json",
+      "sha256": "4c267f6cdbfa393bd15af58e05bcbc7950e11a7c9a7cc3546c1a101b4016d3c6"
+    },
+    {
+      "file": "artifacts/c6-private-81224-3e46a2/compiled-apply.json",
+      "sha256": "b7f4a1f44ff7e828be090c6e0e74a522be86a3d233d21ab19f1426bdb4d0d5ad"
+    },
+    {
+      "file": "artifacts/c6-private-81224-3e46a2/compiled-default-dry.json",
+      "sha256": "4cdc543ec0cc7267c6ddd3095d57c011e499df1d5c0fb8e10c837276f1be5bed"
+    },
+    {
+      "file": "artifacts/c6-private-81224-3e46a2/compiled-final-dry.json",
+      "sha256": "01729e8360629ccb2db43c7a1b5f61fe0239a4eda71ac6630d2f9a32301d0726"
+    },
+    {
+      "file": "artifacts/c6-private-81224-3e46a2/compiled-guard-failed.json",
+      "sha256": "45c12f7e1a658cabad8ca4f74c51f67a3f2f93059b2c89a6e37af123f7bf0940"
+    },
+    {
+      "file": "artifacts/c6-private-81224-3e46a2/compiled-reapply.json",
+      "sha256": "641062b9ce283538b7377a5f5f030a160cb5f4bffb072a988e4ba59e72c2cab3"
+    },
+    {
+      "file": "artifacts/c6-private-81224-3e46a2/compiled-rollback.json",
+      "sha256": "7ef1ac978f49d869132fc383ade5b26619eb8ac713e4062fe5014b678cc38b40"
+    },
+    {
+      "file": "artifacts/c6-private-81224-3e46a2/dry-run.json",
+      "sha256": "dfba8847331ca72af513bf253b3158fa9020f7af0981698e7de1acbaa6b9a13e"
+    },
+    {
+      "file": "artifacts/c6-private-81224-3e46a2/harness-receipt.json",
+      "sha256": "9918981d9945ad194f31a6055a9bce6d46fcde9f577325259e0e634e7d11baf8"
+    },
+    {
+      "file": "artifacts/c6-private-81224-3e46a2/independent-sql-results-fields.json",
+      "sha256": "86bd3e16ae2bd9e2cdce8533104b49bb772aa145aeee7da93020dffe7b7cb7a2"
+    },
+    {
+      "file": "artifacts/c6-private-81224-3e46a2/postcommit-receipt-fault/receipt.json",
+      "sha256": "ff344a7bd3332b4ad8b5c6412912240b6a2c6db055b1e2030c6f19e0abdba4ed"
+    },
+    {
+      "file": "artifacts/c6-private-81224-3e46a2/receipt.json",
+      "sha256": "c71321fd997eeedcf5160616420d0c778d56fc4d28414eda139f475fd6edde72"
+    },
+    {
+      "file": "artifacts/c6-strict-ready.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "artifacts/c6-type-baseline.txt",
+      "sha256": "575d1a3a6a3ecff5466cb6dc0a3c1e88978098047e1882e3a243db199b724ddb"
+    },
+    {
+      "file": "artifacts/c6-type-comparison.json",
+      "sha256": "3fa44247c02fd861813607f9f689bf7fff219d5318b99001d290e3ce3b7d5d7b"
+    },
+    {
+      "file": "artifacts/c6-type-ready.txt",
+      "sha256": "ac00ecaa9f24bc2446ba72c7abdeeee5794cadf0def1e32670022090ee511d85"
+    }
+  ]
+}

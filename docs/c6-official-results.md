@@ -114,6 +114,11 @@ migration twice, compiled CLI defaults/guards/apply/rollback/reapply, source
 availability cases, transactional injected failure, writer lock contention,
 missing receiving states, stale preimages/rollbacks, unknown manifest fields,
 future DB columns, repeat row versions, and candidate preservation.
+It performs a real admin date correction that leaves stored provenance in
+place, verifies active detail/list/wrapped responses clear the stale pair, and
+restores the original date in the isolated database. A separate packaged reader
+with `TZ=Asia/Tokyo` reproduces the native PG Date's November 2 UTC day while
+its stored calendar date and repaired detail/list responses remain November 3.
 It also forces a real non-root filesystem rename failure after commit and
 checks that the CLI reports **Applied**, retains its audit ID and temporary
 receipt, and refuses to describe the committed data as rolled back.
@@ -140,3 +145,8 @@ Louisiana catalog correction and downstream integration.
   newline normalization can change a reviewed hash when another machine checks
   out the source. All 125 retained data files were compared with their Git blobs;
   the initial mismatch and restored exact bytes are recorded separately.
+* RESULTS-CATALOG-CONTEXT: a correct imported source can become stale when the
+  outer record changes later. Recheck context on each receiving path; preserve
+  the original storage/audit bytes and clear the two public fields safely. The
+  actual admin-date-correction red/green and independent 32-case review enforce
+  this. The formal candidate is in `docs/registry-candidates-c6.md`.

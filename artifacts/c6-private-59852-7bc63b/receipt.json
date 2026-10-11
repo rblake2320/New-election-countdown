@@ -1,0 +1,22 @@
+{
+  "manifestSha256": "edbc1deff97cba8a154f3322e305be08427be1db358761635e59153328e04c86",
+  "outcome": "Failed",
+  "nullDefaults": {
+    "sqlRecords": 537,
+    "httpRecords": 507,
+    "outcome": "Worked"
+  },
+  "dryRun": {
+    "outcome": "Worked",
+    "targetCount": 506,
+    "proposedChanges": 506,
+    "catalogUnchanged": true,
+    "auditRows": 0
+  },
+  "manifestGuard": "Manifest SHA guard rejected this apply",
+  "preimageGuard": "Catalog preimage guard rejected this apply",
+  "missingReceivingState": "No November 3 receiving elections for reviewed states: WY",
+  "unknownManifestFields": "[\n  {\n    \"code\": \"unrecognized_keys\",\n    \"keys\": [\n      \"unreviewedStatus\"\n    ],\n    \"path\": [\n      \"states\",\n      0,\n      \"source\"\n    ],\n    \"message\": \"Unrecognized key(s) in object: 'unreviewedStatus'\"\n  }\n]",
+  "interveningChange": "Catalog preimage guard rejected this apply",
+  "error": "The input did not match the regular expression /Injected C6 rollback/. Input:\n\n'Results fields changed while applying election 1'\n"
+}
