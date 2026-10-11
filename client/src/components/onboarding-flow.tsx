@@ -160,7 +160,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               </div>
               
               <p className="mt-6 text-sm text-muted-foreground">
-                Redirecting you to your personalized dashboard...
+                Taking you back now…
               </p>
             </CardContent>
           </Card>
