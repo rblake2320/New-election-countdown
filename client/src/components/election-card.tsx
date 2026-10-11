@@ -291,7 +291,7 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
           <CountdownTimer 
             election={election} 
             size={viewMode === "grid" ? "md" : "sm"} 
-            className="text-foreground font-mono"
+            className="text-foreground"
           />
         </div>
       </div>
@@ -449,7 +449,7 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
       )}
 
       {/* Action Row - Footer */}
-      <footer className="mt-auto flex justify-between items-center pt-4 border-t border-border/20">
+      <footer className="mt-auto flex flex-wrap justify-between items-center gap-2 pt-4 border-t border-border/20">
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
@@ -474,7 +474,7 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
           </Button>
         </div>
         
-        <div className="flex items-center gap-1.5">
+        <div className="flex flex-wrap items-center gap-1.5">
           {/* View Trends Button */}
           <Link href={`/elections/${election.id}`}>
             <Button 

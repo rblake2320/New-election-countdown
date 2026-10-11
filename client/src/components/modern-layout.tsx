@@ -41,7 +41,7 @@ export function ModernLayout({ children, sidebar, className }: ModernLayoutProps
             </Sheet>
             <span className="font-semibold">ElectionTracker</span>
           </div>
-          <aside className="hidden lg:block lg:w-80 lg:min-h-screen border-r border-border bg-card/50 backdrop-blur-sm">
+          <aside className="hidden lg:block lg:w-64 xl:w-72 shrink-0 lg:min-h-screen border-r border-border bg-card/50 backdrop-blur-sm">
             <div className="sticky top-0 h-screen overflow-y-auto p-6">
               {sidebar}
             </div>

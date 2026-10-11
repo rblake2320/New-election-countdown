@@ -25,7 +25,8 @@ describe("labels and timeframes", () => {
   });
   it("treats next-* as upcoming-only", () => {
     expect(isUpcomingTimeframe("next-30-days")).toBe(true);
-    expect(isUpcomingTimeframe(undefined)).toBe(false);
+    expect(isUpcomingTimeframe(undefined)).toBe(true); // default home list is upcoming
+    expect(isUpcomingTimeframe("upcoming")).toBe(true);
     expect(isUpcomingTimeframe("all")).toBe(false);
   });
 });
