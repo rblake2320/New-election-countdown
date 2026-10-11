@@ -21,8 +21,8 @@ RUN npm run build
 FROM node:24-alpine AS production
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 
-# Install dumb-init for proper signal handling
-RUN apk add --no-cache dumb-init
+# The deployed backup service requires the same major-version client as PostgreSQL.
+RUN apk add --no-cache dumb-init postgresql16-client
 
 # Create app user for security
 RUN addgroup -g 1001 -S nodejs && \
