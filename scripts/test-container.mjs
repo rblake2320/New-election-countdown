@@ -133,6 +133,41 @@ try {
     `;
     report.listingContract = JSON.parse(await docker('exec', app, 'node', '--input-type=module', '-e', listingProbe));
   }
+  if (process.env.TEST_POLL_HOURS === '1') {
+    const fingerprint = () => docker('exec', db, 'psql', '-U', 'et_test', '-d', 'et_test', '-Atc',
+      "select md5(string_agg(row_to_json(e)::text,'' order by id)),md5(string_agg(xmin::text,',' order by id)) from elections e;");
+    const runHours = (apply, inject = false) => docker('run', '--rm', '--network', network,
+      '-e', `DATABASE_URL=${databaseURL}`,
+      ...(inject ? ['-e', 'POLL_HOURS_INJECT_FAILURE_AFTER=100'] : []),
+      '--entrypoint', 'sh', builder, '-c',
+      'node_modules/.bin/esbuild scripts/seed_poll_hours_2026.ts --bundle --platform=node --format=esm --packages=external --outfile=poll-hours-acceptance.mjs && node poll-hours-acceptance.mjs' + (apply ? ' --apply' : ''));
+    const before = await fingerprint();
+    await runHours(false);
+    if (await fingerprint() !== before) throw Error('Poll-hours dry-run changed rows');
+    let rolledBack = false;
+    try { await runHours(true, true); }
+    catch (error) { if (!error.message.includes('injected failure after 100')) throw error; rolledBack = true; }
+    if (!rolledBack || await fingerprint() !== before) throw Error('Poll-hours rollback failed');
+    const applied = await runHours(true);
+    const after = await fingerprint();
+    const repeated = await runHours(true);
+    if (await fingerprint() !== after || !repeated.includes('0 need changes')) throw Error('Poll-hours repeat changed rows');
+    const probeHours = `
+      const {default:pg}=await import('pg');const pool=new pg.Pool({connectionString:process.env.DATABASE_URL,options:'-c default_transaction_read_only=on'});
+      try{
+        const expected=(await pool.query("select id,polls_open,polls_close,timezone,poll_close_kind,poll_hours_basis,poll_hours_source from elections where date='2026-11-03' order by id")).rows;
+        if(expected.length!==506)throw Error('Expected506 election-day rows');
+        const response=await fetch('http://127.0.0.1:5000/api/elections?timeframe=upcoming');
+        if(response.status!==200)throw Error('Poll-hours HTTP status '+response.status);
+        const rows=new Map((await response.json()).map(r=>[r.id,r]));
+        const fields={polls_open:'pollsOpen',polls_close:'pollsClose',timezone:'timezone',poll_close_kind:'pollCloseKind',poll_hours_basis:'pollHoursBasis',poll_hours_source:'pollHoursSource'};
+        for(const e of expected){const actual=rows.get(e.id);if(!actual)throw Error('Missing election '+e.id);for(const [sql,key] of Object.entries(fields))if(e[sql]!==actual[key])throw Error('Poll-hours HTTP mismatch '+e.id+' '+key);}
+        console.log(JSON.stringify({rows:expected.length,fieldComparisons:expected.length*6,mismatches:0}));
+      }finally{await pool.end();}`;
+    report.pollHours = { dryRunUnchanged: true, injectedRollback: true, repeatUnchanged: true,
+      applySummary: applied.split('\n').filter(line => /need changes|applied/.test(line)),
+      compiledHttp: JSON.parse(await docker('exec', app, 'node', '--input-type=module', '-e', probeHours)) };
+  }
   if (process.env.TEST_CANDIDATE_INGESTION === '1') {
     await docker('exec', db, 'psql', '-U', 'et_test', '-d', 'et_test', '-c',
       'create database et_sol_c_fec_test;');
