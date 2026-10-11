@@ -1,9 +1,27 @@
 # Astra independent functionality and flow review — 2026-10-11
 
-**Overall: 5/10. Functionality: 6/10. User flow: 5/10. Production readiness: 3/10.**
+**Overall: 5/10. Functionality: 6/10. User flow: 5/10. Production readiness: 4/10.**
 These are engineering judgments, not percentages of tests passed. This is a
 release-blocking assessment of the tested snapshot, not a rating of unfinished
 changes in another seat's working directory.
+
+## Follow-up integration retest
+
+Initial readiness rating was3/10. After Fabel's da96cf3 and Sol's b897fa7:
+
+- The same nginx fixture now returns1200/1200HTTP200, zero429/errors, p95=12ms.
+  The previously measured static-rate-limit blocker is repaired in this snapshot.
+- All four lanes on Node24/Vite8/Vitest5:150unit tests passed,3existing skips.
+  Both stale bypass expectations are corrected; no production bypass restored.
+- Compiled packaged HTTP listing agrees with independent read-only SQL for
+  default507, upcoming506, next30days506, federal/Federal470, D/Democratic55;
+  membership, ordering and candidate counts match. Invalid timeframe returns400.
+- Fresh nonincremental typecheck still fails:1028diagnostics. A separate
+  strictNullChecks+ES2022 probe yields970; neither result qualifies for release.
+  Probe only: compiler settings were not changed to conceal errors.
+
+Browser-flow findings below remain open until corresponding fixes are rendered
+and retested. Readiness rises to4/10; overall5/10 remains appropriate.
 
 ## Tested snapshot and method
 

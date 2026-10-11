@@ -15,6 +15,10 @@ const password = randomBytes(24).toString('hex');
 const databaseURL = `postgresql://et_test:${password}@${db}:5432/et_test`;
 const evidence = process.env.CONTAINER_EVIDENCE_DIR || 'test-results/container';
 const preview = process.env.TEST_BROWSER_PREVIEW === '1';
+const previewPort = Number(process.env.TEST_BROWSER_PORT || 5059);
+if (preview && (!Number.isInteger(previewPort) || previewPort < 1024 || previewPort > 65535)) {
+  throw new Error('TEST_BROWSER_PORT must be an integer from 1024 to 65535');
+}
 await fs.mkdir(evidence, { recursive: true });
 const docker = async (...args) => {
   try {
@@ -41,7 +45,7 @@ try {
     '-e', `DATABASE_URL=${databaseURL}`, '--entrypoint', 'npx', builder, 'drizzle-kit', 'push', '--force');
   await fs.writeFile(`${evidence}/schema.log`, schemaLog);
   await docker('run', '-d', '--name', app, '--network', network,
-    ...(preview ? ['-p', '127.0.0.1:5059:5000'] : []),
+    ...(preview ? ['-p', `127.0.0.1:${previewPort}:5000`] : []),
     '-e', `DATABASE_URL=${databaseURL}`, '-e', `JWT_SECRET=${password}`,
     '-e', `CANDIDATE_JWT_SECRET=${password}`, '-e', 'APP_ORIGIN=http://127.0.0.1:5000', image);
   const probe = `Promise.all(['/', '/api/health', '/api/elections'].map(async path => {
@@ -69,9 +73,38 @@ try {
   report.boundary = await docker('exec', app, 'node', '-e',
     `const fs=require('fs');for(const p of ['node_modules/vite','node_modules/vitest','node_modules/@playwright/test','node_modules/tailwindcss','server','shared'])if(fs.existsSync(p))throw Error('Unexpected runtime path '+p);console.log('production-only paths verified')`);
   report.imageId = await docker('inspect', '--format', '{{.Image}}', app);
+  if (process.env.TEST_LISTING_CONTRACT === '1') {
+    const listingProbe = `
+      const {default:pg}=await import('pg');
+      const pool=new pg.Pool({connectionString:process.env.DATABASE_URL,options:'-c default_transaction_read_only=on'});
+      try {
+        const now=new Date(); const today=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate()));
+        const recent=new Date(today.getTime()-30*86400000), end=new Date(today.getTime()+31*86400000);
+        const control=await pool.query('select e.*,count(c.id)::int as candidate_count from elections e left join candidates c on c.election_id=e.id where e.is_active=true group by e.id order by e.date,e.id');
+        const dem=await pool.query("select distinct election_id from candidates where lower(trim(party)) in ('d','dem','democratic','democrat','democratic party','dfl')");
+        const demIds=new Set(dem.rows.map(r=>r.election_id));
+        const cases=[['',r=>new Date(r.date)>=recent],['?timeframe=upcoming',r=>new Date(r.date)>=today],['?timeframe=next-30-days',r=>new Date(r.date)>=today&&new Date(r.date)<end],['?level=federal',r=>new Date(r.date)>=recent&&r.level.trim().toLowerCase()==='federal'],['?level=Federal',r=>new Date(r.date)>=recent&&r.level.trim().toLowerCase()==='federal'],['?party=D',r=>new Date(r.date)>=recent&&demIds.has(r.id)],['?party=Democratic',r=>new Date(r.date)>=recent&&demIds.has(r.id)]];
+        const results=[];
+        for(const [query,predicate] of cases){
+          const response=await fetch('http://127.0.0.1:5000/api/elections'+query,{signal:AbortSignal.timeout(10000)});
+          if(response.status!==200)throw Error(query+' status '+response.status);
+          const rows=await response.json(),expected=control.rows.filter(predicate);
+          if(JSON.stringify(rows.map(r=>r.id))!==JSON.stringify(expected.map(r=>r.id)))throw Error(query+' membership/order differs from independent SQL');
+          const counts=new Map(expected.map(r=>[r.id,r.candidate_count]));
+          if(rows.some(r=>r.candidateCount!==counts.get(r.id)))throw Error(query+' candidate count mismatch');
+          results.push({query,status:200,rows:rows.length,membershipAndCountsMatch:true});
+        }
+        const invalid=await fetch('http://127.0.0.1:5000/api/elections?timeframe=typo');
+        if(invalid.status!==400)throw Error('Invalid filter status '+invalid.status);
+        results.push({query:'?timeframe=typo',status:400});
+        console.log(JSON.stringify(results));
+      }finally{await pool.end();}
+    `;
+    report.listingContract = JSON.parse(await docker('exec', app, 'node', '--input-type=module', '-e', listingProbe));
+  }
   if (preview) {
-    report.network = 'isolated test bridge; browser preview bound only to 127.0.0.1:5059';
-    console.log('Isolated browser preview ready at http://127.0.0.1:5059 (maximum 5 minutes)');
+    report.network = `isolated test bridge; browser preview bound only to 127.0.0.1:${previewPort}`;
+    console.log(`Isolated browser preview ready at http://127.0.0.1:${previewPort} (maximum 5 minutes)`);
     for (let i = 0; i < 300; i++) {
       try { await fs.access(`${evidence}/browser-done`); break; } catch {}
       await delay();

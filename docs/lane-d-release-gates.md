@@ -5,9 +5,11 @@ Parent: https://rob47595-1791122756383.atlassian.net/browse/ET-1
 Lane: https://rob47595-1791122756383.atlassian.net/browse/ET-5
 
 This PR separates development tools from the runtime, updates dependencies,
-corrects test-runner discovery, and adds reproducible CI gates. Typecheck is a
-visible diagnostic job while legacy errors are repaired; it is not a passing
-type-safety claim. Full audit reports include development dependencies. The
+corrects test-runner discovery, and adds reproducible CI gates. Client source and
+global/configuration type errors are enforced by scripts/check-client-types.mjs;
+server/shared diagnostics remain visible in the uploaded typecheck.txt while
+legacy errors are repaired. Full-project type safety remains a release gate.
+The client gate requires lane B commit 4ad6a93. Full audit reports include development dependencies. The
 400,000-byte entry budget is enforced separately and requires the client lane's
 route splitting. Browser discovery is not browser execution.
 
@@ -18,12 +20,25 @@ npm ci
 npm test
 npm run test:e2e:list
 npm run build
+node scripts/check-client-types.mjs
 npm audit --omit=dev --audit-level=high
 node scripts/check-bundle.mjs
 docker build -t electiontracker:et5 .
 docker build --target builder -t electiontracker:et5-builder .
 node scripts/test-container.mjs
 ```
+
+For integrated images, `TEST_IMAGE` and `TEST_BUILDER_IMAGE` select the matching
+runtime/schema builder. `TEST_DB_OUTAGE=1` stops and restarts only the disposable
+database, requires readiness503 then200, and verifies unchanged election counts.
+`TEST_PROXY_LOAD=1` starts private nginx and requires every landing/static request
+to return200. The default local fixture is20RPS for60seconds (1200requests),
+bounded to50RPS/120seconds; it is not a production capacity claim. It accepts no
+target URL. `TEST_BROWSER_PREVIEW=1` publishes only127.0.0.1:5059 for at most five
+minutes; create `browser-done` in the evidence directory to end it sooner.
+Use a fresh evidence directory for each browser run. All modes clean up their
+owned containers and network. The nginx image must be available before running
+the fixture on an internal network.
 
 `PORT` defaults to 5058 in Playwright. Set `BASE_URL` and
 `E2E_EXTERNAL_SERVER=1` to deliberately target an existing test server. The runner
