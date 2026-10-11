@@ -1,24 +1,30 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { LoginForm } from "@/components/auth/login-form";
 import { OnboardingFlow } from "@/components/onboarding-flow";
 import { useAuth } from "@/hooks/use-auth";
+import { safeReturnTo } from "@/lib/auth-return";
 
 export default function AuthPage() {
   const [, setLocation] = useLocation();
   const { isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState("login");
-  
-  // Redirect if already authenticated
-  if (isAuthenticated) {
-    setLocation("/dashboard");
-    return null;
-  }
+  // Return to the page that sent the visitor here (e.g. Watch on an election).
+  const returnTo = safeReturnTo(new URLSearchParams(window.location.search).get("returnTo"));
+
+  // Already signed in: go back. Not while registering, though: the onboarding
+  // flow signs the user in after step 1 and still has preference steps to show;
+  // it calls handleSuccess itself when finished.
+  const registering = activeTab === "register";
+  useEffect(() => {
+    if (isAuthenticated && !registering) setLocation(returnTo);
+  }, [isAuthenticated, registering, returnTo, setLocation]);
+  if (isAuthenticated && !registering) return null;
   
   const handleSuccess = () => {
-    setLocation("/dashboard");
+    setLocation(returnTo);
   };
   
   // For registration flow, use the complete onboarding experience

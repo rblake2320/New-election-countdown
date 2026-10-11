@@ -1,10 +1,12 @@
 import { Router } from "express";
+import { authLimiter } from "../security-middleware";
 import { pool } from "../db";
 import { z } from "zod";
 import { authRequired, createSession, hashPassword, setSessionCookie, verifyPassword, verifySession, revokeSession, signSession, SESSION_COOKIE } from "../auth";
 import { storageFactory } from "../storage-factory";
 import { storage } from "../storage";
 import { dashboardResponseSchema, type DashboardResponse } from "@shared/schema";
+import { buildDashboardUser } from "../dashboard-user";
 import { sendGridNotificationService } from "../services/sendgrid-notification-service";
 import { analyticsService } from "../analytics-service";
 import nodemailer from "nodemailer";
@@ -53,7 +55,7 @@ function getOperatingSystem(userAgent?: string): string {
   return 'other';
 }
 
-router.post("/register", async (req, res) => {
+router.post("/register", authLimiter, async (req, res) => {
   console.log("🔵 Registration attempt started:", req.body.email);
   const parse = z.object({ email: Email, password: Password }).safeParse(req.body);
   if (!parse.success) return res.status(400).json({ error: "bad_request", details: parse.error.issues });
@@ -123,7 +125,9 @@ router.post("/register", async (req, res) => {
           text: `Verify your email: ${verifyUrl}`
         });
       } else {
-        console.log("📧 Email verify token:", tok.rows[0].token);
+        // Never log the token itself: logs are shipped to aggregators. Without SMTP the
+        // verification link is unavailable; operators must configure SMTP/SendGrid.
+        console.log("📧 Email verification token created (not logged); configure SMTP to deliver it");
       }
     } catch (emailVerifyError) {
       console.log("⚠️ Email verification token creation skipped (database unavailable)");
@@ -170,7 +174,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-router.post("/login", async (req, res) => {
+router.post("/login", authLimiter, async (req, res) => {
   const parse = z.object({ email: Email, password: Password }).safeParse(req.body);
   if (!parse.success) return res.status(400).json({ error: "bad_request", details: parse.error.issues });
   const { email, password } = parse.data;
@@ -259,7 +263,7 @@ router.get("/me", authRequired(), async (req, res) => {
   // Try database first if available
   if (storageFactory.isDatabaseAvailable()) {
     try {
-      const q = await pool.query(`SELECT id, email, COALESCE(email_verified, false) as email_verified FROM users WHERE id=$1`, [uid]);
+      const q = await pool.query(`SELECT id, email, COALESCE(email_verified, false) as email_verified, COALESCE(role, 'user') as role, first_name AS "firstName", last_name AS "lastName" FROM users WHERE id=$1`, [uid]);
       if (!q.rowCount) return res.status(404).json({ error: "user_not_found" });
       return res.json({ user: q.rows[0] });
     } catch (error) {
@@ -356,21 +360,9 @@ router.get("/dashboard", authRequired(), async (req, res) => {
     const electionStats = await storage.getElectionStats();
     const savedElectionsCount = watchlistItems.length;
     
-    // Calculate days since joining
-    const joinDate = user.createdAt ? new Date(user.createdAt) : new Date();
-    const daysSinceJoining = Math.floor((Date.now() - joinDate.getTime()) / (1000 * 60 * 60 * 24));
-    
     // Build response using proper types
     const dashboardResponse: DashboardResponse = {
-      user: {
-        id: user.id,
-        email: user.email || '',
-        firstName: user.firstName,
-        lastName: user.lastName,
-        emailVerified: true, // Default since we don't have this field in User type
-        joinedAt: user.createdAt?.toISOString() || new Date().toISOString(),
-        daysSinceJoining
-      },
+      user: buildDashboardUser(user),
       watchlist,
       recommendations: recommendationsWithCandidates,
       stats: {
@@ -411,7 +403,7 @@ router.post("/verify-email", async (req, res) => {
   res.json({ ok: true });
 });
 
-router.post("/request-password-reset", async (req, res) => {
+router.post("/request-password-reset", authLimiter, async (req, res) => {
   const parse = z.object({ email: Email }).safeParse(req.body);
   if (!parse.success) return res.status(400).json({ error: "bad_request" });
   const { email } = parse.data;
@@ -433,12 +425,13 @@ router.post("/request-password-reset", async (req, res) => {
       text: `Reset link: ${url}` 
     });
   } else {
-    console.log("🔐 Password reset token:", tok.rows[0].token);
+    // Never log the reset token (see register handler).
+    console.log("🔐 Password reset token created (not logged); configure SMTP to deliver it");
   }
   res.json({ ok: true });
 });
 
-router.post("/reset-password", async (req, res) => {
+router.post("/reset-password", authLimiter, async (req, res) => {
   const parse = z.object({ 
     token: z.string(), 
     password: Password 

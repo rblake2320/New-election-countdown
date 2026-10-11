@@ -3,16 +3,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { 
   Home, 
   Users, 
   Building2, 
   Shield, 
-  Radio, 
-  Database, 
+  
+  
   BarChart3, 
-  Globe, 
+  
   Calendar,
   ArrowRight,
   CheckCircle,
@@ -41,7 +40,7 @@ export function WelcomeModal({ open, onOpenChange }: WelcomeModalProps) {
               <Target className="h-8 w-8 text-primary" />
             </div>
             <p className="text-lg text-muted-foreground">
-              Track elections, monitor candidates, and stay informed about the democratic process with real-time data and comprehensive analysis.
+              Every 2026 race in one place: when it is, who is running, and where that information came from.
             </p>
           </div>
           
@@ -50,10 +49,10 @@ export function WelcomeModal({ open, onOpenChange }: WelcomeModalProps) {
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <TrendingUp className="h-4 w-4 text-blue-600" />
-                  <span className="font-semibold text-blue-700 dark:text-blue-400">Real-Time Data</span>
+                  <span className="font-semibold text-blue-700 dark:text-blue-400">Countdowns to every race</span>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Access live election results, polling data, and candidate information from verified sources.
+                  Each race counts down to when polls open and close in that state, in local time where hours are published.
                 </p>
               </CardContent>
             </Card>
@@ -62,10 +61,10 @@ export function WelcomeModal({ open, onOpenChange }: WelcomeModalProps) {
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Shield className="h-4 w-4 text-green-600" />
-                  <span className="font-semibold text-green-700 dark:text-green-400">Verified Information</span>
+                  <span className="font-semibold text-green-700 dark:text-green-400">Sources you can check</span>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  All data is validated through our AI-powered verification system for accuracy and authenticity.
+                  Candidate profiles say where each detail came from. FEC registration is shown as registration, never as a place on the ballot.
                 </p>
               </CardContent>
             </Card>
@@ -105,7 +104,6 @@ export function WelcomeModal({ open, onOpenChange }: WelcomeModalProps) {
                 <p className="text-sm text-muted-foreground mb-3">
                   Monitor congressional members, bills, and voting records.
                 </p>
-                <Badge variant="secondary" className="text-xs">Live Updates</Badge>
               </CardContent>
             </Card>
           </div>
@@ -130,7 +128,7 @@ export function WelcomeModal({ open, onOpenChange }: WelcomeModalProps) {
     },
     {
       title: "Powerful Tools & Portals",
-      subtitle: "Access specialized features for candidates, campaigns, and data analysis",
+      subtitle: "Tools for candidates and campaigns",
       content: (
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -165,39 +163,6 @@ export function WelcomeModal({ open, onOpenChange }: WelcomeModalProps) {
             </Card>
           </div>
           
-          <Separator />
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <Card className="border-slate-200 dark:border-slate-800">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <Radio className="h-3 w-3 text-slate-600" />
-                  <span className="text-xs font-medium">Real-Time Monitor</span>
-                </div>
-                <p className="text-xs text-muted-foreground">Live election updates</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="border-slate-200 dark:border-slate-800">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <Database className="h-3 w-3 text-slate-600" />
-                  <span className="text-xs font-medium">Data Steward</span>
-                </div>
-                <p className="text-xs text-muted-foreground">AI data validation</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="border-slate-200 dark:border-slate-800">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <Globe className="h-3 w-3 text-slate-600" />
-                  <span className="text-xs font-medium">Global Observatory</span>
-                </div>
-                <p className="text-xs text-muted-foreground">Worldwide elections</p>
-              </CardContent>
-            </Card>
-          </div>
         </div>
       )
     },

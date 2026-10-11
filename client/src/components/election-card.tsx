@@ -14,9 +14,10 @@ import { apiRequest } from "@/lib/queryClient";
 import { cn } from "@/lib/utils";
 import type { Election, Candidate } from "@shared/schema";
 import { useCandidates, useElectionResults } from "@/hooks/use-elections";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
+import { rememberPendingWatch, signInUrl, takePendingWatch } from "@/lib/auth-return";
+import { isUpcomingElection } from "@/lib/election-timing";
 import { PoliticalLeaningBorder } from "@/components/ui/political-leaning-border";
-import { calculateAdvancedPoliticalLeaningWithMomentum } from "@/lib/political-analysis";
 
 interface ElectionDetailsResponse {
   election: Election;
@@ -31,17 +32,17 @@ interface ElectionCardProps {
 }
 
 const electionTypeColors = {
-  primary: "bg-blue-500/20 text-blue-700 dark:text-blue-300",
-  general: "bg-green-500/20 text-green-700 dark:text-green-300",
-  special: "bg-orange-500/20 text-orange-700 dark:text-orange-300",
-  runoff: "bg-purple-500/20 text-purple-700 dark:text-purple-300"
+  primary: "bg-blue-500/20 text-blue-800 dark:text-blue-300",
+  general: "bg-green-500/20 text-green-800 dark:text-green-300",
+  special: "bg-orange-500/20 text-orange-800 dark:text-orange-300",
+  runoff: "bg-purple-500/20 text-purple-800 dark:text-purple-300"
 };
 
 const electionLevelColors = {
-  federal: "bg-red-500/20 text-red-700 dark:text-red-300",
-  state: "bg-blue-500/20 text-blue-700 dark:text-blue-300",
-  local: "bg-green-500/20 text-green-700 dark:text-green-300",
-  municipal: "bg-yellow-500/20 text-yellow-700 dark:text-yellow-300"
+  federal: "bg-red-500/20 text-red-800 dark:text-red-300",
+  state: "bg-blue-500/20 text-blue-800 dark:text-blue-300",
+  local: "bg-green-500/20 text-green-800 dark:text-green-300",
+  municipal: "bg-yellow-500/20 text-yellow-800 dark:text-yellow-300"
 };
 
 function formatElectionDate(date: string): string {
@@ -60,6 +61,7 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const { user, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
 
@@ -107,7 +109,7 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
 
   // Watchlist mutations
   const addToWatchlistMutation = useMutation({
-    mutationFn: () => apiRequest(`/api/watchlist`, "POST", { electionId: election.id }),
+    mutationFn: () => apiRequest('POST', `/api/watchlist`, { electionId: election.id }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/watchlist"] });
       toast({
@@ -125,7 +127,7 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
   });
 
   const removeFromWatchlistMutation = useMutation({
-    mutationFn: () => apiRequest(`/api/watchlist/${election.id}`, "DELETE"),
+    mutationFn: () => apiRequest('DELETE', `/api/watchlist/${election.id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/watchlist"] });
       toast({
@@ -142,13 +144,19 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
     },
   });
 
+  // Finish a Watch that was started before sign-in, once the watchlist has loaded.
+  useEffect(() => {
+    if (!isAuthenticated || !Array.isArray(watchlist)) return;
+    if (!takePendingWatch(election.id)) return;
+    if (!isInWatchlist) addToWatchlistMutation.mutate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, watchlist, election.id]);
+
   const toggleWatchlist = () => {
     if (!isAuthenticated) {
-      toast({
-        title: "Sign In Required",
-        description: "Please sign in to add elections to your watchlist.",
-        variant: "destructive",
-      });
+      // Keep the intent: sign in, come back here, and the watch completes.
+      rememberPendingWatch(election.id);
+      setLocation(signInUrl(window.location.pathname + window.location.search));
       return;
     }
 
@@ -193,37 +201,19 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
   };
 
   // Calculate urgency color
-  const daysUntil = Math.ceil((new Date(election.date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-  const urgencyColor = daysUntil <= 7 ? "bg-brand-error" : 
+  // Urgency stripe from the shared timing rules; a race that has been held is
+  // neutral (the old midnight-UTC day count left past races red forever).
+  const daysUntil = isUpcomingElection(election)
+    ? Math.max(0, Math.ceil((new Date(election.date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+    : Infinity;
+  const urgencyColor = !isUpcomingElection(election) ? "bg-muted" : daysUntil <= 7 ? "bg-brand-error" : 
                       daysUntil <= 30 ? "bg-brand-accent" : 
                       "bg-brand-primary";
 
-  // Advanced political leaning calculation with state baselines and momentum
-  const getPoliticalAnalysis = () => {
-    if (candidatesLoading) {
-      return { leaning: 'neutral' as const, intensity: 'low' as const };
-    }
-    
-    if (!candidates || candidates.length === 0) {
-      return { leaning: 'neutral' as const, intensity: 'low' as const };
-    }
-    
-    // Get state from election data (AL, CA, TX, etc.)
-    const state = election.state;
-    
-    // Use enhanced version with momentum simulation
-    const analysis = calculateAdvancedPoliticalLeaningWithMomentum(
-      state,
-      candidates,
-      election.id
-    );
-    
-    const shiftingText = analysis.isShifting ? ` (SHIFTING: ${analysis.shiftDirection})` : '';
-    console.log(`Election ${election.id} (${state}): baseline=${analysis.baseline}, leaning=${analysis.leaning}, shifting=${analysis.isShifting}${shiftingText}`);
-    return analysis;
-  };
-  
-  const politicalAnalysis = getPoliticalAnalysis();
+  // Neutral frame for every race. The partisan colouring came from simulated
+  // "momentum" and simulated voter intentions keyed off the election id
+  // (lib/political-analysis), i.e. invented data presented on real races.
+  const politicalAnalysis = { leaning: 'neutral' as const, intensity: 'low' as const };
 
   return (
     <PoliticalLeaningBorder leaning={politicalAnalysis.leaning} intensity={politicalAnalysis.intensity}>
@@ -289,10 +279,9 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
       <div className="flex justify-center items-center py-3">
         <div className="text-center bg-gradient-to-br from-background/80 to-muted/50 rounded-lg p-3 border border-border/50">
           <CountdownTimer 
-            targetDate={election.date.toString()} 
+            election={election} 
             size={viewMode === "grid" ? "md" : "sm"} 
-            showMilliseconds={viewMode === "grid"}
-            className="text-foreground font-mono"
+            className="text-foreground"
           />
         </div>
       </div>
@@ -450,7 +439,7 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
       )}
 
       {/* Action Row - Footer */}
-      <footer className="mt-auto flex justify-between items-center pt-4 border-t border-border/20">
+      <footer className="mt-auto flex flex-wrap justify-between items-center gap-2 pt-4 border-t border-border/20">
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
@@ -475,7 +464,7 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
           </Button>
         </div>
         
-        <div className="flex items-center gap-1.5">
+        <div className="flex flex-wrap items-center gap-1.5">
           {/* View Trends Button */}
           <Link href={`/elections/${election.id}`}>
             <Button 
