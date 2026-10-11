@@ -1,0 +1,178 @@
+{
+  "outcome": "Worked",
+  "image": "electiontracker:congress-production",
+  "builder": "electiontracker:congress-production-builder",
+  "network": "internal; no published ports",
+  "checks": [
+    {
+      "name": "runtime-only artifacts and nonroot identity",
+      "outcome": "Worked"
+    },
+    {
+      "name": "owned PostgreSQL ready",
+      "outcome": "Worked"
+    },
+    {
+      "name": "actual packaged HTTP server healthy",
+      "outcome": "Worked"
+    },
+    {
+      "name": "default compiled-relative loader dry-run receives 539 real members",
+      "outcome": "Worked"
+    },
+    {
+      "name": "dry-run leaves full catalog and audit unchanged",
+      "outcome": "Worked"
+    },
+    {
+      "name": "apply without explicit digest refuses",
+      "outcome": "Worked"
+    },
+    {
+      "name": "changed source bytes refuse",
+      "outcome": "Worked"
+    },
+    {
+      "name": "missing audit migration refuses",
+      "outcome": "Worked"
+    },
+    {
+      "name": "shipped migration applies and repeats",
+      "outcome": "Worked"
+    },
+    {
+      "name": "CLI receives after shipped migration",
+      "outcome": "Worked"
+    },
+    {
+      "name": "actual admin legacy routes return typed refusal",
+      "outcome": "Worked"
+    },
+    {
+      "name": "all refusal paths preserve full catalog and zero audits",
+      "outcome": "Worked"
+    },
+    {
+      "name": "positive fixture dry-run plans 538 inserts and one update",
+      "outcome": "Worked"
+    },
+    {
+      "name": "actual production CLI commits guarded positive apply",
+      "outcome": "Worked"
+    },
+    {
+      "name": "independent SQL receives exactly 539 real IDs and every approved field",
+      "outcome": "Worked"
+    },
+    {
+      "name": "legacy/history full rows and all unrelated existing fields preserved",
+      "outcome": "Worked"
+    },
+    {
+      "name": "repeat dry-run plans zero member writes",
+      "outcome": "Worked"
+    },
+    {
+      "name": "guarded production repeat commits zero member writes with stable xmin/full rows",
+      "outcome": "Worked"
+    },
+    {
+      "name": "separate database connection reads exact committed audits and full image scopes",
+      "outcome": "Worked"
+    },
+    {
+      "name": "shipped audit migration repeat preserves durable audit rows byte-for-byte",
+      "outcome": "Worked"
+    }
+  ],
+  "imageId": "sha256:13f2761c553f0d7152c635b33b91044ac8839abd33cfc85acb024ddfaa0f4211",
+  "builderId": "sha256:e1953c8dc8507ebbb19be4debe41adf7def8964fe484b157bc21940d820b8865",
+  "boundary": {
+    "uid": 1001,
+    "rootCongressSourcePresent": false,
+    "otherRootData": [
+      "official-results"
+    ],
+    "manifestSha256": "b09efc0e8a2b98ffc1e5e4740c8c0ba03a381e745cdf8d53a501e053bfa8ad56"
+  },
+  "anonymous": [
+    {
+      "path": "/api/congress/import",
+      "status": 401,
+      "body": {
+        "error": "unauthorized"
+      }
+    },
+    {
+      "path": "/api/congress/sync-all",
+      "status": 401,
+      "body": {
+        "error": "unauthorized"
+      }
+    }
+  ],
+  "ordinary": [
+    {
+      "path": "/api/congress/import",
+      "status": 403,
+      "body": {
+        "error": "Forbidden",
+        "message": "Administrative privileges required to access this resource"
+      }
+    },
+    {
+      "path": "/api/congress/sync-all",
+      "status": 403,
+      "body": {
+        "error": "Forbidden",
+        "message": "Administrative privileges required to access this resource"
+      }
+    }
+  ],
+  "legacy": [
+    {
+      "path": "/api/congress/import",
+      "status": 422,
+      "body": {
+        "error": "source_unverified",
+        "code": "LEGACY_CONGRESS_SOURCE_UNVERIFIED",
+        "message": "Legacy Congress dataset has no reviewed source digest; nothing was imported",
+        "details": null
+      }
+    },
+    {
+      "path": "/api/congress/sync-all",
+      "status": 422,
+      "body": {
+        "error": "source_unverified",
+        "code": "LEGACY_CONGRESS_SOURCE_UNVERIFIED",
+        "message": "Legacy Congress dataset has no reviewed source digest; nothing was imported",
+        "details": null
+      }
+    }
+  ],
+  "positiveSQL": {
+    "expected": 539,
+    "distinctExpected": 539,
+    "received": 539,
+    "mismatches": 0,
+    "total": 541
+  },
+  "audit": {
+    "rows": 2,
+    "runIds": [
+      "66048b6e-3257-4991-b0c5-bfe484289081",
+      "2c7e92df-fd30-48b5-bfa7-89d2e8b5afdd"
+    ],
+    "afterCounts": [
+      541,
+      541
+    ]
+  },
+  "positiveRepeat": {
+    "changedCount": 0,
+    "xminDigest": "75d1f96223b2b0409e508f93db93c26a",
+    "catalog": "541:c960e151fbf1fb8e3e384e0c5bbbec79",
+    "auditDigest": "ca80b72676d0eb2fdbbf60b6ee3c83ac"
+  }
+}

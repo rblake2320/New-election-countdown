@@ -1,0 +1,10 @@
+{
+  "outcome": "Failed",
+  "image": "electiontracker:congress-production-baseline",
+  "builder": "electiontracker:la-ci-builder",
+  "network": "internal; no published ports",
+  "checks": [],
+  "imageId": "sha256:a1c9deffc63f0fdf4ebd0d3fbf23e9ed9ce46289365b0507b22caec19d8210e3",
+  "builderId": "sha256:c4813f47848165207c48e3a614decef144b05f96238a57704f447b2cfda9bea7",
+  "error": "docker run: [eval]:4\n    for(const p of ['dist/index.js','dist/sync_official_congress.js','dist/congress-data/official-current-members.json','dist/congress-data/migration.sql'])if(!fs.existsSync(p))throw Error('Missing runtime artifact '+p);\n                                                                                                                                                                                 ^\n\nError: Missing runtime artifact dist/sync_official_congress.js\n    at [eval]:4:184\n    at [eval]:6:193\n    at runScriptInThisContext (node:internal/vm:219:10)\n    at node:internal/process/execution:451:12\n    at [eval]-wrapper:6:24\n    at runScriptInContext (node:internal/process/execution:449:60)\n    at evalFunction (node:internal/process/execution:283:30)\n    at evalTypeScript (node:internal/process/execution:295:3)\n    at node:internal/main/eval_string:71:3\n\nNode.js v24.21.0\n"
+}

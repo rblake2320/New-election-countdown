@@ -1,0 +1,10 @@
+{
+  "outcome": "Failed",
+  "image": "electiontracker:congress-production",
+  "builder": "electiontracker:congress-production-builder",
+  "network": "internal; no published ports",
+  "checks": [],
+  "imageId": "sha256:13f2761c553f0d7152c635b33b91044ac8839abd33cfc85acb024ddfaa0f4211",
+  "builderId": "sha256:e1953c8dc8507ebbb19be4debe41adf7def8964fe484b157bc21940d820b8865",
+  "error": "docker run: [eval]:3\n    for(const p of ['data','server','shared','scripts','node_modules/esbuild','node_modules/tsx','node_modules/typescript'])if(fs.existsSync(p))throw Error('Unexpected runtime path '+p);\n                                                                                                                                                ^\n\nError: Unexpected runtime path data\n    at [eval]:3:151\n    at [eval]:6:193\n    at runScriptInThisContext (node:internal/vm:219:10)\n    at node:internal/process/execution:451:12\n    at [eval]-wrapper:6:24\n    at runScriptInContext (node:internal/process/execution:449:60)\n    at evalFunction (node:internal/process/execution:283:30)\n    at evalTypeScript (node:internal/process/execution:295:3)\n    at node:internal/main/eval_string:71:3\n\nNode.js v24.21.0\n"
+}
