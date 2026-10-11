@@ -1,0 +1,35 @@
+{
+  "scope": "shared isolated preview app log; all concurrent reviewers, not attributable only to Assessment B",
+  "container": "et-app-69012-9b2655",
+  "get_status_counts": null,
+  "candidate_get_log_lines": null,
+  "log_exit": 1,
+  "own_tab_measured": {
+    "grid": {
+      "domNodes": 1796,
+      "timerElements": 15,
+      "electionLinks": 30
+    },
+    "list": {
+      "domNodes": 45283,
+      "timerElements": 509,
+      "electionLinks": 1018
+    },
+    "dataRows": 506
+  },
+  "own_followup_http": {
+    "path": "/api/elections?timeframe=upcoming&search=zzzz-no-election-match",
+    "status": 429
+  },
+  "browser_performance_api": "unavailable in readonly evaluate scope; no timings claimed",
+  "overlay": "unavailable: mutable DOM/script injection not supported or attempted",
+  "cli_scan": {
+    "findings": 1,
+    "rule": "border-accent-on-rounded",
+    "severity": "warning",
+    "file": "client/src/components/election-card.tsx",
+    "line": 536,
+    "disposition": "false positive: animated loading spinner, not an accent-bordered card"
+  },
+  "log_note": "Container already removed by preview owner; parent retained request-outcomes.json. No independent aggregate counts claimed."
+}
