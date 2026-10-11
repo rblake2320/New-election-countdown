@@ -3,7 +3,7 @@
  * Comprehensive web scraping using Puppeteer, Playwright, and Selenium
  */
 
-import puppeteer from 'puppeteer';
+import puppeteer, { type Page } from 'puppeteer';
 
 interface BrowserScrapingResult {
   url: string;
@@ -62,7 +62,7 @@ export class BrowserAutomationService {
    * Scrape election results using Puppeteer
    */
   async scrapeElectionResults(url: string): Promise<BrowserScrapingResult> {
-    let page = null;
+    let page: Page | null = null;
     try {
       const browser = await this.initializePuppeteer();
       page = await browser.newPage();

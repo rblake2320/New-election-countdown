@@ -5,7 +5,7 @@ import { z } from "zod";
 import { authRequired, createSession, hashPassword, setSessionCookie, verifyPassword, verifySession, revokeSession, signSession, SESSION_COOKIE } from "../auth";
 import { storageFactory } from "../storage-factory";
 import { storage } from "../storage";
-import { dashboardResponseSchema, type DashboardResponse } from "@shared/schema";
+import { dashboardResponseSchema, type DashboardResponse, type Election } from "@shared/schema";
 import { buildDashboardUser } from "../dashboard-user";
 import { sendGridNotificationService } from "../services/sendgrid-notification-service";
 import { analyticsService } from "../analytics-service";
@@ -323,21 +323,25 @@ router.get("/dashboard", authRequired(), async (req, res) => {
     // Get user's watchlist using storage abstraction
     const watchlistItems = await storage.getUserWatchlist(uid);
 
-    // Transform watchlist items to include election details (already joined by storage method)
-    const watchlist = watchlistItems.map(item => ({
-      id: item.id,
-      created_at: item.createdAt?.toISOString() || new Date().toISOString(),
-      title: (item as any).title || 'Unknown Election',
-      location: (item as any).location || 'Unknown Location',
-      date: (item as any).date ? new Date((item as any).date).toISOString() : new Date().toISOString(),
-      type: (item as any).type || 'general',
-      level: (item as any).level || 'federal',
-      subtitle: (item as any).subtitle,
-      state: (item as any).state || 'Unknown',
-      offices: (item as any).offices || [],
-      description: (item as any).description,
-      isActive: (item as any).isActive !== false
-    }));
+    // getUserWatchlist joins the election as `election`; reading these fields off the top
+    // level made every dashboard card "Unknown Election" / "Unknown Location".
+    const watchlist = watchlistItems.map((item) => {
+      const election = (item as typeof item & { election?: Election }).election;
+      return {
+        id: item.id,
+        created_at: item.createdAt?.toISOString() || new Date().toISOString(),
+        title: election?.title ?? 'Unknown Election',
+        location: election?.location ?? 'Unknown Location',
+        date: election?.date ? new Date(election.date).toISOString() : new Date().toISOString(),
+        type: election?.type ?? 'general',
+        level: election?.level ?? 'federal',
+        subtitle: election?.subtitle ?? undefined,
+        state: election?.state ?? 'Unknown',
+        offices: election?.offices ?? [],
+        description: election?.description ?? undefined,
+        isActive: election?.isActive !== false
+      };
+    });
 
     // Get upcoming elections for recommendations using storage abstraction
     const allElections = await storage.getElections({
