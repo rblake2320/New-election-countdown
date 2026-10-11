@@ -118,11 +118,12 @@ export function buildFecSyncPlan(rows: FecRow[], elections: RaceRow[], candidate
 
 async function applyAction(client: PoolClient, action: FecAction, hash: string, syncedAt: Date): Promise<void> {
   const r = action.record;
+  const syncedAtUtc=syncedAt.toISOString(); // Legacy timestamp columns must receive UTC wall-clock text.
   let candidateId = action.candidateId;
   if (action.kind === 'insert') {
     const result = await client.query<{ id: number }>(`INSERT INTO candidates (name, party, election_id, is_incumbent, description, fec_candidate_id, data_source, source_status, fec_status, normalized_name, ballot_status, source_file_sha256, source_synced_at, polling_support, polling_trend)
       VALUES ($1,$2,$3,$4,$5,$6,'fec_bulk','fec_registered',$7,$8,'not_certified',$9,$10,NULL,NULL) RETURNING id`,
-    [r.displayName, r.party, action.electionId, r.incumbent, 'FEC registration; general-election nomination and ballot access unconfirmed.', r.candId, r.status, normalizedCandidateName(r.displayName), hash, syncedAt]);
+    [r.displayName, r.party, action.electionId, r.incumbent, 'FEC registration; general-election nomination and ballot access unconfirmed.', r.candId, r.status, normalizedCandidateName(r.displayName), hash, syncedAtUtc]);
     candidateId = result.rows[0].id;
   } else {
     // Preserve editorial/ballot provenance, profile content, party and all ballot fields.
@@ -132,7 +133,7 @@ async function applyAction(client: PoolClient, action: FecAction, hash: string, 
       party=CASE WHEN data_source='fec_bulk' THEN $7 ELSE party END,
       is_incumbent=CASE WHEN data_source='fec_bulk' THEN $8 ELSE is_incumbent END
       WHERE id=$5 AND election_id=$6`,
-      [r.candId, r.status, hash, syncedAt, action.candidateId, action.electionId, r.party, r.incumbent]);
+      [r.candId, r.status, hash, syncedAtUtc, action.candidateId, action.electionId, r.party, r.incumbent]);
     if (result.rowCount !== 1) throw new Error('Candidate changed during sync');
   }
   await client.query(`UPDATE candidate_source_records SET is_current=false WHERE candidate_id=$1 AND source_layer='fec_registration' AND source_url=$2 AND is_current=true AND source_file_sha256<>$3`, [candidateId,FEC_MASTER_URL,hash]);
@@ -152,7 +153,7 @@ async function runFecSyncOnce(pool: Pool, rows: FecRow[], sha256: string, apply:
     if (apply) await client.query('SELECT pg_advisory_xact_lock($1)', [2026110301]);
     const core = await client.query<{ elections: string | null; candidates: string | null }>("SELECT to_regclass('public.elections')::text AS elections,to_regclass('public.candidates')::text AS candidates");
     if (!core.rows[0].elections || !core.rows[0].candidates) throw new Error('Expected ElectionTracker schema is absent');
-    const elections = await client.query<RaceRow>('SELECT id,state,title,level,type,date,offices FROM elections ORDER BY id');
+    const elections = await client.query<RaceRow>('SELECT id,state,title,level,type,date::text AS date,offices FROM elections ORDER BY id');
     const candidates = await client.query<ExistingCandidate>('SELECT id,election_id,name,party,fec_candidate_id,fec_status,source_file_sha256,data_source,source_status FROM candidates ORDER BY id');
     const tables = await client.query<{ sources: string | null; audit: string | null }>("SELECT to_regclass('public.candidate_source_records')::text AS sources, to_regclass('public.candidate_ingest_runs')::text AS audit");
     if (apply && (!tables.rows[0].sources || !tables.rows[0].audit)) throw new Error('Candidate provenance migration must run before apply');

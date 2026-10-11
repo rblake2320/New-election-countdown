@@ -42,3 +42,5 @@ npx tsx scripts/sync_fec_candidates.ts --apply --expect-sha256=<reviewed-hash>
 The command refreshes the source again and refuses if its hash changed; then it replans under the database transaction. It does not reuse a stale cache. The exact JSZip 3.10.1 direct dependency is owned by lane D PR #1; this branch does not duplicate that package edit.
 
 Deployment must run additive `migrations/20261011_candidate_source_records.sql` (also represented in `shared/schema.ts`) before apply. Dry-run works without that migration; apply refuses before candidate writes when the source/audit tables are absent. The migration has only been exercised against the labelled private fixture, not applied to the shared DB.
+
+Calendar dates are read as PostgreSQL text, avoiding the driver's operator-local timestamp-to-Date conversion. A private Asia/Tokyo run first failed race mapping (zero actions) and then passed after this fix. Actual ingest instants use timezone-aware source records; legacy candidate timestamp writes use UTC ISO text.
