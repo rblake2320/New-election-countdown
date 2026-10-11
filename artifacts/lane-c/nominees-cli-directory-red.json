@@ -1,0 +1,24 @@
+{
+  "sourcePath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-review-0e88bb1\\scripts\\refresh_general_candidates.ts",
+  "sourceSha256": "e08f734c5517d894da64fc3b0f34d25f9593691397dbbe1fb5b76cda19523c2e",
+  "fault": "receipt-directory mkdir ENOSPC",
+  "events": [
+    "manifest-read",
+    "pool-created",
+    "database-apply-committed",
+    "receipt-directory-create-attempted",
+    "pool-ended"
+  ],
+  "databaseApplied": true,
+  "dbWrites": "none; dependency-isolated VM fake apply only",
+  "exitCode": 1,
+  "stderr": [
+    {
+      "outcome": "failed",
+      "code": "ENOSPC",
+      "message": "General-list database/source operation failed"
+    }
+  ],
+  "stdout": [],
+  "expectedPreflight": false
+}
