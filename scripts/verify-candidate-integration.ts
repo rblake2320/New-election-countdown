@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import pg from 'pg';
 import { parseNomineeManifest, runNomineeRefresh } from '../server/candidate-nominee-sync';
@@ -28,6 +31,27 @@ try {
   const repeat = await runNomineeRefresh(pool, manifest, hash, true);
   assert.equal(repeat.candidateInserts, 0);
   assert.equal(repeat.sourceChanges, 0);
+  const cli = path.resolve('nominee-cli-acceptance.mjs');
+  const manifestPath = path.resolve('data/nominees/combined-2026-reviewed.json');
+  const auditCount = async () => (await pool.query('select count(*)::int as n from candidate_ingest_runs')).rows[0].n;
+  const beforePreflight = await auditCount();
+  const blockedDirectory = mkdtempSync(path.join(tmpdir(), 'et-receipt-preflight-'));
+  try {
+    writeFileSync(path.join(blockedDirectory, 'election-data-2026'), 'fixture blocks directory creation');
+    const refused = spawnSync(process.execPath, [cli, manifestPath, '--apply', `--expect-sha256=${hash}`], { cwd: blockedDirectory, encoding: 'utf8' });
+    assert.equal(refused.status, 1);
+    assert.match(refused.stderr, /"stage":"receipt-directory"/);
+    assert.equal(await auditCount(), beforePreflight);
+    assert.equal(await digest(), before);
+  } finally { rmSync(blockedDirectory, { recursive: true, force: true }); }
+  const appliedCli = spawnSync(process.execPath, [cli, manifestPath, '--apply', `--expect-sha256=${hash}`], { encoding: 'utf8' });
+  assert.equal(appliedCli.status, 0, appliedCli.stderr);
+  const cliReceipt = JSON.parse(appliedCli.stdout.trim().split('\n').at(-1)!);
+  assert.equal(cliReceipt.mode, 'applied');
+  assert.equal(cliReceipt.candidateInserts, 0);
+  assert.equal(cliReceipt.sourceChanges, 0);
+  assert(cliReceipt.database_audit_id);
+  assert.equal(await auditCount(), beforePreflight + 1);
   const races = [...new Set(first.actions.map(a => a.electionId))];
   const outcomes = [];
   let records = 0;
@@ -51,6 +75,8 @@ try {
   console.log(JSON.stringify({ migrationsAppliedTwice: true, manifestSha256: hash,
     originalCandidates: ids.length, originalProfilesPreserved: true,
     candidateInserts: first.candidateInserts, sourceChanges: first.sourceChanges,
-    repeatCandidateInserts: 0, repeatSourceChanges: 0, compiledHttpRaces: races.length,
+    repeatCandidateInserts: 0, repeatSourceChanges: 0,
+    compiledCliPreflightRefusedWithoutWrites: true, compiledCliRepeatAuditCommitted: true,
+    compiledHttpRaces: races.length,
     compiledHttpRecords: records, outcomes }));
 } finally { await pool.end(); }
