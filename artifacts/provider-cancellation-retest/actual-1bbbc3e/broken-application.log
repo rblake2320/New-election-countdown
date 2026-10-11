@@ -1,0 +1,1994 @@
+MemStorage initialized empty (failover cache; database is source of truth)
+ℹ️ No replica configurations found - running with primary database only
+✅ Delivery Tracking Service initialized
+⚠️ Analytics temporarily using in-memory queue (database unavailable)
+✅ Infrastructure-as-Code Service initialized
+✅ Secrets Rotation Service initialized { enabledServices: 8, rotationFrequency: '90 days' }
+⏰ Artifact cleanup scheduler started
+✅ Artifact Retention Service initialized {
+  storageBasePath: '/app/artifacts',
+  compressionEnabled: true,
+  defaultRetentionDays: 90
+}
+✅ Environment Bootstrap Service initialized { environment: 'development', timeoutMinutes: 30 }
+[BackupAlertService] Initializing backup monitoring
+✅ RTO/RPO Performance Dashboard Service initialized
+✅ RTO/RPO Performance Dashboard Service initialized
+🔄 Storage: memory mode; DB unhealthy—writes gated
+ℹ️  Database operations will be queued until health is restored
+Initial sync with Google Civic API completed
+🔄 Storage System Initialized:
+  - Mode: memory
+  - Database Health: ❌ Unhealthy
+  - Current Storage: memory
+  - Queue Length: 0
+  - Last Health Check: 1970-01-01T00:00:00.000Z
+✅ Notification management routes registered
+Starting automated results ingestion (every 30 seconds)
+[Results Ingestion] Starting ingestion cycle...
+[Results Ingestion] Found 0 active elections
+5:16:19 PM [express] ✅ Live results ingestion service started (30s polling)
+🌱 Starting database seed (verified 2026 data)...
+✅ Database connection established
+✅ Database connection established
+✅ Primary database connection restored { latency: '35ms', attempts: 0, consecutiveFailures: 0 }
+🔄 Orchestrating failover: memory → database { trigger: 'automatic', reason: 'Primary database restored' }
+✅ Failover completed: memory → database (0ms) {
+  trigger: 'automatic',
+  reason: 'Primary database restored',
+  readOnlyMode: false
+}
+✅ Restore Validation Service initialized {
+  timeoutSeconds: 3600,
+  rtoTarget: '300s',
+  validationQueries: 3,
+  benchmarkQueries: 3
+}
+✅ Schema Drift Detection Service initialized
+✅ Disaster Recovery Coordinator initialized {
+  scheduledBackups: true,
+  automaticValidation: true,
+  schemaDriftMonitoring: true
+}
+ℹ️ Could not notify disaster recovery coordinator: disasterRecoveryCoordinator2.recordFailoverEvent is not a function
+✅ Database already seeded, skipping...
+5:16:19 PM [express] ✅ Database seeded successfully
+5:16:19 PM [express] serving on http://0.0.0.0:5000
+5:16:20 PM [express] GET /api/health 200 in 21ms rid=84ab7cfd-30ee-4607-b5a2-9fb89d14e1bf
+5:16:20 PM [express] GET /api/health 200 in 64ms rid=202f5b9a-d159-4ee3-95a8-1676d2a4bfeb
+5:16:20 PM [express] GET /api/elections 200 in 137ms rid=1d29608b-1009-41da-9b29-e5da040e9c27
+5:16:20 PM [express] GET /api/elections 200 in 138ms rid=8a80c62d-948c-4397-8b9f-174b8fa0d2ad
+5:16:20 PM [express] GET /api/elections 200 in 147ms rid=af12d8a7-554f-4736-a394-9338681319bb
+5:16:20 PM [express] GET /api/elections 200 in 157ms rid=d57ce295-dacf-47ca-8388-6debe7ccf5b7
+✅ Database connection established
+✅ Database connection established
+✅ Database connection established
+✅ Database connection established
+✅ Database connection established
+✅ Database connection established
+✅ Database connection established
+✅ Database connection established
+5:16:20 PM [express] GET /api/elections 200 in 170ms rid=5579b381-3c7e-4a5c-a1a2-86623b64c201
+5:16:20 PM [express] GET /api/elections 200 in 196ms rid=9e66a8fa-b66d-433c-8b05-80c1b3537c7d
+5:16:20 PM [express] GET /api/elections 200 in 209ms rid=7fa57461-7ca6-42ba-b1d4-096a90468a27
+5:16:20 PM [express] GET /api/elections 200 in 228ms rid=9a25ec1f-3db7-4937-816e-91b6eea57759
+5:16:20 PM [express] GET /api/elections 200 in 254ms rid=890fd4ab-8121-4a07-a6aa-093045a96656
+5:16:20 PM [express] GET /api/elections 200 in 253ms rid=2a56de1a-edbf-4f3f-82c7-a75ada286880
+5:16:20 PM [express] GET /api/elections 200 in 271ms rid=9d1a802e-87f3-4407-b658-a4f6474b4085
+5:16:20 PM [express] GET /api/elections 200 in 269ms rid=08800635-be1e-4266-aced-1dfeb10cf3cc
+5:16:20 PM [express] GET /api/elections 200 in 273ms rid=7632c752-5dcf-4243-a69a-e433ccb09f9d
+5:16:20 PM [express] GET /api/elections 200 in 292ms rid=2d934532-c477-458e-8f9e-3f5720ae9e33
+5:16:20 PM [express] GET /api/elections 200 in 291ms rid=fb9205e8-decd-4d30-a71d-6ffb665bca8e
+5:16:20 PM [express] GET /api/elections 200 in 325ms rid=b9942dd7-9a77-4acb-8cda-794ce9336997
+5:16:20 PM [express] GET /api/elections 200 in 325ms rid=9daa0976-1557-42fe-9f02-f659553fc847
+5:16:21 PM [express] GET /api/elections 200 in 348ms rid=cc06ce04-8743-4814-a40b-2dbc7d8c3619
+5:16:21 PM [express] GET /api/elections 200 in 345ms rid=bf48397f-9bf1-4ad0-93a9-31c5325bfe1f
+5:16:21 PM [express] GET /api/elections 200 in 336ms rid=72b9cb9f-7280-43b9-838b-cf8cab8ade38
+5:16:21 PM [express] GET /api/elections 200 in 359ms rid=4abfb53f-0884-4d60-a422-b6f72b094d93
+5:16:21 PM [express] GET /api/elections 200 in 358ms rid=8a633c2a-6fb4-48dd-b44a-e9e7622054a2
+5:16:21 PM [express] GET /api/elections 200 in 358ms rid=ccd0f587-388e-42cc-b2c2-335c2450862e
+5:16:21 PM [express] GET /api/elections 200 in 381ms rid=a3319c0c-f235-4666-8e8c-9f01303aa5ff
+5:16:21 PM [express] GET /api/elections 200 in 380ms rid=d560d143-e658-40ad-90ce-b07563cafc9a
+5:16:21 PM [express] GET /api/health 200 in 438ms rid=10a2639f-bfd9-4b0e-a7a9-61a8e04fe957
+5:16:21 PM [express] GET /api/elections 200 in 395ms rid=8345eeb6-4320-49a3-bfce-4311716d2a7f
+5:16:21 PM [express] GET /api/elections 200 in 391ms rid=b490c56f-ae19-4ea9-8901-f94c72be70a0
+5:16:21 PM [express] GET /api/elections 200 in 391ms rid=0edabbba-e287-4baa-8514-09477245a517
+5:16:21 PM [express] GET /api/health 200 in 437ms rid=2a11b8da-3d9a-40fa-ad7b-20f8246285e1
+5:16:21 PM [express] GET /api/health 200 in 437ms rid=11d409d9-19c1-43f8-8212-66f75877e63d
+5:16:21 PM [express] GET /api/health 200 in 436ms rid=3df5d49f-7e2a-4573-8c40-7bd146c0dfa3
+5:16:21 PM [express] GET /api/health 200 in 436ms rid=8b9130b0-809e-45eb-b469-5dca96058210
+5:16:21 PM [express] GET /api/elections 200 in 395ms rid=88495874-f4df-49fb-ba12-81dd6b1bb815
+5:16:21 PM [express] GET /api/elections 200 in 394ms rid=16aaf06a-5a11-4252-80de-8bc1367e2259
+5:16:21 PM [express] GET /api/health 200 in 436ms rid=ae0a562d-a3bf-4280-a02c-cd0032785d6a
+5:16:21 PM [express] GET /api/health 200 in 436ms rid=a98ca162-592a-4d57-a0db-af4ec0669c16
+5:16:21 PM [express] GET /api/health 200 in 464ms rid=ab36df6b-24dc-4e0f-bbce-27f9da58027f
+5:16:21 PM [express] GET /api/health 200 in 452ms rid=3b29ac39-61cb-4513-af79-0523ac2639f8
+5:16:21 PM [express] GET /api/health 200 in 437ms rid=8515660c-3c95-423a-8aa8-be72e4f5c968
+5:16:21 PM [express] GET /api/health 200 in 435ms rid=875916c2-209e-49ed-8f3a-52a968868ac7
+5:16:21 PM [express] GET /api/health 200 in 435ms rid=30f7fc33-4185-4fc3-8071-e542a6beacc0
+5:16:21 PM [express] GET /api/health 200 in 440ms rid=7369652e-f92e-4bfd-88f3-9100c0920c60
+5:16:21 PM [express] GET /api/health 200 in 436ms rid=4bff170a-312d-41e8-ba80-46d98b2e5345
+5:16:21 PM [express] GET /api/health 200 in 435ms rid=3dad80ae-345b-4fe6-bac9-c294b05457c6
+5:16:21 PM [express] GET /api/health 200 in 435ms rid=c4610b29-3808-47d0-9b3e-c75734393676
+5:16:21 PM [express] GET /api/health 200 in 435ms rid=1f211bc0-e6d9-420e-ba15-ebe5bf0ca181
+5:16:21 PM [express] GET /api/health 200 in 427ms rid=60bbf3d6-899a-4883-8f56-45512ec8f059
+5:16:21 PM [express] GET /api/health 200 in 440ms rid=b561ae25-795d-4a81-8b9d-f84ec028f5fa
+5:16:21 PM [express] GET /api/health 200 in 432ms rid=ed3eec27-298f-4e3f-8585-b3cb01740f48
+5:16:21 PM [express] GET /api/health 200 in 432ms rid=2b024f62-ef8a-4f2e-8e6b-750e6360fa28
+5:16:21 PM [express] GET /api/health 200 in 432ms rid=82fc3426-7bac-4359-b62e-691e583c8e06
+5:16:21 PM [express] GET /api/health 200 in 432ms rid=cf0014f2-cd85-4a19-82fb-a8d463fa7269
+5:16:21 PM [express] GET /api/health 200 in 432ms rid=bcc967b0-d86d-41f8-bb2f-4679576ab246
+5:16:21 PM [express] GET /api/health 200 in 429ms rid=a188acce-ab89-46d2-afe8-2e561d40abbd
+5:16:21 PM [express] GET /api/health 200 in 426ms rid=776c94d2-8091-4a4f-9a58-a01cf2f1c98a
+5:16:21 PM [express] GET /api/health 200 in 425ms rid=2a275638-0de4-4d75-b935-1f93ba0e45a3
+5:16:21 PM [express] GET /api/health 200 in 425ms rid=34cd933e-8651-4ed9-adf8-8336c62222ab
+5:16:21 PM [express] GET /api/health 200 in 425ms rid=8723bb81-bba6-4aea-826d-ab4e2359b8ee
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 480ms rid=efe08261-b85c-4c74-9b8e-022bc2429647
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 477ms rid=9c0937f3-8db0-4b39-bb2f-38169366e367
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 475ms rid=829ced87-a69d-4aee-8ad4-4ec31998b67d
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 466ms rid=57f5c235-ce03-4c38-b37e-7ff932572f56
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 465ms rid=9959cb4b-9fdc-4faa-a450-c09213278471
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 463ms rid=3921ca22-b1ba-43fe-8d00-5bc2fe9f8083
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 477ms rid=5ca1756e-2b15-4bd0-adbc-e35aa989e4a7
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 475ms rid=3a3c16be-688b-4b12-87ee-f3a77f246d5a
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 470ms rid=6a044d2e-0680-4d05-9ee9-b8069c615638
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 501ms rid=b430623e-0ae9-4267-9fd2-cbcc26d03799
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 464ms rid=3238e8cd-dede-4e39-9c63-5ede2718f77c
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 464ms rid=face9b82-8265-424b-9eaf-ef883a23e1bb
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 463ms rid=3224e57c-f565-49bb-a6e2-ab554177055c
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 455ms rid=9c4db2d4-bf06-45a6-9ed3-b2d81ca9aba0
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 453ms rid=8f3ad510-30e0-4f80-968f-e9f82dc83fb3
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 474ms rid=7fd39e22-1e85-40f8-97be-456d11f73634
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 468ms rid=6d3a9506-2c3f-4644-b46e-45e8b0281f6b
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 479ms rid=1b40b8b7-bd06-4299-bb49-3382226efbaa
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 499ms rid=652edc23-208b-4af5-a584-d812d32cadd2
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 479ms rid=f24332e5-e8a6-4bbf-af7d-d3463fab09b6
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 458ms rid=9e33f785-5815-4b82-8cda-9fe8d5c5ff73
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 453ms rid=fe13c451-d671-4170-a2f3-5126d47c0a1b
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 445ms rid=83c3efd5-f427-4a11-8458-d0ce5af79ae1
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 443ms rid=3d05694b-3c76-424f-ab1f-bb014cf5c896
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 457ms rid=18c66c40-6582-47f1-8ffd-aebb212e2f1d
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 456ms rid=fce90ebf-b8ba-4c0b-9db3-d0fb4f75b9d9
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 456ms rid=526b8477-ae31-41f4-8d72-4ea5b2860420
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 444ms rid=02b69366-4115-4bc6-b651-a212c3407286
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 443ms rid=0a7b28a1-6fa3-4503-b48b-aca478896c3e
+5:16:21 PM [express] GET /api/elections/37/general-candidates 200 in 442ms rid=7d437f66-db37-47c9-9f84-d21d2970822d
+5:16:23 PM [express] GET /api/health 200 in 5ms rid=e93e672d-6006-47b0-935e-ce25e7c2b041
+5:16:23 PM [express] GET /api/elections/37/candidates 200 in 3146ms rid=1dbe4010-4460-4378-b53a-c85a6f32cfa3
+5:16:23 PM [express] GET /api/elections/37/candidates 200 in 3145ms rid=168b6f25-fe69-4d03-9661-cae4819646be
+5:16:23 PM [express] GET /api/elections/37/candidates 200 in 3143ms rid=04695650-0914-4b22-aeae-c43310ee9acd
+5:16:23 PM [express] GET /api/elections/37/candidates 200 in 3150ms rid=897fc551-9a56-4998-9ea8-47696a8d6caf
+5:16:23 PM [express] GET /api/elections/37/candidates 200 in 3159ms rid=0995be0b-7d18-4883-a000-fd22940c27b9
+5:16:23 PM [express] GET /api/elections/37/candidates 200 in 3174ms rid=96ccd288-ba5a-4648-9c6c-ded03a47fcc3
+5:16:23 PM [express] GET /api/elections/37/candidates 200 in 3203ms rid=4ea0d161-bee4-4c21-a22a-b98baa6d76e1
+5:16:23 PM [express] GET /api/elections/37/candidates 200 in 3186ms rid=f5679e30-b1ed-4bfe-82a2-804691dc57c0
+5:16:23 PM [express] GET /api/elections/37/candidates 200 in 3213ms rid=1fab6c4e-ae7b-49c2-9672-f79da1f8d7ee
+5:16:23 PM [express] GET /api/elections/37/candidates 200 in 3198ms rid=fc188a13-f641-48e7-9aa4-8dfea466a46c
+5:16:23 PM [express] GET /api/elections/37/candidates 200 in 3208ms rid=df279ba7-bc88-4c5a-938c-0acbf5f62791
+5:16:23 PM [express] GET /api/elections/37/candidates 200 in 3228ms rid=bd8cdda9-c64b-40b9-af48-b2c687a3da7d
+5:16:23 PM [express] GET /api/elections/37/candidates 200 in 3242ms rid=0a1cd089-67dd-4f1a-b3fd-c89737e0e710
+5:16:23 PM [express] GET /api/elections/37/candidates 200 in 3256ms rid=da615c31-4852-405c-8a90-1fb8fef3c401
+5:16:23 PM [express] GET /api/elections/37/candidates 200 in 3265ms rid=92a534be-2ef1-43e2-9513-558f38276515
+5:16:23 PM [express] GET /api/elections/37/candidates 200 in 3269ms rid=3c5a627d-d76c-4a67-8976-b263a1b527fb
+5:16:23 PM [express] GET /api/elections/37/candidates 200 in 3277ms rid=90f4de23-da8a-4ec0-952f-9e4379bee9de
+5:16:23 PM [express] GET /api/elections/37/candidates 200 in 3284ms rid=36f5bc44-b6fd-4ca7-9960-54af610d9686
+5:16:23 PM [express] GET /api/elections/37/candidates 200 in 3296ms rid=6aa45834-cb58-4fc0-b031-630f21380f4b
+5:16:23 PM [express] GET /api/elections/37/candidates 200 in 3304ms rid=6d7eb811-b988-42ce-bd43-2e74ad2dff61
+5:16:23 PM [express] GET /api/elections/37/candidates 200 in 3320ms rid=302ddde8-c030-4fa6-9196-f33142247479
+5:16:24 PM [express] GET /api/elections/37/candidates 200 in 3329ms rid=ee744dd1-8be5-4332-8aa9-225f3f213098
+5:16:24 PM [express] GET /api/elections/37/candidates 200 in 3335ms rid=47255b17-30ce-48d0-a833-cdf733c92abd
+5:16:24 PM [express] GET /api/elections/37/candidates 200 in 3341ms rid=3cfaeebb-db84-4f08-bf2c-ac80b5601d3a
+5:16:24 PM [express] GET /api/elections/37/candidates 200 in 3348ms rid=3761c746-d579-441f-b65d-4f82e6d6309a
+5:16:24 PM [express] GET /api/elections/37/candidates 200 in 3358ms rid=845f490e-cd44-4304-8048-61c4cfdf89c0
+5:16:24 PM [express] GET /api/elections/37/candidates 200 in 3362ms rid=86e0388d-febc-46d3-a75f-184c81da0f1d
+5:16:24 PM [express] GET /api/elections/37/candidates 200 in 3370ms rid=2fe74ea6-515b-4f95-93d3-07c1df8131d3
+5:16:24 PM [express] GET /api/elections/37/candidates 200 in 3382ms rid=7273a9c6-d0b6-429a-8c30-5e54f39b1103
+5:16:24 PM [express] GET /api/elections/37/candidates 200 in 3389ms rid=f69341a6-c450-43d9-9a88-6f2c5901f3f3
+PERPLEXITY_API_KEY not found in environment variables
+MAPQUEST_API_KEY not set — geocoding features disabled
+Missing API keys: PROPUBLICA_API_KEY, GOOGLE_CIVIC_API_KEY, OPENFEC_API_KEY, OPENSTATES_API_KEY. Some features may be limited.
+OPENSTATES_API_KEY not configured. OpenStates features unavailable.
+SENDGRID_API_KEY not found - email notifications will be disabled
+⚠️ Secrets vault unavailable: BACKUP_ENCRYPTION_KEY is missing or shorter than 32 bytes. Vault operations will be refused; the application keeps running.
+GOOGLE_CIVIC_API_KEY not found in environment variables
+Neon snapshot service disabled (NEON_API_KEY/NEON_PROJECT_ID not set — using pg-based backups instead)
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 1 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 2 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for CandidateBio.getDetailedBio, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Npat.getNpat, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Votes.getByCandidate, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API attempt 3 failed for Rating.getCandidateRating, retrying in 1000ms: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for CandidateBio.getDetailedBio: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Npat.getNpat: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Votes.getByCandidate: VoteSmart API error: 503
+VoteSmart API failed after 4 attempts for Rating.getCandidateRating: VoteSmart API error: 503

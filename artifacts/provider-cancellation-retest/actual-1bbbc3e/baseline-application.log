@@ -1,0 +1,288 @@
+MemStorage initialized empty (failover cache; database is source of truth)
+ℹ️ No replica configurations found - running with primary database only
+✅ Delivery Tracking Service initialized
+⚠️ Analytics temporarily using in-memory queue (database unavailable)
+✅ Infrastructure-as-Code Service initialized
+✅ Secrets Rotation Service initialized { enabledServices: 8, rotationFrequency: '90 days' }
+⏰ Artifact cleanup scheduler started
+✅ Artifact Retention Service initialized {
+  storageBasePath: '/app/artifacts',
+  compressionEnabled: true,
+  defaultRetentionDays: 90
+}
+✅ Environment Bootstrap Service initialized { environment: 'development', timeoutMinutes: 30 }
+[BackupAlertService] Initializing backup monitoring
+✅ RTO/RPO Performance Dashboard Service initialized
+✅ RTO/RPO Performance Dashboard Service initialized
+🔄 Storage: memory mode; DB unhealthy—writes gated
+ℹ️  Database operations will be queued until health is restored
+Initial sync with Google Civic API completed
+🔄 Storage System Initialized:
+  - Mode: memory
+  - Database Health: ❌ Unhealthy
+  - Current Storage: memory
+  - Queue Length: 0
+  - Last Health Check: 1970-01-01T00:00:00.000Z
+✅ Notification management routes registered
+Starting automated results ingestion (every 30 seconds)
+[Results Ingestion] Starting ingestion cycle...
+[Results Ingestion] Found 0 active elections
+5:16:13 PM [express] ✅ Live results ingestion service started (30s polling)
+🌱 Starting database seed (verified 2026 data)...
+✅ Database connection established
+✅ Database connection established
+✅ Primary database connection restored { latency: '35ms', attempts: 0, consecutiveFailures: 0 }
+🔄 Orchestrating failover: memory → database { trigger: 'automatic', reason: 'Primary database restored' }
+✅ Failover completed: memory → database (0ms) {
+  trigger: 'automatic',
+  reason: 'Primary database restored',
+  readOnlyMode: false
+}
+✅ Restore Validation Service initialized {
+  timeoutSeconds: 3600,
+  rtoTarget: '300s',
+  validationQueries: 3,
+  benchmarkQueries: 3
+}
+✅ Schema Drift Detection Service initialized
+✅ Disaster Recovery Coordinator initialized {
+  scheduledBackups: true,
+  automaticValidation: true,
+  schemaDriftMonitoring: true
+}
+ℹ️ Could not notify disaster recovery coordinator: disasterRecoveryCoordinator2.recordFailoverEvent is not a function
+📊 Seeding 537 elections...
+✅ Database seeding complete!
+   Elections: 537
+   Candidates: 136
+   Congress members: populated via scripts/sync_congress.ts when CONGRESS_API_KEY is set
+5:16:15 PM [express] ✅ Database seeded successfully
+5:16:15 PM [express] serving on http://0.0.0.0:5000
+5:16:15 PM [express] GET /api/health 200 in 22ms rid=6f7c8029-db3b-48da-bc8b-62787bd87e99
+5:16:16 PM [express] GET /api/health 200 in 62ms rid=5072063b-bc54-4552-81a3-66b20b79672e
+5:16:16 PM [express] GET /api/elections 200 in 88ms rid=6d01d032-608b-4328-9562-b944bd16099a
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 69ms rid=ba9c5857-b616-4b2d-81e4-11714da775b1
+5:16:16 PM [express] GET /api/elections 200 in 84ms rid=0e63af8b-b559-48f7-ad99-9a7590645d03
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 84ms rid=2ee7480e-2388-4e54-a714-224a815026d5
+5:16:16 PM [express] GET /api/elections 200 in 88ms rid=d6da029b-f8a4-4c9c-ab63-2f4d1dcb3aff
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 88ms rid=8ac3d9c4-9e9e-4228-ba08-45d021ff9994
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 113ms rid=3209fa18-7c14-44d6-a7da-7085fa642781
+✅ Database connection established
+✅ Database connection established
+5:16:16 PM [express] GET /api/elections 200 in 127ms rid=20dd959c-4586-4f7b-8069-c9f08e4b9c64
+✅ Database connection established
+✅ Database connection established
+✅ Database connection established
+✅ Database connection established
+✅ Database connection established
+5:16:16 PM [express] GET /api/elections 200 in 139ms rid=e42bb95f-3867-460b-9f46-df5d3f74632b
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 140ms rid=acaaffb3-fa50-42ae-a30e-259919f4eb34
+✅ Database connection established
+5:16:16 PM [express] GET /api/elections 200 in 149ms rid=379f116f-4881-4b79-ad20-07179221f58e
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 148ms rid=d04ea1e1-5c26-45c1-8367-5122b8e054e0
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 175ms rid=5466b98b-9c55-4c5a-b614-be255bb16e64
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 153ms rid=5de0e574-e2a8-4d5b-9d9f-eedd976ee004
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 175ms rid=c78d6bbb-c026-4483-92d2-f9c92dd8cefc
+5:16:16 PM [express] GET /api/elections 200 in 193ms rid=e9b1d1e2-41e9-4dff-933c-5225dfed5cf0
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 193ms rid=44081d5e-ac31-4767-b86f-c1fd942a4d61
+5:16:16 PM [express] GET /api/elections 200 in 219ms rid=386fb157-1ee2-430a-ab70-9aecd3bb6044
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 195ms rid=6a0ef538-a5ba-40ad-b2e6-cad33ad86fe1
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 219ms rid=1da5073f-9710-47a3-8c2c-f78aa1022275
+5:16:16 PM [express] GET /api/elections 200 in 219ms rid=211aaae4-74a0-4fce-b582-8bb603e0059e
+5:16:16 PM [express] GET /api/elections 200 in 224ms rid=7a039804-a689-498f-a7d2-d1eaafd7d723
+5:16:16 PM [express] GET /api/elections 200 in 236ms rid=24e780cd-1f78-438f-ac77-d87c9e77bd43
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 239ms rid=77f828fb-d9da-4d61-ab82-e6fbf73bdf3e
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 238ms rid=e6e73912-1eab-4305-9af6-771090855ef9
+5:16:16 PM [express] GET /api/elections 200 in 239ms rid=46cf7961-2848-4a7c-b876-79278b3e661d
+5:16:16 PM [express] GET /api/elections 200 in 238ms rid=0335fa9b-032d-42c9-88d2-a62951680f00
+5:16:16 PM [express] GET /api/elections 200 in 244ms rid=fafc1f9f-9e5d-4e06-ab58-efce78316cc3
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 268ms rid=7a2f958b-9624-447b-98ce-88ed04067cd4
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 267ms rid=ccac95dc-76f6-4b55-bdd3-21f65a3b3a86
+5:16:16 PM [express] GET /api/elections 200 in 268ms rid=3050996d-0fce-410b-91c0-02442ab6735a
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 267ms rid=297ccb05-003a-4935-aecc-192b426c323b
+5:16:16 PM [express] GET /api/elections 200 in 267ms rid=702afe57-f18c-4dd2-8146-539c1ca8697a
+5:16:16 PM [express] GET /api/elections 200 in 290ms rid=7f2e236a-6b8a-4696-94a3-055ce29daaf1
+5:16:16 PM [express] GET /api/elections 200 in 285ms rid=79103ca7-de8a-4936-a947-0ed3fd2ed0cc
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 285ms rid=0b7ccbb1-6c8e-4b4a-a143-1ef18838c891
+5:16:16 PM [express] GET /api/elections 200 in 285ms rid=2d3e8c0f-4f13-4d89-922e-664081e3937e
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 285ms rid=94585cee-503e-43ac-a3e5-d65d938e83e9
+5:16:16 PM [express] GET /api/elections 200 in 315ms rid=f16a6e87-951b-4fda-ab22-cf295bd4f725
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 316ms rid=d79f2d5d-7184-4c93-86b9-e03799421f10
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 316ms rid=11265ce4-5e00-4e86-93a4-a33b2114a129
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 316ms rid=946ecc01-fc34-43c0-a971-206974aba204
+5:16:16 PM [express] GET /api/elections 200 in 316ms rid=d3420813-ed31-4491-a347-9450435c0cd9
+5:16:16 PM [express] GET /api/elections 200 in 335ms rid=8e73079d-ab1a-4b01-a689-9c23cbc87c51
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 335ms rid=26d5542f-b9f0-4a87-8956-40c2ea1bfd8e
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 335ms rid=8bd57e1e-3bb4-4cd9-868b-d1bb67ba9fd7
+5:16:16 PM [express] GET /api/elections 200 in 335ms rid=8dec456c-f3d1-4f23-b3c6-292616e78860
+5:16:16 PM [express] GET /api/elections 200 in 353ms rid=f1ec2a05-7f9e-4db7-8060-f37b785f6189
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 353ms rid=14ddb86a-be21-45f6-9cbd-aeb557328bca
+5:16:16 PM [express] GET /api/elections 200 in 350ms rid=a547cc97-ea97-4300-86be-ed0fb18c05d5
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 350ms rid=437aabe5-cf7e-4548-8c84-49a1283315d8
+5:16:16 PM [express] GET /api/health 200 in 398ms rid=024f1354-9212-4b4c-8ea4-e30da1f1cfbc
+5:16:16 PM [express] GET /api/elections 200 in 368ms rid=b62b77d6-c906-41f7-990b-dd8a502ea36b
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 369ms rid=925f31bb-2232-46d7-bb22-19771b76135a
+5:16:16 PM [express] GET /api/elections 200 in 378ms rid=e04a2e6a-728d-4be5-9aa6-88a079512dfd
+5:16:16 PM [express] GET /api/elections 200 in 369ms rid=01a3d570-111b-4b40-90df-5d5aaa012718
+5:16:16 PM [express] GET /api/elections/37/candidates 200 in 369ms rid=be3b7195-6973-42a4-a6a0-20e30f10111a
+5:16:16 PM [express] GET /api/health 200 in 403ms rid=74abc9dd-ef67-48b0-821e-73c3860bc7a2
+5:16:17 PM [express] GET /api/health 200 in 401ms rid=40c7204f-d987-4d7b-addf-a4e1c9691bfd
+5:16:17 PM [express] GET /api/health 200 in 402ms rid=91406ea3-43a3-4160-a699-4216afc1c91b
+5:16:17 PM [express] GET /api/health 200 in 402ms rid=aac98a82-d9e6-410e-8299-518187ce8386
+5:16:17 PM [express] GET /api/health 200 in 402ms rid=a777d3f6-14a2-4d67-b343-69e1831a5a29
+5:16:17 PM [express] GET /api/elections 200 in 377ms rid=124c6e07-cc0c-466c-85e0-fd1602c7cc96
+5:16:17 PM [express] GET /api/elections/37/candidates 200 in 378ms rid=ce4a060b-6961-434e-902a-f418d9f6616f
+5:16:17 PM [express] GET /api/elections/37/candidates 200 in 377ms rid=ca4c6c20-b42a-4cd4-b6de-db2925a0478d
+5:16:17 PM [express] GET /api/elections 200 in 377ms rid=dc3127ff-ff81-43d3-91e9-7a0b48bea1d3
+5:16:17 PM [express] GET /api/health 200 in 403ms rid=2338e200-502a-4748-97f3-9fb3f7e1f355
+5:16:17 PM [express] GET /api/health 200 in 402ms rid=75c76919-84c0-4baa-828a-2662fd4e73c7
+5:16:17 PM [express] GET /api/health 200 in 428ms rid=504a571b-a122-4718-9e9c-41d845968317
+5:16:17 PM [express] GET /api/health 200 in 419ms rid=9a0d4579-d3cd-4091-b68c-14767f4b145a
+5:16:17 PM [express] GET /api/health 200 in 404ms rid=64588b53-e704-41dc-8f24-83dcf3853924
+5:16:17 PM [express] GET /api/health 200 in 403ms rid=f1224854-761b-41f0-a583-13d8f5b2624c
+5:16:17 PM [express] GET /api/health 200 in 403ms rid=1c9ab3f4-837a-46f9-b399-80599e05d4aa
+5:16:17 PM [express] GET /api/health 200 in 404ms rid=a44b20d2-e078-487c-8079-e0d9a232ba37
+5:16:17 PM [express] GET /api/health 200 in 409ms rid=6a4c1918-92b4-4084-af0b-fb24d4a2779a
+5:16:17 PM [express] GET /api/health 200 in 405ms rid=d360d076-e064-492c-8c23-d0e18444def6
+5:16:17 PM [express] GET /api/health 200 in 406ms rid=03b93905-1a33-444a-bd4c-d4e246303f94
+5:16:17 PM [express] GET /api/health 200 in 405ms rid=37433866-5a05-498b-b2ad-243d409bfbd6
+5:16:17 PM [express] GET /api/health 200 in 405ms rid=7bdd844a-3718-411e-a27e-ad13e9525ce1
+5:16:17 PM [express] GET /api/health 200 in 406ms rid=18acd2ce-a22a-40dc-bd07-7dd3880dbbb9
+5:16:17 PM [express] GET /api/health 200 in 406ms rid=ae1dbda3-cf89-405c-b8ba-4b0f43df202f
+5:16:17 PM [express] GET /api/health 200 in 407ms rid=c35c4f7d-5137-42e8-a3f2-02eaaca1aa80
+5:16:17 PM [express] GET /api/health 200 in 407ms rid=67c6864b-0c71-4853-a080-0ef014ce7788
+5:16:17 PM [express] GET /api/health 200 in 407ms rid=a4931595-dad6-4912-ba01-bebd8fe94852
+5:16:17 PM [express] GET /api/health 200 in 408ms rid=33eb8268-0583-4347-9614-7f3452d7d85f
+5:16:17 PM [express] GET /api/health 200 in 404ms rid=a74452af-14ad-43a5-87c8-ec729348b07a
+5:16:17 PM [express] GET /api/health 200 in 407ms rid=96750a8b-4992-492c-9836-2f448cbd5263
+5:16:17 PM [express] GET /api/health 200 in 405ms rid=18926550-7c62-4fd4-90bd-69cc280233b6
+5:16:17 PM [express] GET /api/health 200 in 407ms rid=054b3179-9699-4244-8e5f-3ad8044c23cb
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 443ms rid=323fc142-9a15-4f0d-ba15-a0e1719fa5db
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 437ms rid=e6f6aa8d-f08c-41c2-8cc0-a8ed4f1210db
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 447ms rid=6acf0cb8-c545-47d8-ac02-14c03b0a20d6
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 443ms rid=3881bb0b-eab0-4176-811c-02aab6a361a2
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 440ms rid=4840b461-8f51-43cf-8aa8-e295ae299d5f
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 442ms rid=23e26a9e-7add-41d1-87e1-15faa2a15d0e
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 463ms rid=b5051791-29ff-44a8-b9a7-355664f54406
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 438ms rid=c68d791d-1e41-4f22-8489-e441fe7dd9aa
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 429ms rid=ecbe5954-f98f-4caf-8c55-3df5a99de709
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 428ms rid=f692b01a-9492-441d-9160-40f8b211a5c4
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 433ms rid=362cfb06-3967-42e4-969f-e36c18003e17
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 438ms rid=28d20fee-d8c8-43bc-8889-ce13a27f434f
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 433ms rid=9d47e074-507c-421f-95cb-62f928d2a53f
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 438ms rid=9656531c-1f6a-48ec-bd3d-873e1142ddbf
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 438ms rid=5da9ef8f-23d0-45ac-8dc7-08a1e686abd8
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 457ms rid=7d3b311e-48c6-4b6b-806f-01e608a10c43
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 437ms rid=252692ca-f6d2-4327-8ecd-28f6925ebfe9
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 434ms rid=1107733a-ff4c-4950-bb34-e417b0a0def2
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 443ms rid=46960c82-f033-4418-bf43-544ec0977ef5
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 429ms rid=ad3c8209-f2da-4d39-8843-cd9d358a54d4
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 429ms rid=fffceed1-75e5-4037-8664-ce3ca4b6bcff
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 428ms rid=ac119fc7-6cd2-4921-ba30-655f0cdc868f
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 434ms rid=a5e0de99-5a2c-443a-a169-464e3a7aa2c2
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 433ms rid=c1050868-e2fe-4072-b58c-df75a560629f
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 433ms rid=ba78005f-baac-48b6-a17f-f808233724db
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 423ms rid=9af44d7f-c751-472b-b728-bd765ad3253f
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 426ms rid=0a8b9dfe-4c8f-49db-b767-0950147224aa
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 426ms rid=b3b23c60-2e8c-4d3c-ae6d-a78c19343f1b
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 425ms rid=9a853a06-989d-4896-ba08-677e19571f3e
+5:16:17 PM [express] GET /api/elections/37/general-candidates 200 in 424ms rid=55e9a15c-6c3c-4a1f-88af-54e38bc3bbd3
+PERPLEXITY_API_KEY not found in environment variables
+MAPQUEST_API_KEY not set — geocoding features disabled
+VOTESMART_API_KEY not found - VoteSmart features will be unavailable
+Missing API keys: PROPUBLICA_API_KEY, GOOGLE_CIVIC_API_KEY, OPENFEC_API_KEY, OPENSTATES_API_KEY, VOTESMART_API_KEY. Some features may be limited.
+OPENSTATES_API_KEY not configured. OpenStates features unavailable.
+SENDGRID_API_KEY not found - email notifications will be disabled
+⚠️ Secrets vault unavailable: BACKUP_ENCRYPTION_KEY is missing or shorter than 32 bytes. Vault operations will be refused; the application keeps running.
+GOOGLE_CIVIC_API_KEY not found in environment variables
+Neon snapshot service disabled (NEON_API_KEY/NEON_PROJECT_ID not set — using pg-based backups instead)
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor A - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor B - API key not configured
+VoteSmart service unavailable for candidate Explicit Fixture Governor Unknown - API key not configured
