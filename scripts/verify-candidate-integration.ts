@@ -10,6 +10,7 @@ import { parseNomineeManifest, runNomineeRefresh } from '../server/candidate-nom
 import { runFecSync } from '../server/fec-candidate-sync';
 import { runFecSync as runLegacyFecSync } from '../artifacts/fec-first/original-core/server/fec-candidate-sync';
 import { expectedManifestRaces, assertManifestReceiving } from './candidate-ci-expectations';
+import { expectedLouisianaRegistrations, assertRegistrationActions } from './candidate-ci-registration';
 
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 const origin = process.env.INTERNAL_APP_ORIGIN;
@@ -40,7 +41,10 @@ try {
   const legacy = await runLegacyFecSync(pool, projection.rows, projection.sourceZipSha256, true);
   const ids = (await pool.query('select id from candidates order by id')).rows.map(r => r.id);
   const digest = async () => (await pool.query("select md5(string_agg(row_to_json(c)::text,'' order by id)) as digest from candidates c where id=any($1::int[])", [ids])).rows[0].digest;
-  const before = await digest();
+  let before = await digest();
+  const legacyIds = [...ids];
+  const legacyBefore = before;
+  const legacyDigest = async () => (await pool.query("select md5(string_agg(row_to_json(c)::text,'' order by id)) as digest from candidates c where id=any($1::int[])", [legacyIds])).rows[0].digest;
   const allState = async () => {
     const result: Record<string, unknown> = {};
     for (const table of ['candidates','candidate_source_records','general_candidate_list_snapshots','candidate_ingest_runs']) {
@@ -53,10 +57,53 @@ try {
   assert(proofless.unresolved.length > 0, 'Actual FEC-first admission must require source proof');
   await assert.rejects(runNomineeRefresh(pool, manifest, hash, true), /conflict/);
   assert.deepEqual(await allState(), beforeProofless);
+  const registrationExpected = await expectedLouisianaRegistrations(pool, projection.rows);
+  const registrationOutcomes = [];
+  if (registrationExpected.length) {
+    const registrationRows = registrationExpected.map(e=>e.record);
+    const registrationDry = await runFecSync(pool, registrationRows, projection.sourceZipSha256, false);
+    assert.deepEqual(await allState(), beforeProofless);
+    assert.equal(registrationDry.unmatched.length,0);
+    assertRegistrationActions(registrationDry.actions,registrationExpected);
+    const registered = await runFecSync(pool,registrationRows,projection.sourceZipSha256,true);
+    assertRegistrationActions(registered.actions,registrationExpected);
+    assert.equal(await legacyDigest(),legacyBefore,'LA registrations cannot modify any legacy profile');
+    for (const expected of registrationExpected) {
+      const rows = (await pool.query(`SELECT c.*,s.source_layer,s.source_url,s.source_file_sha256 AS proof_sha,s.metadata
+        FROM candidates c JOIN candidate_source_records s ON s.candidate_id=c.id
+        WHERE c.fec_candidate_id=$1 AND s.is_current=true`,[expected.record.candId])).rows;
+      assert.equal(rows.length,1,'Exactly one registration source, no nominee source');
+      const actual=rows[0];
+      assert(!legacyIds.includes(actual.id));
+      assert.equal(actual.election_id,expected.electionId);
+      assert.equal(actual.party,expected.record.party);
+      assert.equal(actual.fec_status,expected.record.status);
+      assert.equal(actual.name,expected.record.displayName);
+      assert.equal(actual.source_status,'fec_registered');
+      assert.equal(actual.data_source,'fec_bulk');
+      assert.equal(actual.ballot_status,'not_certified');
+      assert.equal(actual.ballot_source_url,null);
+      assert.equal(actual.source_layer,'fec_registration');
+      assert.equal(actual.source_url,projection.sourceUrl);
+      assert.equal(actual.source_file_sha256,projection.sourceZipSha256);
+      assert.equal(actual.proof_sha,projection.sourceZipSha256);
+      for (const [key,value] of Object.entries({fecCandidateId:expected.record.candId,partyRaw:expected.record.partyRaw,
+        state:'LA',office:'H',district:expected.record.district,electionId:expected.electionId,electionDate:'2026-11-03',
+        electionYear:2026,sourceStatus:'fec_registered',ballotCertification:false,generalElectionNomination:false})) {
+        assert.deepEqual(actual.metadata[key],value,`LA registration metadata ${key}`);
+      }
+      ids.push(actual.id);
+      registrationOutcomes.push({candidateId:actual.id,fecCandidateId:expected.record.candId,electionId:actual.election_id,party:actual.party,registrationOnly:true});
+    }
+    const registrationRepeat=await runFecSync(pool,registrationRows,projection.sourceZipSha256,true);
+    assert.equal(registrationRepeat.actions.length,0);
+    before=await digest(); // Protect new registrations as well throughout nominee admission.
+  }
   const proof = await runFecSync(pool, projection.rows, projection.sourceZipSha256, true);
   assert(proof.actions.length > 0);
   assert(proof.actions.every(a => a.kind === 'source_refresh'));
   assert.equal(await digest(), before, 'Proof refresh must preserve all full candidate profiles');
+  assert.equal(await legacyDigest(),legacyBefore);
   const beforeDry = await allState();
   const dry = await runNomineeRefresh(pool, manifest, hash, false);
   assert.deepEqual(await allState(), beforeDry);
@@ -151,6 +198,8 @@ try {
     mode: 'actual parsed FEC projection -> historical ingest -> pinned proof refresh -> reviewed nominees',
     sourceZipSha256: projection.sourceZipSha256, projectionSha256: createHash('sha256').update(projectionBytes).digest('hex'),
     editorialRows, actualFecRows: projection.rows.length, legacyActions: legacy.actions.length,
+    legacyProfiles:legacyIds.length,legacyProfilesUnchanged:await legacyDigest()===legacyBefore,
+    louisianaRegistrationInserts:registrationOutcomes.length,louisianaRegistrations:registrationOutcomes,
     prooflessAdmissionRefused: true, sourceProofRefreshActions: proof.actions.length,
     manifestRecords: manifest.candidates.length, independentSqlRaces: expectedRaces.size,
     exactRaceNegativeRefused: true, injectedNomineeRollback: true,
