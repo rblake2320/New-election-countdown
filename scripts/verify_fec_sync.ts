@@ -19,6 +19,12 @@ try {
     INSERT INTO elections (state,title,level,type,date,offices) VALUES ('TX','U.S. House Election - TX-01','federal','general','2026-11-03',ARRAY['U.S. House of Representatives']);
     INSERT INTO candidates (election_id,name,party,description,ballot_status,ballot_source_url,data_source,source_status,source_file_sha256,source_synced_at)
       VALUES (1,'Alex Example','Democratic','Existing independently authored fixture','certified','https://example.test/isolated-fixture','state_ballot','ballot_certified','dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd','2026-09-11');`);
+  const beforeMigration = await snapshot();
+  let migrationRequired = false;
+  try { await runFecSync(pool,parseFecMaster(line('H6TX01001','EXAMPLE, ALEX','DEM')).rows,hash,true); }
+  catch (error) { migrationRequired = error instanceof Error && error.message.includes('migration'); }
+  assert(migrationRequired);
+  assert.equal(await snapshot(),beforeMigration,'Missing migration must refuse before candidate writes');
   await pool.query(readFileSync('migrations/20261011_candidate_source_records.sql', 'utf8'));
   await pool.query(readFileSync('migrations/20261011_candidate_source_records.sql', 'utf8'));
   const rows = parseFecMaster([line('H6TX01001','EXAMPLE, ALEX','DEM'),line('H6TX01002','DISTINCT, TAYLOR'),line('H6TX01003',"O'BRIEN, JO",'')].join('\n')).rows;
@@ -75,7 +81,7 @@ try {
   assert.equal((await pool.query('SELECT party FROM candidates WHERE fec_candidate_id=$1',['H6TX01002'])).rows[0].party,'R');
   const current = (await pool.query('SELECT s.source_file_sha256 FROM candidate_source_records s JOIN candidates c ON c.id=s.candidate_id WHERE c.fec_candidate_id=$1 AND s.is_current=true',['H6TX01002'])).rows;
   assert.deepEqual(current,[{source_file_sha256:hash}]);
-  const receipt = { outcome: 'worked', fixture: 'isolated synthetic PostgreSQL', checks: { dry_run_no_writes: true, atomic_apply: true, exact_repeat_no_candidate_changes: true, migration_idempotent: true, existing_ballot_hash_and_timestamp_preserved: true, separate_fec_source_retained: true, transactional_apply_receipt: true, committed_receipt_survives_local_disk_failure: true, registration_never_certified: true, unknown_party_not_independent: true, parameterized_apostrophe_name: true, injected_failure_full_rollback: true, concurrent_apply_one_identity: true, imported_party_refresh: true, historical_source_reactivation_updates_current_version: true }, first_actions: first.actions.length, repeated_actions: repeat.actions.length };
+  const receipt = { outcome: 'worked', fixture: 'isolated synthetic PostgreSQL', checks: { dry_run_no_writes: true, atomic_apply: true, exact_repeat_no_candidate_changes: true, missing_migration_refuses_without_writes: true, migration_idempotent: true, existing_ballot_hash_and_timestamp_preserved: true, separate_fec_source_retained: true, transactional_apply_receipt: true, committed_receipt_survives_local_disk_failure: true, registration_never_certified: true, unknown_party_not_independent: true, parameterized_apostrophe_name: true, injected_failure_full_rollback: true, concurrent_apply_one_identity: true, imported_party_refresh: true, historical_source_reactivation_updates_current_version: true }, first_actions: first.actions.length, repeated_actions: repeat.actions.length };
   writeFileSync('artifacts/lane-c/fec-private-postgres.json', JSON.stringify(receipt,null,2));
   console.log(JSON.stringify(receipt));
 } finally { await pool.end(); }
