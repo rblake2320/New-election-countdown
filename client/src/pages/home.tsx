@@ -407,14 +407,8 @@ export default function Home() {
                   search: undefined
                 })}>Clear All Filters</Button>
               </div>
-            ) : viewMode === "grid" ? (
-              <ElectionGrid data={elections} />
             ) : (
-              <div className="space-y-4 flex flex-col">
-                {elections.map((election) => (
-                  <ElectionCard key={election.id} election={election} viewMode={viewMode} />
-                ))}
-              </div>
+              <ElectionGrid data={elections} viewMode={viewMode} />
             )}
 
           </main>
