@@ -27,6 +27,11 @@ vi.mock("../client/src/hooks/use-elections", () => ({
   useElection: () => ({ data: fixture, isLoading: false }),
   useCandidates: () => ({ data: [], isLoading: false }),
 }));
+// Added by lane B with the general-roster card: same data-boundary mock, so the
+// page renders without network (the card renders nothing for null data).
+vi.mock("../client/src/hooks/use-general-roster", () => ({
+  useGeneralRoster: () => ({ data: null, isLoading: false, error: null }),
+}));
 vi.mock("../client/src/hooks/use-polling-trends", () => ({
   usePollingTrends: () => ({ data: { pollingData: [] }, isLoading: false }),
 }));
