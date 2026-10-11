@@ -1,0 +1,61 @@
+{
+  "image": "electiontracker:security-backup",
+  "builder": "electiontracker:security-backup-builder",
+  "network": "internal, no published ports",
+  "passed": true,
+  "http": [
+    {
+      "path": "/",
+      "status": 200,
+      "bytes": 1832
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "bytes": 239
+    },
+    {
+      "path": "/api/elections",
+      "status": 200,
+      "bytes": 231032
+    }
+  ],
+  "elections": {
+    "total": 537,
+    "distinct": 537
+  },
+  "boundary": "production-only paths verified",
+  "imageId": "sha256:a8220352b9e589afebe6c606a87aa67114e9175b42935b27de2c324235c099fe",
+  "userFlow": [
+    {
+      "path": "/api/auth/register",
+      "status": 201
+    },
+    {
+      "path": "/api/auth/me",
+      "status": 200
+    },
+    {
+      "path": "/api/auth/dashboard",
+      "status": 200
+    },
+    {
+      "path": "/api/recommendations",
+      "status": 200
+    },
+    {
+      "path": "/api/watchlist",
+      "status": 200
+    }
+  ],
+  "backupRestore": {
+    "status": "Worked",
+    "backupHttpStatus": 200,
+    "restoredTables": 85,
+    "allTableDigestsMatch": true,
+    "applicationQuery": {
+      "elections": 537
+    },
+    "scope": "Harness-owned private database, local archive only; no off-host recovery claim"
+  }
+}
