@@ -33,3 +33,44 @@ Change: apiLimiter scoped to /api (was global: counted HTML/static/Vite modules 
 (4) 200 rapid GET /api/elections/530/candidates      -> 0 x 429   (within 300/min)
 (5) RateLimit-* standard headers present on /api/elections (RateLimit-Limit: 60)
 Unit suite after inverting the two stale bypass tests (tests/unit/autofix-security.test.ts): 7 files, 121 passed, 3 skipped.
+
+--- Auth stack consolidation (commit 4, 2026-10-11 ~09:20) — dev server :5055
+Removed legacy Bearer stack POST /api/auth/{signup,signin,signout} (6-char passwords, token in JSON) and the duplicate GET /api/auth/me; 16 user routes (/api/user/*, /api/watchlist/*, /api/recommendations*, /api/analytics/*) converted from Bearer+validateUserSession to the cookie session (isAuthenticated + storage.getUser(req.userId)). The routed client (pages/preferences.tsx, login/register forms, use-auth) only ever used the cookie flow, so PUT /api/user/preferences from the real UI was returning 401 before this change.
+register (POST /api/auth/register)                  -> 201 (sets et.sid cookie)
+GET /api/auth/me with cookie                        -> 200
+PUT /api/user/preferences with cookie               -> 200   (was 401 for the real UI)
+PUT /api/user/preferences without cookie            -> 401
+GET /api/user/watchlist with cookie                 -> 200
+POST /api/auth/signin (legacy)                      -> 404
+POST /api/search-elections without session          -> 401   (external AI call now needs a session + search limiter)
+DELETE /api/user/data with cookie (probe user)      -> 200
+scripts/verify-admin-gates.sh                       -> PASS
+
+--- Provider webhook authentication (commit 5, 2026-10-11 ~10:05) — dev server :5055
+Before: POST /api/notifications/webhooks/{sendgrid,twilio} accepted any body unsigned AND called storage.updateNotificationStatusByMessageId, which does not exist (every real event would have 500'd). After: server/webhook-verify.ts — Twilio HMAC (twilio.validateRequest) and SendGrid ECDSA P-256 over timestamp+rawBody (Node crypto, no new dependency); handlers route to deliveryTrackingService.processWebhook.
+Configured (TWILIO_AUTH_TOKEN + SENDGRID_WEBHOOK_PUBLIC_KEY + APP_ORIGIN set):
+  twilio valid signature          -> 200
+  twilio bad signature            -> 403
+  twilio missing signature        -> 403
+  sendgrid valid signature        -> 200
+  sendgrid tampered body          -> 403
+  sendgrid missing signature      -> 403
+Unconfigured (no provider env):
+  twilio                          -> 404
+  sendgrid                        -> 404
+scripts/verify-admin-gates.sh -> PASS ; unit suite 121 pass / 3 skip.
+Re-run: scripts/verify-webhook-signatures.sh. Deploy note: set SENDGRID_WEBHOOK_PUBLIC_KEY (SendGrid > Mail Settings > Event Webhook > Signed) and TWILIO_AUTH_TOKEN, else the endpoints are 404 by design.
+
+--- commit 8 (2026-10-11 ~12:05) — dashboard 500 for new accounts (found by Astra in private-DB Chrome flow)
+Cause: /api/auth/dashboard mapped users.first_name/last_name NULL into a z.string().optional() schema -> ZodError 500; emailVerified was hardcoded true.
+Fix: server/dashboard-user.ts buildDashboardUser() (null -> undefined, real emailVerified, days clamped >= 0); schema names nullish; regression tests/unit/dashboard-user.test.ts (3).
+Live: register (no names) -> GET /api/auth/dashboard -> 200, user.emailVerified=false, daysSinceJoining=0.
+Unit suite: 8 files, 124 passed, 3 skipped. verify-admin-gates.sh PASS.
+
+--- commit 9 (2026-10-11 ~12:45) — search "firewall" blocked real searches in production; spoofable bypass removed
+Before (production-like client: Host=electiontracker.app + X-Forwarded-For): search=O'Brien -> 400, "governor and senate" -> 400. The regex denylist matched apostrophes and the words or/and; it was only invisible locally because any request with Host containing "localhost" or a HeadlessChrome/ElectionTracker User-Agent bypassed it (attacker-controlled headers).
+After: hostile-only patterns (UNION SELECT, ;DROP, /* */, trailing --, pg_sleep/information_schema, 'OR 1=1), 200-char cap, no header-based bypass; real protection remains parameterised queries.
+  O'Brien / governor and senate / select the best -> 200 200 200
+  ' OR 1=1 -- / x UNION SELECT password / 1; DROP TABLE users / a /* c */ b / pg_sleep(5) -> 400 x5
+  201-char search -> 400
+Request logger no longer writes response bodies (user objects) to stdout. verify-admin-gates.sh PASS; unit suite 124 pass / 3 skip.
