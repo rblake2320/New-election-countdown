@@ -1,0 +1,81 @@
+{
+  "ownedSourceBase": "72cdbd9608b4dcccbe520be575d4d67aebe3b933",
+  "ownedPatch": "24ff46557383f9bbc2bd9b1a6a881f1d60f78726",
+  "cacheApiOwner": "Fable Lane A",
+  "requiredCacheApiCommit": "ececfb7cf1bf428657454418d215428038da24a2",
+  "verifiedPhysicalCompositionHead": "2a524bcca79b7a656166a2a5ebc4f132a70fa6b4",
+  "compilerCommand": "node node_modules/typescript/bin/tsc --noEmit --incremental false --strictNullChecks true --target ES2022",
+  "originalBase": {
+    "sourceLogSha256": "5d688afb48cce87cc5718ebdb3867a02496232bc28da5775c456760f1cfc39fc",
+    "globalCount": 972,
+    "owned": [
+      "server/polling-data-service.ts(186,11): error TS2322: Type 'false | ScrapedElectionData | null' is not assignable to type 'boolean'.",
+      "server/position-aggregator-service.ts(55,39): error TS2339: Property 'get' does not exist on type 'CacheService'.",
+      "server/position-aggregator-service.ts(78,24): error TS2339: Property 'set' does not exist on type 'CacheService'."
+    ]
+  },
+  "ownerApiBefore": {
+    "sourceLogSha256": "853a6f844ccc0b2a28746872b877483aa76b2490f3d8b9fa0677700560fcaa28",
+    "globalCount": 969,
+    "owned": [
+      "server/polling-data-service.ts(186,11): error TS2322: Type 'false | ScrapedElectionData | null' is not assignable to type 'boolean'.",
+      "server/position-aggregator-service.ts(56,17): error TS2740: Type '{}' is missing the following properties from type 'CandidatePosition[]': length, pop, push, concat, and 35 more."
+    ]
+  },
+  "ownerApiAfter": {
+    "sourceLogSha256": "74d1ecda4c067aa40e22226431331e7638ae114d8779d1eed68a48e8406da233",
+    "globalCount": 967,
+    "owned": []
+  },
+  "targetedTests": {
+    "pass": 12,
+    "fail": 0
+  },
+  "fullTests": {
+    "pass": 441,
+    "skip": 3,
+    "fail": 0
+  },
+  "buildExitCode": 0,
+  "scope": {
+    "ownedSourceFiles": [
+      "server/polling-data-service.ts",
+      "server/position-aggregator-service.ts"
+    ],
+    "compilerConfigurationEdited": false,
+    "cacheServiceEditedByC": false,
+    "googleCongressFilesEditedByC": false,
+    "liveProviderCalls": 0,
+    "databaseCalls": 0,
+    "browserUsed": false,
+    "physicalInstall": true,
+    "newJunctions": 0
+  },
+  "sourceInputFilesIdenticalBeforeOwnerApi": [
+    "server/polling-data-service.ts",
+    "server/position-aggregator-service.ts",
+    "server/cache-service.ts",
+    "package.json",
+    "package-lock.json",
+    "tsconfig.json"
+  ],
+  "artifactHashes": {
+    "owner-api-red.json": "76aba0d9f48a31a374b73c9bd5f2c8b3deff5f70b518218424b13d6796b4a0dc",
+    "owner-api-green.json": "5431aeaf363dfdf967cb9de620eb213e83f73daa294e68b26a42a294ca7b8e62",
+    "full-unit.json": "cbddac3129d2201c17746a471fc9ef856eb1e0c437d0cde5236e883d063f9a9e",
+    "build-exit.json": "bfc16614aab3021921f9d4a68b9a82ab4d9e7b64ffd3da117d2f66b470f02cef",
+    "polling-predicate-red.json": "240f99fb96a54c70700976b06b37183c76ee67df60d6fcdc8a31f147c5ebc77a"
+  },
+  "physicalSourceHashes": {
+    "server/polling-data-service.ts": "78eb852db9b057a44737681e618c571ec28116d42af0c0741d76b59bcdae9c35",
+    "server/position-aggregator-service.ts": "3a05e4a10af6a92fc950e185abbdae96a2fa7c1c485b5f083f05f35179bb242d",
+    "tests/polling-scrape-availability.test.ts": "e9f96fea2dca60ed7fd0ff74147ec24c8bccd22cae5c86f92188f3c129d71e5e",
+    "tests/position-cache-contract.test.ts": "51805166b12c9cf353ce322d5fb75ce2ac537650095e9d19f14fc5470d79bcd8"
+  },
+  "canonicalGitSourceHashes": {
+    "server/polling-data-service.ts": "5c8eb0f5d5af9035098c4cd82cd54305d5305a37b554c86c8f27679eccc6d8cf",
+    "server/position-aggregator-service.ts": "d8c26e64dc2dd9f224b2c94c231d5324995c3ab6c1e7b3c62e4c3b259f40875f",
+    "tests/polling-scrape-availability.test.ts": "e9f96fea2dca60ed7fd0ff74147ec24c8bccd22cae5c86f92188f3c129d71e5e",
+    "tests/position-cache-contract.test.ts": "3250ba01ec7146bbb50f0b324c884d8ff3d0ad100b4a3a337f883231da3809e0"
+  }
+}

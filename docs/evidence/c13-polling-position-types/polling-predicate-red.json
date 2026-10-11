@@ -1,0 +1,34 @@
+{
+  "sourceHead": "72cdbd9608b4dcccbe520be575d4d67aebe3b933",
+  "predicate": "result.status === 'fulfilled' && result.value",
+  "cases": [
+    {
+      "scenario": "null",
+      "expectedBoolean": false,
+      "actualType": "object",
+      "actualBoolean": null,
+      "booleanContractWorked": false
+    },
+    {
+      "scenario": "fresh",
+      "expectedBoolean": true,
+      "actualType": "object",
+      "actualBoolean": null,
+      "booleanContractWorked": false
+    },
+    {
+      "scenario": "older",
+      "expectedBoolean": true,
+      "actualType": "object",
+      "actualBoolean": null,
+      "booleanContractWorked": false
+    },
+    {
+      "scenario": "rejected",
+      "expectedBoolean": false,
+      "actualType": "boolean",
+      "actualBoolean": false,
+      "booleanContractWorked": true
+    }
+  ]
+}
