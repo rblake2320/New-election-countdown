@@ -1,0 +1,319 @@
+
+> rest-express@1.0.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.3 [39m[90m/app[39m
+
+[90mstdout[2m | tests/unit/health-guard.test.ts[2m > [22m[2mglobalWriteGuard Middleware[2m > [22m[2mwhen database is unhealthy[2m > [22m[2mshould return 503 for POST requests when database is unhealthy
+[22m[39m🚫 Blocked POST /test - Database unhealthy
+
+[90mstdout[2m | tests/unit/health-guard.test.ts[2m > [22m[2mglobalWriteGuard Middleware[2m > [22m[2mwhen database is unhealthy[2m > [22m[2mshould return 503 for PUT requests when database is unhealthy
+[22m[39m🚫 Blocked PUT /test - Database unhealthy
+
+[90mstdout[2m | tests/unit/health-guard.test.ts[2m > [22m[2mglobalWriteGuard Middleware[2m > [22m[2mwhen database is unhealthy[2m > [22m[2mshould return 503 for DELETE requests when database is unhealthy
+[22m[39m🚫 Blocked DELETE /test - Database unhealthy
+
+[90mstdout[2m | tests/unit/health-guard.test.ts[2m > [22m[2mglobalWriteGuard Middleware[2m > [22m[2mwhen database is unhealthy[2m > [22m[2mshould return 503 for PATCH requests when database is unhealthy
+[22m[39m🚫 Blocked PATCH /test - Database unhealthy
+
+[90mstdout[2m | tests/unit/health-guard.test.ts[2m > [22m[2mglobalWriteGuard Middleware[2m > [22m[2mspecial allowlist handling[2m > [22m[2mshould handle case insensitive methods correctly
+[22m[39m🚫 Blocked POST /test - Database unhealthy
+
+ [32m✓[39m tests/unit/health-guard.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32m✓[39m tests/demo.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m tests/unit/congress-import-routes.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m tests/unit/api-key-guard.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+stderr | tests/unit/upstream-cancellation.test.ts
+VOTESMART_API_KEY not found - VoteSmart features will be unavailable
+
+stderr | tests/unit/upstream-cancellation.test.ts
+Missing API keys: PROPUBLICA_API_KEY, GOOGLE_CIVIC_API_KEY, OPENFEC_API_KEY, OPENSTATES_API_KEY, VOTESMART_API_KEY. Some features may be limited.
+
+ [32m✓[39m tests/election-timing.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 93[2mms[22m[39m
+ [32m✓[39m tests/fec-candidate-sync.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 46[2mms[22m[39m
+ [32m✓[39m tests/candidate-nominee-sync.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 87[2mms[22m[39m
+ [32m✓[39m tests/candidate-nominee-review.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 70[2mms[22m[39m
+[90mstdout[2m | tests/unit/upstream-cancellation.test.ts[2m > [22m[2mhanging BODY after headers (Sol: 450 active / 0 aborts at all three points)[2m > [22m[2maggregator under budget with hanging bodies: all transports aborted, in-flight 0
+[22m[39mOpenStates API configured (500 requests/day, 1 req/sec limit)
+
+ [32m✓[39m tests/unit/autofix-security.test.ts [2m([22m[2m40 tests[22m[2m)[22m[33m 423[2mms[22m[39m
+[90mstdout[2m | tests/unit/upstream-cancellation.test.ts[2m > [22m[2menrichment settles its upstream work when the budget expires[2m > [22m[2maggregator: every provider request is aborted and in-flight returns to 0 right after the fallback
+[22m[39mOpenStates API configured (500 requests/day, 1 req/sec limit)
+
+[90mstdout[2m | tests/real-general-roster-review.test.tsx[2m > [22m[2mactual GeneralRoster receiving component with retained real API payloads[2m > [22m[2mTX-32 names, write-in/incumbent counts and source URL/check date match retained payload
+[22m[39m{"payload":"TX-32","sha256":"55e24e1fa55b9a5fdf2519f5b503c4528762d89ff27bc5f6d3ea84adda5e13f8","candidateCount":7,"renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Avery AyersWrite-inBradford \"Brad\" HallWrite-inJade SimmonsWrite-inJames TalaricoDemocraticKen PaxtonRepublicanTED BROWNLibertarianZul MohamedWrite-inCovers only: printed-ballot candidates; write-in candidates. Other candidates may appear on the ballot.Source: Texas Secretary of State Certified Declared Write-In Candidates (published Aug 28, 2026) · checked Oct 11, 2026Source: Texas Secretary of State Final Ballot Certification Report (published Aug 28, 2026) · checked Oct 11, 2026","links":[{"text":"Texas Secretary of State Certified Declared Write-In Candidates","href":"https://www.sos.texas.gov/elections/forms/2026-write-In-ballot-cert.pdf"},{"text":"Texas Secretary of State Final Ballot Certification Report","href":"https://www.sos.texas.gov/elections/forms/2026-ballot-cert.pdf"}]}
+
+[90mstdout[2m | tests/real-general-roster-review.test.tsx[2m > [22m[2mactual GeneralRoster receiving component with retained real API payloads[2m > [22m[2mNE-55 names, write-in/incumbent counts and source URL/check date match retained payload
+[22m[39m{"payload":"NE-55","sha256":"8907ff043abc771e25e6ee87d4ea2d5bd60bdcb19f6830e36ce0dae063a8f5a5","candidateCount":4,"renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Brett LindstromAmerica FirstJim PillenRepublicanIncumbentLynne WalzDemocraticRick BeardLegal Marijuana NOWSource: Nebraska Secretary of State Final Statewide General Candidate List (published Sep 11, 2026) · checked Oct 11, 2026","links":[{"text":"Nebraska Secretary of State Final Statewide General Candidate List","href":"https://sos.nebraska.gov/sites/default/files/doc/elections/2026/Final_Statewide_General_Candidate_Filing_List_9.11.26.pdf"}]}
+
+[90mstdout[2m | tests/real-general-roster-review.test.tsx[2m > [22m[2mactual GeneralRoster receiving component with retained real API payloads[2m > [22m[2mWA-329 names, write-in/incumbent counts and source URL/check date match retained payload
+[22m[39m{"payload":"WA-329","sha256":"69168224a42c7dc15aae1078ef3714e4cb3630e7ecc12068688aba450d4e82d1","candidateCount":2,"renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Mary Silva(Prefers Republican Party)Suzan DelBene(Prefers Democratic Party)Covers only: printed-ballot candidates. Other candidates may appear on the ballot.Source: Washington Secretary of State Certification of Candidates to General Election (published Aug 21, 2026) · checked Oct 11, 2026","links":[{"text":"Washington Secretary of State Certification of Candidates to General Election","href":"https://www.sos.wa.gov/sites/default/files/2026-08/2026%20Certification%20of%20Candidates%20to%20General%20Election.pdf"}]}
+
+[90mstdout[2m | tests/real-general-roster-review.test.tsx[2m > [22m[2mactual GeneralRoster receiving component with retained real API payloads[2m > [22m[2mNV-475 names, write-in/incumbent counts and source URL/check date match retained payload
+[22m[39m{"payload":"NV-475","sha256":"2a2515b67b1925c68960b8b5cbe61fc02c98cce84d4b80bdfddf223d65999e08","candidateCount":3,"renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Jon KamerathIndependent American PartyMarty O'DonnellRepublicanSusie LeeDemocraticSource: 2026 General Election Statewide Certified List of Candidates (published Aug 25, 2026) · checked Oct 11, 2026","links":[{"text":"2026 General Election Statewide Certified List of Candidates","href":"https://www.nvsos.gov/home/showpublisheddocument/20105/639232733439300000"}]}
+
+[90mstdout[2m | tests/unit/upstream-cancellation.test.ts[2m > [22m[2menrichment settles its upstream work when the budget expires[2m > [22m[2m30 concurrent enrichments of the same candidate open one request per provider, not 30
+[22m[39mOpenStates API configured (500 requests/day, 1 req/sec limit)
+
+[90mstdout[2m | tests/real-general-roster-review.test.tsx[2m > [22m[2mactual GeneralRoster receiving component with retained real API payloads[2m > [22m[2mTX write-ins with empty official party do not become Independent or Other
+[22m[39m{"payload":"TX-32","sha256":"55e24e1fa55b9a5fdf2519f5b503c4528762d89ff27bc5f6d3ea84adda5e13f8","candidateCount":7,"renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Avery AyersWrite-inBradford \"Brad\" HallWrite-inJade SimmonsWrite-inJames TalaricoDemocraticKen PaxtonRepublicanTED BROWNLibertarianZul MohamedWrite-inCovers only: printed-ballot candidates; write-in candidates. Other candidates may appear on the ballot.Source: Texas Secretary of State Certified Declared Write-In Candidates (published Aug 28, 2026) · checked Oct 11, 2026Source: Texas Secretary of State Final Ballot Certification Report (published Aug 28, 2026) · checked Oct 11, 2026","links":[{"text":"Texas Secretary of State Certified Declared Write-In Candidates","href":"https://www.sos.texas.gov/elections/forms/2026-write-In-ballot-cert.pdf"},{"text":"Texas Secretary of State Final Ballot Certification Report","href":"https://www.sos.texas.gov/elections/forms/2026-ballot-cert.pdf"}]}
+
+[90mstdout[2m | tests/real-general-roster-review.test.tsx[2m > [22m[2mactual GeneralRoster receiving component with retained real API payloads[2m > [22m[2mWA official party preference remains visible rather than being asserted as party membership
+[22m[39m{"payload":"WA-329","sha256":"69168224a42c7dc15aae1078ef3714e4cb3630e7ecc12068688aba450d4e82d1","candidateCount":2,"renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Mary Silva(Prefers Republican Party)Suzan DelBene(Prefers Democratic Party)Covers only: printed-ballot candidates. Other candidates may appear on the ballot.Source: Washington Secretary of State Certification of Candidates to General Election (published Aug 21, 2026) · checked Oct 11, 2026","links":[{"text":"Washington Secretary of State Certification of Candidates to General Election","href":"https://www.sos.wa.gov/sites/default/files/2026-08/2026%20Certification%20of%20Candidates%20to%20General%20Election.pdf"}]}
+
+[90mstdout[2m | tests/real-general-roster-review.test.tsx[2m > [22m[2mactual GeneralRoster receiving component with retained real API payloads[2m > [22m[2mfirst-load error with undefined data displays honest error rather than silently disappearing
+[22m[39m{"boundary":"undefined-data + error","renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.The official list could not be loaded right now.","rosterPresent":true}
+
+ [32m✓[39m tests/real-general-roster-review.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 540[2mms[22m[39m
+ [32m✓[39m tests/unit/upstream-cancellation.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 1036[2mms[22m[39m
+ [32m✓[39m tests/general-roster.test.tsx [2m([22m[2m26 tests[22m[2m)[22m[33m 763[2mms[22m[39m
+   [32m✓[39m GeneralRoster [2m(3)[22m
+     [33m[2m✓[22m[39m renders the official list with party labels, incumbency, write-in and source attribution[33m 435[2mms[22m[39m
+ [32m✓[39m tests/unit/security-events.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+ [32m✓[39m tests/unit/poll-hours-2026.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 125[2mms[22m[39m
+stderr | tests/unit/upstream-bounds.test.ts
+VOTESMART_API_KEY not found - VoteSmart features will be unavailable
+
+stderr | tests/unit/upstream-bounds.test.ts
+Missing API keys: PROPUBLICA_API_KEY, GOOGLE_CIVIC_API_KEY, OPENFEC_API_KEY, OPENSTATES_API_KEY, VOTESMART_API_KEY. Some features may be limited.
+
+ [32m✓[39m tests/official-results-link.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 376[2mms[22m[39m
+ [32m✓[39m tests/la-house-catalog.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 49[2mms[22m[39m
+stderr | tests/unit/secrets-rotation-truth.test.ts
+⚠️ Secrets vault unavailable: BACKUP_ENCRYPTION_KEY is missing or shorter than 32 bytes. Vault operations will be refused; the application keeps running.
+
+[90mstdout[2m | tests/unit/secrets-rotation-truth.test.ts
+[22m[39m✅ Secrets Rotation Service initialized { enabledServices: [33m8[39m, rotationFrequency: [32m'90 days'[39m }
+
+[90mstdout[2m | tests/unit/secrets-rotation-truth.test.ts[2m > [22m[2mY-01: vault key material[2m > [22m[2mis unavailable without BACKUP_ENCRYPTION_KEY and refuses to encrypt or decrypt
+[22m[39m✅ Secrets Rotation Service initialized { enabledServices: [33m8[39m, rotationFrequency: [32m'90 days'[39m }
+
+stderr | tests/unit/candidates-batch.test.ts
+VOTESMART_API_KEY not found - VoteSmart features will be unavailable
+
+stderr | tests/unit/candidates-batch.test.ts
+Missing API keys: PROPUBLICA_API_KEY, GOOGLE_CIVIC_API_KEY, OPENFEC_API_KEY, OPENSTATES_API_KEY, VOTESMART_API_KEY. Some features may be limited.
+
+ [32m✓[39m tests/unit/official-results.test.ts [2m([22m[2m33 tests[22m[2m)[22m[33m 1080[2mms[22m[39m
+ [32m✓[39m tests/unit/candidates-batch.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+[90mstdout[2m | tests/unit/secrets-rotation-truth.test.ts[2m > [22m[2mY-01: vault key material[2m > [22m[2mrejects short keys and round-trips with a real one
+[22m[39m✅ Secrets Rotation Service initialized { enabledServices: [33m8[39m, rotationFrequency: [32m'90 days'[39m }
+✅ Secrets Rotation Service initialized { enabledServices: [33m8[39m, rotationFrequency: [32m'90 days'[39m }
+
+[90mstdout[2m | tests/unit/secrets-rotation-truth.test.ts[2m > [22m[2mY-01: vault key material[2m > [22m[2minitializeSecretsVault writes nothing when the vault is not ready
+[22m[39m✅ Secrets Rotation Service initialized { enabledServices: [33m8[39m, rotationFrequency: [32m'90 days'[39m }
+
+[90mstdout[2m | tests/unit/secrets-rotation-truth.test.ts[2m > [22m[2mY-02: rotation honesty[2m > [22m[2mno provider is advertised as auto-rotatable and no handler fabricates credentials
+[22m[39m✅ Secrets Rotation Service initialized { enabledServices: [33m8[39m, rotationFrequency: [32m'90 days'[39m }
+
+[90mstdout[2m | tests/unit/secrets-rotation-truth.test.ts[2m > [22m[2mY-02: rotation honesty[2m > [22m[2mrotating a manual-only secret returns manual_required and changes nothing
+[22m[39m✅ Secrets Rotation Service initialized { enabledServices: [33m8[39m, rotationFrequency: [32m'90 days'[39m }
+🔄 Starting secret rotation: jx7HRoyrU_U-gCMorTzfX
+
+[90mstdout[2m | tests/detail-date-gate.test.tsx[2m > [22m[2mactual election detail preserves active election-day timing[2m > [22m[2mcontrol: day before election shows real countdown to Texas poll opening
+[22m[39m{"scenario":"2026-11-02T11:30:00Z","browserZone":"UTC","localClock":"Mon Nov 02 2026 11:30:00 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Chicago","closeKind":"polls","pastBadge":false,"upcomingBadge":true,"timerCount":1,"timerLabel":"1 days, 1 hours, 30 minutes until polls open","text":"BackTexas election timing acceptance fixtureTuesday, November 3, 2026Texas, federal0 candidatesUpcomingGeneral01DAYS01HRS30MIN00SECuntil polls open · sourceOverviewPolling TrendsCandidatesCandidatesCurrent candidate standings and information"}
+
+[90mstdout[2m | tests/unit/secrets-rotation-truth.test.ts[2m > [22m[2mY-02: rotation honesty[2m > [22m[2mrotating a manual-only secret returns manual_required and changes nothing
+[22m[39m⚠️ sendgrid requires manual rotation in the provider console
+
+ [32m✓[39m tests/unit/secrets-rotation-truth.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 223[2mms[22m[39m
+[90mstdout[2m | tests/detail-date-gate.test.tsx[2m > [22m[2mactual election detail preserves active election-day timing[2m > [22m[2m06:30 Eastern on election day: Texas polls have not opened, so keep countdown
+[22m[39m{"scenario":"2026-11-03T11:30:00Z","browserZone":"UTC","localClock":"Tue Nov 03 2026 11:30:00 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Chicago","closeKind":"polls","pastBadge":false,"upcomingBadge":true,"timerCount":1,"timerLabel":"0 days, 1 hours, 30 minutes until polls open","text":"BackTexas election timing acceptance fixtureTuesday, November 3, 2026Texas, federal0 candidatesUpcomingGeneral00DAYS01HRS30MIN00SECuntil polls open · sourceOverviewPolling TrendsCandidatesCandidatesCurrent candidate standings and information"}
+
+ [32m✓[39m tests/fec-first-identity.test.ts [2m([22m[2m26 tests[22m[2m)[22m[33m 317[2mms[22m[39m
+ [32m✓[39m tests/unit/backup-process-contract.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 97[2mms[22m[39m
+[90mstdout[2m | tests/detail-date-gate.test.tsx[2m > [22m[2mactual election detail preserves active election-day timing[2m > [22m[2mduring Texas voting: retain actual countdown to poll closing
+[22m[39m{"scenario":"2026-11-03T15:00:00Z","browserZone":"UTC","localClock":"Tue Nov 03 2026 15:00:00 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Chicago","closeKind":"polls","pastBadge":false,"upcomingBadge":false,"timerCount":1,"timerLabel":"0 days, 10 hours, 0 minutes until polls close","text":"BackTexas election timing acceptance fixtureTuesday, November 3, 2026Texas, federal0 candidatesElection DayGeneralPolls open00DAYS10HRS00MIN00SECuntil polls close · sourceOverviewPolling TrendsCandidatesCandidatesCurrent candidate standings and information"}
+
+[90mstdout[2m | tests/detail-date-gate.test.tsx[2m > [22m[2mactual election detail preserves active election-day timing[2m > [22m[2mmounted detail changes Upcoming to Election Day when Texas polls open
+[22m[39m{"scenario":"2026-11-03T12:59:30Z","browserZone":"UTC","localClock":"Tue Nov 03 2026 12:59:30 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Chicago","closeKind":"polls","pastBadge":false,"upcomingBadge":true,"timerCount":1,"timerLabel":"0 days, 0 hours, 0 minutes until polls open","text":"BackTexas election timing acceptance fixtureTuesday, November 3, 2026Texas, federal0 candidatesUpcomingGeneral00DAYS00HRS00MIN30SECuntil polls open · sourceOverviewPolling TrendsCandidatesCandidatesCurrent candidate standings and information"}
+{"rollover":"Texas opening","at":"2026-11-03T13:00:30.000Z","badge":"Election Day","timer":"0 days, 11 hours, 59 minutes until polls close","sameMountedHeading":true}
+
+[90mstdout[2m | tests/detail-date-gate.test.tsx[2m > [22m[2mactual election detail preserves active election-day timing[2m > [22m[2mmounted detail changes Election Day to Polls closed after Texas closes
+[22m[39m{"scenario":"2026-11-04T00:59:30Z","browserZone":"UTC","localClock":"Wed Nov 04 2026 00:59:30 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Chicago","closeKind":"polls","pastBadge":false,"upcomingBadge":false,"timerCount":1,"timerLabel":"0 days, 0 hours, 0 minutes until polls close","text":"BackTexas election timing acceptance fixtureTuesday, November 3, 2026Texas, federal0 candidatesElection DayGeneralPolls open00DAYS00HRS00MIN30SECuntil polls close · sourceOverviewPolling TrendsCandidatesCandidatesCurrent candidate standings and information"}
+{"rollover":"Texas closing","at":"2026-11-04T01:00:30.000Z","badge":"Polls closed","status":"Polls closed · results pending","sameMountedHeading":true}
+
+[90mstdout[2m | tests/detail-date-gate.test.tsx[2m > [22m[2mactual election detail preserves active election-day timing[2m > [22m[2munknown opening on a ballot-return election says deadline pending
+[22m[39m{"scenario":"2026-11-03T08:30:00Z","browserZone":"UTC","localClock":"Tue Nov 03 2026 08:30:00 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Los_Angeles","closeKind":"ballot_return","pastBadge":false,"upcomingBadge":false,"timerCount":1,"timerLabel":"0 days, 19 hours, 30 minutes until ballot drop-off deadline","text":"BackOregon ballot deadline acceptance fixtureTuesday, November 3, 2026Oregon, federal0 candidatesElection DayGeneralElection Day · ballot drop-off deadline pending00DAYS19HRS30MIN00SECuntil ballot drop-off deadline · sourceOverviewPolling TrendsCandidatesCandidatesCurrent candidate standings and information"}
+
+[90mstdout[2m | tests/detail-date-gate.test.tsx[2m > [22m[2mactual election detail preserves active election-day timing[2m > [22m[2mballot-return deadline passed must not call mail-election polls closed
+[22m[39m{"scenario":"2026-11-04T04:01:00Z","browserZone":"UTC","localClock":"Wed Nov 04 2026 04:01:00 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Los_Angeles","closeKind":"ballot_return","pastBadge":false,"upcomingBadge":false,"timerCount":0,"timerLabel":null,"text":"BackOregon ballot deadline acceptance fixtureTuesday, November 3, 2026Oregon, federal0 candidatesDrop-off closedGeneralBallot drop-off closed · results pendingOverviewPolling TrendsCandidatesCandidatesCurrent candidate standings and information"}
+
+ [32m✓[39m tests/detail-date-gate.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 850[2mms[22m[39m
+ [32m✓[39m tests/general-roster-real-payloads.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 1073[2mms[22m[39m
+   [32m✓[39m GeneralRoster with real lane C payloads [2m(8)[22m
+     [33m[2m✓[22m[39m TX-32.json: every candidate rendered, no candidate promoted to certified, sources linked[33m 312[2mms[22m[39m
+ [32m✓[39m tests/fec-expanded-identity.test.ts [2m([22m[2m48 tests[22m[2m)[22m[32m 123[2mms[22m[39m
+ [32m✓[39m tests/CongressData.test.tsx [2m([22m[2m16 tests[22m[2m | [22m[33m3 skipped[39m[2m)[22m[33m 2952[2mms[22m[39m
+   [32m✓[39m CongressData Component [2m(13)[22m
+     [33m[2m✓[22m[39m renders loading state initially[33m 395[2mms[22m[39m
+     [33m[2m✓[22m[39m displays all members after loading[33m 314[2mms[22m[39m
+   [32m✓[39m Performance [2m(1)[22m
+     [33m[2m✓[22m[39m renders large member lists efficiently[33m 996[2mms[22m[39m
+[90mstdout[2m | tests/polling-scrape-availability.test.ts[2m > [22m[2mpolling scrape availability is a boolean, not an invented age policy[2m > [22m[2man unavailable scraper preserves the public null polling result
+[22m[39mNo authentic polling data found for election 101
+
+[90mstdout[2m | tests/polling-scrape-availability.test.ts[2m > [22m[2mpolling scrape availability is a boolean, not an invented age policy[2m > [22m[2mnull/rejected generic sources produce null, not an empty successful polling object
+[22m[39mNo authentic polling data found for election 101
+
+[90mstdout[2m | tests/unit/candidate-admin-listing.test.ts[2m > [22m[2mPOST /api/admin/candidate-accounts/:id/approve[2m > [22m[2mactivates with the requested access level and omits the hash
+[22m[39mCandidate account 1 approved by admin admin-1 (accessLevel=limited)
+
+ [32m✓[39m tests/unit/candidate-admin-listing.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 50[2mms[22m[39m
+ [32m✓[39m tests/polling-scrape-availability.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 113[2mms[22m[39m
+ [32m✓[39m tests/candidate-nominee-watermark.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m tests/congress-official-import.test.ts [2m([22m[2m21 tests[22m[2m)[22m[33m 380[2mms[22m[39m
+[90mstdout[2m | tests/election-list-filters.test.ts[2m > [22m[2melection listing contract in failover memory[2m > [22m[2mreturns today and Nov 3 for next-30-days, excluding prior and inactive elections
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/election-list-filters.test.ts[2m > [22m[2melection listing contract in failover memory[2m > [22m[2mhonors the timeRange alias instead of returning past elections
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/election-list-filters.test.ts[2m > [22m[2melection listing contract in failover memory[2m > [22m[2mincludes the whole UTC calendar day for the legacy week filter
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/election-list-filters.test.ts[2m > [22m[2melection listing contract in failover memory[2m > [22m[2mmatches party names and codes and counts all candidates, not just the selected party
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/election-list-filters.test.ts[2m > [22m[2melection listing contract in failover memory[2m > [22m[2mrejects unknown timeframes instead of silently broadening or truncating
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/election-list-filters.test.ts[2m > [22m[2melection listing contract in failover memory[2m > [22m[2mhonors the API recent-date floor before returning rows
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/election-list-filters.test.ts[2m > [22m[2melection listing contract in failover memory[2m > [22m[2mkeeps Nov 3 races at 05:30 UTC on Nov 4 when timezone metadata is absent
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/election-list-filters.test.ts[2m > [22m[2melection listing contract in failover memory[2m > [22m[2muses each known election timezone, retaining Aleutian races after New York midnight
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/election-list-filters.test.ts[2m > [22m[2melection listing contract in failover memory[2m > [22m[2mtreats a legacy missing party as Other without crashing
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+ [32m✓[39m tests/election-list-filters.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 77[2mms[22m[39m
+ [32m✓[39m tests/position-cache-contract.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+[90mstdout[2m | tests/unit/candidate-portal-authz.test.ts
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+ℹ️ No replica configurations found - running with primary database only
+
+[90mstdout[2m | tests/unit/candidate-portal-authz.test.ts
+[22m[39m⏳ Primary database retry 1/15 in 3s {
+  error: [32m'Failed query: SELECT 1 as health_check, NOW() as server_time\nparams: '[39m,
+  consecutiveFailures: [33m1[39m
+}
+
+ [32m✓[39m tests/unit/candidate-portal-authz.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m tests/unit/provider-dto-and-cache.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+[90mstdout[2m | tests/unit/monitor-catalog.test.ts
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+ℹ️ No replica configurations found - running with primary database only
+
+[90mstdout[2m | tests/unit/monitor-catalog.test.ts
+[22m[39m⏳ Primary database retry 1/15 in 3s {
+  error: [32m'Failed query: SELECT 1 as health_check, NOW() as server_time\nparams: '[39m,
+  consecutiveFailures: [33m1[39m
+}
+
+stderr | tests/unit/monitor-catalog.test.ts
+PERPLEXITY_API_KEY not found in environment variables
+
+ [32m✓[39m tests/unit/route-policy.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m tests/unit/monitor-catalog.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m tests/unit/storage-surface.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m tests/unit/no-embedded-credentials.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 66[2mms[22m[39m
+[90mstdout[2m | tests/unit/storage-factory-shutdown.test.ts
+[22m[39mℹ️ No replica configurations found - running with primary database only
+
+[90mstdout[2m | tests/unit/storage-factory-shutdown.test.ts
+[22m[39m⏳ Primary database retry 1/15 in 3s { error: [32m'synthetic unavailable'[39m, consecutiveFailures: [33m1[39m }
+
+[90mstdout[2m | tests/unit/storage-factory-shutdown.test.ts[2m > [22m[2mstorage factory background shutdown[2m > [22m[2mwaits for async health startup and prevents its timer from appearing after shutdown
+[22m[39mℹ️ No replica configurations found - running with primary database only
+
+ [32m✓[39m tests/candidate-nominee-undated.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+[90mstdout[2m | tests/unit/storage-factory-shutdown.test.ts[2m > [22m[2mstorage factory background shutdown[2m > [22m[2mclears health/queue timers and awaits an admitted queue operation
+[22m[39mℹ️ No replica configurations found - running with primary database only
+
+ [32m✓[39m tests/unit/storage-factory-shutdown.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32m✓[39m tests/election-list-query.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 63[2mms[22m[39m
+ [32m✓[39m tests/detail-error-states.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 432[2mms[22m[39m
+ [32m✓[39m tests/unit/upstream-bounds.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 3797[2mms[22m[39m
+   [32m✓[39m CivicAggregatorService under an unreachable provider [2m(3)[22m
+     [33m[2m✓[22m[39m returns local base data within the enrichment budget when every provider hangs[33m 3508[2mms[22m[39m
+[90mstdout[2m | tests/unit/results-polling-shutdown.test.ts[2m > [22m[2mresults polling shutdown[2m > [22m[2mdrains initial ingestion and does not create a timer after a concurrent stop
+[22m[39mStarting automated results ingestion (every 1 seconds)
+
+[90mstdout[2m | tests/unit/results-polling-shutdown.test.ts[2m > [22m[2mresults polling shutdown[2m > [22m[2mdrains initial ingestion and does not create a timer after a concurrent stop
+[22m[39mResults ingestion stopped
+
+[90mstdout[2m | tests/unit/results-polling-shutdown.test.ts[2m > [22m[2mresults polling shutdown[2m > [22m[2mdrains an admitted recurring poll and permits an explicit later restart
+[22m[39mStarting automated results ingestion (every 1 seconds)
+
+[90mstdout[2m | tests/unit/results-polling-shutdown.test.ts[2m > [22m[2mresults polling shutdown[2m > [22m[2mdrains an admitted recurring poll and permits an explicit later restart
+[22m[39mResults ingestion stopped
+
+[90mstdout[2m | tests/unit/results-polling-shutdown.test.ts[2m > [22m[2mresults polling shutdown[2m > [22m[2mdrains an admitted recurring poll and permits an explicit later restart
+[22m[39mStarting automated results ingestion (every 1 seconds)
+
+[90mstdout[2m | tests/unit/results-polling-shutdown.test.ts[2m > [22m[2mresults polling shutdown[2m > [22m[2mdrains an admitted recurring poll and permits an explicit later restart
+[22m[39mResults ingestion stopped
+
+ [32m✓[39m tests/unit/results-polling-shutdown.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+[90mstdout[2m | tests/election-card-xss.test.tsx[2m > [22m[2mElectionCard details dialog with hostile AI content[2m > [22m[2mrenders AI analysis as text and never links non-http(s) sources
+[22m[39mPoliticalLeaningBorder rendering with leaning: neutral
+PoliticalLeaningBorder rendering with leaning: neutral
+
+[90mstdout[2m | tests/election-card-xss.test.tsx[2m > [22m[2mElectionCard details dialog with hostile AI content[2m > [22m[2mrenders AI analysis as text and never links non-http(s) sources
+[22m[39mPoliticalLeaningBorder rendering with leaning: neutral
+
+ [32m✓[39m tests/election-card-xss.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 426[2mms[22m[39m
+   [32m✓[39m ElectionCard details dialog with hostile AI content [2m(1)[22m
+     [33m[2m✓[22m[39m renders AI analysis as text and never links non-http(s) sources[33m 420[2mms[22m[39m
+ [32m✓[39m tests/fec-source-artifacts.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 45[2mms[22m[39m
+ [32m✓[39m tests/unit/rate-limit-contract.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m tests/unit/no-secret-logging.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 40[2mms[22m[39m
+ [32m✓[39m tests/candidate-profile.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m tests/onboarding-preferences.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 1251[2mms[22m[39m
+   [32m✓[39m OnboardingPreferences step navigation [2m(2)[22m
+     [33m[2m✓[22m[39m Next on step 3 shows step 4 and saves nothing; only Complete saves[33m 857[2mms[22m[39m
+     [33m[2m✓[22m[39m a form submit on an early step (Enter in a field) never saves[33m 390[2mms[22m[39m
+ [32m✓[39m tests/candidates-exact-race.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 155[2mms[22m[39m
+ [32m✓[39m tests/congress-count-contracts.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 58[2mms[22m[39m
+ [32m✓[39m tests/upcoming-rollover.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 76[2mms[22m[39m
+ [32m✓[39m tests/unit/untrusted-text.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m tests/auth-user-switch.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 167[2mms[22m[39m
+ [32m✓[39m tests/onboarding-flow.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 2006[2mms[22m[39m
+   [32m✓[39m OnboardingFlow [2m(2)[22m
+     [33m[2m✓[22m[39m shows preferences after registering, then hands control back to the caller (no forced /dashboard)[33m 1925[2mms[22m[39m
+ [32m✓[39m tests/filter-codes.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m tests/candidate-ci-registration.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+[90mstdout[2m | tests/unit/storage-sync-shutdown.test.ts[2m > [22m[2mperiodic storage sync shutdown[2m > [22m[2mdrains both admitted periodic sync and factory cleanup before resolving
+[22m[39mPeriodic sync with Google Civic API completed
+
+ [32m✓[39m tests/unit/storage-sync-shutdown.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 737[2mms[22m[39m
+   [32m✓[39m periodic storage sync shutdown [2m(1)[22m
+     [33m[2m✓[22m[39m drains both admitted periodic sync and factory cleanup before resolving[33m 723[2mms[22m[39m
+ [32m✓[39m tests/unit/dashboard-user.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m tests/candidate-ci-expectations.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 47[2mms[22m[39m
+ [32m✓[39m tests/auth-return.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m tests/unit/session-identity.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m tests/url-state.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m tests/election-menominee-contract.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m tests/code-toggle.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 189[2mms[22m[39m
+ [32m✓[39m tests/unit/graceful-shutdown.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 4105[2mms[22m[39m
+   [32m✓[39m graceful shutdown [2m(4)[22m
+     [33m[2m✓[22m[39m finishes an admitted HTTP response before closing the database, once[33m 4023[2mms[22m[39m
+ [32m✓[39m tests/filter-sidebar-ids.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 563[2mms[22m[39m
+   [32m✓[39m FilterSidebar rendered twice [2m(1)[22m
+     [33m[2m✓[22m[39m each copy has unique ids and named checkboxes[33m 555[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m67 passed[39m[22m[90m (67)[39m
+[2m      Tests [22m [1m[32m622 passed[39m[22m[2m | [22m[33m3 skipped[39m[90m (625)[39m
+[2m   Start at [22m 17:15:21
+[2m   Duration [22m 10.66s[2m (environment 46%, tests 20%, import 12%, setup 11%, transform 11%, worker 1%)[22m
+
+[2mEnvironment [22m [33mjsdom was created 67 times[39m[2m · 59.16s total, 46% of tracked time[22m
+[2m            [22m [2mcreate it once per worker with [22m[33mpool: 'vmThreads'[39m[2m (keeps per-file isolation) or [22m[33misolate: false[39m[2m (shares it across files)[22m
+[2m            [22m [2mlearn more: https://vitest.dev/guide/improving-performance#test-environments[22m
+
