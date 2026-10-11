@@ -3,3 +3,6 @@ tests/fixtures/real-roster/*.json -text
 # FEC review receipts and frozen source snapshots retain their reviewed bytes.
 artifacts/fec-first/*.json text eol=lf
 artifacts/fec-first/original-core/**/*.ts text eol=lf
+
+# Receiving bodies and review receipts retain actual captured bytes.
+artifacts/candidate-receiving/**/*.json -text whitespace=cr-at-eol
