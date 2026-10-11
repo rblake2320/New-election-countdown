@@ -25,7 +25,6 @@ import { globalElectionService } from "./global-election-service";
 import { civicAggregatorService } from "./civic-aggregator-service";
 import { registerCandidatePortalRoutes } from "./routes-candidate-portal";
 import { positionAggregatorService } from "./position-aggregator-service";
-import { enhancedPositionService } from "./enhanced-position-service";
 import { candidatePositionAPI } from "./candidate-position-api";
 import { pollingTrendService } from "./polling-trend-service";
 import { openStatesService } from "./openstates-service";

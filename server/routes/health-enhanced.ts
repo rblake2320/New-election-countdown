@@ -165,7 +165,7 @@ healthEnhancedRouter.post("/stress-test", async (req, res) => {
     
     console.log(`🏋️ Running connection stress test (${iterations} iterations)...`);
     
-    const results = [];
+    const results: Array<{ iteration: number; success: boolean; latency?: number; totalTime: number; error?: string; timestamp: string }> = [];
     
     for (let i = 1; i <= iterations; i++) {
       const startTime = Date.now();
@@ -222,7 +222,7 @@ healthEnhancedRouter.post("/stress-test", async (req, res) => {
  * Generate health recommendations based on current status
  */
 function generateHealthRecommendations(healthStatus: any): string[] {
-  const recommendations = [];
+  const recommendations: string[] = [];
   
   if (!healthStatus.isDatabaseHealthy) {
     if (healthStatus.consecutiveFailures > 5) {

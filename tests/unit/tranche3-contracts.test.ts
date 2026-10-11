@@ -80,6 +80,21 @@ describe("candidate detail route (tranche 4)", () => {
   });
 });
 
+describe("steward routes (tranche 4b)", () => {
+  it("query through the shared pg pool and answer 503 when the steward tables are not provisioned", () => {
+    for (const f of ["steward-audit.ts", "steward-policies.ts"]) {
+      const src = read("routes", f);
+      expect(src, f).not.toContain("@neondatabase/serverless");
+      expect(src, f).toContain("import { rawSql as sql } from '../db';");
+      expect(src, f).toContain("error: 'steward_not_provisioned'");
+      const handlers = src.match(/router\.(get|post|put|patch|delete)\(/g) ?? [];
+      const guards = src.match(/if \(!\(await provisioned\(/g) ?? [];
+      expect(guards.length, f).toBe(handlers.length);
+    }
+    expect(read("db.ts")).toMatch(/export async function rawSql</);
+  });
+});
+
 describe("notification queue processor", () => {
   it("drives delivery rows and never the removed in-memory maps", () => {
     const queue = read("services", "notification-queue-service.ts");
