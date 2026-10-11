@@ -1,0 +1,34 @@
+{
+  "head": "95ceff263691cc6c7da8753c32087725f1f0b207",
+  "outcome": "Failed",
+  "checks": [
+    {
+      "scenario": "EACCES refuses without fallback",
+      "uid": 1001,
+      "directError": "EACCES",
+      "packagedExists": false,
+      "actual": {
+        "loaded": true,
+        "manifestSha256": "b09efc0e8a2b98ffc1e5e4740c8c0ba03a381e745cdf8d53a501e053bfa8ad56",
+        "path": "/tmp/sol-congress-refusal-fkjFpi/data/congress/119/official-current-members.json"
+      },
+      "outcome": "Failed"
+    },
+    {
+      "scenario": "ENOTDIR refuses without fallback",
+      "uid": 1001,
+      "directError": "ENOTDIR",
+      "packagedExists": false,
+      "actual": {
+        "loaded": true,
+        "manifestSha256": "b09efc0e8a2b98ffc1e5e4740c8c0ba03a381e745cdf8d53a501e053bfa8ad56",
+        "path": "/tmp/sol-congress-refusal-fkjFpi/data/congress/119/official-current-members.json"
+      },
+      "outcome": "Failed"
+    }
+  ],
+  "databaseConnections": 0,
+  "providerFetchCalls": 0,
+  "network": "none",
+  "nodeRuntimeImageId": "sha256:90561267d8c97492b08405aa421616bbfee7da6e8c6fb7293e29d2cf445c8748"
+}
