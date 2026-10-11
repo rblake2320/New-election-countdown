@@ -1,10 +1,43 @@
 import { db } from './db';
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import { promisify } from 'util';
-import { writeFile, mkdir } from 'fs/promises';
+import { writeFile, mkdir, readdir, stat, rename, unlink, chmod } from 'fs/promises';
+import { createReadStream, createWriteStream } from 'fs';
+import { pipeline } from 'stream/promises';
+import { createGzip } from 'zlib';
+import { randomUUID } from 'crypto';
 import { join } from 'path';
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
+
+// Connection material is confined to the child environment, never command arguments.
+function backupConnectionEnvironment(): NodeJS.ProcessEnv {
+  const connection = new URL(process.env.DATABASE_URL ?? '');
+  if (!['postgres:', 'postgresql:'].includes(connection.protocol) || !connection.hostname || !connection.pathname.slice(1)) {
+    throw new Error('Invalid backup database configuration');
+  }
+  const env: NodeJS.ProcessEnv = {};
+  for (const key of ['PATH', 'Path', 'SystemRoot', 'WINDIR', 'TEMP', 'TMP', 'LANG', 'LC_ALL']) {
+    if (process.env[key] !== undefined) env[key] = process.env[key];
+  }
+  env.PGHOST = connection.hostname.replace(/^\[|\]$/g, '');
+  env.PGPORT = connection.port || '5432';
+  env.PGDATABASE = decodeURIComponent(connection.pathname.slice(1));
+  if (connection.username) env.PGUSER = decodeURIComponent(connection.username);
+  if (connection.password) env.PGPASSWORD = decodeURIComponent(connection.password);
+  const parameters: Record<string, string> = {
+    sslmode: 'PGSSLMODE', sslcert: 'PGSSLCERT', sslkey: 'PGSSLKEY',
+    sslrootcert: 'PGSSLROOTCERT', sslcrl: 'PGSSLCRL', sslcrldir: 'PGSSLCRLDIR',
+    application_name: 'PGAPPNAME', connect_timeout: 'PGCONNECT_TIMEOUT',
+    channel_binding: 'PGCHANNELBINDING', target_session_attrs: 'PGTARGETSESSIONATTRS',
+    options: 'PGOPTIONS', gssencmode: 'PGGSSENCMODE',
+  };
+  for (const [key, value] of connection.searchParams) {
+    if (!parameters[key]) throw new Error('Unsupported backup database configuration');
+    env[parameters[key]] = value;
+  }
+  return env;
+}
 
 interface BackupConfig {
   schedule: string;
@@ -24,8 +57,10 @@ export class BackupService {
   // Create comprehensive database backup
   async createFullBackup(): Promise<string> {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const backupFileName = `election-tracker-backup-${timestamp}.sql`;
+    const backupFileName = `election-tracker-backup-${timestamp}-${randomUUID()}.sql`;
     const backupPath = join(this.config.backupPath, backupFileName);
+    const temporaryPath = `${backupPath}.partial`;
+    const compressedTemporaryPath = `${backupPath}.gz.partial`;
 
     try {
       // Ensure backup directory exists
@@ -34,23 +69,29 @@ export class BackupService {
       console.log('Starting full database backup...');
 
       // Create PostgreSQL dump with data
-      const pgDumpCommand = `pg_dump "${process.env.DATABASE_URL}" --verbose --format=custom --file="${backupPath}"`;
-      
-      await execAsync(pgDumpCommand);
-      console.log(`Full backup created: ${backupPath}`);
+      await execFileAsync('pg_dump', ['--no-password', '--format=custom', '--file', temporaryPath], {
+        env: backupConnectionEnvironment(), shell: false, windowsHide: true,
+        timeout: 30 * 60 * 1000, maxBuffer: 1024 * 1024,
+      });
+      await chmod(temporaryPath, 0o600);
 
       // Compress if enabled
       if (this.config.compressionEnabled) {
         const compressedPath = `${backupPath}.gz`;
-        await execAsync(`gzip "${backupPath}"`);
+        await pipeline(createReadStream(temporaryPath), createGzip(), createWriteStream(compressedTemporaryPath, { flags: 'wx', mode: 0o600 }));
+        await rename(compressedTemporaryPath, compressedPath);
+        await unlink(temporaryPath);
         console.log(`Backup compressed: ${compressedPath}`);
         return compressedPath;
       }
 
+      await rename(temporaryPath, backupPath);
+      console.log(`Full backup created: ${backupPath}`);
       return backupPath;
     } catch (error) {
-      console.error('Error creating full backup:', error);
-      throw error;
+      await Promise.allSettled([unlink(temporaryPath), unlink(compressedTemporaryPath)]);
+      console.error('Full database backup failed');
+      throw new Error('Full database backup failed');
     }
   }
 
@@ -102,8 +143,8 @@ export class BackupService {
 
       return backupPath;
     } catch (error) {
-      console.error('Error backing up user data:', error);
-      throw error;
+      console.error('User data backup failed');
+      throw new Error('User data backup failed');
     }
   }
 
@@ -151,8 +192,8 @@ export class BackupService {
 
       return backupPath;
     } catch (error) {
-      console.error('Error backing up election data:', error);
-      throw error;
+      console.error('Election data backup failed');
+      throw new Error('Election data backup failed');
     }
   }
 
@@ -204,8 +245,8 @@ export class BackupService {
 
       return backupPath;
     } catch (error) {
-      console.error('Error backing up campaign analytics:', error);
-      throw error;
+      console.error('Campaign analytics backup failed');
+      throw new Error('Campaign analytics backup failed');
     }
   }
 
@@ -227,8 +268,8 @@ export class BackupService {
       console.log('Pre-archival backup completed');
       return backupPaths;
     } catch (error) {
-      console.error('Error creating pre-archival backup:', error);
-      throw error;
+      console.error('Pre-archival backup failed');
+      throw new Error('Pre-archival backup failed');
     }
   }
 
@@ -293,26 +334,29 @@ export class BackupService {
   // Get backup status and statistics
   async getBackupStatus(): Promise<any> {
     try {
-      const { stdout } = await execAsync(`ls -la ${this.config.backupPath}`);
-      const backupFiles = stdout.split('\n').filter(line => line.includes('.sql') || line.includes('.json'));
+      const entries = await readdir(this.config.backupPath, { withFileTypes: true });
+      const backupFiles = await Promise.all(entries.filter(entry => entry.isFile() && /\.(sql|json)(\.gz)?$/.test(entry.name))
+        .map(async entry => ({ name: entry.name, modified: (await stat(join(this.config.backupPath, entry.name))).mtimeMs })));
+      backupFiles.sort((a, b) => a.modified - b.modified);
 
       return {
         backupDirectory: this.config.backupPath,
         totalBackups: backupFiles.length,
-        lastBackup: backupFiles.length > 0 ? backupFiles[backupFiles.length - 1] : 'No backups found',
+        lastBackup: backupFiles.length > 0 ? backupFiles[backupFiles.length - 1].name : 'No backups found',
         config: this.config,
         diskUsage: await this.getBackupDiskUsage()
       };
     } catch (error) {
-      console.error('Error getting backup status:', error);
+      console.error('Error getting backup status');
       return { error: 'Unable to retrieve backup status' };
     }
   }
 
   private async getBackupDiskUsage(): Promise<string> {
     try {
-      const { stdout } = await execAsync(`du -sh ${this.config.backupPath}`);
-      return stdout.trim().split('\t')[0];
+      const entries = await readdir(this.config.backupPath, { withFileTypes: true });
+      const sizes = await Promise.all(entries.filter(entry => entry.isFile()).map(async entry => (await stat(join(this.config.backupPath, entry.name))).size));
+      return `${sizes.reduce((total, size) => total + size, 0)} bytes`;
     } catch (error) {
       return 'Unknown';
     }
@@ -340,7 +384,7 @@ export class BackupService {
         
         console.log('Scheduled backup completed');
       } catch (error) {
-        console.error('Scheduled backup failed:', error);
+        console.error('Scheduled backup failed');
       }
     }, 24 * 60 * 60 * 1000); // 24 hours
   }
