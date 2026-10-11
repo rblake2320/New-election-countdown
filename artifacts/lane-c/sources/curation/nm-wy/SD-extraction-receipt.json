@@ -1,0 +1,89 @@
+{
+  "publisher": "South Dakota Secretary of State",
+  "requestEvidence": "SD-export-receipt.json",
+  "statusBasis": "Exact General date, Active status, and assigned ballot order independently checked against official grid; withdrawn excluded.",
+  "conservation": {
+    "exportRows": 745,
+    "officialPagerTotal": 745,
+    "targetRows": 7,
+    "activeBallotRows": 6,
+    "withdrawnExcluded": 1,
+    "successfulIndependentCSVHTMLJoins": 7
+  },
+  "recordJoinProof": [
+    {
+      "CSVname": "Julian Beaudion (Withdrawn 8/4/2026 12:00:00 AM)",
+      "HTMLname": "Julian Beaudion (Withdrawn 08/04/2026)",
+      "status": "Withdrawn",
+      "ballotOrder": ""
+    },
+    {
+      "CSVname": "Brian L Bengs",
+      "HTMLname": "Brian L Bengs",
+      "status": "Active",
+      "ballotOrder": "2"
+    },
+    {
+      "CSVname": "Mike Rounds",
+      "HTMLname": "Mike Rounds",
+      "status": "Active",
+      "ballotOrder": "1"
+    },
+    {
+      "CSVname": "Nicole \"Nikki\" Gronli",
+      "HTMLname": "Nicole \"Nikki\" Gronli",
+      "status": "Active",
+      "ballotOrder": "2"
+    },
+    {
+      "CSVname": "Marty Jackley",
+      "HTMLname": "Marty Jackley",
+      "status": "Active",
+      "ballotOrder": "1"
+    },
+    {
+      "CSVname": "Dan Ahlers & Steven  McCleerey",
+      "HTMLname": "Dan Ahlers & Steven  McCleerey",
+      "status": "Active",
+      "ballotOrder": "2"
+    },
+    {
+      "CSVname": "Larry Rhoden & Tony Venhuizen",
+      "HTMLname": "Larry Rhoden & Tony Venhuizen",
+      "status": "Active",
+      "ballotOrder": "1"
+    }
+  ],
+  "excluded": [
+    {
+      "name": "Julian Beaudion (Withdrawn 8/4/2026 12:00:00 AM)",
+      "status": "Withdrawn",
+      "withdrawnDate": "08/04/2026"
+    }
+  ],
+  "pairedGovernorProof": [
+    {
+      "ticketName": "Dan Ahlers & Steven  McCleerey",
+      "officeTitle": "Governor and Lieutenant Governor",
+      "structuredFirstName": "Dan",
+      "structuredLastName": "Ahlers",
+      "governorName": "Dan Ahlers"
+    },
+    {
+      "ticketName": "Larry Rhoden & Tony Venhuizen",
+      "officeTitle": "Governor and Lieutenant Governor",
+      "structuredFirstName": "Larry",
+      "structuredLastName": "Rhoden",
+      "governorName": "Larry Rhoden"
+    }
+  ],
+  "govRoleRule": "Official title orders Governor and Lieutenant Governor; structured first/last fields identify first candidate as governor. Second ticket member excluded.",
+  "diagnosis": "Initial exact-string join failed because CSV withdrawal date label and HTML label use different date formatting. Remove only withdrawal annotation and normalize whitespace for join; retain actual status for exclusion. Retest matched all seven target rows.",
+  "state": "SD",
+  "manifest": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-sdwy\\sd-2026-general-draft.json",
+  "manifestSha256": "10de4a3707785472628f7118de9359d1ec767cae45113f1b83862bad8610b7ba",
+  "candidateRows": 6,
+  "completeScopes": 3,
+  "incumbency": "No per-candidate incumbent property used; all null",
+  "scopeClass": "printed only; no published write-in inferred"
+}

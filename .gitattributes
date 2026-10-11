@@ -1,3 +1,6 @@
 # Reviewed manifest and retained HTTP response digests must survive checkout.
 data/nominees/*.json text eol=lf
 artifacts/lane-c/real-roster-payloads/*.json text eol=lf
+# Immutable receiving review bundles retain their captured byte digests.
+artifacts/lane-c/real-roster-payloads-extended/** -text
+artifacts/lane-c/review-b-source-coverage/** -text

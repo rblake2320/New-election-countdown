@@ -1,0 +1,78 @@
+{
+  "timestamp": "2026-10-11T11:22:35.586968+00:00",
+  "SC": {
+    "readyPartialDraft": "sc-2026-general-partial-v2-draft.json",
+    "held": [
+      "H02",
+      "H03",
+      "H04",
+      "H05"
+    ],
+    "attempts": [
+      {
+        "url": "https://vrems.scvotes.sc.gov/Candidate/CandidateSearch?electionId=22596",
+        "result": "Worked source fetch; no nominee promotion",
+        "reason": "ActualGeneral tracker Active is not an explicit nomination/ballot qualification flag. PositiveGovballot corroboration onlyG/S/H01/H06/H07."
+      },
+      {
+        "url": "https://vrems.scvotes.sc.gov/Voter/Login?PageMode=Sampleballot",
+        "result": "Blocked for anonymous source extraction",
+        "reason": "Officialpubliclogin requiresCounty,Name,DOB,SSNlast4; no personal/fabricatedidentitysupplied. Source formretained."
+      },
+      {
+        "url": "https://lex-co.sc.gov/departments/registration-and-elections",
+        "result": "Worked government election-page/GoToGuidePDF fetch",
+        "reason": "ActualGeneralGoToGuide1page containsvoterdeadlines, no H02candidate names. Anonymouscandidateballotnotprovidedthere."
+      },
+      {
+        "url": "https://www.gtcountysc.gov/398/Upcoming-Elections",
+        "result": "Worked normalWindows104pageballotPDF",
+        "reason": "H07complete only, G/S corroborated; noH02/03/04/05 ballots."
+      }
+    ],
+    "nextRequiredArtifact": "Public officialNov3ballot or explicitcertification/eligibility rosters for H02/03/04/05."
+  },
+  "OH": {
+    "readyPartialDraft": "oh-2026-general-partial-draft.json",
+    "held": [
+      "H01",
+      "H02",
+      "H03",
+      "H04",
+      "H05",
+      "H06",
+      "H07",
+      "H08",
+      "H09",
+      "H10",
+      "H11",
+      "H12",
+      "H13",
+      "H15"
+    ],
+    "attempts": [
+      {
+        "url": "https://www.ohiosos.gov/elections/elections-administration/directives",
+        "result": "Worked websource; rawHTTP403maintenance",
+        "reason": "Actual2026-45PDF is ballotformat/layout sample, not statewideallHousecandidatecertification."
+      },
+      {
+        "url": "https://lookup.boe.ohio.gov/vtrapp/richland/cfis.aspx",
+        "result": "Worked publicfilingselector",
+        "reason": "CandidateFilingInformation, cannotpromote filers togeneralnomineeswithoutpositiveballotqualification."
+      },
+      {
+        "url": "https://www.boe.ohio.gov/ashtabula/c/upload/Election_Candidates.pdf",
+        "result": "Worked currentofficialgeneralrosterwebtext",
+        "reason": "G/S/H14 only; originalrawtransport403maintenance, documenthashnull."
+      },
+      {
+        "url": "https://www.boe.ohio.gov/washington/c/upload/Election_CandidateList.pdf",
+        "result": "Worked normalChrome PDF render after initialtimeout",
+        "reason": "Actual3-pageGeneralNov3 roster datedSeptember8; reviewing finalpage. Published-linkdownload20sectimedout, no originalbytesclaimed."
+      }
+    ],
+    "nextRequiredArtifact": "Official2026General allremainingHouse nominee roster or publicdistrictballots, no primary/filing inference."
+  },
+  "boundaries": "No app/DB/peerworktreewrites, noCAPTCHA/securitywarningbypass, no privatevoteridentity."
+}

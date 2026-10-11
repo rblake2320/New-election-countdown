@@ -1,4 +1,4 @@
-import { and, eq, getTableColumns, gte, ilike, inArray, isNull, notInArray, lt, or, sql, type SQL } from 'drizzle-orm';
+import { and, eq, getTableColumns, gte, ilike, inArray, notInArray, lt, or, sql, type SQL } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '@shared/schema';
 import { elections, candidates } from '@shared/schema';
@@ -38,10 +38,11 @@ export function buildElectionListQuery(database: NodePgDatabase<typeof schema>, 
   if (normalized.parties.length) {
     const aliases = Object.entries(partyAliases).filter(([, code]) => normalized.parties.includes(code)).map(([alias]) => alias);
     const knownAliases = Object.keys(partyAliases);
+    const component=sql`lower(trim(party_component))`;
     const partyMatch = normalized.parties.includes('O')
-      ? or(isNull(candidates.party), inArray(sql`lower(trim(${candidates.party}))`, aliases), notInArray(sql`lower(trim(${candidates.party}))`, knownAliases))!
-      : inArray(sql`lower(trim(${candidates.party}))`, aliases);
-    conditions.push(sql`exists (select 1 from ${candidates} where ${candidates.electionId} = ${elections.id} and ${partyMatch})`);
+      ? or(inArray(component, aliases), notInArray(component, knownAliases))!
+      : inArray(component, aliases);
+    conditions.push(sql`exists (select 1 from ${candidates} cross join lateral regexp_split_to_table(coalesce(${candidates.party},''),${'[/,]'}) as party_component where ${candidates.electionId} = ${elections.id} and ${partyMatch})`);
   }
   return database.select({ ...getTableColumns(elections), candidateCount: sql<number>`count(${candidates.id})`.mapWith(Number) })
     .from(elections).leftJoin(candidates, eq(candidates.electionId, elections.id))
