@@ -132,6 +132,27 @@ try {
   await sql(migration);
   check('shipped audit migration repeat preserves durable audit rows byte-for-byte', auditDigest === await sql(auditDigestSQL));
   report.positiveRepeat = { changedCount: repeat.receipt.changedCount, xminDigest: firstXmin, catalog: firstCatalog, auditDigest };
+  const membersCapture = JSON.parse(await run(`import pg from 'pg';import {createHash} from 'node:crypto';
+    const response=await fetch('http://127.0.0.1:5000/api/members');
+    const bytes=Buffer.from(await response.arrayBuffer());
+    if(response.status!==200)throw Error('members status '+response.status);
+    const actual=JSON.parse(bytes.toString('utf8'));if(!Array.isArray(actual))throw Error('members must be an array');
+    const pool=new pg.Pool({connectionString:process.env.DATABASE_URL});
+    try {
+      const {rows}=await pool.query('SELECT id,bioguide_id AS "bioguideId",name,party,state,district,chamber,congress,created_at AS "createdAt",updated_at AS "updatedAt" FROM congress_members ORDER BY id');
+      const expected=JSON.parse(JSON.stringify(rows)),byId=new Map(expected.map(x=>[x.id,x]));
+      const canonical=row=>JSON.stringify(Object.fromEntries(Object.entries(row).sort(([a],[b])=>a.localeCompare(b))));
+      const mismatches=actual.filter(row=>!byId.has(row.id)||canonical(row)!==canonical(byId.get(row.id))).length;
+      const duplicateIds=actual.length-new Set(actual.map(x=>x.id)).size;
+      if(actual.length!==541||expected.length!==541||mismatches||duplicateIds)throw Error('members SQL receiving mismatch');
+      console.log(JSON.stringify({status:response.status,contentType:response.headers.get('content-type'),bodyBase64:bytes.toString('base64'),responseSha256:createHash('sha256').update(bytes).digest('hex'),responseBytes:bytes.length,rows:actual.length,sqlRows:expected.length,mismatches,duplicateIds,sqlProjection:expected,partyCounts:actual.reduce((a,r)=>(a[r.party??'null']=(a[r.party??'null']??0)+1,a),{}),territoryCounts:Object.fromEntries(['PR','GU','AS','MP','VI'].map(s=>[s,actual.filter(r=>r.state===s).length]))}));
+    }finally{await pool.end();}`));
+  await writeFile(`${evidence}/members-response.json`, Buffer.from(membersCapture.bodyBase64, 'base64'));
+  await writeFile(`${evidence}/members-sql-projection.json`, JSON.stringify(membersCapture.sqlProjection, null, 2));
+  const { bodyBase64, sqlProjection, ...membersMetadata } = membersCapture;
+  report.membersReceiving = { ...membersMetadata, path: '/api/members', sourceBase: 'http://127.0.0.1:5000 inside owned runtime container', imageId: report.imageId, manifestSha256: report.boundary.manifestSha256, phase: 'after guarded 539-member apply and zero-write repeat', actualSourceMembers: 539, syntheticPreservationControls: 2, responseFile: 'members-response.json', sqlFile: 'members-sql-projection.json' };
+  await writeFile(`${evidence}/members-receiving.json`, JSON.stringify(report.membersReceiving, null, 2));
+  check('actual GET members payload matches independent SQL for all 541 rows and exposed fields', membersMetadata.mismatches === 0 && membersMetadata.duplicateIds === 0);
   report.outcome = 'Worked';
 } catch (error) { report.error = error.message; process.exitCode = 1; }
 finally {
