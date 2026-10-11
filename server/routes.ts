@@ -1,3 +1,4 @@
+import { electionListHandler } from "./election-list-handler";
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
@@ -390,70 +391,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get elections with optional filters (with security validation)
-  app.get("/api/elections", searchLimiter, validateInput, async (req, res) => {
-    try {
-      // Parse filters with proper array handling
-      const parseParam = (param: any): string | string[] | undefined => {
-        if (!param) return undefined;
-        if (Array.isArray(param)) return param;
-        return param as string;
-      };
-
-      const filters = {
-        state: typeof req.query.state === 'string' ? req.query.state : undefined,
-        type: parseParam(req.query.type),
-        level: parseParam(req.query.level),
-        timeframe: typeof req.query.timeframe === 'string' ? req.query.timeframe : undefined,
-        timeRange: typeof req.query.timeRange === 'string' ? req.query.timeRange : undefined,
-        search: typeof req.query.search === 'string' ? req.query.search : undefined,
-        party: parseParam(req.query.party),
-        electionType: parseParam(req.query.electionType),
-        cycle: typeof req.query.cycle === 'string' ? parseInt(req.query.cycle) : undefined,
-      };
-      
-      // Clean up 'all' values
-      Object.keys(filters).forEach(key => {
-        if (filters[key as keyof typeof filters] === 'all' || filters[key as keyof typeof filters] === '') {
-          (filters as any)[key] = undefined;
-        }
-      });
-
-      const elections = await storage.getElections(filters);
-      
-      // Include recent past elections (30 days) for live results tracking
-      // This allows the /happening-now page to display recent election results
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const thirtyDaysAgo = new Date(today);
-      thirtyDaysAgo.setDate(today.getDate() - 30);
-      
-      // Add candidate counts to each election
-      const relevantElections = await Promise.all(elections.filter(election => {
-        const electionDate = new Date(election.date);
-        electionDate.setHours(0, 0, 0, 0);
-        return electionDate >= thirtyDaysAgo; // Include past 30 days + future
-      }).map(async (election) => {
-        const candidates = await storage.getCandidatesByElection(election.id);
-        return {
-          ...election,
-          candidateCount: candidates.length
-        };
-      }));
-      
-      res.json(relevantElections);
-    } catch (error) {
-      console.log('Election fetch error:', error);
-      // If database is unavailable, return empty array instead of 500
-      if (error instanceof Error && error.message.includes('endpoint has been disabled')) {
-        console.log('Database temporarily unavailable - returning empty elections list');
-        return res.json([]);
-      }
-      return res.status(500).json({
-        error: 'Failed to fetch elections',
-        details: error instanceof Error ? error.message : String(error),
-      });
-    }
-  });
+  app.get("/api/elections", searchLimiter, validateInput, electionListHandler(storage));
 
   // Get single election
   app.get("/api/elections/:id", async (req, res) => {

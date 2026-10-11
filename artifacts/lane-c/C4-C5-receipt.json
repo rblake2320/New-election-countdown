@@ -1,0 +1,134 @@
+{
+  "time_utc": "2026-10-11T06:39:15.563297+00:00",
+  "parent": "ET-1",
+  "lane": "ET-4",
+  "subtask": "ET-7",
+  "scope": "C4/C5 election listing filters and bounded SQL candidate counts",
+  "unit_receipts": {
+    "filters-red.json": {
+      "passed": 0,
+      "failed": 6,
+      "skipped": 0,
+      "success": false,
+      "sha256": "cc3b6aebc4d5b666612cf5aa0e038558747c30ca5cca2cc88499019c50375ef8"
+    },
+    "filters-unit.json": {
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0,
+      "success": true,
+      "sha256": "ac4071d5acf772a8a57a32717e3f3dc78f9c0f93e035101ee01c20ccef0e3b3a"
+    },
+    "all-unit.json": {
+      "passed": 133,
+      "failed": 0,
+      "skipped": 3,
+      "success": true,
+      "sha256": "d6eb1d44b9d448f83e23f4d9848c4824838f47a6a746d47517c919dfbbf42a6a"
+    }
+  },
+  "postgres_http": {
+    "measured_at": "2026-10-11T06:39:15.033Z",
+    "database_read_only": true,
+    "http_handler": "server/election-list-handler.ts",
+    "outcomes": [
+      {
+        "query": "",
+        "status": 200,
+        "rows": 507,
+        "sql_statements": 1,
+        "duration_ms": 95.57089999999994
+      },
+      {
+        "query": "?timeframe=next-30-days",
+        "status": 200,
+        "rows": 506,
+        "sql_statements": 1,
+        "duration_ms": 57.625099999999975
+      },
+      {
+        "query": "?level=federal",
+        "status": 200,
+        "rows": 470,
+        "sql_statements": 1,
+        "duration_ms": 70.52790000000005
+      },
+      {
+        "query": "?level=Federal",
+        "status": 200,
+        "rows": 470,
+        "sql_statements": 1,
+        "duration_ms": 55.52789999999993
+      },
+      {
+        "query": "?party=D",
+        "status": 200,
+        "rows": 55,
+        "sql_statements": 1,
+        "duration_ms": 44.68050000000005
+      },
+      {
+        "query": "?party=Democratic",
+        "status": 200,
+        "rows": 55,
+        "sql_statements": 1,
+        "duration_ms": 47.60590000000002
+      },
+      {
+        "query": "?timeframe=typo",
+        "status": 400,
+        "sql_statements": 0,
+        "duration_ms": 17.0954999999999
+      }
+    ],
+    "candidate_counts_match_independent_sql": true,
+    "aliases_match": true
+  },
+  "typecheck": {
+    "baseline_errors": 1124,
+    "candidate_errors": 1114,
+    "incremental_cache_disabled": true,
+    "added_diagnostic_classes": [],
+    "removed_diagnostic_classes": [
+      [
+        [
+          "server/replica-storage.ts",
+          "TS2769"
+        ],
+        2
+      ],
+      [
+        [
+          "server/replica-storage.ts",
+          "TS2339"
+        ],
+        6
+      ],
+      [
+        [
+          "server/results-ingestion-service.ts",
+          "TS2345"
+        ],
+        1
+      ],
+      [
+        [
+          "server/routes/auth.ts",
+          "TS2345"
+        ],
+        1
+      ]
+    ]
+  },
+  "production_build": {
+    "worked": true,
+    "engine": "Vite5 baseline plus esbuild",
+    "integration_with_lane_d_pending": true
+  },
+  "permission_check": {
+    "worked": true,
+    "approval_policy": "never",
+    "sandbox": "danger-full-access",
+    "receipt": "C:\\Users\\techai\\.codex\\tmp\\sol-ec-permission-check-20261011.txt"
+  }
+}
