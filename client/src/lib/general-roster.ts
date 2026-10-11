@@ -42,6 +42,36 @@ export interface GeneralRosterResponse {
   electionId: number;
   candidates: GeneralRosterCandidate[];
   sources?: RosterSnapshot[];
+  /**
+   * complete: a current unqualified office/district list exists.
+   * scoped: only lists limited to a party or ballot-access type.
+   * unspecified: no reviewed list snapshot.
+   */
+  coverage?: "complete" | "scoped" | "unspecified";
+}
+
+export type RosterCoverage = "complete" | "scoped" | "unspecified";
+
+/** Server coverage when present; older servers without it fall back to the knownEmpty rule. */
+export function rosterCoverage(data: GeneralRosterResponse): RosterCoverage {
+  if (data.coverage) return data.coverage;
+  if (knownEmptySources(data).length > 0) return "complete";
+  return (data.sources?.length ?? 0) > 0 ? "scoped" : "unspecified";
+}
+
+/** Human description of what a scoped list covers, e.g. "Green Party write-in candidates". */
+export function scopeLabel(scope: RosterSnapshot["scope"]): string | null {
+  if (!scope) return null;
+  const party = scope.partyRaw?.trim();
+  const access = scope.ballotAccessType?.trim();
+  const accessText = access ? (/write[-_ ]?in/i.test(access) ? "write-in" : access.replace(/_/g, " ")) : null;
+  if (!party && !accessText) return null;
+  return [party, accessText, "candidates"].filter(Boolean).join(" ");
+}
+
+/** Distinct scope qualifications across the recorded lists. */
+export function scopeLabels(data: GeneralRosterResponse): string[] {
+  return Array.from(new Set((data.sources ?? []).map(s => scopeLabel(s.scope)).filter((x): x is string => !!x)));
 }
 
 /**

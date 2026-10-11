@@ -79,14 +79,52 @@ describe("GeneralRoster known-empty official lists (lane C sources[].scope)", ()
     expect(screen.getByTestId("general-roster-sources").textContent).toMatch(/published .*2026/);
   });
 
-  it("a qualified zero (e.g. write-ins: 0) does not establish an empty race", async () => {
+  it("a qualified zero (e.g. write-ins: 0) never claims the whole race is empty; names the scopes", async () => {
     mount({ status: 200, body: { status: "sourced", electionId: 32, candidates: [], sources: [snap({ expectedCount: 0, ballotAccessType: "write_in" }), snap({ expectedCount: 0, partyRaw: "Green" })] } });
-    expect(await screen.findByTestId("general-roster-empty")).toBeTruthy();
+    const msg = await screen.findByTestId("general-roster-scoped-empty");
+    expect(msg.textContent).toContain("write-in candidates");
+    expect(msg.textContent).toContain("Green candidates");
+    expect(msg.textContent).toContain("do not establish that the race has no candidates");
     expect(screen.queryByTestId("general-roster-known-empty")).toBeNull();
   });
 
   it("sourced but no snapshots and no candidates falls back to not-recorded", async () => {
     mount({ status: 200, body: { status: "sourced", electionId: 32, candidates: [] } });
+    expect(await screen.findByTestId("general-roster-empty")).toBeTruthy();
+  });
+});
+
+describe("GeneralRoster coverage field (complete | scoped | unspecified)", () => {
+  afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+  const src = (scope: any) => ({ url: "https://sos.example.gov/list.pdf", name: "Example SOS List", checkedAt: "2026-10-11T15:00:00Z", publishedAt: "2026-09-11", scope });
+  const cand = { id: 9, name: "Pat Green", party: "G", isIncumbent: null, generalListSourceUrl: "https://sos.example.gov/list.pdf", generalListCheckedAt: "2026-10-11T15:00:00Z", generalListSource: { sourceName: "Example SOS List", partyRaw: "Green" } };
+
+  it("complete + empty: 'records no candidates' with sources", async () => {
+    mount({ status: 200, body: { status: "sourced", electionId: 1, candidates: [], sources: [src({ expectedCount: 0 })], coverage: "complete" } });
+    expect((await screen.findByTestId("general-roster-known-empty")).textContent).toContain("records no candidates for this race");
+    expect(screen.getByRole("link", { name: "Example SOS List" })).toBeTruthy();
+  });
+
+  it("server coverage wins: scoped + empty never says the race has none even if a scope looks unqualified", async () => {
+    mount({ status: 200, body: { status: "sourced", electionId: 1, candidates: [], sources: [src({ expectedCount: 0, partyRaw: "Green" })], coverage: "scoped" } });
+    expect(await screen.findByTestId("general-roster-scoped-empty")).toBeTruthy();
+    expect(screen.queryByTestId("general-roster-known-empty")).toBeNull();
+  });
+
+  it("scoped + candidates: lists them with a 'Covers only' qualification", async () => {
+    mount({ status: 200, body: { status: "sourced", electionId: 1, candidates: [cand], sources: [src({ expectedCount: 1, partyRaw: "Green" })], coverage: "scoped" } });
+    await screen.findByText("Pat Green");
+    expect(screen.getByTestId("general-roster-scope-note").textContent).toContain("Covers only: Green candidates");
+  });
+
+  it("complete + candidates: no scope note", async () => {
+    mount({ status: 200, body: { status: "sourced", electionId: 1, candidates: [cand], sources: [src({ expectedCount: 1 })], coverage: "complete" } });
+    await screen.findByText("Pat Green");
+    expect(screen.queryByTestId("general-roster-scope-note")).toBeNull();
+  });
+
+  it("unspecified + empty: not recorded", async () => {
+    mount({ status: 200, body: { status: "not_recorded", electionId: 1, candidates: [], sources: [], coverage: "unspecified" } });
     expect(await screen.findByTestId("general-roster-empty")).toBeTruthy();
   });
 });

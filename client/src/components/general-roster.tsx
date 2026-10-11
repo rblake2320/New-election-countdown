@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollText } from "lucide-react";
-import { isWriteIn, knownEmptySources, rosterParty, rosterSources, safeSourceUrl, snapshotLines, type SourceLine } from "@/lib/general-roster";
+import { isWriteIn, rosterCoverage, rosterParty, rosterSources, safeSourceUrl, scopeLabels, snapshotLines, type SourceLine } from "@/lib/general-roster";
 import { useGeneralRoster } from "@/hooks/use-general-roster";
 
 const fmtDate = (iso: string | null) => {
@@ -53,12 +53,21 @@ export function GeneralRoster({ electionId }: { electionId: number }) {
       <CardContent>
         {error ? (
           <p className="text-sm text-muted-foreground">The official list could not be loaded right now.</p>
-        ) : data && data.status === "sourced" && data.candidates.length === 0 && knownEmptySources(data).length > 0 ? (
+        ) : data && data.status === "sourced" && data.candidates.length === 0 && rosterCoverage(data) === "complete" ? (
           <>
             <p className="text-sm" data-testid="general-roster-known-empty">
-              The official general-election list has no candidates for this race.
+              The official general-election list records no candidates for this race.
             </p>
-            <SourceLines lines={snapshotLines(knownEmptySources(data))} />
+            <SourceLines lines={snapshotLines(data.sources ?? [])} />
+          </>
+        ) : data && data.status === "sourced" && data.candidates.length === 0 && rosterCoverage(data) === "scoped" ? (
+          <>
+            <p className="text-sm" data-testid="general-roster-scoped-empty">
+              The recorded official lists contain no candidates in the scopes they cover
+              {scopeLabels(data).length > 0 && <>: {scopeLabels(data).join("; ")}</>}.
+              They do not establish that the race has no candidates.
+            </p>
+            <SourceLines lines={snapshotLines(data.sources ?? [])} />
           </>
         ) : !data || data.status !== "sourced" || data.candidates.length === 0 ? (
           <p className="text-sm text-muted-foreground" data-testid="general-roster-empty">
@@ -81,6 +90,11 @@ export function GeneralRoster({ electionId }: { electionId: number }) {
                 );
               })}
             </ul>
+            {rosterCoverage(data) === "scoped" && scopeLabels(data).length > 0 && (
+              <p className="mt-3 text-xs text-muted-foreground" data-testid="general-roster-scope-note">
+                Covers only: {scopeLabels(data).join("; ")}. Other candidates may appear on the ballot.
+              </p>
+            )}
             <SourceLines lines={rosterSources(data.candidates)} />
           </>
         )}
