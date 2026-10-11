@@ -1,0 +1,22 @@
+{
+  "sourcePath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-review-0e88bb1\\scripts\\refresh_general_candidates-838b2e2.ts",
+  "sourceSha256": "a2b087587096f2e410d81f033d85e212db302673bb5bbeae0fb5821a5f20f8ff",
+  "fault": "post-commit manifest write ENOSPC",
+  "events": [
+    "manifest-read",
+    "receipt-directory-create-attempted",
+    "pool-created",
+    "database-apply-committed",
+    "post-commit-manifest-write-attempted",
+    "pool-ended"
+  ],
+  "databaseApplied": true,
+  "dbWrites": "none; dependency-isolated VM fake apply only",
+  "exitCode": 0,
+  "stderr": [],
+  "stdout": [
+    "{\"outcome\":\"applied\",\"receipt_file\":null,\"database_audit_id\":77,\"receipt_error\":{\"code\":\"ENOSPC\",\"message\":\"Local manifest write failed; committed receipt is retained in candidate_ingest_runs\"},\"mode\":\"applied\",\"manifest_sha256\":\"8dd087879d5061763e04e5298fb6a7e1c863e5f47ac28f9a7dd1f95dfcc0c610\",\"sourceIds\":[\"fixture\"],\"records\":1,\"candidateInserts\":1,\"sourceChanges\":1,\"plannedNew\":1,\"plannedExisting\":0,\"unresolved\":[],\"ballotStatusChanged\":false,\"profilesOverwritten\":false}"
+  ],
+  "expectedPreflight": false,
+  "expectedPostcommitWriteHandling": true
+}

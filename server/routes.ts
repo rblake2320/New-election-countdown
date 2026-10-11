@@ -405,6 +405,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get elections with optional filters (with security validation)
   app.get("/api/elections", searchLimiter, validateInput, electionListHandler(storage));
 
+  // Official general-list membership is independent from registration/ballot flags.
+  app.get("/api/elections/:id/general-candidates", async (req, res, next) => {
+    try {
+      const [{ pool }, { generalCandidateListHandler }] = await Promise.all([import('./db'), import('./general-candidate-list')]);
+      return generalCandidateListHandler(pool)(req, res, next);
+    } catch { res.status(503).json({ error: 'General election candidate list temporarily unavailable' }); }
+  });
+
   // Get single election
   app.get("/api/elections/:id", async (req, res) => {
     try {

@@ -1,0 +1,631 @@
+{
+  "schema_version": 1,
+  "collected_by": "Sol EC delegated official_sources_mt_ny",
+  "collected_at_utc": "2026-10-11T07:38:05.180367+00:00",
+  "scope": "Read-only official 2026 candidate source and official results URL inventory; no application, database, Jira or GitHub edits",
+  "health_checks": {
+    "MemoryWeb": "Down: connection refused; mw_query authentication unavailable",
+    "UltraRAG": "Down: HTTP 403"
+  },
+  "states": [
+    {
+      "state": "MT",
+      "year": 2026,
+      "election": "General",
+      "election_date": "2026-11-03",
+      "primary_date": "2026-06-02",
+      "source_landing": "https://sosmt.gov/elections/filing/",
+      "candidate_sources": [
+        {
+          "title": "FEDERAL GENERAL 2026 Candidate List",
+          "url": "https://candidatefiling.mt.gov/candidatefiling/CandidateList.aspx?e=450002987",
+          "classification": "general_candidate_filing_list",
+          "observed_count": 272,
+          "observed_offices": 143,
+          "scope": "Federal/state offices; first 100 of 272 records displayed; source is paginated",
+          "certification_assertion": false,
+          "discovery": "SOS-linked candidate portal: ddlElection option FEDERAL GENERAL 2026 (11/03/2026) has value 450002987",
+          "web_fetch": "Worked; general-election heading and FILED status rows rendered",
+          "http_fetch": {
+            "attempted_at_utc": "2026-10-11T07:38:00.482584+00:00",
+            "method": "GET urllib.request (default TLS validation)",
+            "http_status": 200,
+            "final_url": "https://candidatefiling.mt.gov/candidatefiling/CandidateList.aspx?e=450002987",
+            "content_type": "text/html; charset=utf-8",
+            "byte_count": 168382,
+            "response_sha256": "398c03af7ef3216ef0cbf4f2b956d9d9fe8007a55e5ae31098345a94d30f9e63",
+            "outcome": "Worked",
+            "source_sha256": "398c03af7ef3216ef0cbf4f2b956d9d9fe8007a55e5ae31098345a94d30f9e63"
+          }
+        },
+        {
+          "title": "FEDERAL PRIMARY 2026 Candidate List",
+          "url": "https://candidatefiling.mt.gov/candidatefiling/CandidateList.aspx?e=450002928",
+          "classification": "primary_candidate_filing_list",
+          "certification_assertion": false,
+          "web_fetch": "Worked; includes NOMINATED, FILED, Withdrawn and PENDING PETITION statuses",
+          "http_fetch": {
+            "attempted_at_utc": "2026-10-11T07:38:00.482584+00:00",
+            "method": "GET urllib.request (default TLS validation)",
+            "http_status": 200,
+            "final_url": "https://candidatefiling.mt.gov/candidatefiling/CandidateList.aspx?e=450002928",
+            "content_type": "text/html; charset=utf-8",
+            "byte_count": 169801,
+            "response_sha256": "30da753f6ac03209fabae43d24c74fca240f6bbf92d9a73a2cfa15d67a1019c6",
+            "outcome": "Worked",
+            "source_sha256": "30da753f6ac03209fabae43d24c74fca240f6bbf92d9a73a2cfa15d67a1019c6"
+          }
+        }
+      ],
+      "result_sources": [
+        {
+          "title": "Official Election Results",
+          "url": "https://sosmt.gov/elections/results/",
+          "classification": "official_results_landing",
+          "web_fetch": "Worked; 2026 General section has placeholders; results announced after 8:00 on November 3, 2026",
+          "general_results_available": false,
+          "http_fetch": {
+            "attempted_at_utc": "2026-10-11T07:38:00.482584+00:00",
+            "method": "GET urllib.request (default TLS validation)",
+            "http_status": 403,
+            "outcome": "Blocked",
+            "blocker": "HTTP Error 403: Forbidden",
+            "source_sha256": null
+          }
+        }
+      ],
+      "notes": [
+        "General portal rows are explicitly FILED; do not upgrade to certified from party, primary vote share, or registration.",
+        "Primary portal includes losers/withdrawals; only explicit source status may be retained.",
+        "Do not collect personal addresses/phone/email into application; source has statutory restrictions on solicitation."
+      ],
+      "landing_http_fetch": {
+        "attempted_at_utc": "2026-10-11T07:38:27.254515+00:00",
+        "outcome": "Blocked",
+        "error": "HTTP Error 403: Forbidden"
+      },
+      "landing_alternate_fetch": "Worked through web.run",
+      "actionable_blockers": [
+        "Automated raw-byte fetch denied for some sources; web or normal Chrome reads worked. Browser-only PDFs have no retained byte hash."
+      ]
+    },
+    {
+      "state": "NE",
+      "year": 2026,
+      "election": "General",
+      "election_date": "2026-11-03",
+      "primary_date": "2026-05-12",
+      "source_landing": "https://sos.nebraska.gov/elections",
+      "candidate_sources": [
+        {
+          "title": "Nebraska Secretary of State Final Statewide General Candidate List",
+          "url": "https://sos.nebraska.gov/sites/default/files/doc/elections/2026/Final_Statewide_General_Candidate_Filing_List_9.11.26.pdf",
+          "classification": "general_candidate_list_official",
+          "document_date": "2026-09-11",
+          "document_pages": 24,
+          "format": "PDF",
+          "certification_assertion": false,
+          "web_fetch": "Worked; first-page header confirms November 3, 2026 General Election",
+          "http_fetch": {
+            "attempted_at_utc": "2026-10-11T07:38:00.483589+00:00",
+            "method": "GET urllib.request (default TLS validation)",
+            "http_status": 200,
+            "final_url": "https://sos.nebraska.gov/sites/default/files/doc/elections/2026/Final_Statewide_General_Candidate_Filing_List_9.11.26.pdf",
+            "content_type": "application/pdf",
+            "byte_count": 120495,
+            "response_sha256": "d27a071715896b8c82b8cce8d48200b4207ba10c44f1778f56f92c4efcd7cf96",
+            "outcome": "Worked",
+            "source_sha256": "d27a071715896b8c82b8cce8d48200b4207ba10c44f1778f56f92c4efcd7cf96"
+          }
+        }
+      ],
+      "result_sources": [
+        {
+          "title": "2026 Elections",
+          "url": "https://sos.nebraska.gov/elections",
+          "classification": "official_results_landing",
+          "web_fetch": "Worked; official primary canvass linked; no current general-results link observed",
+          "general_results_available": false,
+          "http_fetch": {
+            "attempted_at_utc": "2026-10-11T07:38:00.483589+00:00",
+            "method": "GET urllib.request (default TLS validation)",
+            "http_status": 200,
+            "final_url": "https://sos.nebraska.gov/elections",
+            "content_type": "text/html; charset=utf-8",
+            "byte_count": 73217,
+            "response_sha256": "c0afa3b2d5dfa5a55acfc4c2dce21ed023101166b663b9e68b77e9504dcb6cb1",
+            "outcome": "Worked",
+            "source_sha256": "c0afa3b2d5dfa5a55acfc4c2dce21ed023101166b663b9e68b77e9504dcb6cb1"
+          }
+        },
+        {
+          "title": "Previous Elections",
+          "url": "https://sos.nebraska.gov/previous-elections",
+          "classification": "official_results_archive",
+          "web_fetch": "Worked",
+          "http_fetch": {
+            "attempted_at_utc": "2026-10-11T07:38:00.483589+00:00",
+            "method": "GET urllib.request (default TLS validation)",
+            "http_status": 200,
+            "final_url": "https://sos.nebraska.gov/previous-elections",
+            "content_type": "text/html; charset=utf-8",
+            "byte_count": 60074,
+            "response_sha256": "8f09c3af02a0c6c356059ba4a85895c0f4ae8d1167a3af045ebca38d5c1e1f57",
+            "outcome": "Worked",
+            "source_sha256": "8f09c3af02a0c6c356059ba4a85895c0f4ae8d1167a3af045ebca38d5c1e1f57"
+          }
+        },
+        {
+          "title": "2026 Primary Canvass Book",
+          "url": "https://sos.nebraska.gov/sites/default/files/doc/elections/2026/2026_Primary_Canvass_Book.pdf",
+          "classification": "primary_results_certified",
+          "format": "PDF",
+          "document_pages": 56,
+          "web_fetch": "Worked; SOS landing calls this official certified 2026 primary results",
+          "http_fetch": {
+            "attempted_at_utc": "2026-10-11T07:38:00.814232+00:00",
+            "method": "GET urllib.request (default TLS validation)",
+            "http_status": 200,
+            "final_url": "https://sos.nebraska.gov/sites/default/files/doc/elections/2026/2026_Primary_Canvass_Book.pdf",
+            "content_type": "application/pdf",
+            "byte_count": 2321649,
+            "response_sha256": "d1b2ce9b9746a4faddc2700ce613b3cd620ec1b9bd3f9bacf5e36d9586055fba",
+            "outcome": "Worked",
+            "source_sha256": "d1b2ce9b9746a4faddc2700ce613b3cd620ec1b9bd3f9bacf5e36d9586055fba"
+          }
+        }
+      ],
+      "notes": [
+        "Final general list is authoritative ballot-source material but inspected first-page title does not itself attest certification; preserve official-list classification."
+      ],
+      "landing_http_fetch": {
+        "attempted_at_utc": "2026-10-11T07:38:27.255517+00:00",
+        "http_status": 200,
+        "final_url": "https://sos.nebraska.gov/elections",
+        "content_type": "text/html; charset=utf-8",
+        "byte_count": 73217,
+        "response_sha256": "c0afa3b2d5dfa5a55acfc4c2dce21ed023101166b663b9e68b77e9504dcb6cb1",
+        "outcome": "Worked"
+      },
+      "landing_alternate_fetch": "Worked through web.run",
+      "actionable_blockers": []
+    },
+    {
+      "state": "NV",
+      "year": 2026,
+      "election": "General",
+      "election_date": "2026-11-03",
+      "primary_date": "2026-06-09",
+      "source_landing": "https://www.nvsos.gov/sos/elections/election-information/2026-election-information",
+      "candidate_sources": [
+        {
+          "title": "2026 General Election Statewide Certified List of Candidates",
+          "url": "https://www.nvsos.gov/home/showpublisheddocument/20105/639232733439300000",
+          "classification": "general_candidate_list_certified",
+          "document_date": "2026-08-25",
+          "document_pages": 12,
+          "format": "PDF",
+          "certification_assertion": true,
+          "browser_fetch": "Worked in normal Chrome; PDF visibly rendered, page 1 of 12; heading Statewide Certified List of Candidates; footer 8/25/2026",
+          "browser_title": "2026 Master General Statewide Certified List of Candidates.APPROVED.xlsx",
+          "http_fetch": {
+            "attempted_at_utc": "2026-10-11T07:38:00.912852+00:00",
+            "method": "GET urllib.request (default TLS validation)",
+            "http_status": 200,
+            "final_url": "https://www.nvsos.gov/home/showpublisheddocument/20105/639232733439300000",
+            "content_type": "text/html",
+            "byte_count": 1036,
+            "response_sha256": "d80566fe1a6f28a65c8ad0fbf6e97e75725ebce3ba973e2009826a851e04cd48",
+            "outcome": "Blocked",
+            "blocker": "HTTP 200 served Incapsula rejection HTML, not requested content",
+            "source_sha256": null
+          }
+        }
+      ],
+      "result_sources": [
+        {
+          "title": "2026 Election Information",
+          "url": "https://www.nvsos.gov/sos/elections/election-information/2026-election-information",
+          "classification": "official_results_landing",
+          "browser_fetch": "Worked in normal Chrome; announces unofficial November 3 results at Results.NV.gov",
+          "general_results_available": false,
+          "http_fetch": {
+            "attempted_at_utc": "2026-10-11T07:38:00.984807+00:00",
+            "method": "GET urllib.request (default TLS validation)",
+            "http_status": 200,
+            "final_url": "https://www.nvsos.gov/sos/elections/election-information/2026-election-information",
+            "content_type": "text/html",
+            "byte_count": 1032,
+            "response_sha256": "aea375675ae154901d1714e80d9148bf7b2de0108780a761bbe8fc22dbe3eabf",
+            "outcome": "Blocked",
+            "blocker": "HTTP 200 served Incapsula rejection HTML, not requested content",
+            "source_sha256": null
+          }
+        },
+        {
+          "title": "Home - Nevada Secretary of State 2026 Primary Election Results",
+          "url": "https://silverstateelection.nv.gov/",
+          "classification": "primary_results_certified",
+          "browser_fetch": "Worked in normal Chrome; page states 2026 Primary races are official after county canvasses",
+          "general_results_available": false,
+          "http_fetch": {
+            "attempted_at_utc": "2026-10-11T07:38:00.988958+00:00",
+            "method": "GET urllib.request (default TLS validation)",
+            "http_status": 302,
+            "outcome": "Blocked",
+            "blocker": "HTTP Error 302: The HTTP server returned a redirect error that would lead to an infinite loop.\nThe last 30x error message was:\nFound",
+            "source_sha256": null
+          }
+        }
+      ],
+      "notes": [
+        "HTTP 200 Incapsula rejection HTML is not a successful PDF/content fetch.",
+        "Current silverstateelection portal is PRIMARY results; November general results are not present."
+      ],
+      "landing_http_fetch": {
+        "attempted_at_utc": "2026-10-11T07:38:27.255517+00:00",
+        "http_status": 200,
+        "final_url": "https://www.nvsos.gov/sos/elections/election-information/2026-election-information",
+        "content_type": "text/html",
+        "byte_count": 926,
+        "response_sha256": "aa33d7fc26b1584db2041e62a7368a57532972e474a130403e8b5426def28ee5",
+        "outcome": "Blocked"
+      },
+      "landing_alternate_fetch": "Worked in normal Chrome",
+      "actionable_blockers": [
+        "Automated raw-byte fetch denied for some sources; web or normal Chrome reads worked. Browser-only PDFs have no retained byte hash."
+      ]
+    },
+    {
+      "state": "NH",
+      "year": 2026,
+      "election": "General",
+      "election_date": "2026-11-03",
+      "primary_date": "2026-09-08",
+      "source_landing": "https://www.sos.nh.gov/2026-election-details",
+      "candidate_sources": [
+        {
+          "title": "OFFICE OF THE SECRETARY OF STATE - ELECTIONS DIVISION CANDIDATE LIST W/ ADDRESS - 09/17/2026",
+          "url": "https://mm.nh.gov/files/uploads/sos/docs/2026-ge-candidate-list.pdf",
+          "classification": "general_candidate_list_official",
+          "document_date": "2026-09-17",
+          "document_pages": 46,
+          "format": "PDF",
+          "certification_assertion": false,
+          "browser_fetch": "Worked in normal Chrome; PDF visibly rendered page 1 of 46; linked under General Election 2026",
+          "browser_title": "Election Candidate List with Address",
+          "http_fetch": {
+            "attempted_at_utc": "2026-10-11T07:38:01.124689+00:00",
+            "method": "GET urllib.request (default TLS validation)",
+            "http_status": 403,
+            "outcome": "Blocked",
+            "blocker": "HTTP Error 403: Forbidden",
+            "source_sha256": null
+          }
+        }
+      ],
+      "result_sources": [
+        {
+          "title": "2026 General Election Results",
+          "url": "https://www.sos.nh.gov/2026-general-election-results",
+          "classification": "official_results_landing",
+          "browser_fetch": "Worked in normal Chrome; placeholders explain tallies will be linked after election and may change with clerk amendments",
+          "general_results_available": false,
+          "http_fetch": {
+            "attempted_at_utc": "2026-10-11T07:38:01.129197+00:00",
+            "method": "GET urllib.request (default TLS validation)",
+            "http_status": 403,
+            "outcome": "Blocked",
+            "blocker": "HTTP Error 403: Forbidden",
+            "source_sha256": null
+          }
+        }
+      ],
+      "notes": [
+        "Normal Chrome public-page navigation works despite automated HTTP 403; no CAPTCHA, warning bypass or credentials used.",
+        "Source PDF is official general-election list; first page does not assert certified status."
+      ],
+      "landing_http_fetch": {
+        "attempted_at_utc": "2026-10-11T07:38:27.255517+00:00",
+        "outcome": "Blocked",
+        "error": "HTTP Error 403: Forbidden"
+      },
+      "landing_alternate_fetch": "Worked in normal Chrome",
+      "actionable_blockers": [
+        "Automated raw-byte fetch denied for some sources; web or normal Chrome reads worked. Browser-only PDFs have no retained byte hash."
+      ]
+    },
+    {
+      "state": "NJ",
+      "year": 2026,
+      "election": "General",
+      "election_date": "2026-11-03",
+      "primary_date": "2026-06-02",
+      "source_landing": "https://www.nj.gov/state/elections/election-information-2026.shtml",
+      "candidate_sources": [
+        {
+          "title": "Certification of General Election Nominees: U.S. Senate & U.S. House of Representatives",
+          "url": "https://www.nj.gov/state/elections/assets/pdf/election-results/2026/2026-certification-of-general-election-nominees_us-senate_us-house.pdf",
+          "classification": "general_candidate_list_certified",
+          "document_date": "2026-07-27",
+          "document_pages": 20,
+          "format": "PDF",
+          "certification_assertion": true,
+          "web_fetch": "Worked; linked in General Election Certifications section",
+          "http_fetch": {
+            "attempted_at_utc": "2026-10-11T07:38:01.293818+00:00",
+            "method": "GET urllib.request (default TLS validation)",
+            "http_status": 200,
+            "final_url": "https://www.nj.gov/state/elections/assets/pdf/election-results/2026/2026-certification-of-general-election-nominees_us-senate_us-house.pdf",
+            "content_type": "application/pdf",
+            "byte_count": 411364,
+            "response_sha256": "c4c64097c2f4f99f1e6fda176c318b91d86098ab6d8a2e066fa3ce7b33b4f7ec",
+            "outcome": "Worked",
+            "source_sha256": "c4c64097c2f4f99f1e6fda176c318b91d86098ab6d8a2e066fa3ce7b33b4f7ec"
+          }
+        },
+        {
+          "title": "Amended Certification of Nominees General Election U.S. House of Representatives: 7th Congressional District",
+          "url": "https://www.nj.gov/state/elections/assets/pdf/election-results/2026/2026-certification-amended-7th-congressional-district-us-house.pdf",
+          "classification": "general_candidate_list_certified",
+          "document_date": "2026-09-04",
+          "document_pages": 3,
+          "format": "PDF",
+          "certification_assertion": true,
+          "scope": "House district 7 amendment supersedes earlier certification for that district",
+          "web_fetch": "Worked",
+          "http_fetch": {
+            "attempted_at_utc": "2026-10-11T07:38:01.390007+00:00",
+            "method": "GET urllib.request (default TLS validation)",
+            "http_status": 200,
+            "final_url": "https://www.nj.gov/state/elections/assets/pdf/election-results/2026/2026-certification-amended-7th-congressional-district-us-house.pdf",
+            "content_type": "application/pdf",
+            "byte_count": 437822,
+            "response_sha256": "df10a932276060476cd35f5beb944fe2acc134b8b74297c9277aa421e883c9ab",
+            "outcome": "Worked",
+            "source_sha256": "df10a932276060476cd35f5beb944fe2acc134b8b74297c9277aa421e883c9ab"
+          }
+        },
+        {
+          "title": "Official General Election Candidates: U.S. Senate",
+          "url": "https://www.nj.gov/state/elections/assets/pdf/election-results/2026/2026-official-general-candidates-us-senate.pdf",
+          "classification": "general_candidate_list_official",
+          "document_date": "2026-07-27",
+          "document_pages": 5,
+          "format": "PDF",
+          "web_fetch": "Worked",
+          "http_fetch": {
+            "attempted_at_utc": "2026-10-11T07:38:01.607970+00:00",
+            "method": "GET urllib.request (default TLS validation)",
+            "http_status": 200,
+            "final_url": "https://www.nj.gov/state/elections/assets/pdf/election-results/2026/2026-official-general-candidates-us-senate.pdf",
+            "content_type": "application/pdf",
+            "byte_count": 57353,
+            "response_sha256": "f1458af2e44ef482ed01314ddadc515dc351d7b6c963533ba5504ea5a873422e",
+            "outcome": "Worked",
+            "source_sha256": "f1458af2e44ef482ed01314ddadc515dc351d7b6c963533ba5504ea5a873422e"
+          }
+        },
+        {
+          "title": "Official General Election Candidates: U.S. House of Representatives",
+          "url": "https://www.nj.gov/state/elections/assets/pdf/election-results/2026/2026-official-general-candidates-us-house-0904.pdf",
+          "classification": "general_candidate_list_official",
+          "document_date": "2026-09-04",
+          "document_pages": 13,
+          "format": "PDF",
+          "web_fetch": "Worked",
+          "http_fetch": {
+            "attempted_at_utc": "2026-10-11T07:38:01.612491+00:00",
+            "method": "GET urllib.request (default TLS validation)",
+            "http_status": 200,
+            "final_url": "https://www.nj.gov/state/elections/assets/pdf/election-results/2026/2026-official-general-candidates-us-house-0904.pdf",
+            "content_type": "application/pdf",
+            "byte_count": 78319,
+            "response_sha256": "d1816b5eaf0edcd287159047da6ccbbe33e8152546e4ac2f57755fcc28b0f603",
+            "outcome": "Worked",
+            "source_sha256": "d1816b5eaf0edcd287159047da6ccbbe33e8152546e4ac2f57755fcc28b0f603"
+          }
+        }
+      ],
+      "result_sources": [
+        {
+          "title": "2026 Election Information",
+          "url": "https://www.nj.gov/state/elections/election-information-2026.shtml",
+          "classification": "official_results_landing",
+          "web_fetch": "Worked; official primary results and special House-11 results present; November general results not yet observed",
+          "general_results_available": false,
+          "http_fetch": {
+            "attempted_at_utc": "2026-10-11T07:38:01.714049+00:00",
+            "method": "GET urllib.request (default TLS validation)",
+            "http_status": 200,
+            "final_url": "https://www.nj.gov/state/elections/election-information-2026.shtml",
+            "content_type": "text/html",
+            "byte_count": 86189,
+            "response_sha256": "4b72abd4d8d7bd9402c920d1c4969eec3def40bc8abc2f4df064a6d1d52f6477",
+            "outcome": "Worked",
+            "source_sha256": "4b72abd4d8d7bd9402c920d1c4969eec3def40bc8abc2f4df064a6d1d52f6477"
+          }
+        }
+      ],
+      "notes": [
+        "Use September 4 House district 7 amendment/current House list, not July certification alone.",
+        "Statewide and congressional general sources cover federal offices; do not fabricate a 2026 governor race.",
+        "Do not confuse special House-11 election results with November general election."
+      ],
+      "landing_http_fetch": {
+        "attempted_at_utc": "2026-10-11T07:38:27.256516+00:00",
+        "http_status": 200,
+        "final_url": "https://www.nj.gov/state/elections/election-information-2026.shtml",
+        "content_type": "text/html",
+        "byte_count": 86189,
+        "response_sha256": "aa75d912c4e1ab058f6fd6ee7703630c7b0af6114b546ac6e5049b363873911f",
+        "outcome": "Worked"
+      },
+      "landing_alternate_fetch": "Worked through web.run",
+      "actionable_blockers": []
+    },
+    {
+      "state": "NM",
+      "year": 2026,
+      "election": "General",
+      "election_date": "2026-11-03",
+      "primary_date": "2026-06-02",
+      "source_landing": "https://www.sos.nm.gov/",
+      "candidate_sources": [
+        {
+          "title": "2026 General Election Contest/Candidate List",
+          "url": "https://candidateportal.servis.sos.state.nm.us/CandidateList.aspx?eid=2917&cty=99",
+          "classification": "general_candidate_list_official",
+          "certification_assertion": false,
+          "scope": "All filing counties selected; official source offers Excel/PDF/CSV export controls without ordinary static download anchors",
+          "web_fetch": "Web fetch errored; direct HTTP Worked with 967953-byte candidate grid and 2026 General Election title",
+          "http_fetch": {
+            "attempted_at_utc": "2026-10-11T07:38:01.756076+00:00",
+            "method": "GET urllib.request (default TLS validation)",
+            "http_status": 200,
+            "final_url": "https://candidateportal.servis.sos.state.nm.us/CandidateList.aspx?eid=2917&cty=99",
+            "content_type": "text/html; charset=utf-8",
+            "byte_count": 967953,
+            "response_sha256": "dea7138c90b8276e90267128c31da2cfe2cf8ecf09792b4e5aa51ab483a9f542",
+            "outcome": "Worked",
+            "source_sha256": "dea7138c90b8276e90267128c31da2cfe2cf8ecf09792b4e5aa51ab483a9f542"
+          }
+        }
+      ],
+      "result_sources": [
+        {
+          "title": "2026 Election Results",
+          "url": "https://www.sos.nm.gov/voting-and-elections/election-results/2026-election-results/",
+          "classification": "official_results_landing",
+          "web_fetch": "Worked; official 2026 primary results and municipal runoff links; November 3 General listed as upcoming",
+          "general_results_available": false,
+          "http_fetch": {
+            "attempted_at_utc": "2026-10-11T07:38:01.811704+00:00",
+            "method": "GET urllib.request (default TLS validation)",
+            "http_status": 200,
+            "final_url": "https://www.sos.nm.gov/voting-and-elections/election-results/2026-election-results/",
+            "content_type": "text/html; charset=UTF-8",
+            "byte_count": 115966,
+            "response_sha256": "ead85b2d315dabe07d59a43f8a1550b080e5896bfaca26365afb7327ccc2afd9",
+            "outcome": "Worked",
+            "source_sha256": "ead85b2d315dabe07d59a43f8a1550b080e5896bfaca26365afb7327ccc2afd9"
+          }
+        },
+        {
+          "title": "Election Results",
+          "url": "https://www.sos.nm.gov/voting-and-elections/election-results/",
+          "classification": "official_results_archive",
+          "web_fetch": "Worked",
+          "http_fetch": {
+            "attempted_at_utc": "2026-10-11T07:38:01.872265+00:00",
+            "method": "GET urllib.request (default TLS validation)",
+            "http_status": 200,
+            "final_url": "https://www.sos.nm.gov/voting-and-elections/election-results/",
+            "content_type": "text/html; charset=UTF-8",
+            "byte_count": 111074,
+            "response_sha256": "7ee3697548c92885d9c617654d4b7fdcc725271023120533d5cd88bf17b08b70",
+            "outcome": "Worked",
+            "source_sha256": "7ee3697548c92885d9c617654d4b7fdcc725271023120533d5cd88bf17b08b70"
+          }
+        }
+      ],
+      "notes": [
+        "SOS homepage links exact general-election portal eid=2917; archived eid=2796 elsewhere on homepage is 2021 and must not be reused.",
+        "Candidate portal is not labelled certified in observed page; do not infer ballot certification.",
+        "Bare https://electionresults.sos.nm.gov/ redirected to SOS results archive during this fetch; use explicit 2026 landing for stable provenance."
+      ],
+      "landing_http_fetch": {
+        "attempted_at_utc": "2026-10-11T07:38:27.256516+00:00",
+        "http_status": 200,
+        "final_url": "https://www.sos.nm.gov/",
+        "content_type": "text/html; charset=UTF-8",
+        "byte_count": 142547,
+        "response_sha256": "27be97b41e7a1c60feed6da4b98ea34a5c6076dce1af94236e2d181e2e7977bc",
+        "outcome": "Worked"
+      },
+      "landing_alternate_fetch": "Worked through web.run",
+      "actionable_blockers": []
+    },
+    {
+      "state": "NY",
+      "year": 2026,
+      "election": "General",
+      "election_date": "2026-11-03",
+      "primary_date": "2026-06-23",
+      "source_landing": "https://elections.ny.gov/node/306",
+      "candidate_sources": [
+        {
+          "title": "Amended Certification for the November 3, 2026 General Election",
+          "url": "https://elections.ny.gov/certification-november-3-2026-general-election",
+          "classification": "general_candidate_list_certified",
+          "document_date": "2026-10-07",
+          "document_pages": 136,
+          "format": "PDF",
+          "certification_assertion": true,
+          "web_fetch": "Worked; PDF page 1 expressly certifies nominees under Election Law section 4-112; version history ends October 7",
+          "scope": "Statewide, congressional, state senate and state assembly; preserve multiple ballot-party lines for one candidate",
+          "http_fetch": {
+            "attempted_at_utc": "2026-10-11T07:38:01.873351+00:00",
+            "method": "GET urllib.request (default TLS validation)",
+            "http_status": 403,
+            "outcome": "Blocked",
+            "blocker": "HTTP Error 403: Forbidden",
+            "source_sha256": null
+          }
+        }
+      ],
+      "result_sources": [
+        {
+          "title": "Election Results",
+          "url": "https://elections.ny.gov/election-results",
+          "classification": "official_results_landing",
+          "web_fetch": "Worked; certified 2026 primary download and official archive present",
+          "general_results_available": false,
+          "http_fetch": {
+            "attempted_at_utc": "2026-10-11T07:38:02.024617+00:00",
+            "method": "GET urllib.request (default TLS validation)",
+            "http_status": 403,
+            "outcome": "Blocked",
+            "blocker": "HTTP Error 403: Forbidden",
+            "source_sha256": null
+          }
+        },
+        {
+          "title": "NYS Board of Elections Unofficial Election Night Results",
+          "url": "https://nyenr.elections.ny.gov/",
+          "classification": "primary_results_unofficial",
+          "web_fetch": "Worked; page currently displays 2026 Primary, last update June 26, 2026; explicitly distinguishes unofficial night returns from later certification",
+          "general_results_available": false,
+          "http_fetch": {
+            "attempted_at_utc": "2026-10-11T07:38:02.152845+00:00",
+            "method": "GET urllib.request (default TLS validation)",
+            "http_status": 403,
+            "outcome": "Blocked",
+            "blocker": "HTTP Error 403: Forbidden",
+            "source_sha256": null
+          }
+        }
+      ],
+      "notes": [
+        "Use current amended PDF, not initial September 2 version.",
+        "Multiple party endorsements repeat candidate names: deduplicate candidate identities while retaining ballot lines; do not count repeat endorsements as distinct people."
+      ],
+      "landing_http_fetch": {
+        "attempted_at_utc": "2026-10-11T07:38:27.395348+00:00",
+        "outcome": "Blocked",
+        "error": "HTTP Error 403: Forbidden"
+      },
+      "landing_alternate_fetch": "Worked through web.run",
+      "actionable_blockers": [
+        "Automated raw-byte fetch denied for some sources; web or normal Chrome reads worked. Browser-only PDFs have no retained byte hash."
+      ]
+    }
+  ],
+  "coverage": {
+    "states": 7,
+    "candidate_source_records": 11,
+    "result_source_records": 12,
+    "unique_urls_attempted": 27
+  },
+  "classification_rule": "Certified only where source or SOS landing explicitly certifies; official lists and filing lists do not silently become certified. Successful web/Chrome reads recorded separately from automated HTTP status. No personal contact fields retained."
+}

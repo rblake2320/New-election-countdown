@@ -1,0 +1,95 @@
+{
+  "http": {
+    "method": "POST",
+    "url": "https://vip.sos.nd.gov/candidatelist.aspx?eid=348",
+    "http_status": 200,
+    "document_byte_count": 66455,
+    "document_sha256": "d98d48cce8486ea5dc0fe80e28fe12313a48f460f0a77539d470f76f67d88085",
+    "last_modified": null
+  },
+  "eligibility_basis": "SOS homepage explicitly labels linked eid348 candidate list CERTIFIED. Public Representative in Congress view contains actual four eligible listed candidates.",
+  "authority_landing": {
+    "url": "https://www.sos.nd.gov/elections",
+    "http_status": 200,
+    "document_sha256": "7c75a17f88aecf2071b237ad7816f94299db47f215b4b3acb28248be16f17e02",
+    "certified_heading_present": true,
+    "direct_candidate_link_present": true
+  },
+  "layout_proof": {
+    "method": "public form POST Search",
+    "election_id": "348",
+    "observed_contest_label": "Representative in Congress",
+    "observed_contest_value": "22055",
+    "grid_id": "ctl00_ContentPlaceHolder1_rgCandidate_ctl00",
+    "row_classes": [
+      "rgRow",
+      "rgAltRow"
+    ],
+    "direct_TD_count": 19,
+    "name_column_zero_based": 5,
+    "party_column_zero_based": 9,
+    "district_column3_blank_and_jurisdiction_column4_STATE": "mapped at-large00",
+    "candidate_rows": 4,
+    "draft_set_equality": true,
+    "form_tokens_retained": false
+  },
+  "target_contests_absent_from_source_options": [
+    "Governor",
+    "United States Senator"
+  ],
+  "state": "ND",
+  "checked_at_utc": "2026-10-11T09:31:31.027763+00:00",
+  "draft_path": "D:\\projects\\et-wt\\lane-c\\data\\nominees\\nd-2026-general-draft.json",
+  "draft_sha256": "802193ceabda6f9d5f8bf8a0aca119ce30d6e562841a4036a721babbd82e7436",
+  "draft_source_document_sha256": "4188fd42fc573dc65d4c554461560d32247fd2b75c96469b0e9a9f7dc23ab039",
+  "sourceDocumentHashMatchesDraft": false,
+  "scope_counts": [
+    {
+      "office": "H",
+      "district": "00",
+      "expectedCount": 4
+    }
+  ],
+  "draft_expected_row_count": 4,
+  "actual_distinct_candidates": 4,
+  "incumbent_policy": "null unless explicitly stated by selected source; all retained values null",
+  "no_bios_or_contact_fields_persisted": true,
+  "no_app_or_db_writes": true,
+  "outcome": "Worked",
+  "response_hash_stability_probe": {
+    "probed_at_utc": "2026-10-11T09:32:10.367874+00:00",
+    "two_fresh_public_form_queries": [
+      {
+        "raw_sha256": "d5192aaa4553af316946fcf22314e7377aa810a608ef03a89c5ea63b2bd7a8d0",
+        "sanitized_sha256": "3c98a83bb258dc5b94063de48d5d939a80ff6e3a9becb4ae7c655f4ea320cb14",
+        "hidden_field_digests": {
+          "__VIEWSTATE": "703cea7fe37bb91265e4787545d1817ad92232f89d86e717d3f0f06dd7e4dd26",
+          "__VIEWSTATEGENERATOR": "55b131f96361748eb3940bc5ea668b0ede5c3e6c3a95a00906d1f6070735eebe",
+          "__EVENTVALIDATION": "849402e6f7030e29e67b3b6a0502befc0298ba892e9e9c12058364e7c2cd35bd",
+          "ctl00_ContentPlaceHolder1_rgCandidate_ClientState": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "sanitized_attribute_counts": {
+          "data-cfemail": 8
+        }
+      },
+      {
+        "raw_sha256": "04dad81fd8c9f5af944b1ce6d782a617dde5dd275719e14b872699b3210278da",
+        "sanitized_sha256": "3c98a83bb258dc5b94063de48d5d939a80ff6e3a9becb4ae7c655f4ea320cb14",
+        "hidden_field_digests": {
+          "__VIEWSTATE": "703cea7fe37bb91265e4787545d1817ad92232f89d86e717d3f0f06dd7e4dd26",
+          "__VIEWSTATEGENERATOR": "55b131f96361748eb3940bc5ea668b0ede5c3e6c3a95a00906d1f6070735eebe",
+          "__EVENTVALIDATION": "849402e6f7030e29e67b3b6a0502befc0298ba892e9e9c12058364e7c2cd35bd",
+          "ctl00_ContentPlaceHolder1_rgCandidate_ClientState": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "sanitized_attribute_counts": {
+          "data-cfemail": 8
+        }
+      }
+    ],
+    "raw_hashes_equal": false,
+    "sanitized_hashes_equal": true,
+    "hidden_fields_that_changed": [],
+    "contact_values_or_form_tokens_retained": false
+  },
+  "response_hash_stability_finding": "Two fresh identical public candidate queries produced different raw response hashes; after removing eight Cloudflare data-cfemail obfuscation attribute values, sanitized document hashes matched exactly. ASP.NET hidden field digests were unchanged. The selected four candidate names/parties exactly match the original draft. Full document SHA remains a snapshot receipt, not a stable re-fetch identifier."
+}
