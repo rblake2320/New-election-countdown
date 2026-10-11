@@ -1,0 +1,57 @@
+{
+  "measured_at": "2026-10-11T06:39:15.033Z",
+  "database_read_only": true,
+  "http_handler": "server/election-list-handler.ts",
+  "outcomes": [
+    {
+      "query": "",
+      "status": 200,
+      "rows": 507,
+      "sql_statements": 1,
+      "duration_ms": 95.57089999999994
+    },
+    {
+      "query": "?timeframe=next-30-days",
+      "status": 200,
+      "rows": 506,
+      "sql_statements": 1,
+      "duration_ms": 57.625099999999975
+    },
+    {
+      "query": "?level=federal",
+      "status": 200,
+      "rows": 470,
+      "sql_statements": 1,
+      "duration_ms": 70.52790000000005
+    },
+    {
+      "query": "?level=Federal",
+      "status": 200,
+      "rows": 470,
+      "sql_statements": 1,
+      "duration_ms": 55.52789999999993
+    },
+    {
+      "query": "?party=D",
+      "status": 200,
+      "rows": 55,
+      "sql_statements": 1,
+      "duration_ms": 44.68050000000005
+    },
+    {
+      "query": "?party=Democratic",
+      "status": 200,
+      "rows": 55,
+      "sql_statements": 1,
+      "duration_ms": 47.60590000000002
+    },
+    {
+      "query": "?timeframe=typo",
+      "status": 400,
+      "sql_statements": 0,
+      "duration_ms": 17.0954999999999
+    }
+  ],
+  "candidate_counts_match_independent_sql": true,
+  "aliases_match": true
+}
