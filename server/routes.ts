@@ -132,7 +132,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add advanced security middleware for threat detection
   app.use(advancedSecurityService.middleware());
   // Apply rate limiter for production security
-  app.use(apiLimiter);
+  // Scoped to /api: the old global mount also counted HTML, static assets and
+  // Vite modules, so 3-4 dev page loads returned 429 for the page itself (Opus, 2026-10-11).
+  app.use("/api", apiLimiter);
   
   // Keep-alive headers for analytics ingestion
   app.use("/api/track", (req, res, next) => {

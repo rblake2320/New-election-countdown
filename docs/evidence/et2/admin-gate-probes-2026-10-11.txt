@@ -23,3 +23,13 @@ CSP header present: default-src 'self'; style-src ... https://fonts.googleapis.c
 SQL: select count(*) from candidates where name in ('Sarah Johnson','Robert Chen','Maria Rodriguez') -> 0
 
 Re-run: scripts/verify-admin-gates.sh (below) against any running instance.
+
+--- Rate limiting (commit 3, 2026-10-11 ~08:40) — dev server :5055, fresh in-memory counters after restart
+Measured first home-page load via Playwright = 9 API calls (/api/elections x1, /api/stats, /api/election-cycles, /api/auth/me, /api/health/services, /api/services/notification-summary, /api/elections/:id/candidates x3); +1 candidates call per card scrolled into view.
+Change: apiLimiter scoped to /api (was global: counted HTML/static/Vite modules -> 429 on the page itself after ~1000 requests; Opus + Astra nginx red test 999x200/201x429 at 20 RPS), sized 300/min per IP, skips /api/health*; searchLimiter on /api/elections 60/min; NEW authLimiter 10 failed attempts / 15 min on /api/auth/{register,login,request-password-reset,reset-password} (skipSuccessfulRequests).
+(1) 30 loads of "/" then /api/stats                 -> 200   (static traffic no longer consumes API quota)
+(2) 12 bad logins                                    -> 401 x10 then 429 x2   (brute-force cap)
+(3) 65 rapid GET /api/elections?state=TX             -> first 429 at call #59 (limit 60; 1-2 earlier probe calls in window)
+(4) 200 rapid GET /api/elections/530/candidates      -> 0 x 429   (within 300/min)
+(5) RateLimit-* standard headers present on /api/elections (RateLimit-Limit: 60)
+Unit suite after inverting the two stale bypass tests (tests/unit/autofix-security.test.ts): 7 files, 121 passed, 3 skipped.

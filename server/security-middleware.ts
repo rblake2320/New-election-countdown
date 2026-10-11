@@ -138,11 +138,13 @@ export const sanitizeInput = (input: string): string => {
 
 // Rate limiting for search endpoints
 export const searchLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  // Sized for election night (measured 2026-10-11): every filter change is one
+  // /api/elections call; 60/min per IP tolerates rapid filtering and shared NAT.
+  windowMs: 60 * 1000,
+  max: 60,
   message: {
     error: 'Too many search requests',
-    retryAfter: '15 minutes'
+    retryAfter: '1 minute'
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -160,14 +162,31 @@ export const monitoringLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-// General API rate limiter
-export const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // Limit each IP to 1000 requests per windowMs
+// Credential endpoints: brute-force protection (per IP)
+export const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  skipSuccessfulRequests: true, // only failed attempts count
   message: {
-    error: 'Too many API requests',
+    error: 'Too many authentication attempts',
     retryAfter: '15 minutes'
   },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// General API rate limiter
+export const apiLimiter = rateLimit({
+  // 300/min per IP: a user scrolling the full 500-card grid fires ~1 call per
+  // card; 1000/15min (the old value) tripped after ~2 full scrolls.
+  windowMs: 60 * 1000,
+  max: 300,
+  message: {
+    error: 'Too many API requests',
+    retryAfter: '1 minute'
+  },
+  // Health/readiness probes (Docker, nginx, uptime monitors) never consume client quota.
+  skip: (req) => req.path === '/health' || req.path.startsWith('/health/'),
   standardHeaders: true,
   legacyHeaders: false,
   // Skip rate limiting for monitoring endpoints

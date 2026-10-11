@@ -91,7 +91,7 @@ export function requireAdminForAutofix(req: Request, res: Response, next: NextFu
             error: 'insufficient_privileges',
             message: 'Admin privileges required for auto-fix operations',
             userRole: user.role,
-            required: 'admin role or @admin.com email',
+            required: 'admin role',
             endpoint: path
           });
         }
