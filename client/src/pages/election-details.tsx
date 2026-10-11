@@ -9,6 +9,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ArrowLeft, Calendar, MapPin, Users, Trophy, TrendingUp, BarChart3, Eye } from "lucide-react";
 import { format } from "date-fns";
 import { CountdownTimer } from "@/components/countdown-timer";
+import { GeneralRoster } from "@/components/general-roster";
+import { getElectionTiming, type ElectionTimingInput } from "@/lib/election-timing";
+import { useNow } from "@/hooks/use-now";
 import { CandidateComparisonWizard } from "@/components/candidate-comparison-wizard";
 import { PollingTrendChart } from "@/components/polling-trend-chart";
 import CandidatePublicView from "@/components/candidate-public-view";
@@ -26,10 +29,13 @@ function useCandidateDetails(candidateId: number | null) {
 }
 
 export default function ElectionDetails() {
-  const params = useParams();
+  const params = useParams<{ id: string }>();
   const electionId = parseInt(params.id || "0");
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedCandidateId, setSelectedCandidateId] = useState<number | null>(null);
+  // Shared minute clock: the page's phase badge follows the same timing rules as
+  // the countdown instead of comparing the midnight-UTC date with "now".
+  const minuteNow = useNow(60_000);
   const [candidateModalOpen, setCandidateModalOpen] = useState(false);
 
   const { data: election, isLoading: electionLoading } = useElection(electionId);
@@ -89,8 +95,16 @@ export default function ElectionDetails() {
   const electionDate = election
     ? new Date(rawDate.getUTCFullYear(), rawDate.getUTCMonth(), rawDate.getUTCDate())
     : rawDate;
-  const isUpcoming = electionDate > new Date();
   const hasResults = candidates.some(c => c.votePercentage !== null);
+  // `date > now` called a race past from midnight UTC on election day, before
+  // polls even opened in Texas (lane C review of 63da481).
+  const phase = election ? getElectionTiming(election, new Date(minuteNow)).phase : "upcoming";
+  const isUpcoming = phase === "upcoming";
+  const isLive = phase === "election-day" || phase === "polls-open";
+  const badgeText = isUpcoming ? "Upcoming" : isLive ? "Election Day"
+    : hasResults ? "Results Available"
+    : phase === "polls-closed" ? ((election as ElectionTimingInput | undefined)?.pollCloseKind === "ballot_return" ? "Drop-off closed" : "Polls closed")
+    : "Past Election";
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-6">
@@ -128,16 +142,16 @@ export default function ElectionDetails() {
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Badge variant={isUpcoming ? "secondary" : hasResults ? "default" : "outline"}>
-                {isUpcoming ? "Upcoming" : hasResults ? "Results Available" : "Past Election"}
+              <Badge variant={isUpcoming || isLive ? "secondary" : hasResults ? "default" : "outline"}>
+                {badgeText}
               </Badge>
               {election?.type && (
                 <Badge variant="outline">{election.type}</Badge>
               )}
             </div>
-            {isUpcoming && election && (
+            {phase !== "completed" && election && (
               <CountdownTimer 
-                targetDate={election.date}
+                election={election}
                 className="text-sm font-medium"
               />
             )}
@@ -154,6 +168,7 @@ export default function ElectionDetails() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
+          <GeneralRoster electionId={electionId} />
           {/* Candidates Overview */}
           <Card>
             <CardHeader>

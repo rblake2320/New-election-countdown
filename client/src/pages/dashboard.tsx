@@ -301,13 +301,13 @@ export default function Dashboard() {
                         </div>
                       </div>
                     </div>
-                    <div className="pt-2">
+                    {item.date && <div className="pt-2">
                       <CountdownTimer 
-                        targetDate={item.date} 
+                        election={{ date: item.date }}
                         size="sm"
                         className="text-xs"
                       />
-                    </div>
+                    </div>}
                   </div>
                 ))}
                 {watchlist.length > 5 && (
