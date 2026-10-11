@@ -65,7 +65,7 @@ describe('FEC sync identity, provenance and race safety', () => {
     expect(plan.unmatched[0].reason).toBe('ambiguous-race');
   });
   it('is a no-op for identical source and candidate metadata on a repeated run', () => {
-    const plan = buildFecSyncPlan(parseFecMaster(line()).rows, [house], [{ ...candidate, fec_candidate_id: 'H6TX01001', fec_status: 'C', source_file_sha256: 'a'.repeat(64) }], 'a'.repeat(64), [{ candidate_id: 10, source_file_sha256: 'a'.repeat(64), is_current: true, metadata: { fecStatus: 'C' } }]);
+    const plan = buildFecSyncPlan(parseFecMaster(line()).rows, [house], [{ ...candidate, fec_candidate_id: 'H6TX01001', fec_status: 'C', source_file_sha256: 'a'.repeat(64) }], 'a'.repeat(64), [{ candidate_id: 10, source_file_sha256: 'a'.repeat(64), is_current: true, metadata: { fecStatus:'C',fecCandidateId:'H6TX01001',partyRaw:'DEM',electionYear:2026,state:'TX',office:'H',district:'01',electionId:1,electionDate:'2026-11-03',normalizedName:'alexexample' } }]);
     expect(plan.actions).toHaveLength(0);
     expect(plan.unchanged).toBe(1);
   });
@@ -95,8 +95,8 @@ describe('FEC sync identity, provenance and race safety', () => {
   it('updates when a historically seen source returns after a different current version', () => {
     const current = { ...candidate, data_source: 'fec_bulk', party: 'R', fec_candidate_id: 'H6TX01001', fec_status: 'C', source_file_sha256: 'b'.repeat(64) };
     const history = [
-      { candidate_id: 10, source_file_sha256: 'a'.repeat(64), is_current: false, metadata: { fecStatus: 'C' } },
-      { candidate_id: 10, source_file_sha256: 'b'.repeat(64), is_current: true, metadata: { fecStatus: 'C' } },
+      { candidate_id: 10, source_file_sha256: 'a'.repeat(64), is_current: false, metadata: { fecStatus:'C',fecCandidateId:'H6TX01001',partyRaw:'DEM',electionYear:2026,state:'TX',office:'H',district:'01',electionId:1,electionDate:'2026-11-03',normalizedName:'alexexample' } },
+      { candidate_id: 10, source_file_sha256: 'b'.repeat(64), is_current: true, metadata: { fecStatus:'C',fecCandidateId:'H6TX01001',partyRaw:'DEM',electionYear:2026,state:'TX',office:'H',district:'01',electionId:1,electionDate:'2026-11-03',normalizedName:'alexexample' } },
     ];
     const plan = buildFecSyncPlan(parseFecMaster(line()).rows,[house],[current],'a'.repeat(64),history);
     expect(plan.actions[0]?.kind).toBe('update');
@@ -107,6 +107,11 @@ describe('FEC sync identity, provenance and race safety', () => {
       {candidate_id:10,source_file_sha256:'a'.repeat(64),is_current:false,metadata:{fecStatus:'C'}},
       {candidate_id:10,source_file_sha256:'b'.repeat(64),is_current:true,metadata:{fecStatus:'C'}},
     ]);
-    expect(plan.actions[0]?.kind).toBe('update');
+    expect(plan.actions[0]?.kind).toBe('source_refresh');
   });
+});
+
+it('refreshes missing source tuple without changing the matching candidate profile',()=>{
+ const core={...candidate,fec_candidate_id:'H6TX01001',fec_status:'C',description:'Existing independently authored fixture'};
+ const plan=buildFecSyncPlan(parseFecMaster(line()).rows,[house],[core],'a'.repeat(64),[{candidate_id:10,source_file_sha256:'a'.repeat(64),is_current:true,metadata:{fecStatus:'C'}}]);expect(plan.actions[0].kind).toBe('source_refresh');expect(core.description).toBe('Existing independently authored fixture');
 });
