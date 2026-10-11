@@ -173,7 +173,7 @@ export async function validateAutofixPolicies(req: Request, res: Response, next:
   
   try {
     // Check if any auto-fix policies are enabled
-    const enabledPolicies = await sql`
+    const enabledPolicies = await sql<{ enabled_count: string | number; fixable_count: string | number }>`
       SELECT COUNT(*) as enabled_count,
              COUNT(CASE WHEN autofix_sql IS NOT NULL THEN 1 END) as fixable_count
       FROM steward_mcp_packs 
@@ -182,7 +182,7 @@ export async function validateAutofixPolicies(req: Request, res: Response, next:
     
     const policyStats = enabledPolicies[0];
     
-    if (parseInt(policyStats.enabled_count) === 0) {
+    if (Number(policyStats.enabled_count) === 0) {
       console.log(`🚫 No auto-fix policies enabled for ${method} ${path}`);
       return res.status(423).json({
         error: 'policies_disabled',
@@ -194,7 +194,7 @@ export async function validateAutofixPolicies(req: Request, res: Response, next:
       });
     }
     
-    if (parseInt(policyStats.fixable_count) === 0) {
+    if (Number(policyStats.fixable_count) === 0) {
       console.log(`🚫 No fixable policies available for ${method} ${path}`);
       return res.status(423).json({
         error: 'no_fixable_policies',
@@ -222,7 +222,7 @@ export async function validateAutofixPolicies(req: Request, res: Response, next:
       }
       
       // Check if any policies allow this severity level
-      const compatiblePolicies = await sql`
+      const compatiblePolicies = await sql<{ compatible_count: string | number }>`
         SELECT COUNT(*) as compatible_count
         FROM steward_mcp_packs 
         WHERE active = true 
@@ -237,7 +237,7 @@ export async function validateAutofixPolicies(req: Request, res: Response, next:
           END
       `;
       
-      if (parseInt(compatiblePolicies[0].compatible_count) === 0) {
+      if (Number(compatiblePolicies[0].compatible_count) === 0) {
         console.log(`🚫 No policies compatible with severity ${maxSeverity} for ${method} ${path}`);
         return res.status(423).json({
           error: 'severity_not_allowed',

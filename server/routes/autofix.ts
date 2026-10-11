@@ -876,7 +876,7 @@ router.get('/system-status', async (req, res) => {
     }
     
     // Get policy status
-    const policyStatus = await sql`
+    const policyStatus = await sql<{ total_policies: string | number; active_policies: string | number; autofix_enabled_policies: string | number; fixable_policies: string | number }>`
       SELECT 
         COUNT(*) as total_policies,
         SUM(CASE WHEN active THEN 1 ELSE 0 END) as active_policies,
@@ -886,7 +886,7 @@ router.get('/system-status', async (req, res) => {
     `;
     
     // Get recent activity
-    const recentActivity = await sql`
+    const recentActivity = await sql<{ executions_24h: string | number; successful_24h: string | number; failed_24h: string | number }>`
       SELECT 
         COUNT(*) as executions_24h,
         SUM(CASE WHEN success THEN 1 ELSE 0 END) as successful_24h,
@@ -902,8 +902,8 @@ router.get('/system-status', async (req, res) => {
     let safetyLevel = 'MAXIMUM_SAFETY';
     let safetyColor = '🟢';
     
-    if (parseInt(stats.autofix_enabled_policies) > 0) {
-      if (parseInt(stats.fixable_policies) > 0) {
+    if (Number(stats.autofix_enabled_policies) > 0) {
+      if (Number(stats.fixable_policies) > 0) {
         safetyLevel = 'CONTROLLED_OPERATIONS';
         safetyColor = '🟡';
       } else {
@@ -922,15 +922,15 @@ router.get('/system-status', async (req, res) => {
         uptime: `${(process.uptime() / 3600).toFixed(1)} hours`
       },
       policy_status: {
-        total_policies: parseInt(stats.total_policies),
-        active_policies: parseInt(stats.active_policies),
-        autofix_enabled: parseInt(stats.autofix_enabled_policies),
-        fixable_policies: parseInt(stats.fixable_policies)
+        total_policies: Number(stats.total_policies),
+        active_policies: Number(stats.active_policies),
+        autofix_enabled: Number(stats.autofix_enabled_policies),
+        fixable_policies: Number(stats.fixable_policies)
       },
       recent_activity_24h: {
-        total_executions: parseInt(activity.executions_24h),
-        successful: parseInt(activity.successful_24h),
-        failed: parseInt(activity.failed_24h)
+        total_executions: Number(activity.executions_24h),
+        successful: Number(activity.successful_24h),
+        failed: Number(activity.failed_24h)
       },
       security_layers: [
         '✅ Admin authentication required',
