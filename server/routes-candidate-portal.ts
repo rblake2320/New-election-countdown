@@ -701,8 +701,8 @@ export function registerCandidatePortalRoutes(app: Express) {
   app.get('/api/admin/candidate-accounts', ...adminOnly, async (req: Request, res: Response) => {
     try {
       const status = String(req.query.status ?? 'pending');
-      const accounts = await accounts.listCandidateAccounts(status === 'all' ? {} : { isActive: status === 'active' });
-      res.json({ accounts: accounts.map(publicAccount) });
+      const rows = await accounts.listCandidateAccounts(status === 'all' ? {} : { isActive: status === 'active' });
+      res.json({ accounts: rows.map(publicAccount) });
     } catch (error) {
       console.error('Candidate account list error:', error);
       res.status(500).json({ error: 'Failed to list candidate accounts' });

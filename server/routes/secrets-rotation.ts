@@ -88,18 +88,31 @@ router.post('/initialize', async (req, res) => {
   try {
     console.log('🔐 Initializing secrets vault');
 
-    await secretsRotationService.initializeSecretsVault();
+    const result = await secretsRotationService.initializeSecretsVault();
+
+    // Y-01: a vault without key material is not "initialized"; say so with a 503.
+    if (!result.initialized) {
+      return res.status(503).json({
+        error: 'vault_unconfigured',
+        message: 'Secrets vault is not configured on this deployment',
+        reason: result.reason,
+        vault: secretsRotationService.vaultStatus()
+      });
+    }
 
     res.json({
       status: 'success',
-      message: 'Secrets vault initialized successfully'
+      message: 'Secrets vault initialized',
+      secretsCreated: result.secretsCreated,
+      secretsExisting: result.secretsExisting,
+      vault: secretsRotationService.vaultStatus()
     });
 
   } catch (error) {
     console.error('❌ Failed to initialize secrets vault:', error);
     res.status(500).json({
       error: 'initialization_failed',
-      message: error instanceof Error ? error.message : 'Failed to initialize secrets vault'
+      message: 'Failed to initialize secrets vault'
     });
   }
 });

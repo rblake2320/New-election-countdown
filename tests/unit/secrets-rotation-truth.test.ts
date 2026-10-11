@@ -46,13 +46,25 @@ describe("Y-01: vault key material", () => {
   it("initializeSecretsVault writes nothing when the vault is not ready", async () => {
     const saved = process.env.BACKUP_ENCRYPTION_KEY; delete process.env.BACKUP_ENCRYPTION_KEY;
     try {
-      await new SecretsRotationService().initializeSecretsVault();
+      const result = await new SecretsRotationService().initializeSecretsVault();
+      expect(result.initialized).toBe(false);
+      expect(result.reason).toMatch(/BACKUP_ENCRYPTION_KEY/);
       expect(calls.createSecret ?? []).toHaveLength(0);
     } finally { if (saved !== undefined) process.env.BACKUP_ENCRYPTION_KEY = saved; }
   });
 
   it("source carries no default key", () => {
     expect(SRC).not.toContain("default-key-change-me");
+  });
+
+  it("POST /initialize reports 503 vault_unconfigured, never success, when not initialized", () => {
+    const route = readFileSync(join(__dirname, "..", "..", "server", "routes", "secrets-rotation.ts"), "utf8");
+    const start = route.indexOf("router.post('/initialize'");
+    const body = route.slice(start, route.indexOf("router.post('/rotate'", start));
+    expect(body).toContain("const result = await secretsRotationService.initializeSecretsVault()");
+    expect(body).toMatch(/if \(!result\.initialized\) \{\s*return res\.status\(503\)/);
+    expect(body).toContain("error: 'vault_unconfigured'");
+    expect(body).not.toContain("initialized successfully");
   });
 });
 

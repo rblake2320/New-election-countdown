@@ -291,12 +291,17 @@ export class SecretsRotationService {
   /**
    * Initialize secrets vault with current environment variables
    */
-  async initializeSecretsVault(): Promise<void> {
+  /**
+   * Y-01: returns an honest result. `initialized:false` means no key material - nothing
+   * was written and no scheduler started; callers must not report success.
+   */
+  async initializeSecretsVault(): Promise<{ initialized: boolean; reason: string | null; secretsCreated: number; secretsExisting: number }> {
     if (!this.vaultReady) {
       console.warn(`⚠️ Secrets vault not initialized: ${this.vaultReason}`);
-      return;
+      return { initialized: false, reason: this.vaultReason, secretsCreated: 0, secretsExisting: 0 };
     }
     console.log('🔐 Initializing secrets vault...');
+    let secretsCreated = 0, secretsExisting = 0;
 
     const { storage } = await import('../storage');
 
@@ -314,6 +319,7 @@ export class SecretsRotationService {
       const existingSecret = await storage.getSecretByName?.(serviceConfig.apiKeyName);
       if (existingSecret) {
         console.log(`✅ Secret already exists: ${serviceConfig.apiKeyName}`);
+        secretsExisting++;
         continue;
       }
 
@@ -337,12 +343,14 @@ export class SecretsRotationService {
 
       if (storage.createSecret) {
         await storage.createSecret(secret);
+        secretsCreated++;
         console.log(`✅ Initialized secret: ${serviceConfig.apiKeyName}`);
       }
     }
 
     // Start rotation scheduler
     this.startRotationScheduler();
+    return { initialized: true, reason: null, secretsCreated, secretsExisting };
   }
 
   /**
@@ -440,8 +448,10 @@ export class SecretsRotationService {
         // Y-02: no provider API issues credentials from here. Record that honestly and change
         // nothing - no lastRotated, no nextRotation bump, no "completed".
         console.log(`⚠️ ${serviceConfig.serviceName} requires manual rotation in the provider console`);
-        if (storage.updateSecretRotationHistory) {
-          await storage.updateSecretRotationHistory(rotationId, {
+        // Optional on the storage surface (same shape as the existing history calls below).
+        const history = (storage as { updateSecretRotationHistory?: (id: string, patch: Record<string, unknown>) => Promise<unknown> }).updateSecretRotationHistory;
+        if (history) {
+          await history(rotationId, {
             status: 'manual_required',
             completedAt: new Date(),
             rollbackRequired: false,
