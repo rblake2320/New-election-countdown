@@ -10,6 +10,8 @@ import { ArrowLeft, Calendar, MapPin, Users, Trophy, TrendingUp, BarChart3, Eye 
 import { format } from "date-fns";
 import { CountdownTimer } from "@/components/countdown-timer";
 import { GeneralRoster } from "@/components/general-roster";
+import { OfficialResultsLink } from "@/components/official-results-link";
+import { officialResultsLink, type OfficialResultsFields } from "@/lib/official-results";
 import { getElectionTiming, type ElectionTimingInput } from "@/lib/election-timing";
 import { HttpError } from "@/lib/http-error";
 import { useNow } from "@/hooks/use-now";
@@ -206,6 +208,11 @@ export default function ElectionDetails() {
               />
             )}
           </div>
+                  {election && officialResultsLink(election as OfficialResultsFields) && (
+            <div className="mt-4 border-t border-border pt-3">
+              <OfficialResultsLink election={election as OfficialResultsFields} />
+            </div>
+          )}
         </CardContent>
       </Card>
 
