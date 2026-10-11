@@ -1,17 +1,31 @@
 import { nanoid } from 'nanoid';
 import type { IStorage } from '../storage';
-import type { 
+import type {
   IncidentRunbook,
   RunbookStep,
   RunbookContact,
   ContactEscalationTree,
   RunbookExecution,
   InsertIncidentRunbook,
-  InsertRunbookStep,
   InsertRunbookContact,
-  InsertContactEscalationTree,
-  InsertRunbookExecution
+  InsertContactEscalationTree
 } from '@shared/schema';
+
+/**
+ * Incident Runbook Service (Track 4) — runbook execution with contact escalation.
+ *
+ * Honest execution model (strict tranche 2): there is no step executor, validator or
+ * telephony behind this service, so nothing here simulates a step or reports a result it
+ * did not obtain.
+ *  - manual / automated / validation steps stop the execution as `awaiting_operator`;
+ *    the operator completes them and calls resume, which records who confirmed and continues.
+ *  - notification and escalation steps queue real deliveries through the notification
+ *    queue (notification_deliveries rows; SendGrid/Twilio send them when configured) and
+ *    record exactly what was queued, and for whom no channel existed.
+ *  - every outcome is persisted on runbook_executions in the columns that exist
+ *    (step_results, current_step, completed/skipped/failed_steps, contacts_notified,
+ *    escalation_tree_used, is_successful, success_rate, duration, execution_notes, metadata).
+ */
 
 export interface IncidentContext {
   incidentId: string;
@@ -22,42 +36,49 @@ export interface IncidentContext {
   detectedAt: Date;
   reportedBy: string;
   environment: string;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
+}
+
+export type ExecutionStatus = 'pending' | 'in_progress' | 'paused' | 'completed' | 'failed';
+export type StepOutcome = 'completed' | 'failed' | 'skipped' | 'awaiting_operator';
+
+export interface StepExecutionResult {
+  stepId: number;
+  stepKey: string;
+  title: string;
+  stepType: string;
+  status: StepOutcome;
+  startedAt: Date;
+  endedAt?: Date;
+  durationMs?: number;
+  executedBy: string;
+  detail: Record<string, unknown>;
+  error?: string;
 }
 
 export interface RunbookExecutionContext {
   executionId: string;
   runbookId: number;
+  runbookKey: string;
   incidentContext: IncidentContext;
   executedBy: string;
   escalationLevel: number;
   currentStepIndex: number;
   startTime: Date;
-  status: 'pending' | 'in_progress' | 'paused' | 'completed' | 'failed';
-}
-
-export interface StepExecutionResult {
-  stepId: number;
-  status: 'pending' | 'running' | 'completed' | 'failed' | 'skipped';
-  startTime?: Date;
-  endTime?: Date;
-  duration?: number;
-  executedBy?: string;
-  result?: any;
-  notes?: string;
-  error?: string;
-  attachments?: string[];
+  status: ExecutionStatus;
+  steps: RunbookStep[];
+  results: StepExecutionResult[];
+  contactsNotified: string[];
+  escalationTreeUsed?: string;
 }
 
 export interface ContactNotification {
   contactId: string;
-  contact: RunbookContact;
-  channel: 'email' | 'sms' | 'phone' | 'slack';
-  status: 'pending' | 'sent' | 'delivered' | 'failed';
-  sentAt?: Date;
-  deliveredAt?: Date;
-  retryCount: number;
-  message: string;
+  name: string;
+  channel: 'email' | 'sms' | 'none';
+  status: 'queued' | 'no_channel' | 'failed';
+  deliveryId?: string;
+  error?: string;
 }
 
 export interface EscalationResult {
@@ -65,588 +86,512 @@ export interface EscalationResult {
   escalationLevel: number;
   contactsNotified: ContactNotification[];
   nextEscalationTime?: Date;
-  reason?: string;
+  reason: string;
 }
 
-/**
- * Incident Runbook Management Service - Complete incident response with contact/escalation trees
- * 
- * This service provides complete incident response capabilities including runbook execution,
- * contact management, and automated escalation during incident response.
- */
+/** What the notification queue needs from us; the real queue service satisfies it. */
+export interface QueuedDelivery {
+  type: 'email' | 'sms';
+  priority: 'low' | 'normal' | 'high' | 'urgent';
+  recipient: string;
+  content: { subject?: string; message: string };
+  metadata: Record<string, never>;
+  maxRetries: number;
+  scheduledAt: Date;
+}
+export type NotificationQueue = (delivery: QueuedDelivery) => Promise<string>;
+
+export interface IncidentRunbookServiceOptions {
+  /** Defaults to the database-backed notification queue. Tests inject a recorder. */
+  queue?: NotificationQueue;
+  /** Defaults to setTimeout; tests inject a recorder so no timers hang. */
+  schedule?: (fn: () => void, ms: number) => NodeJS.Timeout;
+}
+
+class ServiceError extends Error {
+  constructor(message: string, readonly status: number, readonly publicCode: string) {
+    super(message);
+    this.publicMessage = message;
+  }
+  readonly publicMessage: string;
+}
+
+const OPERATOR_STEP_TYPES = new Set(['manual', 'automated', 'validation']);
+
 export class IncidentRunbookService {
   private storage: IStorage;
   private activeExecutions = new Map<string, RunbookExecutionContext>();
   private escalationTimers = new Map<string, NodeJS.Timeout>();
-  
-  // Integration services (would be injected in real implementation)
-  private notificationService?: any; // BackupAlertService integration
-  
-  constructor(storage: IStorage) {
+  private readonly queue: NotificationQueue;
+  private readonly schedule: (fn: () => void, ms: number) => NodeJS.Timeout;
+
+  constructor(storage: IStorage, options: IncidentRunbookServiceOptions = {}) {
     this.storage = storage;
-  }
-
-  /**
-   * Create a new incident runbook
-   */
-  async createRunbook(runbook: Omit<InsertIncidentRunbook, 'id'>): Promise<IncidentRunbook> {
-    this.validateRunbook(runbook);
-    
-    const newRunbook = await this.storage.createIncidentRunbook({
-      ...runbook,
-      version: 1,
-      createdAt: new Date(),
-      updatedAt: new Date()
+    this.queue = options.queue ?? (async (delivery) => {
+      const { notificationQueueService } = await import('./notification-queue-service');
+      return notificationQueueService.queueNotification(delivery);
     });
-
-    console.log(`[RunbookService] Created runbook: ${newRunbook.runbookTitle} for ${newRunbook.incidentType}`);
-    
-    return newRunbook;
+    this.schedule = options.schedule ?? ((fn, ms) => setTimeout(fn, ms));
   }
 
-  /**
-   * Find and execute appropriate runbook for an incident
-   */
+  // ---------------------------------------------------------------- runbooks / contacts
+
+  async createRunbook(runbook: InsertIncidentRunbook): Promise<IncidentRunbook> {
+    this.validateRunbook(runbook);
+    const created = await this.storage.createIncidentRunbook(runbook);
+    console.log(`[RunbookService] Created runbook ${created.runbookId}: ${created.title} (${created.incidentType}/${created.severity})`);
+    return created;
+  }
+
+  async createContact(contact: InsertRunbookContact): Promise<RunbookContact> {
+    this.validateContact(contact);
+    const created = await this.storage.createRunbookContact(contact);
+    console.log(`[RunbookService] Created contact ${created.contactId}: ${created.name} (level ${created.escalationLevel})`);
+    return created;
+  }
+
+  async createEscalationTree(tree: InsertContactEscalationTree): Promise<ContactEscalationTree> {
+    this.validateEscalationTree(tree);
+    const created = await this.storage.createContactEscalationTree(tree);
+    console.log(`[RunbookService] Created escalation tree ${created.treeId}: ${created.name} for ${(created.incidentTypes ?? []).join(', ')}`);
+    return created;
+  }
+
+  async getRunbooksByIncidentType(incidentType: string): Promise<IncidentRunbook[]> {
+    return this.storage.getRunbooksByIncidentType(incidentType);
+  }
+
+  async getActiveExecutions(): Promise<RunbookExecution[]> {
+    return this.storage.getActiveRunbookExecutions();
+  }
+
+  async getExecutionStatus(executionId: string): Promise<RunbookExecution | undefined> {
+    return this.storage.getRunbookExecution(executionId);
+  }
+
+  /** In-memory view of an execution this process is driving (undefined after completion). */
+  getExecutionContext(executionId: string): RunbookExecutionContext | undefined {
+    return this.activeExecutions.get(executionId);
+  }
+
+  // ---------------------------------------------------------------- execution
+
   async executeRunbookForIncident(
     incidentContext: IncidentContext,
     executedBy: string,
     runbookId?: string
   ): Promise<RunbookExecutionContext> {
-    console.log(`[RunbookService] Executing runbook for incident: ${incidentContext.incidentType} (${incidentContext.severity})`);
-    
+    console.log(`[RunbookService] Executing runbook for incident ${incidentContext.incidentId}: ${incidentContext.incidentType} (${incidentContext.severity})`);
+
     let runbook: IncidentRunbook | undefined;
-    
     if (runbookId) {
-      // Use specific runbook
       runbook = await this.storage.getIncidentRunbook(runbookId);
     } else {
-      // Find appropriate runbook
-      const runbooks = await this.storage.getRunbooksByIncidentType(incidentContext.incidentType);
-      runbook = runbooks.find(r => 
+      const candidates = await this.storage.getRunbooksByIncidentType(incidentContext.incidentType);
+      runbook = candidates.find((r) =>
         r.severity === incidentContext.severity ||
-        (r.severity === 'high' && incidentContext.severity === 'critical') // Allow high severity runbooks for critical incidents
+        (r.severity === 'high' && incidentContext.severity === 'critical')
       );
     }
-    
     if (!runbook) {
-      throw new Error(`No suitable runbook found for incident type: ${incidentContext.incidentType}, severity: ${incidentContext.severity}`);
+      throw new ServiceError(
+        `No suitable runbook found for incident type ${incidentContext.incidentType}, severity ${incidentContext.severity}`,
+        404, 'runbook_not_found'
+      );
     }
-    
-    // Create execution context
+
+    const steps = await this.storage.getRunbookStepsByOrder(runbook.runbookId);
     const executionId = nanoid();
-    const executionContext: RunbookExecutionContext = {
+    const context: RunbookExecutionContext = {
       executionId,
       runbookId: runbook.id,
+      runbookKey: runbook.runbookId,
       incidentContext,
       executedBy,
       escalationLevel: 1,
       currentStepIndex: 0,
       startTime: new Date(),
-      status: 'in_progress'
+      status: 'in_progress',
+      steps,
+      results: [],
+      contactsNotified: [],
     };
-    
-    this.activeExecutions.set(executionId, executionContext);
-    
-    // Create execution record
+    this.activeExecutions.set(executionId, context);
+
     await this.storage.createRunbookExecution({
       executionId,
       runbookId: runbook.id,
       incidentId: incidentContext.incidentId,
-      incidentType: incidentContext.incidentType,
-      severity: incidentContext.severity,
-      executedBy,
+      executionType: incidentContext.severity === 'critical' || incidentContext.severity === 'high' ? 'emergency' : 'planned',
+      triggerReason: incidentContext.description,
       status: 'in_progress',
-      startedAt: new Date(),
-      escalationLevel: 1,
+      executedBy,
+      currentStep: steps[0]?.stepId ?? null,
       stepResults: [],
+      contactsNotified: [],
       metadata: {
-        incidentContext,
-        runbookTitle: runbook.runbookTitle
-      }
+        incidentContext: { ...incidentContext, detectedAt: incidentContext.detectedAt.toISOString() },
+        runbookKey: runbook.runbookId,
+        runbookTitle: runbook.title,
+        escalationLevel: 1,
+        escalations: [],
+      },
     });
-    
-    // Start automatic execution
-    this.startRunbookExecution(executionContext);
-    
-    console.log(`[RunbookService] Started runbook execution: ${executionId} using runbook ${runbook.runbookTitle}`);
-    
-    return executionContext;
+
+    console.log(`[RunbookService] Started execution ${executionId} of ${runbook.runbookId} (${steps.length} steps)`);
+    // Steps run after the caller gets the context; failures land on the execution row.
+    void this.runSteps(context).catch(async (error) => {
+      console.error(`[RunbookService] Execution ${executionId} errored:`, error);
+      await this.failExecution(context, error instanceof Error ? error.message : String(error)).catch(() => undefined);
+    });
+    return context;
   }
 
-  /**
-   * Start executing runbook steps
-   */
-  private async startRunbookExecution(context: RunbookExecutionContext): Promise<void> {
-    try {
-      const steps = await this.storage.getRunbookStepsByOrder(context.runbookId);
-      
-      if (steps.length === 0) {
-        await this.completeExecution(context, 'No steps to execute');
+  /** Drive steps from the context's current index until one needs an operator, fails critically, or all are done. */
+  private async runSteps(context: RunbookExecutionContext): Promise<void> {
+    if (context.steps.length === 0) {
+      await this.completeExecution(context, 'Runbook has no steps');
+      return;
+    }
+    for (let i = context.currentStepIndex; i < context.steps.length; i++) {
+      if (context.status !== 'in_progress') return; // paused or terminated by another call
+      context.currentStepIndex = i;
+      const step = context.steps[i];
+      const result = await this.executeStep(step, context);
+      context.results = [...context.results.filter((r) => r.stepId !== step.id), result];
+      await this.persistProgress(context, step);
+
+      if (result.status === 'awaiting_operator') {
+        await this.pauseExecution(context.executionId, `Step ${step.stepOrder} "${step.title}" (${step.stepType}) requires an operator`);
         return;
       }
-      
-      // Execute steps sequentially
-      for (let i = 0; i < steps.length; i++) {
-        context.currentStepIndex = i;
-        const step = steps[i];
-        
-        console.log(`[RunbookService] Executing step ${i + 1}/${steps.length}: ${step.stepTitle}`);
-        
-        const stepResult = await this.executeStep(step, context);
-        
-        // Update execution with step result
-        await this.updateExecutionStepResult(context.executionId, stepResult);
-        
-        // Check if step failed and handle accordingly
-        if (stepResult.status === 'failed' && step.isRequired) {
-          if (step.escalateOnFailure) {
-            await this.escalateIncident(context, `Required step failed: ${step.stepTitle}`);
-          } else {
-            await this.failExecution(context, `Required step failed: ${step.stepTitle}`);
-            return;
-          }
-        }
-        
-        // Check for escalation triggers
-        if (step.escalateOnDelay && stepResult.duration && stepResult.duration > (step.estimatedDuration || 0) * 2) {
-          await this.escalateIncident(context, `Step exceeded expected duration: ${step.stepTitle}`);
-        }
-        
-        // Handle step-specific actions
-        if (step.stepType === 'notification') {
-          await this.handleNotificationStep(step, context);
-        } else if (step.stepType === 'escalation') {
-          await this.handleEscalationStep(step, context);
-        }
+      if (result.status === 'failed' && step.isCritical) {
+        await this.escalateIncident(context, `Critical step failed: ${step.title}`);
+        await this.failExecution(context, `Critical step failed: ${step.title}: ${result.error ?? 'unknown error'}`);
+        return;
       }
-      
-      // Complete execution
-      await this.completeExecution(context, 'All steps completed successfully');
-      
-    } catch (error) {
-      console.error(`[RunbookService] Execution error for ${context.executionId}:`, error);
-      await this.failExecution(context, error instanceof Error ? error.message : 'Unknown error');
     }
+    const failed = context.results.filter((r) => r.status === 'failed').length;
+    await this.completeExecution(context, failed === 0 ? 'All steps completed' : `Completed with ${failed} non-critical step failure(s)`);
   }
 
-  /**
-   * Execute an individual runbook step
-   */
   private async executeStep(step: RunbookStep, context: RunbookExecutionContext): Promise<StepExecutionResult> {
-    const startTime = new Date();
-    
+    const startedAt = new Date();
     const result: StepExecutionResult = {
       stepId: step.id,
-      status: 'running',
-      startTime,
-      executedBy: context.executedBy
+      stepKey: step.stepId,
+      title: step.title,
+      stepType: step.stepType,
+      status: 'awaiting_operator',
+      startedAt,
+      executedBy: context.executedBy,
+      detail: {},
     };
-    
     try {
-      console.log(`[RunbookService] Executing step: ${step.stepTitle} (${step.stepType})`);
-      
-      // Execute step based on type
-      switch (step.stepType) {
-        case 'manual':
-          result.result = await this.executeManualStep(step, context);
-          break;
-        case 'automated':
-          result.result = await this.executeAutomatedStep(step, context);
-          break;
-        case 'validation':
-          result.result = await this.executeValidationStep(step, context);
-          break;
-        case 'notification':
-          result.result = await this.executeNotificationStep(step, context);
-          break;
-        case 'escalation':
-          result.result = await this.executeEscalationStep(step, context);
-          break;
-        default:
-          throw new Error(`Unknown step type: ${step.stepType}`);
+      if (OPERATOR_STEP_TYPES.has(step.stepType)) {
+        // No executor / validator exists: the operator performs the step and resumes.
+        result.status = 'awaiting_operator';
+        result.detail = {
+          instructions: step.instructions ?? step.description ?? null,
+          command: step.command ?? null,
+          expectedOutput: step.expectedOutput ?? null,
+          validationChecks: step.validationChecks ?? null,
+          successCriteria: step.successCriteria ?? null,
+          reason: step.stepType === 'automated'
+            ? 'No automation executor is configured; run the command manually and resume'
+            : step.stepType === 'validation'
+              ? 'No validator is configured; perform the checks and resume'
+              : 'Manual step',
+        };
+        return result;
       }
-      
-      result.status = 'completed';
-      result.notes = `Step completed successfully`;
-      
+      if (step.stepType === 'notification') {
+        const notifications = await this.notifyLevel(context, context.escalationLevel,
+          `Incident ${context.incidentContext.incidentId}: step ${step.stepOrder} ${step.title}`,
+          this.formatIncidentNotification(step, context));
+        result.status = notifications.some((n) => n.status === 'queued') || notifications.length === 0 ? 'completed' : 'failed';
+        result.detail = { notifications };
+        if (result.status === 'failed') result.error = 'No notification could be queued';
+        return result;
+      }
+      if (step.stepType === 'escalation') {
+        const escalation = await this.escalateIncident(context, `Escalation step: ${step.title}`);
+        result.status = escalation.escalated ? 'completed' : 'skipped';
+        result.detail = { escalation };
+        if (!escalation.escalated) result.error = escalation.reason;
+        return result;
+      }
+      throw new Error(`Unknown step type: ${step.stepType}`);
     } catch (error) {
       result.status = 'failed';
-      result.error = error instanceof Error ? error.message : 'Unknown error';
-      result.notes = `Step failed: ${result.error}`;
-      
-      console.error(`[RunbookService] Step failed: ${step.stepTitle}`, error);
+      result.error = error instanceof Error ? error.message : String(error);
+      return result;
+    } finally {
+      result.endedAt = new Date();
+      result.durationMs = result.endedAt.getTime() - startedAt.getTime();
     }
-    
-    const endTime = new Date();
-    result.endTime = endTime;
-    result.duration = endTime.getTime() - startTime.getTime();
-    
-    return result;
+  }
+
+  private async persistProgress(context: RunbookExecutionContext, step?: RunbookStep): Promise<void> {
+    const byStatus = (s: StepOutcome) => context.results.filter((r) => r.status === s).map((r) => r.stepKey);
+    await this.storage.updateRunbookExecution(context.executionId, {
+      status: context.status,
+      currentStep: step?.stepId ?? null,
+      stepResults: context.results,
+      completedSteps: byStatus('completed'),
+      skippedSteps: byStatus('skipped'),
+      failedSteps: byStatus('failed'),
+      contactsNotified: context.contactsNotified,
+      escalationTreeUsed: context.escalationTreeUsed ?? null,
+    });
+  }
+
+  private async mergeMetadata(executionId: string, patch: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const existing = await this.storage.getRunbookExecution(executionId);
+    const current = (existing?.metadata && typeof existing.metadata === 'object') ? (existing.metadata as Record<string, unknown>) : {};
+    return { ...current, ...patch };
+  }
+
+  async pauseExecution(executionId: string, reason: string): Promise<void> {
+    const context = this.requireActive(executionId);
+    await this.storage.updateRunbookExecution(executionId, {
+      status: 'paused',
+      metadata: await this.mergeMetadata(executionId, { pausedAt: new Date().toISOString(), pauseReason: reason }),
+    });
+    context.status = 'paused'; // after the row: a paused context always has a paused row
+    console.log(`[RunbookService] Paused execution ${executionId}: ${reason}`);
   }
 
   /**
-   * Execute a manual step (requires human intervention)
+   * The operator confirms the step that was waiting (recorded as completed by them) and
+   * execution continues with the next step.
    */
-  private async executeManualStep(step: RunbookStep, context: RunbookExecutionContext): Promise<any> {
-    // For manual steps, we typically wait for user confirmation or input
-    console.log(`[RunbookService] Manual step requires intervention: ${step.stepTitle}`);
-    
-    // In a real implementation, this would:
-    // 1. Send notification to responsible person
-    // 2. Create a task/ticket for manual execution
-    // 3. Wait for confirmation of completion
-    
-    // For now, simulate manual execution
-    await this.simulateStepExecution(2000);
-    
-    return {
-      type: 'manual',
-      description: step.stepDescription,
-      instructions: step.stepInstructions,
-      timestamp: new Date(),
-      status: 'awaiting_confirmation'
-    };
-  }
-
-  /**
-   * Execute an automated step
-   */
-  private async executeAutomatedStep(step: RunbookStep, context: RunbookExecutionContext): Promise<any> {
-    console.log(`[RunbookService] Executing automated step: ${step.stepTitle}`);
-    
-    // Automation scripts are not wired to an executor yet — report honestly
-    // instead of claiming success, so operators perform the step manually.
-    return {
-      type: 'automated',
-      script: step.automationScript || null,
-      executionTime: 0,
-      result: 'skipped',
-      output: 'Automation executor not configured — perform this step manually',
-      timestamp: new Date()
-    };
-  }
-
-  /**
-   * Execute a validation step
-   */
-  private async executeValidationStep(step: RunbookStep, context: RunbookExecutionContext): Promise<any> {
-    console.log(`[RunbookService] Executing validation step: ${step.stepTitle}`);
-    
-    await this.simulateStepExecution(1000);
-    
-    return {
-      type: 'validation',
-      checks: step.validationCriteria || ['System health', 'Service availability'],
-      passed: true,
-      timestamp: new Date()
-    };
-  }
-
-  /**
-   * Execute a notification step
-   */
-  private async executeNotificationStep(step: RunbookStep, context: RunbookExecutionContext): Promise<any> {
-    console.log(`[RunbookService] Executing notification step: ${step.stepTitle}`);
-    
-    const notifications = await this.sendStepNotifications(step, context);
-    
-    return {
-      type: 'notification',
-      notifications,
-      timestamp: new Date()
-    };
-  }
-
-  /**
-   * Execute an escalation step
-   */
-  private async executeEscalationStep(step: RunbookStep, context: RunbookExecutionContext): Promise<any> {
-    console.log(`[RunbookService] Executing escalation step: ${step.stepTitle}`);
-    
-    const escalationResult = await this.escalateIncident(context, `Escalation step: ${step.stepTitle}`);
-    
-    return {
-      type: 'escalation',
-      escalationResult,
-      timestamp: new Date()
-    };
-  }
-
-  /**
-   * Handle notification step
-   */
-  private async handleNotificationStep(step: RunbookStep, context: RunbookExecutionContext): Promise<void> {
-    // Additional notification handling logic
-    console.log(`[RunbookService] Handling notification step: ${step.stepTitle}`);
-  }
-
-  /**
-   * Handle escalation step
-   */
-  private async handleEscalationStep(step: RunbookStep, context: RunbookExecutionContext): Promise<void> {
-    // Additional escalation handling logic
-    console.log(`[RunbookService] Handling escalation step: ${step.stepTitle}`);
-  }
-
-  /**
-   * Send notifications for a step
-   */
-  private async sendStepNotifications(step: RunbookStep, context: RunbookExecutionContext): Promise<ContactNotification[]> {
-    const notifications: ContactNotification[] = [];
-    
-    // Get contacts for this escalation level
-    const contacts = await this.storage.getContactsByEscalationLevel(context.escalationLevel);
-    
-    for (const contact of contacts) {
-      const notification: ContactNotification = {
-        contactId: contact.contactId,
-        contact,
-        channel: this.selectNotificationChannel(contact),
-        status: 'pending',
-        retryCount: 0,
-        message: this.formatIncidentNotification(step, context)
-      };
-      
-      try {
-        await this.sendNotification(notification);
-        notification.status = 'sent';
-        notification.sentAt = new Date();
-      } catch (error) {
-        notification.status = 'failed';
-        console.error(`[RunbookService] Failed to notify ${contact.name}:`, error);
-      }
-      
-      notifications.push(notification);
+  async resumeExecution(executionId: string, confirmedBy?: string): Promise<void> {
+    const context = this.requireActive(executionId);
+    if (context.status !== 'paused') {
+      throw new ServiceError(`Execution ${executionId} is ${context.status}, not paused`, 409, 'execution_not_paused');
     }
-    
-    return notifications;
+    const waiting = context.results.find((r) => r.status === 'awaiting_operator');
+    if (waiting) {
+      waiting.status = 'completed';
+      waiting.endedAt = new Date();
+      waiting.durationMs = waiting.endedAt.getTime() - waiting.startedAt.getTime();
+      waiting.detail = { ...waiting.detail, confirmedBy: confirmedBy ?? context.executedBy, confirmedAt: waiting.endedAt.toISOString() };
+      context.currentStepIndex = Math.min(context.currentStepIndex + 1, context.steps.length);
+    }
+    context.status = 'in_progress';
+    await this.storage.updateRunbookExecution(executionId, {
+      status: 'in_progress',
+      stepResults: context.results,
+      metadata: await this.mergeMetadata(executionId, { resumedAt: new Date().toISOString(), resumedBy: confirmedBy ?? context.executedBy }),
+    });
+    console.log(`[RunbookService] Resumed execution ${executionId}`);
+    await this.runSteps(context);
   }
 
-  /**
-   * Escalate incident to next level
-   */
+  private async completeExecution(context: RunbookExecutionContext, reason: string): Promise<void> {
+    const completedAt = new Date();
+    const total = context.results.length;
+    const completed = context.results.filter((r) => r.status === 'completed').length;
+    const failed = context.results.filter((r) => r.status === 'failed').length;
+    await this.storage.updateRunbookExecution(context.executionId, {
+      status: 'completed',
+      completedAt,
+      duration: Math.round((completedAt.getTime() - context.startTime.getTime()) / 60000),
+      currentStep: null,
+      stepResults: context.results,
+      completedSteps: context.results.filter((r) => r.status === 'completed').map((r) => r.stepKey),
+      skippedSteps: context.results.filter((r) => r.status === 'skipped').map((r) => r.stepKey),
+      failedSteps: context.results.filter((r) => r.status === 'failed').map((r) => r.stepKey),
+      isSuccessful: failed === 0,
+      successRate: total === 0 ? '100.00' : ((completed / total) * 100).toFixed(2),
+      executionNotes: reason,
+      contactsNotified: context.contactsNotified,
+      escalationTreeUsed: context.escalationTreeUsed ?? null,
+    });
+    context.status = 'completed';
+    console.log(`[RunbookService] Completed execution ${context.executionId}: ${reason}`);
+    this.cleanupExecution(context.executionId);
+  }
+
+  private async failExecution(context: RunbookExecutionContext, reason: string): Promise<void> {
+    const completedAt = new Date();
+    await this.storage.updateRunbookExecution(context.executionId, {
+      status: 'failed',
+      completedAt,
+      duration: Math.round((completedAt.getTime() - context.startTime.getTime()) / 60000),
+      stepResults: context.results,
+      failedSteps: context.results.filter((r) => r.status === 'failed').map((r) => r.stepKey),
+      isSuccessful: false,
+      executionNotes: reason,
+      contactsNotified: context.contactsNotified,
+      escalationTreeUsed: context.escalationTreeUsed ?? null,
+    });
+    context.status = 'failed';
+    console.log(`[RunbookService] Failed execution ${context.executionId}: ${reason}`);
+    this.cleanupExecution(context.executionId);
+  }
+
+  // ---------------------------------------------------------------- escalation / contacts
+
   private async escalateIncident(context: RunbookExecutionContext, reason: string): Promise<EscalationResult> {
-    console.log(`[RunbookService] Escalating incident ${context.incidentContext.incidentId}: ${reason}`);
-    
-    context.escalationLevel++;
-    
-    // Get escalation tree for this incident type
-    const escalationTree = await this.storage.getEscalationTreeByIncidentType(
+    const tree = await this.storage.getEscalationTreeByIncidentType(
       context.incidentContext.incidentType,
       context.incidentContext.severity
     );
-    
-    if (!escalationTree) {
-      console.warn(`[RunbookService] No escalation tree found for ${context.incidentContext.incidentType}`);
-      return {
-        escalated: false,
-        escalationLevel: context.escalationLevel,
-        contactsNotified: [],
-        reason: 'No escalation tree configured'
-      };
+    if (!tree) {
+      console.warn(`[RunbookService] No escalation tree for ${context.incidentContext.incidentType}/${context.incidentContext.severity}`);
+      return { escalated: false, escalationLevel: context.escalationLevel, contactsNotified: [], reason: 'No escalation tree configured' };
     }
-    
-    // Get contacts for new escalation level
-    const contacts = await this.storage.getContactsByEscalationLevel(context.escalationLevel);
-    const contactsNotified: ContactNotification[] = [];
-    
-    for (const contact of contacts) {
-      const notification: ContactNotification = {
-        contactId: contact.contactId,
-        contact,
-        channel: this.selectEscalationChannel(contact, context.escalationLevel),
-        status: 'pending',
-        retryCount: 0,
-        message: this.formatEscalationNotification(context, reason)
-      };
-      
-      try {
-        await this.sendNotification(notification);
-        notification.status = 'sent';
-        notification.sentAt = new Date();
-      } catch (error) {
-        notification.status = 'failed';
-        console.error(`[RunbookService] Failed to escalate to ${contact.name}:`, error);
-      }
-      
-      contactsNotified.push(notification);
+    const maxLevel = tree.maxEscalationLevel ?? Number.MAX_SAFE_INTEGER;
+    if (context.escalationLevel >= maxLevel) {
+      return { escalated: false, escalationLevel: context.escalationLevel, contactsNotified: [], reason: `Already at the tree's maximum escalation level (${maxLevel})` };
     }
-    
-    // Update execution record
+    context.escalationLevel += 1;
+    context.escalationTreeUsed = tree.treeId;
+    console.log(`[RunbookService] Escalating ${context.incidentContext.incidentId} to level ${context.escalationLevel}: ${reason}`);
+
+    const contactsNotified = await this.notifyLevel(context, context.escalationLevel,
+      `ESCALATION level ${context.escalationLevel}: incident ${context.incidentContext.incidentId}`,
+      this.formatEscalationNotification(context, reason));
+
+    const escalations = ((await this.mergeMetadata(context.executionId, {})).escalations as unknown[] | undefined) ?? [];
     await this.storage.updateRunbookExecution(context.executionId, {
-      escalationLevel: context.escalationLevel,
-      escalationReason: reason,
-      escalatedAt: new Date()
+      contactsNotified: context.contactsNotified,
+      escalationTreeUsed: tree.treeId,
+      metadata: await this.mergeMetadata(context.executionId, {
+        escalationLevel: context.escalationLevel,
+        escalations: [...escalations, { level: context.escalationLevel, reason, at: new Date().toISOString(), contacts: contactsNotified }],
+      }),
     });
-    
-    // Schedule next escalation if configured
-    const nextEscalationTime = this.scheduleNextEscalation(context, escalationTree);
-    
-    return {
-      escalated: true,
-      escalationLevel: context.escalationLevel,
-      contactsNotified,
-      nextEscalationTime,
-      reason
-    };
+
+    const nextEscalationTime = this.scheduleNextEscalation(context, tree);
+    return { escalated: true, escalationLevel: context.escalationLevel, contactsNotified, nextEscalationTime, reason };
   }
 
-  /**
-   * Select appropriate notification channel for contact
-   */
-  private selectNotificationChannel(contact: RunbookContact): 'email' | 'sms' | 'phone' | 'slack' {
-    // Simple logic - in real implementation this would be more sophisticated
-    if (contact.isAvailable24x7) {
-      return contact.phoneNumber ? 'phone' : 'email';
+  /** Queue a delivery for every active contact at the level; record who could not be reached. */
+  private async notifyLevel(context: RunbookExecutionContext, level: number, subject: string, message: string): Promise<ContactNotification[]> {
+    const contacts = await this.storage.getContactsByEscalationLevel(level);
+    const out: ContactNotification[] = [];
+    for (const contact of contacts) {
+      const target = this.selectChannel(contact);
+      if (!target) {
+        out.push({ contactId: contact.contactId, name: contact.name, channel: 'none', status: 'no_channel', error: 'Contact has no email or SMS number on file' });
+        continue;
+      }
+      try {
+        const deliveryId = await this.queue({
+          type: target.channel,
+          priority: context.incidentContext.severity === 'critical' ? 'urgent' : context.incidentContext.severity === 'high' ? 'high' : 'normal',
+          recipient: target.recipient,
+          content: { subject, message },
+          metadata: {},
+          maxRetries: 3,
+          scheduledAt: new Date(),
+        });
+        await this.storage.updateContactLastContacted(contact.contactId);
+        if (!context.contactsNotified.includes(contact.contactId)) context.contactsNotified.push(contact.contactId);
+        out.push({ contactId: contact.contactId, name: contact.name, channel: target.channel, status: 'queued', deliveryId });
+      } catch (error) {
+        out.push({ contactId: contact.contactId, name: contact.name, channel: target.channel, status: 'failed', error: error instanceof Error ? error.message : String(error) });
+      }
     }
-    return 'email';
+    return out;
   }
 
-  /**
-   * Select escalation channel (typically more urgent)
-   */
-  private selectEscalationChannel(contact: RunbookContact, escalationLevel: number): 'email' | 'sms' | 'phone' | 'slack' {
-    if (escalationLevel >= 3) {
-      return 'phone'; // Highest urgency
-    } else if (escalationLevel >= 2) {
-      return contact.phoneNumber ? 'sms' : 'email';
-    }
-    return 'email';
+  /** The queue delivers email and SMS; a phone-only or Slack-only contact has no channel here. */
+  private selectChannel(contact: RunbookContact): { channel: 'email' | 'sms'; recipient: string } | null {
+    const preferSms = contact.preferredContactMethod === 'sms';
+    if (preferSms && contact.smsNumber) return { channel: 'sms', recipient: contact.smsNumber };
+    if (contact.primaryEmail) return { channel: 'email', recipient: contact.primaryEmail };
+    if (contact.smsNumber) return { channel: 'sms', recipient: contact.smsNumber };
+    if (contact.secondaryEmail) return { channel: 'email', recipient: contact.secondaryEmail };
+    return null;
   }
 
-  /**
-   * Send notification to contact
-   */
-  private async sendNotification(notification: ContactNotification): Promise<void> {
-    console.log(`[RunbookService] Sending ${notification.channel} notification to ${notification.contact.name}`);
-    
-    // In real implementation, this would integrate with notification services
-    // For now, simulate sending
-    await this.simulateStepExecution(100);
-    
-    // Update contact's last contacted time
-    await this.storage.updateContactLastContacted(notification.contactId);
+  private scheduleNextEscalation(context: RunbookExecutionContext, tree: ContactEscalationTree): Date | undefined {
+    if (!tree.autoEscalationEnabled || !tree.escalationIntervalMinutes || tree.escalationIntervalMinutes <= 0) return undefined;
+    if (tree.maxEscalationLevel != null && context.escalationLevel >= tree.maxEscalationLevel) return undefined;
+    const ms = tree.escalationIntervalMinutes * 60 * 1000;
+    const existing = this.escalationTimers.get(context.executionId);
+    if (existing) clearTimeout(existing);
+    const timer = this.schedule(() => {
+      if (!this.activeExecutions.has(context.executionId)) return;
+      void this.escalateIncident(context, 'Automatic escalation: interval elapsed without resolution').catch((error) => {
+        console.error(`[RunbookService] Automatic escalation failed for ${context.executionId}:`, error);
+      });
+    }, ms);
+    this.escalationTimers.set(context.executionId, timer);
+    return new Date(Date.now() + ms);
   }
 
-  /**
-   * Format incident notification message
-   */
   private formatIncidentNotification(step: RunbookStep, context: RunbookExecutionContext): string {
     const { incidentContext } = context;
-    
-    return `
-INCIDENT NOTIFICATION
-
-Incident ID: ${incidentContext.incidentId}
-Type: ${incidentContext.incidentType}
-Severity: ${incidentContext.severity.toUpperCase()}
-Environment: ${incidentContext.environment}
-
-Description: ${incidentContext.description}
-
-Current Step: ${step.stepTitle}
-Execution ID: ${context.executionId}
-
-Please follow the incident response procedures.
-    `.trim();
+    return [
+      'INCIDENT NOTIFICATION',
+      '',
+      `Incident ID: ${incidentContext.incidentId}`,
+      `Type: ${incidentContext.incidentType}`,
+      `Severity: ${incidentContext.severity.toUpperCase()}`,
+      `Environment: ${incidentContext.environment}`,
+      '',
+      `Description: ${incidentContext.description}`,
+      '',
+      `Current step: ${step.stepOrder}. ${step.title}`,
+      `Execution ID: ${context.executionId}`,
+    ].join('\n');
   }
 
-  /**
-   * Format escalation notification message
-   */
   private formatEscalationNotification(context: RunbookExecutionContext, reason: string): string {
     const { incidentContext } = context;
-    
-    return `
-INCIDENT ESCALATION - LEVEL ${context.escalationLevel}
-
-Incident ID: ${incidentContext.incidentId}
-Type: ${incidentContext.incidentType}
-Severity: ${incidentContext.severity.toUpperCase()}
-Environment: ${incidentContext.environment}
-
-Escalation Reason: ${reason}
-
-Description: ${incidentContext.description}
-
-Execution ID: ${context.executionId}
-Started: ${context.startTime.toISOString()}
-
-IMMEDIATE ATTENTION REQUIRED
-    `.trim();
+    return [
+      `INCIDENT ESCALATION - LEVEL ${context.escalationLevel}`,
+      '',
+      `Incident ID: ${incidentContext.incidentId}`,
+      `Type: ${incidentContext.incidentType}`,
+      `Severity: ${incidentContext.severity.toUpperCase()}`,
+      `Environment: ${incidentContext.environment}`,
+      '',
+      `Escalation reason: ${reason}`,
+      `Description: ${incidentContext.description}`,
+      '',
+      `Execution ID: ${context.executionId}`,
+      `Started: ${context.startTime.toISOString()}`,
+    ].join('\n');
   }
 
-  /**
-   * Schedule next escalation
-   */
-  private scheduleNextEscalation(context: RunbookExecutionContext, escalationTree: ContactEscalationTree): Date | undefined {
-    if (!escalationTree.escalationIntervalMinutes) {
-      return undefined;
-    }
-    
-    const nextTime = new Date(Date.now() + escalationTree.escalationIntervalMinutes * 60 * 1000);
-    
-    const timer = setTimeout(async () => {
-      if (this.activeExecutions.has(context.executionId)) {
-        await this.escalateIncident(context, 'Automatic escalation - time interval exceeded');
-      }
-    }, escalationTree.escalationIntervalMinutes * 60 * 1000);
-    
-    this.escalationTimers.set(context.executionId, timer);
-    
-    return nextTime;
-  }
+  // ---------------------------------------------------------------- validation / lifecycle
 
-  /**
-   * Complete execution successfully
-   */
-  private async completeExecution(context: RunbookExecutionContext, reason: string): Promise<void> {
-    console.log(`[RunbookService] Completing execution ${context.executionId}: ${reason}`);
-    
-    context.status = 'completed';
-    
-    await this.storage.completeRunbookExecution(context.executionId, {
-      completionReason: reason,
-      finalStatus: 'completed'
-    });
-    
-    this.cleanupExecution(context.executionId);
-  }
-
-  /**
-   * Fail execution
-   */
-  private async failExecution(context: RunbookExecutionContext, reason: string): Promise<void> {
-    console.log(`[RunbookService] Failing execution ${context.executionId}: ${reason}`);
-    
-    context.status = 'failed';
-    
-    await this.storage.updateRunbookExecution(context.executionId, {
-      status: 'failed',
-      completedAt: new Date(),
-      error: reason
-    });
-    
-    this.cleanupExecution(context.executionId);
-  }
-
-  /**
-   * Update execution with step result
-   */
-  private async updateExecutionStepResult(executionId: string, stepResult: StepExecutionResult): Promise<void> {
+  private requireActive(executionId: string): RunbookExecutionContext {
     const context = this.activeExecutions.get(executionId);
-    if (!context) return;
-    
-    // In real implementation, this would update the execution record with step results
-    console.log(`[RunbookService] Updated step result for execution ${executionId}: ${stepResult.status}`);
+    if (!context) {
+      throw new ServiceError(`Execution ${executionId} is not active in this process`, 404, 'execution_not_active');
+    }
+    return context;
   }
 
-  /**
-   * Cleanup execution resources
-   */
+  private validateRunbook(runbook: InsertIncidentRunbook): void {
+    if (!runbook.title || runbook.title.trim().length === 0) throw new ServiceError('Runbook title is required', 400, 'invalid_runbook');
+    if (!runbook.incidentType) throw new ServiceError('Incident type is required', 400, 'invalid_runbook');
+    if (!runbook.severity) throw new ServiceError('Severity is required', 400, 'invalid_runbook');
+  }
+
+  private validateContact(contact: InsertRunbookContact): void {
+    if (!contact.name || contact.name.trim().length === 0) throw new ServiceError('Contact name is required', 400, 'invalid_contact');
+    if (typeof contact.escalationLevel !== 'number' || contact.escalationLevel < 1) throw new ServiceError('Valid escalation level is required', 400, 'invalid_contact');
+    if (!contact.primaryEmail && !contact.secondaryEmail && !contact.smsNumber) {
+      throw new ServiceError('Contact needs an email address or SMS number to be reachable', 400, 'invalid_contact');
+    }
+  }
+
+  private validateEscalationTree(tree: InsertContactEscalationTree): void {
+    if (!tree.name || tree.name.trim().length === 0) throw new ServiceError('Tree name is required', 400, 'invalid_escalation_tree');
+    if (!tree.incidentTypes || tree.incidentTypes.length === 0) throw new ServiceError('At least one incident type is required', 400, 'invalid_escalation_tree');
+    if (!tree.severityLevels || tree.severityLevels.length === 0) throw new ServiceError('At least one severity level is required', 400, 'invalid_escalation_tree');
+  }
+
   private cleanupExecution(executionId: string): void {
     this.activeExecutions.delete(executionId);
-    
     const timer = this.escalationTimers.get(executionId);
     if (timer) {
       clearTimeout(timer);
@@ -654,160 +599,8 @@ IMMEDIATE ATTENTION REQUIRED
     }
   }
 
-  /**
-   * Get active executions
-   */
-  async getActiveExecutions(): Promise<RunbookExecution[]> {
-    return await this.storage.getActiveRunbookExecutions();
-  }
-
-  /**
-   * Get execution status
-   */
-  async getExecutionStatus(executionId: string): Promise<RunbookExecution | undefined> {
-    return await this.storage.getRunbookExecution(executionId);
-  }
-
-  /**
-   * Get runbooks by incident type
-   */
-  async getRunbooksByIncidentType(incidentType: string): Promise<IncidentRunbook[]> {
-    return await this.storage.getRunbooksByIncidentType(incidentType);
-  }
-
-  /**
-   * Create runbook contact
-   */
-  async createContact(contact: Omit<InsertRunbookContact, 'id'>): Promise<RunbookContact> {
-    this.validateContact(contact);
-    
-    const newContact = await this.storage.createRunbookContact({
-      ...contact,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    });
-
-    console.log(`[RunbookService] Created contact: ${newContact.name} (Level ${newContact.escalationLevel})`);
-    
-    return newContact;
-  }
-
-  /**
-   * Create escalation tree
-   */
-  async createEscalationTree(tree: Omit<InsertContactEscalationTree, 'id'>): Promise<ContactEscalationTree> {
-    this.validateEscalationTree(tree);
-    
-    const newTree = await this.storage.createContactEscalationTree({
-      ...tree,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    });
-
-    console.log(`[RunbookService] Created escalation tree: ${newTree.treeName} for ${newTree.incidentTypes?.join(', ')}`);
-    
-    return newTree;
-  }
-
-  /**
-   * Pause execution
-   */
-  async pauseExecution(executionId: string, reason: string): Promise<void> {
-    const context = this.activeExecutions.get(executionId);
-    if (context) {
-      context.status = 'paused';
-      await this.storage.updateRunbookExecution(executionId, {
-        status: 'paused',
-        pauseReason: reason,
-        pausedAt: new Date()
-      });
-      
-      console.log(`[RunbookService] Paused execution ${executionId}: ${reason}`);
-    }
-  }
-
-  /**
-   * Resume execution
-   */
-  async resumeExecution(executionId: string): Promise<void> {
-    const context = this.activeExecutions.get(executionId);
-    if (context) {
-      context.status = 'in_progress';
-      await this.storage.updateRunbookExecution(executionId, {
-        status: 'in_progress',
-        resumedAt: new Date()
-      });
-      
-      console.log(`[RunbookService] Resumed execution ${executionId}`);
-    }
-  }
-
-  /**
-   * Validate runbook
-   */
-  private validateRunbook(runbook: any): void {
-    if (!runbook.runbookTitle || runbook.runbookTitle.trim().length === 0) {
-      throw new Error('Runbook title is required');
-    }
-
-    if (!runbook.incidentType) {
-      throw new Error('Incident type is required');
-    }
-
-    if (!runbook.severity) {
-      throw new Error('Severity is required');
-    }
-  }
-
-  /**
-   * Validate contact
-   */
-  private validateContact(contact: any): void {
-    if (!contact.name || contact.name.trim().length === 0) {
-      throw new Error('Contact name is required');
-    }
-
-    if (!contact.role) {
-      throw new Error('Contact role is required');
-    }
-
-    if (typeof contact.escalationLevel !== 'number' || contact.escalationLevel < 1) {
-      throw new Error('Valid escalation level is required');
-    }
-  }
-
-  /**
-   * Validate escalation tree
-   */
-  private validateEscalationTree(tree: any): void {
-    if (!tree.treeName || tree.treeName.trim().length === 0) {
-      throw new Error('Tree name is required');
-    }
-
-    if (!tree.incidentTypes || tree.incidentTypes.length === 0) {
-      throw new Error('At least one incident type is required');
-    }
-
-    if (!tree.severityLevels || tree.severityLevels.length === 0) {
-      throw new Error('At least one severity level is required');
-    }
-  }
-
-  /**
-   * Simulate step execution (replace with real logic)
-   */
-  private async simulateStepExecution(duration: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, duration));
-  }
-
-  /**
-   * Cleanup resources
-   */
   destroy(): void {
-    // Clear all escalation timers
-    for (const timer of this.escalationTimers.values()) {
-      clearTimeout(timer);
-    }
+    for (const timer of this.escalationTimers.values()) clearTimeout(timer);
     this.escalationTimers.clear();
     this.activeExecutions.clear();
   }

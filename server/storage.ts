@@ -4011,17 +4011,17 @@ export class DatabaseStorage implements IStorage {
   async getEscalationTreeByIncidentType(incidentType: string, severity: string): Promise<ContactEscalationTree | undefined> {
     return this.handleDatabaseOperation(async () => {
 
-      // Use SQL to query arrays - check if incidentType is in incidentTypes array
-      const result = await db.execute(sql`
-        SELECT * FROM contact_escalation_trees
-        WHERE is_active = true
-          AND ${incidentType} = ANY(incident_types)
-          AND ${severity} = ANY(severity_levels)
-        ORDER BY created_at DESC
-        LIMIT 1
-      `);
-
-      return result.rows?.[0] as ContactEscalationTree | undefined;
+      // Typed query (a raw db.execute returned snake_case rows that the callers read as
+      // camelCase: treeId / maxEscalationLevel / autoEscalationEnabled came back undefined).
+      const [tree] = await db.select().from(contactEscalationTrees)
+        .where(and(
+          eq(contactEscalationTrees.isActive, true),
+          sql`${incidentType} = ANY(${contactEscalationTrees.incidentTypes})`,
+          sql`${severity} = ANY(${contactEscalationTrees.severityLevels})`
+        ))
+        .orderBy(desc(contactEscalationTrees.createdAt))
+        .limit(1);
+      return tree;
     }, undefined, 'getEscalationTreeByIncidentType');
   }
 
