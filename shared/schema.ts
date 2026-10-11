@@ -17,6 +17,10 @@ export const elections = pgTable("elections", {
   pollsOpen: text("polls_open"),
   pollsClose: text("polls_close"),
   timezone: text("timezone"),
+  // Poll-hours provenance (2026-10-11): see server/poll-hours-2026.ts
+  pollCloseKind: text("poll_close_kind"), // 'polls' | 'ballot_return'
+  pollHoursBasis: text("poll_hours_basis"), // 'statewide_latest' | 'district_latest' | 'local_variable'
+  pollHoursSource: text("poll_hours_source"), // primary URL
   isActive: boolean("is_active").default(true),
 });
 
