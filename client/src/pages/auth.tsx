@@ -14,10 +14,14 @@ export default function AuthPage() {
   // Return to the page that sent the visitor here (e.g. Watch on an election).
   const returnTo = safeReturnTo(new URLSearchParams(window.location.search).get("returnTo"));
 
+  // Already signed in: go back. Not while registering, though: the onboarding
+  // flow signs the user in after step 1 and still has preference steps to show;
+  // it calls handleSuccess itself when finished.
+  const registering = activeTab === "register";
   useEffect(() => {
-    if (isAuthenticated) setLocation(returnTo);
-  }, [isAuthenticated, returnTo, setLocation]);
-  if (isAuthenticated) return null;
+    if (isAuthenticated && !registering) setLocation(returnTo);
+  }, [isAuthenticated, registering, returnTo, setLocation]);
+  if (isAuthenticated && !registering) return null;
   
   const handleSuccess = () => {
     setLocation(returnTo);

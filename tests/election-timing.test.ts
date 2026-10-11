@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getElectionTiming, parseClockTime, zonedTimeToUtc, splitDuration } from "../client/src/lib/election-timing";
+import { getElectionTiming, parseClockTime, zonedTimeToUtc, splitDuration, isUpcomingElection } from "../client/src/lib/election-timing";
 
 const NOV3 = "2026-11-03T00:00:00.000Z"; // how the API stores election dates
 
@@ -78,5 +78,24 @@ describe("splitDuration", () => {
   it("splits and clamps", () => {
     expect(splitDuration(90061000)).toEqual({ days: 1, hours: 1, minutes: 1, seconds: 1 });
     expect(splitDuration(-5)).toEqual({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  });
+});
+
+describe("isUpcomingElection (matches lane C server rule)", () => {
+  const nov3 = (timezone?: string) => ({ date: "2026-11-03T00:00:00.000Z", timezone });
+  const at = (iso: string) => new Date(iso);
+  it("keeps a Nov 3 Hawaii race at 05:30 UTC Nov 4 (7:30 pm HST)", () => {
+    expect(isUpcomingElection(nov3("Pacific/Honolulu"), at("2026-11-04T05:30:00Z"))).toBe(true);
+  });
+  it("keeps Aleutian Nov 3 but drops New York Nov 3 once it is Nov 4 there", () => {
+    expect(isUpcomingElection(nov3("America/Adak"), at("2026-11-04T06:30:00Z"))).toBe(true);
+    expect(isUpcomingElection(nov3("America/New_York"), at("2026-11-04T06:30:00Z"))).toBe(false);
+  });
+  it("unknown zone falls back to UTC-11, never UTC midnight", () => {
+    expect(isUpcomingElection(nov3(), at("2026-11-04T05:30:00Z"))).toBe(true);
+    expect(isUpcomingElection(nov3(), at("2026-11-04T11:30:00Z"))).toBe(false);
+  });
+  it("drops the past Sept 15 primary", () => {
+    expect(isUpcomingElection({ date: "2026-09-15T00:00:00.000Z", timezone: "America/New_York" }, at("2026-10-11T12:00:00Z"))).toBe(false);
   });
 });

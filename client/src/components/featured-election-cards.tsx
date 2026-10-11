@@ -1,6 +1,6 @@
 import { ElectionCard } from '@/components/election-card';
 import type { Election } from '@shared/schema';
-import { getElectionTiming } from '@/lib/election-timing';
+import { isUpcomingElection } from '@/lib/election-timing';
 
 interface FeaturedElectionCardsProps {
   elections: Election[];
@@ -13,10 +13,7 @@ export function FeaturedElectionCards({ elections }: FeaturedElectionCardsProps)
   // three rows featured a primary that was already over.
   const now = new Date();
   const featuredElections = elections
-    .filter(e => {
-      const phase = getElectionTiming(e, now).phase;
-      return phase !== 'completed' && phase !== 'polls-closed';
-    })
+    .filter(e => isUpcomingElection(e, now))
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     .slice(0, FEATURED_COUNT);
   
