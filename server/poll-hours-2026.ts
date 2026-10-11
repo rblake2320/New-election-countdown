@@ -4,6 +4,7 @@
  * Sources
  *   - NCSL, "Polling Places" (statute per state): https://www.ncsl.org/elections-and-campaigns/polling-places
  *   - Ballotpedia, "State Poll Opening and Closing Times (2026)": https://ballotpedia.org/State_Poll_Opening_and_Closing_Times_(2026)
+ *   - Oregon SOS current-election page (official 8 p.m. return deadline): https://sos.oregon.gov/elections/Pages/current-election.aspx
  *   - North Dakota actual 2026 polling-place schedule (167 places): https://vip.sos.nd.gov/Precincts.aspx?eid=348
  *   - Cross-check: 270toWin Eastern closing-time table (tests/unit/poll-hours-2026.test.ts)
  *
@@ -61,9 +62,9 @@ export const STATE_HOURS: Record<string, PollHours> = {
   ND: { open: null, close: "19:00", tz: "America/Denver", kind: "polls", basis: "statewide_latest", source: "https://vip.sos.nd.gov/Precincts.aspx?eid=348", note: "NCSL: Open between 7-9 a.m. and close between 7-9 p.m.; N.D. Cent. Code § 16.1-01-03; multi-zone; latest zone used (predominant America/Chicago); actual 2026: all 167 polling places close 7 p.m. local" },
   OH: { open: "06:30", close: "19:30", tz: "America/New_York", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 6:30 a.m. to 7:30 p.m.; Ohio Rev. Code § 3501.32" },
   OK: { open: "07:00", close: "19:00", tz: "America/Chicago", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 7 p.m.; 26 Okla. Stat. § 7-104" },
-  OR: { open: null, close: "20:00", tz: "America/Los_Angeles", kind: "ballot_return", basis: "statewide_latest", source: "https://ballotpedia.org/State_Poll_Opening_and_Closing_Times_(2026)", note: "NCSL: Not specified.; statute: see Ballotpedia; multi-zone; latest zone used (predominant America/Los_Angeles)" },
+  OR: { open: null, close: "20:00", tz: "America/Los_Angeles", kind: "ballot_return", basis: "statewide_latest", source: "https://sos.oregon.gov/elections/Pages/current-election.aspx", note: "NCSL: Not specified.; statute: see Ballotpedia; multi-zone; latest zone used (predominant America/Los_Angeles)" },
   PA: { open: "07:00", close: "20:00", tz: "America/New_York", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 8 p.m.; Pa. Stat. tit. 25, § 3045" },
-  RI: { open: "07:00", close: "20:00", tz: "America/New_York", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 8 p.m.; R.I. Gen. Laws §§ 17-18-10, 17-18-11" },
+  RI: { open: null, close: "20:00", tz: "America/New_York", kind: "polls", basis: "statewide_latest", source: "https://vote.sos.ri.gov/Forms/Elections/Guides/2026ElecCal.pdf", note: "NCSL: 7 a.m. to 8 p.m.; R.I. Gen. Laws §§ 17-18-10, 17-18-11; 2026 election calendar p.4 / elections.ri.gov/polling-hours: New Shoreham opens 9 a.m., other towns 7 a.m.; all close 8 p.m." },
   SC: { open: "07:00", close: "19:00", tz: "America/New_York", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 7 p.m.; S.C. Code Ann. § 7-13-60" },
   SD: { open: null, close: "19:00", tz: "America/Denver", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 7 p.m.; S.D. Codified Laws § 12-2-3; multi-zone; latest zone used (predominant America/Chicago)" },
   TN: { open: null, close: "19:00", tz: "America/Chicago", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: Opening times vary by county. Polls close at 8 p.m. in eastern time zone and 7 p.m. in central time zone.; Tenn. Code Ann. § 2-3-201; multi-zone; latest zone used (predominant America/Chicago)" },

@@ -30,20 +30,23 @@ import { pollHoursFor, ELECTION_DAY_2026 as ELECTION_DAY } from "../server/poll-
 
 async function main() {
   const apply = process.argv.includes("--apply");
+  // Test hook (never set in production): abort after N updates to prove the whole
+  // transaction - schema change included - rolls back.
+  const injectFailureAfter = Number(process.env.POLL_HOURS_INJECT_FAILURE_AFTER || 0);
   const client = await pool.connect();
   try {
-    // Provenance columns are additive (migrations/20261011_poll_hours_metadata.sql). A dry-run must not
-    // touch the schema, so detect them and only create them under --apply.
-    const colq = await client.query<{ column_name: string }>(`SELECT column_name FROM information_schema.columns WHERE table_name = 'elections' AND column_name IN ('poll_close_kind','poll_hours_basis','poll_hours_source')`);
-    const haveMeta = colq.rowCount === 3;
-    if (!haveMeta && apply) {
+    // One transaction for everything. DDL is transactional in PostgreSQL, so the
+    // additive columns, the read, and the updates commit or roll back together.
+    await client.query(apply ? "BEGIN ISOLATION LEVEL SERIALIZABLE" : "BEGIN READ ONLY");
+    if (apply) {
+      await client.query(`LOCK TABLE elections IN SHARE ROW EXCLUSIVE MODE`);
       await client.query(`ALTER TABLE elections ADD COLUMN IF NOT EXISTS poll_close_kind text`);
       await client.query(`ALTER TABLE elections ADD COLUMN IF NOT EXISTS poll_hours_basis text`);
       await client.query(`ALTER TABLE elections ADD COLUMN IF NOT EXISTS poll_hours_source text`);
-      console.log("added provenance columns poll_close_kind / poll_hours_basis / poll_hours_source");
-    } else if (!haveMeta) {
-      console.log("note: provenance columns absent on this DB (dry-run leaves schema untouched; --apply adds them)");
     }
+    const colq = await client.query<{ column_name: string }>(`SELECT column_name FROM information_schema.columns WHERE table_name = 'elections' AND column_name IN ('poll_close_kind','poll_hours_basis','poll_hours_source')`);
+    const haveMeta = colq.rowCount === 3;
+    if (!haveMeta) console.log("note: provenance columns absent on this DB (dry-run leaves schema untouched; --apply adds them inside the same transaction)");
     const metaCols = haveMeta ? ", poll_close_kind, poll_hours_basis, poll_hours_source" : ", NULL::text AS poll_close_kind, NULL::text AS poll_hours_basis, NULL::text AS poll_hours_source";
     const { rows } = await client.query<{ id: number; state: string; title: string; polls_open: string | null; polls_close: string | null; timezone: string | null; poll_close_kind: string | null; poll_hours_basis: string | null; poll_hours_source: string | null }>(
       `SELECT id, state, title, polls_open, polls_close, timezone${metaCols} FROM elections WHERE date = $1::date ORDER BY state, title`,
@@ -62,19 +65,20 @@ async function main() {
     for (const p of plan) byState[p.state] = (byState[p.state] || 0) + 1;
     console.log(`${ELECTION_DAY}: ${rows.length} rows; ${plan.length} need changes; states missing from table: ${[...missingStates].join(",") || "none"}`);
     console.log("changes by state:", JSON.stringify(byState));
-    const overrides = plan.filter(p => p.basis === "district_latest");
-    console.log(`district timezone overrides applied: ${overrides.length}`, overrides.map(o => `${o.title.split(" - ")[1]}→${o.tz}`).join(" "));
-    if (!apply) { console.log("dry-run only — re-run with --apply to write"); return; }
+    if (rows.length === 0) throw new Error(`refusing: no elections found for ${ELECTION_DAY}`);
+    if (missingStates.size > 0) throw new Error(`refusing: no poll-hours entry for state(s) ${[...missingStates].join(",")} - partial coverage is not applied`);
+    if (!apply) { await client.query("ROLLBACK"); console.log("dry-run only - re-run with --apply to write"); return; }
 
-    await client.query("BEGIN");
     let updated = 0;
     for (const p of plan) {
       const res = await client.query(`UPDATE elections SET polls_open = $1, polls_close = $2, timezone = $3, poll_close_kind = $4, poll_hours_basis = $5, poll_hours_source = $6 WHERE id = $7`, [p.open, p.close, p.tz, p.kind, p.basis, p.source, p.id]);
       updated += res.rowCount ?? 0;
+      if (injectFailureAfter > 0 && updated >= injectFailureAfter) throw new Error(`injected failure after ${updated} updates (test hook)`);
     }
-    await client.query("COMMIT");
     const after = await client.query(`SELECT count(*) FILTER (WHERE timezone IS NULL OR poll_hours_basis IS NULL) AS missing, count(*) AS total FROM elections WHERE date = $1::date`, [ELECTION_DAY]);
-    console.log(`applied: ${updated} rows updated; after: ${after.rows[0].missing} of ${after.rows[0].total} election-day rows still lack timezone/basis (close may be null where basis=local_variable)`);
+    if (Number(after.rows[0].missing) !== 0) throw new Error(`refusing to commit: ${after.rows[0].missing} election-day rows would still lack timezone/basis`);
+    await client.query("COMMIT");
+    console.log(`applied: ${updated} rows updated; after: ${after.rows[0].missing} of ${after.rows[0].total} election-day rows lack timezone/basis (close may be null where basis=local_variable)`);
   } catch (e) {
     await client.query("ROLLBACK").catch(() => {});
     throw e;
@@ -84,4 +88,4 @@ async function main() {
   }
 }
 
-main().catch((e) => { console.error(e); process.exitCode = 1; });
+main().catch((e) => { console.error(String(e)); process.exitCode = 1; });

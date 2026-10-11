@@ -73,7 +73,7 @@ describe("pollHoursFor", () => {
     expect(pollHoursFor("NH", "U.S. Senate Election - New Hampshire")).toMatchObject({ close: null, basis: "local_variable" });
     expect(pollHoursFor("KS", "U.S. Senate Election - Kansas")).toMatchObject({ close: null, basis: "local_variable" });
     expect(pollHoursFor("ND", "U.S. House Election - ND-AL")).toMatchObject({ close: "19:00", tz: "America/Denver", source: expect.stringContaining("vip.sos.nd.gov") });
-    for (const st of ["ME", "MA", "MN", "MT", "VT", "ID", "OR", "TN", "WA", "NE", "ND", "NH", "AL", "AK", "FL", "IN", "KS", "KY", "MI", "SD", "TX"]) expect(STATE_HOURS[st].open, st).toBeNull();
+    for (const st of ["ME", "MA", "MN", "MT", "VT", "ID", "OR", "TN", "WA", "NE", "ND", "NH", "AL", "AK", "FL", "IN", "KS", "KY", "MI", "SD", "TX", "RI"]) expect(STATE_HOURS[st].open, st).toBeNull();
   });
   it("returns undefined for unknown states (script reports them instead of guessing)", () => {
     expect(pollHoursFor("DC", "Mayor")).toBeUndefined();
