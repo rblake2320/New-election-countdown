@@ -1,0 +1,33 @@
+{
+  "capturedAt": "2026-10-11T16:31:29.764250+00:00",
+  "baseCommit": "425510af784c166fbdf761165c3f39d48ebf4130",
+  "nodeVersion": "v24.17.0",
+  "behavioralProbesPassed": 4,
+  "realDBCalls": 0,
+  "realProviderCalls": 0,
+  "secretsLoaded": false,
+  "oldDeleteFirst": {
+    "exitCode": 1,
+    "existingSyntheticRowsAfterFailedInsert": 0,
+    "databaseCallOrder": [
+      "delete",
+      "insert"
+    ]
+  },
+  "newGuard": {
+    "mockImports": 0,
+    "mockFileCalls": 0,
+    "mockDatabaseCalls": 0,
+    "existingSyntheticProfilePreserved": true,
+    "actualNodeExit": 1,
+    "actualImportAttempts": 0,
+    "typedRefusalCode": "LEGACY_CONGRESS_SOURCE_UNVERIFIED"
+  },
+  "onlyRuntimeFileChanged": "bulk_restore_congress.js",
+  "noServiceSchemaRoutePackageChanges": true,
+  "siblingReadOnlyFinding": {
+    "path": "restore_congress_members.js",
+    "observed": "Pool constructed from env; DELETE-first; bioguide fallback to name/Unknown; hardcoded119; ON CONFLICT DO NOTHING",
+    "patchApplied": false
+  }
+}
