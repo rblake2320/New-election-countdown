@@ -1,4 +1,4 @@
-import { db } from './db';
+import { db, pool } from './db';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 import { writeFile, mkdir, readdir, stat, rename, unlink, chmod } from 'fs/promises';
@@ -255,7 +255,7 @@ export class BackupService {
     console.log('Creating pre-archival backup...');
     
     try {
-      const backupPaths = [];
+      const backupPaths: string[] = [];
 
       // Backup data that will be archived
       const analyticsBackup = await this.backupAnalyticsBeforeArchival();
@@ -280,7 +280,7 @@ export class BackupService {
 
     const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
 
-    const analyticsData = await db.execute(`
+    const analyticsData = await pool.query(`
       SELECT 
         il.*,
         em.time_on_page,
@@ -310,7 +310,7 @@ export class BackupService {
 
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-    const completedElections = await db.execute(`
+    const completedElections = await pool.query(`
       SELECT 
         e.*,
         COALESCE(json_agg(c.*) FILTER (WHERE c.id IS NOT NULL), '[]') as candidates

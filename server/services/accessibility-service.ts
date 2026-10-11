@@ -220,7 +220,7 @@ class AccessibilityService {
     
     // Check for missing alt text on images
     const imgRegex = /<img[^>]*>/gi;
-    const images = htmlContent.match(imgRegex) || [];
+    const images: string[] = htmlContent.match(imgRegex) ?? [];
     
     images.forEach((img, index) => {
       if (!img.includes('alt=')) {
@@ -238,7 +238,7 @@ class AccessibilityService {
 
     // Check for proper heading structure
     const headingRegex = /<h[1-6][^>]*>/gi;
-    const headings = htmlContent.match(headingRegex) || [];
+    const headings: string[] = htmlContent.match(headingRegex) ?? [];
     let previousLevel = 0;
     
     headings.forEach((heading, index) => {
@@ -261,7 +261,7 @@ class AccessibilityService {
 
     // Check for buttons without labels
     const buttonRegex = /<button[^>]*>/gi;
-    const buttons = htmlContent.match(buttonRegex) || [];
+    const buttons: string[] = htmlContent.match(buttonRegex) ?? [];
     
     buttons.forEach((button, index) => {
       if (!button.includes('aria-label=') && !button.includes('>')) {

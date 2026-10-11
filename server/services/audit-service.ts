@@ -12,7 +12,7 @@ import {
   auditRuns, 
   manualReviewQueue 
 } from '@shared/schema';
-import { eq, and, gte, lte, sql, desc } from 'drizzle-orm';
+import { eq, and, gte, lte, sql, desc, type SQL } from 'drizzle-orm';
 import { multiLayerValidator } from './multi-layer-validator';
 import type { Election, MultiLayerValidationResult } from './multi-layer-validator';
 import type { InsertAuditRun } from '@shared/schema';
@@ -201,7 +201,7 @@ export class AuditService {
    */
   private async fetchElectionsForAudit(scope: AuditScope): Promise<Election[]> {
     // Build conditions
-    const conditions = [];
+    const conditions: SQL[] = [];
     
     if (scope.type === 'specific_state' && scope.state) {
       conditions.push(eq(elections.state, scope.state));
@@ -294,7 +294,7 @@ export class AuditService {
     limit?: number;
   }) {
     // Build conditions
-    const conditions = [];
+    const conditions: SQL[] = [];
     
     if (filters?.severity) {
       conditions.push(eq(manualReviewQueue.issueSeverity, filters.severity));

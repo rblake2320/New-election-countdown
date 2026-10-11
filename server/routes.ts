@@ -103,12 +103,11 @@ import {
   InsertNotificationSubscription,
   NotificationDelivery,
   NotificationCampaign,
-  NotificationEvent,
-  createInsertSchema
+  NotificationEvent
 } from "@shared/schema";
 import { notificationPreferencesService } from "./services/notification-preferences-service";
 import { notificationQueueService } from "./services/notification-queue-service";
-import { RecommendationService } from "./recommendation-service";
+import { RecommendationService, type RecommendationOptions } from "./recommendation-service";
 import { z } from "zod";
 import { stripMarkup, LLM_PROVENANCE } from "./untrusted-text";
 
@@ -1508,9 +1507,16 @@ Please provide detailed, current information about this specific election.`;
         forceRefresh = false
       } = req.query;
 
-      const options = {
+      type RecommendationType = NonNullable<RecommendationOptions['types']>[number];
+      const allowedTypes: readonly RecommendationType[] = ['location_based', 'interest_based', 'trending', 'similar_users'];
+      const requestedTypes = typeof types === 'string' && types ? types.split(',') : undefined;
+      const invalidTypes = requestedTypes?.filter((t) => !(allowedTypes as readonly string[]).includes(t)) ?? [];
+      if (invalidTypes.length > 0) {
+        return res.status(400).json({ error: 'invalid_types', invalid: invalidTypes, allowed: allowedTypes });
+      }
+      const options: RecommendationOptions = {
         limit: parseInt(limit as string),
-        types: types ? (types as string).split(',') : undefined,
+        types: requestedTypes as RecommendationType[] | undefined,
         includeExpired: includeExpired === 'true',
         forceRefresh: forceRefresh === 'true'
       };
@@ -2621,7 +2627,7 @@ Please provide specific, factual information with sources where possible. Focus 
         electionType: undefined
       } as any);
 
-      let aiEnhancement = null;
+      let aiEnhancement: unknown = null;
       if (enhance === 'true') {
         try {
           aiEnhancement = await perplexityCongressService.searchWithAI(

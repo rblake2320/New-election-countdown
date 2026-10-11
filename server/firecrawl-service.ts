@@ -84,9 +84,9 @@ export class FirecrawlService {
         content: data.data.markdown || data.data.content,
         scrapedAt: new Date(),
         metadata: {
+          ...data.data.metadata,
           language: data.data.metadata.language,
-          sourceURL: data.data.metadata.sourceURL,
-          ...data.data.metadata
+          sourceURL: data.data.metadata.sourceURL
         }
       };
 

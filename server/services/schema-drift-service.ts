@@ -650,7 +650,7 @@ export class SchemaDriftService {
    * Get impact description for column changes
    */
   private getColumnChangeImpact(oldColumn: ColumnDefinition, newColumn: ColumnDefinition): string {
-    const impacts = [];
+    const impacts: string[] = [];
     
     if (oldColumn.dataType !== newColumn.dataType) {
       impacts.push(`Data type changed from ${oldColumn.dataType} to ${newColumn.dataType}`);

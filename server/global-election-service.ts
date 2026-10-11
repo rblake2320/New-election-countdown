@@ -301,7 +301,7 @@ export class GlobalElectionService {
       const combined = {
         address,
         timestamp: new Date(),
-        sources: []
+        sources: [] as Array<{ provider: string; data: unknown }>
       };
 
       if (democracyWorks.status === 'fulfilled' && democracyWorks.value) {

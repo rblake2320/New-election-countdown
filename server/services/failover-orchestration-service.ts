@@ -789,5 +789,10 @@ export const failoverOrchestrationService = {
   async triggerManualFailover(targetMode: StorageMode, reason: string) {
     const service = await getFailoverOrchestrationService();
     return service.triggerManualFailover(targetMode, reason);
+  },
+
+  async onFailoverExecution(callback: (execution: FailoverExecution) => Promise<void>) {
+    const service = await getFailoverOrchestrationService();
+    service.onFailoverExecution(callback);
   }
 };

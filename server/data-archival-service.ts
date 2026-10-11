@@ -1,4 +1,4 @@
-import { db } from './db';
+import { db, pool } from './db';
 import { campaignAccessLogs, elections } from '@shared/schema';
 import { lt, and, eq, sql } from 'drizzle-orm';
 
@@ -20,7 +20,7 @@ export class DataArchivalService {
       `);
       
       // Move old records to archive
-      await db.execute(`
+      await pool.query(`
         INSERT INTO interaction_logs_archive 
         SELECT * FROM interaction_logs 
         WHERE timestamp < $1
@@ -60,14 +60,14 @@ export class DataArchivalService {
       if (completedElections.length > 0) {
         // Move to archive
         for (const election of completedElections) {
-          await db.execute(`
+          await pool.query(`
             INSERT INTO elections_archive 
             SELECT * FROM elections WHERE id = $1
           `, [election.id]);
         }
         
         // Keep only summary data in main table
-        await db.execute(`
+        await pool.query(`
           UPDATE elections 
           SET description = CONCAT('ARCHIVED: ', LEFT(description, 100), '...'),
               offices = ARRAY[]::text[],
@@ -88,7 +88,7 @@ export class DataArchivalService {
     try {
       const now = new Date();
       
-      const result = await db.execute(`
+      const result = await pool.query(`
         DELETE FROM user_sessions 
         WHERE expires_at < $1
       `, [now]);
@@ -120,7 +120,7 @@ export class DataArchivalService {
       `);
       
       // Aggregate old data into daily summaries
-      await db.execute(`
+      await pool.query(`
         INSERT INTO engagement_metrics_summary (
           election_cycle_id, date, total_users, avg_time_on_page, 
           total_shares, avg_scroll_depth
