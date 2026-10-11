@@ -220,3 +220,15 @@ describe("canonical codes without a display name", () => {
     expect(rosterParty({ party: "L", generalListSource: { partyBasis: "source_label", partyRaw: "LBR" } } as any)).toBe("Libertarian");
   });
 });
+
+describe("not_applicable (lane C: primaries, runoffs, LA Nov 3 House open primary)", () => {
+  afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+  it("renders nothing at all - no card, no 'not recorded' message", async () => {
+    const { container } = mount({ status: 200, body: { status: "not_applicable", reason: "not_a_general_election", electionId: 530, candidates: [] } });
+    await waitFor(() => expect(fetch).toHaveBeenCalled());
+    await new Promise(r => setTimeout(r, 20));
+    expect(container.textContent).toBe("");
+    expect(screen.queryByTestId("general-roster")).toBeNull();
+    expect(screen.queryByTestId("general-roster-empty")).toBeNull();
+  });
+});

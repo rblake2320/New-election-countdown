@@ -56,6 +56,9 @@ export function GeneralRoster({ electionId }: { electionId: number }) {
   // server (null), or unknown election. A failed request (503 etc.) leaves data
   // undefined and must still show the error state (lane C review of a90ae7e).
   if (isLoading || (!error && (data === null || data === undefined)) || data?.status === "election_not_found") return null;
+  // A primary or runoff has no general-election list; saying "not recorded" there
+  // would imply one is missing. Show nothing.
+  if (data?.status === "not_applicable") return null;
 
   return (
     <Card data-testid="general-roster">

@@ -67,7 +67,9 @@ export interface RosterSnapshot {
 }
 
 export interface GeneralRosterResponse {
-  status: "sourced" | "not_recorded" | "election_not_found";
+  /** not_applicable: not a general election (primary, runoff, LA Nov 3 House open primary). */
+  status: "sourced" | "not_recorded" | "election_not_found" | "not_applicable";
+  reason?: string;
   electionId: number;
   candidates: GeneralRosterCandidate[];
   sources?: RosterSnapshot[];
