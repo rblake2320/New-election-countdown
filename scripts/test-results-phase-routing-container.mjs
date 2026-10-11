@@ -9,6 +9,7 @@ const network = `et-c6-phase-net-${suffix}`, database = `et-c6-phase-db-${suffix
 const password = randomBytes(24).toString('hex');
 const databaseUrl = `postgresql://et_c6_phase_test:${password}@${database}:5432/et_c6_phase_test`;
 const evidence = `artifacts/c6-phase-${suffix}`;
+const builder = process.env.C6_BUILDER_IMAGE || 'electiontracker:c6-results-builder';
 await fs.mkdir(evidence, { recursive: true });
 const docker = async (...args) => {
   try { return (await exec('docker', args, { timeout: 180000, maxBuffer: 8 * 1024 * 1024 })).stdout.trim(); }
@@ -16,6 +17,7 @@ const docker = async (...args) => {
 };
 const report = { outcome: 'Failed', fixtureOnly: true, realReturnsClaim: false, noApplicationServer: true, zeroPublishedPorts: true };
 try {
+  report.builderImageId = await docker('image', 'inspect', '--format', '{{.Id}}', builder);
   await docker('network', 'create', '--internal', network);
   await docker('run', '-d', '--name', database, '--network', network, '-e', 'POSTGRES_USER=et_c6_phase_test',
     '-e', `POSTGRES_PASSWORD=${password}`, '-e', 'POSTGRES_DB=et_c6_phase_test', 'postgres:16-alpine');
@@ -28,7 +30,7 @@ try {
   await docker('run', '--rm', '--network', network,
     '--mount', `type=bind,source=${path.resolve('.')},target=/review,readonly`,
     '--mount', `type=bind,source=${path.resolve(evidence)},target=/app/artifacts/c6-phase`,
-    '-e', `DATABASE_URL=${databaseUrl}`, '--entrypoint', 'sh', 'electiontracker:c6-results-builder', '-c',
+    '-e', `DATABASE_URL=${databaseUrl}`, '--entrypoint', 'sh', report.builderImageId, '-c',
     'node_modules/.bin/esbuild /review/scripts/verify_results_phase_routing.ts --bundle --platform=node --format=esm --packages=external --outfile=/app/phase-acceptance.mjs && node /app/phase-acceptance.mjs');
   report.acceptance = JSON.parse(await fs.readFile(evidence + '/phase-routing-receipt.json', 'utf8'));
   report.outcome = 'Worked';

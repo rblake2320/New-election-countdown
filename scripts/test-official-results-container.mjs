@@ -6,7 +6,8 @@ import path from 'node:path';
 const exec = promisify(execFile);
 const suffix = `${process.pid}-${randomBytes(3).toString('hex')}`;
 const network = `et-c6-net-${suffix}`, db = `et-c6-db-${suffix}`, app = `et-c6-app-${suffix}`, tokyoApp = `et-c6-tokyo-${suffix}`;
-const builder = 'electiontracker:c6-results-builder', image = 'electiontracker:c6-results';
+const builder = process.env.C6_BUILDER_IMAGE || 'electiontracker:c6-results-builder';
+const image = process.env.C6_RUNTIME_IMAGE || 'electiontracker:c6-results';
 const password = randomBytes(24).toString('hex');
 const databaseUrl = `postgresql://et_c6_test:${password}@${db}:5432/et_c6_test`;
 const evidence = `artifacts/c6-private-${suffix}`;
@@ -18,6 +19,8 @@ const docker = async (...args) => {
 const report = { outcome: 'Failed', network: 'internal, zero published ports', image, builder, physicalDependencies: true };
 const delay = () => new Promise(resolve => setTimeout(resolve, 1000));
 try {
+  report.builderImageId = await docker('image', 'inspect', '--format', '{{.Id}}', builder);
+  report.expectedRuntimeImageId = await docker('image', 'inspect', '--format', '{{.Id}}', image);
   await docker('network', 'create', '--internal', network);
   await docker('run', '-d', '--name', db, '--network', network, '-e', 'POSTGRES_USER=et_c6_test',
     '-e', `POSTGRES_PASSWORD=${password}`, '-e', 'POSTGRES_DB=et_c6_test', 'postgres:16-alpine');
@@ -54,6 +57,7 @@ try {
   }
   if (!ready) throw new Error('Compiled app did not seed and serve real catalog');
   report.runtimeImageId = await docker('inspect', '--format', '{{.Image}}', app);
+  if (report.runtimeImageId !== report.expectedRuntimeImageId) throw new Error('Runtime image changed during acceptance');
   report.compiledDefaultDryRun = JSON.parse(await docker('exec', app, 'node', 'dist/sync_official_results.js', '--receipt', 'artifacts/c6-cli-default-dry.json'));
   let refused = false;
   try {
