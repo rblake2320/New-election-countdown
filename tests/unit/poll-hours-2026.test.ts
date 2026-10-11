@@ -5,17 +5,17 @@ const STATES = ["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL"
 
 // Independent cross-check: 270toWin "Poll Closing Times" (Eastern). For multi-zone states the
 // LATEST listed zone is used because our tz is the latest-zone statewide bound.
-// NH varies by municipality (null close) and is skipped. KS: statute 7 p.m. CT / 6 p.m. MT = 8 PM ET.
+// NH (municipal) and KS (county extension permitted, actual schedule not collected) have null close and are skipped.
 const EASTERN_CLOSE_270: Record<string, string> = {
   IN:"19:00", KY:"19:00", FL:"20:00", GA:"19:00", SC:"19:00", VT:"19:00", VA:"19:00",
   NC:"19:30", OH:"19:30", WV:"19:30",
-  AL:"20:00", CT:"20:00", DE:"20:00", IL:"20:00", KS:"20:00", ME:"20:00", MD:"20:00", MA:"20:00",
+  AL:"20:00", CT:"20:00", DE:"20:00", IL:"20:00", ME:"20:00", MD:"20:00", MA:"20:00",
   MS:"20:00", MO:"20:00", NJ:"20:00", OK:"20:00", PA:"20:00", RI:"20:00", TN:"20:00",
   AR:"20:30",
   AZ:"21:00", CO:"21:00", IA:"21:00", LA:"21:00", MI:"21:00", MN:"21:00", NE:"21:00", NM:"21:00", NY:"21:00",
   ND:"21:00", SD:"21:00", TX:"21:00", WI:"21:00", WY:"21:00",
-  MT:"22:00", NV:"22:00", OR:"22:00", UT:"22:00",
-  CA:"23:00", ID:"23:00", WA:"23:00",
+  MT:"22:00", NV:"22:00", UT:"22:00",
+  CA:"23:00", ID:"23:00", OR:"23:00", WA:"23:00",
   HI:"24:00", AK:"25:00",
 };
 
@@ -47,7 +47,7 @@ describe("poll hours 2026 - table integrity", () => {
     const mismatches: string[] = [];
     for (const st of STATES) {
       const h = STATE_HOURS[st];
-      if (!h.close) { expect(st).toBe("NH"); continue; }
+      if (!h.close) { expect(["NH", "KS"]).toContain(st); continue; }
       const et = easternWallClock(pollsCloseInstant(ELECTION_DAY_2026, h.close, h.tz));
       if (et !== EASTERN_CLOSE_270[st]) mismatches.push(`${st}: ours ${h.close} ${h.tz} -> ${et} ET, 270toWin ${EASTERN_CLOSE_270[st]}`);
     }
@@ -66,10 +66,12 @@ describe("pollHoursFor", () => {
     expect(pollHoursFor("TX", "U.S. Senate Election - Texas")).toMatchObject({ tz: "America/Denver", basis: "statewide_latest" });
     expect(pollHoursFor("FL", "U.S. House Election - FL-02")).toMatchObject({ tz: "America/Chicago", basis: "statewide_latest", open: null });
     expect(pollHoursFor("AK", "U.S. House Election - AK-AL")).toMatchObject({ tz: "America/Adak", basis: "statewide_latest", open: null });
-    expect(pollHoursFor("KS", "Kansas Gubernatorial Election")).toMatchObject({ tz: "America/Chicago", close: "19:00", open: null });
+    expect(pollHoursFor("KS", "Kansas Gubernatorial Election")).toMatchObject({ close: null, open: null, basis: "local_variable" });
+    expect(pollHoursFor("OR", "U.S. Senate Election - Oregon")).toMatchObject({ tz: "America/Los_Angeles", close: "20:00" });
   });
   it("preserves unknowns: NH has no statewide close; ND uses the sourced actual 19:00 Mountain bound", () => {
     expect(pollHoursFor("NH", "U.S. Senate Election - New Hampshire")).toMatchObject({ close: null, basis: "local_variable" });
+    expect(pollHoursFor("KS", "U.S. Senate Election - Kansas")).toMatchObject({ close: null, basis: "local_variable" });
     expect(pollHoursFor("ND", "U.S. House Election - ND-AL")).toMatchObject({ close: "19:00", tz: "America/Denver", source: expect.stringContaining("vip.sos.nd.gov") });
     for (const st of ["ME", "MA", "MN", "MT", "VT", "ID", "OR", "TN", "WA", "NE", "ND", "NH", "AL", "AK", "FL", "IN", "KS", "KY", "MI", "SD", "TX"]) expect(STATE_HOURS[st].open, st).toBeNull();
   });

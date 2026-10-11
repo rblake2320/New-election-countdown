@@ -31,3 +31,8 @@ Multi-zone statewide OPEN is null (AL AK FL IN KS KY MI SD TX + the earlier set)
 District exactness claims withdrawn: DISTRICT_TZ_OVERRIDES is empty (FL-02 / ID-01 / TX-23 span zones); every row in a multi-zone state carries the statewide latest bound (basis statewide_latest 502, local_variable 4; district_latest unused).
 ballot_return documented as the in-person / drop-box election-day deadline; mail postmark/receipt rules are state-specific and NOT represented.
 Private copy: v2 -> v3 delta 123 rows, re-run 0 changes; opens null 195, closes null 4 (NH). Unit 7/7 (KS cross-check now 20:00 ET).
+
+--- v4 (2026-10-11 ~19:30) — Sol's probe
+OR: "latest zone" means the WESTERNMOST zone (the same wall-clock close happens last there): 20:00 Pacific = 04Z, after Malheur's 20:00 Mountain = 03Z. tz -> America/Los_Angeles. Audit of the other multi-zone picks: AK Adak, FL/IN/KY/AL/TN Chicago, ID Los_Angeles, MI Menominee, ND/SD/TX Denver are already westernmost (NE/TN both zones close at the same instant).
+KS: K.S.A. 25-106 lets counties extend to 8 p.m. CT / 7 p.m. MT; no verified actual 2026 county schedule -> close null, basis local_variable (not a "legal max" presented as exact).
+Private copy delta v3 -> v4: 14 rows (KS 6, OR 8); re-run 0. Basis now statewide_latest 496 / local_variable 10 (NH 4 + KS 6). Unit 7/7 (OR cross-check 23:00 ET; KS skipped as null).
