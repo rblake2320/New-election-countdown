@@ -1,0 +1,54 @@
+{
+  "image": "electiontracker:candidate-ci",
+  "builder": "electiontracker:candidate-ci-builder",
+  "network": "internal, no published ports",
+  "passed": false,
+  "http": [
+    {
+      "path": "/",
+      "status": 200,
+      "bytes": 1832
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "bytes": 239
+    },
+    {
+      "path": "/api/elections",
+      "status": 200,
+      "bytes": 231032
+    }
+  ],
+  "elections": {
+    "total": 537,
+    "distinct": 537
+  },
+  "boundary": "production-only paths verified",
+  "imageId": "sha256:6be1e1ed16a884f1dcaffc9600b3707442a3832d0517d69434629703a8e2eb0b",
+  "fecIngestion": {
+    "outcome": "worked",
+    "fixture": "isolated synthetic PostgreSQL",
+    "checks": {
+      "dry_run_no_writes": true,
+      "atomic_apply": true,
+      "exact_repeat_no_candidate_changes": true,
+      "missing_migration_refuses_without_writes": true,
+      "migration_idempotent": true,
+      "existing_ballot_hash_and_timestamp_preserved": true,
+      "separate_fec_source_retained": true,
+      "transactional_apply_receipt": true,
+      "committed_receipt_survives_local_disk_failure": true,
+      "registration_never_certified": true,
+      "unknown_party_not_independent": true,
+      "parameterized_apostrophe_name": true,
+      "injected_failure_full_rollback": true,
+      "concurrent_apply_one_identity": true,
+      "imported_party_refresh": true,
+      "historical_source_reactivation_updates_current_version": true
+    },
+    "first_actions": 3,
+    "repeated_actions": 0
+  },
+  "error": "docker run failed: \n  nominee-cli-acceptance.mjs  31.8kb\n\n⚡ Done in 8ms\n\n  nominee-acceptance.mjs  60.6kb\n\n⚡ Done in 12ms\nnode:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n429 !== 200\n\n    at file:///app/nominee-acceptance.mjs:747:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {\n  generatedMessage: true,\n  code: 'ERR_ASSERTION',\n  actual: 429,\n  expected: 200,\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n\nNode.js v24.21.0\n"
+}
