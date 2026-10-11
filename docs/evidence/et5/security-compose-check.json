@@ -1,0 +1,54 @@
+{
+  "label": "TRAINING_OR_ENGINEERING_USE_ONLY",
+  "scope": "docker compose config only; no deploy; empty explicit env file and process-only disposable values",
+  "command": "docker compose --env-file <empty temporary file> -f docker-compose.prod.yml config --format json",
+  "before": {
+    "renders": true,
+    "loopback": false,
+    "configurable_port": false,
+    "candidate_secret_present": false,
+    "origin_present": false,
+    "app_healthcheck": false,
+    "missing_CANDIDATE_JWT_SECRET_refused": false,
+    "missing_APP_ORIGIN_refused": false
+  },
+  "after": {
+    "renders": true,
+    "loopback": true,
+    "configurable_port": true,
+    "candidate_secret_present": true,
+    "origin_present": true,
+    "app_healthcheck": true,
+    "missing_CANDIDATE_JWT_SECRET_refused": true,
+    "missing_APP_ORIGIN_refused": true
+  },
+  "backup_volume_before": {
+    "docker-compose.yml": {
+      "backup_volume_declared": false,
+      "backup_mounted": false,
+      "db_volume_preserved": true,
+      "no_db_volume_in_app": true
+    },
+    "docker-compose.prod.yml": {
+      "backup_volume_declared": false,
+      "backup_mounted": false,
+      "db_volume_preserved": true,
+      "no_db_volume_in_app": true
+    }
+  },
+  "backup_scope": "Named local volume survives app-container replacement; this is not an off-host backup or a restore-drill result.",
+  "backup_volume_after": {
+    "docker-compose.yml": {
+      "backup_volume_declared": true,
+      "backup_mounted": true,
+      "db_volume_preserved": true,
+      "no_db_volume_in_app": true
+    },
+    "docker-compose.prod.yml": {
+      "backup_volume_declared": true,
+      "backup_mounted": true,
+      "db_volume_preserved": true,
+      "no_db_volume_in_app": true
+    }
+  }
+}
