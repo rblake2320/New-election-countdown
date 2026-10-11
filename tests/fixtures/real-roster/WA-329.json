@@ -3,7 +3,7 @@
     "source": "actual private PostgreSQL through real Express handler",
     "httpStatus": 200,
     "manifestSha256": "5b29c9843b89ecee021477ec481a64057d2f3d680af7df19d0dc373e88ca1c3e",
-    "capturedAt": "2026-10-11T09:21:10.845Z",
+    "capturedAt": "2026-10-11T09:39:11.319Z",
     "electionId": 329
   },
   "body": {
@@ -25,7 +25,7 @@
         "fecCandidateId": null,
         "ballotStatus": "not_certified",
         "generalListSourceUrl": "https://www.sos.wa.gov/sites/default/files/2026-08/2026%20Certification%20of%20Candidates%20to%20General%20Election.pdf",
-        "generalListSnapshotSha256": "e3b96d92f290691f81d60901d09fd5f7f90e621b7bcec98655f3a082830328a6",
+        "generalListSnapshotSha256": "4d64f0705f22048767dc1f322ecf60de2ce9c6ba6ce6a13441018426d967ace2",
         "generalListCheckedAt": "2026-10-11T08:21:29.262Z",
         "generalListSource": {
           "state": "WA",
@@ -67,7 +67,7 @@
         "fecCandidateId": null,
         "ballotStatus": "not_certified",
         "generalListSourceUrl": "https://www.sos.wa.gov/sites/default/files/2026-08/2026%20Certification%20of%20Candidates%20to%20General%20Election.pdf",
-        "generalListSnapshotSha256": "e3b96d92f290691f81d60901d09fd5f7f90e621b7bcec98655f3a082830328a6",
+        "generalListSnapshotSha256": "4d64f0705f22048767dc1f322ecf60de2ce9c6ba6ce6a13441018426d967ace2",
         "generalListCheckedAt": "2026-10-11T08:21:29.262Z",
         "generalListSource": {
           "state": "WA",
@@ -94,6 +94,22 @@
           "ballotCertificationPromoted": false
         }
       }
-    ]
+    ],
+    "sources": [
+      {
+        "url": "https://www.sos.wa.gov/sites/default/files/2026-08/2026%20Certification%20of%20Candidates%20to%20General%20Election.pdf",
+        "checkedAt": "2026-10-11T08:21:29.262Z",
+        "snapshotSha256": "4d64f0705f22048767dc1f322ecf60de2ce9c6ba6ce6a13441018426d967ace2",
+        "name": "Washington Secretary of State Certification of Candidates to General Election",
+        "publishedAt": "2026-08-21",
+        "scope": {
+          "office": "H",
+          "district": "01",
+          "expectedCount": 2,
+          "ballotAccessType": "printed"
+        }
+      }
+    ],
+    "coverage": "scoped"
   }
 }

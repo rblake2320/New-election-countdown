@@ -3,7 +3,7 @@
     "source": "actual private PostgreSQL through real Express handler",
     "httpStatus": 200,
     "manifestSha256": "5b29c9843b89ecee021477ec481a64057d2f3d680af7df19d0dc373e88ca1c3e",
-    "capturedAt": "2026-10-11T09:21:10.769Z",
+    "capturedAt": "2026-10-11T09:39:11.242Z",
     "electionId": 32
   },
   "body": {
@@ -25,7 +25,7 @@
         "fecCandidateId": null,
         "ballotStatus": "not_certified",
         "generalListSourceUrl": "https://www.sos.texas.gov/elections/forms/2026-write-In-ballot-cert.pdf",
-        "generalListSnapshotSha256": "fbbea8cf4431a8714e06126cb10e7b38ba23dea80aaed2774b7dec987349e440",
+        "generalListSnapshotSha256": "e45f10332da308c8aa20eb96dbe300677dc05b15962df50061012236d7e03473",
         "generalListCheckedAt": "2026-10-11T08:27:01.093Z",
         "generalListSource": {
           "state": "TX",
@@ -67,7 +67,7 @@
         "fecCandidateId": null,
         "ballotStatus": "not_certified",
         "generalListSourceUrl": "https://www.sos.texas.gov/elections/forms/2026-write-In-ballot-cert.pdf",
-        "generalListSnapshotSha256": "fbbea8cf4431a8714e06126cb10e7b38ba23dea80aaed2774b7dec987349e440",
+        "generalListSnapshotSha256": "e45f10332da308c8aa20eb96dbe300677dc05b15962df50061012236d7e03473",
         "generalListCheckedAt": "2026-10-11T08:27:01.093Z",
         "generalListSource": {
           "state": "TX",
@@ -109,7 +109,7 @@
         "fecCandidateId": null,
         "ballotStatus": "not_certified",
         "generalListSourceUrl": "https://www.sos.texas.gov/elections/forms/2026-write-In-ballot-cert.pdf",
-        "generalListSnapshotSha256": "fbbea8cf4431a8714e06126cb10e7b38ba23dea80aaed2774b7dec987349e440",
+        "generalListSnapshotSha256": "e45f10332da308c8aa20eb96dbe300677dc05b15962df50061012236d7e03473",
         "generalListCheckedAt": "2026-10-11T08:27:01.093Z",
         "generalListSource": {
           "state": "TX",
@@ -151,7 +151,7 @@
         "fecCandidateId": null,
         "ballotStatus": "not_certified",
         "generalListSourceUrl": "https://www.sos.texas.gov/elections/forms/2026-ballot-cert.pdf",
-        "generalListSnapshotSha256": "91b710cb08700e915579878125c84428230af0559feba8d7d838169c9c87cb48",
+        "generalListSnapshotSha256": "39bc71f325bcf04bfbdce063b922dfc03cbe57379f7bffe6c84ddf2ae4ba863f",
         "generalListCheckedAt": "2026-10-11T08:21:29.262Z",
         "generalListSource": {
           "state": "TX",
@@ -193,7 +193,7 @@
         "fecCandidateId": null,
         "ballotStatus": "not_certified",
         "generalListSourceUrl": "https://www.sos.texas.gov/elections/forms/2026-ballot-cert.pdf",
-        "generalListSnapshotSha256": "91b710cb08700e915579878125c84428230af0559feba8d7d838169c9c87cb48",
+        "generalListSnapshotSha256": "39bc71f325bcf04bfbdce063b922dfc03cbe57379f7bffe6c84ddf2ae4ba863f",
         "generalListCheckedAt": "2026-10-11T08:21:29.262Z",
         "generalListSource": {
           "state": "TX",
@@ -235,7 +235,7 @@
         "fecCandidateId": null,
         "ballotStatus": "not_certified",
         "generalListSourceUrl": "https://www.sos.texas.gov/elections/forms/2026-ballot-cert.pdf",
-        "generalListSnapshotSha256": "91b710cb08700e915579878125c84428230af0559feba8d7d838169c9c87cb48",
+        "generalListSnapshotSha256": "39bc71f325bcf04bfbdce063b922dfc03cbe57379f7bffe6c84ddf2ae4ba863f",
         "generalListCheckedAt": "2026-10-11T08:21:29.262Z",
         "generalListSource": {
           "state": "TX",
@@ -277,7 +277,7 @@
         "fecCandidateId": null,
         "ballotStatus": "not_certified",
         "generalListSourceUrl": "https://www.sos.texas.gov/elections/forms/2026-write-In-ballot-cert.pdf",
-        "generalListSnapshotSha256": "fbbea8cf4431a8714e06126cb10e7b38ba23dea80aaed2774b7dec987349e440",
+        "generalListSnapshotSha256": "e45f10332da308c8aa20eb96dbe300677dc05b15962df50061012236d7e03473",
         "generalListCheckedAt": "2026-10-11T08:27:01.093Z",
         "generalListSource": {
           "state": "TX",
@@ -304,6 +304,35 @@
           "ballotCertificationPromoted": false
         }
       }
-    ]
+    ],
+    "sources": [
+      {
+        "url": "https://www.sos.texas.gov/elections/forms/2026-ballot-cert.pdf",
+        "checkedAt": "2026-10-11T08:21:29.262Z",
+        "snapshotSha256": "39bc71f325bcf04bfbdce063b922dfc03cbe57379f7bffe6c84ddf2ae4ba863f",
+        "name": "Texas Secretary of State Final Ballot Certification Report",
+        "publishedAt": "2026-08-28",
+        "scope": {
+          "office": "S",
+          "district": "00",
+          "expectedCount": 3,
+          "ballotAccessType": "printed"
+        }
+      },
+      {
+        "url": "https://www.sos.texas.gov/elections/forms/2026-write-In-ballot-cert.pdf",
+        "checkedAt": "2026-10-11T08:27:01.093Z",
+        "snapshotSha256": "e45f10332da308c8aa20eb96dbe300677dc05b15962df50061012236d7e03473",
+        "name": "Texas Secretary of State Certified Declared Write-In Candidates",
+        "publishedAt": "2026-08-28",
+        "scope": {
+          "office": "S",
+          "district": "00",
+          "expectedCount": 4,
+          "ballotAccessType": "write_in"
+        }
+      }
+    ],
+    "coverage": "scoped"
   }
 }

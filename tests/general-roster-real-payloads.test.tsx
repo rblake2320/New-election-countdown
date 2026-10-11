@@ -72,3 +72,49 @@ describe("GeneralRoster with real lane C payloads", () => {
     expect(screen.getByTestId("general-roster-sources").textContent).toContain(`published ${expected}`);
   });
 });
+
+describe("real payload coverage and source qualifiers (lane C PR8 3df515b)", () => {
+  afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+
+  it("NE and NV are complete: candidates listed, no 'Covers only' qualification", async () => {
+    for (const f of ["NE-55.json", "NV-475.json"]) {
+      const { body } = load(f);
+      expect(body.coverage).toBe("complete");
+      mount(body, body.electionId);
+      await screen.findByText(body.candidates[0].name);
+      expect(screen.queryByTestId("general-roster-scope-note")).toBeNull();
+      cleanup(); vi.unstubAllGlobals();
+    }
+  });
+
+  it("TX is scoped to printed-ballot + write-in lists: both qualifiers named", async () => {
+    const { body } = load("TX-32.json");
+    expect(body.coverage).toBe("scoped");
+    mount(body, body.electionId);
+    await screen.findByText("Avery Ayers");
+    const note = screen.getByTestId("general-roster-scope-note").textContent!;
+    expect(note).toContain("printed-ballot candidates");
+    expect(note).toContain("write-in candidates");
+  });
+
+  it("WA is scoped to the printed-ballot list only", async () => {
+    const { body } = load("WA-329.json");
+    expect(body.coverage).toBe("scoped");
+    mount(body, body.electionId);
+    await screen.findByText("Mary Silva");
+    const note = screen.getByTestId("general-roster-scope-note").textContent!;
+    expect(note).toContain("Covers only: printed-ballot candidates");
+    expect(note).not.toContain("write-in");
+  });
+
+  it("every source named in sources[] appears as a linked source line", async () => {
+    for (const f of ["TX-32.json", "NE-55.json", "WA-329.json", "NV-475.json"]) {
+      const { body } = load(f);
+      mount(body, body.electionId);
+      await screen.findByText(body.candidates[0].name);
+      const text = screen.getByTestId("general-roster-sources").textContent!;
+      for (const s of body.sources) expect(text).toContain(s.name);
+      cleanup(); vi.unstubAllGlobals();
+    }
+  });
+});
