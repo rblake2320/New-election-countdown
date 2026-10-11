@@ -1,0 +1,925 @@
+{
+  "version": 1,
+  "kind": "offline_context_projection_acceptance_cases",
+  "sourcePayloadPath": "D:\\projects\\et-wt\\sol-c6-results\\artifacts\\c6-private-81224-3e46a2\\actual-detail-payloads.json",
+  "sourcePayloadSha256": "401e79f55b0db62d3e790f694e1f2650422f3fc229d6c6f65d7377914c5d5d82",
+  "sourceFixturePath": "C:/Users/techai/.codex/tmp/sol-b421e-c6-review/fixtures/schema-valid-future-sources.json",
+  "cases": [
+    {
+      "scenario": "ISO same date",
+      "context": {
+        "id": 7,
+        "title": "U.S. Senate Election - Georgia",
+        "date": "2026-11-03T00:00:00.000Z",
+        "state": "GA",
+        "level": "federal",
+        "type": "general",
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "generic_results_portal",
+          "publisher": "Election Results",
+          "checkedAt": "2026-10-11T12:29:09.125709+00:00",
+          "routeVerification": "worked",
+          "status": "unknown",
+          "availabilityReason": "unknown_portal_election_context",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639"
+        },
+        "candidates": 3
+      },
+      "expectedProjection": "preserve"
+    },
+    {
+      "scenario": "Date-only same date",
+      "context": {
+        "id": 7,
+        "title": "U.S. Senate Election - Georgia",
+        "date": "2026-11-03",
+        "state": "GA",
+        "level": "federal",
+        "type": "general",
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "generic_results_portal",
+          "publisher": "Election Results",
+          "checkedAt": "2026-10-11T12:29:09.125709+00:00",
+          "routeVerification": "worked",
+          "status": "unknown",
+          "availabilityReason": "unknown_portal_election_context",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639"
+        },
+        "candidates": 3
+      },
+      "expectedProjection": "preserve"
+    },
+    {
+      "scenario": "SQL timestamp same date",
+      "context": {
+        "id": 7,
+        "title": "U.S. Senate Election - Georgia",
+        "date": "2026-11-03 00:00:00",
+        "state": "GA",
+        "level": "federal",
+        "type": "general",
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "generic_results_portal",
+          "publisher": "Election Results",
+          "checkedAt": "2026-10-11T12:29:09.125709+00:00",
+          "routeVerification": "worked",
+          "status": "unknown",
+          "availabilityReason": "unknown_portal_election_context",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639"
+        },
+        "candidates": 3
+      },
+      "expectedProjection": "preserve"
+    },
+    {
+      "scenario": "Outer date shifted to next day",
+      "context": {
+        "id": 7,
+        "title": "U.S. Senate Election - Georgia",
+        "date": "2026-11-04T00:00:00.000Z",
+        "state": "GA",
+        "level": "federal",
+        "type": "general",
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "generic_results_portal",
+          "publisher": "Election Results",
+          "checkedAt": "2026-10-11T12:29:09.125709+00:00",
+          "routeVerification": "worked",
+          "status": "unknown",
+          "availabilityReason": "unknown_portal_election_context",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639"
+        },
+        "candidates": 3
+      },
+      "expectedProjection": "null"
+    },
+    {
+      "scenario": "Outer date shifted to previous day",
+      "context": {
+        "id": 7,
+        "title": "U.S. Senate Election - Georgia",
+        "date": "2026-11-02T00:00:00.000Z",
+        "state": "GA",
+        "level": "federal",
+        "type": "general",
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "generic_results_portal",
+          "publisher": "Election Results",
+          "checkedAt": "2026-10-11T12:29:09.125709+00:00",
+          "routeVerification": "worked",
+          "status": "unknown",
+          "availabilityReason": "unknown_portal_election_context",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639"
+        },
+        "candidates": 3
+      },
+      "expectedProjection": "null"
+    },
+    {
+      "scenario": "Outer date shifted year",
+      "context": {
+        "id": 7,
+        "title": "U.S. Senate Election - Georgia",
+        "date": "2027-11-03T00:00:00.000Z",
+        "state": "GA",
+        "level": "federal",
+        "type": "general",
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "generic_results_portal",
+          "publisher": "Election Results",
+          "checkedAt": "2026-10-11T12:29:09.125709+00:00",
+          "routeVerification": "worked",
+          "status": "unknown",
+          "availabilityReason": "unknown_portal_election_context",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639"
+        },
+        "candidates": 3
+      },
+      "expectedProjection": "null"
+    },
+    {
+      "scenario": "Outer phase changed primary",
+      "context": {
+        "id": 7,
+        "title": "U.S. Senate Election - Georgia",
+        "date": "2026-11-03T00:00:00.000Z",
+        "state": "GA",
+        "level": "federal",
+        "type": "primary",
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "generic_results_portal",
+          "publisher": "Election Results",
+          "checkedAt": "2026-10-11T12:29:09.125709+00:00",
+          "routeVerification": "worked",
+          "status": "unknown",
+          "availabilityReason": "unknown_portal_election_context",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639"
+        },
+        "candidates": 3
+      },
+      "expectedProjection": "null"
+    },
+    {
+      "scenario": "Outer phase changed runoff",
+      "context": {
+        "id": 7,
+        "title": "U.S. Senate Election - Georgia",
+        "date": "2026-11-03T00:00:00.000Z",
+        "state": "GA",
+        "level": "federal",
+        "type": "runoff",
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "generic_results_portal",
+          "publisher": "Election Results",
+          "checkedAt": "2026-10-11T12:29:09.125709+00:00",
+          "routeVerification": "worked",
+          "status": "unknown",
+          "availabilityReason": "unknown_portal_election_context",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639"
+        },
+        "candidates": 3
+      },
+      "expectedProjection": "null"
+    },
+    {
+      "scenario": "Existing LA429 primary preserved",
+      "context": {
+        "id": 429,
+        "title": "U.S. House Election - LA-01",
+        "date": "2026-11-03T00:00:00.000Z",
+        "state": "LA",
+        "level": "federal",
+        "type": "primary",
+        "officialResultsUrl": "https://www.sos.la.gov/elections-voting/election-results-statistics",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "primary",
+          "routeType": "government_results_gateway",
+          "publisher": "Election Results & Statistics",
+          "checkedAt": "2026-10-11T12:30:20.291319+00:00",
+          "routeVerification": "worked",
+          "status": "unknown",
+          "availabilityReason": "unknown_election_phase",
+          "governmentUrl": "https://www.sos.la.gov/elections-voting/election-results-statistics",
+          "fallbackUrl": "https://www.sos.la.gov/elections-voting/election-results-statistics",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "3d5c944e6affb852e9c1ed0c10c748903c2de9f732c92ef54a714587a57b3855",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639"
+        },
+        "candidates": 0
+      },
+      "expectedProjection": "preserve"
+    },
+    {
+      "scenario": "Existing primary changed to general",
+      "context": {
+        "id": 429,
+        "title": "U.S. House Election - LA-01",
+        "date": "2026-11-03T00:00:00.000Z",
+        "state": "LA",
+        "level": "federal",
+        "type": "general",
+        "officialResultsUrl": "https://www.sos.la.gov/elections-voting/election-results-statistics",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "primary",
+          "routeType": "government_results_gateway",
+          "publisher": "Election Results & Statistics",
+          "checkedAt": "2026-10-11T12:30:20.291319+00:00",
+          "routeVerification": "worked",
+          "status": "unknown",
+          "availabilityReason": "unknown_election_phase",
+          "governmentUrl": "https://www.sos.la.gov/elections-voting/election-results-statistics",
+          "fallbackUrl": "https://www.sos.la.gov/elections-voting/election-results-statistics",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "3d5c944e6affb852e9c1ed0c10c748903c2de9f732c92ef54a714587a57b3855",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639"
+        },
+        "candidates": 0
+      },
+      "expectedProjection": "null"
+    },
+    {
+      "scenario": "Synthetic published general correct state/date/phase",
+      "context": {
+        "id": 7,
+        "title": "U.S. Senate Election - Georgia",
+        "date": "2026-11-03T00:00:00.000Z",
+        "state": "GA",
+        "level": "federal",
+        "type": "general",
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "election_specific_results",
+          "publisher": "Election Results",
+          "checkedAt": "2026-11-04T02:00:00Z",
+          "routeVerification": "worked",
+          "status": "published",
+          "availabilityReason": "published_for_target_election",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639",
+          "publicationEvidence": {
+            "state": "GA",
+            "electionDate": "2026-11-03",
+            "electionPhase": "general",
+            "destinationUrl": "https://results.sos.ga.gov/",
+            "officialElectionLabel": "SYNTHETIC OFFLINE fixture November 3 general election results, not real publication",
+            "officialContextVerified": true,
+            "officialContextReceiptSha256": "7a3ccdd064c878488e706f271d53065cc98dce3ca4c636c4e6a9d8ec6f700497",
+            "receivingOutcome": "worked",
+            "receivingResultsObserved": true,
+            "receivingReceiptSha256": "7a3ccdd064c878488e706f271d53065cc98dce3ca4c636c4e6a9d8ec6f700497",
+            "receivingCheckedAt": "2026-11-04T02:00:00Z"
+          }
+        },
+        "candidates": 3
+      },
+      "expectedProjection": "preserve"
+    },
+    {
+      "scenario": "Synthetic published primary correct state/date/phase",
+      "context": {
+        "id": 7,
+        "title": "U.S. Senate Election - Georgia",
+        "date": "2026-11-03T00:00:00.000Z",
+        "state": "GA",
+        "level": "federal",
+        "type": "primary",
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "primary",
+          "routeType": "election_specific_results",
+          "publisher": "Election Results",
+          "checkedAt": "2026-11-04T02:00:00Z",
+          "routeVerification": "worked",
+          "status": "published",
+          "availabilityReason": "published_for_target_election",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639",
+          "publicationEvidence": {
+            "state": "GA",
+            "electionDate": "2026-11-03",
+            "electionPhase": "primary",
+            "destinationUrl": "https://results.sos.ga.gov/",
+            "officialElectionLabel": "SYNTHETIC OFFLINE fixture November 3 primary election results, not real publication",
+            "officialContextVerified": true,
+            "officialContextReceiptSha256": "7baa38f38dc8f5d5424f551362483fd1a99a439f5727efafeba1f266a34554d6",
+            "receivingOutcome": "worked",
+            "receivingResultsObserved": true,
+            "receivingReceiptSha256": "7baa38f38dc8f5d5424f551362483fd1a99a439f5727efafeba1f266a34554d6",
+            "receivingCheckedAt": "2026-11-04T02:00:00Z"
+          }
+        },
+        "candidates": 3
+      },
+      "expectedProjection": "preserve"
+    },
+    {
+      "scenario": "Synthetic published state changed away receipt",
+      "context": {
+        "id": 7,
+        "title": "U.S. Senate Election - Georgia",
+        "date": "2026-11-03T00:00:00.000Z",
+        "state": "NY",
+        "level": "federal",
+        "type": "general",
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "election_specific_results",
+          "publisher": "Election Results",
+          "checkedAt": "2026-11-04T02:00:00Z",
+          "routeVerification": "worked",
+          "status": "published",
+          "availabilityReason": "published_for_target_election",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639",
+          "publicationEvidence": {
+            "state": "GA",
+            "electionDate": "2026-11-03",
+            "electionPhase": "general",
+            "destinationUrl": "https://results.sos.ga.gov/",
+            "officialElectionLabel": "SYNTHETIC OFFLINE fixture November 3 general election results, not real publication",
+            "officialContextVerified": true,
+            "officialContextReceiptSha256": "7a3ccdd064c878488e706f271d53065cc98dce3ca4c636c4e6a9d8ec6f700497",
+            "receivingOutcome": "worked",
+            "receivingResultsObserved": true,
+            "receivingReceiptSha256": "7a3ccdd064c878488e706f271d53065cc98dce3ca4c636c4e6a9d8ec6f700497",
+            "receivingCheckedAt": "2026-11-04T02:00:00Z"
+          }
+        },
+        "candidates": 3
+      },
+      "expectedProjection": "null"
+    },
+    {
+      "scenario": "Synthetic published phase changed away receipt",
+      "context": {
+        "id": 7,
+        "title": "U.S. Senate Election - Georgia",
+        "date": "2026-11-03T00:00:00.000Z",
+        "state": "GA",
+        "level": "federal",
+        "type": "primary",
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "election_specific_results",
+          "publisher": "Election Results",
+          "checkedAt": "2026-11-04T02:00:00Z",
+          "routeVerification": "worked",
+          "status": "published",
+          "availabilityReason": "published_for_target_election",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639",
+          "publicationEvidence": {
+            "state": "GA",
+            "electionDate": "2026-11-03",
+            "electionPhase": "general",
+            "destinationUrl": "https://results.sos.ga.gov/",
+            "officialElectionLabel": "SYNTHETIC OFFLINE fixture November 3 general election results, not real publication",
+            "officialContextVerified": true,
+            "officialContextReceiptSha256": "7a3ccdd064c878488e706f271d53065cc98dce3ca4c636c4e6a9d8ec6f700497",
+            "receivingOutcome": "worked",
+            "receivingResultsObserved": true,
+            "receivingReceiptSha256": "7a3ccdd064c878488e706f271d53065cc98dce3ca4c636c4e6a9d8ec6f700497",
+            "receivingCheckedAt": "2026-11-04T02:00:00Z"
+          }
+        },
+        "candidates": 3
+      },
+      "expectedProjection": "null"
+    },
+    {
+      "scenario": "Synthetic published outer date changed away receipt",
+      "context": {
+        "id": 7,
+        "title": "U.S. Senate Election - Georgia",
+        "date": "2026-11-04T00:00:00.000Z",
+        "state": "GA",
+        "level": "federal",
+        "type": "general",
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "election_specific_results",
+          "publisher": "Election Results",
+          "checkedAt": "2026-11-04T02:00:00Z",
+          "routeVerification": "worked",
+          "status": "published",
+          "availabilityReason": "published_for_target_election",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639",
+          "publicationEvidence": {
+            "state": "GA",
+            "electionDate": "2026-11-03",
+            "electionPhase": "general",
+            "destinationUrl": "https://results.sos.ga.gov/",
+            "officialElectionLabel": "SYNTHETIC OFFLINE fixture November 3 general election results, not real publication",
+            "officialContextVerified": true,
+            "officialContextReceiptSha256": "7a3ccdd064c878488e706f271d53065cc98dce3ca4c636c4e6a9d8ec6f700497",
+            "receivingOutcome": "worked",
+            "receivingResultsObserved": true,
+            "receivingReceiptSha256": "7a3ccdd064c878488e706f271d53065cc98dce3ca4c636c4e6a9d8ec6f700497",
+            "receivingCheckedAt": "2026-11-04T02:00:00Z"
+          }
+        },
+        "candidates": 3
+      },
+      "expectedProjection": "null"
+    },
+    {
+      "scenario": "Empty date",
+      "context": {
+        "id": 7,
+        "title": "U.S. Senate Election - Georgia",
+        "date": "",
+        "state": "GA",
+        "level": "federal",
+        "type": "general",
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "generic_results_portal",
+          "publisher": "Election Results",
+          "checkedAt": "2026-10-11T12:29:09.125709+00:00",
+          "routeVerification": "worked",
+          "status": "unknown",
+          "availabilityReason": "unknown_portal_election_context",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639"
+        },
+        "candidates": 3
+      },
+      "expectedProjection": "null"
+    },
+    {
+      "scenario": "Null date",
+      "context": {
+        "id": 7,
+        "title": "U.S. Senate Election - Georgia",
+        "date": null,
+        "state": "GA",
+        "level": "federal",
+        "type": "general",
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "generic_results_portal",
+          "publisher": "Election Results",
+          "checkedAt": "2026-10-11T12:29:09.125709+00:00",
+          "routeVerification": "worked",
+          "status": "unknown",
+          "availabilityReason": "unknown_portal_election_context",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639"
+        },
+        "candidates": 3
+      },
+      "expectedProjection": "null"
+    },
+    {
+      "scenario": "Nondate text",
+      "context": {
+        "id": 7,
+        "title": "U.S. Senate Election - Georgia",
+        "date": "not-a-date",
+        "state": "GA",
+        "level": "federal",
+        "type": "general",
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "generic_results_portal",
+          "publisher": "Election Results",
+          "checkedAt": "2026-10-11T12:29:09.125709+00:00",
+          "routeVerification": "worked",
+          "status": "unknown",
+          "availabilityReason": "unknown_portal_election_context",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639"
+        },
+        "candidates": 3
+      },
+      "expectedProjection": "null"
+    },
+    {
+      "scenario": "Nov3 prefix plus garbage",
+      "context": {
+        "id": 7,
+        "title": "U.S. Senate Election - Georgia",
+        "date": "2026-11-03not-a-date",
+        "state": "GA",
+        "level": "federal",
+        "type": "general",
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "generic_results_portal",
+          "publisher": "Election Results",
+          "checkedAt": "2026-10-11T12:29:09.125709+00:00",
+          "routeVerification": "worked",
+          "status": "unknown",
+          "availabilityReason": "unknown_portal_election_context",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639"
+        },
+        "candidates": 3
+      },
+      "expectedProjection": "null"
+    },
+    {
+      "scenario": "Impossible hour",
+      "context": {
+        "id": 7,
+        "title": "U.S. Senate Election - Georgia",
+        "date": "2026-11-03T99:00:00Z",
+        "state": "GA",
+        "level": "federal",
+        "type": "general",
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "generic_results_portal",
+          "publisher": "Election Results",
+          "checkedAt": "2026-10-11T12:29:09.125709+00:00",
+          "routeVerification": "worked",
+          "status": "unknown",
+          "availabilityReason": "unknown_portal_election_context",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639"
+        },
+        "candidates": 3
+      },
+      "expectedProjection": "null"
+    },
+    {
+      "scenario": "Impossible minute",
+      "context": {
+        "id": 7,
+        "title": "U.S. Senate Election - Georgia",
+        "date": "2026-11-03T00:99:00Z",
+        "state": "GA",
+        "level": "federal",
+        "type": "general",
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "generic_results_portal",
+          "publisher": "Election Results",
+          "checkedAt": "2026-10-11T12:29:09.125709+00:00",
+          "routeVerification": "worked",
+          "status": "unknown",
+          "availabilityReason": "unknown_portal_election_context",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639"
+        },
+        "candidates": 3
+      },
+      "expectedProjection": "null"
+    },
+    {
+      "scenario": "Impossible second",
+      "context": {
+        "id": 7,
+        "title": "U.S. Senate Election - Georgia",
+        "date": "2026-11-03T00:00:99Z",
+        "state": "GA",
+        "level": "federal",
+        "type": "general",
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "generic_results_portal",
+          "publisher": "Election Results",
+          "checkedAt": "2026-10-11T12:29:09.125709+00:00",
+          "routeVerification": "worked",
+          "status": "unknown",
+          "availabilityReason": "unknown_portal_election_context",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639"
+        },
+        "candidates": 3
+      },
+      "expectedProjection": "null"
+    },
+    {
+      "scenario": "Impossible offset",
+      "context": {
+        "id": 7,
+        "title": "U.S. Senate Election - Georgia",
+        "date": "2026-11-03T00:00:00+99:00",
+        "state": "GA",
+        "level": "federal",
+        "type": "general",
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "generic_results_portal",
+          "publisher": "Election Results",
+          "checkedAt": "2026-10-11T12:29:09.125709+00:00",
+          "routeVerification": "worked",
+          "status": "unknown",
+          "availabilityReason": "unknown_portal_election_context",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639"
+        },
+        "candidates": 3
+      },
+      "expectedProjection": "null"
+    },
+    {
+      "scenario": "Malformed timestamp tail",
+      "context": {
+        "id": 7,
+        "title": "U.S. Senate Election - Georgia",
+        "date": "2026-11-03T00:00:00junk",
+        "state": "GA",
+        "level": "federal",
+        "type": "general",
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "generic_results_portal",
+          "publisher": "Election Results",
+          "checkedAt": "2026-10-11T12:29:09.125709+00:00",
+          "routeVerification": "worked",
+          "status": "unknown",
+          "availabilityReason": "unknown_portal_election_context",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639"
+        },
+        "candidates": 3
+      },
+      "expectedProjection": "null"
+    },
+    {
+      "scenario": "Invalid calendar day",
+      "context": {
+        "id": 7,
+        "title": "U.S. Senate Election - Georgia",
+        "date": "2026-11-32",
+        "state": "GA",
+        "level": "federal",
+        "type": "general",
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "generic_results_portal",
+          "publisher": "Election Results",
+          "checkedAt": "2026-10-11T12:29:09.125709+00:00",
+          "routeVerification": "worked",
+          "status": "unknown",
+          "availabilityReason": "unknown_portal_election_context",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639"
+        },
+        "candidates": 3
+      },
+      "expectedProjection": "null"
+    },
+    {
+      "scenario": "Integer as date",
+      "context": {
+        "id": 7,
+        "title": "U.S. Senate Election - Georgia",
+        "date": 0,
+        "state": "GA",
+        "level": "federal",
+        "type": "general",
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "generic_results_portal",
+          "publisher": "Election Results",
+          "checkedAt": "2026-10-11T12:29:09.125709+00:00",
+          "routeVerification": "worked",
+          "status": "unknown",
+          "availabilityReason": "unknown_portal_election_context",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639"
+        },
+        "candidates": 3
+      },
+      "expectedProjection": "null"
+    },
+    {
+      "scenario": "Plain object as date",
+      "context": {
+        "id": 7,
+        "title": "U.S. Senate Election - Georgia",
+        "date": {
+          "year": 2026,
+          "month": 11,
+          "day": 3
+        },
+        "state": "GA",
+        "level": "federal",
+        "type": "general",
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "generic_results_portal",
+          "publisher": "Election Results",
+          "checkedAt": "2026-10-11T12:29:09.125709+00:00",
+          "routeVerification": "worked",
+          "status": "unknown",
+          "availabilityReason": "unknown_portal_election_context",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639"
+        },
+        "candidates": 3
+      },
+      "expectedProjection": "null"
+    },
+    {
+      "scenario": "Ordinary null result defaults",
+      "context": {
+        "id": 7,
+        "title": "U.S. Senate Election - Georgia",
+        "date": "2026-11-03T00:00:00.000Z",
+        "state": "GA",
+        "level": "federal",
+        "type": "general",
+        "officialResultsUrl": null,
+        "officialResultsSource": null,
+        "candidates": 3
+      },
+      "expectedProjection": "null"
+    },
+    {
+      "scenario": "Synthetic publication receipt state mismatched to outer election",
+      "context": {
+        "id": 7,
+        "title": "U.S. Senate Election - Georgia",
+        "date": "2026-11-03T00:00:00.000Z",
+        "state": "GA",
+        "level": "federal",
+        "type": "general",
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "election_specific_results",
+          "publisher": "Election Results",
+          "checkedAt": "2026-11-04T02:00:00Z",
+          "routeVerification": "worked",
+          "status": "published",
+          "availabilityReason": "published_for_target_election",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639",
+          "publicationEvidence": {
+            "state": "NY",
+            "electionDate": "2026-11-03",
+            "electionPhase": "general",
+            "destinationUrl": "https://results.sos.ga.gov/",
+            "officialElectionLabel": "SYNTHETIC OFFLINE fixture November 3 general election results, not real publication",
+            "officialContextVerified": true,
+            "officialContextReceiptSha256": "7a3ccdd064c878488e706f271d53065cc98dce3ca4c636c4e6a9d8ec6f700497",
+            "receivingOutcome": "worked",
+            "receivingResultsObserved": true,
+            "receivingReceiptSha256": "7a3ccdd064c878488e706f271d53065cc98dce3ca4c636c4e6a9d8ec6f700497",
+            "receivingCheckedAt": "2026-11-04T02:00:00Z"
+          }
+        },
+        "candidates": 3
+      },
+      "expectedProjection": "null"
+    }
+  ],
+  "expectedCount": 29,
+  "dateObjectAdditionalCases": [
+    "finite UTC Date same day preserves",
+    "Invalid Date object yields null fields without throw",
+    "missing undefined outer date yields null fields without throw"
+  ],
+  "sourceFixtureSha256": "560139075f58ace1b6471c314e3a67954a9cebb37442c2850adfe1ef94407a71"
+}

@@ -1,0 +1,111 @@
+{
+  "sourceHead": "5638e4fca408cef22de89e0f1b2e6a099cc8c39f",
+  "mergedMain": "d97ecc264eb138d899a9b62bd7b9e8f6eaffc7be",
+  "fixtureFixOriginal": "f6471ed4bd88b4d4642977195d6ba35ba6ce1910",
+  "fixtureFixCherryPick": "8ebc2b8",
+  "outcome": "Worked",
+  "tests": {
+    "passed": 445,
+    "failed": 0,
+    "skipped": 3
+  },
+  "buildExitCode": 0,
+  "clientGlobalTypeErrors": 0,
+  "wholeProjectTypeErrors": 947,
+  "projectionPreserved": true,
+  "aBatchAndExactRaceFixesPreserved": true,
+  "schemaResolution": "both results audit and general candidate snapshot tables retained",
+  "timezone": {
+    "outcome": "Worked",
+    "network": "internal, zero published ports",
+    "compiledFromCurrentOwnedCheckout": true,
+    "syntheticPrivateFixture": true,
+    "acceptance": {
+      "synthetic_private_database": true,
+      "source_database_untouched": true,
+      "postgres_actual_execution": true,
+      "outcomes": [
+        {
+          "scenario": "upcoming",
+          "time": "2026-11-04T03:30:00Z",
+          "expected": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "actual": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "scenario": "upcoming",
+          "time": "2026-11-04T05:30:00Z",
+          "expected": [
+            2,
+            3,
+            4
+          ],
+          "actual": [
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "scenario": "upcoming",
+          "time": "2026-11-04T11:01:00Z",
+          "expected": [
+            4
+          ],
+          "actual": [
+            4
+          ]
+        },
+        {
+          "scenario": "legacy NULL party is Other",
+          "expected": [
+            1
+          ],
+          "actual": [
+            1
+          ]
+        },
+        {
+          "scenario": "calendar month clamps to February end",
+          "expected": [
+            5
+          ],
+          "actual": [
+            5
+          ]
+        }
+      ]
+    }
+  },
+  "files": [
+    {
+      "file": "artifacts/c6-main-merge-unit.txt",
+      "sha256": "a49ec0d307013ef79b3ae01c1b1d915cd0b410a72697ba2e14800c1be94b0e2c"
+    },
+    {
+      "file": "artifacts/c6-main-merge-build.txt",
+      "sha256": "c5bce140ea8b78aaf99e95c6841c768a7aef5eabe47b36fd754533c1948fedbe"
+    },
+    {
+      "file": "artifacts/c6-main-merge-client-types.txt",
+      "sha256": "67a68c11c1ee457b6f93569b123e3568b07beef70c1a69d0bf7e66c17db32045"
+    },
+    {
+      "file": "artifacts/c6-main-timezone-85652-7479d9/harness-receipt.json",
+      "sha256": "7f2bb7c13bb5c4d488a4772584233d1fb380a16f5bc9cf8918c3ec8a0a8b089c"
+    },
+    {
+      "file": "artifacts/c6-main-timezone-85652-7479d9/timezone-private-postgres.json",
+      "sha256": "eb49dac0505ef29e6ade0cd657a69c0938aceb7cf9db6d8dd074b27604be17c3"
+    }
+  ]
+}

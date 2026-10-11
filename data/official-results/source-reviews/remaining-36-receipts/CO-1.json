@@ -1,0 +1,20 @@
+{
+  "state": "CO",
+  "url": "https://www.coloradosos.gov/pubs/elections/Results/Archives.html",
+  "checkedAt": "2026-10-11T12:29:07.754207+00:00",
+  "tlsValidation": true,
+  "attempts": [
+    {
+      "method": "Python Requests default TLS",
+      "httpStatus": 403,
+      "finalUrl": "https://www.coloradosos.gov/pubs/elections/Results/Archives.html",
+      "bytes": 5488,
+      "sha256": "2f57a3bf686c7a50bb27797c26b4cd7e09da8f295e05bee9d12470bb5a297ee6"
+    },
+    {
+      "method": "Windows Invoke-WebRequest default TLS",
+      "error": "Invoke-WebRequest : The remote server returned an error: (403) Forbidden.\nAt line:1 char:34\n+ ... e='Stop';$r=Invoke-WebRequest -Uri 'https://www.coloradosos.gov/pubs/ ...\n+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], WebExc \n   eption\n    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand\n \n"
+    }
+  ],
+  "status": "blocked_transport"
+}

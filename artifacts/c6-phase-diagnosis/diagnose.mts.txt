@@ -1,0 +1,60 @@
+import { readFile, writeFile } from 'node:fs/promises';
+import { manifestFromReviews, loadResultsManifest, sha256 } from 'file:///D:/projects/et-wt/sol-c6-results/server/official-results-manifest.ts';
+import { planResults } from 'file:///D:/projects/et-wt/sol-c6-results/server/official-results-sync.ts';
+const root = 'D:/projects/et-wt/sol-c6-results/';
+const out = 'C:/Users/techai/.codex/tmp/sol-c6-mixed-phase-investigation/';
+const baseline = await loadResultsManifest(root + 'data/official-results/2026-11-03.json');
+const initial = await readFile(root + 'data/official-results/source-reviews/initial-14.json');
+const remaining = JSON.parse(await readFile(root + 'data/official-results/source-reviews/remaining-36.json', 'utf8'));
+const rows = JSON.parse(await readFile(root + 'artifacts/c6-private-43588-2e2b84/independent-sql-results-fields.json', 'utf8'))
+  .map((row: any) => ({ id: row.id, state: row.state, date: row.date, type: row.type,
+    official_results_url: row.officialResultsUrl, official_results_source: row.officialResultsSource }));
+// Bounded mixed-phase catalog fixture follows the owner's current C7 contract:
+// actual retained LA Senate id28 General + actual House ids429..434 Primary.
+// No application, database or current source manifest is changed.
+for (const row of rows) if (row.state === 'LA' && row.id >= 429 && row.id <= 434) row.type = 'primary';
+const la = remaining.records.find((record: any) => record.state === 'LA');
+const scenarios = [];
+for (const phase of ['general', 'primary']) {
+  const document = structuredClone(remaining);
+  const record = document.records.find((record: any) => record.state === 'LA');
+  const checkedAt = '2026-11-04T06:00:00.000Z';
+  const context = { state: 'LA', outcome: 'worked', electionDate: '2026-11-03', electionPhase: phase,
+    destinationUrl: record.recommendedUrl, sourceUrl: record.officialGovernmentPage,
+    contextVerified: true, resultsObserved: true,
+    observedElectionLabel: `FIXTURE ONLY future-shape Louisiana ${phase} Nov3 results; no real returns claim`, checkedAt };
+  const receiving = { ...context, sourceUrl: record.recommendedUrl };
+  const contextBytes = Buffer.from(JSON.stringify(context));
+  const receivingBytes = Buffer.from(JSON.stringify(receiving));
+  record.routeType = 'election_specific_results';
+  record.generalPublicationStatus = 'published_for_target_election';
+  record.publicationEvidence = { state: 'LA', electionDate: '2026-11-03', electionPhase: phase,
+    destinationUrl: record.recommendedUrl, officialElectionLabel: context.observedElectionLabel,
+    officialContextVerified: true, officialContextReceiptSha256: sha256(contextBytes), receivingOutcome: 'worked',
+    receivingResultsObserved: true, receivingReceiptSha256: sha256(receivingBytes), receivingCheckedAt: checkedAt };
+  record.publicationReceipts = { officialContext: `${phase}-context.json`, receiving: `${phase}-receiving.json` };
+  const receipts = new Map([[`${phase}-context.json`, contextBytes], [`${phase}-receiving.json`, receivingBytes]]);
+  const reviewBytes = Buffer.from(JSON.stringify(document));
+  const manifest = manifestFromReviews([{ file: 'initial-14.json', bytes: initial },
+    { file: 'remaining-36.json', bytes: reviewBytes, publicationReceipts: receipts }]);
+  let result;
+  try {
+    const plan = planResults(rows, manifest, sha256(JSON.stringify(manifest)));
+    result = { outcome: 'Worked', targetCount: plan.targetCount, changedIds: plan.changes.map(change => change.id) };
+  } catch (error) { result = { outcome: 'Failed', error: (error as Error).message }; }
+  scenarios.push({ phase, schemaValidRetainedFixtureReceipts: true,
+    matchingLAIds: rows.filter((row: any) => row.state === 'LA' && row.date.startsWith('2026-11-03') && row.type === phase).map((row: any) => row.id),
+    unmatchedLAIds: rows.filter((row: any) => row.state === 'LA' && row.date.startsWith('2026-11-03') && row.type !== phase).map((row: any) => row.id), result });
+  await writeFile(out + `${phase}-fixture-manifest.json`, JSON.stringify(manifest, null, 2));
+  await writeFile(out + `${phase}-fixture-context.json`, contextBytes);
+  await writeFile(out + `${phase}-fixture-receiving.json`, receivingBytes);
+}
+const after = await loadResultsManifest(root + 'data/official-results/2026-11-03.json');
+const report = { sourceHead: 'fb929a7488808134f8f6bfd6d68a30d2d684783c',
+  fixtureOnly: true, realReturnsClaim: false, runtimeOrDatabaseWrites: false,
+  catalogFixture: { source: 'retained actual SQL + owner-authorized mixed-phase fixture', LA: rows.filter((row: any) => row.state === 'LA' && row.date.startsWith('2026-11-03')).map((row: any) => ({ id: row.id, type: row.type })) },
+  baselineManifestSha256: baseline.manifestSha256, afterManifestSha256: after.manifestSha256,
+  baselinePublishedStates: baseline.manifest.states.filter(entry => entry.source.status === 'published').length,
+  scenarios };
+await writeFile(out + 'mixed-phase-diagnosis.json', JSON.stringify(report, null, 2) + '\n');
+console.log(JSON.stringify(report));
