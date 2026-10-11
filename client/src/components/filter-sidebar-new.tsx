@@ -1,7 +1,7 @@
 /* client/src/components/filter-sidebar-new.tsx
    Fully typed, array-safe filter sidebar                                         */
 
-import React from "react";
+import React, { useId } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,10 @@ const states = [
 ];
 
 export default function FilterSidebar({ filters, onFiltersChange }: FilterSidebarProps) {
+  // The panel renders twice (desktop column + mobile drawer). Fixed ids made every
+  // label point at the first, hidden copy, so drawer checkboxes had no name and
+  // tapping a label toggled an invisible box (owner UX review, ET-31).
+  const uid = useId();
   
   const handleElectionTypeChange = (type: string, checked: boolean) => {
     const currentTypes = Array.isArray(filters.electionType) ? [...filters.electionType] : [];
@@ -154,12 +158,12 @@ export default function FilterSidebar({ filters, onFiltersChange }: FilterSideba
             {FILTER_GROUPS.electionType.map((type) => (
               <div key={type} className="flex items-center space-x-2">
                 <Checkbox 
-                  id={`election-type-${type}`}
+                  id={`${uid}-election-type-${type}`}
                   checked={isElectionTypeChecked(type)}
                   onCheckedChange={(checked) => handleElectionTypeChange(type, checked as boolean)}
                 />
                 <label 
-                  htmlFor={`election-type-${type}`} 
+                  htmlFor={`${uid}-election-type-${type}`} 
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                 >
                   {type} Elections
@@ -181,12 +185,12 @@ export default function FilterSidebar({ filters, onFiltersChange }: FilterSideba
             {LEVEL_OPTIONS.map(({ value: level, label }) => (
               <div key={level} className="flex items-center space-x-2">
                 <Checkbox 
-                  id={`level-${level}`}
+                  id={`${uid}-level-${level}`}
                   checked={isLevelChecked(level)}
                   onCheckedChange={(checked) => handleLevelChange(level, checked as boolean)}
                 />
                 <label 
-                  htmlFor={`level-${level}`} 
+                  htmlFor={`${uid}-level-${level}`} 
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                 >
                   {label}
@@ -234,12 +238,12 @@ export default function FilterSidebar({ filters, onFiltersChange }: FilterSideba
             {PARTY_OPTIONS.map(({ value: party, label }) => (
               <div key={party} className="flex items-center space-x-2">
                 <Checkbox 
-                  id={`party-${party}`}
+                  id={`${uid}-party-${party}`}
                   checked={isPartyChecked(party)}
                   onCheckedChange={(checked) => handlePartyChange(party, checked as boolean)}
                 />
                 <label 
-                  htmlFor={`party-${party}`} 
+                  htmlFor={`${uid}-party-${party}`} 
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                 >
                   {label}
