@@ -80,6 +80,7 @@ import {
   apiLimiter, 
   searchLimiter, 
   authLimiter,
+  trackLimiter,
   validateInput,
   sanitizeInput,
   logSuspiciousActivity 
@@ -158,7 +159,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/elections", electionDegradedModeHandler, electionsGuardRouter);
   
   // Register analytics routes
-  app.use("/api/track", trackRouter);
+  app.use("/api/track", trackLimiter, trackRouter);
   app.use("/api/analytics", analyticsRouter);
   app.use("/api/health", healthRouter);
   app.use("/api/health", healthEnhancedRouter);

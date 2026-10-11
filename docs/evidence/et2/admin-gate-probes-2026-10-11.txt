@@ -60,3 +60,9 @@ Unconfigured (no provider env):
   sendgrid                        -> 404
 scripts/verify-admin-gates.sh -> PASS ; unit suite 121 pass / 3 skip.
 Re-run: scripts/verify-webhook-signatures.sh. Deploy note: set SENDGRID_WEBHOOK_PUBLIC_KEY (SendGrid > Mail Settings > Event Webhook > Signed) and TWILIO_AUTH_TOKEN, else the endpoints are 404 by design.
+
+--- commit 8 (2026-10-11 ~12:05) — dashboard 500 for new accounts (found by Astra in private-DB Chrome flow)
+Cause: /api/auth/dashboard mapped users.first_name/last_name NULL into a z.string().optional() schema -> ZodError 500; emailVerified was hardcoded true.
+Fix: server/dashboard-user.ts buildDashboardUser() (null -> undefined, real emailVerified, days clamped >= 0); schema names nullish; regression tests/unit/dashboard-user.test.ts (3).
+Live: register (no names) -> GET /api/auth/dashboard -> 200, user.emailVerified=false, daysSinceJoining=0.
+Unit suite: 8 files, 124 passed, 3 skipped. verify-admin-gates.sh PASS.

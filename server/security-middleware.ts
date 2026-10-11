@@ -52,7 +52,6 @@ const monitoringEndpointsAllowlist = [
   '/api/health',
   '/api/monitoring',
   '/api/system/status',
-  '/api/track'
 ];
 
 // Check if endpoint is a monitoring endpoint
@@ -171,6 +170,16 @@ export const authLimiter = rateLimit({
     error: 'Too many authentication attempts',
     retryAfter: '15 minutes'
   },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Analytics ingestion: unauthenticated DB write, so it gets its own cap
+// (batched client events; 120 batches/min per IP is far above real usage).
+export const trackLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 120,
+  message: { error: 'Too many analytics requests', retryAfter: '1 minute' },
   standardHeaders: true,
   legacyHeaders: false,
 });

@@ -6,6 +6,7 @@ import { authRequired, createSession, hashPassword, setSessionCookie, verifyPass
 import { storageFactory } from "../storage-factory";
 import { storage } from "../storage";
 import { dashboardResponseSchema, type DashboardResponse } from "@shared/schema";
+import { buildDashboardUser } from "../dashboard-user";
 import { sendGridNotificationService } from "../services/sendgrid-notification-service";
 import { analyticsService } from "../analytics-service";
 import nodemailer from "nodemailer";
@@ -260,7 +261,7 @@ router.get("/me", authRequired(), async (req, res) => {
   // Try database first if available
   if (storageFactory.isDatabaseAvailable()) {
     try {
-      const q = await pool.query(`SELECT id, email, COALESCE(email_verified, false) as email_verified FROM users WHERE id=$1`, [uid]);
+      const q = await pool.query(`SELECT id, email, COALESCE(email_verified, false) as email_verified, COALESCE(role, 'user') as role, first_name AS "firstName", last_name AS "lastName" FROM users WHERE id=$1`, [uid]);
       if (!q.rowCount) return res.status(404).json({ error: "user_not_found" });
       return res.json({ user: q.rows[0] });
     } catch (error) {
@@ -357,21 +358,9 @@ router.get("/dashboard", authRequired(), async (req, res) => {
     const electionStats = await storage.getElectionStats();
     const savedElectionsCount = watchlistItems.length;
     
-    // Calculate days since joining
-    const joinDate = user.createdAt ? new Date(user.createdAt) : new Date();
-    const daysSinceJoining = Math.floor((Date.now() - joinDate.getTime()) / (1000 * 60 * 60 * 24));
-    
     // Build response using proper types
     const dashboardResponse: DashboardResponse = {
-      user: {
-        id: user.id,
-        email: user.email || '',
-        firstName: user.firstName,
-        lastName: user.lastName,
-        emailVerified: true, // Default since we don't have this field in User type
-        joinedAt: user.createdAt?.toISOString() || new Date().toISOString(),
-        daysSinceJoining
-      },
+      user: buildDashboardUser(user),
       watchlist,
       recommendations: recommendationsWithCandidates,
       stats: {
