@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # PostgreSQL Database
   postgres:
@@ -8,9 +6,7 @@ services:
     environment:
       POSTGRES_DB: electiontracker
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme123}
-    ports:
-      - "5432:5432"
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in the private environment}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -29,15 +25,16 @@ services:
     container_name: electiontracker-app
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgresql://postgres:${DB_PASSWORD:-changeme123}@postgres:5432/electiontracker
+      DATABASE_URL: postgresql://postgres:${DB_PASSWORD:?Set DB_PASSWORD in the private environment}@postgres:5432/electiontracker
       GOOGLE_CIVIC_API_KEY: ${GOOGLE_CIVIC_API_KEY}
       OPENFEC_API_KEY: ${OPENFEC_API_KEY}
       PROPUBLICA_API_KEY: ${PROPUBLICA_API_KEY}
       CENSUS_API_KEY: ${CENSUS_API_KEY}
-      JWT_SECRET: ${JWT_SECRET:-change-this-in-production-use-64-chars-min}
-      SESSION_SECRET: ${SESSION_SECRET:-change-this-in-production-use-64-chars}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in the private environment}
+      CANDIDATE_JWT_SECRET: ${CANDIDATE_JWT_SECRET:?Set CANDIDATE_JWT_SECRET in the private environment}
+      APP_ORIGIN: ${APP_ORIGIN:?Set the public HTTPS origin}
     ports:
-      - "5000:5000"
+      - "127.0.0.1:${APP_PORT:-5000}:5000"
     depends_on:
       postgres:
         condition: service_healthy
