@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollText } from "lucide-react";
-import { isWriteIn, rosterParty, rosterSources, safeSourceUrl } from "@/lib/general-roster";
+import { isWriteIn, knownEmptySources, rosterParty, rosterSources, safeSourceUrl, snapshotLines, type SourceLine } from "@/lib/general-roster";
 import { useGeneralRoster } from "@/hooks/use-general-roster";
 
 const fmtDate = (iso: string | null) => {
@@ -12,6 +12,25 @@ const fmtDate = (iso: string | null) => {
   const d = ymd ? new Date(Number(ymd[1]), Number(ymd[2]) - 1, Number(ymd[3])) : new Date(iso);
   return Number.isNaN(d.getTime()) ? null : d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 };
+
+function SourceLines({ lines }: { lines: SourceLine[] }) {
+  return (
+    <div className="mt-3 space-y-1 text-xs text-muted-foreground" data-testid="general-roster-sources">
+      {lines.map(s => {
+        const href = safeSourceUrl(s.url);
+        const checked = fmtDate(s.checkedAt);
+        const published = fmtDate(s.publishedAt);
+        return (
+          <p key={`${s.name}|${s.url}`}>
+            Source: {href ? <a href={href} target="_blank" rel="noopener noreferrer" className="underline">{s.name}</a> : s.name}
+            {published && <> (published {published})</>}
+            {checked && <> · checked {checked}</>}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
 
 export function GeneralRoster({ electionId }: { electionId: number }) {
   const { data, isLoading, error } = useGeneralRoster(electionId);
@@ -34,6 +53,13 @@ export function GeneralRoster({ electionId }: { electionId: number }) {
       <CardContent>
         {error ? (
           <p className="text-sm text-muted-foreground">The official list could not be loaded right now.</p>
+        ) : data && data.status === "sourced" && data.candidates.length === 0 && knownEmptySources(data).length > 0 ? (
+          <>
+            <p className="text-sm" data-testid="general-roster-known-empty">
+              The official general-election list has no candidates for this race.
+            </p>
+            <SourceLines lines={snapshotLines(knownEmptySources(data))} />
+          </>
         ) : !data || data.status !== "sourced" || data.candidates.length === 0 ? (
           <p className="text-sm text-muted-foreground" data-testid="general-roster-empty">
             The official general-election list for this race has not been recorded yet.
@@ -55,20 +81,7 @@ export function GeneralRoster({ electionId }: { electionId: number }) {
                 );
               })}
             </ul>
-            <div className="mt-3 space-y-1 text-xs text-muted-foreground" data-testid="general-roster-sources">
-              {rosterSources(data.candidates).map(s => {
-                const href = safeSourceUrl(s.url);
-                const checked = fmtDate(s.checkedAt);
-                const published = fmtDate(s.publishedAt);
-                return (
-                  <p key={`${s.name}|${s.url}`}>
-                    Source: {href ? <a href={href} target="_blank" rel="noopener noreferrer" className="underline">{s.name}</a> : s.name}
-                    {published && <> (published {published})</>}
-                    {checked && <> · checked {checked}</>}
-                  </p>
-                );
-              })}
-            </div>
+            <SourceLines lines={rosterSources(data.candidates)} />
           </>
         )}
       </CardContent>

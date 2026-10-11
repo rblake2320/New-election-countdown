@@ -66,3 +66,27 @@ describe("roster helpers", () => {
     expect(safeSourceUrl("not a url")).toBeNull();
   });
 });
+
+describe("GeneralRoster known-empty official lists (lane C sources[].scope)", () => {
+  afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+  const snap = (scope: any) => ({ url: "https://sos.example.gov/2026/general-list.pdf", name: "Example SOS General Candidate List", checkedAt: "2026-10-11T15:00:00Z", publishedAt: "2026-09-11", snapshotSha256: "ab".repeat(32), scope });
+
+  it("sourced + no candidates + unqualified expectedCount 0: says the official list has none, with its source", async () => {
+    mount({ status: 200, body: { status: "sourced", electionId: 32, candidates: [], sources: [snap({ expectedCount: 0 })] } });
+    expect(await screen.findByTestId("general-roster-known-empty")).toBeTruthy();
+    expect(screen.queryByTestId("general-roster-empty")).toBeNull();
+    expect(screen.getByRole("link", { name: "Example SOS General Candidate List" }).getAttribute("href")).toBe("https://sos.example.gov/2026/general-list.pdf");
+    expect(screen.getByTestId("general-roster-sources").textContent).toMatch(/published .*2026/);
+  });
+
+  it("a qualified zero (e.g. write-ins: 0) does not establish an empty race", async () => {
+    mount({ status: 200, body: { status: "sourced", electionId: 32, candidates: [], sources: [snap({ expectedCount: 0, ballotAccessType: "write_in" }), snap({ expectedCount: 0, partyRaw: "Green" })] } });
+    expect(await screen.findByTestId("general-roster-empty")).toBeTruthy();
+    expect(screen.queryByTestId("general-roster-known-empty")).toBeNull();
+  });
+
+  it("sourced but no snapshots and no candidates falls back to not-recorded", async () => {
+    mount({ status: 200, body: { status: "sourced", electionId: 32, candidates: [] } });
+    expect(await screen.findByTestId("general-roster-empty")).toBeTruthy();
+  });
+});

@@ -27,10 +27,30 @@ export interface GeneralRosterCandidate {
   generalListSource: GeneralListSource | null;
 }
 
+/** A reviewed official-list snapshot for this race (lane C, general_candidate_list_snapshots). */
+export interface RosterSnapshot {
+  url: string | null;
+  name: string | null;
+  checkedAt: string | null;
+  publishedAt: string | null;
+  snapshotSha256?: string | null;
+  scope?: { expectedCount?: number; partyRaw?: string | null; ballotAccessType?: string | null } | null;
+}
+
 export interface GeneralRosterResponse {
   status: "sourced" | "not_recorded" | "election_not_found";
   electionId: number;
   candidates: GeneralRosterCandidate[];
+  sources?: RosterSnapshot[];
+}
+
+/**
+ * Snapshots that establish "the official list has no candidates for this race":
+ * expected count 0 with no party or ballot-access qualifier (same rule as the
+ * server's knownEmpty). A scope like "write-ins: 0" says nothing about the rest.
+ */
+export function knownEmptySources(data: GeneralRosterResponse): RosterSnapshot[] {
+  return (data.sources ?? []).filter(s => s.scope?.expectedCount === 0 && !s.scope.partyRaw && !s.scope.ballotAccessType);
 }
 
 /**
@@ -53,6 +73,12 @@ export function rosterParty(c: GeneralRosterCandidate): string | null {
 
 export function isWriteIn(c: GeneralRosterCandidate): boolean {
   return /write[-_ ]?in/i.test(c.generalListSource?.ballotAccessType ?? "");
+}
+
+export interface SourceLine { name: string; url: string | null; checkedAt: string | null; publishedAt: string | null }
+
+export function snapshotLines(snaps: RosterSnapshot[]): SourceLine[] {
+  return snaps.map(s => ({ name: s.name?.trim() || "Official state list", url: s.url ?? null, checkedAt: s.checkedAt ?? null, publishedAt: s.publishedAt ?? null }));
 }
 
 /** Distinct sources across the list, for one attribution line per source. */
