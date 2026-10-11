@@ -10,7 +10,12 @@ export async function extractFecMaster(bytes: Buffer, limit = 64 * 1024 * 1024):
   const zip = await JSZip.loadAsync(bytes);
   const entries = Object.values(zip.files).filter(f => !f.dir && /(^|\/)cn\.txt$/i.test(f.name));
   if (entries.length !== 1) throw new Error('Expected exactly one cn.txt in official ZIP');
-  const stream = entries[0].internalStream('nodebuffer');
+  // JSZip 3.10.1 documents this API but omits it from JSZipObject's typings.
+  const entry = entries[0] as JSZip.JSZipObject & {
+    internalStream(type: 'nodebuffer'): JSZip.JSZipStreamHelper<Buffer>;
+  };
+  if (typeof entry.internalStream !== 'function') throw new Error('Installed JSZip lacks the documented bounded stream API');
+  const stream = entry.internalStream('nodebuffer');
   return new Promise<string>((resolve, reject) => {
     const chunks: Buffer[] = [];
     let size = 0, settled = false;
