@@ -1,0 +1,62 @@
+{
+  "image": "electiontracker:sol-allc-4c59595",
+  "builder": "electiontracker:sol-allc-builder-4c59595",
+  "network": "internal, no published ports",
+  "passed": false,
+  "http": [
+    {
+      "path": "/",
+      "status": 200,
+      "bytes": 1832
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "bytes": 239
+    },
+    {
+      "path": "/api/elections",
+      "status": 200,
+      "bytes": 260273
+    }
+  ],
+  "elections": {
+    "total": 537,
+    "distinct": 537
+  },
+  "boundary": "production-only paths verified",
+  "imageId": "sha256:57ab433e8495e76dc2109979203908c08295b04d1843d381a5e520813f4a22dd",
+  "userFlow": [
+    {
+      "path": "/api/auth/register",
+      "status": 201
+    },
+    {
+      "path": "/api/auth/me",
+      "status": 200
+    },
+    {
+      "path": "/api/auth/dashboard",
+      "status": 200
+    },
+    {
+      "path": "/api/recommendations",
+      "status": 200
+    },
+    {
+      "path": "/api/watchlist",
+      "status": 200
+    }
+  ],
+  "backupRestore": {
+    "status": "Worked",
+    "backupHttpStatus": 200,
+    "restoredTables": 87,
+    "allTableDigestsMatch": true,
+    "applicationQuery": {
+      "elections": 537
+    },
+    "scope": "Harness-owned private database, local archive only; no off-host recovery claim"
+  },
+  "error": "docker run failed: \n  timezone-acceptance.mjs  164.4kb\n\n⚡ Done in 11ms\nfile:///app/node_modules/drizzle-orm/pg-core/session.js:41\n        throw new DrizzleQueryError(queryString, params, e);\n              ^\n\nDrizzleQueryError: Failed query: select \"elections\".\"id\", \"elections\".\"title\", \"elections\".\"subtitle\", \"elections\".\"location\", \"elections\".\"state\", \"elections\".\"date\", \"elections\".\"type\", \"elections\".\"level\", \"elections\".\"offices\", \"elections\".\"description\", \"elections\".\"polls_open\", \"elections\".\"polls_close\", \"elections\".\"timezone\", \"elections\".\"poll_close_kind\", \"elections\".\"poll_hours_basis\", \"elections\".\"poll_hours_source\", \"elections\".\"official_results_url\", \"elections\".\"official_results_source\", \"elections\".\"is_active\", to_char(\"elections\".\"date\", 'YYYY-MM-DD\"T\"HH24:MI:SS.US'), count(\"candidates\".\"id\") from \"elections\" left join \"candidates\" on \"candidates\".\"election_id\" = \"elections\".\"id\" where (\"elections\".\"is_active\" = $1 and \"elections\".\"date\" >= $2 and \"elections\".\"date\" >= ($3::timestamptz at time zone case when \"elections\".\"timezone\" in ($4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27) then \"elections\".\"timezone\" else $28 end)::date) group by \"elections\".\"id\" order by \"elections\".\"date\", \"elections\".\"id\"\nparams: true,2026-11-03T00:00:00.000Z,2026-11-04T03:30:00.000Z,America/New_York,America/Detroit,America/Menominee,America/Chicago,America/Denver,America/Los_Angeles,America/Phoenix,America/Boise,America/Anchorage,America/Adak,Pacific/Honolulu,America/Puerto_Rico,America/Indiana/Indianapolis,America/Indiana/Knox,America/Indiana/Tell_City,America/Indiana/Vincennes,America/Indiana/Winamac,America/Indiana/Marengo,America/Indiana/Vevay,America/Kentucky/Louisville,America/Kentucky/Monticello,America/North_Dakota/Beulah,America/North_Dakota/New_Salem,America/North_Dakota/Center,Etc/GMT+11\n    at NodePgPreparedQuery.queryWithCache (file:///app/node_modules/drizzle-orm/pg-core/session.js:41:15)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:117:22\n    at async file:///app/timezone-acceptance.mjs:3824:18 {\n  query: `select \"elections\".\"id\", \"elections\".\"title\", \"elections\".\"subtitle\", \"elections\".\"location\", \"elections\".\"state\", \"elections\".\"date\", \"elections\".\"type\", \"elections\".\"level\", \"elections\".\"offices\", \"elections\".\"description\", \"elections\".\"polls_open\", \"elections\".\"polls_close\", \"elections\".\"timezone\", \"elections\".\"poll_close_kind\", \"elections\".\"poll_hours_basis\", \"elections\".\"poll_hours_source\", \"elections\".\"official_results_url\", \"elections\".\"official_results_source\", \"elections\".\"is_active\", to_char(\"elections\".\"date\", 'YYYY-MM-DD\"T\"HH24:MI:SS.US'), count(\"candidates\".\"id\") from \"elections\" left join \"candidates\" on \"candidates\".\"election_id\" = \"elections\".\"id\" where (\"elections\".\"is_active\" = $1 and \"elections\".\"date\" >= $2 and \"elections\".\"date\" >= ($3::timestamptz at time zone case when \"elections\".\"timezone\" in ($4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27) then \"elections\".\"timezone\" else $28 end)::date) group by \"elections\".\"id\" order by \"elections\".\"date\", \"elections\".\"id\"`,\n  params: [\n    true,\n    '2026-11-03T00:00:00.000Z',\n    '2026-11-04T03:30:00.000Z',\n    'America/New_York',\n    'America/Detroit',\n    'America/Menominee',\n    'America/Chicago',\n    'America/Denver',\n    'America/Los_Angeles',\n    'America/Phoenix',\n    'America/Boise',\n    'America/Anchorage',\n    'America/Adak',\n    'Pacific/Honolulu',\n    'America/Puerto_Rico',\n    'America/Indiana/Indianapolis',\n    'America/Indiana/Knox',\n    'America/Indiana/Tell_City',\n    'America/Indiana/Vincennes',\n    'America/Indiana/Winamac',\n    'America/Indiana/Marengo',\n    'America/Indiana/Vevay',\n    'America/Kentucky/Louisville',\n    'America/Kentucky/Monticello',\n    'America/North_Dakota/Beulah',\n    'America/North_Dakota/New_Salem',\n    'America/North_Dakota/Center',\n    'Etc/GMT+11'\n  ],\n  cause: error: column elections.official_results_url does not exist\n      at /app/node_modules/pg-pool/index.js:45:11\n      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n      at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:124:18\n      at async NodePgPreparedQuery.queryWithCache (file:///app/node_modules/drizzle-orm/pg-core/session.js:39:16)\n      at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:117:22\n      at async file:///app/timezone-acceptance.mjs:3824:18 {\n    length: 129,\n    severity: 'ERROR',\n    code: '42703',\n    detail: undefined,\n    hint: undefined,\n    position: '400',\n    internalPosition: undefined,\n    internalQuery: undefined,\n    where: undefined,\n    schema: undefined,\n    table: undefined,\n    column: undefined,\n    dataType: undefined,\n    constraint: undefined,\n    file: 'parse_relation.c',\n    line: '3722',\n    routine: 'errorMissingColumn'\n  }\n}\n\nNode.js v24.21.0\n"
+}
