@@ -18,7 +18,7 @@ export function useWatchlist() {
   const [syncPromptShown, setSyncPromptShown] = useLocalStorage<boolean>("watchlist-sync-prompted", false);
   
   // Server watchlist for authenticated users
-  const { data: serverWatchlist = [], isLoading } = useQuery({
+  const { data: serverWatchlist = [], isLoading } = useQuery<Array<{ electionId: number | string }>>({
     queryKey: ["/api/user/watchlist"],
     enabled: isAuthenticated,
     retry: false,
@@ -27,10 +27,7 @@ export function useWatchlist() {
   // Mutation to sync watchlist with server
   const syncMutation = useMutation({
     mutationFn: async (items: WatchlistItem[]) => {
-      return apiRequest("/api/user/watchlist/sync", {
-        method: "POST",
-        body: JSON.stringify({ items }),
-      });
+      return apiRequest('POST', "/api/user/watchlist/sync", { items });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/user/watchlist"] });
@@ -42,7 +39,7 @@ export function useWatchlist() {
   const addMutation = useMutation({
     mutationFn: async (electionId: string | number) => {
       if (isAuthenticated) {
-        return apiRequest(`/api/user/watchlist/${electionId}`, { method: "POST" });
+        return apiRequest('POST', `/api/user/watchlist/${electionId}`);
       }
       return Promise.resolve();
     },
@@ -67,7 +64,7 @@ export function useWatchlist() {
   const removeMutation = useMutation({
     mutationFn: async (electionId: string | number) => {
       if (isAuthenticated) {
-        return apiRequest(`/api/user/watchlist/${electionId}`, { method: "DELETE" });
+        return apiRequest('DELETE', `/api/user/watchlist/${electionId}`);
       }
       return Promise.resolve();
     },

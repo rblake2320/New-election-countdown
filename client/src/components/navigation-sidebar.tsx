@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { Home, Users, Building2, BarChart3, Radio, Globe, Database, Calendar, Shield, Package, User, LogOut, ChevronDown, ChevronRight, Building, Settings, BarChart2, Archive, HelpCircle } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { useIsAdmin } from "@/lib/useIsAdmin";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -51,6 +52,7 @@ const navigationSections = [
   },
   {
     id: "data-tools",
+    adminOnly: true,
     label: "📊 Data Tools", 
     icon: BarChart2,
     description: "Advanced analytics and monitoring capabilities",
@@ -77,6 +79,7 @@ const navigationSections = [
   },
   {
     id: "admin",
+    adminOnly: true,
     label: "⚙️ Admin",
     icon: Settings,
     description: "Administrative tools and global oversight",
@@ -110,7 +113,11 @@ const secondaryItems = [
 export function NavigationSidebar() {
   const [location, setLocation] = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
-  const [openSections, setOpenSections] = useState<string[]>(['explore', 'portals', 'data-tools', 'admin']);
+  const isAdmin = useIsAdmin(user || undefined);
+  // Voters see the voter journey; operator tools are for admins only (the
+  // server still enforces authorization on every one of those routes).
+  const visibleSections = navigationSections.filter(section => !("adminOnly" in section && section.adminOnly) || isAdmin);
+  const [openSections, setOpenSections] = useState<string[]>(['explore', 'data-tools', 'admin']);
 
   const toggleSection = (sectionId: string) => {
     setOpenSections(prev => 
@@ -160,7 +167,7 @@ export function NavigationSidebar() {
         )}
       </div>
       <nav className="space-y-2" data-testid="main-navigation">
-        {navigationSections.map((section) => {
+        {visibleSections.map((section) => {
           const isOpen = openSections.includes(section.id);
           const hasActiveItem = isPathInSection(section);
           

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { RegisterForm } from "@/components/auth/register-form";
 import { OnboardingPreferences } from "@/components/onboarding-preferences";
@@ -16,32 +16,34 @@ interface OnboardingFlowProps {
 export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const [currentStep, setCurrentStep] = useState<OnboardingStep>('registration');
   const [, setLocation] = useLocation();
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
+  // Set once this flow creates the account. Registering signs the user in, and
+  // that must not end the flow: the preference steps still have to run.
+  const registeredHere = useRef(false);
 
-  // If user is already authenticated, redirect to dashboard
-  if (isAuthenticated && user) {
-    setLocation('/dashboard');
-    return null;
-  }
+  // The parent decides where to go next (e.g. back to the election the visitor
+  // was watching); the dashboard is only the fallback.
+  const finish = () => (onComplete ? onComplete() : setLocation('/dashboard'));
+
+  // Someone who was already signed in has nothing to register.
+  useEffect(() => {
+    if (isAuthenticated && !registeredHere.current && currentStep === 'registration') finish();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, currentStep]);
 
   const handleRegistrationSuccess = () => {
+    registeredHere.current = true;
     setCurrentStep('preferences');
   };
 
   const handlePreferencesComplete = () => {
     setCurrentStep('complete');
-    setTimeout(() => {
-      onComplete?.();
-      setLocation('/dashboard');
-    }, 2000);
+    setTimeout(finish, 2000);
   };
 
   const handlePreferencesSkip = () => {
     setCurrentStep('complete');
-    setTimeout(() => {
-      onComplete?.();
-      setLocation('/dashboard');
-    }, 1500);
+    setTimeout(finish, 1500);
   };
 
   const renderStepIndicator = () => (
@@ -158,7 +160,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               </div>
               
               <p className="mt-6 text-sm text-muted-foreground">
-                Redirecting you to your personalized dashboard...
+                Taking you back now…
               </p>
             </CardContent>
           </Card>

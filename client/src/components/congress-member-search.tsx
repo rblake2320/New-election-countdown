@@ -39,10 +39,8 @@ export function CongressMemberSearch() {
   // Perplexity search for missing members
   const perplexitySearch = useMutation({
     mutationFn: async (name: string) => {
-      return await apiRequest(`/api/congress/find-member`, {
-        method: 'POST',
-        body: { memberName: name }
-      });
+      const res = await apiRequest('POST', `/api/congress/find-member`, { memberName: name });
+      return res.json();
     },
     onSuccess: (data) => {
       if (data.found) {

@@ -214,6 +214,12 @@ export function OnboardingPreferences({ onComplete, onSkip }: OnboardingPreferen
   };
 
   const handleSubmit = (data: OnboardingPreferencesFormData) => {
+    // Only the final step saves. A submit on an earlier step (Enter in a field,
+    // or a button that changed type mid-click) just advances.
+    if (currentStep < totalSteps) {
+      handleNext();
+      return;
+    }
     savePreferencesMutation.mutate(data);
   };
 
@@ -846,6 +852,7 @@ export function OnboardingPreferences({ onComplete, onSkip }: OnboardingPreferen
             <div className="flex gap-2">
               {currentStep < totalSteps ? (
                 <Button
+                  key="next"
                   type="button"
                   onClick={handleNext}
                   data-testid="next-button"
@@ -855,6 +862,7 @@ export function OnboardingPreferences({ onComplete, onSkip }: OnboardingPreferen
                 </Button>
               ) : (
                 <Button
+                  key="complete"
                   type="submit"
                   disabled={savePreferencesMutation.isPending}
                   data-testid="complete-button"

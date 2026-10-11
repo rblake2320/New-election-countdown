@@ -93,32 +93,17 @@
 /* ===== UNIFIED GRID SYSTEM ===== */
 .unified-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(var(--grid-min-column-width), 1fr));
+  /* Column count follows the container, not the viewport: viewport breakpoints
+     forced 3-4 columns into a ~620 px content area beside two sidebars, so
+     cards overflowed and were clipped. */
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--grid-min-column-width)), 1fr));
   gap: var(--grid-gap);
   align-items: stretch;
 }
 
 .unified-grid > * {
   height: 100%;
-}
-
-/* Responsive grid breakpoints - consistent across all views */
-@media (min-width: 640px) {
-  .unified-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .unified-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (min-width: 1280px) {
-  .unified-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
+  min-width: 0;
 }
 
 /* ===== TEXT TRUNCATION UTILITIES ===== */
@@ -478,5 +463,15 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Honour the OS "reduce motion" setting (WCAG 2.3.3). */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

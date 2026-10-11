@@ -1,0 +1,68 @@
+
+> rest-express@1.0.0 test:e2e:list
+> playwright test --list
+
+Listing tests:
+  [chromium] › admin-widget-visibility.spec.ts:4:3 › Admin features visibility › Data Integrity / Run Auto-fix is hidden for public users
+  [chromium] › admin-widget-visibility.spec.ts:20:3 › Admin features visibility › Admin features visible with VITE_ADMIN_FEATURES flag
+  [chromium] › admin-widget-visibility.spec.ts:33:3 › Admin features visibility › No console errors on page load
+  [chromium] › e2e\api.coverageWindow.spec.ts:5:1 › all elections in next 60 days have either linked or fallback candidates
+  [chromium] › e2e\api.semantics.spec.ts:5:1 › invalid api path → 404
+  [chromium] › e2e\api.semantics.spec.ts:12:1 › invalid state → 400
+  [chromium] › e2e\api.truth.spec.ts:4:1 › health baseline is sane (real numbers)
+  [chromium] › e2e\api.truth.spec.ts:12:1 › state members canonical counts (CA>=50, TX>=32)
+  [chromium] › e2e\api.truth.spec.ts:19:1 › elections shape + ids are numeric
+  [chromium] › e2e\api.truth.spec.ts:25:1 › candidate images resolve HTTP 200 for a small sample
+  [chromium] › e2e\api.truth.spec.ts:50:1 › analytics ingestion reflects in summary
+  [chromium] › e2e\auth-ui.spec.ts:14:5 › Auth UI Tests › Registration Flow › should show registration form and handle registration
+  [chromium] › e2e\auth-ui.spec.ts:62:5 › Auth UI Tests › Registration Flow › should validate email format during registration
+  [chromium] › e2e\auth-ui.spec.ts:88:5 › Auth UI Tests › Login Flow › should show login form and handle login
+  [chromium] › e2e\auth-ui.spec.ts:128:5 › Auth UI Tests › Login Flow › should handle forgotten password flow
+  [chromium] › e2e\auth-ui.spec.ts:160:5 › Auth UI Tests › Authentication State Management › should show different UI for authenticated vs unauthenticated users
+  [chromium] › e2e\auth-ui.spec.ts:184:5 › Auth UI Tests › Authentication State Management › should handle logout functionality
+  [chromium] › e2e\auth-ui.spec.ts:204:5 › Auth UI Tests › Admin Widget Visibility › should show admin-specific UI elements for admin users
+  [chromium] › e2e\auth-ui.spec.ts:236:5 › Auth UI Tests › Admin Widget Visibility › should have admin features properly gated
+  [chromium] › e2e\auth-ui.spec.ts:280:5 › Auth UI Tests › Admin Widget Visibility › should show admin widget with autofix controls
+  [chromium] › e2e\auth-ui.spec.ts:314:5 › Auth UI Tests › Session Management › should persist authentication across page reloads
+  [chromium] › e2e\auth-ui.spec.ts:333:5 › Auth UI Tests › Session Management › should handle session expiration gracefully
+  [chromium] › e2e\autofix-ui.spec.ts:14:5 › Autofix UI Tests › Detection-Only Messaging › should show detection-only mode clearly in UI
+  [chromium] › e2e\autofix-ui.spec.ts:49:5 › Autofix UI Tests › Detection-Only Messaging › should show what would be fixed without making changes
+  [chromium] › e2e\autofix-ui.spec.ts:86:5 › Autofix UI Tests › Detection-Only Messaging › should display issue severity levels and counts
+  [chromium] › e2e\autofix-ui.spec.ts:122:5 › Autofix UI Tests › Blocked Apply Without Approval › should block apply operations without proper approval
+  [chromium] › e2e\autofix-ui.spec.ts:162:5 › Autofix UI Tests › Blocked Apply Without Approval › should require admin authentication for apply operations
+  [chromium] › e2e\autofix-ui.spec.ts:197:5 › Autofix UI Tests › Blocked Apply Without Approval › should show approval workflow for authorized users
+  [chromium] › e2e\autofix-ui.spec.ts:222:5 › Autofix UI Tests › Degraded Mode Banner › should show degraded mode banner when appropriate
+  [chromium] › e2e\autofix-ui.spec.ts:259:5 › Autofix UI Tests › Degraded Mode Banner › should disable autofix apply in degraded mode
+  [chromium] › e2e\autofix-ui.spec.ts:301:5 › Autofix UI Tests › Degraded Mode Banner › should show specific degraded mode messages for autofix
+  [chromium] › e2e\autofix-ui.spec.ts:329:5 › Autofix UI Tests › Autofix Safety Features › should show safety warnings and confirmations
+  [chromium] › e2e\autofix-ui.spec.ts:364:5 › Autofix UI Tests › Autofix Safety Features › should require multiple confirmations for high-risk operations
+  [chromium] › e2e\autofix-ui.spec.ts:400:5 › Autofix UI Tests › Autofix Safety Features › should show rollback information
+  [chromium] › e2e\autofix-ui.spec.ts:425:5 › Autofix UI Tests › Real-time Status Updates › should show real-time autofix status
+  [chromium] › e2e\autofix-ui.spec.ts:446:5 › Autofix UI Tests › Real-time Status Updates › should handle service status changes gracefully
+  [chromium] › e2e\candidates.aug26.spec.ts:12:1 › AD-63 shows Shoults & Johnson
+  [chromium] › e2e\candidates.aug26.spec.ts:20:1 › Los Banos D1 shows Perez & Sanchez
+  [chromium] › e2e\candidates.coverageWindow.spec.ts:4:1 › candidate coverage in next 7 days
+  [chromium] › e2e\data.congressCounts.spec.ts:4:1 › national counts and state CA/TX totals
+  [chromium] › e2e\smoke.spec.ts:14:3 › Smoke Tests › home page loads successfully
+  [chromium] › e2e\smoke.spec.ts:28:3 › Smoke Tests › elections grid renders with data
+  [chromium] › e2e\smoke.spec.ts:48:3 › Smoke Tests › elections grid loads without infinite loading states
+  [chromium] › e2e\smoke.spec.ts:67:3 › Smoke Tests › service status banner shows when appropriate
+  [chromium] › e2e\smoke.spec.ts:105:3 › Smoke Tests › navigation and basic interactivity work
+  [chromium] › e2e\smoke.spec.ts:129:3 › Smoke Tests › responsive layout works on different screen sizes
+  [chromium] › e2e\smoke.spec.ts:151:3 › Smoke Tests › no critical console errors on page load
+  [chromium] › e2e\smoke.spec.ts:177:3 › Smoke Tests › elections data is not obviously mock or placeholder
+  [chromium] › e2e\smoke.spec.ts:210:3 › Smoke Tests › basic performance - page loads within reasonable time
+  [chromium] › e2e\smoke.spec.ts:227:3 › Smoke Tests › elections grid shows countdown timers or dates
+  [chromium] › e2e\ui.candidate-coverage.spec.ts:4:1 › 120 sample elections all must have ≥1 candidate
+  [chromium] › e2e\ui.consistency-and-errors.spec.ts:4:1 › Health vs elections list count must match (no silent gaps)
+  [chromium] › e2e\ui.consistency-and-errors.spec.ts:13:1 › 404/400 semantics: bad pages and inputs
+  [chromium] › e2e\ui.data-management-and-trends.spec.ts:3:1 › Data Management route exists (no 404) and renders dashboard
+  [chromium] › e2e\ui.data-management-and-trends.spec.ts:21:1 › Overview/Trends/Analysis tabs/components load with non-empty data
+  [chromium] › e2e\ui.grid-and-compare.spec.ts:4:1 › grid renders, dropdown -> compare renders real tiles
+  [chromium] › e2e\ui.neverStuck.spec.ts:3:1 › candidate drawer never stalls
+  [chromium] › e2e\ui.noStuckSkeleton.spec.ts:3:1 › candidate drawer never stays skeleton
+  [chromium] › e2e\ui.noStuckSkeleton.spec.ts:17:1 › AD-63 shows candidates properly
+  [chromium] › featured-layout.spec.ts:4:3 › Featured vs Upcoming layout › Featured cards render with equal heights & CTAs
+  [chromium] › featured-layout.spec.ts:31:3 › Featured vs Upcoming layout › Upcoming grid exists & cards are stretched to equal heights
+  [chromium] › featured-layout.spec.ts:52:3 › Featured vs Upcoming layout › Featured and Upcoming cards use same component structure
+Total: 62 tests in 17 files
