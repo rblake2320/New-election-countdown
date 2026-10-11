@@ -46,7 +46,7 @@ async function main(){
    const present=new Set((await pool.query('SELECT column_name FROM information_schema.columns WHERE table_schema=\'public\' AND table_name=$1',[table.name])).rows.map(r=>r.column_name));
    for(const col of table.columns)if(!present.has(col.name))await pool.query('ALTER TABLE '+quote(table.name)+' ADD COLUMN '+quote(col.name)+' '+col.getSQLType());
  }
- const appEnv:NodeJS.ProcessEnv={DATABASE_URL:process.env.DATABASE_URL,PORT:'5567',HOST:'127.0.0.1',NODE_ENV:'production'};
+ const appEnv:NodeJS.ProcessEnv={DATABASE_URL:process.env.DATABASE_URL,PORT:'5567',HOST:'127.0.0.1',NODE_ENV:'production',JWT_SECRET:hash(url.password+'private-jwt'),SESSION_SECRET:hash(url.password+'private-session')};
  for(const key of ['PATH','Path','SystemRoot','TEMP','TMP','USERPROFILE','APPDATA','LOCALAPPDATA'])if(process.env[key])appEnv[key]=process.env[key];
  const boot=spawn(process.execPath,['dist/index.js'],{env:appEnv,stdio:['ignore','pipe','pipe']});let bootLog='';boot.stdout.on('data',b=>bootLog+=b);boot.stderr.on('data',b=>bootLog+=b);
  try{
