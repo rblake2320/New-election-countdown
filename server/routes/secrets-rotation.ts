@@ -39,7 +39,7 @@ router.get('/status', async (req, res) => {
     console.log('🔐 Getting secrets rotation status');
 
     const status = await secretsRotationService.getRotationStatus();
-    
+
     // Get validation results for all secrets
     const validationResults = await secretsRotationService.testAllSecrets();
     const healthySecrets = validationResults.filter(r => r.success).length;
@@ -115,7 +115,7 @@ router.post('/rotate', async (req, res) => {
 
     const { storage } = await import('../storage');
     const secret = await storage.getSecretByName?.(rotationRequest.secretName);
-    
+
     if (!secret) {
       return res.status(404).json({
         error: 'not_found',
@@ -142,7 +142,7 @@ router.post('/rotate', async (req, res) => {
     console.error('❌ Secret rotation failed:', error);
     res.status(500).json({
       error: 'rotation_failed',
-      message: error instanceof Error ? error.message : 'Secret rotation failed'
+      message: 'Secret rotation failed'
     });
   }
 });
@@ -175,7 +175,7 @@ router.post('/emergency', async (req, res) => {
     console.error('❌ Emergency rotation failed:', error);
     res.status(500).json({
       error: 'emergency_rotation_failed',
-      message: error instanceof Error ? error.message : 'Emergency rotation failed'
+      message: 'Emergency rotation failed'
     });
   }
 });
@@ -225,7 +225,7 @@ router.get('/history', async (req, res) => {
   try {
     const { limit = '50', secretName } = req.query;
     const { storage } = await import('../storage');
-    
+
     const history = await storage.getRotationHistory?.({
       limit: parseInt(limit as string),
       secretName: secretName as string
@@ -254,12 +254,12 @@ router.post('/test', async (req, res) => {
     console.log('🧪 Testing all secrets connectivity');
 
     const validationResults = await secretsRotationService.testAllSecrets();
-    
+
     const summary = {
       totalTested: validationResults.length,
       successful: validationResults.filter(r => r.success).length,
       failed: validationResults.filter(r => !r.success).length,
-      averageResponseTime: validationResults.length > 0 
+      averageResponseTime: validationResults.length > 0
         ? Math.round(validationResults.reduce((sum, r) => sum + r.responseTime, 0) / validationResults.length)
         : 0
     };
@@ -276,7 +276,7 @@ router.post('/test', async (req, res) => {
     console.error('❌ Secret validation failed:', error);
     res.status(500).json({
       error: 'validation_failed',
-      message: error instanceof Error ? error.message : 'Secret validation failed'
+      message: 'Secret validation failed'
     });
   }
 });
@@ -323,7 +323,7 @@ router.put('/secrets/:id/schedule', async (req, res) => {
     }
 
     const { storage } = await import('../storage');
-    
+
     // Calculate new next rotation date
     const nextRotation = new Date();
     nextRotation.setDate(nextRotation.getDate() + rotationFrequencyDays);

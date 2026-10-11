@@ -1,5 +1,6 @@
 import { Response, NextFunction } from 'express';
 import { pool } from '../db';
+import { recordSecurityDecision } from '../security-events';
 
 /**
  * Middleware to require admin privileges.
@@ -12,6 +13,7 @@ import { pool } from '../db';
 export async function requireAdmin(req: any, res: Response, next: NextFunction) {
   const userId: string | undefined = req.userId ?? req.user?.claims?.sub;
   if (!userId) {
+    recordSecurityDecision(req, { action: 'authz.admin', result: 'deny', actor: null, reason: 'no_identity' });
     return res.status(401).json({
       error: 'Authentication required',
       message: 'You must be logged in to access this resource',
@@ -25,16 +27,19 @@ export async function requireAdmin(req: any, res: Response, next: NextFunction) 
     );
     if (rows[0]?.role?.toLowerCase() === 'admin') {
       req.user = { ...(req.user ?? {}), role: 'admin' };
+      recordSecurityDecision(req, { action: 'authz.admin', result: 'allow', actor: String(userId) });
       return next();
     }
   } catch (error) {
     console.error('requireAdmin: role lookup failed', error instanceof Error ? error.message : error);
+    recordSecurityDecision(req, { action: 'authz.admin', result: 'error', actor: String(userId), reason: 'role_lookup_failed' });
     return res.status(503).json({
       error: 'Service unavailable',
       message: 'Unable to verify administrative privileges',
     });
   }
 
+  recordSecurityDecision(req, { action: 'authz.admin', result: 'deny', actor: String(userId), reason: 'not_admin' });
   return res.status(403).json({
     error: 'Forbidden',
     message: 'Administrative privileges required to access this resource',

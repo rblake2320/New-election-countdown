@@ -167,6 +167,10 @@ export interface IStorage {
   // Candidate Authentication & Portal
   authenticateCandidate(email: string, password: string): Promise<CandidateAccount | null>;
   createCandidateAccount(account: InsertCandidateAccount): Promise<CandidateAccount>;
+  // OR-01: account lookup/approval used by the per-request portal authorization check
+  getCandidateAccountById(id: number): Promise<CandidateAccount | null>;
+  listCandidateAccounts(filter?: { isActive?: boolean }): Promise<CandidateAccount[]>;
+  setCandidateAccountActive(id: number, isActive: boolean, accessLevel?: string): Promise<CandidateAccount | null>;
   getCandidateProfile(candidateId: number): Promise<CandidateProfile | null>;
   updateCandidateProfile(candidateId: number, profile: Partial<CandidateProfile>): Promise<CandidateProfile>;
   getCandidateDataSources(candidateId: number): Promise<CandidateDataSource[]>;
@@ -1434,6 +1438,25 @@ export class DatabaseStorage implements IStorage {
       console.error('Error creating candidate account:', error);
       throw error;
     }
+  }
+
+  async getCandidateAccountById(id: number): Promise<CandidateAccount | null> {
+    const [account] = await db.select().from(candidateAccounts).where(eq(candidateAccounts.id, id)).limit(1);
+    return account ?? null;
+  }
+
+  async listCandidateAccounts(filter: { isActive?: boolean } = {}): Promise<CandidateAccount[]> {
+    const q = db.select().from(candidateAccounts);
+    const rows = filter.isActive === undefined ? await q : await q.where(eq(candidateAccounts.isActive, filter.isActive));
+    return rows.sort((a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0));
+  }
+
+  async setCandidateAccountActive(id: number, isActive: boolean, accessLevel?: string): Promise<CandidateAccount | null> {
+    const [updated] = await db.update(candidateAccounts)
+      .set({ isActive, ...(accessLevel ? { accessLevel } : {}), updatedAt: new Date() })
+      .where(eq(candidateAccounts.id, id))
+      .returning();
+    return updated ?? null;
   }
 
   async getCandidateProfile(candidateId: number): Promise<CandidateProfile | null> {
