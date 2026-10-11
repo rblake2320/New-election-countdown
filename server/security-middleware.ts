@@ -61,7 +61,7 @@ const monitoringEndpointsAllowlist = [
 
 // Check if endpoint is a monitoring endpoint
 const isMonitoringEndpoint = (path: string): boolean => {
-  return monitoringEndpointsAllowlist.some(allowedPath => 
+  return monitoringEndpointsAllowlist.some(allowedPath =>
     path.startsWith(allowedPath) || path === allowedPath
   );
 };
@@ -96,7 +96,7 @@ export const validateInput = (req: Request, res: Response, next: NextFunction) =
 // Input sanitization
 export const sanitizeInput = (input: string): string => {
   if (!input) return '';
-  
+
   // Remove potentially dangerous characters
   return input
     .replace(/['"\\]/g, '') // Remove quotes and backslashes
@@ -105,16 +105,35 @@ export const sanitizeInput = (input: string): string => {
     .substring(0, 200); // Limit length
 };
 
+/**
+ * One 429 contract for every limiter (UX review P1: the detail page rendered an
+ * existing race as "Not Found" after a 429). Clients get a machine-readable code,
+ * the seconds to wait, and the standard Retry-After header; nothing else changes.
+ */
+export const RATE_LIMITED_ERROR = 'rate_limited' as const;
+export function rateLimitedHandler(scope: string) {
+  return (req: any, res: any, _next: any, options: any) => {
+    const windowMs = Number(options?.windowMs ?? 60_000);
+    const resetTime: Date | undefined = req.rateLimit?.resetTime;
+    const retryAfterSeconds = Math.max(1, Math.ceil(((resetTime ? resetTime.getTime() - Date.now() : windowMs)) / 1000));
+    res.setHeader('Retry-After', String(retryAfterSeconds));
+    res.status(429).json({
+      error: RATE_LIMITED_ERROR,
+      scope,
+      message: 'Too many requests from this client; retry shortly. The resource itself was not checked.',
+      retryAfterSeconds,
+      limit: options?.max ?? options?.limit ?? null,
+    });
+  };
+}
+
 // Rate limiting for search endpoints
 export const searchLimiter = rateLimit({
   // Sized for election night (measured 2026-10-11): every filter change is one
   // /api/elections call; 60/min per IP tolerates rapid filtering and shared NAT.
   windowMs: 60 * 1000,
   max: 60,
-  message: {
-    error: 'Too many search requests',
-    retryAfter: '1 minute'
-  },
+  handler: rateLimitedHandler('search'),
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -160,10 +179,7 @@ export const apiLimiter = rateLimit({
   // card; 1000/15min (the old value) tripped after ~2 full scrolls.
   windowMs: 60 * 1000,
   max: 300,
-  message: {
-    error: 'Too many API requests',
-    retryAfter: '1 minute'
-  },
+  handler: rateLimitedHandler('api'),
   standardHeaders: true,
   legacyHeaders: false,
   // One predicate (a second `skip` key silently overrode the first). Use the
