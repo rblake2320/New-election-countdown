@@ -1,0 +1,269 @@
+{
+  "kind": "Congress-loader-errno-refusal-final-packet",
+  "runtimeCoreCommit": "0616a699b00be0bde009550ab2eac048ebdd7539",
+  "previousPacket": "95ceff263691cc6c7da8753c32087725f1f0b207",
+  "manifestSha256": "b09efc0e8a2b98ffc1e5e4740c8c0ba03a381e745cdf8d53a501e053bfa8ad56",
+  "packagedManifestPath": "dist/congress-data/official-current-members.json",
+  "migration": "migrations/20261011_congress_official_import.sql",
+  "migrationOrder": "Before official apply; no webboot execution",
+  "sharedSchemaBlob": "23d0cc9fc707c9dc2c0a8487229cc63da3012e60",
+  "loaderContract": "Native stat of compiled-relative packaged asset; source fallback ONLY ENOENT. EACCES/ENOTDIR/wrongSHA refuse. Explicit manifest unchanged.",
+  "ownLinuxCases": {
+    "head": "0616a699b00be0bde009550ab2eac048ebdd7539",
+    "outcome": "Worked",
+    "checks": [
+      {
+        "scenario": "EACCES refuses without fallback",
+        "uid": 1001,
+        "directError": "EACCES",
+        "packagedExists": false,
+        "actual": {
+          "loaded": false,
+          "errorCode": "EACCES"
+        },
+        "outcome": "Worked"
+      },
+      {
+        "scenario": "ENOTDIR refuses without fallback",
+        "uid": 1001,
+        "directError": "ENOTDIR",
+        "packagedExists": false,
+        "actual": {
+          "loaded": false,
+          "errorCode": "ENOTDIR"
+        },
+        "outcome": "Worked"
+      }
+    ],
+    "databaseConnections": 0,
+    "providerFetchCalls": 0,
+    "network": "none"
+  },
+  "independentClearance": {
+    "head": "0616a699b00be0bde009550ab2eac048ebdd7539",
+    "outcome": "Worked no loader mustfix",
+    "sixNormalCases": {
+      "head": "0616a699b00be0bde009550ab2eac048ebdd7539",
+      "outcome": "Worked",
+      "checks": [
+        {
+          "name": "compiled packaged default",
+          "outcome": "Worked"
+        },
+        {
+          "name": "bad packaged SHA refuses despite valid source fallback",
+          "outcome": "Worked"
+        },
+        {
+          "name": "alternate cwd independent",
+          "outcome": "Worked"
+        },
+        {
+          "name": "explicit absolute manifest retained",
+          "outcome": "Worked"
+        },
+        {
+          "name": "packaged ENOENT uses module-relative source fallback",
+          "outcome": "Worked"
+        },
+        {
+          "name": "both resource paths absent refuses rather than count success",
+          "outcome": "Worked"
+        }
+      ],
+      "databaseConnections": 0,
+      "providerFetchCalls": 0
+    },
+    "twoLinuxUID1001Cases": {
+      "head": "0616a699b00be0bde009550ab2eac048ebdd7539",
+      "outcome": "Worked",
+      "checks": [
+        {
+          "scenario": "EACCES refuses without fallback",
+          "uid": 1001,
+          "directError": "EACCES",
+          "packagedExists": false,
+          "actual": {
+            "loaded": false,
+            "errorCode": "EACCES"
+          },
+          "outcome": "Worked"
+        },
+        {
+          "scenario": "ENOTDIR refuses without fallback",
+          "uid": 1001,
+          "directError": "ENOTDIR",
+          "packagedExists": false,
+          "actual": {
+            "loaded": false,
+            "errorCode": "ENOTDIR"
+          },
+          "outcome": "Worked"
+        }
+      ],
+      "databaseConnections": 0,
+      "providerFetchCalls": 0,
+      "network": "none",
+      "nodeRuntimeImageId": "sha256:90561267d8c97492b08405aa421616bbfee7da6e8c6fb7293e29d2cf445c8748"
+    }
+  },
+  "privateRetake": {
+    "outcome": "Worked",
+    "network": "internal; zero published ports",
+    "image": "electiontracker:congress-import-83560-3dd645",
+    "evidence": "D:\\projects\\et-wt\\sol-congress-source-investigation\\artifacts\\congress-import\\private-83560-3dd645",
+    "imageId": "sha256:5bd40e43c34932d34547536e509edf6e553128e4eda9e543fa915f9d5455a714",
+    "compiledAcceptanceSourceTree": "all five named source JSON files absent; only dist/congress-data reviewed assets available",
+    "auditSchemaSync": {
+      "outcome": "Worked",
+      "before": "7|ea58586eb5ab53b8a62acd6cb6e3c5ad",
+      "after": "7|ea58586eb5ab53b8a62acd6cb6e3c5ad"
+    },
+    "cliDirectoryPreflight": {
+      "outcome": "Worked",
+      "output": "{\"outcome\":\"Refused\",\"committed\":false,\"error\":\"ENOENT: no such file or directory, open '/missing-parent/receipt.json'\"}"
+    },
+    "manifestSha256": "b09efc0e8a2b98ffc1e5e4740c8c0ba03a381e745cdf8d53a501e053bfa8ad56"
+  },
+  "prior90ArtifactHashesPreserved": true,
+  "sourceCodeChangesAfterCore": 0,
+  "productionReceiving": "D owns separate actual production packaging/HTTP gate",
+  "files": {
+    "loader-error-delta/build-index.py": {
+      "sha256": "d633b5a6c1205fda538963cdbb5d4ef437c338a9fe462dea8546e25156dede40",
+      "bytes": 2211
+    },
+    "loader-error-delta/independent-0616/build.mjs": {
+      "sha256": "8bccad760f506a46953c52fdf1aac8710762888da608b85aacef98d3ccd03bb5",
+      "bytes": 356
+    },
+    "loader-error-delta/independent-0616/linux-refusal-cases.mjs": {
+      "sha256": "a93218a1081f3cac376c9edd69f4d112b2693d1a061a1793e9047003ce403521",
+      "bytes": 2154
+    },
+    "loader-error-delta/independent-0616/linux-refusals-receipt.json": {
+      "sha256": "213c413956da9ca286ecfee3dcf82f5833a80359f59b53a5d1bc02bab8408ead",
+      "bytes": 818
+    },
+    "loader-error-delta/independent-0616/path-review-receipt.json": {
+      "sha256": "e6aea5f03d3f3e242468b0fb616ecbe6d54cbdc90864b63e944e3ce482836a23",
+      "bytes": 746
+    },
+    "loader-error-delta/independent-0616/path-review.mjs": {
+      "sha256": "38da6fae351905406464ecc2971c64f1f9a1cb2b97ce0fc3327e0ad3df60eaf5",
+      "bytes": 2880
+    },
+    "loader-error-delta/independent-0616/REVIEW.md": {
+      "sha256": "83da7102468f5117e141c7efe3c60b463695b4ec1ec5d3dd5243c8aa4199803d",
+      "bytes": 2424
+    },
+    "loader-error-delta/independent-0616/run-linux-refusals.py": {
+      "sha256": "5574e7aa1199b6b6f35afc7de53320bb460e40f6318a316341465688492f33ae",
+      "bytes": 648
+    },
+    "loader-error-delta/independent-0616/source-receipt.json": {
+      "sha256": "f59fe9b25f55ed7b116fe4c2b3b2322fcdb5a5092f9b7c98f2412a7ab1d7e45f",
+      "bytes": 396
+    },
+    "loader-error-delta/linux-refusals-green.json": {
+      "sha256": "4ae7990b2088d7700e8a7cd96aaa677e6be8e6f7ea3a14c1c46bcd7c6be2bed6",
+      "bytes": 489
+    },
+    "loader-error-delta/old/denied-path-receipt.json": {
+      "sha256": "40111e466fa4b2a677236cc901473be912a62f4e0e156a22ded8bee736004fad",
+      "bytes": 659
+    },
+    "loader-error-delta/old/denied-path.mjs": {
+      "sha256": "8dbe212895bbf493b2e9cdc508e677d726118fd0450fbaea285cb32981984058",
+      "bytes": 1523
+    },
+    "loader-error-delta/old/linux-refusal-cases.mjs": {
+      "sha256": "a93218a1081f3cac376c9edd69f4d112b2693d1a061a1793e9047003ce403521",
+      "bytes": 2154
+    },
+    "loader-error-delta/old/linux-refusals-receipt.json": {
+      "sha256": "58582c012e9238bae3e352c92cd81f6f364cca964d0813ff6c72209366fe50c8",
+      "bytes": 1143
+    },
+    "loader-error-delta/old/run-denied.py": {
+      "sha256": "b2e32a86872965ccedee61adc08aed45bce1082ae942fb435d9fa903a010909b",
+      "bytes": 789
+    },
+    "loader-error-delta/old/run-linux-refusals.py": {
+      "sha256": "5574e7aa1199b6b6f35afc7de53320bb460e40f6318a316341465688492f33ae",
+      "bytes": 648
+    },
+    "loader-error-delta/owned-source-receipt.json": {
+      "sha256": "d221a10302d18ce39836ef5f84dd2fee68d26b831c3e57e155f5837f471ce593",
+      "bytes": 212
+    },
+    "loader-error-delta/private-run.txt": {
+      "sha256": "5f936559b51de4324494b07f83a596238191ffe435648b252b0e46ad4bb89a25",
+      "bytes": 847
+    },
+    "loader-error-delta/six-paths-green.json": {
+      "sha256": "3baa1273d27418a72a7c59cdcd7be8045b3909a976516332848b1d1bc3f47c81",
+      "bytes": 746
+    },
+    "loader-error-delta/six-paths-green.txt": {
+      "sha256": "441f773a2241146642d9499ecaa706f5b4b11c89fa3886fb07ebbde14465ab77",
+      "bytes": 566
+    },
+    "loader-error-delta/unit.json": {
+      "sha256": "f09c8723fe1a8ade27f74de0435a96e32318006f4de9dbe88136f52bd639776e",
+      "bytes": 8775
+    },
+    "loader-error-delta/unit.txt": {
+      "sha256": "d9a7b3eeb0216bc7183e927f4e1cc0f7ca72d6ce397882a2f03291bdd692f466",
+      "bytes": 131
+    },
+    "private-83560-3dd645/cli-apply.json": {
+      "sha256": "73607da500b5b16c95d7e6a945bf29d457fed54c40f7beb4d400ade2259043b1",
+      "bytes": 1582
+    },
+    "private-83560-3dd645/cli-default-dry.json": {
+      "sha256": "552930c98e57fa7b0b260c6b9969a2435cd799e1ca381ecde3842474cd380a43",
+      "bytes": 1490
+    },
+    "private-83560-3dd645/compiled-acceptance.txt": {
+      "sha256": "cffe62b55ea646bbf9ddb1b830e1685b0f04b3c8c9745d5736a96b5fc155308a",
+      "bytes": 154
+    },
+    "private-83560-3dd645/compiled-resource-paths.txt": {
+      "sha256": "386af188758a5164b0d46e828f0c6962e701e45bb98b0d470d487ea70b31486a",
+      "bytes": 308
+    },
+    "private-83560-3dd645/harness-receipt.json": {
+      "sha256": "2f2238b646d577379a70e824e3b591ee698dd0d9475dfdf11cd5fd0bfba40bc7",
+      "bytes": 919
+    },
+    "private-83560-3dd645/image-build.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "private-83560-3dd645/private-receipt.json": {
+      "sha256": "89fd0b95a2849dae2596fb1734406b9b45cd272892ed689755efb694c1fcf1eb",
+      "bytes": 9326
+    },
+    "private-83560-3dd645/resource-path-receipt.json": {
+      "sha256": "e73e580a2e729892afe9e7c96b18ec898eeaa28f41743570bc520926966f75d0",
+      "bytes": 357
+    },
+    "private-83560-3dd645/reviewed-private-legacy-removal-plan.json": {
+      "sha256": "96cb86ad307ef9704b1332a567b46b558fde8d7f8bd243784e7792f76767c07e",
+      "bytes": 353
+    },
+    "private-83560-3dd645/schema-initial.txt": {
+      "sha256": "8b676d5ff3d24809b556d4d3dc19520859d310ed04fa3b85dc07aa416e652b31",
+      "bytes": 249
+    },
+    "private-83560-3dd645/schema-repeat.txt": {
+      "sha256": "8eaf9862c0f66d5f7fadb71732533bc38128d8e4b9252e02fb4f50bbc04e761c",
+      "bytes": 1491
+    },
+    "private-83560-3dd645/wrong-snapshot.json": {
+      "sha256": "4233545d2b7ed885aa1beb9df2267e636f16e8ad40f4498b4a9767e5c605a631",
+      "bytes": 283160
+    }
+  }
+}
