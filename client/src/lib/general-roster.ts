@@ -35,13 +35,13 @@ export interface GeneralRosterResponse {
 
 /**
  * Party as the official list gives it. A stated preference (top-two states such
- * as WA: "(Prefers Republican Party)") is shown as the preference, not as party
+ * as WA: "(Prefers Republican Party)") is shown verbatim as the preference, not as party
  * nomination. Unknown stays empty (e.g. write-ins), never guessed.
  */
 export function rosterParty(c: GeneralRosterCandidate): string | null {
   const raw = c.generalListSource?.partyRaw?.trim();
   if (c.generalListSource?.partyBasis === "preference" && raw) {
-    return raw.replace(/^\((.*)\)$/, "$1");
+    return raw; // the official wording verbatim, e.g. "(Prefers Republican Party)"
   }
   if (c.party && c.party.trim()) {
     const code = c.party.trim();

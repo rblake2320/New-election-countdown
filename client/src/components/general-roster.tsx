@@ -15,7 +15,10 @@ const fmtDate = (iso: string | null) => {
 
 export function GeneralRoster({ electionId }: { electionId: number }) {
   const { data, isLoading, error } = useGeneralRoster(electionId);
-  if (isLoading || data === null || data === undefined || data.status === "election_not_found") return null;
+  // Hide only when there is nothing to say: still loading, no endpoint on this
+  // server (null), or unknown election. A failed request (503 etc.) leaves data
+  // undefined and must still show the error state (lane C review of a90ae7e).
+  if (isLoading || (!error && (data === null || data === undefined)) || data?.status === "election_not_found") return null;
 
   return (
     <Card data-testid="general-roster">
@@ -31,7 +34,7 @@ export function GeneralRoster({ electionId }: { electionId: number }) {
       <CardContent>
         {error ? (
           <p className="text-sm text-muted-foreground">The official list could not be loaded right now.</p>
-        ) : data.status !== "sourced" || data.candidates.length === 0 ? (
+        ) : !data || data.status !== "sourced" || data.candidates.length === 0 ? (
           <p className="text-sm text-muted-foreground" data-testid="general-roster-empty">
             The official general-election list for this race has not been recorded yet.
           </p>
