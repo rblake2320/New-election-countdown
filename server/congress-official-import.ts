@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, statSync } from 'node:fs';
 import { fileURLToPath, URL as NodeURL } from 'node:url';
 import type { Pool, PoolClient } from 'pg';
 import { z } from 'zod';
@@ -65,7 +65,12 @@ export function defaultOfficialCongressManifestPath():string {
   const packaged=fileURLToPath(new NodeURL('./congress-data/official-current-members.json',import.meta.url));
   // An existing packaged asset is authoritative and must pass the same SHA gate.
   // A malformed packaged file never silently falls back to another source copy.
-  return existsSync(packaged)?packaged:fileURLToPath(new NodeURL('../data/congress/119/official-current-members.json',import.meta.url));
+  try { statSync(packaged); return packaged; }
+  catch(error) {
+    // Permissions and malformed paths are failures, not proof of absence.
+    if((error as NodeJS.ErrnoException).code!=='ENOENT')throw error;
+    return fileURLToPath(new NodeURL('../data/congress/119/official-current-members.json',import.meta.url));
+  }
 }
 export function loadOfficialCongressSnapshot(path=defaultOfficialCongressManifestPath()):{snapshot:OfficialCongressSnapshot;manifestSha256:string} {
   const bytes=readFileSync(path);const hash=createHash('sha256').update(bytes).digest('hex');
