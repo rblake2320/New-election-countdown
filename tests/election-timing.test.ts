@@ -154,3 +154,16 @@ describe("C3 contract fields (proposed: poll_close_kind, poll_hours_basis)", () 
     expect(getElectionTiming({ date: base.date }, new Date("2026-11-03T20:00:00Z")).precision).toBe("unpublished");
   });
 });
+
+describe("raw database strings at the timing boundary (integration e968eb9)", () => {
+  const base = { date: "2026-11-03T00:00:00.000Z", pollsOpen: "07:00", pollsClose: "20:00", timezone: "America/Chicago" };
+  it("unrecognized close kind / basis text is never treated as ballot drop-off or exact", () => {
+    for (const kind of ["BALLOT_RETURN", "mail", "", null]) {
+      for (const basis of ["STATEWIDE_LATEST", "verified", "", null]) {
+        const t = getElectionTiming({ ...base, pollCloseKind: kind, pollHoursBasis: basis }, new Date("2026-11-03T15:00:00Z"));
+        expect(t.targetLabel).toBe("until polls close");
+        expect(t.precision).toBe("unverified");
+      }
+    }
+  });
+});
