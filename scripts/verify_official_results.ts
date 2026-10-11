@@ -140,6 +140,7 @@ try {
 
   // Read every real receiving detail, respecting (rather than bypassing) quota.
   let quotaWaits = 0;
+  const actualDetails: Record<string, unknown>[] = [];
   const started = Date.now();
   for (const row of after) {
     let response: Response = await fetch(origin + '/api/elections/' + row.id, { signal: AbortSignal.timeout(15000) });
@@ -159,6 +160,7 @@ try {
     officialResultsFieldsSchema.parse(body);
     assert.equal(body.officialResultsUrl, row.official_results_url);
     assert.deepEqual(body.officialResultsSource, row.official_results_source);
+    actualDetails.push(body);
   }
   const list = await readHttp('/api/elections?timeframe=upcoming') as Record<string, unknown>[];
   const byId = new Map(after.map(row => [row.id, row]));
@@ -167,6 +169,12 @@ try {
     assert.equal(row.officialResultsUrl, sql.official_results_url);
     assert.deepEqual(row.officialResultsSource, sql.official_results_source);
   }
+  await writeFile(evidence + '/actual-detail-payloads.json', JSON.stringify(actualDetails, null, 2) + '\n');
+  await writeFile(evidence + '/actual-upcoming-payloads.json', JSON.stringify(list, null, 2) + '\n');
+  await writeFile(evidence + '/independent-sql-results-fields.json', JSON.stringify(after.map(row => ({
+    id: row.id, state: row.state, date: row.date, type: row.type,
+    officialResultsUrl: row.official_results_url, officialResultsSource: row.official_results_source,
+  })), null, 2) + '\n');
   report.compiledReceivingHttp = { outcome: 'Worked', details: after.length, listings: list.length,
     fieldComparisons: 2 * (after.length + list.length), mismatches: 0, quotaWaits, durationMs: Date.now() - started };
 
