@@ -364,9 +364,12 @@ export class CongressBillService {
 }
 
 export function getCongressBillService(): CongressBillService | null {
-  const apiKey = process.env.CONGRESS_API_KEY || 'cc9mECbK6VKcz0ChKLUo85xZr6kySbIM9kTiy45M';
+  // ET-22: no embedded fallback credential. An unconfigured deployment returns null and
+  // every caller already degrades to "no Congress data" (storage/getAllBills,
+  // congress-complete-sync). Keys live only in the private environment and rotate there.
+  const apiKey = process.env.CONGRESS_API_KEY;
   if (!apiKey) {
-    console.warn('Congress API key not found');
+    console.warn('CONGRESS_API_KEY not configured - Congress.gov integration unavailable');
     return null;
   }
   return new CongressBillService(apiKey);
