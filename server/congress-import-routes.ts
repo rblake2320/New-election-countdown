@@ -23,11 +23,26 @@ export const CONGRESS_IMPORT_REFUSALS: Record<string, { status: number; error: s
   E_DUPLICATES: { status: 409, error: 'import_refused', message: 'Congress source contains duplicate members; nothing was imported' },
   E_EMPTY: { status: 409, error: 'import_refused', message: 'Congress source resolved to no members; nothing was imported' },
   E_INCOMPLETE: { status: 409, error: 'import_refused', message: 'Congress source does not cover both chambers; nothing was imported' },
+  LEGACY_CONGRESS_SOURCE_UNVERIFIED: { status: 422, error: 'source_unverified', message: 'Legacy Congress dataset has no reviewed source digest; nothing was imported' },
+  OFFICIAL_CONGRESS_IMPORT_REFUSED: { status: 409, error: 'import_refused', message: 'Official Congress import was refused by the source-bound importer; nothing was imported' },
 };
+
+/**
+ * Lane C's source-bound importer (db607265) throws LEGACY_CONGRESS_SOURCE_UNVERIFIED and
+ * OFFICIAL_CONGRESS_IMPORT_REFUSED. Those exact codes are mapped, and as a narrow rule any
+ * importer code ending in _UNVERIFIED is a 422 and any ending in _REFUSED is a 409, so a
+ * future refusal variant never falls through to an opaque 500.
+ */
+function refusalFor(code: string) {
+  if (CONGRESS_IMPORT_REFUSALS[code]) return CONGRESS_IMPORT_REFUSALS[code];
+  if (/_UNVERIFIED$/.test(code)) return { status: 422, error: 'source_unverified', message: 'Congress source could not be verified against the reviewed digests; nothing was imported' };
+  if (/_REFUSED$/.test(code)) return { status: 409, error: 'import_refused', message: 'Congress import was refused by the importer; nothing was imported' };
+  return undefined;
+}
 
 export function congressImportFailure(error: unknown): { status: number; body: Record<string, unknown> } {
   const e = (error ?? {}) as { code?: unknown; details?: unknown };
-  const refusal = typeof e.code === 'string' ? CONGRESS_IMPORT_REFUSALS[e.code] : undefined;
+  const refusal = typeof e.code === 'string' ? refusalFor(e.code) : undefined;
   if (refusal) {
     return { status: refusal.status, body: { error: refusal.error, code: e.code, message: refusal.message, details: scalarDetails(e.details) } };
   }

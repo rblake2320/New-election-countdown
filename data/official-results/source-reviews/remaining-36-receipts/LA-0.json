@@ -1,0 +1,20 @@
+{
+  "state": "LA",
+  "url": "https://www.sos.la.gov/ElectionsAndVoting/GetElectionInformation/FindResultsAndStatistics/Pages/default.aspx",
+  "checkedAt": "2026-10-11T12:27:48.448730+00:00",
+  "tlsValidation": true,
+  "attempts": [
+    {
+      "method": "Python Requests default TLS",
+      "httpStatus": 404,
+      "finalUrl": "https://www.sos.la.gov/ElectionsAndVoting/GetElectionInformation/FindResultsAndStatistics/Pages/default.aspx",
+      "bytes": 42871,
+      "sha256": "90f4810178b79799783f7e3117c0b3d49e7beb0f7d8a183feb2c4e34f34383bc"
+    },
+    {
+      "method": "Windows Invoke-WebRequest default TLS",
+      "error": "'NoneType' object is not subscriptable"
+    }
+  ],
+  "status": "blocked_transport"
+}

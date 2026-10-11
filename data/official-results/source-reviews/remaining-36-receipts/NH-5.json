@@ -1,0 +1,20 @@
+{
+  "state": "NH",
+  "url": "https://sos.nh.gov/2026-general-election-results",
+  "checkedAt": "2026-10-11T12:31:00.384374+00:00",
+  "tlsValidation": true,
+  "attempts": [
+    {
+      "method": "Python Requests default TLS",
+      "httpStatus": 503,
+      "finalUrl": "https://sos.nh.gov/2026-general-election-results",
+      "bytes": 107,
+      "sha256": "839488ebc08446a096a893996ed23eac321ac166724cd8c5d9092057834d2d79"
+    },
+    {
+      "method": "Windows Invoke-WebRequest default TLS",
+      "error": "Invoke-WebRequest : 503 Service Unavailable\nNo server is available to handle this request.\nAt line:1 char:34\n+ ... e='Stop';$r=Invoke-WebRequest -Uri 'https://sos.nh.gov/2026-general-e ...\n+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], WebExc \n   eption\n    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand\n"
+    }
+  ],
+  "status": "blocked_transport"
+}

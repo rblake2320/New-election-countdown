@@ -1,0 +1,80 @@
+import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import {createElement} from 'react';
+import {renderToStaticMarkup} from 'react-dom/server';
+import {officialResultsLink} from './fixed/client/src/lib/official-results';
+import {officialResultsLink as oldLink} from './old/client/src/lib/official-results';
+import {OfficialResultsLink} from './fixed/client/src/components/official-results-link';
+import {officialResultsFieldsSchema,publishedResultsReceiptSchema} from './shared/official-results';
+const base='C:/Users/techai/.codex/tmp/sol-b421e-c6-review';
+const payloadDir='D:/projects/et-wt/sol-c6-results/artifacts/c6-private-81224-3e46a2';
+const detailBytes=readFileSync(payloadDir+'/actual-detail-payloads.json');
+const upcomingBytes=readFileSync(payloadDir+'/actual-upcoming-payloads.json');
+const details=JSON.parse(detailBytes.toString());const upcoming=JSON.parse(upcomingBytes.toString());
+const checks:any[]=[];const controls:any[]=[];
+function check(scenario:string,ok:boolean,evidence:any=null){checks.push({scenario,outcome:ok?'Worked':'Failed',evidence});}
+const target=details.filter((e:any)=>e.date.startsWith('2026-11-03'));
+check('Retained actual detail and upcoming record conservation',details.length===537 && upcoming.length===506 && target.length===506,{details:details.length,upcoming:upcoming.length,target:target.length});
+check('Every retained official result field pair obeys immutable C6 shared schema',details.every((e:any)=>officialResultsFieldsSchema.safeParse(e).success));
+const rendered=details.map((e:any)=>({id:e.id,state:e.state,type:e.type,date:e.date,html:renderToStaticMarkup(createElement(OfficialResultsLink,{election:e})),link:officialResultsLink(e)}));
+check('All actual payloads render without any posted/certified/numeric-vote-total claim',rendered.every((r:any)=>!(/Posted for|certified|\d+\s+votes?\b/i.test((r.link?.label??'')+' '+(r.link?.note??'')))),{renderedRecords:rendered.length,publicationStatusCount:target.filter((e:any)=>e.officialResultsSource.status==='published').length});
+check('31 non-target detail rows have no official result links',rendered.filter((e:any)=>!e.date.startsWith('2026-11-03')).every((e:any)=>e.html===''),{rows:31});
+const nh=rendered.filter((e:any)=>e.state==='NH'&&e.date.startsWith('2026-11-03'));
+check('NH null destinations render nothing for all four target races',nh.length===4&&nh.every((e:any)=>e.html===''),{targetRaces:nh.length});
+for(const st of ['GA','MA']) {
+ const rows=rendered.filter((e:any)=>e.state===st&&e.date.startsWith('2026-11-03'));
+ check(st+' healthy generic portal gets navigation label without publication claim',rows.length>0&&rows.every((r:any)=>r.link?.label==='Official election results portal'&&!r.link.note.includes('Posted')),{rows:rows.length,example:rows[0]?.link});
+}
+const la=details.filter((e:any)=>e.state==='LA'&&e.date.startsWith('2026-11-03'));
+const la429=la.find((e:any)=>e.id===429);
+check('LA429 retained correction context remains primary/unknown; no general-results claim',la429.type==='primary'&&la429.officialResultsSource.electionPhase==='primary'&&la429.officialResultsSource.status==='unknown'&&!/general|Posted for/.test(officialResultsLink(la429)?.note??''),{id:la429.id,type:la429.type,sourcePhase:la429.officialResultsSource.electionPhase,status:la429.officialResultsSource.status,baselineScope:'C6 main426c7095 plus LA429 fixture, not post-C7 catalog; remaining LA old types are untouched'});
+for(const st of ['MT','ND','OK']) {
+ const e=details.find((e:any)=>e.state===st&&e.type==='general'&&e.date.startsWith('2026-11-03'));
+ const old=oldLink(e);const current=officialResultsLink(e);
+ const ok=!!current&&current.note==='When checked, this page did not yet provide a Nov 3, 2026 results link.'&&!current.note.includes('did not yet list');
+ check(st+' actual served pending heading has corrected results-link wording',ok,{id:e.id,oldNote:old?.note,fixedNote:current?.note});
+ controls.push({scenario:st+' same actual payload negative control at B421e17a',outcome:old?.note.includes('did not yet list')?'Expected failure reproduced':'Failed to reproduce',oldNote:old?.note});
+}
+check('Rendered links all open in new tab with noopener/noreferrer',rendered.filter((r:any)=>r.link).every((r:any)=>r.html.includes('target="_blank"')&&r.html.includes('rel="noopener noreferrer"')),{links:rendered.filter((r:any)=>r.link).length});
+for(const invalid of [null,undefined,{}, {officialResultsUrl:'http://example.gov',officialResultsSource:target[0].officialResultsSource},{officialResultsUrl:'javascript:alert(1)',officialResultsSource:target[0].officialResultsSource},{officialResultsUrl:target[0].officialResultsUrl,officialResultsSource:{...target[0].officialResultsSource,routeVerification:'blocked'}}]) {
+ check('Invalid/missing destination is hidden '+checks.length,officialResultsLink(invalid as any)===null);
+}
+const source=details.find((e:any)=>e.state==='GA'&&e.date.startsWith('2026-11-03'));
+// Complete synthetic typed receipt controls, never evidence of real posted returns.
+mkdirSync(base+'/fixtures',{recursive:true});
+function futureFixture(phase:string) {
+ const checkedAt='2026-11-04T02:00:00Z';
+ const label='SYNTHETIC OFFLINE fixture November 3 '+phase+' election results, not real publication';
+ const context={state:'GA',outcome:'worked',electionDate:'2026-11-03',electionPhase:phase,destinationUrl:source.officialResultsUrl,sourceUrl:source.officialResultsSource.governmentUrl,contextVerified:true,resultsObserved:true,observedElectionLabel:label,checkedAt};
+ const receiving={...context,sourceUrl:source.officialResultsUrl};
+ const contextBytes=JSON.stringify(context,null,2)+'\n';const receivingBytes=JSON.stringify(receiving,null,2)+'\n';
+ if(!publishedResultsReceiptSchema.safeParse(context).success||!publishedResultsReceiptSchema.safeParse(receiving).success)throw Error('Synthetic typed receipt rejected');
+ writeFileSync(base+'/fixtures/GA-'+phase+'-official-context.json',contextBytes);writeFileSync(base+'/fixtures/GA-'+phase+'-receiving.json',receivingBytes);
+ return {...source,type:phase,officialResultsSource:{...source.officialResultsSource,checkedAt,electionPhase:phase,status:'published',routeType:'election_specific_results',availabilityReason:'published_for_target_election',publicationEvidence:{state:'GA',electionDate:'2026-11-03',electionPhase:phase,destinationUrl:source.officialResultsUrl,officialElectionLabel:label,officialContextVerified:true,officialContextReceiptSha256:createHash('sha256').update(contextBytes).digest('hex'),receivingOutcome:'worked',receivingResultsObserved:true,receivingReceiptSha256:createHash('sha256').update(receivingBytes).digest('hex'),receivingCheckedAt:checkedAt}}};
+}
+const positive=futureFixture('general');
+check('Synthetic shared-schema-valid positive renders exact date and general phase',officialResultsFieldsSchema.safeParse(positive).success&&officialResultsLink(positive as any)?.note==='Posted for the Nov 3, 2026 general election.'&&renderToStaticMarkup(createElement(OfficialResultsLink,{election:positive as any})).includes('Posted for the Nov 3, 2026 general election.'));
+const phase=futureFixture('primary');
+check('Synthetic shared-schema-valid primary publication stays explicitly primary',officialResultsFieldsSchema.safeParse(phase).success&&officialResultsLink(phase as any)?.note==='Posted for the Nov 3, 2026 primary election.'&&renderToStaticMarkup(createElement(OfficialResultsLink,{election:phase as any})).includes('Posted for the Nov 3, 2026 primary election.'));
+const gateCases:any[]=[];
+const mutate=(label:string,fn:(x:any)=>void)=>{const e=structuredClone(positive);fn(e);const shared=officialResultsFieldsSchema.safeParse(e);const link=officialResultsLink(e);gateCases.push({scenario:label,outcome:!shared.success?'Worked':'Failed',sharedAccepts:shared.success,directHelperNote:link?.note??null,directHelperSaysPosted:!!link?.note.startsWith('Posted for'),classification:'Direct helper mutation only; schema rejects before this C6 endpoint serves it. Not a current API defect.',sharedIssues:shared.success?[]:shared.error.issues.map((i:any)=>i.message)});};
+mutate('Missing publication receipt',e=>delete e.officialResultsSource.publicationEvidence);
+mutate('Receipt destination differs',e=>e.officialResultsSource.publicationEvidence.destinationUrl='https://example.gov/different');
+mutate('Receipt phase differs',e=>e.officialResultsSource.publicationEvidence.electionPhase='primary');
+mutate('Target date differs',e=>e.officialResultsSource.targetElectionDate='2026-11-04');
+mutate('Missing target date',e=>delete e.officialResultsSource.targetElectionDate);
+mutate('Receipt checked time differs',e=>e.officialResultsSource.publicationEvidence.receivingCheckedAt='2026-11-04T01:00:00Z');
+mutate('Wrong route type',e=>e.officialResultsSource.routeType='generic_results_portal');
+mutate('Missing published reason',e=>delete e.officialResultsSource.availabilityReason);
+mutate('Blocked route',e=>e.officialResultsSource.routeVerification='blocked');
+mutate('Unknown publication status',e=>e.officialResultsSource.status='unknown');
+for(const label of ['Wrong route type','Missing published reason','Blocked route','Unknown publication status']) {
+ const r=gateCases.find(c=>c.scenario===label);check('Client read-flag publication control: '+label,!r.directHelperSaysPosted&&(label!=='Blocked route'||r.directHelperNote===null),r);
+}
+writeFileSync(base+'/rendered-actual-payloads.json',JSON.stringify(rendered,null,2));
+writeFileSync(base+'/fixtures/schema-valid-future-sources.json',JSON.stringify({kind:'SYNTHETIC OFFLINE CONTROLS NOT ACTUAL POSTED RETURNS',general:positive,primary:phase},null,2));
+const bFixture=JSON.parse(readFileSync(base+'/B-bb17d7b-fixture.json','utf8'));
+const bPositive={officialResultsUrl:bFixture.states.MI.officialResultsUrl,officialResultsSource:{...bFixture.states.MI.source,status:'published',routeType:'election_specific_results',availabilityReason:'published_for_target_election'}};
+const bFixtureParse=officialResultsFieldsSchema.safeParse(bPositive);
+const report={checkedAt:new Date().toISOString(),clientHead:'bb17d7b0225b95dea3e6e4d8f93468d8fb50445a',negativeControlHead:'421e17aba77f0345e368735db3f25bd9da79a508',sharedHead:'554ab9020a0c2937a2df5bbc56a5e963444a3be9',actualPayloads:{details:{path:payloadDir+'/actual-detail-payloads.json',sha256:createHash('sha256').update(detailBytes).digest('hex')},upcoming:{path:payloadDir+'/actual-upcoming-payloads.json',sha256:createHash('sha256').update(upcomingBytes).digest('hex')}},checks,negativeControls:controls,futurePublicationGateCases:gateCases,testEvidenceFinding:{scenario:'B synthetic positive fixture lacks required publicationEvidence',outcome:!bFixtureParse.success?'Reproduced':'Not reproduced',classification:'Test-evidence defect, not a current API defect',sharedIssues:bFixtureParse.success?[]:bFixtureParse.error.issues.map(i=>i.message),replacement:'fixtures/schema-valid-future-sources.json with complete retained typed receipt bytes and actual fixture digests'},summary:{finiteChecks:checks.length,worked:checks.filter(c=>c.outcome==='Worked').length,failed:checks.filter(c=>c.outcome==='Failed').length,actualComponentRenders:rendered.length,oldWordingFailuresReproduced:controls.filter(c=>c.outcome==='Expected failure reproduced').length,futureGateCases:gateCases.length,sharedRefusalsWorked:gateCases.filter(c=>c.outcome==='Worked').length,totalFiniteScenarios:checks.length+gateCases.length+controls.length,totalFiniteScenariosWorked:checks.filter(c=>c.outcome==='Worked').length+gateCases.filter(c=>c.outcome==='Worked').length+controls.filter(c=>c.outcome==='Expected failure reproduced').length,directHelperPostedForMalformedInputs:gateCases.filter(c=>!c.sharedAccepts&&c.directHelperSaysPosted).length},scope:{browserUsed:false,networkUsed:false,dbWrites:false,peerFileEdits:false}};
+writeFileSync(base+'/review-receipt.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report.summary));console.log(JSON.stringify(gateCases));

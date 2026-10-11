@@ -1,0 +1,609 @@
+{
+  "version": 1,
+  "kind": "official_results_route_review",
+  "targetElectionDate": "2026-11-03",
+  "checkedAt": "2026-10-11T12:17:58.343634+00:00",
+  "ownerScope": "Read-only lane C results-source research; no app, schema or DB changes",
+  "availabilitySemantics": "not_linked means no November3-specific results href was observed on the checked official pages, not an invented result total or a universal claim about every government webpage. Blocked/data-load-failed states retain unknown availability.",
+  "records": [
+    {
+      "state": "NM",
+      "publisher": "New Mexico Secretary of State",
+      "officialGovernmentPage": "https://www.sos.nm.gov/voting-and-elections/election-results/2026-election-results/",
+      "recommendedUrl": "https://www.sos.nm.gov/voting-and-elections/election-results/2026-election-results/",
+      "routeType": "year_results_landing",
+      "nov3GeneralSpecificUrl": null,
+      "generalPublicationStatus": "not_linked_in_checked_official_sources",
+      "observedElectionContext": [
+        "2026 Primary Election, June 2, 2026",
+        "2026 municipal and runoff election links",
+        "November 3, 2026 General Election listed as upcoming"
+      ],
+      "verification": {
+        "outcome": "worked",
+        "method": "normal HTTPS fetch with default certificate validation",
+        "checkedAt": "2026-10-11T11:59:08.970208+00:00",
+        "receipt": "receipts/NM-0.json",
+        "originalResponseSha256": "51e315ddebe5d42a3ba6ac1c5149561e1d715a57b53b39824e85d3ef9cc5f083"
+      },
+      "governmentDelegation": {
+        "kind": "direct_government_site",
+        "sourceUrl": "https://www.sos.nm.gov/voting-and-elections/election-results/2026-election-results/",
+        "observedHref": null,
+        "linkText": null
+      },
+      "delegatedProviders": [
+        {
+          "url": "https://electionresults.sos.nm.gov/default.aspx?eid=2911",
+          "routeType": "prior_election_specific",
+          "observedElectionContext": "2026 Primary, June 2, 2026",
+          "governmentDelegation": {
+            "sourceUrl": "https://www.sos.nm.gov/voting-and-elections/election-results/2026-election-results/",
+            "linkText": "2026 Primary Election Official Results",
+            "observedHref": "https://electionresults.sos.nm.gov/default.aspx?eid=2911"
+          },
+          "verificationReceipt": "receipts/NM-primary-provider.json",
+          "transportHttpStatus": 200,
+          "originalResponseSha256": "b1921055816e4aba985b6e5ed8c000e71d34bd901d012cb4ee4be5b878da92c1",
+          "finalUrl": "https://electionresults.sos.nm.gov/default.aspx?eid=2911"
+        }
+      ],
+      "fallbackGovernmentUrl": "https://www.sos.nm.gov/voting-and-elections/election-results/2026-election-results/",
+      "notes": [
+        "Legacy 2021 results boilerplate is present; it was not treated as November 2026 availability."
+      ]
+    },
+    {
+      "state": "NY",
+      "publisher": "New York State Board of Elections",
+      "officialGovernmentPage": "https://elections.ny.gov/election-results",
+      "recommendedUrl": "https://elections.ny.gov/election-results",
+      "routeType": "government_results_archive",
+      "nov3GeneralSpecificUrl": null,
+      "generalPublicationStatus": "not_linked_in_checked_official_sources",
+      "observedElectionContext": [
+        "Certified June 23, 2026 Primary results download",
+        "Generic archived election results link"
+      ],
+      "verification": {
+        "outcome": "worked",
+        "method": "normal Chrome read-only DOM/AX",
+        "checkedAt": "2026-10-11T12:12:43.919156+00:00",
+        "receipt": "receipts/NY-browser.json",
+        "originalResponseSha256": null
+      },
+      "governmentDelegation": {
+        "kind": "direct_government_site",
+        "sourceUrl": "https://elections.ny.gov/election-results",
+        "observedHref": null,
+        "linkText": null
+      },
+      "delegatedProviders": [
+        {
+          "url": "https://results.elections.ny.gov/",
+          "routeType": "generic_results_portal",
+          "observedElectionContext": "Archive endpoint returned403 challenge",
+          "governmentDelegation": {
+            "sourceUrl": "https://elections.ny.gov/election-results",
+            "linkText": "Archived Election Results",
+            "observedHref": "https://results.elections.ny.gov/"
+          },
+          "verificationReceipt": "receipts/NY-official-archive-provider.json",
+          "transportHttpStatus": 403,
+          "originalResponseSha256": "c548db2c15a7723e49f225bcc66fc7ae3cc6cd8cc1a383cbc0f569ef916ab47d",
+          "finalUrl": "https://results.elections.ny.gov/"
+        }
+      ],
+      "fallbackGovernmentUrl": "https://elections.ny.gov/election-results",
+      "notes": [
+        "Command-line results-page fetches were blocked; normal browser archive inspection worked.",
+        "The attempted legacy nyenr endpoint is not recommended as a November 3-specific route; no fresh delegation to it was established."
+      ]
+    },
+    {
+      "state": "OH",
+      "publisher": "Ohio Secretary of State",
+      "officialGovernmentPage": "https://www.ohiosos.gov/data",
+      "recommendedUrl": "https://www.ohiosos.gov/data",
+      "routeType": "government_results_gateway",
+      "nov3GeneralSpecificUrl": null,
+      "generalPublicationStatus": "unknown_portal_data_load_failed",
+      "observedElectionContext": [
+        "Past Election Results archive portal",
+        "Actual year selector expanded with no options"
+      ],
+      "verification": {
+        "outcome": "worked",
+        "method": "normal Chrome government-page and portal DOM",
+        "checkedAt": "2026-10-11T12:12:43.919156+00:00",
+        "receipt": "receipts/OH-browser.json",
+        "originalResponseSha256": null
+      },
+      "governmentDelegation": {
+        "kind": "government_delegated_portal",
+        "sourceUrl": "https://www.ohiosos.gov/data",
+        "linkText": "Data Past Election Results",
+        "observedHref": "https://data.ohiosos.gov/portal/past-election-results"
+      },
+      "delegatedProviders": [
+        {
+          "url": "https://data.ohiosos.gov/portal/past-election-results",
+          "routeType": "generic_results_portal",
+          "observedElectionContext": "Year data unavailable in the actual selector",
+          "verificationReceipt": "receipts/OH-browser.json",
+          "outcome": "worked_shell_data_load_failed"
+        }
+      ],
+      "fallbackGovernmentUrl": "https://www.ohiosos.gov/data",
+      "notes": [
+        "The portal reports a failed data fetch and its year selector has no options. This cannot establish whether November 2026 results have been published.",
+        "The verified government dashboard gateway is retained as a fallback. No third-party website repair or skipped network validation is claimed."
+      ]
+    },
+    {
+      "state": "OR",
+      "publisher": "Oregon Secretary of State",
+      "officialGovernmentPage": "https://sos.oregon.gov/elections/Pages/historical-data.aspx",
+      "recommendedUrl": "https://sos.oregon.gov/elections/Pages/historical-data.aspx",
+      "routeType": "government_results_history_information",
+      "nov3GeneralSpecificUrl": null,
+      "generalPublicationStatus": "not_linked_in_checked_official_sources",
+      "observedElectionContext": [
+        "Historical statistics, registration data and prior-election information",
+        "No November 3, 2026-specific results link observed"
+      ],
+      "verification": {
+        "outcome": "worked",
+        "method": "normal HTTPS fetch with default certificate validation",
+        "checkedAt": "2026-10-11T11:59:10.039486+00:00",
+        "receipt": "receipts/OR-0.json",
+        "originalResponseSha256": "61b7b899bc4abff4a1daf87bd398b7de740b81de7c325e5a6c676132fd1e90b2"
+      },
+      "governmentDelegation": {
+        "kind": "direct_government_site",
+        "sourceUrl": "https://sos.oregon.gov/elections/Pages/historical-data.aspx",
+        "observedHref": null,
+        "linkText": null
+      },
+      "delegatedProviders": [],
+      "fallbackGovernmentUrl": "https://sos.oregon.gov/elections/pages/current-election.aspx",
+      "notes": [
+        "The published results.oregonvotes.gov alias actually redirects to the SOS welcome homepage, not a results portal.",
+        "The current-election government page points to the same Results & History landing; no guessed November results URL was admitted."
+      ],
+      "legacyAliasVerification": {
+        "url": "https://results.oregonvotes.gov/",
+        "finalUrl": "https://sos.oregon.gov/Pages/default.aspx",
+        "receipt": "receipts/OR-results-alias.json"
+      }
+    },
+    {
+      "state": "PA",
+      "publisher": "Pennsylvania Department of State",
+      "officialGovernmentPage": "https://www.pa.gov/agencies/vote/elections/election-results",
+      "recommendedUrl": "https://www.pa.gov/agencies/vote/elections/election-results",
+      "routeType": "government_results_landing",
+      "nov3GeneralSpecificUrl": null,
+      "generalPublicationStatus": "not_linked_in_checked_official_sources",
+      "observedElectionContext": [
+        "Generic federal/state results landing",
+        "Delegated provider defaults to the August 18, 2026 special election for Legislative District 12"
+      ],
+      "verification": {
+        "outcome": "worked",
+        "method": "normal HTTPS fetch with default certificate validation",
+        "checkedAt": "2026-10-11T11:59:10.062078+00:00",
+        "receipt": "receipts/PA-0.json",
+        "originalResponseSha256": "224b48ee654123b46ff3122eaa6f133e59a97a9d8d8aa3491df19259a8d1cab9"
+      },
+      "governmentDelegation": {
+        "kind": "direct_government_site",
+        "sourceUrl": "https://www.pa.gov/agencies/vote/elections/election-results",
+        "observedHref": null,
+        "linkText": null
+      },
+      "delegatedProviders": [
+        {
+          "url": "https://www.electionreturns.pa.gov/",
+          "routeType": "generic_results_portal",
+          "observedElectionContext": "2026 Special Election, Legislative District 12, August 18, 2026",
+          "governmentDelegation": {
+            "sourceUrl": "https://www.pa.gov/agencies/vote/elections/election-results",
+            "linkText": "Find federal and state election results",
+            "observedHref": "https://www.electionreturns.pa.gov/"
+          },
+          "verificationReceipt": "receipts/PA-1.json",
+          "transportHttpStatus": null,
+          "originalResponseSha256": null,
+          "finalUrl": "https://www.electionreturns.pa.gov/",
+          "browserVerificationReceipt": "receipts/PA-browser.json",
+          "outcome": "worked_browser"
+        }
+      ],
+      "fallbackGovernmentUrl": "https://www.pa.gov/agencies/vote/elections/election-results",
+      "notes": [
+        "The direct provider HTTP 200 response was an Incapsula denial page. Normal browser inspection recovered the actual provider context.",
+        "No November 3-specific direct URL was observed."
+      ]
+    },
+    {
+      "state": "RI",
+      "publisher": "Rhode Island Board of Elections",
+      "officialGovernmentPage": "https://elections.ri.gov/elections/previous-election-results",
+      "recommendedUrl": "https://elections.ri.gov/elections/previous-election-results",
+      "routeType": "government_results_archive",
+      "nov3GeneralSpecificUrl": null,
+      "generalPublicationStatus": "not_linked_in_checked_official_sources",
+      "observedElectionContext": [
+        "September 9, 2026 Statewide Primary",
+        "November 5, 2024 General Election and older archive"
+      ],
+      "verification": {
+        "outcome": "worked",
+        "method": "normal HTTPS fetch with default certificate validation",
+        "checkedAt": "2026-10-11T11:59:11.418938+00:00",
+        "receipt": "receipts/RI-0.json",
+        "originalResponseSha256": "f759c558fbb1e733105f4211ddebb40bf3b6a1640193c969157f7c76bd20f84f"
+      },
+      "governmentDelegation": {
+        "kind": "direct_government_site",
+        "sourceUrl": "https://elections.ri.gov/elections/previous-election-results",
+        "observedHref": null,
+        "linkText": null
+      },
+      "delegatedProviders": [
+        {
+          "url": "https://electionresults.ri.gov/results/public/RhodeIsland/elections/RI2026StatewidePrimary",
+          "routeType": "prior_election_specific",
+          "observedElectionContext": "September9,2026StatewidePrimary",
+          "governmentDelegation": {
+            "sourceUrl": "https://elections.ri.gov/elections/previous-election-results",
+            "linkText": "September 9, 2026 Statewide Primary Results",
+            "observedHref": "https://electionresults.ri.gov/results/public/RhodeIsland/elections/RI2026StatewidePrimary"
+          },
+          "verificationReceipt": "receipts/RI-1.json",
+          "transportHttpStatus": null,
+          "originalResponseSha256": null,
+          "finalUrl": "https://electionresults.ri.gov/results/public/RhodeIsland/elections/RI2026StatewidePrimary"
+        }
+      ],
+      "fallbackGovernmentUrl": "https://elections.ri.gov/elections/previous-election-results",
+      "notes": []
+    },
+    {
+      "state": "SC",
+      "publisher": "South Carolina State Election Commission",
+      "officialGovernmentPage": "https://scvotes.gov/elections-statistics/election-results/",
+      "recommendedUrl": "https://scvotes.gov/elections-statistics/election-results/",
+      "routeType": "government_results_archive",
+      "nov3GeneralSpecificUrl": null,
+      "generalPublicationStatus": "not_linked_in_checked_official_sources",
+      "observedElectionContext": [
+        "June 9, 2026 Statewide Primaries",
+        "June 23, 2026 Primary Runoffs",
+        "August/September 2026 special primaries"
+      ],
+      "verification": {
+        "outcome": "worked",
+        "method": "normal HTTPS fetch with default certificate validation",
+        "checkedAt": "2026-10-11T11:59:12.069831+00:00",
+        "receipt": "receipts/SC-0.json",
+        "originalResponseSha256": "9640696b09385736b36383cebcca0bf9d8ec73405b2f4370abb5f7501d12e748"
+      },
+      "governmentDelegation": {
+        "kind": "direct_government_site",
+        "sourceUrl": "https://scvotes.gov/elections-statistics/election-results/",
+        "observedHref": null,
+        "linkText": null
+      },
+      "delegatedProviders": [
+        {
+          "url": "https://www.enr-scvotes.org/SC/126294/",
+          "routeType": "prior_election_specific",
+          "observedElectionContext": "2026 Statewide Primaries, June 9, 2026; Official Results",
+          "governmentDelegation": {
+            "sourceUrl": "https://scvotes.gov/elections-statistics/election-results/",
+            "linkText": "Statewide Primaries",
+            "observedHref": "https://www.enr-scvotes.org/SC/126294/"
+          },
+          "verificationReceipt": "receipts/SC-primary-provider.json",
+          "transportHttpStatus": 403,
+          "originalResponseSha256": "29326fedb7614fcc741c0e0bc0ebaf0e94af25aed88c32aa11bee2b9ff8c8699",
+          "finalUrl": "https://www.enr-scvotes.org/SC/126294/",
+          "normalWindowsOutcome": "HTTP 200 redirect stub; normal Chrome loaded the actual primary reporting page",
+          "browserVerificationReceipt": "receipts/SC-browser.json",
+          "outcome": "worked_browser"
+        }
+      ],
+      "fallbackGovernmentUrl": "https://scvotes.gov/elections-statistics/election-results/",
+      "notes": [
+        "The archive distinguishes primary, runoff and special elections. No November 3 General href was observed."
+      ]
+    },
+    {
+      "state": "SD",
+      "publisher": "South Dakota Secretary of State",
+      "officialGovernmentPage": "https://sdsos.gov/elections-voting/default.aspx",
+      "recommendedUrl": "https://sdsos.gov/elections-voting/default.aspx",
+      "routeType": "government_elections_fallback",
+      "nov3GeneralSpecificUrl": null,
+      "generalPublicationStatus": "unknown_results_portal_tls_blocked",
+      "observedElectionContext": [
+        "Actual SOS results-link caption: Runoff Election Results"
+      ],
+      "verification": {
+        "outcome": "worked",
+        "method": "normal HTTPS fetch with default certificate validation",
+        "checkedAt": "2026-10-11T12:04:23.242748+00:00",
+        "receipt": "receipts/SD-government-fallback.json",
+        "originalResponseSha256": "9ef12074307601ce7a13c65384678b50ddaa924a56e3abe74ca00728f68d2233"
+      },
+      "governmentDelegation": {
+        "kind": "government_delegated_portal",
+        "sourceUrl": "https://sdsos.gov/elections-voting/default.aspx",
+        "linkText": "Runoff Election Results",
+        "observedHref": "https://electionresults.sd.gov/Default.aspx"
+      },
+      "delegatedProviders": [
+        {
+          "url": "https://electionresults.sd.gov/Default.aspx",
+          "routeType": "generic_results_portal",
+          "observedElectionContext": "Unknown beyond the government runoff caption because TLS validation refused the results site",
+          "verificationReceipt": "receipts/SD-0.json",
+          "outcome": "blocked_tls",
+          "blocker": "Expiredcertificate inRequests; WindowsdefaultTLSalso rejected trust"
+        }
+      ],
+      "fallbackGovernmentUrl": "https://sdsos.gov/elections-voting/default.aspx",
+      "notes": [
+        "The government fallback fetched successfully. The expired results-site certificate was rejected by both normal clients; no validation or warning was bypassed."
+      ]
+    },
+    {
+      "state": "TN",
+      "publisher": "Tennessee Secretary of State",
+      "officialGovernmentPage": "https://sos.tn.gov/elections/results",
+      "recommendedUrl": "https://sos.tn.gov/elections/results",
+      "routeType": "government_results_archive",
+      "nov3GeneralSpecificUrl": null,
+      "generalPublicationStatus": "not_linked_in_checked_official_sources",
+      "observedElectionContext": [
+        "August 6, 2026 primaries and State General Election",
+        "May 5, 2026 primaries",
+        "Older general-election archives"
+      ],
+      "verification": {
+        "outcome": "worked",
+        "method": "normal HTTPS fetch with default certificate validation",
+        "checkedAt": "2026-10-11T11:59:12.384483+00:00",
+        "receipt": "receipts/TN-0.json",
+        "originalResponseSha256": "f6a5a33d96692ab6629a283b2a9bbc768600473768bf1bc369643f17d0e55505"
+      },
+      "governmentDelegation": {
+        "kind": "direct_government_site",
+        "sourceUrl": "https://sos.tn.gov/elections/results",
+        "observedHref": null,
+        "linkText": null
+      },
+      "delegatedProviders": [],
+      "fallbackGovernmentUrl": "https://sos.tn.gov/elections/results",
+      "notes": [
+        "The State General results under August 6, 2026 are distinct from the November 3 election."
+      ]
+    },
+    {
+      "state": "VT",
+      "publisher": "Vermont Secretary of State",
+      "officialGovernmentPage": "https://sos.vermont.gov/elections/election-info-resources/elections-results-data/",
+      "recommendedUrl": "https://sos.vermont.gov/elections/election-info-resources/elections-results-data/",
+      "routeType": "government_results_archive",
+      "nov3GeneralSpecificUrl": null,
+      "generalPublicationStatus": "not_linked_in_checked_official_sources",
+      "observedElectionContext": [
+        "2026 August Primary links",
+        "2024 General official archive",
+        "Actual provider selection: 2026 / August 11, 2026 August Primary / OFFICIAL"
+      ],
+      "verification": {
+        "outcome": "worked",
+        "method": "normal HTTPS fetch with default certificate validation",
+        "checkedAt": "2026-10-11T11:59:12.531889+00:00",
+        "receipt": "receipts/VT-0.json",
+        "originalResponseSha256": "5594b32b6de5346fe7097763abe3b10d00a9f5fbe23433b0c39a52e1a2089839"
+      },
+      "governmentDelegation": {
+        "kind": "direct_government_site",
+        "sourceUrl": "https://sos.vermont.gov/elections/election-info-resources/elections-results-data/",
+        "observedHref": null,
+        "linkText": null
+      },
+      "delegatedProviders": [
+        {
+          "url": "https://electionresults.vermont.gov/",
+          "routeType": "generic_results_portal",
+          "observedElectionContext": "Actual selection: 2026 / August 11, 2026 August Primary / OFFICIAL",
+          "governmentDelegation": {
+            "sourceUrl": "https://sos.vermont.gov/elections/election-info-resources/elections-results-data/",
+            "linkText": "2026 August Primary Election Results",
+            "observedHref": "https://electionresults.vermont.gov/"
+          },
+          "verificationReceipt": "receipts/VT-official-provider.json",
+          "transportHttpStatus": 200,
+          "originalResponseSha256": "482c6effff51e37500860a493ca8cb899cacea3a65bae23486f9b194285f9fbb",
+          "finalUrl": "https://electionresults.vermont.gov/",
+          "browserVerificationReceipt": "receipts/VT-browser.json"
+        }
+      ],
+      "fallbackGovernmentUrl": "https://sos.vermont.gov/elections/election-info-resources/elections-results-data/",
+      "notes": []
+    },
+    {
+      "state": "VA",
+      "publisher": "Virginia Department of Elections",
+      "officialGovernmentPage": "https://www.elections.virginia.gov/resultsreports/election-results/",
+      "recommendedUrl": "https://www.elections.virginia.gov/resultsreports/election-results/",
+      "routeType": "government_results_archive",
+      "nov3GeneralSpecificUrl": null,
+      "generalPublicationStatus": "not_linked_in_checked_official_sources",
+      "observedElectionContext": [
+        "August 4, 2026 Democratic and Republican primaries",
+        "2026 special-election links",
+        "Earlier general-election archives"
+      ],
+      "verification": {
+        "outcome": "worked",
+        "method": "normal HTTPS fetch with default certificate validation",
+        "checkedAt": "2026-10-11T11:59:12.736411+00:00",
+        "receipt": "receipts/VA-0.json",
+        "originalResponseSha256": "f02dc9d8da75dff184dfabb7eda7e5397b75edd552f74e1e8d9bdd811a988ae1"
+      },
+      "governmentDelegation": {
+        "kind": "direct_government_site",
+        "sourceUrl": "https://www.elections.virginia.gov/resultsreports/election-results/",
+        "observedHref": null,
+        "linkText": null
+      },
+      "delegatedProviders": [],
+      "fallbackGovernmentUrl": "https://www.elections.virginia.gov/resultsreports/election-results/",
+      "notes": []
+    },
+    {
+      "state": "WV",
+      "publisher": "West Virginia Secretary of State",
+      "officialGovernmentPage": "https://sos.wv.gov/elections/election-data/historical-election-results-and-turnout",
+      "recommendedUrl": "https://sos.wv.gov/elections/election-data/historical-election-results-and-turnout",
+      "routeType": "government_results_archive",
+      "nov3GeneralSpecificUrl": null,
+      "generalPublicationStatus": "not_linked_in_checked_official_sources",
+      "observedElectionContext": [
+        "2026 Primary Election",
+        "2024 General Election and older archives"
+      ],
+      "verification": {
+        "outcome": "worked",
+        "method": "normal HTTPS fetch with default certificate validation",
+        "checkedAt": "2026-10-11T11:59:13.369896+00:00",
+        "receipt": "receipts/WV-0.json",
+        "originalResponseSha256": "e098508bed3ea281f039f8ecec601c0285d5d6469ff5a749cb5ace36fb5897fb"
+      },
+      "governmentDelegation": {
+        "kind": "direct_government_site",
+        "sourceUrl": "https://sos.wv.gov/elections/election-data/historical-election-results-and-turnout",
+        "observedHref": null,
+        "linkText": null
+      },
+      "delegatedProviders": [
+        {
+          "url": "https://results.enr.clarityelections.com/WV/126209/web.345435/#/summary",
+          "routeType": "prior_election_specific",
+          "observedElectionContext": "2026 Primary, from the actual SOS delegation label",
+          "governmentDelegation": {
+            "sourceUrl": "https://sos.wv.gov/elections/election-data/historical-election-results-and-turnout",
+            "linkText": "2026 Primary Election",
+            "observedHref": "https://results.enr.clarityelections.com/WV/126209/web.345435/#/summary"
+          },
+          "verificationReceipt": "receipts/WV-1.json",
+          "transportHttpStatus": null,
+          "originalResponseSha256": null,
+          "finalUrl": "https://results.enr.clarityelections.com/WV/126209/web.345435/#/summary"
+        }
+      ],
+      "fallbackGovernmentUrl": "https://sos.wv.gov/elections/election-data/historical-election-results-and-turnout",
+      "notes": [
+        "The delegated Clarity target is the 2026 Primary, not the November 3 General."
+      ]
+    },
+    {
+      "state": "WI",
+      "publisher": "Wisconsin Elections Commission",
+      "officialGovernmentPage": "https://elections.wi.gov/elections/election-results",
+      "recommendedUrl": "https://elections.wi.gov/elections/election-results",
+      "routeType": "government_results_archive",
+      "nov3GeneralSpecificUrl": null,
+      "generalPublicationStatus": "not_linked_in_checked_official_sources",
+      "observedElectionContext": [
+        "2026 Partisan Primary",
+        "2026 Spring Election and Spring Primary",
+        "2024 General Election"
+      ],
+      "verification": {
+        "outcome": "worked",
+        "method": "normal Chrome official results-page DOM/AX",
+        "checkedAt": "2026-10-11T12:12:43.919156+00:00",
+        "receipt": "receipts/WI-browser.json",
+        "originalResponseSha256": null
+      },
+      "governmentDelegation": {
+        "kind": "direct_government_site",
+        "sourceUrl": "https://elections.wi.gov/elections/election-results",
+        "observedHref": null,
+        "linkText": null
+      },
+      "delegatedProviders": [],
+      "fallbackGovernmentUrl": "https://elections.wi.gov/elections/election-results",
+      "notes": [
+        "The commission describes county-based election-night reporting and no centralized statewide unofficial night feed.",
+        "This is the official state/federal certified-results archive; its County Websites List supports county reporting."
+      ],
+      "countyReportingDirectory": {
+        "url": "https://elections.wi.gov/wisconsin-county-election-websites",
+        "linkText": "County Websites List",
+        "sourceUrl": "https://elections.wi.gov/elections/election-results",
+        "verificationReceipt": "receipts/WI-browser.json"
+      }
+    },
+    {
+      "state": "WY",
+      "publisher": "Wyoming Secretary of State",
+      "officialGovernmentPage": "https://sos.wyo.gov/Elections/ElectionResults.aspx",
+      "recommendedUrl": "https://sos.wyo.gov/Elections/ElectionResults.aspx",
+      "routeType": "government_results_archive",
+      "nov3GeneralSpecificUrl": null,
+      "generalPublicationStatus": "not_linked_in_checked_official_sources",
+      "observedElectionContext": [
+        "2026 Official Primary Election Results",
+        "2024 General Election and prior archives"
+      ],
+      "verification": {
+        "outcome": "worked",
+        "method": "normal HTTPS fetch with default certificate validation",
+        "checkedAt": "2026-10-11T11:59:14.180127+00:00",
+        "receipt": "receipts/WY-0.json",
+        "originalResponseSha256": "2d9130a57d842eda601704a55d75aacdc71476aec4970313b243afff1bc2d968"
+      },
+      "governmentDelegation": {
+        "kind": "direct_government_site",
+        "sourceUrl": "https://sos.wyo.gov/Elections/ElectionResults.aspx",
+        "observedHref": null,
+        "linkText": null
+      },
+      "delegatedProviders": [
+        {
+          "url": "https://sos.wyo.gov/Elections/Docs/2026/2026PrimaryResults.aspx",
+          "routeType": "prior_election_specific",
+          "observedElectionContext": "2026OfficialPrimaryElectionResults",
+          "governmentDelegation": {
+            "sourceUrl": "https://sos.wyo.gov/Elections/ElectionResults.aspx",
+            "linkText": "Primary Election",
+            "observedHref": "https://sos.wyo.gov/Elections/Docs/2026/2026PrimaryResults.aspx"
+          },
+          "verificationReceipt": "receipts/WY-1.json",
+          "transportHttpStatus": null,
+          "originalResponseSha256": null,
+          "finalUrl": "https://sos.wyo.gov/Elections/Docs/2026/2026PrimaryResults.aspx"
+        }
+      ],
+      "fallbackGovernmentUrl": "https://sos.wyo.gov/Elections/ElectionResults.aspx",
+      "notes": []
+    }
+  ],
+  "summary": {
+    "states": 14,
+    "nov3SpecificUrlsVerified": 0,
+    "genericOrYearGovernmentRoutes": 14,
+    "noNumericResultTotalsInvented": true,
+    "validationSkipped": false,
+    "captchaSolved": false,
+    "dbWrites": false
+  }
+}

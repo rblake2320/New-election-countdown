@@ -1,0 +1,20 @@
+{
+  "state": "FL",
+  "url": "https://dos.fl.gov/elections/data-statistics/elections-data/election-results/",
+  "checkedAt": "2026-10-11T12:27:45.233552+00:00",
+  "tlsValidation": true,
+  "attempts": [
+    {
+      "method": "Python Requests default TLS",
+      "httpStatus": 403,
+      "finalUrl": "https://dos.fl.gov/elections/data-statistics/elections-data/election-results/",
+      "bytes": 5638,
+      "sha256": "2afb589ccca0bfd477c84594c822c58308f1f81ea8e44b4b52fbd262741fead2"
+    },
+    {
+      "method": "Windows Invoke-WebRequest default TLS",
+      "error": "Invoke-WebRequest : The remote server returned an error: (404) Not Found.\nAt line:1 char:34\n+ ... e='Stop';$r=Invoke-WebRequest -Uri 'https://dos.fl.gov/elections/data ...\n+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], WebExc \n   eption\n    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand\n \n"
+    }
+  ],
+  "status": "blocked_transport"
+}
