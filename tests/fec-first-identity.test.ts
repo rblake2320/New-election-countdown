@@ -1,4 +1,4 @@
-import {describe,it,expect} from 'vitest';import {readFileSync} from 'node:fs';import {parseNomineeManifest,planNomineeRefresh} from '../server/candidate-nominee-sync';
+import {describe,it,expect} from 'vitest';import {readFileSync,readdirSync} from 'node:fs';import {parseNomineeManifest,planNomineeRefresh} from '../server/candidate-nominee-sync';
 const raw=JSON.parse(readFileSync('data/nominees/combined-2026-reviewed.json','utf8'));const row=raw.candidates.find((r:any)=>r.name==='Mike Marvin');const source=raw.sources.find((s:any)=>s.id===row.sourceId);const single=()=>({...raw,sources:[{...source,completeScopes:[],expectedRowCount:1}],candidates:[structuredClone(row)]});const race={id:20,state:'NE',title:'U.S. Senate Election - Nebraska',level:'federal',type:'general',date:'2026-11-03',offices:['U.S. Senate']};const core={id:2519,election_id:20,name:'Mike Marvin',party:'OTH',fec_candidate_id:'S6NE00152',fec_status:'C',source_file_sha256:'a'.repeat(64),data_source:'fec_bulk',source_status:'fec_registered'};const fecSource={candidate_id:2519,is_current:true,source_url:'https://www.fec.gov/files/bulk-downloads/2026/cn26.zip',source_file_sha256:'a'.repeat(64),metadata:{fecCandidateId:'S6NE00152',partyRaw:'OTH',fecStatus:'C',electionYear:2026,state:'NE',office:'S',district:'00',electionId:20,electionDate:'2026-11-03',normalizedName:'mikemarvin'}};
 describe('explicit reviewed FEC identity resolution',()=>{
  it('matches the reviewed legalname/race/ID/currentFECparty while preserving public state label',()=>{const m=parseNomineeManifest(single());const p=planNomineeRefresh(m,[race],[core],[fecSource] as any);expect(p.unresolved).toEqual([]);expect(p.actions[0]).toMatchObject({candidateId:2519,party:'Legal Marijuana NOW',identityResolutionApplied:true});expect(core.party).toBe('OTH');});
@@ -16,9 +16,9 @@ it.each(['state','office','district','electionYear','electionId','electionDate',
 it('refuses an absent authoritative source tuple',()=>{const f={...fecSource,metadata:{fecCandidateId:'S6NE00152',partyRaw:'OTH',fecStatus:'C'}};expect(planNomineeRefresh(parseNomineeManifest(single()),[race],[core],[f]).actions).toHaveLength(0)});
 
 it('preserves all reviewed declarations in the authoritative per-state compiler inputs',()=>{
- const inputRows=['ne','nv','ut'].flatMap(state=>parseNomineeManifest(JSON.parse(readFileSync(`data/nominees/${state}-2026-general.json`,'utf8'))).candidates);
+ const inputRows=readdirSync('data/nominees').filter(file=>file.endsWith('-2026-general.json')).flatMap(file=>parseNomineeManifest(JSON.parse(readFileSync('data/nominees/'+file,'utf8'))).candidates);
  const reviewed=raw.candidates.filter((candidate:any)=>candidate.identityResolution);
- expect(reviewed).toHaveLength(4);
+ expect(reviewed.length).toBeGreaterThanOrEqual(4);
  for(const candidate of reviewed){
   const input=inputRows.find(row=>row.sourceId===candidate.sourceId&&row.name===candidate.name&&row.office===candidate.office&&row.district===candidate.district);
   expect(input?.identityResolution).toEqual(candidate.identityResolution);

@@ -53,7 +53,8 @@ const rowSchema = z.object({
   aliases:z.array(z.string().min(1).max(200)).optional(),ballotName:z.string().min(1).max(200).optional(),
   identityResolution:z.object({
     kind:z.literal('reviewed_fec_identity'),fecCandidateId:z.string().regex(/^[HS]\d[A-Z]{2}\d{5}$/),
-    expectedFecPartyRaw:z.enum(['OTH','IND','UN']),expectedStatePartyRaw:z.string().min(1),
+    expectedFecPartyRaw:z.enum(['OTH','IND','UN','LIB','IDP']),expectedStatePartyRaw:z.string().min(1),
+    expectedFecName:z.string().trim().min(1).max(200).optional(),
     fecEvidence:z.object({url:z.string().url(),sha256:z.string().regex(/^[a-f0-9]{64}$/),retrievedAt:z.string().refine(v=>Number.isFinite(new Date(v).getTime()))}).strict(),
   }).strict().optional(),
 }).strict();
@@ -91,6 +92,7 @@ export function parseNomineeManifest(raw:unknown):NomineeManifest {
     if(r.identityResolution){
       const resolution=r.identityResolution;
       if(resolution.expectedStatePartyRaw!==r.partyRaw)throw new Error('Identity resolution state party label differs from the reviewed row');
+      if(resolution.expectedFecName && ![r.name,...(r.aliases??[])].some(name=>normalizedCandidateName(name)===normalizedCandidateName(resolution.expectedFecName!)))throw new Error('Reviewed FEC name must match the official name or a recorded official alias');
       if(r.office==='G' || resolution.fecCandidateId[0]!==r.office)throw new Error('FEC evidence identity office differs from the reviewed row');
       if(resolution.fecCandidateId.slice(2,4)!==r.state)throw new Error('FEC evidence identity state differs from the reviewed row');
       if(resolution.fecEvidence.url!==`https://www.fec.gov/data/candidate/${resolution.fecCandidateId}/`)throw new Error('FEC evidence URL must identify the exact reviewed identity');
@@ -124,8 +126,9 @@ export interface NomineeFecSourceRecord {candidate_id:number;is_current:boolean;
 /** An explicit reviewed ID resolves source-label granularity, never a generic party equivalence. */
 function reviewedFecIdentityMatches(row:NomineeRow,c:ExistingCandidate,sources:NomineeFecSourceRecord[]):boolean {
   const resolution=row.identityResolution;
-  if(!resolution || c.data_source!=='fec_bulk' || c.source_status!=='fec_registered' || !['C','F'].includes(c.fec_status??'') || c.fec_candidate_id!==resolution.fecCandidateId || c.party!==party(resolution.expectedFecPartyRaw) || normalizedCandidateName(c.name)!==normalizedCandidateName(row.name))return false;
-  return sources.some(s=>s.candidate_id===c.id && s.is_current===true && s.source_url===FEC_MASTER_URL && s.source_file_sha256===c.source_file_sha256 && s.metadata.fecCandidateId===resolution.fecCandidateId && s.metadata.partyRaw===resolution.expectedFecPartyRaw && s.metadata.fecStatus===c.fec_status && s.metadata.electionYear===2026 && s.metadata.state===row.state && s.metadata.office===row.office && s.metadata.district===row.district && s.metadata.electionId===c.election_id && s.metadata.electionDate===row.date && s.metadata.normalizedName===normalizedCandidateName(row.name));
+  const expectedName=normalizedCandidateName(resolution?.expectedFecName??row.name);
+  if(!resolution || c.data_source!=='fec_bulk' || c.source_status!=='fec_registered' || !['C','F'].includes(c.fec_status??'') || c.fec_candidate_id!==resolution.fecCandidateId || c.party!==party(resolution.expectedFecPartyRaw) || !/^[a-f0-9]{64}$/.test(c.source_file_sha256??'') || normalizedCandidateName(c.name)!==expectedName)return false;
+  return sources.some(s=>s.candidate_id===c.id && s.is_current===true && s.source_url===FEC_MASTER_URL && s.source_file_sha256===c.source_file_sha256 && s.metadata.fecCandidateId===resolution.fecCandidateId && s.metadata.partyRaw===resolution.expectedFecPartyRaw && s.metadata.fecStatus===c.fec_status && s.metadata.electionYear===2026 && s.metadata.state===row.state && s.metadata.office===row.office && s.metadata.district===row.district && s.metadata.electionId===c.election_id && s.metadata.electionDate===row.date && s.metadata.normalizedName===expectedName);
 }
 export function planNomineeRefresh(m:NomineeManifest,elections:RaceRow[],candidates:ExistingCandidate[],fecSources:NomineeFecSourceRecord[]=[]):NomineePlan {
   const plan:NomineePlan={actions:[],unresolved:[]};
