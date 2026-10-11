@@ -1,0 +1,11 @@
+import {execFileSync} from 'node:child_process';
+import {readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+const hash=p=>createHash('sha256').update(readFileSync(p)).digest('hex');
+const paths=['dist/index.js','dist/sync_official_results.js'];
+execFileSync(process.execPath,['scripts/build-server.mjs']);
+const before=Object.fromEntries(paths.map(p=>[p,hash(p)]));
+execFileSync(process.execPath,['scripts/build-congress-import.mjs']);
+const after=Object.fromEntries(paths.map(p=>[p,hash(p)]));
+if(JSON.stringify(before)!==JSON.stringify(after))throw Error('Congress emitter changed existing outputs');
+console.log(JSON.stringify({outcome:'Worked',existingOutputsUnchanged:true,before,after,congressCLI:hash('dist/sync_official_congress.js')}));

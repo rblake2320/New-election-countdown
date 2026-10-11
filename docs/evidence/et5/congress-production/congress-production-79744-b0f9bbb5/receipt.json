@@ -1,0 +1,122 @@
+{
+  "outcome": "Worked",
+  "image": "electiontracker:congress-production",
+  "builder": "electiontracker:congress-production-builder",
+  "network": "internal; no published ports",
+  "checks": [
+    {
+      "name": "runtime-only artifacts and nonroot identity",
+      "outcome": "Worked"
+    },
+    {
+      "name": "owned PostgreSQL ready",
+      "outcome": "Worked"
+    },
+    {
+      "name": "actual packaged HTTP server healthy",
+      "outcome": "Worked"
+    },
+    {
+      "name": "default compiled-relative loader dry-run receives 539 real members",
+      "outcome": "Worked"
+    },
+    {
+      "name": "dry-run leaves full catalog and audit unchanged",
+      "outcome": "Worked"
+    },
+    {
+      "name": "apply without explicit digest refuses",
+      "outcome": "Worked"
+    },
+    {
+      "name": "changed source bytes refuse",
+      "outcome": "Worked"
+    },
+    {
+      "name": "missing audit migration refuses",
+      "outcome": "Worked"
+    },
+    {
+      "name": "shipped migration applies and repeats",
+      "outcome": "Worked"
+    },
+    {
+      "name": "CLI receives after shipped migration",
+      "outcome": "Worked"
+    },
+    {
+      "name": "actual admin legacy routes return typed refusal",
+      "outcome": "Worked"
+    },
+    {
+      "name": "all refusal paths preserve full catalog and zero audits",
+      "outcome": "Worked"
+    }
+  ],
+  "imageId": "sha256:13f2761c553f0d7152c635b33b91044ac8839abd33cfc85acb024ddfaa0f4211",
+  "builderId": "sha256:e1953c8dc8507ebbb19be4debe41adf7def8964fe484b157bc21940d820b8865",
+  "boundary": {
+    "uid": 1001,
+    "rootCongressSourcePresent": false,
+    "otherRootData": [
+      "official-results"
+    ],
+    "manifestSha256": "b09efc0e8a2b98ffc1e5e4740c8c0ba03a381e745cdf8d53a501e053bfa8ad56"
+  },
+  "anonymous": [
+    {
+      "path": "/api/congress/import",
+      "status": 401,
+      "body": {
+        "error": "unauthorized"
+      }
+    },
+    {
+      "path": "/api/congress/sync-all",
+      "status": 401,
+      "body": {
+        "error": "unauthorized"
+      }
+    }
+  ],
+  "ordinary": [
+    {
+      "path": "/api/congress/import",
+      "status": 403,
+      "body": {
+        "error": "Forbidden",
+        "message": "Administrative privileges required to access this resource"
+      }
+    },
+    {
+      "path": "/api/congress/sync-all",
+      "status": 403,
+      "body": {
+        "error": "Forbidden",
+        "message": "Administrative privileges required to access this resource"
+      }
+    }
+  ],
+  "legacy": [
+    {
+      "path": "/api/congress/import",
+      "status": 422,
+      "body": {
+        "error": "source_unverified",
+        "code": "LEGACY_CONGRESS_SOURCE_UNVERIFIED",
+        "message": "Legacy Congress dataset has no reviewed source digest; nothing was imported",
+        "details": null
+      }
+    },
+    {
+      "path": "/api/congress/sync-all",
+      "status": 422,
+      "body": {
+        "error": "source_unverified",
+        "code": "LEGACY_CONGRESS_SOURCE_UNVERIFIED",
+        "message": "Legacy Congress dataset has no reviewed source digest; nothing was imported",
+        "details": null
+      }
+    }
+  ]
+}

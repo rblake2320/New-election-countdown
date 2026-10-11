@@ -39,10 +39,10 @@ try {
   report.builderId = await docker('image', 'inspect', '--format', '{{.Id}}', builder);
   report.boundary = JSON.parse(await docker('run', '--rm', '--network', 'none', '--entrypoint', 'node', image, '-e', `
     const fs=require('fs'),crypto=require('crypto');
-    for(const p of ['data','server','shared','scripts','node_modules/esbuild','node_modules/tsx','node_modules/typescript'])if(fs.existsSync(p))throw Error('Unexpected runtime path '+p);
+    for(const p of ['data/congress','server','shared','scripts','node_modules/esbuild','node_modules/tsx','node_modules/typescript'])if(fs.existsSync(p))throw Error('Unexpected runtime path '+p);
     for(const p of ['dist/index.js','dist/sync_official_congress.js','dist/congress-data/official-current-members.json','dist/congress-data/migration.sql'])if(!fs.existsSync(p))throw Error('Missing runtime artifact '+p);
     if(process.getuid()===0)throw Error('Runtime must be nonroot');
-    console.log(JSON.stringify({uid:process.getuid(),manifestSha256:crypto.createHash('sha256').update(fs.readFileSync('dist/congress-data/official-current-members.json')).digest('hex')}));`));
+    console.log(JSON.stringify({uid:process.getuid(),rootCongressSourcePresent:fs.existsSync('data/congress'),otherRootData:fs.existsSync('data')?fs.readdirSync('data'):[],manifestSha256:crypto.createHash('sha256').update(fs.readFileSync('dist/congress-data/official-current-members.json')).digest('hex')}));`));
   check('runtime-only artifacts and nonroot identity', report.boundary.uid > 0);
   await docker('network', 'create', '--internal', network);
   await docker('run', '-d', '--name', db, '--network', network, '-e', 'POSTGRES_USER=et_congress_production_test', '-e', 'POSTGRES_DB=et_congress_production_test', '-e', `POSTGRES_PASSWORD=${password}`, 'postgres:16-alpine');
