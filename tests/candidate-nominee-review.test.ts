@@ -35,7 +35,7 @@ it('refuses an older published source before displacing a newer current source',
 it('does not mistake an audited complete zero-row list for an unrecorded list',async()=>{
  const pool={query:async(sql:string)=>{
   if(sql.includes('to_regclass'))return {rows:[{elections:'elections',candidates:'candidates',sources:'candidate_source_records',audit:'candidate_ingest_runs',snapshots:'general_candidate_list_snapshots'}],rowCount:1};
-  if(sql.startsWith('SELECT id FROM elections'))return {rows:[{id:1}],rowCount:1};
+  if(sql.startsWith('SELECT id,state')&&sql.includes('FROM elections WHERE id'))return {rows:[race],rowCount:1};
   if(sql.includes('general_candidate_list_snapshots'))return {rows:[{url:source.url,checkedAt:source.retrievedAt,snapshotSha256:'c'.repeat(64),name:source.name,publishedAt:'2026-10-01',scope:{office:'H',district:'01',expectedCount:0}}],rowCount:1};
   if(sql.includes('candidate_ingest_runs'))return {rows:[{source_file_sha256:'c'.repeat(64),receipt:{sourceIds:['review'],candidateInserts:0,sourceChanges:1,completeScopes:[{state:'NE',office:'H',district:'01',date:'2026-11-03',expectedCount:0}]}}],rowCount:1};
   return {rows:[],rowCount:0};
@@ -66,7 +66,7 @@ it('blocks an older complete roster even when its membership is disjoint from th
 it('acknowledges sourced qualified empty coverage without pretending no source was recorded',async()=>{
  const pool={query:async(sql:string)=>{
   if(sql.includes('to_regclass'))return {rows:[{elections:'elections',candidates:'candidates',sources:'candidate_source_records',snapshots:'general_candidate_list_snapshots'}],rowCount:1};
-  if(sql.startsWith('SELECT id FROM elections'))return {rows:[{id:1}],rowCount:1};
+  if(sql.startsWith('SELECT id,state')&&sql.includes('FROM elections WHERE id'))return {rows:[race],rowCount:1};
   if(sql.includes('general_candidate_list_snapshots'))return {rows:[{url:source.url,checkedAt:source.retrievedAt,snapshotSha256:'c'.repeat(64),name:source.name,publishedAt:source.publishedAt,scope:{office:'H',district:'01',partyRaw:'Republican',expectedCount:0}}],rowCount:1};
   return {rows:[],rowCount:0};
  }};

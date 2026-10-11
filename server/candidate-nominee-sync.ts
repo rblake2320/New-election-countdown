@@ -1,3 +1,4 @@
+import { isLouisiana2026HouseOpenPrimary } from './louisiana-house-catalog';
 import { createHash } from 'node:crypto';
 import type { Pool } from 'pg';
 import { z } from 'zod';
@@ -72,6 +73,7 @@ function snapshotVersion(m:NomineeManifest,s:NomineeSource):string {
   return createHash('sha256').update(JSON.stringify({url:s.url,documentSha:s.sha256,publishedAt:s.publishedAt,electionDate:s.electionDate,completeScopes:s.completeScopes,expectedRowCount:s.expectedRowCount,rows:m.candidates.filter(r=>r.sourceId===s.id).slice().sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b)))})).digest('hex');
 }
 function raceKey(e:RaceRow):string|undefined {
+  if(isLouisiana2026HouseOpenPrimary(e))return;
   const date=typeof e.date==='string'?e.date.slice(0,10):e.date.toISOString().slice(0,10);
   if(!['general','special'].includes(e.type.toLowerCase()))return;
   if(e.offices?.includes('U.S. Senate'))return `${e.state}|S|00|${date}`;
