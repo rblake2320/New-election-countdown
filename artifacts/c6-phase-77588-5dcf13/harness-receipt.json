@@ -1,0 +1,191 @@
+{
+  "outcome": "Worked",
+  "fixtureOnly": true,
+  "realReturnsClaim": false,
+  "noApplicationServer": true,
+  "zeroPublishedPorts": true,
+  "builderImageId": "sha256:b8bfe98e6eb4e046aa994261a7d1b082c39fba416155f25953b7a6a83afd0a7d",
+  "acceptance": {
+    "outcome": "Worked",
+    "fixtureOnly": true,
+    "realReturnsClaim": false,
+    "currentManifestSha256": "edbc1deff97cba8a154f3322e305be08427be1db358761635e59153328e04c86",
+    "currentPublishedStates": 0,
+    "zeroMatchingState": "No November 3 receiving elections for reviewed states: LA",
+    "orders": [
+      {
+        "order": "general then primary",
+        "phase": "general",
+        "targetCount": 500,
+        "matchedIds": [
+          13
+        ],
+        "changedLAIds": [
+          13
+        ],
+        "totalSourceFieldChanges": 369,
+        "phaseSkipped": [
+          {
+            "id": 429,
+            "state": "LA",
+            "electionType": "primary",
+            "sourcePhase": "general"
+          },
+          {
+            "id": 430,
+            "state": "LA",
+            "electionType": "primary",
+            "sourcePhase": "general"
+          },
+          {
+            "id": 431,
+            "state": "LA",
+            "electionType": "primary",
+            "sourcePhase": "general"
+          },
+          {
+            "id": 432,
+            "state": "LA",
+            "electionType": "primary",
+            "sourcePhase": "general"
+          },
+          {
+            "id": 433,
+            "state": "LA",
+            "electionType": "primary",
+            "sourcePhase": "general"
+          },
+          {
+            "id": 434,
+            "state": "LA",
+            "electionType": "primary",
+            "sourcePhase": "general"
+          }
+        ],
+        "skippedBytesAndXminPreserved": true,
+        "entireCatalogStaleGuard": true,
+        "repeatChanges": 0
+      },
+      {
+        "order": "general then primary",
+        "phase": "primary",
+        "targetCount": 505,
+        "matchedIds": [
+          429,
+          430,
+          431,
+          432,
+          433,
+          434
+        ],
+        "changedLAIds": [
+          429,
+          430,
+          431,
+          432,
+          433,
+          434
+        ],
+        "totalSourceFieldChanges": 374,
+        "phaseSkipped": [
+          {
+            "id": 13,
+            "state": "LA",
+            "electionType": "general",
+            "sourcePhase": "primary"
+          }
+        ],
+        "skippedBytesAndXminPreserved": true,
+        "entireCatalogStaleGuard": true,
+        "repeatChanges": 0
+      },
+      {
+        "order": "primary then general",
+        "phase": "primary",
+        "targetCount": 505,
+        "matchedIds": [
+          429,
+          430,
+          431,
+          432,
+          433,
+          434
+        ],
+        "changedLAIds": [
+          429,
+          430,
+          431,
+          432,
+          433,
+          434
+        ],
+        "totalSourceFieldChanges": 374,
+        "phaseSkipped": [
+          {
+            "id": 13,
+            "state": "LA",
+            "electionType": "general",
+            "sourcePhase": "primary"
+          }
+        ],
+        "skippedBytesAndXminPreserved": true,
+        "entireCatalogStaleGuard": true,
+        "repeatChanges": 0
+      },
+      {
+        "order": "primary then general",
+        "phase": "general",
+        "targetCount": 500,
+        "matchedIds": [
+          13
+        ],
+        "changedLAIds": [
+          13
+        ],
+        "totalSourceFieldChanges": 369,
+        "phaseSkipped": [
+          {
+            "id": 429,
+            "state": "LA",
+            "electionType": "primary",
+            "sourcePhase": "general"
+          },
+          {
+            "id": 430,
+            "state": "LA",
+            "electionType": "primary",
+            "sourcePhase": "general"
+          },
+          {
+            "id": 431,
+            "state": "LA",
+            "electionType": "primary",
+            "sourcePhase": "general"
+          },
+          {
+            "id": 432,
+            "state": "LA",
+            "electionType": "primary",
+            "sourcePhase": "general"
+          },
+          {
+            "id": 433,
+            "state": "LA",
+            "electionType": "primary",
+            "sourcePhase": "general"
+          },
+          {
+            "id": 434,
+            "state": "LA",
+            "electionType": "primary",
+            "sourcePhase": "general"
+          }
+        ],
+        "skippedBytesAndXminPreserved": true,
+        "entireCatalogStaleGuard": true,
+        "repeatChanges": 0
+      }
+    ],
+    "currentManifestUnchanged": true
+  }
+}
