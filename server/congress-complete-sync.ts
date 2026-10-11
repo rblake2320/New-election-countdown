@@ -1,4 +1,4 @@
-import { getCongressBillService } from './congress-bill-service';
+import { getCongressBillService, type CongressMember } from './congress-bill-service';
 
 interface StateCongressData {
   state: string;
@@ -70,14 +70,14 @@ const US_CONGRESSIONAL_DELEGATIONS: StateCongressData[] = [
 export class CongressCompleteSyncService {
   private congressService = getCongressBillService();
 
-  async fetchAllCurrentMembers() {
+  async fetchAllCurrentMembers(): Promise<CongressMember[]> {
     if (!this.congressService) {
       console.error('Congress API service not available');
       return [];
     }
 
     console.log('Starting comprehensive Congress member sync by state...');
-    const allMembers = [];
+    const allMembers: CongressMember[] = [];
     let totalExpected = 0;
 
     // Calculate expected total
@@ -140,20 +140,18 @@ export class CongressCompleteSyncService {
   }
 
   // Verify we have the expected number of members per state
-  validateMemberCounts(members: any[]) {
-    const membersByState = members.reduce((acc, member) => {
-      const state = member.state;
-      if (!acc[state]) acc[state] = { house: 0, senate: 0 };
-      
-      if (member.chamber === 'House') acc[state].house++;
-      else if (member.chamber === 'Senate') acc[state].senate++;
-      
-      return acc;
-    }, {});
+  validateMemberCounts(members: ReadonlyArray<Pick<CongressMember, 'state' | 'chamber'>>) {
+    const membersByState = new Map<string, { house: number; senate: number }>();
+    for (const member of members) {
+      const counts = membersByState.get(member.state) ?? { house: 0, senate: 0 };
+      if (member.chamber === 'House') counts.house++;
+      else if (member.chamber === 'Senate') counts.senate++;
+      membersByState.set(member.state, counts);
+    }
 
     console.log('Member count validation:');
     for (const delegation of US_CONGRESSIONAL_DELEGATIONS) {
-      const actual = membersByState[delegation.state] || { house: 0, senate: 0 };
+      const actual = membersByState.get(delegation.state) ?? { house: 0, senate: 0 };
       const expectedHouse = delegation.houseDelegation;
       const expectedSenate = delegation.senators;
       
@@ -162,8 +160,8 @@ export class CongressCompleteSyncService {
       }
     }
 
-    const totalHouse = Object.values(membersByState).reduce((sum: number, state: any) => sum + state.house, 0);
-    const totalSenate = Object.values(membersByState).reduce((sum: number, state: any) => sum + state.senate, 0);
+    const totalHouse = Array.from(membersByState.values()).reduce((sum, state) => sum + state.house, 0);
+    const totalSenate = Array.from(membersByState.values()).reduce((sum, state) => sum + state.senate, 0);
     
     console.log(`Total validation: ${totalHouse} House + ${totalSenate} Senate = ${totalHouse + totalSenate} members`);
     
