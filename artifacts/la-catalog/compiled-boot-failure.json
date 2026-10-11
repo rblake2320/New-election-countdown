@@ -1,0 +1,7 @@
+{
+  "outcome": "Failed without required D composition, repaired by composing existing D code",
+  "scenario": "C-only andC+A15515fd normal compiled startup exits afterseed",
+  "reason": "15515fd retains originalseedguard; actualextractionbelongsD721bb34",
+  "repair": "exactexistingD two-filepatch applied onlyowncomposition, no bootstrapimplementationinLAbranch",
+  "greenReceipt": "composition-receipt.json"
+}
