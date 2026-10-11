@@ -5,7 +5,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 const exec = promisify(execFile);
 const suffix = `${process.pid}-${randomBytes(3).toString('hex')}`;
-const network = `et-c6-net-${suffix}`, db = `et-c6-db-${suffix}`, app = `et-c6-app-${suffix}`;
+const network = `et-c6-net-${suffix}`, db = `et-c6-db-${suffix}`, app = `et-c6-app-${suffix}`, tokyoApp = `et-c6-tokyo-${suffix}`;
 const builder = 'electiontracker:c6-results-builder', image = 'electiontracker:c6-results';
 const password = randomBytes(24).toString('hex');
 const databaseUrl = `postgresql://et_c6_test:${password}@${db}:5432/et_c6_test`;
@@ -102,6 +102,25 @@ try {
     'drizzle-kit', 'push', '--force', '--config', 'scripts/drizzle-official-results.config.ts'));
   if (await auditFingerprint() !== beforeSchemaSync) throw new Error('Later Drizzle audit-table synchronization altered data or durable audit receipts');
   report.auditSchemaSync = { outcome: 'Worked', catalogAndAuditPreserved: true, auditRows: Number(beforeSchemaSync.split('|')[2]) };
+  await docker('run', '-d', '--name', tokyoApp, '--network', network, '-e', `DATABASE_URL=${databaseUrl}`,
+    '-e', `JWT_SECRET=${password}`, '-e', `CANDIDATE_JWT_SECRET=${password}`, '-e', 'TZ=Asia/Tokyo',
+    '-e', 'APP_ORIGIN=http://127.0.0.1:5000', image);
+  ready = false;
+  for (let attempt = 0; attempt < 60; attempt++) {
+    try { await docker('exec', tokyoApp, 'node', '-e', "fetch('http://127.0.0.1:5000/api/health').then(r=>{if(r.status!==200)process.exit(1)})"); ready = true; break; }
+    catch { await delay(); }
+  }
+  if (!ready) throw new Error('Tokyo packaged reader did not become ready');
+  const timezoneProbe = `const {default:pg}=await import('pg');const pool=new pg.Pool({connectionString:process.env.DATABASE_URL});
+    try { const r=(await pool.query("SELECT id,date,to_char(date,'YYYY-MM-DD') AS day FROM elections WHERE state='AL' AND date='2026-11-03'::date ORDER BY id LIMIT 1")).rows[0];
+      const nativeUtcDay=r.date.toISOString().slice(0,10);if(nativeUtcDay!=='2026-11-02'||r.day!=='2026-11-03')throw Error('Tokyo native-PG negative control did not reproduce');
+      const response=await fetch('http://127.0.0.1:5000/api/elections/'+r.id);const body=await response.json();
+      if(response.status!==200||body.date.slice(0,10)!==r.day||!body.officialResultsSource||body.officialResultsSource.targetElectionDate!==r.day)throw Error('Canonical Tokyo detail projection mismatch');
+      const listingResponse=await fetch('http://127.0.0.1:5000/api/elections?state=AL');const listing=(await listingResponse.json()).find(e=>e.id===r.id);
+      if(listingResponse.status!==200||!listing||listing.date.slice(0,10)!==r.day||!listing.officialResultsSource||listing.officialResultsSource.targetElectionDate!==r.day)throw Error('Canonical Tokyo listing projection mismatch');
+      console.log(JSON.stringify({outcome:'Worked',operatorTimezone:process.env.TZ,nativeUtcDay,storedDay:r.day,detailDay:body.date.slice(0,10),listingDay:listing.date.slice(0,10),sourceRetained:true}));
+    } finally{await pool.end()}`;
+  report.operatorTimezone = JSON.parse(await docker('exec', tokyoApp, 'node', '--input-type=module', '-e', timezoneProbe));
   report.outcome = 'Worked';
 } catch (error) { report.error = error.message; process.exitCode = 1; }
 finally {
@@ -114,7 +133,7 @@ finally {
   try { await docker('cp', app + ':/app/artifacts/c6-cli-reapply.json', evidence + '/compiled-reapply.json'); } catch {}
   try { await docker('cp', app + ':/app/artifacts/c6-receipt-fault', evidence + '/postcommit-receipt-fault'); } catch {}
   await fs.writeFile(evidence + '/harness-receipt.json', JSON.stringify(report, null, 2) + '\n');
-  for (const owned of [app, db]) { try { await docker('rm', '-f', owned); } catch {} }
+  for (const owned of [tokyoApp, app, db]) { try { await docker('rm', '-f', owned); } catch {} }
   try { await docker('network', 'rm', network); } catch {}
 }
 console.log(JSON.stringify({ evidence, ...report }, null, 2));
