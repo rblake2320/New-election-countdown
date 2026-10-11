@@ -6,7 +6,7 @@ const STATES = new Set('AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME
 const PARTY: Record<string, string> = { DEM: 'D', DFL: 'D', REP: 'R', IND: 'I', GRE: 'G', LIB: 'L' };
 export interface FecRow {
   candId: string; displayName: string; party: string; partyRaw: string;
-  state: string; office: 'H' | 'S'; district: string; status: string; incumbent: boolean;
+  state: string; office: 'H' | 'S'; district: string; status: string; incumbent: boolean | null;
 }
 export interface RaceRow { id: number; state: string; title: string; level: string; type: string; date: Date | string; offices: string[] | null }
 export interface ExistingCandidate {
@@ -49,7 +49,7 @@ export function parseFecMaster(text: string, includePrior = false): { rows: FecR
     if (!/^[HS][A-Z0-9]{8}$/.test(id) || id[0] !== office || !/^\d{1,2}$/.test(district || '00') || !['', 'I', 'C', 'O'].includes(ici)) {
       throw new Error(`FEC line ${total}: invalid candidate identity/race fields`);
     }
-    const row: FecRow = { candId: id, displayName: displayName(name), party: PARTY[partyRaw] ?? (partyRaw || 'O'), partyRaw, state, office: office as 'H' | 'S', district: (district || '00').padStart(2, '0'), status, incumbent: ici === 'I' };
+    const row: FecRow = { candId: id, displayName: displayName(name), party: PARTY[partyRaw] ?? partyRaw, partyRaw, state, office: office as 'H' | 'S', district: (district || '00').padStart(2, '0'), status, incumbent: ici ? ici === 'I' : null };
     const previous = rows.get(id);
     if (previous && JSON.stringify(previous) !== JSON.stringify(row)) throw new Error(`FEC identity collision: conflicting records for ${id}`);
     if (previous) duplicateIds++;
@@ -150,6 +150,8 @@ async function runFecSyncOnce(pool: Pool, rows: FecRow[], sha256: string, apply:
     await client.query("SET LOCAL statement_timeout = '30s'");
     await client.query("SET LOCAL lock_timeout = '5s'");
     if (apply) await client.query('SELECT pg_advisory_xact_lock($1)', [2026110301]);
+    const core = await client.query<{ elections: string | null; candidates: string | null }>("SELECT to_regclass('public.elections')::text AS elections,to_regclass('public.candidates')::text AS candidates");
+    if (!core.rows[0].elections || !core.rows[0].candidates) throw new Error('Expected ElectionTracker schema is absent');
     const elections = await client.query<RaceRow>('SELECT id,state,title,level,type,date,offices FROM elections ORDER BY id');
     const candidates = await client.query<ExistingCandidate>('SELECT id,election_id,name,party,fec_candidate_id,fec_status,source_file_sha256,data_source,source_status FROM candidates ORDER BY id');
     const tables = await client.query<{ sources: string | null; audit: string | null }>("SELECT to_regclass('public.candidate_source_records')::text AS sources, to_regclass('public.candidate_ingest_runs')::text AS audit");

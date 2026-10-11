@@ -10,7 +10,11 @@ describe('FEC sync identity, provenance and race safety', () => {
     expect(parsed.total).toBe(1);
   });
   it('rejects a truncated source before planning writes', () => { expect(() => parseFecMaster('H6TX01001|EXAMPLE')).toThrow(/15 fields/); });
-  it('does not silently turn an unknown party into Independent', () => { expect(parseFecMaster(line('H6TX01001', 'EXAMPLE, ALEX', '')).rows[0].party).toBe('O'); });
+  it('preserves a missing party as empty rather than inventing an affiliation', () => { expect(parseFecMaster(line('H6TX01001', 'EXAMPLE, ALEX', '')).rows[0].party).toBe(''); });
+  it('preserves unknown incumbency as null', () => {
+    const fields = line().split('|'); fields[7] = '';
+    expect(parseFecMaster(fields.join('|')).rows[0].incumbent).toBeNull();
+  });
   it('counts nullable official names/districts as incomplete without inventing an at-large race', () => {
     const incomplete = ['H6AZ08210', '', '', '2026', 'AZ', 'H', '', '', 'C', 'C00894121', '', '', '', '', ''].join('|');
     const parsed = parseFecMaster(line() + '\n' + incomplete + '\n' + line('H6TX01002', 'OTHER, ALEX', 'REP', 'TX', 'H', ''));

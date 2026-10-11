@@ -54,7 +54,7 @@ try {
   assert.equal(imported.length, 2);
   for (const c of imported) { assert.equal(c.source_status, 'fec_registered'); assert.equal(c.ballot_status, 'not_certified'); assert.equal(c.polling_support, null); }
   assert.equal(imported[1].name, "Jo O'Brien");
-  assert.equal(imported[1].party, 'O');
+  assert.equal(imported[1].party, '');
   const repeat = await runFecSync(pool, rows, hash, true);
   assert.equal(repeat.actions.length, 0);
   assert.equal(repeat.unchanged, 3);
