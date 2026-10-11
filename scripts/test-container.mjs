@@ -3,6 +3,7 @@ import { promisify } from 'node:util';
 import { randomBytes } from 'node:crypto';
 import fs from 'node:fs/promises';
 import { testProxyLoad } from './test-proxy-load.mjs';
+import { testBackupRestore } from './test-backup-restore.mjs';
 
 const exec = promisify(execFile);
 const suffix = `${process.pid}-${randomBytes(3).toString('hex')}`;
@@ -92,6 +93,9 @@ try {
       console.log(JSON.stringify(results));
     `;
     report.userFlow = JSON.parse(await docker('exec', app, 'node', '-e', userProbe));
+  }
+  if (process.env.TEST_BACKUP_RESTORE === '1') {
+    report.backupRestore = await testBackupRestore({ docker, app, db, password });
   }
   if (process.env.TEST_ELECTION_TIMEZONE === '1') {
     // Fixture script refuses any database other than this dedicated name.
