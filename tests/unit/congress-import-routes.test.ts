@@ -37,6 +37,14 @@ describe("congressImportFailure", () => {
     expect(congressImportFailure({ code: "E_DUPLICATES" }).status).toBe(409);
     expect(congressImportFailure({ code: "E_EMPTY" }).status).toBe(409);
   });
+  it("maps Lane C's source-bound importer codes (db607265) and the *_UNVERIFIED / *_REFUSED families", () => {
+    expect(congressImportFailure({ code: "LEGACY_CONGRESS_SOURCE_UNVERIFIED", details: { reason: "no reviewed digest" } })).toMatchObject({ status: 422, body: { error: "source_unverified", code: "LEGACY_CONGRESS_SOURCE_UNVERIFIED", details: { reason: "no reviewed digest" } } });
+    expect(congressImportFailure({ code: "OFFICIAL_CONGRESS_IMPORT_REFUSED", details: { duplicates: 535, senate: 0 } })).toMatchObject({ status: 409, body: { error: "import_refused", code: "OFFICIAL_CONGRESS_IMPORT_REFUSED", details: { duplicates: 535, senate: 0 } } });
+    expect(congressImportFailure({ code: "SOME_FUTURE_SOURCE_UNVERIFIED" }).status).toBe(422);
+    expect(congressImportFailure({ code: "SOME_FUTURE_IMPORT_REFUSED" }).status).toBe(409);
+    expect(congressImportFailure({ code: "UNRELATED_CODE" }).status).toBe(500);
+  });
+
   it("hides internal text for unknown failures", () => {
     const r = congressImportFailure(new Error("relation congress_members does not exist at 10.0.0.5"));
     expect(r.status).toBe(500);
@@ -62,6 +70,14 @@ describe("POST /api/congress/sync-all and /import", () => {
     const r = await build(importer)("/api/congress/sync-all");
     expect(r.statusCode).toBe(422);
     expect(r.body).toMatchObject({ error: "source_unverified", code: "E_UNVERIFIED" });
+    expect(importer.validateImport).not.toHaveBeenCalled();
+  });
+
+  it("legacy import through the real route: LEGACY_CONGRESS_SOURCE_UNVERIFIED -> 422, not 500", async () => {
+    const importer = { importFromCompleteDataset: vi.fn(async () => { throw Object.assign(new Error("legacy"), { code: "LEGACY_CONGRESS_SOURCE_UNVERIFIED" }); }), validateImport: vi.fn() };
+    const r = await build(importer)("/api/congress/import");
+    expect(r.statusCode).toBe(422);
+    expect(r.body).toMatchObject({ error: "source_unverified", code: "LEGACY_CONGRESS_SOURCE_UNVERIFIED" });
     expect(importer.validateImport).not.toHaveBeenCalled();
   });
 
