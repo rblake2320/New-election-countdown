@@ -64,7 +64,10 @@ export function scopeLabel(scope: RosterSnapshot["scope"]): string | null {
   if (!scope) return null;
   const party = scope.partyRaw?.trim();
   const access = scope.ballotAccessType?.trim();
-  const accessText = access ? (/write[-_ ]?in/i.test(access) ? "write-in" : access.replace(/_/g, " ")) : null;
+  const accessText = !access ? null
+    : /write[-_ ]?in/i.test(access) ? "write-in"
+    : access === "printed" ? "printed-ballot"
+    : access.replace(/_/g, " ");
   if (!party && !accessText) return null;
   return [party, accessText, "candidates"].filter(Boolean).join(" ");
 }
