@@ -491,7 +491,7 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
             <DialogTrigger asChild>
               <Button 
                 size="sm" 
-                className="h-8 px-2.5 text-xs font-medium rounded-full bg-primary hover:bg-primary/90 text-white flex-shrink-0"
+                className="h-8 px-2.5 text-xs font-medium rounded-full bg-primary hover:bg-primary/90 text-primary-foreground flex-shrink-0"
               >
                 <Info className="h-3 w-3 mr-1" />
                 Details
