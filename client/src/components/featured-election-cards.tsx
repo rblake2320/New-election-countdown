@@ -1,6 +1,7 @@
 import { ElectionCard } from '@/components/election-card';
 import type { Election } from '@shared/schema';
 import { isUpcomingElection } from '@/lib/election-timing';
+import { useNow } from '@/hooks/use-now';
 
 interface FeaturedElectionCardsProps {
   elections: Election[];
@@ -11,7 +12,7 @@ const FEATURED_COUNT = 3;
 export function FeaturedElectionCards({ elections }: FeaturedElectionCardsProps) {
   // Feature the soonest races that have not happened yet. Taking the first
   // three rows featured a primary that was already over.
-  const now = new Date();
+  const now = new Date(useNow(60_000)); // same rollover clock as the home list
   const featuredElections = elections
     .filter(e => isUpcomingElection(e, now))
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())

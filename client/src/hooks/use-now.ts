@@ -1,30 +1,51 @@
 import { useSyncExternalStore } from "react";
 
-// One shared 1 s clock for every countdown on the page. Each card used to run
-// its own 50 ms interval, which meant hundreds of re-renders a second.
+// Shared clocks: one timer per interval for the whole page. Countdowns use the
+// 1 s clock (each card used to run its own 50 ms interval); list membership
+// (which races are still upcoming) uses the 60 s clock so the home page rolls
+// over at midnight without re-rendering every second.
 
-let now = Date.now();
-let timer: ReturnType<typeof setInterval> | null = null;
-const listeners = new Set<() => void>();
+interface Clock { now: number; timer: ReturnType<typeof setInterval> | null; listeners: Set<() => void> }
+const clocks = new Map<number, Clock>();
 
-function subscribe(listener: () => void) {
-  listeners.add(listener);
-  if (!timer) {
-    now = Date.now();
-    timer = setInterval(() => {
-      now = Date.now();
-      listeners.forEach(l => l());
-    }, 1000);
+function clockFor(intervalMs: number): Clock {
+  let c = clocks.get(intervalMs);
+  if (!c) {
+    c = { now: Date.now(), timer: null, listeners: new Set() };
+    clocks.set(intervalMs, c);
   }
-  return () => {
-    listeners.delete(listener);
-    if (listeners.size === 0 && timer) {
-      clearInterval(timer);
-      timer = null;
+  return c;
+}
+
+function subscribeTo(intervalMs: number) {
+  return (listener: () => void) => {
+    const c = clockFor(intervalMs);
+    c.listeners.add(listener);
+    if (!c.timer) {
+      c.now = Date.now();
+      c.timer = setInterval(() => {
+        c.now = Date.now();
+        c.listeners.forEach(l => l());
+      }, intervalMs);
     }
+    return () => {
+      c.listeners.delete(listener);
+      if (c.listeners.size === 0 && c.timer) {
+        clearInterval(c.timer);
+        c.timer = null;
+      }
+    };
   };
 }
 
-export function useNow(): number {
-  return useSyncExternalStore(subscribe, () => now, () => now);
+const subscribers = new Map<number, (l: () => void) => () => void>();
+
+export function useNow(intervalMs = 1000): number {
+  let subscribe = subscribers.get(intervalMs);
+  if (!subscribe) {
+    subscribe = subscribeTo(intervalMs);
+    subscribers.set(intervalMs, subscribe);
+  }
+  const snapshot = () => clockFor(intervalMs).now;
+  return useSyncExternalStore(subscribe, snapshot, snapshot);
 }

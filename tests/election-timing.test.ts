@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getElectionTiming, parseClockTime, zonedTimeToUtc, splitDuration, isUpcomingElection } from "../client/src/lib/election-timing";
+import { getElectionTiming, getElectionSchedule, phaseAt, parseClockTime, zonedTimeToUtc, splitDuration, isUpcomingElection } from "../client/src/lib/election-timing";
 
 const NOV3 = "2026-11-03T00:00:00.000Z"; // how the API stores election dates
 
@@ -97,5 +97,25 @@ describe("isUpcomingElection (matches lane C server rule)", () => {
   });
   it("drops the past Sept 15 primary", () => {
     expect(isUpcomingElection({ date: "2026-09-15T00:00:00.000Z", timezone: "America/New_York" }, at("2026-10-11T12:00:00Z"))).toBe(false);
+  });
+});
+
+describe("lane C review probes (PR #4)", () => {
+  it("known close + unknown open is not reported as 'Polls open' (Maine-style local hours)", () => {
+    const e = { date: "2026-11-03", timezone: "America/New_York", pollsClose: "20:00", pollsOpen: null };
+    const t = getElectionTiming(e, new Date("2026-11-03T05:30:00Z")); // 00:30 ET on election day
+    expect(t.phase).toBe("election-day");
+    expect(t.statusLabel).not.toMatch(/Polls open/);
+    expect(t.target?.toISOString()).toBe("2026-11-04T01:00:00.000Z"); // still counts to the known close
+    expect(t.approximate).toBe(true);
+  });
+  it("schedule is computed once; 500 phase checks stay cheap", () => {
+    const s = getElectionSchedule({ date: "2026-11-03", timezone: "America/Chicago", pollsOpen: "7:00 AM", pollsClose: "7:00 PM" });
+    const t0 = performance.now();
+    for (let i = 0; i < 500; i++) phaseAt(s, new Date(Date.UTC(2026, 10, 3, 15, i % 60)));
+    expect(performance.now() - t0).toBeLessThan(20);
+    const t1 = performance.now();
+    for (let i = 0; i < 500; i++) getElectionTiming({ date: "2026-11-03", timezone: "America/Chicago", pollsClose: "19:00" }, new Date(Date.UTC(2026, 10, 3, 15, i % 60)));
+    expect(performance.now() - t1).toBeLessThan(100); // cached Intl formatters (was ~217 ms per Sol's probe)
   });
 });

@@ -7,8 +7,12 @@ describe("profileSummary", () => {
     const c = { name: "James Talarico", description: "Texas state representative and former teacher", biography: null, campaign_bio: null, professional_background: null };
     expect(profileSummary(c)).toEqual({ text: "Texas state representative and former teacher", source: "Editorial summary" });
   });
-  it("prefers candidate-supplied text", () => {
-    expect(profileSummary({ campaign_bio: " Teacher. ", description: "x" })).toEqual({ text: "Teacher.", source: "Candidate supplied" });
+  it("claims candidate authorship only for a verified candidate's campaign bio", () => {
+    expect(profileSummary({ campaign_bio: " Teacher. ", verified: true, description: "x" })).toEqual({ text: "Teacher.", source: "Candidate supplied" });
+  });
+  it("a field name alone is not proof of authorship (lane C review probe)", () => {
+    expect(profileSummary({ biography: "Offline imported biography fixture" })).toEqual({ text: "Offline imported biography fixture", source: "Source not recorded" });
+    expect(profileSummary({ campaign_bio: "Unverified bio", verified: false })?.source).toBe("Source not recorded");
   });
   it("returns null when nothing is published", () => {
     expect(profileSummary({ description: "  " })).toBeNull();
