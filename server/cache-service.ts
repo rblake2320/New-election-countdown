@@ -14,12 +14,12 @@ class MemoryCache {
   get(key: string): any | null {
     const item = this.cache.get(key);
     if (!item) return null;
-    
+
     if (Date.now() > item.expiry) {
       this.cache.delete(key);
       return null;
     }
-    
+
     return item.data;
   }
 
@@ -57,7 +57,7 @@ export class CacheService {
   async getElectionCountdowns(filters?: any): Promise<any> {
     const cacheKey = `countdowns:${JSON.stringify(filters || {})}`;
     const cached = this.cache.get(cacheKey);
-    
+
     if (cached) return cached;
 
     const electionsData = await db
@@ -80,21 +80,39 @@ export class CacheService {
   async getElectionsWithCache(filters?: any): Promise<any> {
     const cacheKey = `elections:${JSON.stringify(filters || {})}`;
     const cached = this.cache.get(cacheKey);
-    
+
     if (cached) return cached;
 
-    let query = db.select().from(elections);
-    
-    if (filters?.state) {
-      query = query.where(eq(elections.state, filters.state));
-    }
-    if (filters?.type) {
-      query = query.where(eq(elections.type, filters.type));
-    }
-
-    const result = await query;
+    // Build the predicate first: reassigning a Drizzle builder narrows its type.
+    const conditions = [];
+    if (filters?.state) conditions.push(eq(elections.state, filters.state));
+    if (filters?.type) conditions.push(eq(elections.type, filters.type));
+    const result = conditions.length
+      ? await db.select().from(elections).where(and(...conditions))
+      : await db.select().from(elections);
     this.cache.set(cacheKey, result, 300); // 5 minute TTL
     return result;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Generic namespaced cache (owner: Lane A). Domain services that need a plain
+  // get/set (PositionAggregator and friends) use these; keys are prefixed so they
+  // can never collide with session/analytics entries. TTL is in SECONDS, capped at
+  // one day; values are stored by reference (callers must not mutate after set).
+  // ---------------------------------------------------------------------------
+  static readonly GENERIC_MAX_TTL_SECONDS = 24 * 60 * 60;
+
+  async get<T = unknown>(key: string): Promise<T | null> {
+    return this.cache.get(`generic:${key}`) as T | null;
+  }
+
+  async set<T = unknown>(key: string, value: T, ttlSeconds: number = 300): Promise<void> {
+    const ttl = Math.min(CacheService.GENERIC_MAX_TTL_SECONDS, Math.max(1, Math.floor(Number(ttlSeconds) || 300)));
+    this.cache.set(`generic:${key}`, value, ttl);
+  }
+
+  async delete(key: string): Promise<void> {
+    this.cache.delete(`generic:${key}`);
   }
 
   // Cache user sessions (30 minute TTL)
@@ -106,37 +124,10 @@ export class CacheService {
     return this.cache.get(`session:${sessionToken}`);
   }
 
-  // Cache aggregate analytics (10 minute TTL)
-  async getAggregateAnalytics(electionId?: number): Promise<any> {
-    const cacheKey = `analytics:aggregate:${electionId || 'all'}`;
-    const cached = this.cache.get(cacheKey);
-    
-    if (cached) return cached;
+  // getAggregateAnalytics was removed (ET-5 strict types): it queried a `userAnalytics`
+  // table that does not exist in shared/schema.ts and had no callers, so it could only
+  // ever throw. Real aggregates live in analytics-service.ts.
 
-    // Calculate real aggregate analytics
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    
-    const analyticsData = await db
-      .select()
-      .from(userAnalytics)
-      .where(gte(userAnalytics.timestamp, thirtyDaysAgo));
-
-    const aggregated = {
-      totalViews: analyticsData.length,
-      uniqueUsers: new Set(analyticsData.map(a => a.userId)).size,
-      averageTimeOnSite: analyticsData.reduce((sum, a) => sum + (a.timeOnSite || 0), 0) / analyticsData.length,
-      mostViewedPages: analyticsData.reduce((acc: any, a) => {
-        acc[a.page] = (acc[a.page] || 0) + 1;
-        return acc;
-      }, {}),
-      lastUpdated: new Date()
-    };
-
-    this.cache.set(cacheKey, aggregated, 600); // 10 minute TTL
-    return aggregated;
-  }
-
-  // Cache campaign analytics (5 minute TTL)
   async getCachedCampaignAnalytics(campaignId: number, electionId: number): Promise<any | null> {
     const cacheKey = `campaign:${campaignId}:election:${electionId}`;
     return this.cache.get(cacheKey);
@@ -173,7 +164,7 @@ export class CacheService {
   getCacheStats() {
     const entries = this.cache['cache'].size;
     const keys = Array.from(this.cache['cache'].keys());
-    
+
     return {
       totalEntries: entries,
       keysByType: {
