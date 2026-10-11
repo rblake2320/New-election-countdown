@@ -4,14 +4,20 @@
   "checks": {
     "dry_run_no_writes": true,
     "atomic_apply": true,
-    "exact_repeat_no_changes": true,
-    "existing_ballot_and_provenance_preserved": true,
+    "exact_repeat_no_candidate_changes": true,
+    "missing_migration_refuses_without_writes": true,
+    "migration_idempotent": true,
+    "existing_ballot_hash_and_timestamp_preserved": true,
+    "separate_fec_source_retained": true,
+    "transactional_apply_receipt": true,
+    "committed_receipt_survives_local_disk_failure": true,
     "registration_never_certified": true,
     "unknown_party_not_independent": true,
     "parameterized_apostrophe_name": true,
     "injected_failure_full_rollback": true,
     "concurrent_apply_one_identity": true,
-    "imported_party_refresh": true
+    "imported_party_refresh": true,
+    "historical_source_reactivation_updates_current_version": true
   },
   "first_actions": 3,
   "repeated_actions": 0
