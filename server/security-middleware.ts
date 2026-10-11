@@ -185,12 +185,16 @@ export const apiLimiter = rateLimit({
     error: 'Too many API requests',
     retryAfter: '1 minute'
   },
-  // Health/readiness probes (Docker, nginx, uptime monitors) never consume client quota.
-  skip: (req) => req.path === '/health' || req.path.startsWith('/health/'),
   standardHeaders: true,
   legacyHeaders: false,
-  // Skip rate limiting for monitoring endpoints
-  skip: (req) => isMonitoringEndpoint(req.path)
+  // One predicate (a second `skip` key silently overrode the first). Use the
+  // full URL path because this limiter is mounted at /api, which strips the
+  // prefix from req.path. Health/readiness probes and the monitoring
+  // allow-list never consume client quota.
+  skip: (req) => {
+    const fullPath = (req.originalUrl || req.url || '').split('?')[0];
+    return fullPath.startsWith('/api/health') || isMonitoringEndpoint(fullPath);
+  }
 });
 
 // Security headers configuration
