@@ -12,7 +12,19 @@ export interface ElectionTimingInput {
   pollsOpen?: string | null;
   pollsClose?: string | null;
   timezone?: string | null;
+  /** What the close time is (proposed C3 contract): polls closing, or a mail-ballot return deadline. */
+  pollCloseKind?: "polls" | "ballot_return" | null;
+  /** How the close was derived; only a latest-close basis makes a countdown exact. */
+  pollHoursBasis?: "statewide_latest" | "district_latest" | "local_variable" | null;
+  pollHoursSource?: string | null;
 }
+
+/**
+ * exact: verified latest close in a known zone. unverified: hours present but
+ * no basis recorded. local_variable: closes vary locally. unpublished: no
+ * close or no zone. Anything but exact is shown with a qualifier.
+ */
+export type TimingPrecision = "exact" | "unverified" | "local_variable" | "unpublished";
 
 export interface ElectionTiming {
   phase: ElectionPhase;
@@ -22,8 +34,9 @@ export interface ElectionTiming {
   targetLabel: string;
   /** Short status text for non-countdown phases. */
   statusLabel: string;
-  /** True when poll hours / zone were missing and we fell back to calendar dates. */
+  /** True unless precision is "exact". */
   approximate: boolean;
+  precision: TimingPrecision;
 }
 
 /** Days after polls close that a race reads "polls closed" before "completed". */
@@ -112,7 +125,8 @@ export interface ElectionSchedule {
   /** Polls close, or the end of the calendar day when closing time is not published. */
   closes: Date;
   closeKnown: boolean;
-  approximate: boolean;
+  closeKind: "polls" | "ballot_return";
+  precision: TimingPrecision;
 }
 
 export function getElectionSchedule(election: ElectionTimingInput): ElectionSchedule {
@@ -126,34 +140,37 @@ export function getElectionSchedule(election: ElectionTimingInput): ElectionSche
     opens: openMin != null ? zonedTimeToUtc(y, m, d, openMin, zone) : null,
     closes: closeMin != null ? zonedTimeToUtc(y, m, d, closeMin, zone) : zonedTimeToUtc(y, m, d, 24 * 60, zone),
     closeKnown: closeMin != null,
-    approximate: !zone || closeMin == null,
+    closeKind: election.pollCloseKind === "ballot_return" ? "ballot_return" : "polls",
+    precision: !zone || closeMin == null ? "unpublished"
+      : election.pollHoursBasis === "local_variable" ? "local_variable"
+      : election.pollHoursBasis === "statewide_latest" || election.pollHoursBasis === "district_latest" ? "exact"
+      : "unverified",
   };
 }
 
 /** Phase at `now`: plain comparisons, cheap enough for every card every second. */
 export function phaseAt(s: ElectionSchedule, now: Date): ElectionTiming {
   const t = now.getTime();
-  const approximate = s.approximate;
-  if (s.opens && t < s.opens.getTime()) {
-    return { phase: "upcoming", target: s.opens, targetLabel: "until polls open", statusLabel: "Upcoming", approximate };
-  }
-  if (!s.opens && t < s.dayStart.getTime()) {
-    return { phase: "upcoming", target: s.dayStart, targetLabel: "until Election Day", statusLabel: "Upcoming", approximate };
-  }
+  const precision = s.precision;
+  const out = (phase: ElectionPhase, target: Date | null, targetLabel: string, statusLabel: string, p: TimingPrecision = precision): ElectionTiming =>
+    ({ phase, target, targetLabel, statusLabel, precision: p, approximate: p !== "exact" });
+  const ballots = s.closeKind === "ballot_return";
+  if (s.opens && t < s.opens.getTime() && !ballots) return out("upcoming", s.opens, "until polls open", "Upcoming");
+  if ((!s.opens || ballots) && t < s.dayStart.getTime()) return out("upcoming", s.dayStart, "until Election Day", "Upcoming");
   if (t < s.closes.getTime()) {
+    // A mail-ballot state's deadline is not a polls close.
+    if (ballots) return out("election-day", s.closes, "until ballot return deadline", "Ballots due today");
     // "Polls open" only when both ends are published; an unknown opening time
     // (e.g. towns that set their own hours) must not be reported as open at 00:30.
-    if (s.opens && s.closeKnown) {
-      return { phase: "polls-open", target: s.closes, targetLabel: "until polls close", statusLabel: "Polls open", approximate };
-    }
+    if (s.opens && s.closeKnown) return out("polls-open", s.closes, "until polls close", "Polls open");
     return s.closeKnown
-      ? { phase: "election-day", target: s.closes, targetLabel: "until polls close", statusLabel: "Election Day · opening times vary", approximate: true }
-      : { phase: "election-day", target: s.closes, targetLabel: "left on Election Day", statusLabel: "Election Day", approximate };
+      ? out("election-day", s.closes, "until polls close", "Election Day · opening times vary", precision === "exact" ? "unverified" : precision)
+      : out("election-day", s.closes, "left on Election Day", "Election Day");
   }
   if (t < s.closes.getTime() + POLLS_CLOSED_WINDOW_DAYS * DAY_MS) {
-    return { phase: "polls-closed", target: null, targetLabel: "", statusLabel: "Polls closed · results pending", approximate };
+    return out("polls-closed", null, "", ballots ? "Ballot deadline passed · results pending" : "Polls closed · results pending");
   }
-  return { phase: "completed", target: null, targetLabel: "", statusLabel: "Election held", approximate };
+  return out("completed", null, "", "Election held");
 }
 
 export function getElectionTiming(election: ElectionTimingInput, now: Date = new Date()): ElectionTiming {

@@ -42,11 +42,15 @@ describe("getElectionTiming", () => {
     expect(t.target?.toISOString()).toBe("2026-11-03T12:00:00.000Z"); // 7 am EST
   });
 
-  it("counts to polls close while polls are open", () => {
+  it("counts to polls close while polls are open; exact only with a verified latest-close basis", () => {
     const t = getElectionTiming(ga, new Date("2026-11-03T15:00:00Z"));
     expect(t.phase).toBe("polls-open");
     expect(t.target?.toISOString()).toBe("2026-11-04T00:00:00.000Z");
-    expect(t.approximate).toBe(false);
+    expect(t.precision).toBe("unverified"); // hours present, no basis recorded (C3 not verified)
+    expect(t.approximate).toBe(true);
+    const verified = getElectionTiming({ ...ga, pollHoursBasis: "statewide_latest" }, new Date("2026-11-03T15:00:00Z"));
+    expect(verified.precision).toBe("exact");
+    expect(verified.approximate).toBe(false);
   });
 
   it("stops counting once polls close, then reads completed after the window", () => {
@@ -117,5 +121,30 @@ describe("lane C review probes (PR #4)", () => {
     const t1 = performance.now();
     for (let i = 0; i < 500; i++) getElectionTiming({ date: "2026-11-03", timezone: "America/Chicago", pollsClose: "19:00" }, new Date(Date.UTC(2026, 10, 3, 15, i % 60)));
     expect(performance.now() - t1).toBeLessThan(100); // cached Intl formatters (was ~217 ms per Sol's probe)
+  });
+});
+
+describe("C3 contract fields (proposed: poll_close_kind, poll_hours_basis)", () => {
+  const base = { date: "2026-11-03T00:00:00.000Z", pollsOpen: "07:00", pollsClose: "20:00", timezone: "America/Los_Angeles" };
+  it("ballot_return deadlines are not presented as polls closing", () => {
+    const e = { ...base, pollsOpen: null, pollCloseKind: "ballot_return" as const, pollHoursBasis: "statewide_latest" as const };
+    const during = getElectionTiming(e, new Date("2026-11-03T20:00:00Z"));
+    expect(during.targetLabel).toBe("until ballot return deadline");
+    expect(during.statusLabel).toBe("Ballots due today");
+    expect(during.statusLabel).not.toMatch(/Polls/);
+    expect(getElectionTiming(e, new Date("2026-11-04T05:00:00Z")).statusLabel).toBe("Ballot deadline passed · results pending");
+  });
+  it("local_variable hours are never exact", () => {
+    const t = getElectionTiming({ ...base, pollHoursBasis: "local_variable" as const }, new Date("2026-11-03T20:00:00Z"));
+    expect(t.precision).toBe("local_variable");
+    expect(t.approximate).toBe(true);
+  });
+  it("unknown open with a verified close is downgraded, not exact", () => {
+    const t = getElectionTiming({ ...base, pollsOpen: null, pollHoursBasis: "statewide_latest" as const }, new Date("2026-11-03T20:00:00Z"));
+    expect(t.statusLabel).toBe("Election Day · opening times vary");
+    expect(t.precision).toBe("unverified");
+  });
+  it("no zone or no close stays 'unpublished'", () => {
+    expect(getElectionTiming({ date: base.date }, new Date("2026-11-03T20:00:00Z")).precision).toBe("unpublished");
   });
 });
