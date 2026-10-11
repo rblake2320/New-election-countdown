@@ -84,3 +84,53 @@ export const officialResultsFieldsSchema = z.object({
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Published destination must match the observed receiving receipt' });
   }
 });
+
+export interface OfficialResultsFields {
+  officialResultsUrl: string | null;
+  officialResultsSource: OfficialResultsSource | null;
+}
+export interface OfficialResultsElectionContext {
+  date?: unknown; type?: unknown; state?: unknown;
+  officialResultsUrl?: unknown; officialResultsSource?: unknown;
+}
+export function officialResultsElectionPhase(type: unknown): OfficialResultsSource['electionPhase'] | null {
+  if (typeof type !== 'string') return null;
+  switch (type.trim().toLowerCase()) {
+    case 'general': return 'general';
+    case 'primary': return 'primary';
+    case 'runoff': return 'runoff';
+    case 'special': case 'other': return 'other';
+    default: return null;
+  }
+}
+function calendarDate(value: unknown): string | null {
+  if (value instanceof Date) return Number.isFinite(value.getTime()) ? value.toISOString().slice(0, 10) : null;
+  if (typeof value !== 'string') return null;
+  const match = /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}):(\d{2})(?:\.\d{1,6})?(Z|[+-]\d{2}:\d{2})?)?$/.exec(value);
+  if (!match) return null;
+  const [, year, month, day, hour, minute, second, offset] = match;
+  const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
+  if (date.getUTCFullYear() !== Number(year) || date.getUTCMonth() + 1 !== Number(month) || date.getUTCDate() !== Number(day)) return null;
+  if (hour !== undefined && (Number(hour) > 23 || Number(minute) > 59 || Number(second) > 59)) return null;
+  if (offset && offset !== 'Z') {
+    const [offsetHour, offsetMinute] = offset.slice(1).split(':').map(Number);
+    if (offsetHour > 14 || offsetMinute > 59 || (offsetHour === 14 && offsetMinute !== 0)) return null;
+  }
+  return value.slice(0, 10);
+}
+// Receiving boundary: the stored source is useful only for this outer record.
+// SQL-backed callers first normalize from the canonical timestamp text;
+// they must not infer a stored calendar day from a native PG Date in local TZ.
+export function projectOfficialResultsForElection(context: OfficialResultsElectionContext): OfficialResultsFields {
+  const empty: OfficialResultsFields = { officialResultsUrl: null, officialResultsSource: null };
+  try {
+    const parsed = officialResultsFieldsSchema.safeParse(context);
+    if (!parsed.success) return empty;
+    const source = parsed.data.officialResultsSource;
+    if (!source) return empty;
+    if (calendarDate(context.date) !== source.targetElectionDate || officialResultsElectionPhase(context.type) !== source.electionPhase) return empty;
+    if (source.status === 'published' &&
+        (typeof context.state !== 'string' || context.state.trim().toUpperCase() !== source.publicationEvidence?.state)) return empty;
+    return { officialResultsUrl: parsed.data.officialResultsUrl ?? null, officialResultsSource: source };
+  } catch { return empty; }
+}

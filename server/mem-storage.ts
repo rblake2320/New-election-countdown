@@ -1,4 +1,5 @@
 import { canonicalPartyComponents, electionCalendarWindow, normalizeElectionFilters, type ElectionListing, type ElectionQueryFilters } from "./election-list-filters";
+import { projectOfficialResultsForElection } from '../shared/official-results';
 import { type Election, type InsertElection, type Candidate, type InsertCandidate, type ElectionFilters, type CongressMember, type InsertCongressMember, type User, type UpsertUser, type WatchlistItem, type InsertWatchlistItem, type CandidateAccount, type InsertCandidateAccount, type CandidateProfile, type InsertCandidateProfile, type CandidateDataSource, type InsertCandidateDataSource, type CandidatePosition, type InsertCandidatePosition, type CandidateQA, type InsertCandidateQA } from "@shared/schema";
 import { IStorage } from "./storage";
 import { getGoogleCivicService } from "./google-civic-service";
@@ -98,11 +99,12 @@ export class MemStorage implements IStorage {
       if (search && ![election.title, election.subtitle, election.location].some(value => value?.toLowerCase().includes(search))) return false;
       return true;
     }).sort((a, b) => a.date.getTime() - b.date.getTime() || a.id - b.id)
-      .map(election => ({ ...election, candidateCount: counts.get(election.id) ?? 0 }));
+      .map(election => ({ ...election, ...projectOfficialResultsForElection(election), candidateCount: counts.get(election.id) ?? 0 }));
   }
 
   async getElection(id: number): Promise<Election | undefined> {
-    return this.elections.get(id);
+    const election = this.elections.get(id);
+    return election ? { ...election, ...projectOfficialResultsForElection(election) } : undefined;
   }
 
   async createElection(election: InsertElection): Promise<Election> {

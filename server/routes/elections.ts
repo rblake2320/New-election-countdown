@@ -3,7 +3,7 @@ import { storage, type IStorage } from "../storage";
 import { civicAggregatorService } from "../civic-aggregator-service";
 import { voteSmartService } from "../services/votesmart-service";
 import { calculateAdvancedPoliticalLeaning } from "../lib/political-analysis.js";
-import { officialResultsFieldsSchema } from '../../shared/official-results';
+import { projectOfficialResultsForElection } from '../../shared/official-results';
 
 export const electionsRouter = Router();
 
@@ -210,7 +210,7 @@ electionsRouter.get("/:id", async (req, res) => {
       state: election.state,
       level: election.level,
       type: election.type,
-      ...officialResultsFieldsSchema.parse(election),
+      ...projectOfficialResultsForElection(election),
       candidates: candidates.length
     });
   } catch (error) {

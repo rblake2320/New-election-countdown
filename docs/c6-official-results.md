@@ -4,6 +4,14 @@ The public election contract adds `officialResultsUrl: string | null` and
 `officialResultsSource: OfficialResultsSource | null`. The type and runtime
 validator are in `shared/official-results.ts`. Existing elections without a
 reviewed route have explicit nulls. Election inserts cannot assert provenance.
+The first active reduced detail route is `server/routes/elections.ts`'s
+`GET /:id`, mounted at `/api/elections` before the later handler in routes.ts.
+It and the ordinary Database/Replica detail reads, listing and memory fallback
+use `projectOfficialResultsForElection`. A later date/phase change or a
+published-state mismatch clears both receiving fields without erasing stored
+audit evidence or throwing a 500. SQL-backed reads use a canonical `to_char`
+timestamp so native PG Date conversion in Tokyo cannot change the stored day.
+The internal timestamp is removed from every public response.
 
 These are navigation sources, not vote totals, winners, publication, or
 certification. The retained October 11 reviews cover exactly 50 states: 49
