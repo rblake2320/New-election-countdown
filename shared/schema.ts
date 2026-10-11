@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar, numeric, bigint, index, uniqueIndex, check, foreignKey } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar, numeric, bigint, index, uniqueIndex, uuid, check, foreignKey } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -741,6 +741,25 @@ export const congressMembers = pgTable("congress_members", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+// Declared here so later Drizzle schema sync retains the durable import audit.
+export const congressOfficialImportRuns = pgTable('congress_official_import_runs', {
+  id: uuid('id').primaryKey(),
+  manifestSha256: text('manifest_sha256').notNull(),
+  preimageSha256: text('preimage_sha256').notNull(),
+  postimageSha256: text('postimage_sha256').notNull(),
+  removalPlanSha256: text('removal_plan_sha256'),
+  receipt: jsonb('receipt').notNull(),
+  preimage: jsonb('preimage').notNull(),
+  postimage: jsonb('postimage').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, table => ({
+  manifestHash: check('congress_official_import_runs_manifest_sha256_check', sql`${table.manifestSha256} ~ '^[a-f0-9]{64}$'`),
+  preimageHash: check('congress_official_import_runs_preimage_sha256_check', sql`${table.preimageSha256} ~ '^[a-f0-9]{64}$'`),
+  postimageHash: check('congress_official_import_runs_postimage_sha256_check', sql`${table.postimageSha256} ~ '^[a-f0-9]{64}$'`),
+  removalHash: check('congress_official_import_runs_removal_plan_sha256_check', sql`${table.removalPlanSha256} IS NULL OR ${table.removalPlanSha256} ~ '^[a-f0-9]{64}$'`),
+}));
+export type CongressOfficialImportRun = typeof congressOfficialImportRuns.$inferSelect;
 
 export const congressBills = pgTable("congress_bills", {
   id: serial("id").primaryKey(),

@@ -1,0 +1,5 @@
+| id | title | rule | rationale | origin | scope | severity | enforcement | status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| CONGRESS-SOURCE-OCCUPANCY | Bind current-member completeness to official occupancy | Validate every imported member identity and completeness against a reviewed official occupied-seat scope before starting one atomic write transaction. | Exact legacy probes reproduced delete-before-transform and partial batches, order-dependent fabricated identities and count-based false completeness; actual government scope has539 members including nonvoters and two separate vacancies. | Actual-service red + official XML derivation + compiled private PostgreSQL green,2026-10-11,ElectionTracker | project:ElectionTracker | critical | congress-official-import unit tests plus test-congress-import-container.mjs; owner CI composition pending | candidate |
+
+The existing central registry was searched during investigation; this is the same deduplicated candidate handed to the parent at fc723a6, updated with repair evidence. Parent owns central registration/adoption; this file does not change owner-approved constitution rules.

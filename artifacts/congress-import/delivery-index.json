@@ -1,0 +1,309 @@
+{
+  "kind": "official_congress_source_bound_transaction_acceptance",
+  "runtimeCoreCommit": "db6072653f81a71f93670f000d0e9303b694b4d0",
+  "base": "8b49d60030b7c94ce772c1b3137ba43a4f85fbcb",
+  "originalLegacyInvestigationCommit": "fc723a6a91e21dbe6d26d80826c2c752425dc86d",
+  "manifestSha256": "b09efc0e8a2b98ffc1e5e4740c8c0ba03a381e745cdf8d53a501e053bfa8ad56",
+  "retainedAt": "2026-10-11T16:23:24.344078+00:00",
+  "privateFinal": {
+    "outcome": "Worked",
+    "network": "internal; zero published ports",
+    "image": "electiontracker:congress-import-17264-0188cd",
+    "evidence": "D:\\projects\\et-wt\\sol-congress-source-investigation\\artifacts\\congress-import\\private-17264-0188cd",
+    "imageId": "sha256:ca310cb56b68ef999fc765f83e938d840d3dfd0d0d87294cd21b8295a3ea67ca",
+    "auditSchemaSync": {
+      "outcome": "Worked",
+      "before": "7|ec642ecf5e6144ed5f6b10db02ffa78a",
+      "after": "7|ec642ecf5e6144ed5f6b10db02ffa78a"
+    },
+    "cliDirectoryPreflight": {
+      "outcome": "Worked",
+      "output": "{\"outcome\":\"Refused\",\"committed\":false,\"error\":\"ENOENT: no such file or directory, open '/missing-parent/receipt.json'\"}"
+    },
+    "manifestSha256": "b09efc0e8a2b98ffc1e5e4740c8c0ba03a381e745cdf8d53a501e053bfa8ad56"
+  },
+  "unit": {
+    "passed": 533,
+    "failed": 0,
+    "skipped": 3
+  },
+  "type": {
+    "base": "8b49d60030b7c94ce772c1b3137ba43a4f85fbcb",
+    "baselineCount": 903,
+    "currentCount": 903,
+    "addedDiagnostics": [],
+    "ownedStrictDiagnostics": [],
+    "outcome": "Worked",
+    "strictScope": "Owned importer/service/CLI/private verifier diagnostics; strict unrelated dependency diagnostics are not counted as owned."
+  },
+  "applicationBuildExit": 0,
+  "standaloneBuildExit": 0,
+  "scopes": {
+    "officialMembers": 539,
+    "votingOnlyMembers": 533,
+    "nonvotingMembers": 6,
+    "explicitVacancies": 2,
+    "privateCompiledChecks": 15,
+    "auditRowsPreservedByDrizzle": 7,
+    "sharedWrites": 0,
+    "rawContactsRetained": 0,
+    "providerKeys": 0,
+    "browserOrPublishedPorts": 0
+  },
+  "dependencyProvenance": "Own physical757-package npmci install reused with unchanged lock; private image uses its physical Dockerfile npmci builder; no junctions.",
+  "packagingBoundary": "Coredb607 default loader cwd path seam identified by independent review; parent authorized separate deterministic compiled-resource repair. D owns production build/package integration. No production availability claim.",
+  "files": {
+    ".gitattributes": {
+      "sha256": "e97602ab9cac70102245345c5ab0fc9830df8b17f1072b188265a662a3a547ae",
+      "bytes": 20
+    },
+    "build-current.txt": {
+      "sha256": "05ff49d200b93749324fc5118905e920df9468c8dd3a077c6feeb267ba0ecaea",
+      "bytes": 4212
+    },
+    "build-final.txt": {
+      "sha256": "2228a630c620617f80f69a8c27a6b141acb91c4de03ac5df02d376b796e89e5e",
+      "bytes": 4212
+    },
+    "initial-cleanup-red.txt": {
+      "sha256": "574de3579e1cb575d4941943d11f35211eec1e049b09a8e310e316f8dcb5f3ef",
+      "bytes": 947
+    },
+    "new-dry-scope-green.txt": {
+      "sha256": "5506e8368fa374e154853ea2174f604dd65886b213b63c3cc04096c0e55695d8",
+      "bytes": 483
+    },
+    "new-dry-scope-labelled-green.txt": {
+      "sha256": "edc83e5fcf1a4359fcb5028ad8888dbeadc41b21ad5e121ef259ba077b6fb945",
+      "bytes": 479
+    },
+    "old-dry-scope-labelled-red.txt": {
+      "sha256": "e46656e3e6b317de31f46d24c2b568f05c4e37f28c4dd03848cbf3671b666573",
+      "bytes": 478
+    },
+    "old-dry-scope-probe.mjs": {
+      "sha256": "f970764994ede87496948a8c535c0f236302d3c8db4e7a62b47cbe2250206e05",
+      "bytes": 1602
+    },
+    "old-dry-scope-red.txt": {
+      "sha256": "bd956621dc9df29f36d1914b515fbfda697ca00afd5f25e7ce7b66dbc09754f0",
+      "bytes": 482
+    },
+    "private-17264-0188cd/cli-apply.json": {
+      "sha256": "9248b5da7be4079568fdd765744b8417c6ea8a9756de5b5344d46ef847263cbf",
+      "bytes": 1582
+    },
+    "private-17264-0188cd/cli-default-dry.json": {
+      "sha256": "552930c98e57fa7b0b260c6b9969a2435cd799e1ca381ecde3842474cd380a43",
+      "bytes": 1490
+    },
+    "private-17264-0188cd/compiled-acceptance.txt": {
+      "sha256": "cffe62b55ea646bbf9ddb1b830e1685b0f04b3c8c9745d5736a96b5fc155308a",
+      "bytes": 154
+    },
+    "private-17264-0188cd/harness-receipt.json": {
+      "sha256": "f69e93d265234dfd21859cb5d117df4d5471607810eee0175964cb2588a8f40e",
+      "bytes": 791
+    },
+    "private-17264-0188cd/image-build.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "private-17264-0188cd/private-receipt.json": {
+      "sha256": "4dbf845e4229e24fa61a8cff302306321d24c7c856852c92f8ea89c58b4708e1",
+      "bytes": 9326
+    },
+    "private-17264-0188cd/reviewed-private-legacy-removal-plan.json": {
+      "sha256": "96cb86ad307ef9704b1332a567b46b558fde8d7f8bd243784e7792f76767c07e",
+      "bytes": 353
+    },
+    "private-17264-0188cd/schema-initial.txt": {
+      "sha256": "8b676d5ff3d24809b556d4d3dc19520859d310ed04fa3b85dc07aa416e652b31",
+      "bytes": 249
+    },
+    "private-17264-0188cd/schema-repeat.txt": {
+      "sha256": "e8a8d0376a85f769627aae81c3e1bbcbc4a71471fb2a0c63b200b0fa6064e239",
+      "bytes": 1169
+    },
+    "private-17264-0188cd/wrong-snapshot.json": {
+      "sha256": "4233545d2b7ed885aa1beb9df2267e636f16e8ad40f4498b4a9767e5c605a631",
+      "bytes": 283160
+    },
+    "private-19432-beff24/cli-apply.json": {
+      "sha256": "ba3d9270fa106a39da14b7417e3b4edb8780c0987207aff2a4ef1c68681be2d9",
+      "bytes": 1582
+    },
+    "private-19432-beff24/cli-default-dry.json": {
+      "sha256": "552930c98e57fa7b0b260c6b9969a2435cd799e1ca381ecde3842474cd380a43",
+      "bytes": 1490
+    },
+    "private-19432-beff24/compiled-acceptance.txt": {
+      "sha256": "cffe62b55ea646bbf9ddb1b830e1685b0f04b3c8c9745d5736a96b5fc155308a",
+      "bytes": 154
+    },
+    "private-19432-beff24/harness-receipt.json": {
+      "sha256": "1b8c03d4dcdeeb8888eee3bb02381e8b1e14b7da72ba7c5b863bdfb7f3d9b90c",
+      "bytes": 791
+    },
+    "private-19432-beff24/image-build.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "private-19432-beff24/private-receipt.json": {
+      "sha256": "240f5c5f76f96598b78b96a1975b930fa8a28683f551036e7d630f2793c2e5fd",
+      "bytes": 9326
+    },
+    "private-19432-beff24/reviewed-private-legacy-removal-plan.json": {
+      "sha256": "96cb86ad307ef9704b1332a567b46b558fde8d7f8bd243784e7792f76767c07e",
+      "bytes": 353
+    },
+    "private-19432-beff24/schema-initial.txt": {
+      "sha256": "8b676d5ff3d24809b556d4d3dc19520859d310ed04fa3b85dc07aa416e652b31",
+      "bytes": 249
+    },
+    "private-19432-beff24/schema-repeat.txt": {
+      "sha256": "57c8e05b0d60c7bf3bb0aafad1fbca6b30a119b5aef155c779942431feb605d8",
+      "bytes": 1123
+    },
+    "private-19432-beff24/wrong-snapshot.json": {
+      "sha256": "4233545d2b7ed885aa1beb9df2267e636f16e8ad40f4498b4a9767e5c605a631",
+      "bytes": 283160
+    },
+    "private-66056-85e1a6/cli-apply.json": {
+      "sha256": "b16232577c3e859d617cdbe21097c3260098d7245b0f7f76a7d9f3a4877b89f0",
+      "bytes": 1582
+    },
+    "private-66056-85e1a6/cli-default-dry.json": {
+      "sha256": "552930c98e57fa7b0b260c6b9969a2435cd799e1ca381ecde3842474cd380a43",
+      "bytes": 1490
+    },
+    "private-66056-85e1a6/compiled-acceptance.txt": {
+      "sha256": "6ebe4aef731d8d4e2006041df9887bb9674123e9c07c321f4ff5e3388c5b170f",
+      "bytes": 154
+    },
+    "private-66056-85e1a6/harness-receipt.json": {
+      "sha256": "dea5c5a49fe4126cc03d66b7a195eb0d9f1d7b50c0932bd28992b380783ce25e",
+      "bytes": 791
+    },
+    "private-66056-85e1a6/image-build.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "private-66056-85e1a6/private-receipt.json": {
+      "sha256": "332fc101c4532a10fd635e1292e0535b73773623682492fefd90e875901dfe9e",
+      "bytes": 8923
+    },
+    "private-66056-85e1a6/reviewed-private-legacy-removal-plan.json": {
+      "sha256": "96cb86ad307ef9704b1332a567b46b558fde8d7f8bd243784e7792f76767c07e",
+      "bytes": 353
+    },
+    "private-66056-85e1a6/schema-initial.txt": {
+      "sha256": "8b676d5ff3d24809b556d4d3dc19520859d310ed04fa3b85dc07aa416e652b31",
+      "bytes": 249
+    },
+    "private-66056-85e1a6/schema-repeat.txt": {
+      "sha256": "0e9a53c4635906661ceecd15c562f1f96645898beb2c9d34b6e532eb7310dad8",
+      "bytes": 1307
+    },
+    "private-66056-85e1a6/wrong-snapshot.json": {
+      "sha256": "4233545d2b7ed885aa1beb9df2267e636f16e8ad40f4498b4a9767e5c605a631",
+      "bytes": 283160
+    },
+    "private-85556-cbd02f/cli-apply.json": {
+      "sha256": "c76f19e1da50b309a7f993d347b497a76d6bd740291ec9b1a2f7128ed39daf06",
+      "bytes": 1582
+    },
+    "private-85556-cbd02f/cli-default-dry.json": {
+      "sha256": "552930c98e57fa7b0b260c6b9969a2435cd799e1ca381ecde3842474cd380a43",
+      "bytes": 1490
+    },
+    "private-85556-cbd02f/compiled-acceptance.txt": {
+      "sha256": "cffe62b55ea646bbf9ddb1b830e1685b0f04b3c8c9745d5736a96b5fc155308a",
+      "bytes": 154
+    },
+    "private-85556-cbd02f/harness-receipt.json": {
+      "sha256": "bca1185c52c3c704ad5dafa145e29439ce0320148184663f3f364a3970e213d7",
+      "bytes": 791
+    },
+    "private-85556-cbd02f/image-build.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "private-85556-cbd02f/private-receipt.json": {
+      "sha256": "7f05ef2be0b7df63ca00640930e850e7547e6e27de697085b954bf5f576f2cff",
+      "bytes": 9326
+    },
+    "private-85556-cbd02f/reviewed-private-legacy-removal-plan.json": {
+      "sha256": "96cb86ad307ef9704b1332a567b46b558fde8d7f8bd243784e7792f76767c07e",
+      "bytes": 353
+    },
+    "private-85556-cbd02f/schema-initial.txt": {
+      "sha256": "8b676d5ff3d24809b556d4d3dc19520859d310ed04fa3b85dc07aa416e652b31",
+      "bytes": 249
+    },
+    "private-85556-cbd02f/schema-repeat.txt": {
+      "sha256": "0e9a53c4635906661ceecd15c562f1f96645898beb2c9d34b6e532eb7310dad8",
+      "bytes": 1307
+    },
+    "private-85556-cbd02f/wrong-snapshot.json": {
+      "sha256": "4233545d2b7ed885aa1beb9df2267e636f16e8ad40f4498b4a9767e5c605a631",
+      "bytes": 283160
+    },
+    "private-run-final.txt": {
+      "sha256": "f5fe861eee8edce4eb61ed4e7634ababf6a0d28ea025ad6ce8cdd69131f1138d",
+      "bytes": 723
+    },
+    "private-run-pinned-final.txt": {
+      "sha256": "4096b83ca2a464f97c791620f606c15823392e65d0d3e72a7faf350470992067",
+      "bytes": 723
+    },
+    "private-run-scope-final.txt": {
+      "sha256": "37c5956896eeee09150851a3338869c836a0398ddd1c5ccd78a4f990a090e62d",
+      "bytes": 723
+    },
+    "private-run.txt": {
+      "sha256": "f041f9c111b72cffac3231c3068a3d876deea696ab1f1a6277f1dbeb0acad7f3",
+      "bytes": 723
+    },
+    "type-comparison.json": {
+      "sha256": "bb5865adc93477601020511afca1075393b167df1e1553641c5c954b4bf61038",
+      "bytes": 328
+    },
+    "type-comparison.txt": {
+      "sha256": "34aee3ad33b5af41d4ef2b393936c254b79418364b707fd4d09e4004994a0cff",
+      "bytes": 300
+    },
+    "type-current.txt": {
+      "sha256": "8cccc199ecc81d6ea587251260c9745f620c6929980756d0572fab35367cd4cb",
+      "bytes": 221504
+    },
+    "type-final.txt": {
+      "sha256": "8cccc199ecc81d6ea587251260c9745f620c6929980756d0572fab35367cd4cb",
+      "bytes": 221504
+    },
+    "unit-all.json": {
+      "sha256": "83054f56cb9e95797c5dba555d975735fd300e009970f0d0b60ae867231a344f",
+      "bytes": 200982
+    },
+    "unit-all.txt": {
+      "sha256": "0e67f74e0634b205e1155d9a2dc18197c4cc51a61750e9b852b16ef1d5e590bc",
+      "bytes": 230
+    },
+    "unit-final.json": {
+      "sha256": "716c22ff923532fa03cc440a98233297b77367e0acd516a1194488799441e06c",
+      "bytes": 201325
+    },
+    "unit-final.txt": {
+      "sha256": "2084e41015b17f882eb7be84d70801164eaff6775e418483b8480352ba2d5d69",
+      "bytes": 234
+    },
+    "unit-targeted.json": {
+      "sha256": "1820a9cb5fc1ed16f0c6620e43297fa8b6059eaa9268f1164f67c6acf90f198a",
+      "bytes": 8084
+    },
+    "unit-targeted.txt": {
+      "sha256": "94dbdf4cb36f6f7359a65e1beb7b938248cbc5a7e4e4ca0fabb08546106b54b2",
+      "bytes": 121
+    }
+  }
+}

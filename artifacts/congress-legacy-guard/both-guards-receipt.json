@@ -1,0 +1,37 @@
+{
+  "capturedAt": "2026-10-11T16:35:19.911070+00:00",
+  "baseCommit": "425510af784c166fbdf761165c3f39d48ebf4130",
+  "nodeVersion": "v24.17.0",
+  "behavioralProbesPassed": 7,
+  "realDBCalls": 0,
+  "realProviderCalls": 0,
+  "secretsLoaded": false,
+  "onlyRuntimeFilesChanged": [
+    "bulk_restore_congress.js",
+    "restore_congress_members.js"
+  ],
+  "siblingOld": {
+    "normalExitAfterCaughtFailure": true,
+    "existingSyntheticProfileDeleted": true,
+    "inventedIdsFromNames": true
+  },
+  "guards": {
+    "bulk": {
+      "actualNodeExit": 1,
+      "applicationImportAttempts": 0,
+      "applicationFileCalls": 0,
+      "applicationDBCalls": 0,
+      "typedCode": "LEGACY_CONGRESS_SOURCE_UNVERIFIED",
+      "operation": "bulk_restore_congress"
+    },
+    "sibling": {
+      "actualNodeExit": 1,
+      "applicationImportAttempts": 0,
+      "applicationFileCalls": 0,
+      "applicationDBCalls": 0,
+      "typedCode": "LEGACY_CONGRESS_SOURCE_UNVERIFIED",
+      "operation": "restore_congress_members"
+    }
+  },
+  "noServiceSchemaRoutePackageChanges": true
+}

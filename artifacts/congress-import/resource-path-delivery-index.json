@@ -1,0 +1,177 @@
+{
+  "kind": "compiled_relative_congress_resource_contract",
+  "coreParent": "0d16a6170f8f952416bc245dcb2595e47560d6f4",
+  "manifestSha256": "b09efc0e8a2b98ffc1e5e4740c8c0ba03a381e745cdf8d53a501e053bfa8ad56",
+  "packagedManifestPath": "dist/congress-data/official-current-members.json",
+  "compiledLoaderRelativePath": "./congress-data/official-current-members.json relative to import.meta.url",
+  "sourceFallbackRelativePath": "../data/congress/119/official-current-members.json relative to import.meta.url, used only if packaged asset absent",
+  "migration": "migrations/20261011_congress_official_import.sql",
+  "migrationOrder": "Additive migration before any official apply; never web-boot migration",
+  "sharedSchemaBlob": "23d0cc9fc707c9dc2c0a8487229cc63da3012e60",
+  "sharedSchemaIntroducedAt": "db6072653f81a71f93670f000d0e9303b694b4d0",
+  "privateAcceptance": {
+    "outcome": "Worked",
+    "network": "internal; zero published ports",
+    "image": "electiontracker:congress-import-72980-b61d85",
+    "evidence": "D:\\projects\\et-wt\\sol-congress-source-investigation\\artifacts\\congress-import\\private-72980-b61d85",
+    "imageId": "sha256:90561267d8c97492b08405aa421616bbfee7da6e8c6fb7293e29d2cf445c8748",
+    "compiledAcceptanceSourceTree": "all five named source JSON files absent; only dist/congress-data reviewed assets available",
+    "auditSchemaSync": {
+      "outcome": "Worked",
+      "before": "7|487764b2d93f68f81f28662eb3ecd313",
+      "after": "7|487764b2d93f68f81f28662eb3ecd313"
+    },
+    "cliDirectoryPreflight": {
+      "outcome": "Worked",
+      "output": "{\"outcome\":\"Refused\",\"committed\":false,\"error\":\"ENOENT: no such file or directory, open '/missing-parent/receipt.json'\"}"
+    },
+    "manifestSha256": "b09efc0e8a2b98ffc1e5e4740c8c0ba03a381e745cdf8d53a501e053bfa8ad56"
+  },
+  "compiledResourceChecks": {
+    "outcome": "Worked",
+    "manifestSha256": "b09efc0e8a2b98ffc1e5e4740c8c0ba03a381e745cdf8d53a501e053bfa8ad56",
+    "checks": {
+      "compiledRelativePackagedDefault": true,
+      "wrongPackagedRefusedDespiteValidSource": true,
+      "alternateCwdDefault": true,
+      "explicitAbsoluteManifest": true
+    },
+    "databaseConnections": 0,
+    "governmentFetchCalls": 0
+  },
+  "unit": {
+    "passed": 534,
+    "failed": 0,
+    "skipped": 3
+  },
+  "builds": "application and standalone exit0",
+  "wholeProjectTypes": 903,
+  "original63EvidenceHashesPreserved": true,
+  "independentReview": {
+    "reviewedCore": "db6072653f81a71f93670f000d0e9303b694b4d0",
+    "outcome": "Worked no core mustfix",
+    "units": 20,
+    "independentProbes": 17,
+    "reviewPath": "C:/Users/techai/.codex/tmp/sol-congress-independent-review/REVIEW.md",
+    "loaderDeltaReview": "awaiting independent re-review after this immutable packet"
+  },
+  "productionAvailability": "No production HTTP claim; D owns packaging and receiving integration",
+  "sourceCodeHashes": {
+    "server/congress-official-import.ts": "e01c1ac50a2e1c8ad99a011e59900d7eeb35d2ecc905697d30fb343133930d7c",
+    "server/congress-import-service.ts": "5871bc0ecab607903435ba5ccd9ffd55fc0531896cd7055c26fa43b886afbeb2",
+    "shared/schema.ts": "8c420cb65dd8fe9b2a9910b65e20313a3337e8946a84cc3fb75e4abff5751a4a",
+    "scripts/sync_official_congress.ts": "7907460ca9297c35568e7d66ce2307a831710f3f60191decc2ac04f8586e2288",
+    "scripts/build-congress-import.mjs": "7c63acf556ed1d9deeb2cf12137d4eb94a22ef32b920f2a5e18cb57303c1999d",
+    "scripts/verify_congress_resource_paths.ts": "5eb4743cfb7dac9f7cc7fbf4d5f3f5865b97ca0c15b6cee05bf3bb3ce47314cc"
+  },
+  "files": {
+    "private-72980-b61d85/cli-apply.json": {
+      "sha256": "ef6a6d50b318331ec1abd3aa43a00e4535de23f3a89234489c7dd2259689e6bf",
+      "bytes": 1582
+    },
+    "private-72980-b61d85/cli-default-dry.json": {
+      "sha256": "552930c98e57fa7b0b260c6b9969a2435cd799e1ca381ecde3842474cd380a43",
+      "bytes": 1490
+    },
+    "private-72980-b61d85/compiled-acceptance.txt": {
+      "sha256": "cffe62b55ea646bbf9ddb1b830e1685b0f04b3c8c9745d5736a96b5fc155308a",
+      "bytes": 154
+    },
+    "private-72980-b61d85/compiled-resource-paths.txt": {
+      "sha256": "386af188758a5164b0d46e828f0c6962e701e45bb98b0d470d487ea70b31486a",
+      "bytes": 308
+    },
+    "private-72980-b61d85/harness-receipt.json": {
+      "sha256": "cbeab8b700e480d96900a32fc80c96dbbb6a6127b68a2c67c0e399d85876f508",
+      "bytes": 919
+    },
+    "private-72980-b61d85/image-build.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "private-72980-b61d85/private-receipt.json": {
+      "sha256": "2753dc3ba084b814d7b64f752280c4ee7d11b8961ed23e793c451dd47f5c8080",
+      "bytes": 9326
+    },
+    "private-72980-b61d85/resource-path-receipt.json": {
+      "sha256": "e73e580a2e729892afe9e7c96b18ec898eeaa28f41743570bc520926966f75d0",
+      "bytes": 357
+    },
+    "private-72980-b61d85/reviewed-private-legacy-removal-plan.json": {
+      "sha256": "96cb86ad307ef9704b1332a567b46b558fde8d7f8bd243784e7792f76767c07e",
+      "bytes": 353
+    },
+    "private-72980-b61d85/schema-initial.txt": {
+      "sha256": "8b676d5ff3d24809b556d4d3dc19520859d310ed04fa3b85dc07aa416e652b31",
+      "bytes": 249
+    },
+    "private-72980-b61d85/schema-repeat.txt": {
+      "sha256": "d1dd600e76b0b4c31a6c86b192dadd25eb0ed405b6acf6bcae87a391cf226d65",
+      "bytes": 1077
+    },
+    "private-72980-b61d85/wrong-snapshot.json": {
+      "sha256": "4233545d2b7ed885aa1beb9df2267e636f16e8ad40f4498b4a9767e5c605a631",
+      "bytes": 283160
+    },
+    "private-81744-929742/compiled-resource-paths.txt": {
+      "sha256": "386af188758a5164b0d46e828f0c6962e701e45bb98b0d470d487ea70b31486a",
+      "bytes": 308
+    },
+    "private-81744-929742/harness-receipt.json": {
+      "sha256": "17c00ab78ee19a86abfb9d61dbd4670abf67781253f2cc58179f2e75da1f0482",
+      "bytes": 1177
+    },
+    "private-81744-929742/image-build.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "private-81744-929742/resource-path-receipt.json": {
+      "sha256": "e73e580a2e729892afe9e7c96b18ec898eeaa28f41743570bc520926966f75d0",
+      "bytes": 357
+    },
+    "private-81744-929742/schema-initial.txt": {
+      "sha256": "8b676d5ff3d24809b556d4d3dc19520859d310ed04fa3b85dc07aa416e652b31",
+      "bytes": 249
+    },
+    "resource-all-unit.json": {
+      "sha256": "817a900dce7ef177841ef1cbab6c3fd801a47876d551bcdca80c619b4b4af999",
+      "bytes": 201634
+    },
+    "resource-all-unit.txt": {
+      "sha256": "2a9204d260c5404e6037ca6facf82f202e355986e7ffc908874baea85e76f36b",
+      "bytes": 248
+    },
+    "resource-build.txt": {
+      "sha256": "8b70fd7a9a115cc338792e189ce32bf3e9d629e55aa7ae93cfe9b016ad7898db",
+      "bytes": 4212
+    },
+    "resource-path-private-green.txt": {
+      "sha256": "8ae43682c06a9c655a4c1fe0d98b1829565fdad643dd152072149a42ed84f6e0",
+      "bytes": 847
+    },
+    "resource-path-private-run.txt": {
+      "sha256": "997665178f5dd502a43438b52ddbf789ebf5def92308fff17849e7c71b13149f",
+      "bytes": 1153
+    },
+    "resource-type.txt": {
+      "sha256": "8cccc199ecc81d6ea587251260c9745f620c6929980756d0572fab35367cd4cb",
+      "bytes": 221504
+    },
+    "resource-unit-green.json": {
+      "sha256": "de717fb8a2f61d287f0a3044bbbbdb0a8011b012c1117b1bd5a69dd98b70f961",
+      "bytes": 8767
+    },
+    "resource-unit-green.txt": {
+      "sha256": "0c64f0ee842499efeb01855bb1f4ef6366c8235368ce5cfd5c09464fc00af433",
+      "bytes": 127
+    },
+    "resource-unit.json": {
+      "sha256": "76aaf1c0dea14ce2babb55a03574e52d2d4f2c16972d8459642f49a7cb094259",
+      "bytes": 14557
+    },
+    "resource-unit.txt": {
+      "sha256": "ed067e7ab7f44264cd6dabe776f7766e27fe449cc1bcc7da7315ba9389b0e84d",
+      "bytes": 121
+    }
+  }
+}

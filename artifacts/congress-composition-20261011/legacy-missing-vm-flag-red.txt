@@ -1,0 +1,75 @@
+✖ immutable old writer deletes the existing synthetic profile before an insertion failure (1.5372ms)
+✖ immutable old writer fabricates order-dependent ids from unverified names (0.6474ms)
+✖ immutable sibling deletes before failure and swallows the failure as a normal exit (0.6245ms)
+✖ guarded source emits typed refusal before any application module/file/database access (0.6336ms)
+✖ guarded sibling refuses before environment, file or database access (0.5993ms)
+✔ actual Node bulk_restore_congress.js refuses in an empty working directory even with --apply (74.61ms)
+✔ actual Node restore_congress_members.js refuses in an empty working directory even with --apply (66.6775ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 2
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 324.8769
+
+✖ failing tests:
+
+test at tests\congress-legacy-guard.node.mjs:72:1
+✖ immutable old writer deletes the existing synthetic profile before an insertion failure (1.5372ms)
+  TypeError: vm.SourceTextModule is not a constructor
+      at simulatedEntry (file:///D:/projects/et-wt/sol-congress-reviewed-main/tests/congress-legacy-guard.node.mjs:42:18)
+      at TestContext.<anonymous> (file:///D:/projects/et-wt/sol-congress-reviewed-main/tests/congress-legacy-guard.node.mjs:73:21)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17)
+
+test at tests\congress-legacy-guard.node.mjs:82:1
+✖ immutable old writer fabricates order-dependent ids from unverified names (0.6474ms)
+  TypeError: vm.SourceTextModule is not a constructor
+      at simulatedEntry (file:///D:/projects/et-wt/sol-congress-reviewed-main/tests/congress-legacy-guard.node.mjs:42:18)
+      at TestContext.<anonymous> (file:///D:/projects/et-wt/sol-congress-reviewed-main/tests/congress-legacy-guard.node.mjs:83:25)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3)
+
+test at tests\congress-legacy-guard.node.mjs:92:1
+✖ immutable sibling deletes before failure and swallows the failure as a normal exit (0.6245ms)
+  TypeError: vm.SourceTextModule is not a constructor
+      at simulatedEntry (file:///D:/projects/et-wt/sol-congress-reviewed-main/tests/congress-legacy-guard.node.mjs:42:18)
+      at TestContext.<anonymous> (file:///D:/projects/et-wt/sol-congress-reviewed-main/tests/congress-legacy-guard.node.mjs:93:19)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7)
+
+test at tests\congress-legacy-guard.node.mjs:103:1
+✖ guarded source emits typed refusal before any application module/file/database access (0.6336ms)
+  TypeError: vm.SourceTextModule is not a constructor
+      at simulatedEntry (file:///D:/projects/et-wt/sol-congress-reviewed-main/tests/congress-legacy-guard.node.mjs:42:18)
+      at TestContext.<anonymous> (file:///D:/projects/et-wt/sol-congress-reviewed-main/tests/congress-legacy-guard.node.mjs:104:23)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7)
+
+test at tests\congress-legacy-guard.node.mjs:119:1
+✖ guarded sibling refuses before environment, file or database access (0.5993ms)
+  TypeError: vm.SourceTextModule is not a constructor
+      at simulatedEntry (file:///D:/projects/et-wt/sol-congress-reviewed-main/tests/congress-legacy-guard.node.mjs:42:18)
+      at TestContext.<anonymous> (file:///D:/projects/et-wt/sol-congress-reviewed-main/tests/congress-legacy-guard.node.mjs:120:21)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7)
