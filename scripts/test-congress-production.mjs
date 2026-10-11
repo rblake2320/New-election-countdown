@@ -81,6 +81,57 @@ try {
   report.legacy = await http(true, 422);
   check('actual admin legacy routes return typed refusal', report.legacy.every(r => r.body.code === 'LEGACY_CONGRESS_SOURCE_UNVERIFIED' && !('result' in r.body)));
   check('all refusal paths preserve full catalog and zero audits', before === await catalog() && await sql('SELECT count(*) FROM congress_official_import_runs') === '0');
+  // Independent receiving oracle: actual pinned JSON projected with SQL, without
+  // importing any importer/planner/hash implementation. Synthetic rows are only
+  // labelled legacy/history/preservation controls in this disposable database.
+  await run(`import fs from 'node:fs';import pg from 'pg';
+    const pool=new pg.Pool({connectionString:process.env.DATABASE_URL});
+    try {
+      const members=JSON.parse(fs.readFileSync('/app/dist/congress-data/official-current-members.json','utf8')).members;
+      await pool.query('CREATE TABLE d_expected_congress (member jsonb NOT NULL)');
+      await pool.query('INSERT INTO d_expected_congress SELECT value FROM jsonb_array_elements($1::jsonb)',[JSON.stringify(members)]);
+      await pool.query('ALTER TABLE congress_members ADD COLUMN d_retained_proof jsonb');
+      await pool.query("INSERT INTO congress_members(bioguide_id,name,party,state,chamber,congress,d_retained_proof) VALUES ('IMPORT_D_FIXTURE','Synthetic legacy preservation fixture','UNKNOWN','ZZ','House',119,$1),('HISTORY_D_FIXTURE','Synthetic historical preservation fixture','UNKNOWN','ZZ','Senate',118,$1)",[JSON.stringify({nested:{owner:'D private fixture'},values:[1,null,'preserve']})]);
+      const m=members[0];
+      await pool.query('INSERT INTO congress_members(bioguide_id,name,party,state,district,chamber,congress,created_at,updated_at,d_retained_proof) VALUES($1,$2,$3,$4,$5,$6,119,$7,$8,$9)',[m.bioguideId,'Synthetic stale-name update control',m.partyRaw,m.state,m.district,m.chamber,'2020-01-02T03:04:05Z','2021-02-03T04:05:06Z',JSON.stringify({existingOfficial:'preserve every unrelated field'})]);
+      await pool.query('CREATE TABLE d_congress_before AS SELECT id,to_jsonb(m) AS row FROM congress_members m');
+    } finally { await pool.end(); }`);
+  const guardedDry = await cli([], 'positive-guarded-dry');
+  check('positive fixture dry-run plans 538 inserts and one update', guardedDry.status === 0 && guardedDry.receipt.insertedCount === 538 && guardedDry.receipt.updatedCount === 1);
+  const apply = await cli(['--apply', '--expect-manifest-sha', guardedDry.receipt.manifestSha256, '--expect-preimage-sha', guardedDry.receipt.preimageSha256], 'positive-apply');
+  check('actual production CLI commits guarded positive apply', apply.status === 0 && apply.receipt.committed === true && apply.receipt.changedCount === 539 && apply.receipt.catalogComplete === false && apply.receipt.sourceCoverageComplete === true);
+  const equalitySQL = `WITH expected AS (
+    SELECT member->>'bioguideId' id,member->>'name' name,member->>'partyRaw' party,member->>'state' state,member->>'district' district,member->>'chamber' chamber,(member->>'congress')::int congress FROM d_expected_congress
+  ), actual AS (SELECT * FROM congress_members WHERE bioguide_id IN (SELECT id FROM expected))
+  SELECT json_build_object('expected', (SELECT count(*) FROM expected), 'distinctExpected', (SELECT count(DISTINCT id) FROM expected),
+    'received', (SELECT count(*) FROM actual), 'mismatches', (SELECT count(*) FROM expected e FULL JOIN actual a ON a.bioguide_id=e.id WHERE e.id IS NULL OR a.bioguide_id IS NULL OR ROW(e.name,e.party,e.state,e.district,e.chamber,e.congress) IS DISTINCT FROM ROW(a.name,a.party,a.state,a.district,a.chamber,a.congress)),
+    'total', (SELECT count(*) FROM congress_members))`;
+  report.positiveSQL = JSON.parse(await sql(equalitySQL));
+  check('independent SQL receives exactly 539 real IDs and every approved field', report.positiveSQL.expected === 539 && report.positiveSQL.distinctExpected === 539 && report.positiveSQL.received === 539 && report.positiveSQL.mismatches === 0 && report.positiveSQL.total === 541);
+  const protectedSQL = `SELECT count(*) FROM d_congress_before b LEFT JOIN congress_members m USING(id)
+    WHERE m.id IS NULL OR (CASE WHEN b.row->>'bioguide_id' IN ('IMPORT_D_FIXTURE','HISTORY_D_FIXTURE') THEN b.row IS DISTINCT FROM to_jsonb(m)
+    ELSE (b.row - ARRAY['bioguide_id','name','party','state','district','chamber','congress']) IS DISTINCT FROM (to_jsonb(m) - ARRAY['bioguide_id','name','party','state','district','chamber','congress']) END)`;
+  check('legacy/history full rows and all unrelated existing fields preserved', await sql(protectedSQL) === '0');
+  const xminSQL = "SELECT md5(string_agg(id::text||':'||xmin::text,',' ORDER BY id)) FROM congress_members";
+  const firstXmin = await sql(xminSQL), firstCatalog = await catalog();
+  const repeatDry = await cli([], 'repeat-guarded-dry');
+  check('repeat dry-run plans zero member writes', repeatDry.status === 0 && repeatDry.receipt.changedCount === 0);
+  const repeat = await cli(['--apply', '--expect-manifest-sha', repeatDry.receipt.manifestSha256, '--expect-preimage-sha', repeatDry.receipt.preimageSha256], 'positive-repeat');
+  check('guarded production repeat commits zero member writes with stable xmin/full rows', repeat.status === 0 && repeat.receipt.committed === true && repeat.receipt.changedCount === 0 && firstXmin === await sql(xminSQL) && firstCatalog === await catalog() && await sql(protectedSQL) === '0');
+  report.audit = JSON.parse(await run(`import pg from 'pg';const pool=new pg.Pool({connectionString:process.env.DATABASE_URL});try{
+    const expected=${JSON.stringify([apply.receipt, repeat.receipt])};
+    const {rows}=await pool.query('SELECT id,manifest_sha256,preimage_sha256,postimage_sha256,receipt,jsonb_array_length(preimage) AS before_count,jsonb_array_length(postimage) AS after_count FROM congress_official_import_runs ORDER BY created_at,id');
+    if(rows.length!==2)throw Error('expected two durable audit rows');
+    for(const e of expected){const r=rows.find(x=>x.id===e.runId);if(!r||r.manifest_sha256!==e.manifestSha256||r.preimage_sha256!==e.preimageSha256||r.postimage_sha256!==e.postimageSha256||r.receipt.committed!==true||r.receipt.changedCount!==e.changedCount||r.after_count!==541)throw Error('durable audit differs from committed receipt');}
+    if(!rows.some(r=>r.before_count===3&&r.receipt.changedCount===539)||!rows.some(r=>r.before_count===541&&r.receipt.changedCount===0))throw Error('wrong durable before/after scope');
+    console.log(JSON.stringify({rows:rows.length,runIds:rows.map(r=>r.id),afterCounts:rows.map(r=>r.after_count)}));
+  }finally{await pool.end();}`));
+  check('separate database connection reads exact committed audits and full image scopes', report.audit.rows === 2);
+  const auditDigestSQL = "SELECT md5(string_agg(row_to_json(r)::text,'' ORDER BY id)) FROM congress_official_import_runs r";
+  const auditDigest = await sql(auditDigestSQL);
+  await sql(migration);
+  check('shipped audit migration repeat preserves durable audit rows byte-for-byte', auditDigest === await sql(auditDigestSQL));
+  report.positiveRepeat = { changedCount: repeat.receipt.changedCount, xminDigest: firstXmin, catalog: firstCatalog, auditDigest };
   report.outcome = 'Worked';
 } catch (error) { report.error = error.message; process.exitCode = 1; }
 finally {
