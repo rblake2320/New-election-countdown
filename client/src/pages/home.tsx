@@ -301,7 +301,9 @@ export default function Home() {
             </div>
             <VoterInfoLookup />
             <UserWatchlist />
-            <AIElectionSearch />
+            {/* Operator tooling (AI search + "Find All Missing Elections", which POSTs a
+                data expansion) competed with the voter search: admins only (ET-30). */}
+            {isAdmin && <AIElectionSearch />}
           </aside>
 
           {/* Main Content */}
