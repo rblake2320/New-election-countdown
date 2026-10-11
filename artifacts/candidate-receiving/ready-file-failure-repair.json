@@ -1,0 +1,7 @@
+{
+  "outcome": "Diagnosed and repaired",
+  "failedScenario": "Second run reused an existing readiness filename and fetched an old closed port",
+  "cause": "Ready JSON outlived the disposable compiled child",
+  "repair": "Unique UUID readiness path per child invocation; retain prior payloads separately",
+  "productionDefect": false
+}

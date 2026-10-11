@@ -1,0 +1,25 @@
+▲ [WARNING] Duplicate member "calculateUserEngagementScore" in class body [duplicate-class-member]
+
+    artifacts/candidate-receiving/snapshots/before/server/analytics-service.ts:743:8:
+      743 │   async calculateUserEngagementScore(userId: string, period: 'dai...
+          ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  The original member "calculateUserEngagementScore" is here:
+
+    artifacts/candidate-receiving/snapshots/before/server/analytics-service.ts:425:8:
+      425 │   async calculateUserEngagementScore(userId: string, period: 'dai...
+          ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+▲ [WARNING] Duplicate member "calculateUserEngagementScore" in class body [duplicate-class-member]
+
+    artifacts/candidate-receiving/snapshots/after/server/analytics-service.ts:743:8:
+      743 │   async calculateUserEngagementScore(userId: string, period: 'dai...
+          ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  The original member "calculateUserEngagementScore" is here:
+
+    artifacts/candidate-receiving/snapshots/after/server/analytics-service.ts:425:8:
+      425 │   async calculateUserEngagementScore(userId: string, period: 'dai...
+          ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Compiled immutable before/after routers with real storage/factory/database; provider/background boundaries explicit

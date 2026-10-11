@@ -1,0 +1,66 @@
+{
+  "receipt": {
+    "path": "/api/elections/candidates-batch?ids=37,2,506,37,999999",
+    "httpStatus": 200,
+    "headers": {
+      "cache-control": "public, max-age=300",
+      "connection": "keep-alive",
+      "content-length": "625",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Sun, 11 Oct 2026 13:46:43 GMT",
+      "etag": "W/\"271-BEY9yvEu5DHfAjbx+IVJpHM9auM\"",
+      "keep-alive": "timeout=5",
+      "ratelimit-limit": "300",
+      "ratelimit-policy": "300;w=60",
+      "ratelimit-remaining": "297",
+      "ratelimit-reset": "60",
+      "x-powered-by": "Express"
+    },
+    "capturedAt": "2026-10-11T13:46:43.362Z",
+    "providerBoundary": "empty stub; no external enrichment requests",
+    "storage": "actual frozen router/factory/DatabaseStorage/Drizzle/private PostgreSQL"
+  },
+  "body": {
+    "candidates": {
+      "2": [
+        {
+          "id": 1,
+          "name": "Dan Sullivan",
+          "party": "R",
+          "incumbent": true,
+          "isIncumbent": true,
+          "profile_image_url": null,
+          "profileImageUrl": null,
+          "website": null,
+          "is_verified": false,
+          "isVerified": false,
+          "pollingSupport": null,
+          "dataSource": null,
+          "sourceStatus": null,
+          "ballotStatus": "not_certified"
+        },
+        {
+          "id": 2,
+          "name": "Mary Peltola",
+          "party": "D",
+          "incumbent": false,
+          "isIncumbent": false,
+          "profile_image_url": null,
+          "profileImageUrl": null,
+          "website": null,
+          "is_verified": false,
+          "isVerified": false,
+          "pollingSupport": null,
+          "dataSource": null,
+          "sourceStatus": null,
+          "ballotStatus": "not_certified"
+        }
+      ],
+      "37": [],
+      "506": [],
+      "999999": []
+    },
+    "requested": 4,
+    "elections": 4
+  }
+}

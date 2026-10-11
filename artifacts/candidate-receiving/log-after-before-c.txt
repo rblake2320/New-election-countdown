@@ -1,0 +1,25 @@
+MemStorage initialized empty (failover cache; database is source of truth)
+ℹ️ No replica configurations found - running with primary database only
+🔍 Forcing database health check...
+✅ Database connection established
+✅ Primary database connection restored { latency: '13ms', attempts: 0, consecutiveFailures: 0 }
+🔄 Orchestrating failover: memory → database { trigger: 'automatic', reason: 'Primary database restored' }
+✅ Failover completed: memory → database (0ms) {
+  trigger: 'automatic',
+  reason: 'Primary database restored',
+  readOnlyMode: false
+}
+Neon snapshot service disabled (NEON_API_KEY/NEON_PROJECT_ID not set — using pg-based backups instead)
+✅ Restore Validation Service initialized {
+  timeoutSeconds: 3600,
+  rtoTarget: '300s',
+  validationQueries: 3,
+  benchmarkQueries: 3
+}
+✅ Schema Drift Detection Service initialized
+✅ Disaster Recovery Coordinator initialized {
+  scheduledBackups: true,
+  automaticValidation: true,
+  schemaDriftMonitoring: true
+}
+ℹ️ Could not notify disaster recovery coordinator: disasterRecoveryCoordinator2.recordFailoverEvent is not a function

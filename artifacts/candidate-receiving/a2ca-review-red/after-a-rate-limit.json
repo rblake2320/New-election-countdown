@@ -1,0 +1,32 @@
+{
+  "outcome": "Worked",
+  "requests": 320,
+  "http200": 300,
+  "http429": 20,
+  "lastResponse": {
+    "status": 429,
+    "headers": {
+      "x-powered-by": "Express",
+      "ratelimit-policy": "300;w=60",
+      "ratelimit-limit": "300",
+      "ratelimit-remaining": "0",
+      "ratelimit-reset": "60",
+      "retry-after": "60",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "173",
+      "etag": "W/\"ad-zAuUnhoaBtSVpIo/j7QVmDbXLPA\"",
+      "date": "Sun, 11 Oct 2026 13:46:43 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+    },
+    "body": {
+      "error": "rate_limited",
+      "scope": "api",
+      "message": "Too many requests from this client; retry shortly. The resource itself was not checked.",
+      "retryAfterSeconds": 60,
+      "limit": 300
+    }
+  },
+  "client": "dedicated loopback127.0.0.2",
+  "actualFrozenMiddleware": "2ca8d74"
+}

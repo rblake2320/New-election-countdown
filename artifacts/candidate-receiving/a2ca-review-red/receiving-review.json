@@ -1,0 +1,92 @@
+{
+  "outcome": "Worked exact membership; identified inherited DTO and input defects",
+  "beforeHead": "426c709",
+  "afterHead": "2ca8d74",
+  "cHead": "6ddda4b",
+  "manifestSha256": "7890860f047cb79e64144c57f56ea721669348c2f5905fd25159ba738c81982e",
+  "providerBoundary": "Explicit empty provider mocks; background schedulers disabled; actual factory, DB health query, storage SQL and HTTP router",
+  "externalProviderCalls": 0,
+  "sharedBefore": {
+    "count": 136,
+    "digest": "d0b1eb10863dc80024fff0128d0ffe88"
+  },
+  "sharedAfter": {
+    "count": 136,
+    "digest": "d0b1eb10863dc80024fff0128d0ffe88"
+  },
+  "copiedElections": 537,
+  "copiedCandidates": 136,
+  "fecActions": 2495,
+  "officialRows": 1361,
+  "observations": [
+    {
+      "phase": "before-main",
+      "databaseGovCandidates": 0,
+      "returnedForeignSenCandidates": 2,
+      "sourceElectionIds": [
+        2,
+        2
+      ]
+    },
+    {
+      "phase": "after-a-before-c",
+      "ordinaryGov": 0,
+      "ordinarySen": 2,
+      "generalGov": 0,
+      "generalSen": 0,
+      "batchQueries": 1,
+      "fractionalIdCheck": {
+        "outcome": "Failed",
+        "expected": 400,
+        "actual": 500
+      },
+      "fractionalStatus": 500,
+      "knownFecRows": 0,
+      "ordinaryFecIdentifiers": 0,
+      "ordinarySourceMarkers": 0,
+      "batchBioFields": 0,
+      "externalProviderCalls": 0,
+      "providerEmptyBoundaryInvocations": 2
+    },
+    {
+      "phase": "after-a-fec-only",
+      "ordinaryGov": 0,
+      "ordinarySen": 3,
+      "generalGov": 0,
+      "generalSen": 0,
+      "batchQueries": 1,
+      "fractionalIdCheck": {
+        "outcome": "Failed",
+        "expected": 400,
+        "actual": 500
+      },
+      "fractionalStatus": 500,
+      "knownFecRows": 3,
+      "ordinaryFecIdentifiers": 0,
+      "ordinarySourceMarkers": 0,
+      "batchBioFields": 0,
+      "externalProviderCalls": 0,
+      "providerEmptyBoundaryInvocations": 3
+    },
+    {
+      "phase": "after-c",
+      "ordinaryGov": 5,
+      "ordinarySen": 8,
+      "generalGov": 5,
+      "generalSen": 6,
+      "batchQueries": 1,
+      "fractionalIdCheck": {
+        "outcome": "Failed",
+        "expected": 400,
+        "actual": 500
+      },
+      "fractionalStatus": 500,
+      "knownFecRows": 3,
+      "ordinaryFecIdentifiers": 0,
+      "ordinarySourceMarkers": 0,
+      "batchBioFields": 0,
+      "externalProviderCalls": 0,
+      "providerEmptyBoundaryInvocations": 13
+    }
+  ]
+}
