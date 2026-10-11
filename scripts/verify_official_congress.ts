@@ -86,6 +86,18 @@ try{
   assert.equal((await pool.query('SELECT name FROM congress_members WHERE bioguide_id=$1',[first.bioguideId])).rows[0].name,first.name);
   unlinkSync(exportFile);rmdirSync(directory);
   checks.push({scenario:'real-nonroot-postcommit-receipt-EACCES-reports-Applied-and-durable-audit-ID',outcome:'Worked',exportOutcome,stdout:output});
+  const originalNames=JSON.parse(readFileSync('artifacts/congress-name/old-b09-members.json','utf8'));
+  const oldKing=originalNames.members.find((m:any)=>m.bioguideId==='K000383');assert.equal(oldKing.name,'Angus S., Jr. King');
+  await pool.query('UPDATE congress_members SET name=$1 WHERE bioguide_id=$2',[oldKing.name,oldKing.bioguideId]);
+  const oldPositive=await state();
+  for(const member of originalNames.members){const actual=oldPositive.rows.find(r=>r.bioguide_id===member.bioguideId);assert.equal(actual.name,member.name);assert.equal(actual.party,member.partyRaw);assert.equal(actual.state,member.state);assert.equal(actual.district,member.district);assert.equal(actual.chamber,member.chamber);}
+  await assert.rejects(syncOfficialCongress(pool,{manifestPath:resolve('artifacts/congress-name/old-b09-members.json')}),/snapshot SHA/);await same(oldPositive);
+  const nameDry=await syncOfficialCongress(pool);assert.equal(nameDry.changedCount,1);assert.equal(nameDry.insertedCount,0);assert.equal(nameDry.removedCount,0);assert.equal(nameDry.updatedCount,1);
+  const nameApplied=await syncOfficialCongress(pool,opts(nameDry.preimageSha256));assert.equal(nameApplied.changedCount,1);assert.equal(nameApplied.catalogComplete,true);
+  const corrected=await state();
+  for(const row of oldPositive.rows){const actual=corrected.rows.find(r=>r.id===row.id);if(row.bioguide_id==='K000383'){assert.equal(actual.name,'Angus S. King, Jr.');assert.deepEqual({...actual,name:row.name},row);}else{assert.deepEqual(actual,row);assert.deepEqual(corrected.xmin.find(x=>x[0]===row.id),oldPositive.xmin.find(x=>x[0]===row.id));}}
+  const nameRepeatDry=await syncOfficialCongress(pool);assert.equal((await syncOfficialCongress(pool,opts(nameRepeatDry.preimageSha256))).changedCount,0);await same(corrected);
+  checks.push({scenario:'old-positive-539-source-updates-only-K000383-name-all-other-fullrows-xmin-preserved-repeat0',outcome:'Worked',oldName:oldKing.name,newName:'Angus S. King, Jr.',receipt:nameApplied});
   const audits=await pool.query('SELECT id,manifest_sha256,receipt,preimage,postimage FROM congress_official_import_runs ORDER BY id');assert.ok(audits.rows.every(r=>r.manifest_sha256===manifestSha256&&r.receipt.committed===true));
   const receipt={outcome:'Worked',manifestSha256,sourceScope:'all_current_members_including_nonvoting',checks,auditRows:audits.rows.length,auditRowsSha256:congressHash(audits.rows),memberRows:cleaned.rows.length,contactsRetained:false,governmentFetchCalls:0,sharedWrites:0,fixtureScope:'Actual pinned government member projection; labelled synthetic legacy/history/fault records exist only in dedicated disposable PG.'};
   writeFileSync(resolve(evidence,'private-receipt.json'),JSON.stringify(receipt,null,2)+'\n');console.log(JSON.stringify({outcome:'Worked',checks:checks.length,auditRows:audits.rows.length}));

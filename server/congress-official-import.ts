@@ -4,7 +4,7 @@ import { fileURLToPath, URL as NodeURL } from 'node:url';
 import type { Pool, PoolClient } from 'pg';
 import { z } from 'zod';
 
-export const OFFICIAL_CONGRESS_MANIFEST_SHA = 'b09efc0e8a2b98ffc1e5e4740c8c0ba03a381e745cdf8d53a501e053bfa8ad56';
+export const OFFICIAL_CONGRESS_MANIFEST_SHA = 'fecec614bf47f875ab7aa8c78f15ea7d8e0e4a6f736b452d9ba317cc6c866191';
 export const CONGRESS_WRITER_LOCK = 2026110319;
 const BIOGUIDE = /^[A-Z][0-9]{6}$/;
 const DIGEST = /^[a-f0-9]{64}$/;
