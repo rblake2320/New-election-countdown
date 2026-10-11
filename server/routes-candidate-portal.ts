@@ -1,7 +1,9 @@
 import { Express, Request, Response } from 'express';
 import { z } from 'zod';
 import jwt from 'jsonwebtoken';
-import { storage } from './storage';
+import { storage, type IStorage } from './storage';
+// The exported storage is a forwarding proxy typed as the factory; the account methods live on IStorage.
+const accounts = storage as unknown as IStorage;
 
 // Candidate Authentication Schemas
 const candidateLoginSchema = z.object({
@@ -72,57 +74,111 @@ const candidateProfileSchema = z.object({
 });
 
 // JWT Secret
-const JWT_SECRET = process.env.JWT_SECRET || 'your-jwt-secret-here';
+import { getRequiredSecret } from './config/secrets';
+import { createHash } from 'crypto';
+import { isAuthenticated } from './auth';
+import { requireAdmin } from './middleware/require-admin';
+import type { CandidateAccount } from '@shared/schema';
+const JWT_SECRET = getRequiredSecret('JWT_SECRET');
 
-// Middleware to authenticate candidate requests
-export const authenticateCandidate = async (req: Request & { candidate?: any }, res: Response, next: Function) => {
+// ---------------------------------------------------------------------------
+// OR-01 policy (security-orange.md): a portal request is authorized only when the
+// token is bound to an account that is currently active, still attached to the
+// same candidate, and whose credential has not changed since the token was issued.
+// Registration never activates an account; an admin approves it.
+// ---------------------------------------------------------------------------
+export const CANDIDATE_TOKEN_AUDIENCE = 'electiontracker:candidate-portal';
+export const CANDIDATE_TOKEN_ISSUER = 'electiontracker';
+export const WRITE_ROLES = new Set(['candidate', 'campaign_manager']);
+export type CandidateAccessLevel = 'pending' | 'full' | 'limited' | 'view_only';
+
+/** Changes whenever the password hash changes, so a password reset revokes every outstanding token. */
+export function candidateTokenVersion(account: Pick<CandidateAccount, 'passwordHash'>): string {
+  return createHash('sha256').update(String(account.passwordHash ?? '')).digest('hex').slice(0, 16);
+}
+
+export function buildCandidateClaims(account: CandidateAccount) {
+  return { sub: String(account.id), candidateId: account.candidateId, role: account.role, tv: candidateTokenVersion(account) };
+}
+
+export function signCandidateToken(account: CandidateAccount): string {
+  return jwt.sign(buildCandidateClaims(account), JWT_SECRET, { expiresIn: '7d', audience: CANDIDATE_TOKEN_AUDIENCE, issuer: CANDIDATE_TOKEN_ISSUER });
+}
+
+export type SessionVerdict = { ok: true } | { ok: false; reason: 'no_account' | 'inactive' | 'pending' | 'candidate_mismatch' | 'credential_changed' };
+
+/** Pure decision used by the middleware; unit-tested with synthetic pending/approved/deactivated accounts. */
+export function evaluateCandidateSession(decoded: { sub?: string; candidateId?: number; tv?: string }, account: CandidateAccount | null): SessionVerdict {
+  if (!account) return { ok: false, reason: 'no_account' };
+  if ((account.accessLevel ?? 'pending') === 'pending') return { ok: false, reason: 'pending' };
+  if (account.isActive !== true) return { ok: false, reason: 'inactive' };
+  if (Number(decoded.candidateId) !== Number(account.candidateId)) return { ok: false, reason: 'candidate_mismatch' };
+  if (decoded.tv !== candidateTokenVersion(account)) return { ok: false, reason: 'credential_changed' };
+  return { ok: true };
+}
+
+/** Write authority: role must be a writing role and the account must not be view-only. */
+export function canWriteCandidateData(account: Pick<CandidateAccount, 'role' | 'accessLevel' | 'isActive'>): boolean {
+  return account.isActive === true && WRITE_ROLES.has(String(account.role)) && !['view_only', 'pending'].includes(String(account.accessLevel ?? 'pending'));
+}
+
+export function publicAccount(a: CandidateAccount) {
+  const { passwordHash: _omit, ...rest } = a as any;
+  return rest;
+}
+
+type PortalRequest = Request & { candidate?: any; candidateAccount?: CandidateAccount };
+
+// Middleware to authenticate candidate requests (per-request account binding)
+export const authenticateCandidate = async (req: PortalRequest, res: Response, next: Function) => {
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
-    
-    if (!token) {
-      return res.status(401).json({ error: 'No token provided' });
-    }
+    if (!token) return res.status(401).json({ error: 'No token provided' });
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
-    const candidate = await storage.getCandidateWithRAG(decoded.candidateId);
-    
-    if (!candidate) {
-      return res.status(401).json({ error: 'Invalid token' });
-    }
+    const decoded = jwt.verify(token, JWT_SECRET, { audience: CANDIDATE_TOKEN_AUDIENCE, issuer: CANDIDATE_TOKEN_ISSUER }) as any;
+    const account = await accounts.getCandidateAccountById(Number(decoded.sub));
+    const verdict = evaluateCandidateSession(decoded, account);
+    if (verdict.ok !== true) return res.status(401).json({ error: 'Invalid token', reason: (verdict as { reason?: string }).reason });
+
+    const candidate = await storage.getCandidateWithRAG(account!.candidateId);
+    if (!candidate) return res.status(401).json({ error: 'Invalid token', reason: 'candidate_missing' });
 
     req.candidate = candidate;
+    req.candidateAccount = account!;
     next();
   } catch (error) {
     return res.status(401).json({ error: 'Invalid token' });
   }
 };
 
+// Write routes additionally require a writing role on a non-view-only account.
+export const requireCandidateWrite = (req: PortalRequest, res: Response, next: Function) => {
+  if (!req.candidateAccount || !canWriteCandidateData(req.candidateAccount)) {
+    return res.status(403).json({ error: 'This account may not modify candidate data' });
+  }
+  next();
+};
+
 export function registerCandidatePortalRoutes(app: Express) {
-  
+
   // === CANDIDATE AUTHENTICATION ===
-  
+
   // Candidate Login
   app.post('/api/candidate/login', async (req: Request, res: Response) => {
     try {
       const { email, password } = candidateLoginSchema.parse(req.body);
-      
+
       const account = await storage.authenticateCandidate(email, password);
-      
+
       if (!account) {
         return res.status(401).json({ error: 'Invalid email or password' });
       }
 
-      // Generate JWT token
-      const token = jwt.sign(
-        { 
-          candidateId: account.candidateId, 
-          accountId: account.id,
-          role: account.role,
-          subscriptionTier: account.subscriptionTier
-        },
-        JWT_SECRET,
-        { expiresIn: '7d' }
-      );
+      // OR-01: a login only succeeds for an approved, active account.
+      if ((account.accessLevel ?? 'pending') === 'pending' || account.isActive !== true) {
+        return res.status(403).json({ error: 'Account pending approval', status: 'pending_approval' });
+      }
+      const token = signCandidateToken(account);
 
       res.json({
         success: true,
@@ -131,6 +187,7 @@ export function registerCandidatePortalRoutes(app: Express) {
           id: account.candidateId,
           email: account.email,
           role: account.role,
+          accessLevel: account.accessLevel,
           subscriptionTier: account.subscriptionTier,
           campaignName: account.campaignName,
           campaignTitle: account.campaignTitle,
@@ -146,14 +203,15 @@ export function registerCandidatePortalRoutes(app: Express) {
   app.post('/api/candidate/signup', async (req: Request, res: Response) => {
     try {
       const data = candidateSignupSchema.parse(req.body);
-      
+
       // Check if candidate exists and account doesn't already exist
       const [existingCandidate] = await storage.getCandidatesByIds([data.candidateId]);
       if (!existingCandidate) {
         return res.status(400).json({ error: 'Candidate not found in our database' });
       }
 
-      // Create candidate account
+      // OR-01: registration creates a PENDING account. Nobody can act for a candidate
+      // until an administrator approves the claim; no token is issued here.
       const account = await storage.createCandidateAccount({
         candidateId: data.candidateId,
         email: data.email,
@@ -163,7 +221,8 @@ export function registerCandidatePortalRoutes(app: Express) {
         campaignTitle: data.campaignTitle,
         subscriptionTier: 'basic',
         emailVerified: false,
-        isActive: true,
+        isActive: false,
+        accessLevel: 'pending',
       });
 
       // Record data source for accountability
@@ -175,28 +234,11 @@ export function registerCandidatePortalRoutes(app: Express) {
         confidenceScore: 100,
       });
 
-      // Generate JWT token
-      const token = jwt.sign(
-        { 
-          candidateId: account.candidateId, 
-          accountId: account.id,
-          role: account.role,
-          subscriptionTier: account.subscriptionTier
-        },
-        JWT_SECRET,
-        { expiresIn: '7d' }
-      );
-
-      res.json({
+      res.status(202).json({
         success: true,
-        token,
-        candidate: {
-          id: account.candidateId,
-          email: account.email,
-          role: account.role,
-          subscriptionTier: account.subscriptionTier,
-          campaignName: account.campaignName,
-        }
+        status: 'pending_approval',
+        message: 'Registration received. An administrator must approve this campaign claim before the portal can be used.',
+        candidate: { id: account.candidateId, email: account.email, role: account.role },
       });
     } catch (error) {
       console.error('Candidate signup error:', error);
@@ -205,7 +247,7 @@ export function registerCandidatePortalRoutes(app: Express) {
   });
 
   // === CANDIDATE PROFILE MANAGEMENT ===
-  
+
   // Get Candidate Profile with RAG
   app.get('/api/candidate/profile', authenticateCandidate, async (req: Request & { candidate?: any }, res: Response) => {
     try {
@@ -221,16 +263,16 @@ export function registerCandidatePortalRoutes(app: Express) {
   });
 
   // Update Candidate Profile
-  app.put('/api/candidate/profile', authenticateCandidate, async (req: Request & { candidate?: any }, res: Response) => {
+  app.put('/api/candidate/profile', authenticateCandidate, requireCandidateWrite, async (req: Request & { candidate?: any }, res: Response) => {
     try {
       const profileData = candidateProfileSchema.parse(req.body);
-      
+
       // Record which fields were updated by the candidate
       const updatedFields = Object.keys(profileData);
-      
+
       // Update the profile
       const updatedProfile = await storage.updateCandidateProfile(req.candidate.id, profileData);
-      
+
       // Record data sources for each updated field
       for (const fieldName of updatedFields) {
         await storage.recordDataSource({
@@ -385,7 +427,7 @@ export function registerCandidatePortalRoutes(app: Express) {
   app.get('/api/candidate/analytics', authenticateCandidate, async (req: Request & { candidate?: any }, res: Response) => {
     try {
       const candidateData = await storage.getCandidateWithRAG(req.candidate.id);
-      
+
       // Calculate profile completion stats
       const profileStats = {
         dataCompleteness: candidateData.dataCompleteness || 0,
@@ -425,19 +467,19 @@ export function registerCandidatePortalRoutes(app: Express) {
   app.get('/api/candidate-portal/dashboard', authenticateCandidate, async (req: Request & { candidate?: any }, res: Response) => {
     try {
       const candidateId = req.candidate.id;
-      
+
       // Get basic candidate data
       const candidate = await storage.getCandidateWithRAG(candidateId);
-      
+
       // Get profile completion status
       const profile = await storage.getCandidateProfile(candidateId);
-      
+
       // Get positions count
       const positions = await storage.getCandidatePositions(candidateId);
-      
+
       // Get Q&A entries count
       const qaEntries = await storage.getCandidateQAEntries(candidateId);
-      
+
       // Calculate completion percentage
       const completionFactors = [
         profile?.fullName ? 20 : 0,
@@ -447,9 +489,9 @@ export function registerCandidatePortalRoutes(app: Express) {
         positions.length >= 3 ? 25 : (positions.length * 8),
         qaEntries.length >= 5 ? 15 : (qaEntries.length * 3)
       ];
-      
+
       const completionPercentage = Math.min(100, completionFactors.reduce((sum, val) => sum + val, 0));
-      
+
       const dashboard = {
         candidate: {
           id: candidateId,
@@ -475,7 +517,7 @@ export function registerCandidatePortalRoutes(app: Express) {
         subscriptionTier: 'basic',
         nextSteps: []
       };
-      
+
       // Add next steps based on completion
       if (completionPercentage < 40) {
         (dashboard.nextSteps as string[]).push('Complete your basic profile information');
@@ -486,7 +528,7 @@ export function registerCandidatePortalRoutes(app: Express) {
       if (qaEntries.length < 5) {
         (dashboard.nextSteps as string[]).push('Answer frequently asked questions');
       }
-      
+
       res.json(dashboard);
     } catch (error) {
       console.error('Dashboard error:', error);
@@ -499,7 +541,7 @@ export function registerCandidatePortalRoutes(app: Express) {
     try {
       const candidateId = req.candidate.id;
       const profile = await storage.getCandidateProfile(candidateId);
-      
+
       if (!profile) {
         // Create empty profile if none exists
         const newProfile = await storage.createCandidateProfile({
@@ -510,7 +552,7 @@ export function registerCandidatePortalRoutes(app: Express) {
         });
         return res.json(newProfile);
       }
-      
+
       res.json(profile);
     } catch (error) {
       console.error('Profile fetch error:', error);
@@ -519,14 +561,14 @@ export function registerCandidatePortalRoutes(app: Express) {
   });
 
   // Update Candidate Portal Profile
-  app.put('/api/candidate-portal/profile', authenticateCandidate, async (req: Request & { candidate?: any }, res: Response) => {
+  app.put('/api/candidate-portal/profile', authenticateCandidate, requireCandidateWrite, async (req: Request & { candidate?: any }, res: Response) => {
     try {
       const candidateId = req.candidate.id;
       const updates = req.body;
-      
+
       // Update the profile
       const updated = await storage.updateCandidateProfile(candidateId, updates);
-      
+
       // Record data sources for accountability
       const updatedFields = Object.keys(updates);
       for (const fieldName of updatedFields) {
@@ -538,7 +580,7 @@ export function registerCandidatePortalRoutes(app: Express) {
           confidenceScore: 100,
         });
       }
-      
+
       res.json(updated);
     } catch (error) {
       console.error('Profile update error:', error);
@@ -551,7 +593,7 @@ export function registerCandidatePortalRoutes(app: Express) {
     try {
       const candidateId = req.candidate.id;
       const category = req.query.category as string;
-      
+
       const positions = await storage.getCandidatePositions(candidateId, category);
       res.json(positions);
     } catch (error) {
@@ -561,7 +603,7 @@ export function registerCandidatePortalRoutes(app: Express) {
   });
 
   // Create Candidate Position
-  app.post('/api/candidate-portal/positions', authenticateCandidate, async (req: Request & { candidate?: any }, res: Response) => {
+  app.post('/api/candidate-portal/positions', authenticateCandidate, requireCandidateWrite, async (req: Request & { candidate?: any }, res: Response) => {
     try {
       const candidateId = req.candidate.id;
       const positionData = {
@@ -569,9 +611,9 @@ export function registerCandidatePortalRoutes(app: Express) {
         candidateId,
         isVerified: true // Candidate-supplied positions are considered verified
       };
-      
+
       const position = await storage.createCandidatePosition(positionData);
-      
+
       // Record data source
       await storage.recordDataSource({
         candidateId,
@@ -580,7 +622,7 @@ export function registerCandidatePortalRoutes(app: Express) {
         sourceDescription: 'Candidate Campaign Portal Position Statement',
         confidenceScore: 100,
       });
-      
+
       res.json(position);
     } catch (error) {
       console.error('Position creation error:', error);
@@ -589,20 +631,20 @@ export function registerCandidatePortalRoutes(app: Express) {
   });
 
   // Update Candidate Position
-  app.put('/api/candidate-portal/positions/:id', authenticateCandidate, async (req: Request & { candidate?: any }, res: Response) => {
+  app.put('/api/candidate-portal/positions/:id', authenticateCandidate, requireCandidateWrite, async (req: Request & { candidate?: any }, res: Response) => {
     try {
       const positionId = parseInt(req.params.id);
       const candidateId = req.candidate.id;
       const updates = req.body;
-      
+
       // Verify the position belongs to this candidate
       const existing = await storage.getCandidatePositionById(positionId);
       if (!existing || existing.candidateId !== candidateId) {
         return res.status(404).json({ error: 'Position not found' });
       }
-      
+
       const updated = await storage.updateCandidatePosition(positionId, updates);
-      
+
       // Record data source update
       await storage.recordDataSource({
         candidateId,
@@ -611,7 +653,7 @@ export function registerCandidatePortalRoutes(app: Express) {
         sourceDescription: 'Candidate Campaign Portal Position Update',
         confidenceScore: 100,
       });
-      
+
       res.json(updated);
     } catch (error) {
       console.error('Position update error:', error);
@@ -620,17 +662,17 @@ export function registerCandidatePortalRoutes(app: Express) {
   });
 
   // Delete Candidate Position
-  app.delete('/api/candidate-portal/positions/:id', authenticateCandidate, async (req: Request & { candidate?: any }, res: Response) => {
+  app.delete('/api/candidate-portal/positions/:id', authenticateCandidate, requireCandidateWrite, async (req: Request & { candidate?: any }, res: Response) => {
     try {
       const positionId = parseInt(req.params.id);
       const candidateId = req.candidate.id;
-      
+
       // Verify the position belongs to this candidate
       const existing = await storage.getCandidatePositionById(positionId);
       if (!existing || existing.candidateId !== candidateId) {
         return res.status(404).json({ error: 'Position not found' });
       }
-      
+
       await storage.deleteCandidatePosition(positionId);
       res.json({ success: true });
     } catch (error) {
@@ -644,12 +686,56 @@ export function registerCandidatePortalRoutes(app: Express) {
     try {
       const candidateId = req.candidate.id;
       const category = req.query.category as string;
-      
+
       const qaEntries = await storage.getCandidateQAEntries(candidateId, category);
       res.json(qaEntries);
     } catch (error) {
       console.error('Q&A fetch error:', error);
       res.status(500).json({ error: 'Failed to fetch Q&A entries' });
+    }
+  });
+
+  // === ADMIN: CANDIDATE CLAIM APPROVAL (OR-01) ===
+  const adminOnly = [isAuthenticated, requireAdmin] as const;
+
+  app.get('/api/admin/candidate-accounts', ...adminOnly, async (req: Request, res: Response) => {
+    try {
+      const status = String(req.query.status ?? 'pending');
+      const rows = await accounts.listCandidateAccounts(status === 'all' ? {} : { isActive: status === 'active' });
+      res.json({ accounts: rows.map(publicAccount) });
+    } catch (error) {
+      console.error('Candidate account list error:', error);
+      res.status(500).json({ error: 'Failed to list candidate accounts' });
+    }
+  });
+
+  app.post('/api/admin/candidate-accounts/:id/approve', ...adminOnly, async (req: Request, res: Response) => {
+    try {
+      const id = Number(req.params.id);
+      const parsed = z.object({ accessLevel: z.enum(['full', 'limited', 'view_only']).default('full') }).safeParse(req.body ?? {});
+      if (!Number.isInteger(id) || !parsed.success) return res.status(400).json({ error: 'bad_request' });
+      const updated = await accounts.setCandidateAccountActive(id, true, parsed.data.accessLevel);
+      if (!updated) return res.status(404).json({ error: 'not_found' });
+      console.log(`Candidate account ${id} approved by admin ${(req as any).userId} (accessLevel=${parsed.data.accessLevel})`);
+      res.json({ account: publicAccount(updated) });
+    } catch (error) {
+      console.error('Candidate account approve error:', error);
+      res.status(500).json({ error: 'Failed to approve candidate account' });
+    }
+  });
+
+  app.post('/api/admin/candidate-accounts/:id/deactivate', ...adminOnly, async (req: Request, res: Response) => {
+    try {
+      const id = Number(req.params.id);
+      if (!Number.isInteger(id)) return res.status(400).json({ error: 'bad_request' });
+      // Deactivation takes effect on the next request: authenticateCandidate re-reads isActive.
+      const updated = await accounts.setCandidateAccountActive(id, false);
+      if (!updated) return res.status(404).json({ error: 'not_found' });
+      console.log(`Candidate account ${id} deactivated by admin ${(req as any).userId}`);
+      res.json({ account: publicAccount(updated) });
+    } catch (error) {
+      console.error('Candidate account deactivate error:', error);
+      res.status(500).json({ error: 'Failed to deactivate candidate account' });
     }
   });
 }

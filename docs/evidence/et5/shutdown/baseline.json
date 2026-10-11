@@ -1,0 +1,36 @@
+{
+  "image": "electiontracker:security-backup",
+  "builder": "electiontracker:shutdown-builder",
+  "network": "internal, no published ports",
+  "passed": false,
+  "http": [
+    {
+      "path": "/",
+      "status": 200,
+      "bytes": 1832
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "bytes": 239
+    },
+    {
+      "path": "/api/elections",
+      "status": 200,
+      "bytes": 231032
+    }
+  ],
+  "elections": {
+    "total": 537,
+    "distinct": 537
+  },
+  "boundary": "production-only paths verified",
+  "imageId": "sha256:a8220352b9e589afebe6c606a87aa67114e9175b42935b27de2c324235c099fe",
+  "shutdown": {
+    "elapsedMs": 13325,
+    "exitCode": 137,
+    "running": false,
+    "completed": false
+  },
+  "error": "Compiled shutdown failed to drain before container kill deadline"
+}

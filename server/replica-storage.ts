@@ -50,7 +50,7 @@ export class ReplicaStorage implements IStorage {
   constructor(connectionString: string, replicaId?: string) {
     this.connectionString = connectionString;
     this.replicaId = replicaId || this.extractReplicaIdFromConnectionString(connectionString);
-    
+
     // Configure connection pool for replica (read-only optimized)
     const poolConfig = {
       connectionString: this.connectionString,
@@ -108,11 +108,11 @@ export class ReplicaStorage implements IStorage {
   // Health check method for replica
   async performHealthCheck(): Promise<{ healthy: boolean; latency: number; metrics: ReplicaHealthMetrics }> {
     const startTime = Date.now();
-    
+
     try {
       const result = await Promise.race([
         this.db.execute('SELECT 1 as health_check, NOW() as server_time, pg_last_xact_replay_timestamp() as last_replay'),
-        new Promise((_, reject) => 
+        new Promise((_, reject) =>
           setTimeout(() => reject(new Error('Replica health check timeout')), 5000)
         )
       ]);
@@ -140,7 +140,7 @@ export class ReplicaStorage implements IStorage {
     } catch (error) {
       const latency = Date.now() - startTime;
       const errorMessage = error instanceof Error ? error.message : String(error);
-      
+
       this.recordError(errorMessage);
       console.log(`❌ Replica ${this.replicaId} health check failed:`, errorMessage);
 
@@ -155,24 +155,24 @@ export class ReplicaStorage implements IStorage {
   // Enhanced query execution with error handling and metrics
   private async executeQuery<T>(queryFn: () => Promise<T>, operationName: string): Promise<T> {
     const startTime = Date.now();
-    
+
     try {
       const result = await queryFn();
       const queryTime = Date.now() - startTime;
       this.recordSuccess(queryTime);
-      
+
       return result;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       this.recordError(errorMessage);
-      
+
       console.error(`Replica ${this.replicaId} query error in ${operationName}:`, errorMessage);
       throw new Error(`Replica query failed: ${errorMessage}`);
     }
   }
 
   // IStorage interface implementation - all read-only operations
-  
+
   isDbHealthy(): boolean {
     return this.isHealthy && this.consecutiveErrors < 3;
   }
@@ -192,6 +192,17 @@ export class ReplicaStorage implements IStorage {
     }, 'getElection');
   }
 
+  async getCandidatesByElections(electionIds: number[]): Promise<Candidate[]> {
+    if (electionIds.length === 0) return [];
+    return this.executeQuery(async () => {
+      return this.db.select()
+        .from(schema.candidates)
+        .where(inArray(schema.candidates.electionId, electionIds))
+        .orderBy(schema.candidates.name)
+        .execute();
+    }, 'getCandidatesByElections');
+  }
+
   async getCandidatesByElection(electionId: number): Promise<Candidate[]> {
     return this.executeQuery(async () => {
       return this.db.select()
@@ -205,11 +216,11 @@ export class ReplicaStorage implements IStorage {
   async getCandidates(electionId?: number): Promise<Candidate[]> {
     return this.executeQuery(async () => {
       let query = this.db.select().from(schema.candidates);
-      
+
       if (electionId) {
         query = query.where(eq(schema.candidates.electionId, electionId));
       }
-      
+
       return query.orderBy(schema.candidates.name).execute();
     }, 'getCandidates');
   }
@@ -240,7 +251,7 @@ export class ReplicaStorage implements IStorage {
   }> {
     return this.executeQuery(async () => {
       const elections = await this.db.select().from(schema.elections).execute();
-      
+
       const stats = {
         total: elections.length,
         byType: {} as Record<string, number>,
@@ -258,7 +269,7 @@ export class ReplicaStorage implements IStorage {
       const futureElections = elections
         .filter(e => new Date(e.date) > new Date())
         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-      
+
       if (futureElections.length > 0) {
         stats.nextElection = futureElections[0];
       }
@@ -368,6 +379,11 @@ export class ReplicaStorage implements IStorage {
   async getElectionCycle(slug: string): Promise<any> { return null; }
   async logInteraction(data: any): Promise<void> {}
   async authenticateCandidate(email: string, password: string): Promise<CandidateAccount | null> { return null; }
+  async getCandidateAccountById(_id: number): Promise<CandidateAccount | null> { return null; }
+  async listCandidateAccounts(_filter: { isActive?: boolean } = {}): Promise<CandidateAccount[]> { return []; }
+  async setCandidateAccountActive(_id: number, _isActive: boolean, _accessLevel?: string): Promise<CandidateAccount | null> {
+    throw new Error('Replica storage is read-only');
+  }
   async getCandidateDataSources(candidateId: number): Promise<CandidateDataSource[]> { return []; }
   async recordDataSource(source: InsertCandidateDataSource): Promise<CandidateDataSource> { throw new Error('Write operations not supported on read-only replica'); }
   async getCandidateWithRAG(candidateId: number): Promise<any> { return null; }

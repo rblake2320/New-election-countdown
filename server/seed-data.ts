@@ -92,16 +92,5 @@ async function getStats() {
   };
 }
 
-// Run if called directly (cross-platform path comparison)
-import { pathToFileURL } from 'url';
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  seedDatabase()
-    .then(() => {
-      console.log('✅ Seeding complete');
-      process.exit(0);
-    })
-    .catch((error) => {
-      console.error('❌ Seeding failed:', error);
-      process.exit(1);
-    });
-}
+// CLI lives in scripts/seed-database.ts. An import.meta.url direct-run guard
+// becomes true for every bundled module in dist/index.js and exits the server.
