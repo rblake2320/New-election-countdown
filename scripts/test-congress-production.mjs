@@ -12,6 +12,7 @@ const db = `${network}-db`, app = `${network}-app`;
 const browserNetwork = `${network}-browser`;
 const image = process.env.CONGRESS_PRODUCTION_IMAGE;
 const builder = process.env.CONGRESS_BUILDER_IMAGE;
+const upgradeImage = process.env.CONGRESS_UPGRADE_IMAGE;
 const previewPort = Number(process.env.CONGRESS_BROWSER_PREVIEW_PORT || 0);
 if (previewPort && (!Number.isInteger(previewPort) || previewPort < 1024 || previewPort > 65535)) throw new Error('Invalid loopback preview port');
 if (!image || !builder) throw new Error('Explicit production and builder image tags are required');
@@ -139,6 +140,43 @@ try {
   await sql(migration);
   check('shipped audit migration repeat preserves durable audit rows byte-for-byte', auditDigest === await sql(auditDigestSQL));
   report.positiveRepeat = { changedCount: repeat.receipt.changedCount, xminDigest: firstXmin, catalog: firstCatalog, auditDigest };
+  if (upgradeImage) {
+    // The prior production image has already made the actual guarded import and
+    // repeat above. Retain its committed audits and every unaffected full row.
+    const priorImageId = report.imageId;
+    check('upgrade starts from pinned actual B09 runtime', priorImageId === 'sha256:63f8d82d83453393f9595f34fb8f02868ecaa40c48928329c20f41345a2e3406');
+    await sql("CREATE TABLE d_upgrade_before AS SELECT id,bioguide_id,to_jsonb(m) AS row,xmin::text AS row_xmin FROM congress_members m");
+    await sql('CREATE TABLE d_upgrade_audits AS SELECT id,to_jsonb(r) AS row FROM congress_official_import_runs r');
+    const priorName = await sql("SELECT name FROM congress_members WHERE bioguide_id='K000383'");
+    check('prior B09 importer populated original King name', priorName === 'Angus S., Jr. King');
+    await docker('rm', '-f', app);
+    await docker('run', '-d', '--name', app, '--network', network, ...(previewPort ? ['-p', `127.0.0.1:${previewPort}:5000`] : []), '-e', `DATABASE_URL=${url}`, '-e', `JWT_SECRET=${password}`, '-e', `CANDIDATE_JWT_SECRET=${password}`, '-e', 'APP_ORIGIN=http://127.0.0.1:5000', upgradeImage);
+    if (previewPort) await docker('network', 'connect', browserNetwork, app);
+    let upgradedReady=false;
+    for(let i=0;i<60;i++){try{await run("const r=await fetch('http://127.0.0.1:5000/api/health');if(r.status!==200)throw Error('health')");upgradedReady=true;break;}catch{await new Promise(r=>setTimeout(r,1000));}}
+    check('upgraded actual production HTTP app healthy',upgradedReady);
+    const newImageId=await docker('image','inspect','--format','{{.Id}}',upgradeImage);
+    const newDry=await cli([], 'name-upgrade-dry');
+    check('new production dry plans only one King update',newDry.status===0 && newDry.receipt.insertedCount===0 && newDry.receipt.updatedCount===1 && newDry.receipt.manifestSha256==='fecec614bf47f875ab7aa8c78f15ea7d8e0e4a6f736b452d9ba317cc6c866191');
+    const upgrade=await cli(['--apply','--expect-manifest-sha',newDry.receipt.manifestSha256,'--expect-preimage-sha',newDry.receipt.preimageSha256],'name-upgrade-apply');
+    check('new production guarded apply commits one update',upgrade.status===0 && upgrade.receipt.committed && upgrade.receipt.insertedCount===0 && upgrade.receipt.updatedCount===1);
+    const unchangedSQL="SELECT count(*) FROM d_upgrade_before b LEFT JOIN congress_members m USING(id) WHERE m.id IS NULL OR (CASE WHEN b.bioguide_id='K000383' THEN (b.row-'name') IS DISTINCT FROM (to_jsonb(m)-'name') ELSE b.row IS DISTINCT FROM to_jsonb(m) OR b.row_xmin IS DISTINCT FROM m.xmin::text END)";
+    const oldAuditSQL='SELECT count(*) FROM d_upgrade_audits b LEFT JOIN congress_official_import_runs r USING(id) WHERE r.id IS NULL OR b.row IS DISTINCT FROM to_jsonb(r)';
+    check('name upgrade preserves all other full rows/xmin and King unrelated fields',await sql(unchangedSQL)==='0');
+    check('name upgrade preserves actual prior B09 audits byte-for-byte',await sql(oldAuditSQL)==='0');
+    await run(`import fs from 'node:fs';import pg from 'pg';const p=new pg.Pool({connectionString:process.env.DATABASE_URL});try{const m=JSON.parse(fs.readFileSync('/app/dist/congress-data/official-current-members.json','utf8')).members;await p.query('TRUNCATE d_expected_congress');await p.query('INSERT INTO d_expected_congress SELECT value FROM jsonb_array_elements($1::jsonb)',[JSON.stringify(m)]);}finally{await p.end();}`);
+    const upgradedSQL=JSON.parse(await sql(equalitySQL));
+    check('upgraded independent SQL exact539 and corrected King name',upgradedSQL.received===539 && upgradedSQL.mismatches===0 && upgradedSQL.total===541 && await sql("SELECT name FROM congress_members WHERE bioguide_id='K000383'")==='Angus S. King, Jr.');
+    const stableRows=await catalog(),stableXmin=await sql(xminSQL);
+    const repeatNameDry=await cli([],'name-upgrade-repeat-dry');
+    const repeatName=await cli(['--apply','--expect-manifest-sha',repeatNameDry.receipt.manifestSha256,'--expect-preimage-sha',repeatNameDry.receipt.preimageSha256],'name-upgrade-repeat');
+    check('upgraded repeat zero with all fullrows/xmin and prior audits stable',repeatNameDry.receipt.changedCount===0 && repeatName.status===0 && repeatName.receipt.committed && repeatName.receipt.changedCount===0 && stableRows===await catalog() && stableXmin===await sql(xminSQL) && await sql(oldAuditSQL)==='0');
+    const newAudits=JSON.parse(await sql("SELECT json_agg(json_build_object('id',id,'manifestSha',manifest_sha256,'changed',receipt->'changedCount','committed',receipt->'committed')) FROM congress_official_import_runs WHERE id NOT IN(SELECT id FROM d_upgrade_audits)"));
+    check('two new durable upgrade audits preserve prior two audit rows',newAudits.length===2 && newAudits.every(r=>r.manifestSha===newDry.receipt.manifestSha256 && r.committed===true) && newAudits.some(r=>r.id===upgrade.receipt.runId && r.changed===1) && newAudits.some(r=>r.id===repeatName.receipt.runId && r.changed===0) && await sql('SELECT count(*) FROM congress_official_import_runs')==='4');
+    report.nameUpgrade={priorImageId,newImageId,priorName,name:'Angus S. King, Jr.',sql:upgradedSQL,priorAuditCount:2,priorAuditsUnchanged:true,newAudits,otherFullRowsAndXminUnchanged:true,repeatChanges:0};
+    report.imageId=newImageId;
+    report.boundary.manifestSha256=newDry.receipt.manifestSha256;
+  }
   const membersCapture = JSON.parse(await run(`import pg from 'pg';import {createHash} from 'node:crypto';
     const response=await fetch('http://127.0.0.1:5000/api/members?scope=all');
     const bytes=Buffer.from(await response.arrayBuffer());
@@ -155,6 +193,11 @@ try {
       console.log(JSON.stringify({status:response.status,contentType:response.headers.get('content-type'),bodyBase64:bytes.toString('base64'),responseSha256:createHash('sha256').update(bytes).digest('hex'),responseBytes:bytes.length,rows:actual.length,sqlRows:expected.length,mismatches,duplicateIds,sqlProjection:expected,partyCounts:actual.reduce((a,r)=>(a[r.party??'null']=(a[r.party??'null']??0)+1,a),{}),territoryCounts:Object.fromEntries(['PR','GU','AS','MP','VI'].map(s=>[s,actual.filter(r=>r.state===s).length]))}));
     }finally{await pool.end();}`));
   await writeFile(`${evidence}/members-response.json`, Buffer.from(membersCapture.bodyBase64, 'base64'));
+  if (report.boundary.manifestSha256 === 'fecec614bf47f875ab7aa8c78f15ea7d8e0e4a6f736b452d9ba317cc6c866191') {
+    const king=JSON.parse(Buffer.from(membersCapture.bodyBase64,'base64').toString('utf8')).filter(m=>m.bioguideId==='K000383');
+    check('actual HTTP receives corrected King name exactly once',king.length===1 && king[0].name==='Angus S. King, Jr.');
+    report.nameReceiving={bioguideId:king[0].bioguideId,name:king[0].name};
+  }
   await writeFile(`${evidence}/members-sql-projection.json`, JSON.stringify(membersCapture.sqlProjection, null, 2));
   const { bodyBase64, sqlProjection, ...membersMetadata } = membersCapture;
   report.membersReceiving = { ...membersMetadata, path: '/api/members?scope=all', sourceBase: 'http://127.0.0.1:5000 inside owned runtime container', imageId: report.imageId, manifestSha256: report.boundary.manifestSha256, phase: 'after guarded 539-member apply and zero-write repeat', actualSourceMembers: 539, syntheticPreservationControls: 2, responseFile: 'members-response.json', sqlFile: 'members-sql-projection.json' };

@@ -1,0 +1,276 @@
+{
+  "outcome": "Worked",
+  "image": "electiontracker:congress-name-receiving",
+  "builder": "electiontracker:congress-name-receiving-builder",
+  "network": "internal; no published ports",
+  "checks": [
+    {
+      "name": "runtime-only artifacts and nonroot identity",
+      "outcome": "Worked"
+    },
+    {
+      "name": "owned PostgreSQL ready",
+      "outcome": "Worked"
+    },
+    {
+      "name": "actual packaged HTTP server healthy",
+      "outcome": "Worked"
+    },
+    {
+      "name": "default compiled-relative loader dry-run receives 539 real members",
+      "outcome": "Worked"
+    },
+    {
+      "name": "dry-run leaves full catalog and audit unchanged",
+      "outcome": "Worked"
+    },
+    {
+      "name": "apply without explicit digest refuses",
+      "outcome": "Worked"
+    },
+    {
+      "name": "changed source bytes refuse",
+      "outcome": "Worked"
+    },
+    {
+      "name": "missing audit migration refuses",
+      "outcome": "Worked"
+    },
+    {
+      "name": "shipped migration applies and repeats",
+      "outcome": "Worked"
+    },
+    {
+      "name": "CLI receives after shipped migration",
+      "outcome": "Worked"
+    },
+    {
+      "name": "actual admin legacy routes return typed refusal",
+      "outcome": "Worked"
+    },
+    {
+      "name": "all refusal paths preserve full catalog and zero audits",
+      "outcome": "Worked"
+    },
+    {
+      "name": "positive fixture dry-run plans 538 inserts and one update",
+      "outcome": "Worked"
+    },
+    {
+      "name": "actual production CLI commits guarded positive apply",
+      "outcome": "Worked"
+    },
+    {
+      "name": "independent SQL receives exactly 539 real IDs and every approved field",
+      "outcome": "Worked"
+    },
+    {
+      "name": "legacy/history full rows and all unrelated existing fields preserved",
+      "outcome": "Worked"
+    },
+    {
+      "name": "repeat dry-run plans zero member writes",
+      "outcome": "Worked"
+    },
+    {
+      "name": "guarded production repeat commits zero member writes with stable xmin/full rows",
+      "outcome": "Worked"
+    },
+    {
+      "name": "separate database connection reads exact committed audits and full image scopes",
+      "outcome": "Worked"
+    },
+    {
+      "name": "shipped audit migration repeat preserves durable audit rows byte-for-byte",
+      "outcome": "Worked"
+    },
+    {
+      "name": "actual HTTP receives corrected King name exactly once",
+      "outcome": "Worked"
+    },
+    {
+      "name": "actual GET members payload matches independent SQL for all 541 rows and exposed fields",
+      "outcome": "Worked"
+    },
+    {
+      "name": "actual current/history/legacy and five territory reads match independent SQL",
+      "outcome": "Worked"
+    }
+  ],
+  "imageId": "sha256:751ac2f9959c6590f19b68a4dd05b7cd7ea6f342381fbb9c071eb5c125f2b87d",
+  "builderId": "sha256:ae530c6be7db103d04132354ab25f3450812b0ffc0c606369ad11d0b075c0850",
+  "boundary": {
+    "uid": 1001,
+    "rootCongressSourcePresent": false,
+    "otherRootData": [
+      "official-results"
+    ],
+    "manifestSha256": "fecec614bf47f875ab7aa8c78f15ea7d8e0e4a6f736b452d9ba317cc6c866191"
+  },
+  "anonymous": [
+    {
+      "path": "/api/congress/import",
+      "status": 401,
+      "body": {
+        "error": "unauthorized"
+      }
+    },
+    {
+      "path": "/api/congress/sync-all",
+      "status": 401,
+      "body": {
+        "error": "unauthorized"
+      }
+    }
+  ],
+  "ordinary": [
+    {
+      "path": "/api/congress/import",
+      "status": 403,
+      "body": {
+        "error": "Forbidden",
+        "message": "Administrative privileges required to access this resource"
+      }
+    },
+    {
+      "path": "/api/congress/sync-all",
+      "status": 403,
+      "body": {
+        "error": "Forbidden",
+        "message": "Administrative privileges required to access this resource"
+      }
+    }
+  ],
+  "legacy": [
+    {
+      "path": "/api/congress/import",
+      "status": 422,
+      "body": {
+        "error": "source_unverified",
+        "code": "LEGACY_CONGRESS_SOURCE_UNVERIFIED",
+        "message": "Legacy Congress dataset has no reviewed source digest; nothing was imported",
+        "details": null
+      }
+    },
+    {
+      "path": "/api/congress/sync-all",
+      "status": 422,
+      "body": {
+        "error": "source_unverified",
+        "code": "LEGACY_CONGRESS_SOURCE_UNVERIFIED",
+        "message": "Legacy Congress dataset has no reviewed source digest; nothing was imported",
+        "details": null
+      }
+    }
+  ],
+  "positiveSQL": {
+    "expected": 539,
+    "distinctExpected": 539,
+    "received": 539,
+    "mismatches": 0,
+    "total": 541
+  },
+  "audit": {
+    "rows": 2,
+    "runIds": [
+      "f62917c7-dc36-48a2-9a31-55bcde833c5a",
+      "9f339ee1-aded-40b4-b2ba-090c36073e8a"
+    ],
+    "afterCounts": [
+      541,
+      541
+    ]
+  },
+  "positiveRepeat": {
+    "changedCount": 0,
+    "xminDigest": "75d1f96223b2b0409e508f93db93c26a",
+    "catalog": "541:870c1275ddc477cc97e6835ca9e1fc8e",
+    "auditDigest": "4e7b5d2ed8170a85dc5474c5a6028602"
+  },
+  "nameReceiving": {
+    "bioguideId": "K000383",
+    "name": "Angus S. King, Jr."
+  },
+  "membersReceiving": {
+    "status": 200,
+    "contentType": "application/json; charset=utf-8",
+    "responseSha256": "42777d1b55452e99208680017a7284e2765c6435179a3c176c21b3093fff85c1",
+    "responseBytes": 113754,
+    "rows": 541,
+    "sqlRows": 541,
+    "mismatches": 0,
+    "duplicateIds": 0,
+    "partyCounts": {
+      "UNKNOWN": 2,
+      "R": 274,
+      "D": 262,
+      "I": 3
+    },
+    "territoryCounts": {
+      "PR": 1,
+      "GU": 1,
+      "AS": 1,
+      "MP": 1,
+      "VI": 1
+    },
+    "path": "/api/members?scope=all",
+    "sourceBase": "http://127.0.0.1:5000 inside owned runtime container",
+    "imageId": "sha256:751ac2f9959c6590f19b68a4dd05b7cd7ea6f342381fbb9c071eb5c125f2b87d",
+    "manifestSha256": "fecec614bf47f875ab7aa8c78f15ea7d8e0e4a6f736b452d9ba317cc6c866191",
+    "phase": "after guarded 539-member apply and zero-write repeat",
+    "actualSourceMembers": 539,
+    "syntheticPreservationControls": 2,
+    "responseFile": "members-response.json",
+    "sqlFile": "members-sql-projection.json"
+  },
+  "scopes": [
+    {
+      "path": "/api/members",
+      "status": 200,
+      "count": 539,
+      "scope": "current"
+    },
+    {
+      "path": "/api/members?scope=history",
+      "status": 200,
+      "count": 1,
+      "scope": "history"
+    },
+    {
+      "path": "/api/members?scope=legacy",
+      "status": 200,
+      "count": 1,
+      "scope": "legacy"
+    },
+    {
+      "path": "/api/members/PR",
+      "status": 200,
+      "count": 1,
+      "scope": "current"
+    },
+    {
+      "path": "/api/members/GU",
+      "status": 200,
+      "count": 1,
+      "scope": "current"
+    },
+    {
+      "path": "/api/members/AS",
+      "status": 200,
+      "count": 1,
+      "scope": "current"
+    },
+    {
+      "path": "/api/members/MP",
+      "status": 200,
+      "count": 1,
+      "scope": "current"
+    },
+    {
+      "path": "/api/members/VI",
+      "status": 200,
+      "count": 1,
+      "scope": "current"
+    }
+  ]
+}
