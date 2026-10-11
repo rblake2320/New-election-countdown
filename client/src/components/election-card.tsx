@@ -467,7 +467,7 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
         
         <div className="flex flex-wrap items-center gap-1.5">
           {/* View Trends Button */}
-          <Link href={`/elections/${election.id}`}>
+          <Link href={`/elections/${election.id}?tab=polling`}>
             <Button 
               size="sm" 
               variant="outline"

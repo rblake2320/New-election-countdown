@@ -32,7 +32,19 @@ function useCandidateDetails(candidateId: number | null) {
 export default function ElectionDetails() {
   const params = useParams<{ id: string }>();
   const electionId = parseInt(params.id || "0");
-  const [activeTab, setActiveTab] = useState("overview");
+  // Tab lives in the URL (?tab=polling) so links like "View Trends" open the
+  // right tab and Back/refresh keep it (owner UX review: Trends opened Overview).
+  const TABS = ["overview", "polling", "candidates"] as const;
+  const [activeTab, setActiveTabState] = useState<string>(() => {
+    const t = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "").get("tab");
+    return t && (TABS as readonly string[]).includes(t) ? t : "overview";
+  });
+  const setActiveTab = (t: string) => {
+    setActiveTabState(t);
+    const url = new URL(window.location.href);
+    if (t === "overview") url.searchParams.delete("tab"); else url.searchParams.set("tab", t);
+    window.history.replaceState(window.history.state, "", url.pathname + url.search);
+  };
   const [selectedCandidateId, setSelectedCandidateId] = useState<number | null>(null);
   // Shared minute clock: the page's phase badge follows the same timing rules as
   // the countdown instead of comparing the midnight-UTC date with "now".

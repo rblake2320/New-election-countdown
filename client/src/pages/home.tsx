@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useIsAdmin } from "@/lib/useIsAdmin";
 import { type ElectionFilters } from "@shared/schema";
+import { readHomeUrl, writeHomeUrl } from "@/lib/url-state";
 import { normalizeFilters, isUpcomingTimeframe, levelLabel, partyLabel, timeframeLabel } from "@/lib/filter-codes";
 import { isUpcomingElection } from "@/lib/election-timing";
 import { useNow } from "@/hooks/use-now";
@@ -44,10 +45,37 @@ export default function Home() {
     electionType: undefined,
     search: undefined
   });
+  // The URL wins over saved filters, so links and Back restore exactly what
+  // the visitor was looking at (ET-29). Read once on mount.
+  const [initialUrl] = useState(() => readHomeUrl(typeof window !== "undefined" ? window.location.search : ""));
+  const [urlApplied, setUrlApplied] = useState(!initialUrl.present);
+  useEffect(() => {
+    if (!initialUrl.present) return;
+    setFilters(prev => ({ ...prev, state: undefined, level: undefined, party: undefined, electionType: undefined, type: undefined, timeframe: undefined, ...initialUrl.filters }));
+    setUrlApplied(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   // Older builds stored display labels ("Federal", "Democratic"); map them to API codes.
-  const filters = useMemo(() => normalizeFilters(storedFilters), [storedFilters]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const filters = useMemo(() => normalizeFilters(urlApplied ? storedFilters : (initialUrl.filters as ElectionFilters)), [storedFilters, urlApplied, initialUrl]);
+  const [searchQuery, setSearchQuery] = useState(initialUrl.q ?? "");
+  const [viewMode, setViewMode] = useState<"grid" | "list">(initialUrl.view ?? "grid");
+
+  // Remember the scroll position per URL so Back from an election lands where the
+  // visitor left; restored once the (virtualized) list has data to lay out.
+  useEffect(() => {
+    let raf = 0;
+    const save = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => {
+      try { sessionStorage.setItem(`home-scroll:${window.location.search}`, String(Math.round(window.scrollY))); } catch { /* storage blocked */ }
+    }); };
+    window.addEventListener("scroll", save, { passive: true });
+    return () => { window.removeEventListener("scroll", save); cancelAnimationFrame(raf); };
+  }, []);
+
+  // Keep the URL in step (replace, not push: typing should not fill history).
+  useEffect(() => {
+    const next = window.location.pathname + writeHomeUrl({ q: searchQuery, filters, view: viewMode });
+    if (next !== window.location.pathname + window.location.search) window.history.replaceState(window.history.state, "", next);
+  }, [searchQuery, filters, viewMode]);
   const [dismissedGuidance, setDismissedGuidance] = useState<Set<string>>(new Set());
   // const [showAuthModal, setShowAuthModal] = useState(false);
   const { user, isAuthenticated, isLoading: authLoading, logout } = useAuth();
@@ -68,6 +96,23 @@ export default function Home() {
   // Re-evaluated every minute so races drop off at midnight in their own zone
   // without waiting for a refetch or filter change.
   const minuteClock = useNow(60_000);
+  const [scrollRestored, setScrollRestored] = useState(false);
+  useEffect(() => {
+    if (scrollRestored || isLoading || fetchedElections.length === 0) return;
+    setScrollRestored(true);
+    let y = 0;
+    try { y = Number(sessionStorage.getItem(`home-scroll:${window.location.search}`) || 0); } catch { /* storage blocked */ }
+    if (y <= 0) return;
+    // The virtualized list grows over a few frames; scrolling before the page is
+    // tall enough gets clamped. Try each frame for up to ~1.5 s.
+    let tries = 0;
+    const attempt = () => {
+      const tallEnough = document.documentElement.scrollHeight >= y + window.innerHeight;
+      if (tallEnough || tries++ > 90) { window.scrollTo(0, y); return; }
+      requestAnimationFrame(attempt);
+    };
+    requestAnimationFrame(attempt);
+  }, [scrollRestored, isLoading, fetchedElections.length]);
   // "Next N days" must never show a race whose date has already passed.
   const elections = useMemo(() => {
     if (!isUpcomingTimeframe(filters.timeframe)) return fetchedElections;
@@ -289,7 +334,9 @@ export default function Home() {
                     {isLoading ? (
                       "Loading elections..."
                     ) : (
-                      `Showing ${elections.length} of ${stats?.total || 0} elections`
+                      // Count describes the same query as the heading (owner UX review):
+                      // not "of 537", which mixed past races into an upcoming list.
+                      `${elections.length} ${isUpcomingTimeframe(filters.timeframe) ? "upcoming " : ""}election${elections.length === 1 ? "" : "s"}${searchQuery.trim() ? ` matching "${searchQuery.trim()}"` : ""}`
                     )}
                   </p>
                 </div>
