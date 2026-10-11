@@ -1,0 +1,933 @@
+{
+  "schema_version": 1,
+  "task": "official 2026 candidate sources and official results landing URLs NC ND OH OK OR PA RI SC",
+  "generated_at_utc": "2026-10-11T07:38:33.054871+00:00",
+  "research_method": "Official SOS/election board pages and their explicitly linked public providers; actual HTTP fetches and public read-only candidate form. HTTP200 security-denial bodies classified Blocked. No DB writes, application changes or access-control bypasses.",
+  "coverage": {
+    "states_requested": 8,
+    "states_recorded": 8,
+    "states": [
+      "NC",
+      "ND",
+      "OH",
+      "OK",
+      "OR",
+      "PA",
+      "RI",
+      "SC"
+    ],
+    "warning": "Source inventory is not a nominee import or an exhaustive certification audit.",
+    "certified_general_source_verified": [
+      "ND"
+    ]
+  },
+  "records": [
+    {
+      "state": "NC",
+      "title": "2026 General Candidate List by Contest - Federal and State Only",
+      "candidate_url": "https://s3.amazonaws.com/dl.ncsbe.gov/Elections/2026/Candidate%20Filing/2026_general_candidate_list_by_contest_federal_and_state.pdf",
+      "candidate_landing_url": "https://www.ncsbe.gov/results-data/candidate-lists",
+      "candidate_csv_url": "https://s3.amazonaws.com/dl.ncsbe.gov/Elections/2026/Candidate%20Filing/Candidate_Listing_2026.csv",
+      "results_url": "https://www.ncsbe.gov/results-data/election-results",
+      "results_provider_url": "https://er.ncsbe.gov/",
+      "classification": "general_candidate_list_not_final",
+      "certification_basis": "Official NCSBE general-election list. Landing page explicitly says November lists are not yet final; do not mark certified. Filter CSV election_dt for November3 rather than assuming all rows are general-election candidates.",
+      "primary_dates": [
+        "2026-03-03"
+      ],
+      "runoff_dates": [],
+      "blockers": [
+        "Official landing page still warns of nonfinal November list; certification status must stay unknown."
+      ],
+      "cycle": 2026,
+      "election_date": "2026-11-03",
+      "checked_at_utc": "2026-10-11T07:38:33.054871+00:00",
+      "verification": [
+        {
+          "requested_url": "https://s3.amazonaws.com/dl.ncsbe.gov/Elections/2026/Candidate%20Filing/2026_general_candidate_list_by_contest_federal_and_state.pdf",
+          "final_url": "https://s3.amazonaws.com/dl.ncsbe.gov/Elections/2026/Candidate%20Filing/2026_general_candidate_list_by_contest_federal_and_state.pdf",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:38:37.065885+00:00",
+          "byte_count": 170416,
+          "sha256": "e891ef1add3c323a24a169f0b08f03879965ef572aa4b562578d3069569522eb",
+          "content_type": "application/pdf",
+          "outcome": "WORKED",
+          "html_title": null,
+          "pdf_pages": 47,
+          "first_page_years": [
+            "2025",
+            "2026"
+          ],
+          "first_page_contains_general": false,
+          "first_page_contains_primary": false
+        },
+        {
+          "requested_url": "https://www.ncsbe.gov/results-data/candidate-lists",
+          "final_url": "https://www.ncsbe.gov/results-data/candidate-lists",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:38:44.918777+00:00",
+          "byte_count": 105715,
+          "sha256": "4fafb7d55d5b0e67fa21e70212380bc84e9488a5a86a4d095f2a16609dc63d6e",
+          "content_type": "text/html; charset=UTF-8",
+          "outcome": "WORKED",
+          "html_title": "Candidate Lists | NCSBE"
+        },
+        {
+          "requested_url": "https://s3.amazonaws.com/dl.ncsbe.gov/Elections/2026/Candidate%20Filing/Candidate_Listing_2026.csv",
+          "final_url": "https://s3.amazonaws.com/dl.ncsbe.gov/Elections/2026/Candidate%20Filing/Candidate_Listing_2026.csv",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:40:34.199021+00:00",
+          "byte_count": 2079875,
+          "sha256": "5d3d7a01b407262130aae3b5ef7aa08d0b4aa9a95290d3c54b4e8906a817cb4c",
+          "content_type": "binary/octet-stream",
+          "outcome": "WORKED",
+          "html_title": null,
+          "csv_row_count": 8288,
+          "csv_columns": [
+            "election_dt",
+            "county_name",
+            "contest_name",
+            "name_on_ballot",
+            "first_name",
+            "middle_name",
+            "last_name",
+            "name_suffix_lbl",
+            "nick_name",
+            "street_address",
+            "city",
+            "state",
+            "zip_code",
+            "phone",
+            "office_phone",
+            "business_phone",
+            "email",
+            "candidacy_dt",
+            "party_contest",
+            "party_candidate",
+            "is_unexpired",
+            "has_primary",
+            "is_partisan",
+            "vote_for",
+            "term"
+          ],
+          "csv_election_date_counts": {
+            "election_dt": {
+              "11/03/2026": 4527,
+              "03/03/2026": 3761
+            }
+          }
+        },
+        {
+          "requested_url": "https://www.ncsbe.gov/results-data/election-results",
+          "final_url": "https://www.ncsbe.gov/results-data/election-results",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:38:44.963281+00:00",
+          "byte_count": 78076,
+          "sha256": "c849459a1a1db06c767e5d5c715b45e860d2175c824cb1a95fa4c77a5d1772ab",
+          "content_type": "text/html; charset=UTF-8",
+          "outcome": "WORKED",
+          "html_title": "Election Results | NCSBE"
+        },
+        {
+          "requested_url": "https://er.ncsbe.gov/",
+          "final_url": "https://er.ncsbe.gov/",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:38:36.094939+00:00",
+          "byte_count": 81837,
+          "sha256": "4aedd3b22d656c502dd1c4c3aae1591684a5494b7ba84d1e1cdaa38141b843ed",
+          "content_type": "text/html",
+          "outcome": "WORKED",
+          "html_title": "North Carolina State Board of Elections - Contest Results"
+        }
+      ],
+      "date_scope_note": "General cycle/date verified by source page/title where fetched. Primary dates are official calendar/directory facts; no assumption that primary winners are certified general nominees.",
+      "candidate_import_filter": {
+        "field": "election_dt",
+        "match": "11/03/2026",
+        "note": "Select general-date rows only; do not import primary-only records as nominees."
+      }
+    },
+    {
+      "state": "ND",
+      "title": "2026 General Election Contest/Candidate List",
+      "candidate_url": "https://vip.sos.nd.gov/candidatelist.aspx?eid=348",
+      "candidate_landing_url": "https://www.sos.nd.gov/elections",
+      "results_url": "https://www.sos.nd.gov/elections/election-results",
+      "results_provider_url": "https://resultsnd.sos.nd.gov/",
+      "classification": "general_candidate_list_certified",
+      "certification_basis": "SOS Elections homepage expressly describes linked eid=348 list as the certified 2026 general-election candidates. PollingPlaces/Precincts.aspx eid=348 is a different dataset.",
+      "primary_dates": [
+        "2026-06-09"
+      ],
+      "runoff_dates": [],
+      "blockers": [
+        "Candidate portal initially renders selectors; no bulk CSV/PDF export was found in fetched page. Use actual form results for candidate extraction."
+      ],
+      "cycle": 2026,
+      "election_date": "2026-11-03",
+      "checked_at_utc": "2026-10-11T07:38:33.054871+00:00",
+      "verification": [
+        {
+          "requested_url": "https://vip.sos.nd.gov/candidatelist.aspx?eid=348",
+          "final_url": "https://vip.sos.nd.gov/candidatelist.aspx?eid=348",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:38:42.342679+00:00",
+          "byte_count": 113601,
+          "sha256": "967514bcb075daf469ea2af5298aef0c49c4159a447d44794302dceca857139c",
+          "content_type": "text/html; charset=utf-8",
+          "outcome": "WORKED",
+          "html_title": "2026 General Election Contest/Candidate List"
+        },
+        {
+          "requested_url": "https://www.sos.nd.gov/elections",
+          "final_url": "https://www.sos.nd.gov/elections",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:38:49.492810+00:00",
+          "byte_count": 209989,
+          "sha256": "7c75a17f88aecf2071b237ad7816f94299db47f215b4b3acb28248be16f17e02",
+          "content_type": "text/html; charset=UTF-8",
+          "outcome": "WORKED",
+          "html_title": "Elections | Secretary of State | North Dakota"
+        },
+        {
+          "requested_url": "https://www.sos.nd.gov/elections/election-results",
+          "final_url": "https://www.sos.nd.gov/elections/election-results",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:38:50.432649+00:00",
+          "byte_count": 262585,
+          "sha256": "d46b612f502575b43fb0244e9b6af24fd2e66c510a53ad65215cea70d5bb6c76",
+          "content_type": "text/html; charset=UTF-8",
+          "outcome": "WORKED",
+          "html_title": "Election Results | Secretary of State | North Dakota"
+        },
+        {
+          "requested_url": "https://resultsnd.sos.nd.gov/",
+          "final_url": "https://resultsnd.sos.nd.gov/",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:38:34.689629+00:00",
+          "byte_count": 433,
+          "sha256": "e8d7e6937789c14dd6b1f7a5c2e94cbbd6a0a38377d5c3f90db9a12dcf149346",
+          "content_type": "text/html",
+          "outcome": "WORKED",
+          "html_title": "Election Night Reporting"
+        }
+      ],
+      "date_scope_note": "General cycle/date verified by source page/title where fetched. Primary dates are official calendar/directory facts; no assumption that primary winners are certified general nominees."
+    },
+    {
+      "state": "OH",
+      "title": "2026 General Election official ballot directive / sample ballot directory",
+      "candidate_url": "https://www.ohiosos.gov/elections/elections-administration/directives",
+      "candidate_landing_url": "https://www.ohiosos.gov/directories/sample-ballot",
+      "results_url": "https://data.ohiosos.gov/portal/past-election-results",
+      "results_landing_url": "https://www.ohiosos.gov/office/media-center/categories/press-releases/2026-06-03",
+      "classification": "general_candidate_source_blocked",
+      "certification_basis": "Official search index lists Directive 2026-45 and 2026 General Election sample ballot. Actual endpoint rejected fetch; no nominees extracted or certification claimed. June 3 SOS press release concerns certified May primary results, not November ballot.",
+      "primary_dates": [
+        "2026-05-05"
+      ],
+      "runoff_dates": [],
+      "blockers": [
+        "HTTP403 official directives, sample-ballot directory and data portal; security service expressly reports blocked request. No bypass attempted. No direct general PDF URL verified."
+      ],
+      "cycle": 2026,
+      "election_date": "2026-11-03",
+      "checked_at_utc": "2026-10-11T07:38:33.054871+00:00",
+      "verification": [
+        {
+          "requested_url": "https://www.ohiosos.gov/elections/elections-administration/directives",
+          "final_url": "https://www.ohiosos.gov/elections/elections-administration/directives",
+          "http_status": 403,
+          "fetched_at_utc": "2026-10-11T07:38:50.707334+00:00",
+          "byte_count": 1253169,
+          "sha256": "67dab18fcda4d21eb23cab25ec8a9b0d66a9884f49e96a04566dba6fed7aa7c1",
+          "content_type": "text/html; charset=UTF-8",
+          "outcome": "Blocked",
+          "html_title": "Ohio Secretary of State's Office Website Maintenance",
+          "blocker": "Server returned access/security challenge rather than requested election data."
+        },
+        {
+          "requested_url": "https://www.ohiosos.gov/directories/sample-ballot",
+          "final_url": "https://www.ohiosos.gov/directories/sample-ballot",
+          "http_status": 403,
+          "fetched_at_utc": "2026-10-11T07:38:48.174667+00:00",
+          "byte_count": 1253169,
+          "sha256": "bcf1628098be0555b2980c934d2842c427680583cf5f09697773503c0db39728",
+          "content_type": "text/html; charset=UTF-8",
+          "outcome": "Blocked",
+          "html_title": "Ohio Secretary of State's Office Website Maintenance",
+          "blocker": "Server returned access/security challenge rather than requested election data."
+        },
+        {
+          "requested_url": "https://data.ohiosos.gov/portal/past-election-results",
+          "final_url": "https://data.ohiosos.gov/portal/past-election-results",
+          "http_status": 403,
+          "fetched_at_utc": "2026-10-11T07:38:33.878216+00:00",
+          "byte_count": 1253169,
+          "sha256": "08c35f7630ef45b1cdf64e54825ecee23a0594abe12f1ebd73cf60c80b6442e1",
+          "content_type": "text/html; charset=UTF-8",
+          "outcome": "Blocked",
+          "html_title": "Ohio Secretary of State's Office Website Maintenance",
+          "blocker": "Server returned access/security challenge rather than requested election data."
+        },
+        {
+          "requested_url": "https://www.ohiosos.gov/office/media-center/categories/press-releases/2026-06-03",
+          "final_url": "https://www.ohiosos.gov/office/media-center/categories/press-releases/2026-06-03",
+          "http_status": 403,
+          "fetched_at_utc": "2026-10-11T07:38:53.194010+00:00",
+          "byte_count": 1253169,
+          "sha256": "7fc0a1827cf2566c4a689eb286a0876c8d300fa5eb9817498674a04b07ec9bf1",
+          "content_type": "text/html; charset=UTF-8",
+          "outcome": "Blocked",
+          "html_title": "Ohio Secretary of State's Office Website Maintenance",
+          "blocker": "Server returned access/security challenge rather than requested election data."
+        }
+      ],
+      "date_scope_note": "General cycle/date verified by source page/title where fetched. Primary dates are official calendar/directory facts; no assumption that primary winners are certified general nominees."
+    },
+    {
+      "state": "OK",
+      "title": "NOVEMBER / 2026 List of Elections",
+      "candidate_url": "https://hosting.okelections.gov/electionlist.html",
+      "candidate_landing_url": "https://oklahoma.gov/elections/elections-results/next-election.html",
+      "official_link_href": "http://hosting.okelections.us/electionlist.html",
+      "filing_list_pdf_url": "https://oklahoma.gov/content/dam/ok/en/elections/candidate-filing-archives/2026-candidate-filing-archives/2026-candidate-list-book.pdf",
+      "results_url": "https://oklahoma.gov/elections/elections-results/election-results.html",
+      "classification": "general_election_contest_candidate_list",
+      "certification_basis": "Next Election page links November 3 General Election hosted list. Fetched November list contains county contests and candidates; no explicit certified label observed. April 3 filing book is filing_list only, not general nominees.",
+      "primary_dates": [
+        "2026-06-16"
+      ],
+      "runoff_dates": [
+        "2026-08-25"
+      ],
+      "blockers": [
+        "Certification label absent from November hosted list; do not promote to certified. Repeated statewide candidates across county sections require deduplication."
+      ],
+      "cycle": 2026,
+      "election_date": "2026-11-03",
+      "checked_at_utc": "2026-10-11T07:38:33.054871+00:00",
+      "verification": [
+        {
+          "requested_url": "https://hosting.okelections.gov/electionlist.html",
+          "final_url": "https://hosting.okelections.gov/electionlist.html",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:38:37.018733+00:00",
+          "byte_count": 821158,
+          "sha256": "4a14125fdf01fb40462424429758c0d40d892a77babd7c9fe48680a4b45955bf",
+          "content_type": "text/html",
+          "outcome": "WORKED",
+          "html_title": "NOVEMBER / 2026  List of Elections"
+        },
+        {
+          "requested_url": "https://oklahoma.gov/elections/elections-results/next-election.html",
+          "final_url": "https://oklahoma.gov/elections/elections-results/next-election.html",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:38:34.151533+00:00",
+          "byte_count": 130308,
+          "sha256": "7a2ee6123153535c48e77c0c2eda3d61806c6f263f1e1bc947a10b0041f98afa",
+          "content_type": "text/html;charset=utf-8",
+          "outcome": "WORKED",
+          "html_title": "Next Election"
+        },
+        {
+          "requested_url": "https://oklahoma.gov/content/dam/ok/en/elections/candidate-filing-archives/2026-candidate-filing-archives/2026-candidate-list-book.pdf",
+          "final_url": "https://oklahoma.gov/content/dam/ok/en/elections/candidate-filing-archives/2026-candidate-filing-archives/2026-candidate-list-book.pdf",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:39:03.275967+00:00",
+          "byte_count": 4297847,
+          "sha256": "c5e56857e341527dba9535d13be7c109ccadebe575f5f71f2000d3467c8ff5fe",
+          "content_type": "application/pdf",
+          "outcome": "WORKED",
+          "html_title": null,
+          "pdf_pages": 66,
+          "first_page_years": [
+            "2026"
+          ],
+          "first_page_contains_general": false,
+          "first_page_contains_primary": false
+        },
+        {
+          "requested_url": "https://oklahoma.gov/elections/elections-results/election-results.html",
+          "final_url": "https://oklahoma.gov/elections/elections-results/election-results.html",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:38:34.125531+00:00",
+          "byte_count": 138889,
+          "sha256": "fe5fa0ffcaf986f0ef2ef44e1fd66dbe23f1afd5e00b18741f7c46b618d6c0e0",
+          "content_type": "text/html;charset=utf-8",
+          "outcome": "WORKED",
+          "html_title": "Election Results"
+        }
+      ],
+      "provider_link_resolution": {
+        "requested_url": "https://hosting.okelections.us/electionlist.html",
+        "final_url": "https://hosting.okelections.gov/electionlist.html",
+        "http_status": 200,
+        "redirects": [
+          {
+            "url": "https://hosting.okelections.us/electionlist.html",
+            "http_status": 301
+          }
+        ],
+        "sha256": "4a14125fdf01fb40462424429758c0d40d892a77babd7c9fe48680a4b45955bf",
+        "fetched_at_utc": "2026-10-11T07:40:21.209267+00:00",
+        "outcome": "WORKED",
+        "note": "HTTPS form of official .us link redirects301 to fetched .gov provider."
+      },
+      "date_scope_note": "General cycle/date verified by source page/title where fetched. Primary dates are official calendar/directory facts; no assumption that primary winners are certified general nominees."
+    },
+    {
+      "state": "OR",
+      "title": "General Election: November 3, 2026 State Voters Pamphlet",
+      "candidate_url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Pages/Voters-Pamphlet-English.aspx",
+      "candidate_pdf_url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book19_web.pdf",
+      "candidate_landing_url": "https://sos.oregon.gov/elections/pages/current-election.aspx",
+      "filing_landing_url": "https://sos.oregon.gov/elections/pages/candidate-filings-local-measures.aspx",
+      "filing_database_url": "https://secure.sos.state.or.us/orestar/CFSearchPage.do",
+      "results_url": "https://sos.oregon.gov/elections/Pages/historical-data.aspx",
+      "classification": "official_general_voter_pamphlet_partial_candidate_coverage",
+      "certification_basis": "Official English pamphlet links separate county-edition PDFs for G26. SOS expressly says candidates need not submit a pamphlet statement, so pamphlet is not an exhaustive certified nominee list. ORESTAR search is filing_list, not nominees.",
+      "primary_dates": [
+        "2026-05-19"
+      ],
+      "runoff_dates": [],
+      "blockers": [
+        "ORESTAR fetch returns HTTP200 cyber-security denial page, not candidate data. No complete certified general ballot statement located. Pamphlet omissions cannot be treated as absence from ballot."
+      ],
+      "cycle": 2026,
+      "election_date": "2026-11-03",
+      "checked_at_utc": "2026-10-11T07:38:33.054871+00:00",
+      "verification": [
+        {
+          "requested_url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Pages/Voters-Pamphlet-English.aspx",
+          "final_url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Pages/Voters-Pamphlet-English.aspx",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:38:39.782227+00:00",
+          "byte_count": 97277,
+          "sha256": "d30b9cfc59cba6c240e34260e96eda60db535a49cbf17fa3b5cf5a8882443ebd",
+          "content_type": "text/html; charset=utf-8",
+          "outcome": "WORKED",
+          "html_title": "Oregon Secretary of State : Voters' Pamphlet in English : Voters Pamphlet : State of Oregon"
+        },
+        {
+          "requested_url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book19_web.pdf",
+          "final_url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book19_web.pdf",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:39:34.376931+00:00",
+          "byte_count": 7401017,
+          "sha256": "ee2b834d1402f3ed999a0b9259dceae687370fff5f334e34a3be95432fb97eb0",
+          "content_type": "application/pdf",
+          "outcome": "WORKED",
+          "html_title": null,
+          "pdf_pages": 44,
+          "first_page_years": [
+            "2026"
+          ],
+          "first_page_contains_general": true,
+          "first_page_contains_primary": false
+        },
+        {
+          "requested_url": "https://sos.oregon.gov/elections/pages/current-election.aspx",
+          "final_url": "https://sos.oregon.gov/elections/pages/current-election.aspx",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:38:40.931689+00:00",
+          "byte_count": 121966,
+          "sha256": "265e54f3e0f855c51691a1465611f0e927cc899fa402a4aa1e69379f84239aec",
+          "content_type": "text/html; charset=utf-8",
+          "outcome": "WORKED",
+          "html_title": "Oregon Secretary of State : Upcoming Elections : State of Oregon"
+        },
+        {
+          "requested_url": "https://sos.oregon.gov/elections/pages/candidate-filings-local-measures.aspx",
+          "final_url": "https://sos.oregon.gov/elections/pages/candidate-filings-local-measures.aspx",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:38:40.364147+00:00",
+          "byte_count": 107280,
+          "sha256": "442a4034fe2c55cc1626c0c3a2de3380aa2a4a35464337a23bf052b1b29110c9",
+          "content_type": "text/html; charset=utf-8",
+          "outcome": "WORKED",
+          "html_title": "Oregon Secretary of State : Candidate Filings & Local Measures : State of Oregon"
+        },
+        {
+          "requested_url": "https://secure.sos.state.or.us/orestar/CFSearchPage.do",
+          "final_url": "https://secure.sos.state.or.us/orestar/CFSearchPage.do",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:38:38.542518+00:00",
+          "byte_count": 1523,
+          "sha256": "ed21d990e51a5500f0e64eadd8f36ffa4fcf793eb42135d37cbc1254d6a2b4b8",
+          "content_type": "text/html; charset=utf-8",
+          "outcome": "Blocked",
+          "html_title": "Please Contact Us",
+          "blocker": "Server returned access/security challenge rather than requested election data."
+        },
+        {
+          "requested_url": "https://sos.oregon.gov/elections/Pages/historical-data.aspx",
+          "final_url": "https://sos.oregon.gov/elections/Pages/historical-data.aspx",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:38:39.040374+00:00",
+          "byte_count": 135347,
+          "sha256": "5b8fb515e47090059925a2915932626899745a324de8630a041a10672cc08637",
+          "content_type": "text/html; charset=utf-8",
+          "outcome": "WORKED",
+          "html_title": "Oregon Secretary of State : Election Results & History : State of Oregon"
+        }
+      ],
+      "county_pamphlet_pdf_links": [
+        {
+          "county": "Baker",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book19_web.pdf",
+          "fetch_verified_here": true
+        },
+        {
+          "county": "Benton",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book6_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Clackamas",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book14_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Clatsop",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book11_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Columbia",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book11a_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Coos",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book1_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Crook",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book15_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Curry",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book1_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Deschutes",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book17_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Douglas",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book1_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Gilliam",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book16_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Grant",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book19_web.pdf",
+          "fetch_verified_here": true
+        },
+        {
+          "county": "Harney",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book19_web.pdf",
+          "fetch_verified_here": true
+        },
+        {
+          "county": "Hood River",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book15_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Jackson",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book3_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Jefferson",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book15_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Josephine",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book2_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Klamath",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book18_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Lake",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book19_web.pdf",
+          "fetch_verified_here": true
+        },
+        {
+          "county": "Lane",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book4_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Lincoln",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book5a_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Linn",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book7_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Malheur",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book19_web.pdf",
+          "fetch_verified_here": true
+        },
+        {
+          "county": "Marion",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book8_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Morrow",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book16_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Multnomah",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book13_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Polk",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book9_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Sherman",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book16_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Tillamook",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book5_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Umatilla",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book16a_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Union",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book16_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Wallowa",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book16_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Wasco",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book15_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Washington",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book12_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Wheeler",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book16_web.pdf",
+          "fetch_verified_here": false
+        },
+        {
+          "county": "Yamhill",
+          "url": "https://sos.oregon.gov/elections/Voters-Pamphlet/Documents/VP_G26-Book10_web.pdf",
+          "fetch_verified_here": false
+        }
+      ],
+      "date_scope_note": "General cycle/date verified by source page/title where fetched. Primary dates are official calendar/directory facts; no assumption that primary winners are certified general nominees."
+    },
+    {
+      "state": "PA",
+      "title": "Pennsylvania Department of State Candidate Database",
+      "candidate_url": "https://www.pavoterservices.pa.gov/ElectionInfo/ElectionInfo.aspx",
+      "candidate_landing_url": "https://www.pa.gov/agencies/dos/programs/voting-and-elections/running-for-office",
+      "results_url": "https://www.pa.gov/agencies/vote/elections/election-results",
+      "results_provider_url": "https://www.electionreturns.pa.gov/",
+      "classification": "candidate_database_blocked",
+      "certification_basis": "DOS Running for Office links candidate database and nomination petitions. Database returned anti-bot denial instead of candidate records. Petition filings, withdrawal list and primary write-ins cannot alone establish general ballot certification.",
+      "primary_dates": [
+        "2026-05-19"
+      ],
+      "runoff_dates": [],
+      "blockers": [
+        "Candidate database HTTP200 body is Request unsuccessful / Incapsula denial. No general candidate extraction possible in fetched response; no bypass attempted."
+      ],
+      "cycle": 2026,
+      "election_date": "2026-11-03",
+      "checked_at_utc": "2026-10-11T07:38:33.054871+00:00",
+      "verification": [
+        {
+          "requested_url": "https://www.pavoterservices.pa.gov/ElectionInfo/ElectionInfo.aspx",
+          "final_url": "https://www.pavoterservices.pa.gov/ElectionInfo/ElectionInfo.aspx",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:38:48.774095+00:00",
+          "byte_count": 1020,
+          "sha256": "6121302b76b155a3a0052518b3b46b61a7531fb78c36a136a8b3fc6d01768295",
+          "content_type": "text/html",
+          "outcome": "Blocked",
+          "html_title": null,
+          "blocker": "Server returned access/security challenge rather than requested election data."
+        },
+        {
+          "requested_url": "https://www.pa.gov/agencies/dos/programs/voting-and-elections/running-for-office",
+          "final_url": "https://www.pa.gov/agencies/dos/programs/voting-and-elections/running-for-office",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:38:46.244066+00:00",
+          "byte_count": 234319,
+          "sha256": "1bddcfa98913f8d7058163261ac98e1e69dced1e12ba2e63d9632e2473e824b3",
+          "content_type": "text/html;charset=utf-8",
+          "outcome": "WORKED",
+          "html_title": "Running for Office | Department of State | Commonwealth of Pennsylvania"
+        },
+        {
+          "requested_url": "https://www.pa.gov/agencies/vote/elections/election-results",
+          "final_url": "https://www.pa.gov/agencies/vote/elections/election-results",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:38:47.723382+00:00",
+          "byte_count": 217887,
+          "sha256": "50a43f66ffe4166fec91f445c54175954a39515eae889a813d18fe2ab1618aa6",
+          "content_type": "text/html;charset=utf-8",
+          "outcome": "WORKED",
+          "html_title": "Election Results | Voting & Election Information | Commonwealth of Pennsylvania"
+        },
+        {
+          "requested_url": "https://www.electionreturns.pa.gov/",
+          "final_url": "https://www.electionreturns.pa.gov/",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:38:44.077950+00:00",
+          "byte_count": 1024,
+          "sha256": "186c3cd45fc6cf0872e73019644bb390fe6f930eef47c4a234b59658bfcad6af",
+          "content_type": "text/html",
+          "outcome": "Blocked",
+          "html_title": null,
+          "blocker": "Server returned access/security challenge rather than requested election data."
+        }
+      ],
+      "date_scope_note": "General cycle/date verified by source page/title where fetched. Primary dates are official calendar/directory facts; no assumption that primary winners are certified general nominees."
+    },
+    {
+      "state": "RI",
+      "title": "Candidates in Upcoming Elections / candidate ballot-status database",
+      "candidate_url": "https://vote.sos.ri.gov/Candidates/CandidateSearch",
+      "candidate_example_url": "https://vote.sos.ri.gov/Candidates/CandidateSearchSummary?Election=18144&OfficeType=592",
+      "candidate_landing_url": "https://vote.sos.ri.gov/",
+      "results_url": "https://elections.ri.gov/elections/previous-election-results",
+      "results_provider_url": "https://electionresults.ri.gov/results/public/RhodeIsland/elections/RI2026StatewidePrimary",
+      "classification": "candidate_status_list_blocked",
+      "certification_basis": "Official indexed summary exposes On Election Ballot, Won Primary and certified-signature fields. Current direct fetch is Cloudflare HTTP403; indexed district2 snapshot is not a complete fresh statewide list. Candidate declaration is filing_list, not ballot certification.",
+      "primary_dates": [
+        "2026-09-09"
+      ],
+      "runoff_dates": [],
+      "blockers": [
+        "Candidate search and summary return HTTP403 JavaScript/cookie challenge. No challenge bypass attempted. Search-index snapshot only cannot certify complete statewide coverage."
+      ],
+      "cycle": 2026,
+      "election_date": "2026-11-03",
+      "checked_at_utc": "2026-10-11T07:38:33.054871+00:00",
+      "verification": [
+        {
+          "requested_url": "https://vote.sos.ri.gov/Candidates/CandidateSearch",
+          "final_url": "https://vote.sos.ri.gov/Candidates/CandidateSearch",
+          "http_status": 403,
+          "fetched_at_utc": "2026-10-11T07:38:42.278886+00:00",
+          "byte_count": 5527,
+          "sha256": "604e21c8c208ad23e4e033f4fac63f9afb6f8fc199732a7c1a03540b7681f0e8",
+          "content_type": "text/html; charset=UTF-8",
+          "outcome": "Blocked",
+          "html_title": "Just a moment...",
+          "blocker": "Server returned access/security challenge rather than requested election data."
+        },
+        {
+          "requested_url": "https://vote.sos.ri.gov/Candidates/CandidateSearchSummary?Election=18144&OfficeType=592",
+          "final_url": "https://vote.sos.ri.gov/Candidates/CandidateSearchSummary?Election=18144&OfficeType=592",
+          "http_status": 403,
+          "fetched_at_utc": "2026-10-11T07:38:42.818808+00:00",
+          "byte_count": 5732,
+          "sha256": "ad5e69ab8b8707f936c04f209cbb98a8ce6a586cc7ea9542a000845afeb508f5",
+          "content_type": "text/html; charset=UTF-8",
+          "outcome": "Blocked",
+          "html_title": "Just a moment...",
+          "blocker": "Server returned access/security challenge rather than requested election data."
+        },
+        {
+          "requested_url": "https://vote.sos.ri.gov/",
+          "final_url": "https://vote.sos.ri.gov/",
+          "http_status": 403,
+          "fetched_at_utc": "2026-10-11T07:38:41.595021+00:00",
+          "byte_count": 5427,
+          "sha256": "ee68c854abd6285f9462a054333c8070bd8426366acb9d54207ffef15fd79650",
+          "content_type": "text/html; charset=UTF-8",
+          "outcome": "Blocked",
+          "html_title": "Just a moment...",
+          "blocker": "Server returned access/security challenge rather than requested election data."
+        },
+        {
+          "requested_url": "https://elections.ri.gov/elections/previous-election-results",
+          "final_url": "https://elections.ri.gov/elections/previous-election-results",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:38:33.666748+00:00",
+          "byte_count": 161755,
+          "sha256": "7e7100dd01af81a5f676f3870ec849837f8e80a6fe8a4a4157b68ca2c2722602",
+          "content_type": "text/html; charset=utf-8",
+          "outcome": "WORKED",
+          "html_title": "Previous Election Results | Board of Elections"
+        },
+        {
+          "requested_url": "https://electionresults.ri.gov/results/public/RhodeIsland/elections/RI2026StatewidePrimary",
+          "final_url": "https://electionresults.ri.gov/results/public/RhodeIsland/elections/RI2026StatewidePrimary",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:38:33.751489+00:00",
+          "byte_count": 9684,
+          "sha256": "ca447d29617d4ab4140d12444db17119b4636bf37ee6be060f344256e91c6d26",
+          "content_type": "text/html",
+          "outcome": "WORKED",
+          "html_title": "Election Results"
+        }
+      ],
+      "date_scope_note": "General cycle/date verified by source page/title where fetched. Primary dates are official calendar/directory facts; no assumption that primary winners are certified general nominees."
+    },
+    {
+      "state": "SC",
+      "title": "11/3/2026 Statewide General Election Candidate Tracking",
+      "candidate_url": "https://vrems.scvotes.sc.gov/Candidate/CandidateSearch?electionId=22596",
+      "candidate_landing_url": "https://scvotes.gov/candidates/",
+      "candidate_selection_url": "https://vrems.scvotes.sc.gov/Candidate/SelectElection",
+      "election_directory_url": "https://vrems.scvotes.sc.gov/Candidate/GetElections?electionType=General&year=2026",
+      "results_url": "https://scvotes.gov/elections-statistics/election-results/",
+      "classification": "general_candidate_tracking_includes_ineligible",
+      "certification_basis": "SEC links Candidate Tracking. Public directory identifies electionId22596 as November3 statewide general. Search includes defeated, decertified, petition-failed and withdrawn candidates; use Candidate Status and actual ballot certification rather than assuming every row is a nominee.",
+      "primary_dates": [
+        "2026-06-09"
+      ],
+      "runoff_dates": [
+        "2026-06-23"
+      ],
+      "special_primary_dates": [
+        "2026-08-11"
+      ],
+      "special_runoff_dates": [
+        "2026-08-25"
+      ],
+      "blockers": [
+        "All-status general tracking response is not an exclusively certified ballot list. Certification must be established per eligible candidate/status."
+      ],
+      "cycle": 2026,
+      "election_date": "2026-11-03",
+      "checked_at_utc": "2026-10-11T07:38:33.054871+00:00",
+      "verification": [
+        {
+          "requested_url": "https://vrems.scvotes.sc.gov/Candidate/CandidateSearch?electionId=22596",
+          "final_url": "https://vrems.scvotes.sc.gov/Candidate/CandidateSearch?electionId=22596",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:38:44.469703+00:00",
+          "byte_count": 13770,
+          "sha256": "e3f7afb5f4807356515b3580925c1a1e74d4a7df22bc0c9c5dce75a1ee658818",
+          "content_type": "text/html; charset=utf-8",
+          "outcome": "WORKED",
+          "html_title": "Candidate Listing"
+        },
+        {
+          "requested_url": "https://scvotes.gov/candidates/",
+          "final_url": "https://scvotes.gov/candidates/",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:38:36.911525+00:00",
+          "byte_count": 97245,
+          "sha256": "0b3e1091afd0cd7a88f018875a2bf694c9ee4ad40552a7f1b93c9e09c381f324",
+          "content_type": "text/html; charset=UTF-8",
+          "outcome": "WORKED",
+          "html_title": "Candidates - SC Votes - South Carolina Election Commission"
+        },
+        {
+          "requested_url": "https://vrems.scvotes.sc.gov/Candidate/SelectElection",
+          "final_url": "https://vrems.scvotes.sc.gov/Candidate/SelectElection",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:38:43.829013+00:00",
+          "byte_count": 5534,
+          "sha256": "90752faa6bb85dbc0b494c23d9e3a377745f1ff93ded29fe0f1c5b6c00c81abd",
+          "content_type": "text/html; charset=utf-8",
+          "outcome": "WORKED",
+          "html_title": "Select Election"
+        },
+        {
+          "requested_url": "https://vrems.scvotes.sc.gov/Candidate/GetElections?electionType=General&year=2026",
+          "final_url": "https://vrems.scvotes.sc.gov/Candidate/GetElections?electionType=General&year=2026",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:38:43.608937+00:00",
+          "byte_count": 611,
+          "sha256": "52996df8a777d7028abc670673ba7f2d5150c464363f07e61cc49b4e2f10e0fe",
+          "content_type": "application/json; charset=utf-8",
+          "outcome": "WORKED",
+          "html_title": null
+        },
+        {
+          "requested_url": "https://scvotes.gov/elections-statistics/election-results/",
+          "final_url": "https://scvotes.gov/elections-statistics/election-results/",
+          "http_status": 200,
+          "fetched_at_utc": "2026-10-11T07:38:38.207534+00:00",
+          "byte_count": 91449,
+          "sha256": "9640696b09385736b36383cebcca0bf9d8ec73405b2f4370abb5f7501d12e748",
+          "content_type": "text/html; charset=UTF-8",
+          "outcome": "WORKED",
+          "html_title": "Election Results - SC Votes - South Carolina Election Commission"
+        }
+      ],
+      "public_form_search_verification": {
+        "http_status": 200,
+        "method": "POST",
+        "url": "https://vrems.scvotes.sc.gov/Candidate/CandidateSearch/",
+        "intent": "read_only_candidate_search",
+        "election_id": "22596",
+        "criteria": "all candidates; no filters",
+        "sha256": "acd306b9a93b7237f38ffb7ead8149413fb5d57bb9fbb0b3ba357b4145ca0e5d",
+        "byte_count": 635613,
+        "row_count": 1443,
+        "status_counts": {
+          "Active": 1175,
+          "Petition Failed": 8,
+          "Decertified before Primary": 1,
+          "Defeated In Primary": 215,
+          "Withdrew After Primary": 2,
+          "Withdrew Before Primary": 16,
+          "Defeated At Convention": 1,
+          "Deceased After Primary": 1,
+          "Not Certified for General": 2,
+          "Withdrew": 19,
+          "Not Certified for Primary": 1,
+          "Disqualified before Primary": 1,
+          "Deceased Before Election": 1
+        },
+        "federal_office_row_count": 14,
+        "outcome": "WORKED",
+        "no_personal_contact_data_retained": true
+      },
+      "date_scope_note": "General cycle/date verified by source page/title where fetched. Primary dates are official calendar/directory facts; no assumption that primary winners are certified general nominees."
+    }
+  ],
+  "service_context": {
+    "MemoryWeb": "connection refused",
+    "UltraRAG_health_http_status": 200,
+    "UltraRAG_search_http_status": 200,
+    "UltraRAG_relevant_results": 0
+  }
+}

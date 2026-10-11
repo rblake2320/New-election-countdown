@@ -1,0 +1,190 @@
+{
+  "source_head": "23c66e14a582b45110370a369ac4a566bc0a8297",
+  "checked_at_utc": "2026-10-11T09:35:23.865059+00:00",
+  "review_clearance": "Final B/C GeneralRoster clearance at23c66e1:12/12 requested cases Worked; exactimmutablehead pinned; no remainingmustfix in thisscope",
+  "test_path": "D:\\projects\\et-wt\\nc-sc-review-b23\\tests\\real-general-roster-independent.test.tsx",
+  "real_payloads": [
+    {
+      "path": "D:\\projects\\et-wt\\lane-c\\artifacts\\lane-c\\real-roster-payloads\\TX-32.json",
+      "sha256": "6bf8e0e2b13f86145242433affa11bd8e7102e02207f653fae9986c735574140",
+      "body_sha256": "c876200707832b31ba9548b244b21acf93035e295bfcfa87b2e76ae745b3c89d",
+      "capture_receipt": {
+        "source": "actual private PostgreSQL through real Express handler",
+        "httpStatus": 200,
+        "manifestSha256": "5b29c9843b89ecee021477ec481a64057d2f3d680af7df19d0dc373e88ca1c3e",
+        "capturedAt": "2026-10-11T09:34:04.817Z",
+        "electionId": 32
+      },
+      "name_count": 7,
+      "write_in_count": 4,
+      "incumbent_true_count": 0
+    },
+    {
+      "path": "D:\\projects\\et-wt\\lane-c\\artifacts\\lane-c\\real-roster-payloads\\NE-55.json",
+      "sha256": "f8ed34b906752af5e08e5c7cb92fa1096a7cd536f0f915582a55676b509acd8c",
+      "body_sha256": "16ea9c7f39888999ea5fdcf835b09cf545eb6f8642ecc37272bf234f0b934b64",
+      "capture_receipt": {
+        "source": "actual private PostgreSQL through real Express handler",
+        "httpStatus": 200,
+        "manifestSha256": "5b29c9843b89ecee021477ec481a64057d2f3d680af7df19d0dc373e88ca1c3e",
+        "capturedAt": "2026-10-11T09:34:03.942Z",
+        "electionId": 55
+      },
+      "name_count": 4,
+      "write_in_count": 0,
+      "incumbent_true_count": 1
+    },
+    {
+      "path": "D:\\projects\\et-wt\\lane-c\\artifacts\\lane-c\\real-roster-payloads\\WA-329.json",
+      "sha256": "2da7bcb18aa61330304762e0846adb1b722f9719a02cb513eb662b771e2e87dd",
+      "body_sha256": "8e4c83709d9ebb6616ee591a5ca9a6a8c47a05993ea3edb09d0973a3fdd2ef3b",
+      "capture_receipt": {
+        "source": "actual private PostgreSQL through real Express handler",
+        "httpStatus": 200,
+        "manifestSha256": "5b29c9843b89ecee021477ec481a64057d2f3d680af7df19d0dc373e88ca1c3e",
+        "capturedAt": "2026-10-11T09:34:04.878Z",
+        "electionId": 329
+      },
+      "name_count": 2,
+      "write_in_count": 0,
+      "incumbent_true_count": 0
+    },
+    {
+      "path": "D:\\projects\\et-wt\\lane-c\\artifacts\\lane-c\\real-roster-payloads\\NV-475.json",
+      "sha256": "842d79a84539a96b888d07b7efa4799bcaa22f69e59cb7d2c1bdb8881c4d009d",
+      "body_sha256": "506b9707b8ae8138fa92d1f1c5d9c8625c6b59b04c190328a7b847d03352ce8a",
+      "capture_receipt": {
+        "source": "actual private PostgreSQL through real Express handler",
+        "httpStatus": 200,
+        "manifestSha256": "5b29c9843b89ecee021477ec481a64057d2f3d680af7df19d0dc373e88ca1c3e",
+        "capturedAt": "2026-10-11T09:34:04.082Z",
+        "electionId": 475
+      },
+      "name_count": 3,
+      "write_in_count": 0,
+      "incumbent_true_count": 0
+    }
+  ],
+  "tests_passed": 12,
+  "tests_failed": 0,
+  "worked": [
+    "All16 actual real-payload candidate names preserved acrossTX7/NE4/WA2/NV3",
+    "FourTX write-in markers with no guessed unknownparty",
+    "Only one explicitNE incumbent, none invented",
+    "WA party preference rawsource wording retained verbatim with parentheses",
+    "All official source URLs,publisher calendar dates andOct11checked dates rendered",
+    "Firstload undefined-data503 honesterror now visible",
+    "Loading/route404/election_not_found/not_recorded/staledata-error boundaries"
+  ],
+  "environment": "Offline Vitest/jsdom only; actual GeneralRoster/helpers/UI; only useGeneralRoster boundary mocked; zero fetch/browser/server/DB access.",
+  "tracked_source_unchanged": true,
+  "prior_failure_receipts_preserved": [
+    {
+      "path": "D:\\projects\\et-wt\\nc-sc-review-ba90\\artifacts\\real-general-roster-review-receipt-a90ae7e.json",
+      "sha256": "02e2bcc7593809a0ad0db4e9ea867039753461deb73f9a5d10d0f8ba05621e75"
+    },
+    {
+      "path": "D:\\projects\\et-wt\\nc-sc-review-b36c\\artifacts\\real-general-roster-review-receipt-36c7f3f.json",
+      "sha256": "56b0ef5fdbf9f2cb4a1c26902380e3ca886c780792d6584471cea19bc09ecd19"
+    }
+  ],
+  "observations": [
+    {
+      "payload": "TX-32",
+      "sha256": "6bf8e0e2b13f86145242433affa11bd8e7102e02207f653fae9986c735574140",
+      "candidateCount": 7,
+      "renderedText": "Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Avery AyersWrite-inBradford \"Brad\" HallWrite-inJade SimmonsWrite-inJames TalaricoDemocraticKen PaxtonRepublicanTED BROWNLibertarianZul MohamedWrite-inSource: Texas Secretary of State Certified Declared Write-In Candidates (published Aug 28, 2026) \u00b7 checked Oct 11, 2026Source: Texas Secretary of State Final Ballot Certification Report (published Aug 28, 2026) \u00b7 checked Oct 11, 2026",
+      "links": [
+        {
+          "text": "Texas Secretary of State Certified Declared Write-In Candidates",
+          "href": "https://www.sos.texas.gov/elections/forms/2026-write-In-ballot-cert.pdf"
+        },
+        {
+          "text": "Texas Secretary of State Final Ballot Certification Report",
+          "href": "https://www.sos.texas.gov/elections/forms/2026-ballot-cert.pdf"
+        }
+      ]
+    },
+    {
+      "payload": "NE-55",
+      "sha256": "f8ed34b906752af5e08e5c7cb92fa1096a7cd536f0f915582a55676b509acd8c",
+      "candidateCount": 4,
+      "renderedText": "Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Brett LindstromAmerica FirstJim PillenRepublicanIncumbentLynne WalzDemocraticRick BeardLegal Marijuana NOWSource: Nebraska Secretary of State Final Statewide General Candidate List (published Sep 11, 2026) \u00b7 checked Oct 11, 2026",
+      "links": [
+        {
+          "text": "Nebraska Secretary of State Final Statewide General Candidate List",
+          "href": "https://sos.nebraska.gov/sites/default/files/doc/elections/2026/Final_Statewide_General_Candidate_Filing_List_9.11.26.pdf"
+        }
+      ]
+    },
+    {
+      "payload": "WA-329",
+      "sha256": "2da7bcb18aa61330304762e0846adb1b722f9719a02cb513eb662b771e2e87dd",
+      "candidateCount": 2,
+      "renderedText": "Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Mary Silva(Prefers Republican Party)Suzan DelBene(Prefers Democratic Party)Source: Washington Secretary of State Certification of Candidates to General Election (published Aug 21, 2026) \u00b7 checked Oct 11, 2026",
+      "links": [
+        {
+          "text": "Washington Secretary of State Certification of Candidates to General Election",
+          "href": "https://www.sos.wa.gov/sites/default/files/2026-08/2026%20Certification%20of%20Candidates%20to%20General%20Election.pdf"
+        }
+      ]
+    },
+    {
+      "payload": "NV-475",
+      "sha256": "842d79a84539a96b888d07b7efa4799bcaa22f69e59cb7d2c1bdb8881c4d009d",
+      "candidateCount": 3,
+      "renderedText": "Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Jon KamerathIndependent American PartyMarty O'DonnellRepublicanSusie LeeDemocraticSource: 2026 General Election Statewide Certified List of Candidates (published Aug 25, 2026) \u00b7 checked Oct 11, 2026",
+      "links": [
+        {
+          "text": "2026 General Election Statewide Certified List of Candidates",
+          "href": "https://www.nvsos.gov/home/showpublisheddocument/20105/639232733439300000"
+        }
+      ]
+    },
+    {
+      "payload": "TX-32",
+      "sha256": "6bf8e0e2b13f86145242433affa11bd8e7102e02207f653fae9986c735574140",
+      "candidateCount": 7,
+      "renderedText": "Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Avery AyersWrite-inBradford \"Brad\" HallWrite-inJade SimmonsWrite-inJames TalaricoDemocraticKen PaxtonRepublicanTED BROWNLibertarianZul MohamedWrite-inSource: Texas Secretary of State Certified Declared Write-In Candidates (published Aug 28, 2026) \u00b7 checked Oct 11, 2026Source: Texas Secretary of State Final Ballot Certification Report (published Aug 28, 2026) \u00b7 checked Oct 11, 2026",
+      "links": [
+        {
+          "text": "Texas Secretary of State Certified Declared Write-In Candidates",
+          "href": "https://www.sos.texas.gov/elections/forms/2026-write-In-ballot-cert.pdf"
+        },
+        {
+          "text": "Texas Secretary of State Final Ballot Certification Report",
+          "href": "https://www.sos.texas.gov/elections/forms/2026-ballot-cert.pdf"
+        }
+      ]
+    },
+    {
+      "payload": "WA-329",
+      "sha256": "2da7bcb18aa61330304762e0846adb1b722f9719a02cb513eb662b771e2e87dd",
+      "candidateCount": 2,
+      "renderedText": "Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Mary Silva(Prefers Republican Party)Suzan DelBene(Prefers Democratic Party)Source: Washington Secretary of State Certification of Candidates to General Election (published Aug 21, 2026) \u00b7 checked Oct 11, 2026",
+      "links": [
+        {
+          "text": "Washington Secretary of State Certification of Candidates to General Election",
+          "href": "https://www.sos.wa.gov/sites/default/files/2026-08/2026%20Certification%20of%20Candidates%20to%20General%20Election.pdf"
+        }
+      ]
+    },
+    {
+      "boundary": "undefined-data + error",
+      "renderedText": "Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.The official list could not be loaded right now.",
+      "rosterPresent": true
+    }
+  ],
+  "sha256": {
+    "tests\\real-general-roster-independent.test.tsx": "c621718a5b5ab18b80dd4c9bf8d848ef7b26dc38078e95058ab56c5195c9f1a1",
+    "artifacts\\real-general-roster-review-23c66e1.json": "4fc73f4af6d1f24d5b56fa824e4b0cf89ee2e72d14cfb142290f13d99c0dcdee",
+    "artifacts\\real-general-roster-review-23c66e1.log": "57868721bd4fb9caa32caa1fe090f7c4ddf7dbdec0501d96dab917e85352b510",
+    "client\\src\\components\\general-roster.tsx": "e5ec7d54a98b2fa0e3ebc547f17398478efdad44d2182490e5018ee3e36a1215",
+    "client\\src\\lib\\general-roster.ts": "3e21ea245048a04aafb16a449894d14edc306a15d4871a1bb212e1c71a23f1c4"
+  },
+  "client_source_delta_from_78bccfe": "none;23c66e1 contains only adoptedtestsource changes",
+  "previous_clear_receipt": {
+    "path": "D:\\projects\\et-wt\\nc-sc-review-b78\\artifacts\\real-general-roster-review-receipt-78bccfe.json",
+    "sha256": "0172d6294c1996c4b85f37a75252ca8f1f7a91da46e91c1ba121226bb8f1f5c3"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "coverageProof": {
+    "classification": "official General Election 2026 candidate list; no express certification assertion in inspected first page",
+    "landingUrl": "https://www.sos.nh.gov/2026-election-details",
+    "method": "Actual Chrome-rendered PDF page1 visual extraction; Governor and Senate closed groups followed by both House districts, then Executive Council. 46-page document.",
+    "scopeBoundaries": [
+      "Governor -> United States Senator",
+      "United States Senator -> Representative in Congress",
+      "House District1 -> District2 -> Executive Councilor"
+    ],
+    "expectedCounts": {
+      "G00": 3,
+      "S00": 3,
+      "H01": 2,
+      "H02": 3
+    },
+    "documentHashStatus": "Raw HTTP403 and normal Chrome download20s timeout; PDFrender succeeded. Source hash null rather than a hash of rejection HTML.",
+    "incumbency": "Source contains no incumbent indicators for these rows; all incumbent=null",
+    "status": "draft; no DB apply"
+  }
+}
