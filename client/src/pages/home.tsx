@@ -201,8 +201,8 @@ export default function Home() {
                   aria-label="Search elections and candidates"
                 />
               </div>
-              <Link href="/congress">
-                <Button variant="outline" size="sm" className="hidden sm:inline-flex">
+              <Link href="/congress" className="hidden sm:inline-flex">
+                <Button variant="outline" size="sm">
                   <Users className="h-4 w-4 mr-1" />
                   Congress
                 </Button>

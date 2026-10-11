@@ -127,7 +127,7 @@ export default function FilterSidebar({ filters, onFiltersChange }: FilterSideba
             <Select value={filters.state || "all"} onValueChange={(value) => 
               onFiltersChange({ ...filters, state: value === "all" ? undefined : value })
             }>
-              <SelectTrigger>
+              <SelectTrigger aria-label="State">
                 <SelectValue placeholder="All States" />
               </SelectTrigger>
               <SelectContent>
@@ -208,7 +208,7 @@ export default function FilterSidebar({ filters, onFiltersChange }: FilterSideba
             <Select value={filters.timeframe || "all"} onValueChange={(value) => 
               onFiltersChange({ ...filters, timeframe: value === "all" ? undefined : value })
             }>
-              <SelectTrigger>
+              <SelectTrigger aria-label="Time range">
                 <SelectValue placeholder="All Time" />
               </SelectTrigger>
               <SelectContent>
