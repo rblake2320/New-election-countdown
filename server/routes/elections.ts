@@ -14,7 +14,7 @@ export const electionsRouter = Router();
 electionsRouter.get("/:id/political-analysis", async (req, res) => {
   try {
     const id = Number(req.params.id);
-    if (!Number.isFinite(id)) {
+    if (!Number.isInteger(id) || id <= 0) {
       return res.status(400).json({ error: "Invalid election ID" });
     }
 
@@ -59,7 +59,7 @@ electionsRouter.get("/:id/political-analysis", async (req, res) => {
 electionsRouter.post("/:id/voting-intention", async (req, res) => {
   try {
     const id = Number(req.params.id);
-    if (!Number.isFinite(id)) {
+    if (!Number.isInteger(id) || id <= 0) {
       return res.status(400).json({ error: "Invalid election ID" });
     }
 
@@ -86,6 +86,24 @@ electionsRouter.post("/:id/voting-intention", async (req, res) => {
 // EXISTING ENDPOINTS
 // =============================================================================
 
+// Candidate rows come from Drizzle (camelCase) or raw SQL (snake_case); read both so
+// FEC identity and source markers survive the enrichment projection.
+function candidateExternalIds(c: any) {
+  return {
+    votesmart_id: c?.votesmartId ?? c?.votesmart_id ?? null,
+    fec_id: c?.fecCandidateId ?? c?.fec_candidate_id ?? null,
+    bioguide_id: c?.bioguideId ?? c?.bioguide_id ?? null,
+  };
+}
+function candidateSourceMarkers(c: any) {
+  return {
+    data_source: c?.dataSource ?? c?.data_source ?? null,
+    source_status: c?.sourceStatus ?? c?.source_status ?? null,
+    ballot_status: c?.ballotStatus ?? c?.ballot_status ?? null,
+    fec_status: c?.fecStatus ?? c?.fec_status ?? null,
+  };
+}
+
 // Candidates for many races in ONE request (UX review P1: list mode fired one
 // /:id/candidates call per card -> 506 requests and 429s). Base fields only; the
 // enriched per-race route stays for the detail page. MUST BE BEFORE /:id.
@@ -108,7 +126,7 @@ electionsRouter.get("/candidates-batch", async (req, res) => {
         profile_image_url: c.profileImageUrl, profileImageUrl: c.profileImageUrl, website: c.website,
         is_verified: c.isVerified, isVerified: c.isVerified, pollingSupport: c.pollingSupport,
         dataSource: (c as any).dataSource ?? null, sourceStatus: (c as any).sourceStatus ?? null,
-        ballotStatus: (c as any).ballotStatus ?? null,
+        ballotStatus: (c as any).ballotStatus ?? null, fecCandidateId: (c as any).fecCandidateId ?? null,
       });
     }
     // Never substitute another race's candidates: an id with no rows stays [] (explicit).
@@ -175,7 +193,7 @@ electionsRouter.get("/counts", async (req, res) => {
 electionsRouter.get("/:id", async (req, res) => {
   try {
     const id = Number(req.params.id);
-    if (!Number.isFinite(id)) {
+    if (!Number.isInteger(id) || id <= 0) {
       return res.status(400).json({ error: "Invalid ID" });
     }
 
@@ -203,7 +221,8 @@ electionsRouter.get("/:id", async (req, res) => {
 electionsRouter.get("/:id/candidates", async (req, res) => {
   try {
     const id = Number(req.params.id);
-    if (!Number.isFinite(id)) return res.status(400).json({ error: 'bad id' });
+    // Integer ids only: '2.5' is finite but is not an election id (was a 500 downstream).
+    if (!Number.isInteger(id) || id <= 0) return res.status(400).json({ error: 'bad id' });
 
     // Helper function to enrich candidate data with VoteSmart information
     const enrichCandidateData = async (candidate: any) => {
@@ -239,8 +258,9 @@ electionsRouter.get("/:id/candidates", async (req, res) => {
 
       try {
         // Try to get comprehensive candidate data from CivicAggregator
-        if (candidate.votesmart_id || candidate.name) {
-          const searchId = candidate.votesmart_id || candidate.name;
+        const votesmartId = candidate.votesmartId ?? candidate.votesmart_id;
+        if (votesmartId || candidate.name) {
+          const searchId = votesmartId || candidate.name;
           const comprehensiveData = await civicAggregatorService.getComprehensiveCandidateData([searchId], id.toString());
 
           if (comprehensiveData && comprehensiveData.length > 0) {
@@ -275,11 +295,8 @@ electionsRouter.get("/:id/candidates", async (req, res) => {
               last_data_update: enrichedData.voteSmartData?.lastUpdated || new Date().toISOString(),
 
               // Additional identifiers for data linking
-              external_ids: {
-                votesmart_id: candidate.votesmart_id,
-                fec_id: candidate.fec_candidate_id,
-                bioguide_id: candidate.bioguide_id
-              }
+              external_ids: candidateExternalIds(candidate),
+              source: candidateSourceMarkers(candidate)
             };
           }
         }
@@ -305,11 +322,8 @@ electionsRouter.get("/:id/candidates", async (req, res) => {
             ['VoteSmart data not yet available for this candidate'] :
             ['VoteSmart API key required for comprehensive candidate data - configure VOTESMART_API_KEY to unlock detailed biographies, positions, and voting records'],
           last_data_update: new Date().toISOString(),
-          external_ids: {
-            votesmart_id: candidate.votesmart_id,
-            fec_id: candidate.fec_candidate_id,
-            bioguide_id: candidate.bioguide_id
-          }
+          external_ids: candidateExternalIds(candidate),
+              source: candidateSourceMarkers(candidate)
         };
 
       } catch (enrichmentError) {
@@ -334,11 +348,8 @@ electionsRouter.get("/:id/candidates", async (req, res) => {
           },
           data_issues: [`Data enrichment temporarily unavailable: ${enrichmentError instanceof Error ? enrichmentError.message : 'Unknown error'}`],
           last_data_update: new Date().toISOString(),
-          external_ids: {
-            votesmart_id: candidate.votesmart_id,
-            fec_id: candidate.fec_candidate_id,
-            bioguide_id: candidate.bioguide_id
-          }
+          external_ids: candidateExternalIds(candidate),
+              source: candidateSourceMarkers(candidate)
         };
       }
     };
@@ -387,7 +398,7 @@ electionsRouter.get("/:electionId/candidates/:candidateId", async (req, res) => 
     const electionId = Number(req.params.electionId);
     const candidateId = Number(req.params.candidateId);
 
-    if (!Number.isFinite(electionId) || !Number.isFinite(candidateId)) {
+    if (!Number.isInteger(electionId) || electionId <= 0 || !Number.isInteger(candidateId) || candidateId <= 0) {
       return res.status(400).json({ error: 'Invalid ID parameters' });
     }
 
@@ -401,7 +412,7 @@ electionsRouter.get("/:electionId/candidates/:candidateId", async (req, res) => 
 
     try {
       // Get comprehensive candidate data using CivicAggregator
-      const searchId = candidate.votesmart_id || candidate.name;
+      const searchId = candidate.votesmartId ?? candidate.votesmart_id ?? candidate.name;
       const comprehensiveData = await civicAggregatorService.getComprehensiveCandidateData([searchId], electionId.toString());
 
       const baseResponse = {
@@ -428,11 +439,8 @@ electionsRouter.get("/:electionId/candidates/:candidateId", async (req, res) => 
         photo_url: null,
 
         // External identifiers
-        external_ids: {
-          votesmart_id: candidate.votesmart_id,
-          fec_id: candidate.fec_candidate_id,
-          bioguide_id: candidate.bioguide_id
-        },
+        external_ids: candidateExternalIds(candidate),
+              source: candidateSourceMarkers(candidate),
 
         // Election context
         election_id: electionId,

@@ -8,7 +8,7 @@ process.env.JWT_SECRET ??= "test-only-secret-for-import";
 process.env.SESSION_SECRET ??= "test-only-secret-for-import";
 
 const rows = [
-  { id: 1, electionId: 2, name: "Dan Sullivan", party: "R", isIncumbent: true, profileImageUrl: null, website: null, isVerified: false, pollingSupport: 48, dataSource: "fec_bulk", sourceStatus: "fec_registered", ballotStatus: "not_certified" },
+  { id: 1, electionId: 2, name: "Dan Sullivan", party: "R", isIncumbent: true, profileImageUrl: null, website: null, isVerified: false, pollingSupport: 48, dataSource: "fec_bulk", sourceStatus: "fec_registered", ballotStatus: "not_certified", fecCandidateId: "S4AK00214", fecStatus: "C" },
   { id: 2, electionId: 2, name: "Mary Peltola", party: "D", isIncumbent: false, profileImageUrl: null, website: null, isVerified: false, pollingSupport: 46, dataSource: "fec_bulk", sourceStatus: "fec_registered", ballotStatus: "not_certified" },
 ];
 const getCandidatesByElections = vi.fn(async (ids: number[]) => rows.filter(r => ids.includes(r.electionId)));
@@ -45,7 +45,7 @@ describe("GET /api/elections/candidates-batch", () => {
     expect(r.body.candidates["2"].map((c: any) => c.name)).toEqual(["Dan Sullivan", "Mary Peltola"]);
     expect(r.body.candidates["37"]).toEqual([]);      // governor race stays empty, no Senate bios
     expect(r.body.candidates["506"]).toEqual([]);
-    expect(r.body.candidates["2"][0]).toMatchObject({ sourceStatus: "fec_registered", ballotStatus: "not_certified" });
+    expect(r.body.candidates["2"][0]).toMatchObject({ sourceStatus: "fec_registered", ballotStatus: "not_certified", fecCandidateId: "S4AK00214" });
     expect(r.headers["Cache-Control"]).toMatch(/max-age=300/);
   });
 
@@ -78,6 +78,22 @@ describe("GET /api/elections/:id/candidates never substitutes another race", () 
     expect(r.statusCode).toBe(200);
     expect(r.body).toEqual([]);
     expect(r.headers["X-Candidate-Provenance"]).toBe("none");
+  });
+
+  it("rejects fractional and non-positive ids with 400 instead of a downstream 500", async () => {
+    for (const id of ["2.5", "0", "-3", "abc", "1e3x"]) {
+      const r = res(); await handler({ params: { id }, query: {} }, r);
+      expect(r.statusCode, id).toBe(400);
+    }
+  });
+
+  it("projects FEC identity and source markers from camelCase Drizzle rows", async () => {
+    const r = res();
+    await handler({ params: { id: "2" }, query: {} }, r);
+    expect(r.statusCode).toBe(200);
+    const sullivan = r.body.find((c: any) => c.name === "Dan Sullivan");
+    expect(sullivan.external_ids.fec_id).toBe("S4AK00214");
+    expect(sullivan.source).toMatchObject({ data_source: "fec_bulk", source_status: "fec_registered", ballot_status: "not_certified", fec_status: "C" });
   });
 
   it("404s only when the election does not exist", async () => {
