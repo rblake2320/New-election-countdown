@@ -15,6 +15,10 @@ const password = randomBytes(24).toString('hex');
 const databaseURL = `postgresql://et_test:${password}@${db}:5432/et_test`;
 const evidence = process.env.CONTAINER_EVIDENCE_DIR || 'test-results/container';
 const preview = process.env.TEST_BROWSER_PREVIEW === '1';
+const previewPort = Number(process.env.TEST_BROWSER_PORT || 5059);
+if (preview && (!Number.isInteger(previewPort) || previewPort < 1024 || previewPort > 65535)) {
+  throw new Error('TEST_BROWSER_PORT must be an integer from 1024 to 65535');
+}
 await fs.mkdir(evidence, { recursive: true });
 const docker = async (...args) => {
   try {
@@ -41,7 +45,7 @@ try {
     '-e', `DATABASE_URL=${databaseURL}`, '--entrypoint', 'npx', builder, 'drizzle-kit', 'push', '--force');
   await fs.writeFile(`${evidence}/schema.log`, schemaLog);
   await docker('run', '-d', '--name', app, '--network', network,
-    ...(preview ? ['-p', '127.0.0.1:5059:5000'] : []),
+    ...(preview ? ['-p', `127.0.0.1:${previewPort}:5000`] : []),
     '-e', `DATABASE_URL=${databaseURL}`, '-e', `JWT_SECRET=${password}`,
     '-e', `CANDIDATE_JWT_SECRET=${password}`, '-e', 'APP_ORIGIN=http://127.0.0.1:5000', image);
   const probe = `Promise.all(['/', '/api/health', '/api/elections'].map(async path => {
@@ -99,8 +103,8 @@ try {
     report.listingContract = JSON.parse(await docker('exec', app, 'node', '--input-type=module', '-e', listingProbe));
   }
   if (preview) {
-    report.network = 'isolated test bridge; browser preview bound only to 127.0.0.1:5059';
-    console.log('Isolated browser preview ready at http://127.0.0.1:5059 (maximum 5 minutes)');
+    report.network = `isolated test bridge; browser preview bound only to 127.0.0.1:${previewPort}`;
+    console.log(`Isolated browser preview ready at http://127.0.0.1:${previewPort} (maximum 5 minutes)`);
     for (let i = 0; i < 300; i++) {
       try { await fs.access(`${evidence}/browser-done`); break; } catch {}
       await delay();
