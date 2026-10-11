@@ -24,6 +24,10 @@ const officialSourceUrl=z.string().url().refine(value=>{
     && u.searchParams.get('id')==='/administration/elect/Public/Sample Ballots/20261103 Federal General Sample Ballots/01-BONN92.pdf';
   return u.protocol==='https:' && !u.username && !u.password && (!u.port || u.port==='443') && (u.hostname.endsWith('.gov') || /\.state\.[a-z]{2}\.us$/i.test(u.hostname) || ncOfficialBucket || floridaOfficialPortal || michiganOfficialPortal || tennesseeOfficialFiles || oregonOfficialDirective || montanaReviewedBallot);
 },'Expected an official government HTTPS source');
+// Government-linked OCPF filing proves this person's name/office only.
+// It cannot serve as a general-list source or party evidence.
+export const MASSACHUSETTS_JAMES_IDENTITY_URL='https://ocpf2.blob.core.windows.net/pdf/filers/19010/19010-cpf101-1-030325.pdf';
+const identityEvidenceUrl=z.union([officialSourceUrl,z.literal(MASSACHUSETTS_JAMES_IDENTITY_URL)]);
 const scopeSchema = z.object({ office:z.enum(['H','S','G']), district:z.string().regex(/^\d{2}$/), partyRaw:z.string().optional(),ballotAccessType:access.optional(),expectedCount:z.number().int().nonnegative() }).strict();
 const sourceSchema = z.object({
   id:z.string().min(1), state:stateCode, kind:z.literal('official_general_candidate_list'),
@@ -44,7 +48,7 @@ const rowSchema = z.object({
   partyValue:z.string().trim().max(100).optional(),
   partyLabels:z.array(z.string().trim().min(1).max(100)).min(1).optional(),
   partyEvidence:z.object({url:officialSourceUrl,sha256:z.string().regex(/^[a-f0-9]{64}$/).nullable(),sourcePage:z.number().int().positive().optional(),title:z.string().min(1)}).strict().optional(),
-  identityEvidence:z.object({url:officialSourceUrl,sha256:z.string().regex(/^[a-f0-9]{64}$/).nullable(),sourcePage:z.number().int().positive().optional(),title:z.string().min(1)}).strict().optional(),
+  identityEvidence:z.object({url:identityEvidenceUrl,sha256:z.string().regex(/^[a-f0-9]{64}$/).nullable(),sourcePage:z.number().int().positive().optional(),title:z.string().min(1)}).strict().optional(),
   sourcePage:z.number().int().positive().optional(),ticketText:z.string().optional(),raceTitle:z.string().optional(),ballotAccessType:access.optional(),
   aliases:z.array(z.string().min(1).max(200)).optional(),ballotName:z.string().min(1).max(200).optional(),
 }).strict();
@@ -74,6 +78,7 @@ export function parseNomineeManifest(raw:unknown):NomineeManifest {
   for(const r of m.candidates){
     const source=m.sources.find(s=>s.id===r.sourceId);
     if(!source || source.state!==r.state || source.electionDate!==r.date)throw new Error('candidate does not match its source state/date');
+    if(r.identityEvidence?.url===MASSACHUSETTS_JAMES_IDENTITY_URL && (r.state!=='MA'||r.office!=='G'||r.name!=='Andrea Corinne James'))throw new Error('Reviewed OCPF name identity does not match this candidate and office');
     if(r.office!=='H' && r.district!=='00')throw new Error('Statewide office must use district 00');
     if(r.partyBasis==='filing_method' && r.partyValue)throw new Error('A filing method cannot establish party affiliation');
     if(r.partyLabels && !r.partyLabels.includes(r.partyRaw))throw new Error('Primary raw party label must be one of the actual ballot lines');

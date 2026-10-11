@@ -95,7 +95,24 @@ try{
     if(existsSync(immutable)){
      const retained=JSON.parse(readFileSync(immutable,'utf8'));
      const comparable=(value:{candidates:Array<{id:number}>})=>({...value,candidates:value.candidates.map(c=>({...c,id:existingIds.includes(c.id)?c.id:null}))});
-     assert.deepEqual(comparable(retained.body),comparable(body),'Previously reviewed extended response facts changed');
+     if(firstRecord.state==='MA' && id===52 && retained.body.candidates.length===2 && manifest.candidates.filter(r=>r.state==='MA'&&r.office==='G').length===3){
+      // Explicit reviewed source update: a third Governor identity is resolved
+      // and the same general publication now has a complete printed scope.
+      const proof=JSON.parse(readFileSync('artifacts/lane-c/sources/ma-secondary-identity-ocpf.json','utf8'));
+      assert.deepEqual(body.candidates.map((c:{name:string})=>c.name).sort(),['Healey and Driscoll','James and Kittredge','Minogue and Oliver']);
+      assert.equal(body.coverage,'scoped');assert.equal(body.sources.length,1);
+      assert.deepEqual(body.sources[0].scope,{office:'G',district:'00',expectedCount:3,ballotAccessType:'printed'});
+      const added=body.candidates.find((c:{name:string})=>c.name==='James and Kittredge');
+      assert.equal(added.party,'I');assert.equal(added.generalListSource.legalName,proof.legalName);
+      assert.equal(added.generalListSource.identityEvidence.url,proof.identityDocument.url);
+      assert.equal(added.generalListSource.identityEvidence.sha256,proof.identityDocument.sha256);
+      const facts=(c:{id:number,generalListCheckedAt:string,generalListSnapshotSha256:string})=>({...c,id:existingIds.includes(c.id)?c.id:null,generalListCheckedAt:null,generalListSnapshotSha256:null});
+      for(const old of retained.body.candidates){
+       const current=body.candidates.find((c:{name:string})=>c.name===old.name);
+       assert.deepEqual(facts(current),facts(old),'Previously recorded Governor facts/profile changed');
+       assert(new Date(current.generalListCheckedAt)>=new Date(old.generalListCheckedAt));
+      }
+     }else assert.deepEqual(comparable(retained.body),comparable(body),'Previously reviewed extended response facts changed');
     }
     const capture=JSON.stringify({receipt:{source:'actual private PostgreSQL through real Express handler',httpStatus:response.status,manifestSha256:hash,capturedAt:new Date().toISOString(),electionId:id},body},null,2);
     if(!existsSync(immutable))writeFileSync(immutable,capture);

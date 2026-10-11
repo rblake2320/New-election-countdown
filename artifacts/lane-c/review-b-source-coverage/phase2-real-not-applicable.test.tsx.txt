@@ -1,0 +1,15 @@
+import React from 'react';
+import {readFileSync,appendFileSync} from 'node:fs';
+import {join} from 'node:path';
+import {createHash} from 'node:crypto';
+import {beforeEach,afterEach,it,expect,vi} from 'vitest';
+import {render,screen,cleanup} from '@testing-library/react';
+import {GeneralRoster} from '../client/src/components/general-roster';
+const boundary=vi.hoisted(()=>({data:undefined as any,isLoading:false,error:null as Error|null}));
+vi.mock('../client/src/hooks/use-general-roster',()=>({useGeneralRoster:()=>boundary}));
+const cases=[['LA',429,'primary'],['TX',998,'primary'],['LA',534,'runoff']] as const;
+const captures=cases.map(([state,id,type])=>{const path=join(__dirname,`fixtures/phase2-not-applicable-8229e8e/real-${state}-${id}-general-roster.json`);const bytes=readFileSync(path);const captured=JSON.parse(bytes.toString('utf8'));if(captured.receipt.httpStatus!==200||captured.receipt.electionContext.id!==id||captured.receipt.electionContext.type!==type||captured.body.status!=='not_applicable')throw new Error('Expected actual root non-General PostgreSQL/HTTP capture');return {state,id,type,...captured,sha256:createHash('sha256').update(bytes).digest('hex')};});
+const deniedFetch=vi.fn(()=>{throw new Error('Network forbidden in offline receiving review');});
+beforeEach(()=>{Object.assign(boundary,{data:undefined,isLoading:false,error:null});deniedFetch.mockClear();vi.stubGlobal('fetch',deniedFetch);});
+afterEach(()=>{expect(deniedFetch).not.toHaveBeenCalled();cleanup();vi.unstubAllGlobals();});
+it.each(captures)('$state $id actual $type not_applicable response hides the General roster without a missing-roster claim',p=>{boundary.data=p.body;const view=render(<GeneralRoster electionId={p.body.electionId}/>);expect(view.container.textContent).toBe('');expect(screen.queryByTestId('general-roster')).toBeNull();expect(screen.queryByTestId('general-roster-empty')).toBeNull();expect(screen.queryByRole('list')).toBeNull();const observation={state:p.state+'-'+p.id,type:p.type,payloadSha256:p.sha256,status:p.body.status,renderedText:view.container.textContent,sourceLinks:[],componentFetchCalls:deniedFetch.mock.calls.length};if(process.env.PHASE2_RECEIVING_OBSERVATION_FILE)appendFileSync(process.env.PHASE2_RECEIVING_OBSERVATION_FILE,JSON.stringify(observation)+'\n');});

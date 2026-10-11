@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { parseNomineeManifest, planNomineeRefresh } from '../server/candidate-nominee-sync';
+import { parseNomineeManifest, planNomineeRefresh, MASSACHUSETTS_JAMES_IDENTITY_URL } from '../server/candidate-nominee-sync';
 const source = { id:'fixture',state:'NE',kind:'official_general_candidate_list',name:'Isolated official-list fixture',url:'https://sos.nebraska.gov/isolated-fixture.pdf',sha256:'a'.repeat(64),publishedAt:'2026-09-11',retrievedAt:'2026-10-11T00:00:00Z',electionDate:'2026-11-03',completeScopes:[{office:'H',district:'01',expectedCount:1}],expectedRowCount:1 };
 const row = { sourceId:'fixture',state:'NE',office:'H',district:'01',date:'2026-11-03',name:'Alex Example',partyRaw:'Republican',incumbent:null,sourcePage:1 };
 const raw = () => ({version:1,sources:[source],candidates:[row]});
@@ -26,6 +26,16 @@ describe('sourced general candidate refresh',()=>{
   expect(()=>parseNomineeManifest({...reviewed,sources:[{...reviewed.sources[0],state:'OH'}]})).toThrow();
  });
  it('rejects contact/profile content in a nominee row',()=>{expect(()=>parseNomineeManifest({...raw(),candidates:[{...row,biography:'Invented fixture bio'}]})).toThrow();});
+ it('restricts the reviewed OCPF document to its exact MA Governor identity, never ballot or party proof',()=>{
+  const evidence={url:MASSACHUSETTS_JAMES_IDENTITY_URL,sha256:'d2d4489189dc036164e12ac7ac3f69c38d4bd3fb823738ff71647b265771fd1a',title:'Name and Governor role only',sourcePage:1};
+  const record={...row,state:'MA',office:'G',district:'00',name:'Andrea Corinne James',partyRaw:'Independent',identityEvidence:evidence};
+  const src={...source,state:'MA',completeScopes:[{office:'G',district:'00',expectedCount:1}]};
+  const manifest={version:1,sources:[src],candidates:[record]};
+  expect(parseNomineeManifest(manifest).candidates[0].partyRaw).toBe('Independent');
+  for(const changed of [{...record,name:'Another identity'},{...record,office:'H',district:'01'},{...record,identityEvidence:{...evidence,url:evidence.url.replace('19010-cpf101-1-030325','other')}}])expect(()=>parseNomineeManifest({...manifest,candidates:[changed]})).toThrow();
+  expect(()=>parseNomineeManifest({...manifest,sources:[{...src,url:evidence.url}]})).toThrow();
+  expect(()=>parseNomineeManifest({...manifest,candidates:[{...record,partyEvidence:evidence}]})).toThrow();
+ });
  it('binds the exact state-office-district-date and reuses an existing identity',()=>{
   const plan=planNomineeRefresh(parseNomineeManifest(raw()),[race],[existing]);expect(plan.actions[0].candidateId).toBe(9);expect(plan.actions[0].electionId).toBe(1);expect(plan.actions[0]).not.toHaveProperty('ballotStatus');expect(plan.actions[0]).not.toHaveProperty('fecCandidateId');
  });

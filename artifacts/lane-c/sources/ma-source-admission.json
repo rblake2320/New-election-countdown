@@ -1,10 +1,10 @@
 {
   "outcome": "worked",
   "state": "MA",
-  "reviewedExtractor": "ma-2026-general-draft.json",
-  "inputSha256": "eecd274726b313f41d5f3f853c7bcb41600d37e6773b615254bd47fdd0dc192d",
-  "outputSha256": "9e359d54cc23ce2867080af1b3f79f091e60b2dc639730d1aea6d097a7775aa0",
-  "sourceRows": 23,
+  "reviewedExtractor": "sol-ma-merged-20261011.json",
+  "inputSha256": "004233d7e0373bbf2931dbf16530257bcee551fd90b3d472c233f519209561fa",
+  "outputSha256": "7bf63728099ad4cbf25da17f22f7774335af77b8d0ed35f94a49897a5ac86280",
+  "sourceRows": 24,
   "sources": 1,
   "normalizations": [
     {
@@ -15,7 +15,8 @@
         "sha256": "75b27e8f08f0bafdfea5284d919a883960a1bfc84267738a82277608f642e14c",
         "title": "Massachusetts official 2026 primary results (name identity only)"
       },
-      "nominationInferredFromPrimary": false
+      "nominationInferredFromIdentity": false,
+      "partyInferredFromIdentity": false
     },
     {
       "name": "Michael Roger Minogue",
@@ -25,7 +26,20 @@
         "sha256": "75b27e8f08f0bafdfea5284d919a883960a1bfc84267738a82277608f642e14c",
         "title": "Massachusetts official 2026 primary results (name identity only)"
       },
-      "nominationInferredFromPrimary": false
+      "nominationInferredFromIdentity": false,
+      "partyInferredFromIdentity": false
+    },
+    {
+      "name": "Andrea Corinne James",
+      "ballotName": "James and Kittredge",
+      "identityEvidence": {
+        "url": "https://ocpf2.blob.core.windows.net/pdf/filers/19010/19010-cpf101-1-030325.pdf",
+        "sha256": "d2d4489189dc036164e12ac7ac3f69c38d4bd3fb823738ff71647b265771fd1a",
+        "title": "Massachusetts OCPF Andrea Corinne James statement of organization (name and Governor role only)",
+        "sourcePage": 1
+      },
+      "nominationInferredFromIdentity": false,
+      "partyInferredFromIdentity": false
     }
   ],
   "dbWrites": false
