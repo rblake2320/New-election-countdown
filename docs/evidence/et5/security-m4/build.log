@@ -1,0 +1,69 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.88kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/node:24-alpine
+#2 DONE 0.2s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 745B done
+#3 DONE 0.0s
+
+#4 [builder 1/6] FROM docker.io/library/node:24-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1
+#4 resolve docker.io/library/node:24-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1 0.0s done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 21.15kB 0.0s done
+#5 DONE 0.0s
+
+#6 [builder 2/6] WORKDIR /app
+#6 CACHED
+
+#7 [builder 3/6] COPY package*.json ./
+#7 CACHED
+
+#8 [builder 4/6] RUN npm ci &&     npm cache clean --force
+#8 CACHED
+
+#9 [builder 5/6] COPY . .
+#9 CACHED
+
+#10 [builder 6/6] RUN npm run build
+#10 CACHED
+
+#11 [production 3/8] RUN addgroup -g 1001 -S nodejs &&     adduser -S nodejs -u 1001
+#11 CACHED
+
+#12 [production 4/8] WORKDIR /app
+#12 CACHED
+
+#13 [production 5/8] COPY package*.json ./
+#13 CACHED
+
+#14 [production 2/8] RUN apk add --no-cache dumb-init postgresql16-client
+#14 CACHED
+
+#15 [production 6/8] RUN npm ci --omit=dev &&     npm cache clean --force
+#15 CACHED
+
+#16 [production 7/8] COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
+#16 DONE 0.1s
+
+#17 [production 8/8] RUN mkdir -p /app/artifacts /app/backups /app/logs /app/infrastructure &&     chown nodejs:nodejs /app/artifacts /app/backups /app/logs /app/infrastructure
+#17 DONE 0.4s
+
+#18 exporting to image
+#18 exporting layers
+#18 exporting layers 0.3s done
+#18 exporting manifest sha256:d3c73c758300ec6233f1e098aec016b58cfa76651fd8e1b038612fe5f7afac99 0.0s done
+#18 exporting config sha256:5a335aa26f99ef62a595d4d20897ffc02f1849345ff62389772a12b47b3dc874 0.0s done
+#18 exporting attestation manifest sha256:25f70e17e009faa2fbf1b8a6297c76d3e07d77697a2fe4dcd63914ea173481d5
+#18 exporting attestation manifest sha256:25f70e17e009faa2fbf1b8a6297c76d3e07d77697a2fe4dcd63914ea173481d5 0.1s done
+#18 exporting manifest list sha256:740c446e36d894440870cae175b53654fa5d3d3ef8b3f9b0449a6c922f6bb06c 0.0s done
+#18 naming to docker.io/library/electiontracker:security-m4
+#18 naming to docker.io/library/electiontracker:security-m4 done
+#18 unpacking to docker.io/library/electiontracker:security-m4 0.1s done
+#18 DONE 0.7s
