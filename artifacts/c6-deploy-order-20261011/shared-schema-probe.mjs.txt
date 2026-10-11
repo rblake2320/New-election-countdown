@@ -1,0 +1,33 @@
+import {createRequire} from 'node:module';
+import {readFileSync,writeFileSync} from 'node:fs';
+const require=createRequire('D:/projects/et-wt/sol-c6-main-reviewed/package.json');
+const pg=require('pg'),dotenv=require('dotenv');
+const values=dotenv.parse(readFileSync('D:/projects/New-election-countdown/.env'));
+const connection=values.DATABASE_URL;
+const target=new URL(connection);
+if(!['localhost','127.0.0.1'].includes(target.hostname)||target.port!=='5432'||target.pathname!=='/elections')throw Error('Approved election DB endpoint guard refused');
+const pool=new pg.Pool({connectionString:connection});
+const receipt={scope:'read-only schema check after C6 main merge',sharedWrites:false};
+try {
+  const client=await pool.connect();
+  try {
+    await client.query('BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY');
+    const cols=await client.query("SELECT column_name,is_nullable,data_type FROM information_schema.columns WHERE table_schema='public' AND table_name='elections' AND column_name IN ('official_results_url','official_results_source') ORDER BY column_name");
+    receipt.columns=cols.rows;
+    receipt.auditTablePresent=(await client.query("SELECT to_regclass('public.official_results_sync_runs') IS NOT NULL AS present")).rows[0].present;
+    receipt.counts=(await client.query('SELECT (SELECT count(*)::int FROM elections) AS elections,(SELECT count(*)::int FROM candidates) AS candidates')).rows[0];
+    await client.query('SAVEPOINT main_query_probe');
+    try {
+      await client.query('SELECT official_results_url, official_results_source FROM public.elections WHERE id=37');
+      receipt.mainResultsQuery={outcome:'Worked'};
+    } catch(e) {
+      receipt.mainResultsQuery={outcome:'Failed',errorCode:e.code};
+      await client.query('ROLLBACK TO SAVEPOINT main_query_probe');
+    }
+    receipt.outcome=receipt.columns.length===2&&receipt.auditTablePresent?'Worked':'Blocked';
+    if(receipt.outcome==='Blocked')receipt.blocker='C6 schema migration not present on held shared DB; main query schema must not be run/deployed here before migration';
+    await client.query('ROLLBACK');
+  } finally {client.release();}
+} catch(e) {receipt.outcome='Blocked';receipt.errorCode=e.code??e.name;}
+finally {await pool.end();writeFileSync('C:/Users/techai/.codex/tmp/sol-results-schema-readonly.json',JSON.stringify(receipt,null,2));}
+console.log(JSON.stringify(receipt));
