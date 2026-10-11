@@ -24,10 +24,13 @@ describe("official results link (C6 receiving)", () => {
     expect(screen.getByTestId("official-results-link").textContent).toContain("couldn't confirm whether this page will carry Nov 3, 2026 results");
   });
 
-  it("LA and AL: not_linked -> page did not yet list the election when checked", () => {
-    for (const st of ["LA", "AL"]) {
+  it("not_linked (LA, AL, and MT/ND/OK whose pages already show Nov 3 headings) -> no results link yet, never 'not listed'", () => {
+    for (const st of ["LA", "AL", "MT", "ND", "OK"]) {
+      expect(fx.states[st].source.status).toBe("not_linked");
       render(<OfficialResultsLink election={election(st)} />);
-      expect(screen.getByTestId("official-results-link").textContent).toContain("did not yet list the Nov 3, 2026 election");
+      const text = screen.getByTestId("official-results-link").textContent!;
+      expect(text).toContain("When checked, this page did not yet provide a Nov 3, 2026 results link.");
+      expect(text).not.toMatch(/did not yet list/);
       cleanup();
     }
   });

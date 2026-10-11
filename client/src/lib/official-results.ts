@@ -70,7 +70,9 @@ export function officialResultsLink(e: OfficialResultsFields | null | undefined)
     href, publisher: src.publisher ?? null, checkedAt: src.checkedAt ?? null,
     label: ROUTE_LABELS[src.routeType ?? ""] ?? "Official election results page",
     note: src.status === "not_linked"
-      ? `When checked, this page did not yet list the ${when} election.`
+      // not_linked = no results link specific to this election was recorded; the
+      // page may already show headings or placeholders for it (MT, ND, OK).
+      ? `When checked, this page did not yet provide a ${when} results link.`
       : `We couldn't confirm whether this page will carry ${when} results.`,
   };
 }
