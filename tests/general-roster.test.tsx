@@ -2,7 +2,7 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, waitFor, within, cleanup } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { GeneralRoster } from "../client/src/components/general-roster";
-import { rosterParty, safeSourceUrl } from "../client/src/lib/general-roster";
+import { rosterParty, safeSourceUrl, isWriteIn } from "../client/src/lib/general-roster";
 
 // Response shapes mirror lane C's GET /api/elections/:id/general-candidates
 // (server/general-candidate-list.ts on lane-c/nominee-refresh).
@@ -142,5 +142,23 @@ describe("party preference labelling (top-two states)", () => {
   });
   it("non-preference rows are unchanged", () => {
     expect(rosterParty({ party: "D", generalListSource: { partyBasis: "source_label", partyRaw: "Democratic" } } as any)).toBe("Democratic");
+  });
+});
+
+describe("other partyBasis values from lane C phase 2 (AK registration, VT fusion, FL filing method)", () => {
+  const row = (partyBasis: string, partyRaw: string | null, party: string | null, ballotAccessType: string | null = null) =>
+    ({ party, generalListSource: { partyBasis, partyRaw, ballotAccessType } }) as any;
+  it("AK registration: raw verbatim, never shown as a nomination label", () => {
+    expect(rosterParty(row("registration", "(Registered Republican)", "R"))).toBe("(Registered Republican)");
+    expect(rosterParty(row("registration", "", "R"))).toBeNull();
+  });
+  it("VT fusion: combined raw value kept as-is", () => {
+    expect(rosterParty(row("source_label", "DEM/PROG", "DEM/PROG"))).toBe("DEM/PROG");
+  });
+  it("FL filing method WRI: no party shown, counted as write-in", () => {
+    const c = row("filing_method", "WRI", "");
+    expect(rosterParty(c)).toBeNull();
+    expect(isWriteIn(c)).toBe(true);
+    expect(isWriteIn(row("filing_method", "NPA", ""))).toBe(false);
   });
 });

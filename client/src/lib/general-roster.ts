@@ -94,7 +94,12 @@ export function knownEmptySources(data: GeneralRosterResponse): RosterSnapshot[]
  */
 export function rosterParty(c: GeneralRosterCandidate): string | null {
   const raw = c.generalListSource?.partyRaw?.trim();
-  if (c.generalListSource?.partyBasis === "preference" && raw) {
+  const basis = c.generalListSource?.partyBasis;
+  // A filing method (FL "WRI" = write-in) is not a party: never shown as one.
+  if (basis === "filing_method") return null;
+  // Voter registration (AK "(Registered Republican)") is not nomination: verbatim.
+  if (basis === "registration") return raw || null;
+  if (basis === "preference" && raw) {
     // Official wording verbatim when it already says so (WA: "(Prefers Republican
     // Party)"); otherwise label it (CA's PARTY PREFERENCE column: "Democratic").
     return /prefer/i.test(raw) ? raw : `Party preference: ${raw}`;
@@ -108,7 +113,10 @@ export function rosterParty(c: GeneralRosterCandidate): string | null {
 }
 
 export function isWriteIn(c: GeneralRosterCandidate): boolean {
-  return /write[-_ ]?in/i.test(c.generalListSource?.ballotAccessType ?? "");
+  const src = c.generalListSource;
+  if (/write[-_ ]?in/i.test(src?.ballotAccessType ?? "")) return true;
+  // FL lists write-ins via the filing-method code "WRI" in the party column.
+  return src?.partyBasis === "filing_method" && /^(WRI|write[-_ ]?in)$/i.test(src?.partyRaw?.trim() ?? "");
 }
 
 export interface SourceLine { name: string; url: string | null; checkedAt: string | null; publishedAt: string | null }
