@@ -12,10 +12,10 @@ export interface ElectionTimingInput {
   pollsOpen?: string | null;
   pollsClose?: string | null;
   timezone?: string | null;
-  /** What the close time is (proposed C3 contract): polls closing, or the ballot drop-off deadline. */
-  pollCloseKind?: "polls" | "ballot_return" | null;
-  /** How the close was derived; only a latest-close basis makes a countdown exact. */
-  pollHoursBasis?: "statewide_latest" | "district_latest" | "local_variable" | null;
+  /** Raw database/API text, normalized to the supported close kinds below. */
+  pollCloseKind?: string | null;
+  /** Raw basis text; only the recognized latest-close values become exact. */
+  pollHoursBasis?: string | null;
   pollHoursSource?: string | null;
 }
 
