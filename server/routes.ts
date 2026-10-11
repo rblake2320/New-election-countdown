@@ -164,8 +164,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/analytics", analyticsRouter);
   app.use("/api/health", healthRouter);
   app.use("/api/health", healthEnhancedRouter);
-  app.use("/api/monitoring", monitoringRouter);
-  app.use("/api/security", securityRouter);
+  // OR-02 / OR-05: monitoring and security management are admin workflow surfaces.
+  // Public liveness stays on /api/health; nothing under these prefixes is anonymous.
+  app.use("/api/monitoring", ...adminOnly, monitoringRouter);
+  app.use("/api/security", ...adminOnly, securityRouter);
   app.use("/api/accessibility", accessibilityRouter);
   app.use("/api/load-testing", ...adminOnly, loadTestingRouter);
   app.use("/api/advanced-analytics", advancedAnalyticsRouter);
@@ -2566,7 +2568,8 @@ Please provide specific, factual information with sources where possible. Focus 
   });
 
   // Real-time monitoring endpoints
-  app.get("/api/monitoring/status", async (req, res) => {
+  // OR-02: every monitoring control is admin-only (status included - it lists targets).
+  app.get("/api/monitoring/status", ...adminOnly, async (req, res) => {
     try {
       const status = realTimeMonitor.getMonitoringStatus();
       res.json(status);
@@ -2575,46 +2578,44 @@ Please provide specific, factual information with sources where possible. Focus 
     }
   });
 
-  app.post("/api/monitoring/start", async (req, res) => {
+  app.post("/api/monitoring/start", ...adminOnly, async (req, res) => {
     try {
-      const { intervalMinutes = 5 } = req.body;
-      await realTimeMonitor.startMonitoring(intervalMinutes);
+      const parsed = z.object({ intervalMinutes: z.number().int().min(1).max(60).optional() }).safeParse(req.body ?? {});
+      if (!parsed.success) return res.status(400).json({ error: "bad_request", details: parsed.error.issues });
+      await realTimeMonitor.startMonitoring(parsed.data.intervalMinutes ?? 5);
       res.json({ success: true, message: "Real-time monitoring started" });
     } catch (error: any) {
       console.error("Error starting monitoring:", error);
-      res.status(500).json({ error: "Failed to start monitoring", details: error.message });
+      res.status(500).json({ error: "Failed to start monitoring" });
     }
   });
 
-  app.post("/api/monitoring/stop", async (req, res) => {
+  app.post("/api/monitoring/stop", ...adminOnly, async (req, res) => {
     try {
       await realTimeMonitor.stopMonitoring();
       res.json({ success: true, message: "Real-time monitoring stopped" });
     } catch (error: any) {
       console.error("Error stopping monitoring:", error);
-      res.status(500).json({ error: "Failed to stop monitoring", details: error.message });
+      res.status(500).json({ error: "Failed to stop monitoring" });
     }
   });
 
-  app.post("/api/monitoring/targets", async (req, res) => {
+  // OR-03: targets are chosen from the configured official-source catalog by id.
+  // Arbitrary URLs are never accepted - the fetch layer only talks to catalog hosts.
+  app.get("/api/monitoring/targets", ...adminOnly, async (_req, res) => {
+    res.json({ catalog: realTimeMonitor.getCatalog(), enabled: realTimeMonitor.getEnabledTargetIds() });
+  });
+
+  app.post("/api/monitoring/targets", ...adminOnly, async (req, res) => {
     try {
-      const { url, type, priority, state } = req.body;
-      
-      if (!url || !type) {
-        return res.status(400).json({ error: "URL and type are required" });
-      }
-
-      realTimeMonitor.addMonitoringTarget({
-        url,
-        type,
-        priority: priority || 'medium',
-        state
-      });
-
-      res.json({ success: true, message: "Monitoring target added" });
+      const parsed = z.object({ targetId: z.string().min(1).max(64) }).strict().safeParse(req.body ?? {});
+      if (!parsed.success) return res.status(400).json({ error: "bad_request", message: "Body must be { targetId } naming a catalog entry; URLs are not accepted", details: parsed.error.issues });
+      const enabled = realTimeMonitor.enableCatalogTarget(parsed.data.targetId);
+      if (!enabled) return res.status(404).json({ error: "unknown_target", message: "targetId is not in the monitoring catalog" });
+      res.json({ success: true, message: "Monitoring target enabled", target: enabled });
     } catch (error: any) {
-      console.error("Error adding monitoring target:", error);
-      res.status(500).json({ error: "Failed to add monitoring target", details: error.message });
+      console.error("Error enabling monitoring target:", error);
+      res.status(500).json({ error: "Failed to enable monitoring target" });
     }
   });
 
@@ -3093,31 +3094,50 @@ function registerNotificationRoutes(app: Express) {
   });
 
   // Manual notification send
-  app.post("/api/notifications/send", isAuthenticated, validateInput, async (req, res) => {
+  // OR-04: manual delivery is bound to the authenticated actor. A standard user may only
+  // queue a delivery to themselves (self-test); an admin may target any user. The recipient
+  // address is never taken from the body - it comes from the target user's own record.
+  app.post("/api/notifications/send", isAuthenticated, validateInput, async (req: any, res) => {
     try {
-      const { userId, channel, subject, content } = req.body;
-      
-      if (!userId || !channel || !content) {
-        return res.status(400).json({ error: "Missing required fields: userId, channel, content" });
+      const parsed = z.object({
+        userId: z.string().min(1).max(64).optional(),
+        channel: z.enum(["email", "sms"]),
+        subject: z.string().max(200).optional(),
+        content: z.string().min(1).max(5000),
+      }).strict().safeParse(req.body ?? {});
+      if (!parsed.success) return res.status(400).json({ error: "bad_request", details: parsed.error.issues });
+
+      const actorId = String(req.userId);
+      const targetId = parsed.data.userId ?? actorId;
+      if (targetId !== actorId) {
+        const actor = await storage.getUser(actorId);
+        if (actor?.role?.toLowerCase() !== "admin") {
+          return res.status(403).json({ error: "forbidden", message: "Only admins may queue deliveries for other users" });
+        }
       }
-      
-      const deliveryData = {
-        userId,
-        channel,
-        recipient: req.body.recipient || 'user@example.com',
-        subject,
-        content,
+      const target = await storage.getUser(targetId);
+      if (!target) return res.status(404).json({ error: "target_user_not_found" });
+      if (parsed.data.channel !== "email") {
+        // Users carry no verified phone number; SMS delivery has no trusted recipient source.
+        return res.status(400).json({ error: "unsupported_channel", message: "SMS requires a verified phone number on the user record; none is stored" });
+      }
+      if (!target.email) return res.status(400).json({ error: "no_recipient", message: "Target user has no email on record" });
+
+      const delivery = await storage.createNotificationDelivery({
+        userId: target.id,
+        channel: "email",
+        recipient: target.email,
+        subject: parsed.data.subject,
+        content: parsed.data.content,
         status: 'queued' as const,
-        queuedAt: new Date()
-      };
-      
-      const delivery = await storage.createNotificationDelivery(deliveryData);
-      
-      console.log(`📤 Manual notification queued: ${delivery.id}`);
+        queuedAt: new Date(),
+      });
+
+      console.log(`Manual notification queued: ${delivery.id} by ${actorId} for ${target.id}`);
       res.status(201).json({ deliveryId: delivery.id, status: 'queued' });
     } catch (error) {
-      console.error("Error sending manual notification:", error);
-      res.status(500).json({ error: "Failed to send notification" });
+      console.error("Error queuing manual notification:", error);
+      res.status(500).json({ error: "Failed to queue notification" });
     }
   });
 
