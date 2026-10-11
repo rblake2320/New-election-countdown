@@ -31,17 +31,17 @@ interface ElectionCardProps {
 }
 
 const electionTypeColors = {
-  primary: "bg-blue-500/20 text-blue-700 dark:text-blue-300",
-  general: "bg-green-500/20 text-green-700 dark:text-green-300",
-  special: "bg-orange-500/20 text-orange-700 dark:text-orange-300",
-  runoff: "bg-purple-500/20 text-purple-700 dark:text-purple-300"
+  primary: "bg-blue-500/20 text-blue-800 dark:text-blue-300",
+  general: "bg-green-500/20 text-green-800 dark:text-green-300",
+  special: "bg-orange-500/20 text-orange-800 dark:text-orange-300",
+  runoff: "bg-purple-500/20 text-purple-800 dark:text-purple-300"
 };
 
 const electionLevelColors = {
-  federal: "bg-red-500/20 text-red-700 dark:text-red-300",
-  state: "bg-blue-500/20 text-blue-700 dark:text-blue-300",
-  local: "bg-green-500/20 text-green-700 dark:text-green-300",
-  municipal: "bg-yellow-500/20 text-yellow-700 dark:text-yellow-300"
+  federal: "bg-red-500/20 text-red-800 dark:text-red-300",
+  state: "bg-blue-500/20 text-blue-800 dark:text-blue-300",
+  local: "bg-green-500/20 text-green-800 dark:text-green-300",
+  municipal: "bg-yellow-500/20 text-yellow-800 dark:text-yellow-300"
 };
 
 function formatElectionDate(date: string): string {
