@@ -15,6 +15,8 @@ export interface GeneralListSource {
   legalName?: string | null;
   ballotName?: string | null;
   ticketText?: string | null;
+  /** Every party line the official list prints for this person, verbatim (CT cross-endorsement). */
+  partyLabels?: string[] | null;
 }
 
 export interface GeneralRosterCandidate {
@@ -99,6 +101,13 @@ export function rosterParty(c: GeneralRosterCandidate): string | null {
   if (basis === "filing_method") return null;
   // Voter registration (AK "(Registered Republican)") is not nomination: verbatim.
   if (basis === "registration") return raw || null;
+  // One person on several party lines (CT): each printed label, joined for display.
+  // The joined string is presentation only, not a quote from the source.
+  const labels = (c.generalListSource?.partyLabels ?? []).map(l => l?.trim()).filter((l): l is string => !!l);
+  if (labels.length > 1) return labels.join(" / ");
+  // A single raw value naming several parties ("DEM/PROG", "Democratic, Working
+  // Families") stays verbatim rather than being collapsed to one party code.
+  if (raw && /[\/,&]/.test(raw)) return raw;
   if (basis === "preference" && raw) {
     // Official wording verbatim when it already says so (WA: "(Prefers Republican
     // Party)"); otherwise label it (CA's PARTY PREFERENCE column: "Democratic").

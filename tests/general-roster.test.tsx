@@ -162,3 +162,20 @@ describe("other partyBasis values from lane C phase 2 (AK registration, VT fusio
     expect(isWriteIn(row("filing_method", "NPA", ""))).toBe(false);
   });
 });
+
+describe("multiple party lines (CT cross-endorsement, partyLabels[])", () => {
+  const row = (partyLabels: string[] | null, partyRaw: string, party = "D") =>
+    ({ party, generalListSource: { partyBasis: "source_label", partyRaw, partyLabels } }) as any;
+  it("more than one printed label: each shown verbatim, joined with ' / '", () => {
+    expect(rosterParty(row(["Democratic", "Working Families", "Independent Party"], "Democratic"))).toBe("Democratic / Working Families / Independent Party");
+  });
+  it("a single label or a scalar fusion value stays as the source prints it", () => {
+    expect(rosterParty(row(["Democratic"], "Democratic"))).toBe("Democratic");
+    expect(rosterParty(row(null, "DEM/PROG", "DEM/PROG"))).toBe("DEM/PROG");
+    expect(rosterParty(row(null, "Democratic, Working Families", "D"))).toBe("Democratic, Working Families");
+  });
+  it("blank entries are ignored; filing method still never shows a party", () => {
+    expect(rosterParty(row(["Republican", " ", ""], "Republican", "R"))).toBe("Republican");
+    expect(rosterParty({ party: "", generalListSource: { partyBasis: "filing_method", partyRaw: "WRI", partyLabels: ["WRI", "X"] } } as any)).toBeNull();
+  });
+});
