@@ -54,6 +54,8 @@ describe("actual GeneralRoster receiving component with retained real API payloa
       const link = within(sources).getByRole("link", { name: c.generalListSource.sourceName });
       expect(link.getAttribute("href")).toBe(c.generalListSourceUrl);
       expect(link.parentElement?.textContent).toContain("checked Oct 11, 2026");
+      const publishedLabels: Record<string, string> = { "2026-08-28": "Aug 28, 2026", "2026-09-11": "Sep 11, 2026", "2026-08-21": "Aug 21, 2026", "2026-08-25": "Aug 25, 2026" };
+      expect(link.parentElement?.textContent).toContain(`published ${publishedLabels[c.generalListSource.publishedAt]}`);
       expect(link.getAttribute("rel")).toBe("noopener noreferrer");
     }
   });
@@ -76,7 +78,7 @@ describe("actual GeneralRoster receiving component with retained real API payloa
     for (const c of payloads["WA-329"].body.candidates) {
       expect(c.generalListSource.partyBasis).toBe("preference");
       const row = rows.find(row => row.querySelector("span.font-medium")?.textContent === c.name)!;
-      expect(row.textContent).toContain(c.generalListSource.partyRaw);
+      expect(row.textContent).toContain(c.generalListSource.partyRaw.replace(/^\((.*)\)$/, "$1"));
     }
   });
 
