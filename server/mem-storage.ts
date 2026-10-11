@@ -20,7 +20,7 @@ export class MemStorage implements IStorage {
   private candidateDataSources = new Map<number, CandidateDataSource[]>(); // candidateId -> sources
   private candidatePositions = new Map<number, CandidatePosition[]>(); // candidateId -> positions
   private candidateQAs = new Map<number, CandidateQA[]>(); // candidateId -> Q&As
-  
+
   // Platform Continuity Storage Maps
   private secretsVault = new Map<number, any>(); // secretId -> secret
   private secretsByName = new Map<string, any>(); // secretName -> secret
@@ -30,9 +30,9 @@ export class MemStorage implements IStorage {
   private deploymentHistory = new Map<string, any>(); // deploymentId -> deployment
   private environmentConfigurations = new Map<number, any>(); // configId -> config
   private platformContinuityEvents = new Map<string, any>(); // eventId -> event
-  
+
   private nextId = 1;
-  
+
   private apiCache = new Map<string, { data: any; expiry: number }>();
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
@@ -156,6 +156,12 @@ export class MemStorage implements IStorage {
     return ids.map(id => this.candidates.get(id)!).filter(Boolean);
   }
 
+  async getCandidatesByElections(electionIds: number[]): Promise<Candidate[]> {
+    const out: Candidate[] = [];
+    for (const id of electionIds) out.push(...(await this.getCandidatesByElection(id)));
+    return out;
+  }
+
   async createCandidate(candidate: InsertCandidate): Promise<Candidate> {
     const newCandidate: Candidate = {
       id: this.nextId++,
@@ -183,12 +189,12 @@ export class MemStorage implements IStorage {
       updatedAt: new Date()
     };
     this.candidates.set(newCandidate.id, newCandidate);
-    
+
     if (candidate.electionId) {
       const existing = this.candidatesByElection.get(candidate.electionId) || [];
       this.candidatesByElection.set(candidate.electionId, [...existing, newCandidate.id]);
     }
-    
+
     return newCandidate;
   }
 
@@ -234,10 +240,10 @@ export class MemStorage implements IStorage {
   }> {
     const elections = Array.from(this.elections.values());
     const now = new Date();
-    
+
     const byType: Record<string, number> = {};
     const byLevel: Record<string, number> = {};
-    
+
     elections.forEach(election => {
       byType[election.type] = (byType[election.type] || 0) + 1;
       byLevel[election.level] = (byLevel[election.level] || 0) + 1;
@@ -261,7 +267,7 @@ export class MemStorage implements IStorage {
       const googleCivicService = getGoogleCivicService();
       if (googleCivicService) {
         const apiElections = await googleCivicService.fetchElections();
-        
+
         for (const election of apiElections) {
           if (!this.elections.has(election.id)) {
             this.elections.set(election.id, election);
@@ -288,7 +294,7 @@ export class MemStorage implements IStorage {
     } catch (error) {
       console.log('Voter info API failed:', error);
     }
-    
+
     return null;
   }
 
@@ -634,10 +640,10 @@ export class MemStorage implements IStorage {
       confidenceScore: source.confidenceScore ?? null,
       createdAt: new Date()
     };
-    
+
     const existing = this.candidateDataSources.get(source.candidateId) || [];
     this.candidateDataSources.set(source.candidateId, [...existing, newSource]);
-    
+
     return newSource;
   }
 
@@ -701,16 +707,16 @@ export class MemStorage implements IStorage {
     const bcrypt = await import('bcryptjs');
     const jwt = await import('jsonwebtoken');
     const crypto = await import('crypto');
-    
+
     // Check if user already exists in memory
     if (this.users.has(email)) {
       throw new Error('User already exists with this email');
     }
-    
+
     // Hash password
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
-    
+
     // Create user in memory
     const userId = this.nextId++;
     const user = {
@@ -725,9 +731,9 @@ export class MemStorage implements IStorage {
       lastName: null,
       updatedAt: null
     };
-    
+
     this.users.set(email, user);
-    
+
     // Create session token
     const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key';
     const jti = crypto.randomUUID();
@@ -736,7 +742,7 @@ export class MemStorage implements IStorage {
       JWT_SECRET,
       { expiresIn: '7d' }
     );
-    
+
     // Return AuthService-compatible response
     return {
       user: {
@@ -768,7 +774,7 @@ export class MemStorage implements IStorage {
   async searchCongressMembers(searchTerm: string): Promise<CongressMember[]> {
     const searchLower = searchTerm.toLowerCase();
     const results: CongressMember[] = [];
-    
+
     for (const member of Array.from(this.congressMembers.values())) {
       if (
         member.name?.toLowerCase().includes(searchLower) ||
@@ -780,7 +786,7 @@ export class MemStorage implements IStorage {
         if (results.length >= 50) break; // Limit results
       }
     }
-    
+
     return results;
   }
 
@@ -808,7 +814,7 @@ export class MemStorage implements IStorage {
 
   async getExpiredSecrets(): Promise<any[]> {
     const now = new Date();
-    return Array.from(this.secretsVault.values()).filter(secret => 
+    return Array.from(this.secretsVault.values()).filter(secret =>
       secret.nextRotation && new Date(secret.nextRotation) <= now
     );
   }
@@ -857,7 +863,7 @@ export class MemStorage implements IStorage {
 
   async getRotationHistory(filters: any): Promise<any[]> {
     let history = Array.from(this.secretsRotationHistory.values());
-    
+
     if (filters.secretId) {
       history = history.filter(h => h.secretId === filters.secretId);
     }
@@ -867,7 +873,7 @@ export class MemStorage implements IStorage {
     if (filters.rotationType) {
       history = history.filter(h => h.rotationType === filters.rotationType);
     }
-    
+
     return history.sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime());
   }
 
@@ -909,8 +915,8 @@ export class MemStorage implements IStorage {
   }
 
   async getArtifactByNameVersion(artifactName: string, version: string, environment?: string): Promise<any> {
-    return Array.from(this.artifactStorage.values()).find(artifact => 
-      artifact.artifactName === artifactName && 
+    return Array.from(this.artifactStorage.values()).find(artifact =>
+      artifact.artifactName === artifactName &&
       artifact.version === version &&
       (!environment || artifact.environment === environment)
     ) || null;
@@ -918,7 +924,7 @@ export class MemStorage implements IStorage {
 
   async getArtifactVersions(artifactName: string, environment?: string): Promise<any[]> {
     return Array.from(this.artifactStorage.values())
-      .filter(artifact => 
+      .filter(artifact =>
         artifact.artifactName === artifactName &&
         (!environment || artifact.environment === environment)
       )
@@ -952,7 +958,7 @@ export class MemStorage implements IStorage {
 
   async getArtifacts(filters: any): Promise<any[]> {
     let artifacts = Array.from(this.artifactStorage.values());
-    
+
     if (filters.artifactType) {
       artifacts = artifacts.filter(a => a.artifactType === filters.artifactType);
     }
@@ -962,7 +968,7 @@ export class MemStorage implements IStorage {
     if (filters.isActive !== undefined) {
       artifacts = artifacts.filter(a => a.isActive === filters.isActive);
     }
-    
+
     return artifacts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
@@ -976,7 +982,7 @@ export class MemStorage implements IStorage {
 
   async getExpiredArtifacts(): Promise<any[]> {
     const now = new Date();
-    return Array.from(this.artifactStorage.values()).filter(artifact => 
+    return Array.from(this.artifactStorage.values()).filter(artifact =>
       artifact.retentionDate && new Date(artifact.retentionDate) <= now
     );
   }
@@ -1050,7 +1056,7 @@ export class MemStorage implements IStorage {
 
   async getPlatformContinuityEvents(filters: any): Promise<any[]> {
     let events = Array.from(this.platformContinuityEvents.values());
-    
+
     if (filters.eventType) {
       events = events.filter(e => e.eventType === filters.eventType);
     }
@@ -1063,7 +1069,7 @@ export class MemStorage implements IStorage {
     if (filters.environment) {
       events = events.filter(e => e.environment === filters.environment);
     }
-    
+
     return events.sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime());
   }
 
@@ -1076,7 +1082,7 @@ export class MemStorage implements IStorage {
   // ============================================================================
   // TRACK 4: MONITORING & RUNBOOKS IMPLEMENTATION - MEMORY STORAGE
   // ============================================================================
-  
+
   // Track 4 Memory Storage Maps
   private drillConfigurations = new Map<number, any>();
   private drillExecutions = new Map<string, any>(); // executionId -> execution
@@ -1096,7 +1102,7 @@ export class MemStorage implements IStorage {
   // Synthetic Failover Drill System - Drill Configurations
   async getFailoverDrillConfigurations(filters?: { enabled?: boolean; drillType?: string; scenario?: string }): Promise<any[]> {
     let configs = Array.from(this.drillConfigurations.values());
-    
+
     if (filters?.enabled !== undefined) {
       configs = configs.filter(c => c.isEnabled === filters.enabled);
     }
@@ -1106,7 +1112,7 @@ export class MemStorage implements IStorage {
     if (filters?.scenario) {
       configs = configs.filter(c => c.scenario === filters.scenario);
     }
-    
+
     return configs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
@@ -1148,7 +1154,7 @@ export class MemStorage implements IStorage {
   // Drill Executions
   async getDrillExecutions(filters?: { configurationId?: number; status?: string; triggerType?: string; page?: number; limit?: number }): Promise<any[]> {
     let executions = Array.from(this.drillExecutions.values());
-    
+
     if (filters?.configurationId) {
       executions = executions.filter(e => e.configurationId === filters.configurationId);
     }
@@ -1158,14 +1164,14 @@ export class MemStorage implements IStorage {
     if (filters?.triggerType) {
       executions = executions.filter(e => e.triggerType === filters.triggerType);
     }
-    
+
     executions = executions.sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime());
-    
+
     if (filters?.limit) {
       const start = filters.page ? (filters.page - 1) * filters.limit : 0;
       executions = executions.slice(start, start + filters.limit);
     }
-    
+
     return executions;
   }
 
@@ -1208,13 +1214,13 @@ export class MemStorage implements IStorage {
   async getDrillExecutionsForDashboard(days: number): Promise<any[]> {
     const since = new Date();
     since.setDate(since.getDate() - days);
-    
+
     return Array.from(this.drillExecutions.values())
       .filter(e => new Date(e.startedAt) >= since)
       .sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime());
   }
 
-  // Drill Steps  
+  // Drill Steps
   async getDrillSteps(executionId: string): Promise<any[]> {
     return this.drillSteps.get(executionId) || [];
   }
@@ -1224,11 +1230,11 @@ export class MemStorage implements IStorage {
       ...step,
       id: this.nextId++
     };
-    
+
     const steps = this.drillSteps.get(step.executionId) || [];
     steps.push(newStep);
     this.drillSteps.set(step.executionId, steps);
-    
+
     return newStep;
   }
 
@@ -1253,14 +1259,14 @@ export class MemStorage implements IStorage {
   // Backup Success Alert System - Backup Monitoring Configurations
   async getBackupMonitoringConfigurations(filters?: { enabled?: boolean; monitoringType?: string }): Promise<any[]> {
     let configs = Array.from(this.backupMonitoringConfigs.values());
-    
+
     if (filters?.enabled !== undefined) {
       configs = configs.filter(c => c.isEnabled === filters.enabled);
     }
     if (filters?.monitoringType) {
       configs = configs.filter(c => c.monitoringType === filters.monitoringType);
     }
-    
+
     return configs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
@@ -1302,7 +1308,7 @@ export class MemStorage implements IStorage {
   // Backup Alerts
   async getBackupAlerts(filters?: { status?: string; severity?: string; alertType?: string; page?: number; limit?: number }): Promise<any[]> {
     let alerts = Array.from(this.backupAlerts.values());
-    
+
     if (filters?.status) {
       alerts = alerts.filter(a => a.status === filters.status);
     }
@@ -1312,14 +1318,14 @@ export class MemStorage implements IStorage {
     if (filters?.alertType) {
       alerts = alerts.filter(a => a.alertType === filters.alertType);
     }
-    
+
     alerts = alerts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    
+
     if (filters?.limit) {
       const start = filters.page ? (filters.page - 1) * filters.limit : 0;
       alerts = alerts.slice(start, start + filters.limit);
     }
-    
+
     return alerts;
   }
 
@@ -1350,8 +1356,8 @@ export class MemStorage implements IStorage {
   async acknowledgeBackupAlert(alertId: string, acknowledgedBy: string): Promise<any> {
     const existing = this.backupAlerts.get(alertId);
     if (existing) {
-      const updated = { 
-        ...existing, 
+      const updated = {
+        ...existing,
         status: 'acknowledged',
         acknowledgedBy,
         acknowledgedAt: new Date()
@@ -1365,8 +1371,8 @@ export class MemStorage implements IStorage {
   async resolveBackupAlert(alertId: string, resolvedBy: string): Promise<any> {
     const existing = this.backupAlerts.get(alertId);
     if (existing) {
-      const updated = { 
-        ...existing, 
+      const updated = {
+        ...existing,
         status: 'resolved',
         resolvedBy,
         resolvedAt: new Date()
@@ -1392,7 +1398,7 @@ export class MemStorage implements IStorage {
   // Backup Health Metrics
   async getBackupHealthMetrics(filters?: { metricType?: string; dateFrom?: Date; dateTo?: Date }): Promise<any[]> {
     let metrics = Array.from(this.backupHealthMetrics.values());
-    
+
     if (filters?.metricType) {
       metrics = metrics.filter(m => m.metricType === filters.metricType);
     }
@@ -1402,7 +1408,7 @@ export class MemStorage implements IStorage {
     if (filters?.dateTo) {
       metrics = metrics.filter(m => new Date(m.metricTimestamp) <= filters.dateTo!);
     }
-    
+
     return metrics.sort((a, b) => new Date(b.metricTimestamp).getTime() - new Date(a.metricTimestamp).getTime());
   }
 
@@ -1420,14 +1426,14 @@ export class MemStorage implements IStorage {
     const metrics = Array.from(this.backupHealthMetrics.values())
       .filter(m => m.metricType === metricType)
       .sort((a, b) => new Date(b.metricTimestamp).getTime() - new Date(a.metricTimestamp).getTime());
-    
+
     return metrics[0];
   }
 
   async getBackupHealthTrends(days: number): Promise<any[]> {
     const since = new Date();
     since.setDate(since.getDate() - days);
-    
+
     return Array.from(this.backupHealthMetrics.values())
       .filter(m => new Date(m.metricTimestamp) >= since)
       .sort((a, b) => new Date(b.metricTimestamp).getTime() - new Date(a.metricTimestamp).getTime());
@@ -1464,7 +1470,7 @@ export class MemStorage implements IStorage {
   // RTO/RPO Performance Tracking - RTO/RPO Targets
   async getRtoRpoTargets(filters?: { active?: boolean; serviceType?: string; businessCriticality?: string }): Promise<any[]> {
     let targets = Array.from(this.rtoRpoTargets.values());
-    
+
     if (filters?.active !== undefined) {
       targets = targets.filter(t => t.isActive === filters.active);
     }
@@ -1474,7 +1480,7 @@ export class MemStorage implements IStorage {
     if (filters?.businessCriticality) {
       targets = targets.filter(t => t.businessCriticality === filters.businessCriticality);
     }
-    
+
     return targets.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
@@ -1513,10 +1519,10 @@ export class MemStorage implements IStorage {
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
-  // RTO/RPO Measurements  
+  // RTO/RPO Measurements
   async getRtoRpoMeasurements(filters?: { targetId?: number; measurementType?: string; dateFrom?: Date; dateTo?: Date; page?: number; limit?: number }): Promise<any[]> {
     let measurements = Array.from(this.rtoRpoMeasurements.values());
-    
+
     if (filters?.targetId) {
       measurements = measurements.filter(m => m.targetId === filters.targetId);
     }
@@ -1529,14 +1535,14 @@ export class MemStorage implements IStorage {
     if (filters?.dateTo) {
       measurements = measurements.filter(m => new Date(m.measuredAt) <= filters.dateTo!);
     }
-    
+
     measurements = measurements.sort((a, b) => new Date(b.measuredAt).getTime() - new Date(a.measuredAt).getTime());
-    
+
     if (filters?.limit) {
       const start = filters.page ? (filters.page - 1) * filters.limit : 0;
       measurements = measurements.slice(start, start + filters.limit);
     }
-    
+
     return measurements;
   }
 
@@ -1579,7 +1585,7 @@ export class MemStorage implements IStorage {
   async getRtoRpoPerformanceTrends(targetId: number, days: number): Promise<any[]> {
     const since = new Date();
     since.setDate(since.getDate() - days);
-    
+
     return Array.from(this.rtoRpoMeasurements.values())
       .filter(m => m.targetId === targetId && new Date(m.measuredAt) >= since)
       .sort((a, b) => new Date(b.measuredAt).getTime() - new Date(a.measuredAt).getTime());
@@ -1593,12 +1599,12 @@ export class MemStorage implements IStorage {
       });
 
     const targets = Array.from(this.rtoRpoTargets.values()).filter(t => t.isActive);
-    
+
     return targets.map(target => {
       const targetMeasurements = measurements.filter(m => m.targetId === target.id);
       const rtoCompliant = targetMeasurements.filter(m => m.actualRtoMinutes <= target.rtoTargetMinutes).length;
       const rpoCompliant = targetMeasurements.filter(m => m.actualRpoMinutes <= target.rpoTargetMinutes).length;
-      
+
       return {
         service_name: target.serviceName,
         service_type: target.serviceType,
@@ -1617,7 +1623,7 @@ export class MemStorage implements IStorage {
   // Performance Benchmarks
   async getPerformanceBenchmarks(filters?: { active?: boolean; industry?: string; sourceType?: string }): Promise<any[]> {
     let benchmarks = Array.from(this.performanceBenchmarks.values());
-    
+
     if (filters?.active !== undefined) {
       benchmarks = benchmarks.filter(b => b.isActive === filters.active);
     }
@@ -1627,7 +1633,7 @@ export class MemStorage implements IStorage {
     if (filters?.sourceType) {
       benchmarks = benchmarks.filter(b => b.sourceType === filters.sourceType);
     }
-    
+
     return benchmarks.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
@@ -1668,7 +1674,7 @@ export class MemStorage implements IStorage {
   // Incident Runbook Management System - Incident Runbooks
   async getIncidentRunbooks(filters?: { status?: string; incidentType?: string; severity?: string; accessLevel?: string; page?: number; limit?: number }): Promise<any[]> {
     let runbooks = Array.from(this.incidentRunbooks.values());
-    
+
     if (filters?.status) {
       runbooks = runbooks.filter(r => r.status === filters.status);
     }
@@ -1681,14 +1687,14 @@ export class MemStorage implements IStorage {
     if (filters?.accessLevel) {
       runbooks = runbooks.filter(r => r.accessLevel === filters.accessLevel);
     }
-    
+
     runbooks = runbooks.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    
+
     if (filters?.limit) {
       const start = filters.page ? (filters.page - 1) * filters.limit : 0;
       runbooks = runbooks.slice(start, start + filters.limit);
     }
-    
+
     return runbooks;
   }
 
@@ -1736,8 +1742,8 @@ export class MemStorage implements IStorage {
   async approveRunbook(runbookId: string, approvedBy: string): Promise<any> {
     const existing = this.incidentRunbooks.get(runbookId);
     if (existing) {
-      const updated = { 
-        ...existing, 
+      const updated = {
+        ...existing,
         status: 'approved',
         approvedBy,
         approvedAt: new Date(),
@@ -1774,11 +1780,11 @@ export class MemStorage implements IStorage {
       ...step,
       id: this.nextId++
     };
-    
+
     const steps = this.runbookSteps.get(step.runbookId) || [];
     steps.push(newStep);
     this.runbookSteps.set(step.runbookId, steps);
-    
+
     return newStep;
   }
 
@@ -1812,21 +1818,21 @@ export class MemStorage implements IStorage {
 
   async reorderRunbookSteps(runbookId: string, stepOrders: { id: number; order: number }[]): Promise<void> {
     const steps = this.runbookSteps.get(runbookId) || [];
-    
+
     stepOrders.forEach(({ id, order }) => {
       const step = steps.find(s => s.id === id);
       if (step) {
         step.stepOrder = order;
       }
     });
-    
+
     this.runbookSteps.set(runbookId, steps);
   }
 
   // Runbook Contacts
   async getRunbookContacts(filters?: { active?: boolean; available24x7?: boolean; escalationLevel?: number }): Promise<any[]> {
     let contacts = Array.from(this.runbookContacts.values());
-    
+
     if (filters?.active !== undefined) {
       contacts = contacts.filter(c => c.isActive === filters.active);
     }
@@ -1836,7 +1842,7 @@ export class MemStorage implements IStorage {
     if (filters?.escalationLevel !== undefined) {
       contacts = contacts.filter(c => c.escalationLevel === filters.escalationLevel);
     }
-    
+
     return contacts.sort((a, b) => a.escalationLevel - b.escalationLevel || a.name.localeCompare(b.name));
   }
 
@@ -1877,11 +1883,11 @@ export class MemStorage implements IStorage {
 
   async getAvailableContacts(timezone?: string): Promise<any[]> {
     let contacts = Array.from(this.runbookContacts.values()).filter(c => c.isActive);
-    
+
     if (timezone) {
       contacts = contacts.filter(c => c.isAvailable24x7 || c.timezone === timezone);
     }
-    
+
     return contacts.sort((a, b) => a.escalationLevel - b.escalationLevel || a.name.localeCompare(b.name));
   }
 
@@ -1896,16 +1902,16 @@ export class MemStorage implements IStorage {
   // Contact Escalation Trees
   async getContactEscalationTrees(filters?: { active?: boolean; incidentTypes?: string[] }): Promise<any[]> {
     let trees = Array.from(this.contactEscalationTrees.values());
-    
+
     if (filters?.active !== undefined) {
       trees = trees.filter(t => t.isActive === filters.active);
     }
     if (filters?.incidentTypes && filters.incidentTypes.length > 0) {
-      trees = trees.filter(t => t.incidentTypes && 
+      trees = trees.filter(t => t.incidentTypes &&
         filters.incidentTypes.some(type => t.incidentTypes.includes(type))
       );
     }
-    
+
     return trees.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
@@ -1940,8 +1946,8 @@ export class MemStorage implements IStorage {
 
   async getEscalationTreeByIncidentType(incidentType: string, severity: string): Promise<any | undefined> {
     for (const tree of this.contactEscalationTrees.values()) {
-      if (tree.isActive && 
-          tree.incidentTypes?.includes(incidentType) && 
+      if (tree.isActive &&
+          tree.incidentTypes?.includes(incidentType) &&
           tree.severityLevels?.includes(severity)) {
         return tree;
       }
@@ -1952,7 +1958,7 @@ export class MemStorage implements IStorage {
   // Runbook Executions
   async getRunbookExecutions(filters?: { runbookId?: string; status?: string; executedBy?: string; page?: number; limit?: number }): Promise<any[]> {
     let executions = Array.from(this.runbookExecutions.values());
-    
+
     if (filters?.runbookId) {
       executions = executions.filter(e => e.runbookId === filters.runbookId);
     }
@@ -1962,14 +1968,14 @@ export class MemStorage implements IStorage {
     if (filters?.executedBy) {
       executions = executions.filter(e => e.executedBy === filters.executedBy);
     }
-    
+
     executions = executions.sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime());
-    
+
     if (filters?.limit) {
       const start = filters.page ? (filters.page - 1) * filters.limit : 0;
       executions = executions.slice(start, start + filters.limit);
     }
-    
+
     return executions;
   }
 
@@ -2018,8 +2024,8 @@ export class MemStorage implements IStorage {
   async completeRunbookExecution(executionId: string, results: any): Promise<any> {
     const existing = this.runbookExecutions.get(executionId);
     if (existing) {
-      const updated = { 
-        ...existing, 
+      const updated = {
+        ...existing,
         status: 'completed',
         completedAt: new Date(),
         stepResults: results,
@@ -2042,9 +2048,9 @@ export class MemStorage implements IStorage {
     const drillExecutions = Array.from(this.drillExecutions.values());
     const last30Days = new Date();
     last30Days.setDate(last30Days.getDate() - 30);
-    
+
     const recentDrills = drillExecutions.filter(d => new Date(d.startedAt) >= last30Days);
-    
+
     const drillSummary = {
       total_drills: recentDrills.length,
       successful_drills: recentDrills.filter(d => d.status === 'completed').length,
@@ -2054,10 +2060,10 @@ export class MemStorage implements IStorage {
 
     const last24Hours = new Date();
     last24Hours.setHours(last24Hours.getHours() - 24);
-    
+
     const recentMetrics = Array.from(this.backupHealthMetrics.values())
       .filter(m => new Date(m.metricTimestamp) >= last24Hours);
-    
+
     const backupHealthGroups = recentMetrics.reduce((acc, metric) => {
       if (!acc[metric.metricType]) {
         acc[metric.metricType] = [];
@@ -2074,13 +2080,13 @@ export class MemStorage implements IStorage {
 
     const measurements = Array.from(this.rtoRpoMeasurements.values())
       .filter(m => new Date(m.measuredAt) >= last30Days);
-    
+
     const targets = Array.from(this.rtoRpoTargets.values());
-    
+
     let totalMeasurements = 0;
     let rtoCompliant = 0;
     let rpoCompliant = 0;
-    
+
     measurements.forEach(measurement => {
       const target = targets.find(t => t.id === measurement.targetId);
       if (target) {
@@ -2153,12 +2159,12 @@ export class MemStorage implements IStorage {
     // Calculate compliance score
     let totalCompliant = 0;
     let totalMeasurements = 0;
-    
+
     measurements.forEach(measurement => {
       const target = targets.find(t => t.id === measurement.targetId);
       if (target) {
         totalMeasurements++;
-        if (measurement.actualRtoMinutes <= target.rtoTargetMinutes && 
+        if (measurement.actualRtoMinutes <= target.rtoTargetMinutes &&
             measurement.actualRpoMinutes <= target.rpoTargetMinutes) {
           totalCompliant++;
         }

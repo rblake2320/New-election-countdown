@@ -1,0 +1,34 @@
+{
+  "outcome": "worked",
+  "fixture": "dedicated disposable PostgreSQL",
+  "manifestSha256": "5b29c9843b89ecee021477ec481a64057d2f3d680af7df19d0dc373e88ca1c3e",
+  "sourceRecords": 259,
+  "states": 9,
+  "receivingRaces": 91,
+  "firstCandidateInserts": 244,
+  "repeatCandidateInserts": 0,
+  "repeatSourceChanges": 0,
+  "httpContracts": 93,
+  "emptyReceivingScopes": 5,
+  "checks": {
+    "source_row_conservation": true,
+    "dry_run_no_writes": true,
+    "original_profiles_fec_ballot_fields_unchanged": true,
+    "repeat_idempotent": true,
+    "write_in_unknown_party_preserved": true,
+    "receiving_http_records_and_provenance_verified": true,
+    "private_contacts_not_exposed": true,
+    "injected_failure_full_rollback": true,
+    "known_empty_scope_source_receivable": true,
+    "qualified_empty_scope_receivable_without_full_coverage_claim": true,
+    "historical_broad_scope_preserves_freshness_after_narrow_update": true,
+    "newest_publication_wins_over_latest_retrieval": true,
+    "older_snapshot_refused_in_dry_run_and_apply_with_no_changes": true,
+    "undated_source_older_observation_refused_without_changes": true,
+    "shared_candidate_table_unchanged": true
+  },
+  "sharedBefore": {
+    "count": 136,
+    "digest": "d0b1eb10863dc80024fff0128d0ffe88"
+  }
+}

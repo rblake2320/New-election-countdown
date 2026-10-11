@@ -1,0 +1,128 @@
+{
+  "http": {
+    "method": "GET",
+    "url": "https://s3.amazonaws.com/dl.ncsbe.gov/Elections/2026/Candidate%20Filing/Candidate_Listing_2026.csv",
+    "http_status": 200,
+    "document_byte_count": 2079875,
+    "document_sha256": "5d3d7a01b407262130aae3b5ef7aa08d0b4aa9a95290d3c54b4e8906a817cb4c",
+    "last_modified": "Sun, 04 Oct 2026 16:00:06 GMT"
+  },
+  "eligibility_basis": "Official name_on_ballot entries for11/03/2026 only;3/3/2026 primary records excluded. Current general list, not final certification.",
+  "layout_proof": {
+    "columns_used": [
+      "election_dt",
+      "contest_name",
+      "name_on_ballot",
+      "party_candidate"
+    ],
+    "office_match": "US SENATE / exact US HOUSE OF REPRESENTATIVES DISTRICT two-digit suffix",
+    "total_csv_rows": 8288,
+    "election_date_counts": {
+      "11/03/2026": 4527,
+      "03/03/2026": 3761
+    },
+    "raw_target_general_rows": 725,
+    "distinct_target_rows": 42,
+    "county_duplicates_removed": 683,
+    "draft_set_equality": true
+  },
+  "independent_general_pdf_crosscheck": {
+    "url": "https://s3.amazonaws.com/dl.ncsbe.gov/Elections/2026/Candidate%20Filing/2026_general_candidate_list_by_contest_federal_and_state.pdf",
+    "http_status": 200,
+    "document_sha256": "e891ef1add3c323a24a169f0b08f03879965ef572aa4b562578d3069569522eb",
+    "pages": 47,
+    "matched_candidate_names": 42,
+    "missing_names": 0,
+    "generated_date_observed": "2026-09-21"
+  },
+  "certification_warning": "Official candidate-list landing page warned November lists not yet final at original extraction; no certification promotion.",
+  "state": "NC",
+  "checked_at_utc": "2026-10-11T09:31:30.329907+00:00",
+  "draft_path": "D:\\projects\\et-wt\\lane-c\\data\\nominees\\nc-2026-general-draft.json",
+  "draft_sha256": "034638e69cf1ab61972b429a0115f0cbad1f0897889fd6869a973f62ba0ed954",
+  "draft_source_document_sha256": "5d3d7a01b407262130aae3b5ef7aa08d0b4aa9a95290d3c54b4e8906a817cb4c",
+  "sourceDocumentHashMatchesDraft": true,
+  "scope_counts": [
+    {
+      "office": "H",
+      "district": "01",
+      "expectedCount": 3
+    },
+    {
+      "office": "H",
+      "district": "02",
+      "expectedCount": 3
+    },
+    {
+      "office": "H",
+      "district": "03",
+      "expectedCount": 3
+    },
+    {
+      "office": "H",
+      "district": "04",
+      "expectedCount": 3
+    },
+    {
+      "office": "H",
+      "district": "05",
+      "expectedCount": 3
+    },
+    {
+      "office": "H",
+      "district": "06",
+      "expectedCount": 2
+    },
+    {
+      "office": "H",
+      "district": "07",
+      "expectedCount": 3
+    },
+    {
+      "office": "H",
+      "district": "08",
+      "expectedCount": 3
+    },
+    {
+      "office": "H",
+      "district": "09",
+      "expectedCount": 2
+    },
+    {
+      "office": "H",
+      "district": "10",
+      "expectedCount": 3
+    },
+    {
+      "office": "H",
+      "district": "11",
+      "expectedCount": 3
+    },
+    {
+      "office": "H",
+      "district": "12",
+      "expectedCount": 2
+    },
+    {
+      "office": "H",
+      "district": "13",
+      "expectedCount": 3
+    },
+    {
+      "office": "H",
+      "district": "14",
+      "expectedCount": 2
+    },
+    {
+      "office": "S",
+      "district": "00",
+      "expectedCount": 4
+    }
+  ],
+  "draft_expected_row_count": 42,
+  "actual_distinct_candidates": 42,
+  "incumbent_policy": "null unless explicitly stated by selected source; all retained values null",
+  "no_bios_or_contact_fields_persisted": true,
+  "no_app_or_db_writes": true,
+  "outcome": "Worked"
+}

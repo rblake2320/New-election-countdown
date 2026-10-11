@@ -14,17 +14,19 @@ import { validateElectionData, validateNotMockData } from './validators/state-el
 export interface IStorage {
   // Health checking
   isDbHealthy(): boolean;
-  
+
   // Elections
   getElections(filters?: ElectionQueryFilters): Promise<ElectionListing[]>;
   getElection(id: number): Promise<Election | undefined>;
   createElection(election: InsertElection): Promise<Election>;
   deleteElection(id: number): Promise<void>;
-  
+
   // Candidates
   getCandidatesByElection(electionId: number): Promise<Candidate[]>;
   getCandidates(electionId?: number): Promise<Candidate[]>;
   getCandidatesByIds(ids: number[]): Promise<Candidate[]>;
+  /** One query for many races (list-mode batching); empty for unknown ids. */
+  getCandidatesByElections(electionIds: number[]): Promise<Candidate[]>;
   createCandidate(candidate: InsertCandidate): Promise<Candidate>;
   updateCandidatePolling(candidateId: number, pollingData: {
     pollingSupport?: number;
@@ -32,11 +34,11 @@ export interface IStorage {
     lastPollingUpdate?: Date;
     pollingSource?: string;
   }): Promise<void>;
-  
+
   // Election Results
   getElectionResults(electionId: number): Promise<any>;
   updateElectionResults(electionId: number, resultsData: any): Promise<any>;
-  
+
   // Stats
   getElectionStats(): Promise<{
     total: number;
@@ -48,7 +50,7 @@ export interface IStorage {
   // API Integrations
   syncElectionsFromGoogleCivic(): Promise<void>;
   getVoterInfo(address: string): Promise<any>;
-  
+
   // Congress API Data
   getAllBills(): Promise<any[]>;
   getBillsByCongress(congress: string): Promise<any[]>;
@@ -61,20 +63,20 @@ export interface IStorage {
   getSenateCommunications(): Promise<any[]>;
   getAllNominations(): Promise<any[]>;
   getHouseVotes(): Promise<any[]>;
-  
+
   // Perplexity AI Integration
   searchElectionsWithAI(query: string): Promise<string>;
   expandElectionData(): Promise<void>;
-  
+
   // User Authentication
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
-  
+
   // User watchlist (basic methods)
   getUserWatchlist(userId: string): Promise<WatchlistItem[]>;
   addToWatchlist(userId: string, electionId: number): Promise<WatchlistItem>;
   removeFromWatchlist(userId: string, electionId: number): Promise<void>;
-  
+
   // Enhanced Watchlist with Organization Features
   getEnhancedWatchlist(userId: string, filters?: {
     status?: string[];
@@ -104,7 +106,7 @@ export interface IStorage {
     tags?: string[];
   }): Promise<WatchlistItem[]>;
   getWatchlistAnalytics(userId: string): Promise<WatchlistAnalytics>;
-  
+
   // Election Recommendation Engine
   generateRecommendations(userId: string, options?: {
     limit?: number;
@@ -117,14 +119,14 @@ export interface IStorage {
   getInterestBasedRecommendations(userId: string, limit?: number): Promise<ElectionRecommendation[]>;
   getTrendingRecommendations(userId: string, limit?: number): Promise<ElectionRecommendation[]>;
   getSimilarUsersRecommendations(userId: string, limit?: number): Promise<ElectionRecommendation[]>;
-  
+
   // Recommendation Interaction Tracking
   trackRecommendationPresentation(userId: string, recommendationIds: number[]): Promise<void>;
   trackRecommendationView(userId: string, recommendationId: number): Promise<void>;
   trackRecommendationClick(userId: string, recommendationId: number): Promise<void>;
   trackRecommendationDismissal(userId: string, recommendationId: number, reason?: string): Promise<void>;
   trackRecommendationToWatchlistConversion(userId: string, recommendationId: number, watchlistItemId: number): Promise<void>;
-  
+
   // Recommendation Analytics & Learning
   getUserRecommendationAnalytics(userId: string): Promise<UserRecommendationAnalytics | null>;
   updateUserRecommendationAnalytics(userId: string, updates: Partial<UserRecommendationAnalytics>): Promise<UserRecommendationAnalytics>;
@@ -140,31 +142,31 @@ export interface IStorage {
     optimalTiming: string;
     qualityScore: number;
   }>;
-  
+
   // Recommendation Caching
   getCachedRecommendations(userId: string, cacheKey: string): Promise<RecommendationCache | null>;
   setCachedRecommendations(userId: string, cacheKey: string, data: any, validUntil: Date): Promise<RecommendationCache>;
   invalidateRecommendationCache(userId: string, pattern?: string): Promise<void>;
   refreshRecommendationCache(userId: string): Promise<void>;
-  
+
   // Comprehensive User Preferences
   getUserPreferences(userId: string): Promise<UserPreferences | null>;
   createUserPreferences(userId: string, preferences: InsertUserPreferences): Promise<UserPreferences>;
   updateUserPreferences(userId: string, updates: UpdateUserPreferences): Promise<UserPreferences>;
   createDefaultUserPreferences(userId: string): Promise<UserPreferences>;
-  
+
   // Congressional District Support
   getCongressionalDistricts(state?: string): Promise<CongressionalDistrict[]>;
   getCongressionalDistrictByCode(districtCode: string): Promise<CongressionalDistrict | null>;
   lookupCongressionalDistrict(state: string, city?: string, zipCode?: string): Promise<CongressionalDistrict | null>;
-  
+
   // Version Control & Election Cycles
   getElectionCycles(): Promise<any[]>;
   getElectionCycle(slug: string): Promise<any>;
-  
+
   // Analytics & GDPR Compliance
   logInteraction(data: any): Promise<void>;
-  
+
   // Candidate Authentication & Portal
   authenticateCandidate(email: string, password: string): Promise<CandidateAccount | null>;
   createCandidateAccount(account: InsertCandidateAccount): Promise<CandidateAccount>;
@@ -181,7 +183,7 @@ export interface IStorage {
   updateUserDemographics(userId: number, demographics: any): Promise<void>;
   exportUserData(userId: number): Promise<any>;
   deleteUserData(userId: number): Promise<boolean>;
-  
+
   // Campaign Portal & Data Marketplace
   createCampaignAccount(data: any): Promise<any>;
   validateCampaignAccess(apiKey: string): Promise<any>;
@@ -190,17 +192,17 @@ export interface IStorage {
   getCampaignPolling(campaignId: number, electionId: number, dateRange: string): Promise<any>;
   purchaseDataExport(campaignId: number, datasetType: string, format?: string): Promise<any>;
   getCampaignSubscription(campaignId: number): Promise<any>;
-  
+
   // User Authentication Methods
   createUser(email: string, password: string): Promise<any>;
   authenticateUser(email: string, password: string): Promise<any>;
   signoutUser(token: string): Promise<void>;
   validateUserSession(token: string): Promise<User | null>;
-  
+
   // Congressional Search & Missing Member Detection
   searchCongressMembers(searchTerm: string): Promise<CongressMember[]>;
   findMissingCongressMember(): Promise<any>;
-  
+
   // Disaster Recovery and Backup System Methods
   getBackupOperations(filters?: { page?: number; limit?: number; status?: string; type?: string }): Promise<BackupOperation[]>;
   getBackupOperation(id: number): Promise<BackupOperation | undefined>;
@@ -244,7 +246,7 @@ export interface IStorage {
   // Environment Configurations
   createEnvironmentConfiguration(config: any): Promise<number>;
   getEnvironmentConfigurations(): Promise<any[]>;
-  
+
   // Platform Continuity Events
   createPlatformContinuityEvent(event: any): Promise<void>;
   getRecentPlatformContinuityEvents(limit: number): Promise<any[]>;
@@ -252,26 +254,26 @@ export interface IStorage {
 
   // Health checking for platform services
   getHealth(): Promise<void>;
-  
+
   getBackupRetentionPolicies(): Promise<BackupRetentionPolicy[]>;
   getActiveRetentionPolicies(): Promise<BackupRetentionPolicy[]>;
   createBackupRetentionPolicy(policy: InsertBackupRetentionPolicy): Promise<BackupRetentionPolicy>;
   updateBackupRetentionPolicy(id: number, updates: Partial<BackupRetentionPolicy>): Promise<BackupRetentionPolicy>;
-  
+
   getBackupStorageLocations(): Promise<BackupStorageLocation[]>;
   createBackupStorageLocation(location: InsertBackupStorageLocation): Promise<BackupStorageLocation>;
   updateBackupStorageLocation(id: number, updates: Partial<BackupStorageLocation>): Promise<BackupStorageLocation>;
-  
+
   getRestoreValidations(filters?: { page?: number; limit?: number; status?: string }): Promise<RestoreValidation[]>;
   createRestoreValidation(validation: InsertRestoreValidation): Promise<RestoreValidation>;
   updateRestoreValidation(validationId: string, updates: Partial<RestoreValidation>): Promise<RestoreValidation>;
   getRecentRestoreValidations(limit: number): Promise<RestoreValidation[]>;
-  
+
   getSchemaVersions(): Promise<SchemaVersion[]>;
   getLatestSchemaVersion(): Promise<SchemaVersion | undefined>;
   createSchemaVersion(version: InsertSchemaVersion): Promise<SchemaVersion>;
   updateSchemaVersion(id: number, updates: Partial<SchemaVersion>): Promise<SchemaVersion>;
-  
+
   getBackupSystemConfig(): Promise<BackupSystemConfig[]>;
   setBackupSystemConfig(key: string, value: any): Promise<BackupSystemConfig>;
 
@@ -280,7 +282,7 @@ export interface IStorage {
   getUserNotificationPreferences(userId: string): Promise<any>;
   updateUserNotificationPreferences(userId: string, preferences: any): Promise<any>;
   createDefaultNotificationPreferences(userId: string): Promise<any>;
-  
+
   // Notification Subscriptions
   getUserNotificationSubscriptions(userId: string): Promise<any[]>;
   createNotificationSubscription(subscription: any): Promise<any>;
@@ -288,40 +290,40 @@ export interface IStorage {
   deleteNotificationSubscription(subscriptionId: number): Promise<void>;
   verifyNotificationSubscription(token: string): Promise<any>;
   unsubscribeNotification(token: string): Promise<void>;
-  
+
   // Notification Consents
   getUserNotificationConsents(userId: string): Promise<any[]>;
   recordNotificationConsent(consent: any): Promise<any>;
   withdrawNotificationConsent(userId: string, consentType: string): Promise<void>;
-  
+
   // Notification Templates
   getNotificationTemplates(type?: string, category?: string): Promise<any[]>;
   getNotificationTemplate(id: number): Promise<any>;
   createNotificationTemplate(template: any): Promise<any>;
   updateNotificationTemplate(id: number, updates: any): Promise<any>;
-  
+
   // Notification Campaigns
   getNotificationCampaigns(status?: string): Promise<any[]>;
   getNotificationCampaign(id: number): Promise<any>;
   createNotificationCampaign(campaign: any): Promise<any>;
   updateNotificationCampaign(id: number, updates: any): Promise<any>;
-  
+
   // Notification Deliveries
   getNotificationDeliveries(campaignId?: number, userId?: string): Promise<any[]>;
   createNotificationDelivery(delivery: any): Promise<any>;
   updateNotificationDelivery(id: number, updates: any): Promise<any>;
   getNotificationDeliveryStats(campaignId?: number): Promise<any>;
-  
+
   // Notification Events
   getNotificationEvents(processed?: boolean): Promise<any[]>;
   createNotificationEvent(event: any): Promise<any>;
   updateNotificationEvent(id: number, updates: any): Promise<any>;
-  
+
   // Notification Webhooks
   createNotificationWebhook(webhook: any): Promise<any>;
   processNotificationWebhook(webhookId: number): Promise<void>;
   getUnprocessedWebhooks(): Promise<any[]>;
-  
+
   // Queue Management
   getQueuedNotifications(limit?: number): Promise<any[]>;
   updateNotificationStatus(deliveryId: number, status: string, metadata?: any): Promise<void>;
@@ -485,11 +487,11 @@ export class DatabaseStorage implements IStorage {
     // This will be delegated to the storage factory
     return true; // DatabaseStorage assumes it's healthy when instantiated
   }
-  
+
   // Centralized database error handling wrapper
   private async handleDatabaseOperation<T>(
-    operation: () => Promise<T>, 
-    fallbackValue: T, 
+    operation: () => Promise<T>,
+    fallbackValue: T,
     operationName: string = 'database operation'
   ): Promise<T> {
     try {
@@ -539,17 +541,17 @@ export class DatabaseStorage implements IStorage {
       level: insertElection.level,
       type: insertElection.type
     });
-    
+
     if (validationErrors.length > 0) {
       throw new Error(`Invalid election data: ${validationErrors.map(e => e.message).join('; ')}`);
     }
-    
+
     // Check for mock data
     const mockCheck = validateNotMockData(insertElection);
     if (!mockCheck.ok) {
       throw new Error(`Mock data detected: ${mockCheck.message}`);
     }
-    
+
     const [election] = await db
       .insert(elections)
       .values(insertElection)
@@ -572,15 +574,24 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(candidates.pollingSupport));
   }
 
+  async getCandidatesByElections(electionIds: number[]): Promise<Candidate[]> {
+    if (electionIds.length === 0) return [];
+    return await db
+      .select()
+      .from(candidates)
+      .where(inArray(candidates.electionId, electionIds))
+      .orderBy(desc(candidates.pollingSupport));
+  }
+
   async getCandidatesByIds(candidateIds: number[]): Promise<Candidate[]> {
     if (candidateIds.length === 0) return [];
-    
+
     const results = await db
       .select()
       .from(candidates)
       .where(inArray(candidates.id, candidateIds))
       .orderBy(desc(candidates.pollingSupport));
-    
+
     return results;
   }
 
@@ -637,7 +648,7 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(electionResults)
       .where(eq(electionResults.electionId, electionId));
-    
+
     const existingResult = existingResults[0];
 
     if (existingResult) {
@@ -720,7 +731,7 @@ export class DatabaseStorage implements IStorage {
     return this.handleDatabaseOperation(
       async () => {
         const now = new Date();
-        
+
         // Get ALL active elections for filter counts
         const allElections = await db
           .select()
@@ -791,7 +802,7 @@ export class DatabaseStorage implements IStorage {
 
     try {
       const googleElections = await civicService.fetchElections();
-      
+
       for (const election of googleElections) {
         // Check if election already exists
         const existing = await db
@@ -838,16 +849,16 @@ export class DatabaseStorage implements IStorage {
     try {
       // Get Google Civic elections to find a valid election ID
       const googleElections = await civicService.fetchElections();
-      const upcomingGoogleElection = googleElections.find(election => 
+      const upcomingGoogleElection = googleElections.find(election =>
         election.date > new Date()
       );
-      
+
       // Use Google's election ID format (like "9087", "9155", etc.)
       const googleElectionId = upcomingGoogleElection ? upcomingGoogleElection.id.toString() : undefined;
       return await civicService.fetchVoterInfo(address, googleElectionId);
     } catch (error: any) {
       console.error('Error fetching voter info:', error);
-      
+
       // Handle case where no voter info is available for this address/election
       if (error.message?.includes('404')) {
         return {
@@ -860,7 +871,7 @@ export class DatabaseStorage implements IStorage {
           ]
         };
       }
-      
+
       throw error;
     }
   }
@@ -895,24 +906,24 @@ export class DatabaseStorage implements IStorage {
     try {
       // First try to get from database
       const dbMembers = await db.select().from(congressMembers).limit(550);
-      
+
       if (dbMembers.length > 0) {
         return dbMembers;
       }
-      
+
       // If no data in database, fetch from API and store
       const congressService = getCongressBillService();
       if (!congressService) {
         return [];
       }
-      
+
       const apiMembers = await congressService.fetchAllMembers();
-      
+
       // Store in database for future use
       if (apiMembers.length > 0) {
         await this.syncCongressMembersToDatabase(apiMembers);
       }
-      
+
       return apiMembers;
     } catch (error) {
       console.error('Error fetching all members:', error);
@@ -957,7 +968,7 @@ export class DatabaseStorage implements IStorage {
         .select()
         .from(congressMembers)
         .where(eq(congressMembers.state, state.toUpperCase()));
-      
+
       console.log(`Found ${members.length} members for state ${state}`);
       return members;
     } catch (error) {
@@ -1069,7 +1080,7 @@ export class DatabaseStorage implements IStorage {
       console.log('Expanding election data using Perplexity AI...');
       const comprehensiveElections = await perplexityService.findAllElectionsUntil2026();
       console.log('AI Election Search Results:', comprehensiveElections);
-      
+
       // This would be where we parse the AI response and add missing elections
       // For now, we'll log the results for review
     } catch (error) {
@@ -1102,7 +1113,7 @@ export class DatabaseStorage implements IStorage {
 
   // Removed duplicate User Authentication Methods - implementations are below
 
-  // User Watchlist Methods  
+  // User Watchlist Methods
   async getUserWatchlist(userId: string): Promise<WatchlistItem[]> {
     try {
       const userWatchlist = await db
@@ -1181,12 +1192,12 @@ export class DatabaseStorage implements IStorage {
     try {
       const { electionCycles } = await import('@shared/schema');
       const { eq } = await import('drizzle-orm');
-      
+
       const [cycle] = await db
         .select()
         .from(electionCycles)
         .where(eq(electionCycles.slug, slug));
-      
+
       return cycle || null;
     } catch (error) {
       console.error('Error fetching election cycle:', error);
@@ -1213,7 +1224,7 @@ export class DatabaseStorage implements IStorage {
         .from(userPreferences)
         .where(eq(userPreferences.userId, userId))
         .limit(1);
-      
+
       return preferences || null;
     }, null, 'getUserPreferences');
   }
@@ -1228,7 +1239,7 @@ export class DatabaseStorage implements IStorage {
           updatedAt: new Date(),
         })
         .returning();
-      
+
       return created;
     }, {} as any, 'createUserPreferences');
   }
@@ -1237,11 +1248,11 @@ export class DatabaseStorage implements IStorage {
     return await this.handleDatabaseOperation(async () => {
       // First, get existing preferences or create defaults
       let existing = await this.getUserPreferences(userId);
-      
+
       if (!existing) {
         existing = await this.createDefaultUserPreferences(userId);
       }
-      
+
       // Update with new values
       const [updated] = await db
         .update(userPreferences)
@@ -1249,18 +1260,18 @@ export class DatabaseStorage implements IStorage {
           ...updates,
           updatedAt: new Date(),
           // Update specific timestamps based on what was changed
-          lastLocationUpdate: updates.state || updates.city || updates.congressionalDistrict 
-            ? new Date() 
+          lastLocationUpdate: updates.state || updates.city || updates.congressionalDistrict
+            ? new Date()
             : existing.lastLocationUpdate,
-          lastInterestUpdate: updates.federalElectionsInterest !== undefined || 
-                             updates.stateElectionsInterest !== undefined || 
+          lastInterestUpdate: updates.federalElectionsInterest !== undefined ||
+                             updates.stateElectionsInterest !== undefined ||
                              updates.localElectionsInterest !== undefined
             ? new Date()
             : existing.lastInterestUpdate,
         })
         .where(eq(userPreferences.userId, userId))
         .returning();
-      
+
       return updated;
     }, {} as any, 'updateUserPreferences');
   }
@@ -1295,7 +1306,7 @@ export class DatabaseStorage implements IStorage {
         skipOnboarding: false,
         preferenceSource: 'default',
       };
-      
+
       return await this.createUserPreferences(userId, defaultPrefs);
     }, {} as any, 'createDefaultUserPreferences');
   }
@@ -1304,11 +1315,11 @@ export class DatabaseStorage implements IStorage {
   async getCongressionalDistricts(state?: string): Promise<CongressionalDistrict[]> {
     return await this.handleDatabaseOperation(async () => {
       let query = db.select().from(congressionalDistricts);
-      
+
       if (state) {
         query = query.where(eq(congressionalDistricts.state, state.toUpperCase()));
       }
-      
+
       return await query.orderBy(congressionalDistricts.state, congressionalDistricts.district);
     }, [], 'getCongressionalDistricts');
   }
@@ -1320,7 +1331,7 @@ export class DatabaseStorage implements IStorage {
         .from(congressionalDistricts)
         .where(eq(congressionalDistricts.districtCode, districtCode.toUpperCase()))
         .limit(1);
-      
+
       return district || null;
     }, null, 'getCongressionalDistrictByCode');
   }
@@ -1330,21 +1341,21 @@ export class DatabaseStorage implements IStorage {
       // For now, return a simple lookup by state
       // In a production system, this would integrate with census data or geographic APIs
       const districts = await this.getCongressionalDistricts(state);
-      
+
       if (city) {
         // Try to find district that includes this city
-        const matchingDistrict = districts.find(d => 
-          d.majorCities?.some(c => 
-            c.toLowerCase().includes(city.toLowerCase()) || 
+        const matchingDistrict = districts.find(d =>
+          d.majorCities?.some(c =>
+            c.toLowerCase().includes(city.toLowerCase()) ||
             city.toLowerCase().includes(c.toLowerCase())
           )
         );
-        
+
         if (matchingDistrict) {
           return matchingDistrict;
         }
       }
-      
+
       // Return the first district for the state as a fallback
       return districts.length > 0 ? districts[0] : null;
     }, null, 'lookupCongressionalDistrict');
@@ -1392,7 +1403,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // === CANDIDATE AUTHENTICATION & PORTAL METHODS ===
-  
+
   async authenticateCandidate(email: string, password: string): Promise<CandidateAccount | null> {
     try {
       const [account] = await db
@@ -1479,7 +1490,7 @@ export class DatabaseStorage implements IStorage {
     try {
       // Calculate data completeness
       const totalFields = 25; // Estimated number of profile fields
-      const filledFields = Object.values(profileData).filter(value => 
+      const filledFields = Object.values(profileData).filter(value =>
         value !== null && value !== undefined && value !== ''
       ).length;
       const completeness = Math.round((filledFields / totalFields) * 100);
@@ -1492,7 +1503,7 @@ export class DatabaseStorage implements IStorage {
 
       // Check if profile exists
       const existingProfile = await this.getCandidateProfile(candidateId);
-      
+
       if (existingProfile) {
         // Update existing profile
         const [updated] = await db
@@ -1682,7 +1693,7 @@ export class DatabaseStorage implements IStorage {
 
       // Get candidate-supplied profile data (Priority 1 - RAG)
       const profile = await this.getCandidateProfile(candidateId);
-      
+
       // Get data sources for attribution
       const dataSources = await this.getCandidateDataSources(candidateId);
 
@@ -1696,18 +1707,18 @@ export class DatabaseStorage implements IStorage {
         birthPlace: profile?.birthPlace,
         currentResidence: profile?.currentResidence,
         familyStatus: profile?.familyStatus,
-        
+
         // Professional Background - Candidate-supplied first
         currentOccupation: profile?.currentOccupation,
         employmentHistory: profile?.employmentHistory || [],
         education: profile?.education || [],
         militaryService: profile?.militaryService,
-        
+
         // Political Experience - Candidate-supplied first
         previousOffices: profile?.previousOffices || [],
         politicalExperience: profile?.politicalExperience,
         endorsements: profile?.endorsements || [],
-        
+
         // Policy Positions - Structured candidate data
         policyPositions: {
           economy: profile?.economyPosition || null,
@@ -1721,18 +1732,18 @@ export class DatabaseStorage implements IStorage {
           foreignPolicy: profile?.foreignPolicyPosition || null,
           socialIssues: profile?.socialIssuesPosition || null,
         },
-        
+
         // Campaign Information
         campaignWebsite: profile?.campaignWebsite || candidate.website,
         campaignSlogan: profile?.campaignSlogan,
         topPriorities: profile?.topPriorities || [],
         keyAccomplishments: profile?.keyAccomplishments || [],
-        
+
         // Data Attribution
         dataCompleteness: profile?.dataCompleteness || 0,
         verificationStatus: profile?.verificationStatus || 'pending',
         dataSources: dataSources,
-        
+
         // Source attribution helper function
         getDataAttribution: (fieldName: string) => {
           const source = dataSources.find(s => s.fieldName === fieldName);
@@ -1748,8 +1759,8 @@ export class DatabaseStorage implements IStorage {
                 return 'Unknown Source';
             }
           }
-          return profile && profile[fieldName as keyof CandidateProfile] 
-            ? 'Candidate Supplied' 
+          return profile && profile[fieldName as keyof CandidateProfile]
+            ? 'Candidate Supplied'
             : 'Candidate has not supplied that info';
         }
       };
@@ -1770,7 +1781,7 @@ export class DatabaseStorage implements IStorage {
     const { SUBSCRIPTION_TIERS } = await import('./campaign-portal-service');
     const { campaignAccounts } = await import('@shared/schema');
     const { eq } = await import('drizzle-orm');
-    
+
     const [campaign] = await db
       .select()
       .from(campaignAccounts)
@@ -1849,7 +1860,7 @@ export class DatabaseStorage implements IStorage {
   async updateUserNotificationPreferences(userId: string, updates: Partial<InsertNotificationPreferences>): Promise<NotificationPreferences> {
     return await this.handleDatabaseOperation(async () => {
       const existing = await this.getUserNotificationPreferences(userId);
-      
+
       if (existing) {
         const [updated] = await db
           .update(notificationPreferences)
@@ -1888,7 +1899,7 @@ export class DatabaseStorage implements IStorage {
         preferredDeliveryTime: "09:00",
         timezone: "America/New_York"
       };
-      
+
       const [created] = await db
         .insert(notificationPreferences)
         .values(defaultPrefs)
@@ -1943,18 +1954,18 @@ export class DatabaseStorage implements IStorage {
         .from(notificationSubscriptions)
         .where(eq(notificationSubscriptions.verificationToken, token))
         .limit(1);
-      
+
       if (subscription) {
         await db
           .update(notificationSubscriptions)
-          .set({ 
-            isVerified: true, 
+          .set({
+            isVerified: true,
             verifiedAt: new Date(),
             verificationToken: null,
             updatedAt: new Date()
           })
           .where(eq(notificationSubscriptions.id, subscription.id));
-        
+
         return { ...subscription, isVerified: true, verifiedAt: new Date() };
       }
       return null;
@@ -1965,8 +1976,8 @@ export class DatabaseStorage implements IStorage {
     return await this.handleDatabaseOperation(async () => {
       await db
         .update(notificationSubscriptions)
-        .set({ 
-          isActive: false, 
+        .set({
+          isActive: false,
           unsubscribedAt: new Date(),
           updatedAt: new Date()
         })
@@ -1998,7 +2009,7 @@ export class DatabaseStorage implements IStorage {
     return await this.handleDatabaseOperation(async () => {
       await db
         .update(notificationConsents)
-        .set({ 
+        .set({
           consentGiven: false,
           withdrawalDate: new Date(),
           isActive: false,
@@ -2015,11 +2026,11 @@ export class DatabaseStorage implements IStorage {
   async getNotificationTemplates(type?: string, category?: string): Promise<NotificationTemplate[]> {
     return await this.handleDatabaseOperation(async () => {
       let query = db.select().from(notificationTemplates);
-      
+
       const conditions = [eq(notificationTemplates.isActive, true)];
       if (type) conditions.push(eq(notificationTemplates.type, type));
       if (category) conditions.push(eq(notificationTemplates.category, category));
-      
+
       return await query
         .where(and(...conditions))
         .orderBy(notificationTemplates.name);
@@ -2061,11 +2072,11 @@ export class DatabaseStorage implements IStorage {
   async getNotificationCampaigns(status?: string): Promise<NotificationCampaign[]> {
     return await this.handleDatabaseOperation(async () => {
       let query = db.select().from(notificationCampaigns);
-      
+
       if (status) {
         query = query.where(eq(notificationCampaigns.status, status));
       }
-      
+
       return await query.orderBy(desc(notificationCampaigns.createdAt));
     }, [], 'getNotificationCampaigns');
   }
@@ -2105,15 +2116,15 @@ export class DatabaseStorage implements IStorage {
   async getNotificationDeliveries(campaignId?: number, userId?: string): Promise<NotificationDelivery[]> {
     return await this.handleDatabaseOperation(async () => {
       let query = db.select().from(notificationDeliveries);
-      
+
       const conditions = [];
       if (campaignId) conditions.push(eq(notificationDeliveries.campaignId, campaignId));
       if (userId) conditions.push(eq(notificationDeliveries.userId, userId));
-      
+
       if (conditions.length > 0) {
         query = query.where(and(...conditions));
       }
-      
+
       return await query.orderBy(desc(notificationDeliveries.createdAt));
     }, [], 'getNotificationDeliveries');
   }
@@ -2142,13 +2153,13 @@ export class DatabaseStorage implements IStorage {
   async getNotificationDeliveryStats(campaignId?: number): Promise<any> {
     return await this.handleDatabaseOperation(async () => {
       let query = db.select().from(notificationDeliveries);
-      
+
       if (campaignId) {
         query = query.where(eq(notificationDeliveries.campaignId, campaignId));
       }
-      
+
       const deliveries = await query;
-      
+
       const stats = {
         total: deliveries.length,
         queued: deliveries.filter(d => d.status === 'queued').length,
@@ -2160,7 +2171,7 @@ export class DatabaseStorage implements IStorage {
         opened: deliveries.filter(d => d.openedAt !== null).length,
         clicked: deliveries.filter(d => d.clickedAt !== null).length,
       };
-      
+
       return stats;
     }, {}, 'getNotificationDeliveryStats');
   }
@@ -2168,11 +2179,11 @@ export class DatabaseStorage implements IStorage {
   async getNotificationEvents(processed?: boolean): Promise<NotificationEvent[]> {
     return await this.handleDatabaseOperation(async () => {
       let query = db.select().from(notificationEvents);
-      
+
       if (processed !== undefined) {
         query = query.where(eq(notificationEvents.isProcessed, processed));
       }
-      
+
       return await query.orderBy(desc(notificationEvents.createdAt));
     }, [], 'getNotificationEvents');
   }
@@ -2234,11 +2245,11 @@ export class DatabaseStorage implements IStorage {
         .from(notificationDeliveries)
         .where(eq(notificationDeliveries.status, 'queued'))
         .orderBy(notificationDeliveries.queuedAt);
-      
+
       if (limit) {
         query = query.limit(limit);
       }
-      
+
       return await query;
     }, [], 'getQueuedNotifications');
   }
@@ -2246,7 +2257,7 @@ export class DatabaseStorage implements IStorage {
   async updateNotificationStatus(deliveryId: number, status: string, metadata?: any): Promise<void> {
     return await this.handleDatabaseOperation(async () => {
       const updates: any = { status, updatedAt: new Date() };
-      
+
       // Set timestamps based on status
       switch (status) {
         case 'sending':
@@ -2262,11 +2273,11 @@ export class DatabaseStorage implements IStorage {
           updates.bouncedAt = new Date();
           break;
       }
-      
+
       if (metadata) {
         updates.providerResponse = metadata;
       }
-      
+
       await db
         .update(notificationDeliveries)
         .set(updates)
@@ -2284,11 +2295,11 @@ export class DatabaseStorage implements IStorage {
           lte(notificationDeliveries.retryCount, 3)
         ))
         .orderBy(notificationDeliveries.nextRetryAt);
-      
+
       if (limit) {
         query = query.limit(limit);
       }
-      
+
       return await query;
     }, [], 'retryFailedNotifications');
   }
@@ -2302,13 +2313,13 @@ export class DatabaseStorage implements IStorage {
     return await this.handleDatabaseOperation(async () => {
       const { secretsVault } = await import('@shared/schema');
       const { eq } = await import('drizzle-orm');
-      
+
       const [secret] = await db
         .select()
         .from(secretsVault)
         .where(eq(secretsVault.secretName, secretName))
         .limit(1);
-      
+
       return secret || null;
     }, null, 'getSecretByName');
   }
@@ -2317,13 +2328,13 @@ export class DatabaseStorage implements IStorage {
     return await this.handleDatabaseOperation(async () => {
       const { secretsVault } = await import('@shared/schema');
       const { eq } = await import('drizzle-orm');
-      
+
       const [secret] = await db
         .select()
         .from(secretsVault)
         .where(eq(secretsVault.id, secretId))
         .limit(1);
-      
+
       return secret || null;
     }, null, 'getSecretById');
   }
@@ -2339,7 +2350,7 @@ export class DatabaseStorage implements IStorage {
     return await this.handleDatabaseOperation(async () => {
       const { secretsVault } = await import('@shared/schema');
       const { lte } = await import('drizzle-orm');
-      
+
       return await db
         .select()
         .from(secretsVault)
@@ -2350,12 +2361,12 @@ export class DatabaseStorage implements IStorage {
   async createSecret(secret: any): Promise<number> {
     return await this.handleDatabaseOperation(async () => {
       const { secretsVault } = await import('@shared/schema');
-      
+
       const [newSecret] = await db
         .insert(secretsVault)
         .values(secret)
         .returning();
-      
+
       return newSecret.id;
     }, 0, 'createSecret');
   }
@@ -2364,7 +2375,7 @@ export class DatabaseStorage implements IStorage {
     return await this.handleDatabaseOperation(async () => {
       const { secretsVault } = await import('@shared/schema');
       const { eq } = await import('drizzle-orm');
-      
+
       await db
         .update(secretsVault)
         .set({ ...updates, updatedAt: new Date() })
@@ -2375,7 +2386,7 @@ export class DatabaseStorage implements IStorage {
   async createSecretRotationHistory(history: any): Promise<void> {
     return await this.handleDatabaseOperation(async () => {
       const { secretsRotationHistory } = await import('@shared/schema');
-      
+
       await db
         .insert(secretsRotationHistory)
         .values(history);
@@ -2386,7 +2397,7 @@ export class DatabaseStorage implements IStorage {
     return await this.handleDatabaseOperation(async () => {
       const { secretsRotationHistory } = await import('@shared/schema');
       const { eq } = await import('drizzle-orm');
-      
+
       await db
         .update(secretsRotationHistory)
         .set(updates)
@@ -2398,10 +2409,10 @@ export class DatabaseStorage implements IStorage {
     return await this.handleDatabaseOperation(async () => {
       const { secretsRotationHistory } = await import('@shared/schema');
       const { eq, and, desc } = await import('drizzle-orm');
-      
+
       let query = db.select().from(secretsRotationHistory);
       const conditions = [];
-      
+
       if (filters.secretId) {
         conditions.push(eq(secretsRotationHistory.secretId, filters.secretId));
       }
@@ -2411,11 +2422,11 @@ export class DatabaseStorage implements IStorage {
       if (filters.rotationType) {
         conditions.push(eq(secretsRotationHistory.rotationType, filters.rotationType));
       }
-      
+
       if (conditions.length > 0) {
         query = query.where(and(...conditions));
       }
-      
+
       return await query.orderBy(desc(secretsRotationHistory.startedAt));
     }, [], 'getRotationHistory');
   }
@@ -2424,9 +2435,9 @@ export class DatabaseStorage implements IStorage {
     return await this.handleDatabaseOperation(async () => {
       const { secretsRotationHistory } = await import('@shared/schema');
       const { eq, and, gte, desc } = await import('drizzle-orm');
-      
+
       const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
-      
+
       return await db
         .select()
         .from(secretsRotationHistory)
@@ -2442,11 +2453,11 @@ export class DatabaseStorage implements IStorage {
     return await this.handleDatabaseOperation(async () => {
       const { secretsRotationHistory } = await import('@shared/schema');
       const { lt } = await import('drizzle-orm');
-      
+
       const result = await db
         .delete(secretsRotationHistory)
         .where(lt(secretsRotationHistory.startedAt, cutoffDate));
-      
+
       return result.rowCount || 0;
     }, 0, 'deleteOldRotationHistory');
   }
@@ -2455,12 +2466,12 @@ export class DatabaseStorage implements IStorage {
   async createArtifact(artifact: any): Promise<number> {
     return await this.handleDatabaseOperation(async () => {
       const { artifactStorage } = await import('@shared/schema');
-      
+
       const [newArtifact] = await db
         .insert(artifactStorage)
         .values(artifact)
         .returning();
-      
+
       return newArtifact.id;
     }, 0, 'createArtifact');
   }
@@ -2469,13 +2480,13 @@ export class DatabaseStorage implements IStorage {
     return await this.handleDatabaseOperation(async () => {
       const { artifactStorage } = await import('@shared/schema');
       const { eq } = await import('drizzle-orm');
-      
+
       const [artifact] = await db
         .select()
         .from(artifactStorage)
         .where(eq(artifactStorage.contentHash, contentHash))
         .limit(1);
-      
+
       return artifact || null;
     }, null, 'getArtifactByHash');
   }
@@ -2484,22 +2495,22 @@ export class DatabaseStorage implements IStorage {
     return await this.handleDatabaseOperation(async () => {
       const { artifactStorage } = await import('@shared/schema');
       const { eq, and } = await import('drizzle-orm');
-      
+
       const conditions = [
         eq(artifactStorage.artifactName, artifactName),
         eq(artifactStorage.version, version)
       ];
-      
+
       if (environment) {
         conditions.push(eq(artifactStorage.environment, environment));
       }
-      
+
       const [artifact] = await db
         .select()
         .from(artifactStorage)
         .where(and(...conditions))
         .limit(1);
-      
+
       return artifact || null;
     }, null, 'getArtifactByNameVersion');
   }
@@ -2508,13 +2519,13 @@ export class DatabaseStorage implements IStorage {
     return await this.handleDatabaseOperation(async () => {
       const { artifactStorage } = await import('@shared/schema');
       const { eq, and, desc } = await import('drizzle-orm');
-      
+
       const conditions = [eq(artifactStorage.artifactName, artifactName)];
-      
+
       if (environment) {
         conditions.push(eq(artifactStorage.environment, environment));
       }
-      
+
       return await db
         .select()
         .from(artifactStorage)
@@ -2527,13 +2538,13 @@ export class DatabaseStorage implements IStorage {
     return await this.handleDatabaseOperation(async () => {
       const { artifactStorage } = await import('@shared/schema');
       const { eq } = await import('drizzle-orm');
-      
+
       const [artifact] = await db
         .select()
         .from(artifactStorage)
         .where(eq(artifactStorage.id, artifactId))
         .limit(1);
-      
+
       return artifact || null;
     }, null, 'getArtifactById');
   }
@@ -2542,7 +2553,7 @@ export class DatabaseStorage implements IStorage {
     return await this.handleDatabaseOperation(async () => {
       const { artifactStorage } = await import('@shared/schema');
       const { eq } = await import('drizzle-orm');
-      
+
       await db
         .update(artifactStorage)
         .set(updates)
@@ -2554,7 +2565,7 @@ export class DatabaseStorage implements IStorage {
     return await this.handleDatabaseOperation(async () => {
       const { artifactStorage } = await import('@shared/schema');
       const { eq } = await import('drizzle-orm');
-      
+
       await db
         .delete(artifactStorage)
         .where(eq(artifactStorage.id, artifactId));
@@ -2565,10 +2576,10 @@ export class DatabaseStorage implements IStorage {
     return await this.handleDatabaseOperation(async () => {
       const { artifactStorage } = await import('@shared/schema');
       const { eq, and, desc } = await import('drizzle-orm');
-      
+
       let query = db.select().from(artifactStorage);
       const conditions = [];
-      
+
       if (filters.artifactType) {
         conditions.push(eq(artifactStorage.artifactType, filters.artifactType));
       }
@@ -2578,11 +2589,11 @@ export class DatabaseStorage implements IStorage {
       if (filters.isActive !== undefined) {
         conditions.push(eq(artifactStorage.isActive, filters.isActive));
       }
-      
+
       if (conditions.length > 0) {
         query = query.where(and(...conditions));
       }
-      
+
       return await query.orderBy(desc(artifactStorage.createdAt));
     }, [], 'getArtifacts');
   }
@@ -2591,7 +2602,7 @@ export class DatabaseStorage implements IStorage {
     return await this.handleDatabaseOperation(async () => {
       const { artifactStorage } = await import('@shared/schema');
       const { eq } = await import('drizzle-orm');
-      
+
       return await db
         .select()
         .from(artifactStorage)
@@ -2610,7 +2621,7 @@ export class DatabaseStorage implements IStorage {
     return await this.handleDatabaseOperation(async () => {
       const { artifactStorage } = await import('@shared/schema');
       const { lte } = await import('drizzle-orm');
-      
+
       return await db
         .select()
         .from(artifactStorage)
@@ -2622,7 +2633,7 @@ export class DatabaseStorage implements IStorage {
   async createDeploymentHistory(deployment: any): Promise<void> {
     return await this.handleDatabaseOperation(async () => {
       const { deploymentHistory } = await import('@shared/schema');
-      
+
       await db
         .insert(deploymentHistory)
         .values(deployment);
@@ -2633,7 +2644,7 @@ export class DatabaseStorage implements IStorage {
     return await this.handleDatabaseOperation(async () => {
       const { deploymentHistory } = await import('@shared/schema');
       const { eq } = await import('drizzle-orm');
-      
+
       await db
         .update(deploymentHistory)
         .set(updates)
@@ -2645,7 +2656,7 @@ export class DatabaseStorage implements IStorage {
     return await this.handleDatabaseOperation(async () => {
       const { deploymentHistory } = await import('@shared/schema');
       const { desc } = await import('drizzle-orm');
-      
+
       return await db
         .select()
         .from(deploymentHistory)
@@ -2658,13 +2669,13 @@ export class DatabaseStorage implements IStorage {
     return await this.handleDatabaseOperation(async () => {
       const { deploymentHistory } = await import('@shared/schema');
       const { eq } = await import('drizzle-orm');
-      
+
       const [deployment] = await db
         .select()
         .from(deploymentHistory)
         .where(eq(deploymentHistory.deploymentId, deploymentId))
         .limit(1);
-      
+
       return deployment || null;
     }, null, 'getDeploymentById');
   }
@@ -2673,12 +2684,12 @@ export class DatabaseStorage implements IStorage {
   async createEnvironmentConfiguration(config: any): Promise<number> {
     return await this.handleDatabaseOperation(async () => {
       const { environmentConfigurations } = await import('@shared/schema');
-      
+
       const [newConfig] = await db
         .insert(environmentConfigurations)
         .values(config)
         .returning();
-      
+
       return newConfig.id;
     }, 0, 'createEnvironmentConfiguration');
   }
@@ -2694,7 +2705,7 @@ export class DatabaseStorage implements IStorage {
   async createPlatformContinuityEvent(event: any): Promise<void> {
     return await this.handleDatabaseOperation(async () => {
       const { platformContinuityEvents } = await import('@shared/schema');
-      
+
       await db
         .insert(platformContinuityEvents)
         .values(event);
@@ -2705,7 +2716,7 @@ export class DatabaseStorage implements IStorage {
     return await this.handleDatabaseOperation(async () => {
       const { platformContinuityEvents } = await import('@shared/schema');
       const { desc } = await import('drizzle-orm');
-      
+
       return await db
         .select()
         .from(platformContinuityEvents)
@@ -2718,10 +2729,10 @@ export class DatabaseStorage implements IStorage {
     return await this.handleDatabaseOperation(async () => {
       const { platformContinuityEvents } = await import('@shared/schema');
       const { eq, and, desc } = await import('drizzle-orm');
-      
+
       let query = db.select().from(platformContinuityEvents);
       const conditions = [];
-      
+
       if (filters.eventType) {
         conditions.push(eq(platformContinuityEvents.eventType, filters.eventType));
       }
@@ -2734,11 +2745,11 @@ export class DatabaseStorage implements IStorage {
       if (filters.environment) {
         conditions.push(eq(platformContinuityEvents.environment, filters.environment));
       }
-      
+
       if (conditions.length > 0) {
         query = query.where(and(...conditions));
       }
-      
+
       return await query.orderBy(desc(platformContinuityEvents.startedAt));
     }, [], 'getPlatformContinuityEvents');
   }
@@ -2762,7 +2773,7 @@ export class DatabaseStorage implements IStorage {
     return this.handleDatabaseOperation(async () => {
       const { failoverDrillConfigurations } = await import('@shared/schema');
       let query = db.select().from(failoverDrillConfigurations);
-      
+
       const conditions = [];
       if (filters?.enabled !== undefined) {
         conditions.push(eq(failoverDrillConfigurations.isEnabled, filters.enabled));
@@ -2773,11 +2784,11 @@ export class DatabaseStorage implements IStorage {
       if (filters?.scenario) {
         conditions.push(eq(failoverDrillConfigurations.scenario, filters.scenario));
       }
-      
+
       if (conditions.length > 0) {
         query = query.where(and(...conditions));
       }
-      
+
       return await query.orderBy(desc(failoverDrillConfigurations.createdAt));
     }, [], 'getFailoverDrillConfigurations');
   }
@@ -2833,7 +2844,7 @@ export class DatabaseStorage implements IStorage {
     return this.handleDatabaseOperation(async () => {
       const { drillExecutions } = await import('@shared/schema');
       let query = db.select().from(drillExecutions);
-      
+
       const conditions = [];
       if (filters?.configurationId) {
         conditions.push(eq(drillExecutions.configurationId, filters.configurationId));
@@ -2844,20 +2855,20 @@ export class DatabaseStorage implements IStorage {
       if (filters?.triggerType) {
         conditions.push(eq(drillExecutions.triggerType, filters.triggerType));
       }
-      
+
       if (conditions.length > 0) {
         query = query.where(and(...conditions));
       }
-      
+
       query = query.orderBy(desc(drillExecutions.startedAt));
-      
+
       if (filters?.limit) {
         query = query.limit(filters.limit);
       }
       if (filters?.page && filters?.limit) {
         query = query.offset((filters.page - 1) * filters.limit);
       }
-      
+
       return await query;
     }, [], 'getDrillExecutions');
   }
@@ -2912,7 +2923,7 @@ export class DatabaseStorage implements IStorage {
       const { drillExecutions } = await import('@shared/schema');
       const since = new Date();
       since.setDate(since.getDate() - days);
-      
+
       return await db.select().from(drillExecutions)
         .where(gte(drillExecutions.startedAt, since))
         .orderBy(desc(drillExecutions.startedAt));
@@ -2962,7 +2973,7 @@ export class DatabaseStorage implements IStorage {
     return this.handleDatabaseOperation(async () => {
       const { backupMonitoringConfigurations } = await import('@shared/schema');
       let query = db.select().from(backupMonitoringConfigurations);
-      
+
       const conditions = [];
       if (filters?.enabled !== undefined) {
         conditions.push(eq(backupMonitoringConfigurations.isEnabled, filters.enabled));
@@ -2970,11 +2981,11 @@ export class DatabaseStorage implements IStorage {
       if (filters?.monitoringType) {
         conditions.push(eq(backupMonitoringConfigurations.monitoringType, filters.monitoringType));
       }
-      
+
       if (conditions.length > 0) {
         query = query.where(and(...conditions));
       }
-      
+
       return await query.orderBy(desc(backupMonitoringConfigurations.createdAt));
     }, [], 'getBackupMonitoringConfigurations');
   }
@@ -3027,7 +3038,7 @@ export class DatabaseStorage implements IStorage {
     return this.handleDatabaseOperation(async () => {
       const { backupAlerts } = await import('@shared/schema');
       let query = db.select().from(backupAlerts);
-      
+
       const conditions = [];
       if (filters?.status) {
         conditions.push(eq(backupAlerts.status, filters.status));
@@ -3038,20 +3049,20 @@ export class DatabaseStorage implements IStorage {
       if (filters?.alertType) {
         conditions.push(eq(backupAlerts.alertType, filters.alertType));
       }
-      
+
       if (conditions.length > 0) {
         query = query.where(and(...conditions));
       }
-      
+
       query = query.orderBy(desc(backupAlerts.createdAt));
-      
+
       if (filters?.limit) {
         query = query.limit(filters.limit);
       }
       if (filters?.page && filters?.limit) {
         query = query.offset((filters.page - 1) * filters.limit);
       }
-      
+
       return await query;
     }, [], 'getBackupAlerts');
   }
@@ -3087,7 +3098,7 @@ export class DatabaseStorage implements IStorage {
     return this.handleDatabaseOperation(async () => {
       const { backupAlerts } = await import('@shared/schema');
       const [updated] = await db.update(backupAlerts)
-        .set({ 
+        .set({
           status: 'acknowledged',
           acknowledgedBy,
           acknowledgedAt: new Date()
@@ -3102,7 +3113,7 @@ export class DatabaseStorage implements IStorage {
     return this.handleDatabaseOperation(async () => {
       const { backupAlerts } = await import('@shared/schema');
       const [updated] = await db.update(backupAlerts)
-        .set({ 
+        .set({
           status: 'resolved',
           resolvedBy,
           resolvedAt: new Date()
@@ -3136,7 +3147,7 @@ export class DatabaseStorage implements IStorage {
     return this.handleDatabaseOperation(async () => {
       const { backupHealthMetrics } = await import('@shared/schema');
       let query = db.select().from(backupHealthMetrics);
-      
+
       const conditions = [];
       if (filters?.metricType) {
         conditions.push(eq(backupHealthMetrics.metricType, filters.metricType));
@@ -3147,11 +3158,11 @@ export class DatabaseStorage implements IStorage {
       if (filters?.dateTo) {
         conditions.push(lte(backupHealthMetrics.metricTimestamp, filters.dateTo));
       }
-      
+
       if (conditions.length > 0) {
         query = query.where(and(...conditions));
       }
-      
+
       return await query.orderBy(desc(backupHealthMetrics.metricTimestamp));
     }, [], 'getBackupHealthMetrics');
   }
@@ -3180,7 +3191,7 @@ export class DatabaseStorage implements IStorage {
       const { backupHealthMetrics } = await import('@shared/schema');
       const since = new Date();
       since.setDate(since.getDate() - days);
-      
+
       return await db.select().from(backupHealthMetrics)
         .where(gte(backupHealthMetrics.metricTimestamp, since))
         .orderBy(desc(backupHealthMetrics.metricTimestamp));
@@ -3191,21 +3202,21 @@ export class DatabaseStorage implements IStorage {
     return this.handleDatabaseOperation(async () => {
       const { backupHealthMetrics } = await import('@shared/schema');
       const { sql } = await import('drizzle-orm');
-      
+
       // Generate summary statistics for the date range
       const result = await db.execute(sql`
-        SELECT 
+        SELECT
           metric_type,
           COUNT(*) as total_measurements,
           AVG(metric_value) as avg_value,
           MIN(metric_value) as min_value,
           MAX(metric_value) as max_value,
           STDDEV(metric_value) as stddev_value
-        FROM backup_health_metrics 
+        FROM backup_health_metrics
         WHERE metric_timestamp >= ${dateFrom} AND metric_timestamp <= ${dateTo}
         GROUP BY metric_type
       `);
-      
+
       return result.rows || [];
     }, [], 'generateBackupHealthSummary');
   }
@@ -3215,7 +3226,7 @@ export class DatabaseStorage implements IStorage {
     return this.handleDatabaseOperation(async () => {
       const { rtoRpoTargets } = await import('@shared/schema');
       let query = db.select().from(rtoRpoTargets);
-      
+
       const conditions = [];
       if (filters?.active !== undefined) {
         conditions.push(eq(rtoRpoTargets.isActive, filters.active));
@@ -3226,11 +3237,11 @@ export class DatabaseStorage implements IStorage {
       if (filters?.businessCriticality) {
         conditions.push(eq(rtoRpoTargets.businessCriticality, filters.businessCriticality));
       }
-      
+
       if (conditions.length > 0) {
         query = query.where(and(...conditions));
       }
-      
+
       return await query.orderBy(desc(rtoRpoTargets.createdAt));
     }, [], 'getRtoRpoTargets');
   }
@@ -3283,7 +3294,7 @@ export class DatabaseStorage implements IStorage {
     return this.handleDatabaseOperation(async () => {
       const { rtoRpoMeasurements } = await import('@shared/schema');
       let query = db.select().from(rtoRpoMeasurements);
-      
+
       const conditions = [];
       if (filters?.targetId) {
         conditions.push(eq(rtoRpoMeasurements.targetId, filters.targetId));
@@ -3297,20 +3308,20 @@ export class DatabaseStorage implements IStorage {
       if (filters?.dateTo) {
         conditions.push(lte(rtoRpoMeasurements.measuredAt, filters.dateTo));
       }
-      
+
       if (conditions.length > 0) {
         query = query.where(and(...conditions));
       }
-      
+
       query = query.orderBy(desc(rtoRpoMeasurements.measuredAt));
-      
+
       if (filters?.limit) {
         query = query.limit(filters.limit);
       }
       if (filters?.page && filters?.limit) {
         query = query.offset((filters.page - 1) * filters.limit);
       }
-      
+
       return await query;
     }, [], 'getRtoRpoMeasurements');
   }
@@ -3365,7 +3376,7 @@ export class DatabaseStorage implements IStorage {
       const { rtoRpoMeasurements } = await import('@shared/schema');
       const since = new Date();
       since.setDate(since.getDate() - days);
-      
+
       return await db.select().from(rtoRpoMeasurements)
         .where(and(
           eq(rtoRpoMeasurements.targetId, targetId),
@@ -3379,10 +3390,10 @@ export class DatabaseStorage implements IStorage {
     return this.handleDatabaseOperation(async () => {
       const { rtoRpoMeasurements, rtoRpoTargets } = await import('@shared/schema');
       const { sql } = await import('drizzle-orm');
-      
+
       // Generate compliance report with target vs actual performance
       const result = await db.execute(sql`
-        SELECT 
+        SELECT
           t.service_name,
           t.service_type,
           t.business_criticality,
@@ -3394,12 +3405,12 @@ export class DatabaseStorage implements IStorage {
           COUNT(CASE WHEN m.actual_rto_minutes <= t.rto_target_minutes THEN 1 END) as rto_compliant_count,
           COUNT(CASE WHEN m.actual_rpo_minutes <= t.rpo_target_minutes THEN 1 END) as rpo_compliant_count
         FROM rto_rpo_targets t
-        LEFT JOIN rto_rpo_measurements m ON t.id = m.target_id 
+        LEFT JOIN rto_rpo_measurements m ON t.id = m.target_id
           AND m.measured_at >= ${dateFrom} AND m.measured_at <= ${dateTo}
         WHERE t.is_active = true
         GROUP BY t.id, t.service_name, t.service_type, t.business_criticality, t.rto_target_minutes, t.rpo_target_minutes
       `);
-      
+
       return result.rows || [];
     }, [], 'getRtoRpoComplianceReport');
   }
@@ -3409,7 +3420,7 @@ export class DatabaseStorage implements IStorage {
     return this.handleDatabaseOperation(async () => {
       const { performanceBenchmarks } = await import('@shared/schema');
       let query = db.select().from(performanceBenchmarks);
-      
+
       const conditions = [];
       if (filters?.active !== undefined) {
         conditions.push(eq(performanceBenchmarks.isActive, filters.active));
@@ -3420,11 +3431,11 @@ export class DatabaseStorage implements IStorage {
       if (filters?.sourceType) {
         conditions.push(eq(performanceBenchmarks.sourceType, filters.sourceType));
       }
-      
+
       if (conditions.length > 0) {
         query = query.where(and(...conditions));
       }
-      
+
       return await query.orderBy(desc(performanceBenchmarks.createdAt));
     }, [], 'getPerformanceBenchmarks');
   }
@@ -3481,7 +3492,7 @@ export class DatabaseStorage implements IStorage {
     return this.handleDatabaseOperation(async () => {
       const { incidentRunbooks } = await import('@shared/schema');
       let query = db.select().from(incidentRunbooks);
-      
+
       const conditions = [];
       if (filters?.status) {
         conditions.push(eq(incidentRunbooks.status, filters.status));
@@ -3495,20 +3506,20 @@ export class DatabaseStorage implements IStorage {
       if (filters?.accessLevel) {
         conditions.push(eq(incidentRunbooks.accessLevel, filters.accessLevel));
       }
-      
+
       if (conditions.length > 0) {
         query = query.where(and(...conditions));
       }
-      
+
       query = query.orderBy(desc(incidentRunbooks.createdAt));
-      
+
       if (filters?.limit) {
         query = query.limit(filters.limit);
       }
       if (filters?.page && filters?.limit) {
         query = query.offset((filters.page - 1) * filters.limit);
       }
-      
+
       return await query;
     }, [], 'getIncidentRunbooks');
   }
@@ -3572,7 +3583,7 @@ export class DatabaseStorage implements IStorage {
     return this.handleDatabaseOperation(async () => {
       const { incidentRunbooks } = await import('@shared/schema');
       const [updated] = await db.update(incidentRunbooks)
-        .set({ 
+        .set({
           status: 'approved',
           approvedBy,
           approvedAt: new Date(),
@@ -3649,7 +3660,7 @@ export class DatabaseStorage implements IStorage {
   async reorderRunbookSteps(runbookId: string, stepOrders: { id: number; order: number }[]): Promise<void> {
     return this.handleDatabaseOperation(async () => {
       const { runbookSteps } = await import('@shared/schema');
-      
+
       // Update each step's order in a transaction
       for (const stepOrder of stepOrders) {
         await db.update(runbookSteps)
@@ -3667,7 +3678,7 @@ export class DatabaseStorage implements IStorage {
     return this.handleDatabaseOperation(async () => {
       const { runbookContacts } = await import('@shared/schema');
       let query = db.select().from(runbookContacts);
-      
+
       const conditions = [];
       if (filters?.active !== undefined) {
         conditions.push(eq(runbookContacts.isActive, filters.active));
@@ -3678,11 +3689,11 @@ export class DatabaseStorage implements IStorage {
       if (filters?.escalationLevel !== undefined) {
         conditions.push(eq(runbookContacts.escalationLevel, filters.escalationLevel));
       }
-      
+
       if (conditions.length > 0) {
         query = query.where(and(...conditions));
       }
-      
+
       return await query.orderBy(runbookContacts.escalationLevel, runbookContacts.name);
     }, [], 'getRunbookContacts');
   }
@@ -3738,7 +3749,7 @@ export class DatabaseStorage implements IStorage {
       const { runbookContacts } = await import('@shared/schema');
       let query = db.select().from(runbookContacts)
         .where(eq(runbookContacts.isActive, true));
-      
+
       if (timezone) {
         query = query.where(and(
           eq(runbookContacts.isActive, true),
@@ -3748,7 +3759,7 @@ export class DatabaseStorage implements IStorage {
           )
         ));
       }
-      
+
       return await query.orderBy(runbookContacts.escalationLevel, runbookContacts.name);
     }, [], 'getAvailableContacts');
   }
@@ -3767,7 +3778,7 @@ export class DatabaseStorage implements IStorage {
     return this.handleDatabaseOperation(async () => {
       const { contactEscalationTrees } = await import('@shared/schema');
       let query = db.select().from(contactEscalationTrees);
-      
+
       const conditions = [];
       if (filters?.active !== undefined) {
         conditions.push(eq(contactEscalationTrees.isActive, filters.active));
@@ -3777,11 +3788,11 @@ export class DatabaseStorage implements IStorage {
         // For now, we'll keep it simple
         conditions.push(eq(contactEscalationTrees.isActive, true));
       }
-      
+
       if (conditions.length > 0) {
         query = query.where(and(...conditions));
       }
-      
+
       return await query.orderBy(desc(contactEscalationTrees.createdAt));
     }, [], 'getContactEscalationTrees');
   }
@@ -3824,17 +3835,17 @@ export class DatabaseStorage implements IStorage {
     return this.handleDatabaseOperation(async () => {
       const { contactEscalationTrees } = await import('@shared/schema');
       const { sql } = await import('drizzle-orm');
-      
+
       // Use SQL to query arrays - check if incidentType is in incidentTypes array
       const [tree] = await db.execute(sql`
-        SELECT * FROM contact_escalation_trees 
-        WHERE is_active = true 
+        SELECT * FROM contact_escalation_trees
+        WHERE is_active = true
           AND ${incidentType} = ANY(incident_types)
           AND ${severity} = ANY(severity_levels)
         ORDER BY created_at DESC
         LIMIT 1
       `);
-      
+
       return tree.rows?.[0] as ContactEscalationTree | undefined;
     }, undefined, 'getEscalationTreeByIncidentType');
   }
@@ -3844,7 +3855,7 @@ export class DatabaseStorage implements IStorage {
     return this.handleDatabaseOperation(async () => {
       const { runbookExecutions } = await import('@shared/schema');
       let query = db.select().from(runbookExecutions);
-      
+
       const conditions = [];
       if (filters?.runbookId) {
         conditions.push(eq(runbookExecutions.runbookId, filters.runbookId));
@@ -3855,20 +3866,20 @@ export class DatabaseStorage implements IStorage {
       if (filters?.executedBy) {
         conditions.push(eq(runbookExecutions.executedBy, filters.executedBy));
       }
-      
+
       if (conditions.length > 0) {
         query = query.where(and(...conditions));
       }
-      
+
       query = query.orderBy(desc(runbookExecutions.startedAt));
-      
+
       if (filters?.limit) {
         query = query.limit(filters.limit);
       }
       if (filters?.page && filters?.limit) {
         query = query.offset((filters.page - 1) * filters.limit);
       }
-      
+
       return await query;
     }, [], 'getRunbookExecutions');
   }
@@ -3931,7 +3942,7 @@ export class DatabaseStorage implements IStorage {
     return this.handleDatabaseOperation(async () => {
       const { runbookExecutions } = await import('@shared/schema');
       const [updated] = await db.update(runbookExecutions)
-        .set({ 
+        .set({
           status: 'completed',
           completedAt: new Date(),
           stepResults: results,
@@ -3954,32 +3965,32 @@ export class DatabaseStorage implements IStorage {
     return this.handleDatabaseOperation(async () => {
       const { drillExecutions, backupHealthMetrics, rtoRpoMeasurements, backupAlerts, runbookExecutions } = await import('@shared/schema');
       const { sql } = await import('drizzle-orm');
-      
+
       // Get recent drill summary
       const drillSummary = await db.execute(sql`
-        SELECT 
+        SELECT
           COUNT(*) as total_drills,
           COUNT(CASE WHEN status = 'completed' THEN 1 END) as successful_drills,
           COUNT(CASE WHEN status = 'failed' THEN 1 END) as failed_drills,
           AVG(CASE WHEN actual_rto_minutes IS NOT NULL THEN actual_rto_minutes END) as avg_rto_minutes
-        FROM drill_executions 
+        FROM drill_executions
         WHERE started_at >= NOW() - INTERVAL '30 days'
       `);
 
       // Get backup health summary
       const backupHealth = await db.execute(sql`
-        SELECT 
+        SELECT
           metric_type,
           AVG(metric_value) as avg_value,
           COUNT(*) as measurement_count
-        FROM backup_health_metrics 
+        FROM backup_health_metrics
         WHERE metric_timestamp >= NOW() - INTERVAL '24 hours'
         GROUP BY metric_type
       `);
 
       // Get RTO/RPO compliance
       const rtoRpoCompliance = await db.execute(sql`
-        SELECT 
+        SELECT
           COUNT(*) as total_measurements,
           COUNT(CASE WHEN m.actual_rto_minutes <= t.rto_target_minutes THEN 1 END) as rto_compliant,
           COUNT(CASE WHEN m.actual_rpo_minutes <= t.rpo_target_minutes THEN 1 END) as rpo_compliant
@@ -4024,7 +4035,7 @@ export class DatabaseStorage implements IStorage {
     return this.handleDatabaseOperation(async () => {
       const { rtoRpoTargets, rtoRpoMeasurements } = await import('@shared/schema');
       const { sql } = await import('drizzle-orm');
-      
+
       const daysPeriod = days || 30;
       const since = new Date();
       since.setDate(since.getDate() - daysPeriod);
@@ -4032,31 +4043,31 @@ export class DatabaseStorage implements IStorage {
       // Get targets
       let targetsQuery = db.select().from(rtoRpoTargets)
         .where(eq(rtoRpoTargets.isActive, true));
-      
+
       if (serviceType) {
         targetsQuery = targetsQuery.where(and(
           eq(rtoRpoTargets.isActive, true),
           eq(rtoRpoTargets.serviceType, serviceType)
         ));
       }
-      
+
       const targets = await targetsQuery;
 
       // Get recent measurements
       let measurementsQuery = db.select().from(rtoRpoMeasurements)
         .where(gte(rtoRpoMeasurements.measuredAt, since))
         .orderBy(desc(rtoRpoMeasurements.measuredAt));
-      
+
       const measurements = await measurementsQuery;
 
       // Get trends
       const trends = await db.execute(sql`
-        SELECT 
+        SELECT
           DATE_TRUNC('day', measured_at) as date,
           AVG(actual_rto_minutes) as avg_rto,
           AVG(actual_rpo_minutes) as avg_rpo,
           COUNT(*) as measurement_count
-        FROM rto_rpo_measurements 
+        FROM rto_rpo_measurements
         WHERE measured_at >= ${since}
         GROUP BY DATE_TRUNC('day', measured_at)
         ORDER BY date
@@ -4064,17 +4075,17 @@ export class DatabaseStorage implements IStorage {
 
       // Calculate compliance score
       const complianceData = await db.execute(sql`
-        SELECT 
+        SELECT
           COUNT(*) as total,
           COUNT(CASE WHEN m.actual_rto_minutes <= t.rto_target_minutes AND m.actual_rpo_minutes <= t.rpo_target_minutes THEN 1 END) as compliant
         FROM rto_rpo_measurements m
         JOIN rto_rpo_targets t ON m.target_id = t.id
         WHERE m.measured_at >= ${since}
       `);
-      
+
       const complianceResult = complianceData.rows?.[0];
-      const complianceScore = complianceResult?.total > 0 
-        ? (complianceResult.compliant / complianceResult.total) * 100 
+      const complianceScore = complianceResult?.total > 0
+        ? (complianceResult.compliant / complianceResult.total) * 100
         : 0;
 
       return {
@@ -4100,12 +4111,12 @@ export class DatabaseStorage implements IStorage {
     return this.handleDatabaseOperation(async () => {
       const { incidentRunbooks, runbookExecutions, runbookContacts } = await import('@shared/schema');
       const { sql } = await import('drizzle-orm');
-      
+
       // Get total runbooks count
       const totalRunbooksResult = await db.execute(sql`
         SELECT COUNT(*) as total FROM incident_runbooks WHERE status = 'active'
       `);
-      
+
       const totalRunbooks = Number(totalRunbooksResult.rows?.[0]?.total || 0);
 
       // Get active executions
@@ -4120,7 +4131,7 @@ export class DatabaseStorage implements IStorage {
 
       // Get contact availability
       const contactAvailability = await db.execute(sql`
-        SELECT 
+        SELECT
           escalation_level,
           COUNT(*) as total_contacts,
           COUNT(CASE WHEN is_active = true THEN 1 END) as active_contacts,
@@ -4153,9 +4164,9 @@ export class DatabaseStorage implements IStorage {
       async () => {
         // Log for analytics - in a production system this would be stored in a dedicated analytics table
         console.log(`[Analytics] User ${userId} presented with recommendations: ${recommendationIds.join(', ')}`);
-        
+
         // For now, we'll track this in memory since we don't have a dedicated analytics table
-        // In production, this would be: 
+        // In production, this would be:
         // await db.insert(recommendationAnalytics).values({
         //   userId,
         //   recommendationIds,
@@ -4173,7 +4184,7 @@ export class DatabaseStorage implements IStorage {
       async () => {
         // Log for analytics
         console.log(`[Analytics] User ${userId} viewed recommendation ${recommendationId}`);
-        
+
         // In production, this would store to analytics table:
         // await db.insert(recommendationAnalytics).values({
         //   userId,
@@ -4192,7 +4203,7 @@ export class DatabaseStorage implements IStorage {
       async () => {
         // Log for analytics
         console.log(`[Analytics] User ${userId} clicked recommendation ${recommendationId}`);
-        
+
         // In production, this would store to analytics table:
         // await db.insert(recommendationAnalytics).values({
         //   userId,
@@ -4211,7 +4222,7 @@ export class DatabaseStorage implements IStorage {
       async () => {
         // Log for analytics
         console.log(`[Analytics] User ${userId} dismissed recommendation ${recommendationId}${reason ? ` (reason: ${reason})` : ''}`);
-        
+
         // In production, this would store to analytics table:
         // await db.insert(recommendationAnalytics).values({
         //   userId,
@@ -4231,7 +4242,7 @@ export class DatabaseStorage implements IStorage {
       async () => {
         // Log for analytics
         console.log(`[Analytics] User ${userId} converted recommendation ${recommendationId} to watchlist item ${watchlistItemId}`);
-        
+
         // In production, this would store to analytics table:
         // await db.insert(recommendationAnalytics).values({
         //   userId,
@@ -4261,19 +4272,19 @@ export const databaseStorage = new DatabaseStorage();
 export async function initializeData() {
   // Import StorageMode enum to avoid circular dependencies
   const { StorageMode } = await import('./storage-factory');
-  
+
   const healthStatus = storage.getHealthStatus();
-  
+
   if (!healthStatus.isDatabaseHealthy) {
     console.log('🔄 Storage: memory mode; DB unhealthy—writes gated');
     console.log('ℹ️  Database operations will be queued until health is restored');
-    
+
     // Ensure we're in memory-only mode when DB is unhealthy
     await storage.setStorageMode(StorageMode.MEMORY);
   } else {
     console.log('✅ Storage: database mode; DB healthy');
   }
-  
+
   // Automatically sync elections from Google Civic API using factory
   try {
     await storage.syncElectionsFromGoogleCivic();
@@ -4281,7 +4292,7 @@ export async function initializeData() {
   } catch (error) {
     console.log('Google Civic API sync completed with fallbacks');
   }
-  
+
   // Log final storage status
   const finalStatus = storage.getHealthStatus();
   console.log(`🔄 Storage System Initialized:
@@ -4301,7 +4312,7 @@ periodicSyncWork.every(6 * 60 * 60 * 1000, async () => {
   try {
     await storage.syncElectionsFromGoogleCivic();
     console.log('Periodic sync with Google Civic API completed');
-    
+
     // Log storage health status
     const healthStatus = storage.getHealthStatus();
     if (!healthStatus.isDatabaseHealthy) {

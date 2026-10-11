@@ -1,3 +1,10 @@
+# Reviewed manifest and retained HTTP response digests must survive checkout.
+data/nominees/*.json text eol=lf
+artifacts/lane-c/real-roster-payloads/*.json text eol=lf
+
+# FEC review receipts and frozen source snapshots retain their reviewed bytes.
+artifacts/fec-first/*.json text eol=lf
+artifacts/fec-first/original-core/**/*.ts text eol=lf
 tests/fixtures/real-roster/*.json -text
 data/official-results/** -text
 artifacts/c6-*/** -text -whitespace
@@ -5,3 +12,4 @@ artifacts/c6-*.json -text -whitespace
 artifacts/c6-*.txt -text -whitespace
 artifacts/review-b-c6/** -text -whitespace
 artifacts/review-c6-context/** -text -whitespace
+tests/fixtures/fec/*.json text eol=lf

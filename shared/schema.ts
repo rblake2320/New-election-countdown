@@ -124,6 +124,22 @@ export const officialResultsSyncRuns = pgTable('official_results_sync_runs', {
   uniqueIndex('official_results_one_rollback').on(table.rollbackOf).where(sql`${table.rollbackOf} IS NOT NULL`),
 ]);
 
+// Complete official list coverage persists independently of candidate count.
+export const generalCandidateListSnapshots = pgTable("general_candidate_list_snapshots", {
+  id: serial("id").primaryKey(),
+  electionId: integer("election_id").notNull().references(() => elections.id),
+  scopeKey: text("scope_key").notNull(),
+  sourceUrl: text("source_url").notNull(),
+  sourceFileSha256: text("source_file_sha256").notNull(),
+  sourceSyncedAt: timestamp("source_synced_at", { withTimezone: true }).notNull(),
+  firstObservedAt: timestamp("first_observed_at", { withTimezone: true }).notNull().defaultNow(),
+  isCurrent: boolean("is_current").notNull().default(true),
+  metadata: jsonb("metadata").notNull(),
+}, table => [
+  uniqueIndex("idx_general_list_snapshot_version").on(table.electionId, table.scopeKey, table.sourceUrl, table.sourceFileSha256),
+  uniqueIndex("idx_general_list_snapshot_current").on(table.electionId, table.scopeKey).where(sql`${table.isCurrent} = true`),
+]);
+
 export const electionResults = pgTable("election_results", {
   id: serial("id").primaryKey(),
   electionId: integer("election_id").references(() => elections.id),

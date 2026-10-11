@@ -1,0 +1,131 @@
+{
+  "outcome": "Worked",
+  "dependencyMode": "physical npm ci",
+  "sourceTransactionReadOnly": "on",
+  "sharedBefore": {
+    "count": 136,
+    "digest": "d0b1eb10863dc80024fff0128d0ffe88"
+  },
+  "sharedAfter": {
+    "count": 136,
+    "digest": "d0b1eb10863dc80024fff0128d0ffe88"
+  },
+  "zipSha256": "6062f203fd5dd90a7e33e487088a4d496bd9634cc1e560f94b0f5e7ff8ea0126",
+  "fecRecords": 8711,
+  "fecEligible": 2523,
+  "fecAppliedActions": 2495,
+  "fecUnmatched": 28,
+  "baseCandidates": 136,
+  "stackedCandidates": 2600,
+  "fecRepeatActions": 0,
+  "manifestSha256": "a036f5621afd7c7385c5f5ff1b8b1b4677b95b79f13084bd0846eba839369158",
+  "governmentRows": 259,
+  "reviewedIdentityResolutions": [
+    {
+      "id": 2519,
+      "electionId": 20,
+      "name": "Mike Marvin",
+      "fecId": "S6NE00152",
+      "existingParty": "OTH",
+      "fecRawParty": "OTH",
+      "governmentRawParty": "Legal Marijuana NOW",
+      "governmentProjectedParty": "Legal Marijuana NOW",
+      "profileDescriptionPreserved": true,
+      "identityResolution": {
+        "kind": "reviewed_fec_identity",
+        "fecEvidence": {
+          "url": "https://www.fec.gov/data/candidate/S6NE00152/",
+          "sha256": "413544983c658aae26048b98cfdc6e8838ac6074051dbf088a9f7657625b3017",
+          "retrievedAt": "2026-10-11T11:55:53.842942+00:00"
+        },
+        "fecCandidateId": "S6NE00152",
+        "expectedFecPartyRaw": "OTH",
+        "expectedStatePartyRaw": "Legal Marijuana NOW"
+      }
+    },
+    {
+      "id": 1640,
+      "electionId": 473,
+      "name": "Afzal Khan",
+      "fecId": "H6NV01315",
+      "existingParty": "I",
+      "fecRawParty": "IND",
+      "governmentRawParty": "No Political Party",
+      "governmentProjectedParty": "No Political Party",
+      "profileDescriptionPreserved": true,
+      "identityResolution": {
+        "kind": "reviewed_fec_identity",
+        "fecEvidence": {
+          "url": "https://www.fec.gov/data/candidate/H6NV01315/",
+          "sha256": "711aa9bf625b0a33caa108f95937d699dc49a81ed703494f175ac63d5a67a8ea",
+          "retrievedAt": "2026-10-11T11:55:54.755603+00:00"
+        },
+        "fecCandidateId": "H6NV01315",
+        "expectedFecPartyRaw": "IND",
+        "expectedStatePartyRaw": "No Political Party"
+      }
+    },
+    {
+      "id": 2089,
+      "electionId": 479,
+      "name": "Adonis Hooslyn",
+      "fecId": "H6UT03174",
+      "existingParty": "UN",
+      "fecRawParty": "UN",
+      "governmentRawParty": "Unaffiliated",
+      "governmentProjectedParty": "Unaffiliated",
+      "profileDescriptionPreserved": true,
+      "identityResolution": {
+        "kind": "reviewed_fec_identity",
+        "fecEvidence": {
+          "url": "https://www.fec.gov/data/candidate/H6UT03174/",
+          "sha256": "3131bb86494155aeb0ba791a73da4bcde8261462e701d29349a18dd95572487d",
+          "retrievedAt": "2026-10-11T11:55:55.941876+00:00"
+        },
+        "fecCandidateId": "H6UT03174",
+        "expectedFecPartyRaw": "UN",
+        "expectedStatePartyRaw": "Unaffiliated"
+      }
+    },
+    {
+      "id": 2093,
+      "electionId": 480,
+      "name": "Steven Burt",
+      "fecId": "H6UT04024",
+      "existingParty": "I",
+      "fecRawParty": "IND",
+      "governmentRawParty": "Unaffiliated",
+      "governmentProjectedParty": "Unaffiliated",
+      "profileDescriptionPreserved": true,
+      "identityResolution": {
+        "kind": "reviewed_fec_identity",
+        "fecEvidence": {
+          "url": "https://www.fec.gov/data/candidate/H6UT04024/",
+          "sha256": "b1173846bcd9c2a1b98377193b89bf32bc2d4d299d5fa097b38d9cdfb7e5da5f",
+          "retrievedAt": "2026-10-11T11:55:57.060247+00:00"
+        },
+        "fecCandidateId": "H6UT04024",
+        "expectedFecPartyRaw": "IND",
+        "expectedStatePartyRaw": "Unaffiliated"
+      }
+    }
+  ],
+  "firstCandidateInserts": 144,
+  "repeatCandidateInserts": 0,
+  "repeatSourceChanges": 0,
+  "httpCases": 93,
+  "httpRows": 259,
+  "checks": {
+    "four_original_conflicts_resolved": true,
+    "wrong_current_tuple_refused_dry_apply_without_changes": 7,
+    "public_facts_unchanged_except_identity_declarations": true,
+    "entire_fec_stacked_profile_digest_unchanged": true,
+    "fec_proof_distinct_from_government_membership": true,
+    "party_raw_and_projection_preserved": true,
+    "dryrun_no_writes": true,
+    "exactrepeat_no_data_changes": true,
+    "changed_fec_party_refused": true,
+    "transaction_failure_restores_profiles_sources_snapshots_audits": true,
+    "shared_database_unchanged": true
+  }
+}
