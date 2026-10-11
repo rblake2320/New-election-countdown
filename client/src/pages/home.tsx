@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Settings, Bell, Grid3X3, List, Loader2, Users, User, LogOut } from "lucide-react";
+import { Search, SlidersHorizontal, Grid3X3, List, Loader2, Users, User, LogOut } from "lucide-react";
 import { PageHead, pageMetadata } from "@/components/page-head";
 import { MobileContainer, ResponsiveGrid, useIsMobile, MobileNavigation } from "@/components/mobile-responsive-layout";
 import FilterSidebar from "@/components/filter-sidebar-new";
@@ -25,12 +25,16 @@ import { useAuth } from "@/hooks/use-auth";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useIsAdmin } from "@/lib/useIsAdmin";
 import { type ElectionFilters } from "@shared/schema";
+import { normalizeFilters, isUpcomingTimeframe, levelLabel, partyLabel, timeframeLabel } from "@/lib/filter-codes";
+import { isUpcomingElection } from "@/lib/election-timing";
+import { useNow } from "@/hooks/use-now";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 export default function Home() {
   const queryClient = useQueryClient();
-  const [filters, setFilters] = useLocalStorage<ElectionFilters>("election-filters", {
+  const [storedFilters, setFilters] = useLocalStorage<ElectionFilters>("election-filters", {
     state: undefined,
     type: undefined,
     level: undefined,
@@ -40,6 +44,8 @@ export default function Home() {
     electionType: undefined,
     search: undefined
   });
+  // Older builds stored display labels ("Federal", "Democratic"); map them to API codes.
+  const filters = useMemo(() => normalizeFilters(storedFilters), [storedFilters]);
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [dismissedGuidance, setDismissedGuidance] = useState<Set<string>>(new Set());
@@ -58,7 +64,16 @@ export default function Home() {
     search: searchQuery || undefined,
   }), [filters, searchQuery]);
   
-  const { data: elections = [], isLoading, error } = useElections(queryFilters);
+  const { data: fetchedElections = [], isLoading, error } = useElections(queryFilters);
+  // Re-evaluated every minute so races drop off at midnight in their own zone
+  // without waiting for a refetch or filter change.
+  const minuteClock = useNow(60_000);
+  // "Next N days" must never show a race whose date has already passed.
+  const elections = useMemo(() => {
+    if (!isUpcomingTimeframe(filters.timeframe)) return fetchedElections;
+    const now = new Date(minuteClock);
+    return fetchedElections.filter(e => isUpcomingElection(e, now));
+  }, [fetchedElections, filters.timeframe, minuteClock]);
   
   // Filter guidance system
   const { 
@@ -69,6 +84,8 @@ export default function Home() {
   
   
   const { data: stats } = useElectionStats();
+  const activeFilterCount = [filters.state, filters.timeframe].filter(Boolean).length
+    + [filters.level, filters.party, filters.electionType].reduce((n, v) => n + (v ? [v].flat().length : 0), 0);
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
@@ -83,8 +100,7 @@ export default function Home() {
   };
 
   const removeFilter = (filterType: keyof ElectionFilters, value?: string) => {
-    const newFilters = { ...filters };
-    newFilters[filterType] = undefined;
+    const newFilters: ElectionFilters = { ...filters, [filterType]: undefined };
     setFilters(newFilters);
     // Invalidate elections cache to force fresh data fetch
     queryClient.invalidateQueries({ queryKey: ['/api/elections'] });
@@ -98,13 +114,13 @@ export default function Home() {
   
   const handleDismissGuidance = () => {
     // Create a key based on current filter state to dismiss this specific guidance
-    const guidanceKey = `${filters.state || 'none'}-${(filters.level || []).join(',')}`;
-    setDismissedGuidance(prev => new Set([...prev, guidanceKey]));
+    const guidanceKey = `${filters.state || 'none'}-${[filters.level ?? []].flat().join(',')}`;
+    setDismissedGuidance(prev => new Set(prev).add(guidanceKey));
   };
   
   // Filter out dismissed guidance issues
   const activeGuidanceIssues = guidanceIssues.filter(issue => {
-    const guidanceKey = `${filters.state || 'none'}-${(filters.level || []).join(',')}`;
+    const guidanceKey = `${filters.state || 'none'}-${[filters.level ?? []].flat().join(',')}`;
     return !dismissedGuidance.has(guidanceKey);
   });
 
@@ -165,38 +181,32 @@ export default function Home() {
         <header className="bg-card border-b border-border sticky top-0 z-50 shadow-sm">
           <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
+            <div className="hidden lg:flex items-center space-x-4">
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold">E</span>
                 </div>
                 <h1 className="text-xl font-bold">ElectionTracker</h1>
               </div>
-              <div className="hidden md:block bg-muted px-3 py-1 rounded-full">
-                <span className="text-sm font-medium text-muted-foreground">Live Dashboard</span>
-                <span className="inline-block w-2 h-2 bg-green-500 rounded-full ml-2 animate-pulse"></span>
-              </div>
             </div>
             
-            <div className="flex items-center space-x-4">
-              <div className="relative">
+            <div className="flex flex-1 lg:flex-none items-center justify-end gap-2 sm:gap-4 min-w-0">
+              <div className="relative flex-1 lg:flex-none min-w-0">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
                   placeholder="Search elections, candidates..."
                   value={searchQuery}
                   onChange={(e) => handleSearchChange(e.target.value)}
-                  className="w-64 pl-10"
+                  className="w-full lg:w-64 pl-10"
+                  aria-label="Search elections and candidates"
                 />
               </div>
               <Link href="/congress">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="hidden sm:inline-flex">
                   <Users className="h-4 w-4 mr-1" />
                   Congress
                 </Button>
               </Link>
-              <Button variant="ghost" size="sm">
-                <Bell className="h-4 w-4" />
-              </Button>
               
               {user ? (
                 <DropdownMenu>
@@ -218,16 +228,14 @@ export default function Home() {
                   <Button 
                     variant="outline" 
                     size="sm"
+                    aria-label="Sign in"
                   >
-                    <User className="h-4 w-4 mr-1" />
-                    Sign In
+                    <User className="h-4 w-4 sm:mr-1" />
+                    <span className="hidden sm:inline">Sign In</span>
                   </Button>
                 </Link>
               )}
-              
-              <Button variant="ghost" size="sm">
-                <Settings className="h-4 w-4" />
-              </Button>
+
             </div>
           </div>
           </div>
@@ -237,20 +245,22 @@ export default function Home() {
         <div className="flex flex-col lg:flex-row gap-6 w-full">
           
           {/* Filter Sidebar */}
-          <aside className="w-full lg:w-80 space-y-6 flex-shrink-0">
+          <aside className="order-2 lg:order-1 w-full lg:w-72 xl:w-80 space-y-6 flex-shrink-0">
             <VersionSwitcher compact={false} />
             {isAdmin && <DataStewardStatusCard />}
-            <FilterSidebar 
-              filters={filters}
-              onFiltersChange={handleFiltersChange}
-            />
+            <div className="hidden lg:block">
+              <FilterSidebar 
+                filters={filters}
+                onFiltersChange={handleFiltersChange}
+              />
+            </div>
             <VoterInfoLookup />
             <UserWatchlist />
             <AIElectionSearch />
           </aside>
 
           {/* Main Content */}
-          <main className="flex-1 min-w-0">
+          <main className="order-1 lg:order-2 flex-1 min-w-0">
             <WatchlistSyncPrompt />
             
             {/* Filter Guidance Panel */}
@@ -264,17 +274,14 @@ export default function Home() {
             
             {/* Featured Election Cards */}
             {!isLoading && elections.length > 0 && (
-              <FeaturedElectionCards elections={elections.map(e => ({
-                ...e,
-                date: e.date instanceof Date ? e.date.toISOString() : e.date
-              }))} />
+              <FeaturedElectionCards elections={elections} />
             )}
             
             {/* Dashboard Header */}
             <div style={{ marginBottom: 'var(--section-spacing)' }}>
               <div className="flex items-center justify-between" style={{ marginBottom: 'var(--content-spacing)' }}>
                 <div>
-                  <h2 className="text-2xl font-bold">Upcoming Elections</h2>
+                  <h2 className="text-2xl font-bold">{isUpcomingTimeframe(filters.timeframe) ? "Upcoming Elections" : "All Elections"}</h2>
                   <p className="text-muted-foreground">
                     {isLoading ? (
                       "Loading elections..."
@@ -284,6 +291,18 @@ export default function Home() {
                   </p>
                 </div>
                 <div className="flex items-center space-x-2">
+                  <Sheet>
+                    <SheetTrigger asChild>
+                      <Button variant="outline" size="sm" className="lg:hidden">
+                        <SlidersHorizontal className="h-4 w-4 mr-1" />
+                        Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="left" className="w-80 max-w-[85vw] overflow-y-auto p-4">
+                      <SheetTitle className="sr-only">Filters</SheetTitle>
+                      <FilterSidebar filters={filters} onFiltersChange={handleFiltersChange} />
+                    </SheetContent>
+                  </Sheet>
                   <Button
                     variant={viewMode === "grid" ? "default" : "outline"}
                     size="sm"
@@ -308,7 +327,7 @@ export default function Home() {
                 <div className="flex flex-wrap gap-2 mb-4">
                   {filters.timeframe && (
                     <Badge variant="secondary" className="gap-1">
-                      Time: {filters.timeframe}
+                      Time: {timeframeLabel(filters.timeframe)}
                       <button 
                         onClick={() => removeFilter('timeframe')}
                         className="ml-1 hover:bg-muted-foreground/20 rounded-full p-0.5"
@@ -341,7 +360,7 @@ export default function Home() {
                   )}
                   {filters.level && (
                     <Badge variant="secondary" className="gap-1">
-                      Level: {filters.level}
+                      Level: {[filters.level].flat().map(levelLabel).join(", ")}
                       <button 
                         onClick={() => removeFilter('level')}
                         className="ml-1 hover:bg-muted-foreground/20 rounded-full p-0.5"
@@ -352,7 +371,7 @@ export default function Home() {
                   )}
                   {filters.party && (
                     <Badge variant="secondary" className="gap-1">
-                      Party: {filters.party}
+                      Party: {[filters.party].flat().map(partyLabel).join(", ")}
                       <button 
                         onClick={() => removeFilter('party')}
                         className="ml-1 hover:bg-muted-foreground/20 rounded-full p-0.5"
@@ -398,14 +417,6 @@ export default function Home() {
               </div>
             )}
 
-            {/* Load More */}
-            {elections.length > 0 && stats && elections.length < stats.total && (
-              <div className="text-center py-8">
-                <Button variant="outline">
-                  Load More Elections ({stats.total - elections.length} remaining)
-                </Button>
-              </div>
-            )}
           </main>
         </div>
       </div>

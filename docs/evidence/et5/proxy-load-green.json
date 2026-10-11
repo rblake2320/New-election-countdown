@@ -1,0 +1,42 @@
+{
+  "image": "electiontracker:integrated-abd-fixed",
+  "builder": "electiontracker:et5-builder",
+  "network": "internal, no published ports",
+  "passed": true,
+  "http": [
+    {
+      "path": "/",
+      "status": 200,
+      "bytes": 1849
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "bytes": 239
+    },
+    {
+      "path": "/api/elections",
+      "status": 200,
+      "bytes": 197570
+    }
+  ],
+  "elections": {
+    "total": 537,
+    "distinct": 537
+  },
+  "boundary": "production-only paths verified",
+  "imageId": "sha256:c6309684bc1bfffb39bd5aaad798c97a77f02af83991eeb083e8a4f159daaa1c",
+  "proxyLoad": {
+    "fixture": "one proxy client, real landing/JS/CSS",
+    "targetRps": 20,
+    "seconds": 60,
+    "sent": 1200,
+    "elapsedMs": 60630,
+    "statuses": {
+      "200": 1200
+    },
+    "errors": 0,
+    "p95Ms": 12,
+    "passed": true
+  }
+}

@@ -61,38 +61,6 @@ export function formatElectionDate(date: Date | string): string {
   });
 }
 
-export function calculateTimeRemaining(targetDate: Date | string) {
-  const now = new Date().getTime();
-  const target = typeof targetDate === 'string' ? new Date(targetDate).getTime() : targetDate.getTime();
-  const difference = target - now;
-
-  if (difference < 0) {
-    return {
-      days: 0,
-      hours: 0,
-      minutes: 0,
-      seconds: 0,
-      milliseconds: 0,
-      expired: true
-    };
-  }
-
-  const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-  const milliseconds = Math.floor(difference % 1000);
-
-  return {
-    days,
-    hours,
-    minutes,
-    seconds,
-    milliseconds,
-    expired: false
-  };
-}
-
 export const statesList = [
   { value: "all", label: "All States" },
   { value: "AL", label: "Alabama" },

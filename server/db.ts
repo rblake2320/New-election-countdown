@@ -156,6 +156,5 @@ export async function closeDatabaseConnection(): Promise<void> {
   }
 }
 
-// Handle process termination
-process.on('SIGTERM', closeDatabaseConnection);
-process.on('SIGINT', closeDatabaseConnection);
+// The server lifecycle owns termination: HTTP requests drain before pool.end().
+// Importing database helpers must not install competing process signal handlers.

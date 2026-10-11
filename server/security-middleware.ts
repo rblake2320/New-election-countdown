@@ -16,12 +16,17 @@ export const securityLogger = winston.createLogger({
   ]
 });
 
-// SQL injection pattern detection
+// Hostile-input detection. Real SQL safety comes from parameterised queries
+// (drizzle / pg placeholders); this list only catches obvious attack strings so
+// they can be logged and rejected. It deliberately does NOT match apostrophes
+// or the words "or"/"and" — "O'Brien" and "governor and senate" are searches.
 const sqlPatterns = [
-  /(\'|\"|\\|;|\/\*|--|\*\/|\bor\b|\band\b|\bunion\b|\bselect\b|\binsert\b|\bupdate\b|\bdelete\b|\bdrop\b|\bcreate\b|\balter\b)/i,
-  /\'\s*or\s*\d+\s*=\s*\d+/i,
-  /\'\s*and\s*\d+\s*=\s*\d+/i,
-  /\'\s*or\s*\'\d+\'\s*=\s*\'\d+/i
+  /\bunion\b[\s\S]{0,40}\bselect\b/i,
+  /;\s*(drop|delete|insert|update|alter|create|truncate)\b/i,
+  /\/\*[\s\S]*\*\//,
+  /--\s*$/m,
+  /\b(xp_cmdshell|information_schema|pg_sleep|sleep\s*\()/i,
+  /'\s*(or|and)\s*['\d]+\s*=\s*['\d]+/i,
 ];
 
 // Log suspicious activity
@@ -52,7 +57,6 @@ const monitoringEndpointsAllowlist = [
   '/api/health',
   '/api/monitoring',
   '/api/system/status',
-  '/api/track'
 ];
 
 // Check if endpoint is a monitoring endpoint
@@ -62,65 +66,30 @@ const isMonitoringEndpoint = (path: string): boolean => {
   );
 };
 
-// Check if request is from legitimate monitoring/testing client
-const isLegitimateMonitoringClient = (req: Request): boolean => {
-  const userAgent = req.get('User-Agent') || '';
-  const host = req.get('Host') || '';
-  const ip = req.ip || req.connection.remoteAddress || '';
-  
-  // Allow HeadlessChrome (Playwright/Puppeteer testing)
-  if (userAgent.includes('HeadlessChrome') || userAgent.includes('Playwright')) {
-    return true;
-  }
-  
-  // Allow localhost requests
-  if (ip === '127.0.0.1' || ip === '::1' || ip.startsWith('127.') || 
-      host.includes('localhost') || host.includes('127.0.0.1')) {
-    return true;
-  }
-  
-  // Allow internal monitoring services
-  if (userAgent.includes('ElectionTracker') || userAgent.includes('Replit-Agent')) {
-    return true;
-  }
-  
-  // Allow health check requests without suspicious patterns
-  if (isMonitoringEndpoint(req.path)) {
-    return true;
-  }
-  
-  return false;
-};
 
-// Input validation middleware
+// Input validation middleware — applied uniformly (no Host/User-Agent based
+// bypass: those headers are attacker-controlled). Caps length and rejects only
+// clearly hostile strings; see sqlPatterns.
+const MAX_QUERY_PARAM_LENGTH = 200;
 export const validateInput = (req: Request, res: Response, next: NextFunction) => {
-  // Skip SQL injection checks for monitoring endpoints and legitimate clients
-  if (isMonitoringEndpoint(req.path) || isLegitimateMonitoringClient(req)) {
-    return next();
-  }
+  if (isMonitoringEndpoint(req.path)) return next();
 
   const { search, state, type, q } = req.query;
-  
-  // Check all query parameters for SQL injection
   const params = [search, state, type, q].filter(Boolean);
-  
+
   for (const param of params) {
-    if (typeof param === 'string' && checkForSQLInjection(param)) {
-      // Don't log legitimate monitoring clients as suspicious
-      if (!isLegitimateMonitoringClient(req)) {
-        logSuspiciousActivity(req, 'SQL_INJECTION_ATTEMPT', { 
-          parameter: param,
-          endpoint: req.path
-        });
+    const values = Array.isArray(param) ? param : [param];
+    for (const value of values) {
+      if (typeof value !== 'string') continue;
+      if (value.length > MAX_QUERY_PARAM_LENGTH) {
+        return res.status(400).json({ error: 'Invalid input', message: `Query parameters are limited to ${MAX_QUERY_PARAM_LENGTH} characters` });
       }
-      
-      return res.status(400).json({ 
-        error: 'Invalid input detected',
-        message: 'Search terms cannot contain SQL commands'
-      });
+      if (checkForSQLInjection(value)) {
+        logSuspiciousActivity(req, 'SQL_INJECTION_ATTEMPT', { parameter: value.slice(0, 80), endpoint: req.path });
+        return res.status(400).json({ error: 'Invalid input detected', message: 'Search terms contain disallowed content' });
+      }
     }
   }
-  
   next();
 };
 
@@ -138,11 +107,13 @@ export const sanitizeInput = (input: string): string => {
 
 // Rate limiting for search endpoints
 export const searchLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  // Sized for election night (measured 2026-10-11): every filter change is one
+  // /api/elections call; 60/min per IP tolerates rapid filtering and shared NAT.
+  windowMs: 60 * 1000,
+  max: 60,
   message: {
     error: 'Too many search requests',
-    retryAfter: '15 minutes'
+    retryAfter: '1 minute'
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -160,18 +131,49 @@ export const monitoringLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-// General API rate limiter
-export const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // Limit each IP to 1000 requests per windowMs
+// Credential endpoints: brute-force protection (per IP)
+export const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  skipSuccessfulRequests: true, // only failed attempts count
   message: {
-    error: 'Too many API requests',
+    error: 'Too many authentication attempts',
     retryAfter: '15 minutes'
   },
   standardHeaders: true,
   legacyHeaders: false,
-  // Skip rate limiting for monitoring endpoints
-  skip: (req) => isMonitoringEndpoint(req.path)
+});
+
+// Analytics ingestion: unauthenticated DB write, so it gets its own cap
+// (batched client events; 120 batches/min per IP is far above real usage).
+export const trackLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 120,
+  message: { error: 'Too many analytics requests', retryAfter: '1 minute' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// General API rate limiter
+export const apiLimiter = rateLimit({
+  // 300/min per IP: a user scrolling the full 500-card grid fires ~1 call per
+  // card; 1000/15min (the old value) tripped after ~2 full scrolls.
+  windowMs: 60 * 1000,
+  max: 300,
+  message: {
+    error: 'Too many API requests',
+    retryAfter: '1 minute'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  // One predicate (a second `skip` key silently overrode the first). Use the
+  // full URL path because this limiter is mounted at /api, which strips the
+  // prefix from req.path. Health/readiness probes and the monitoring
+  // allow-list never consume client quota.
+  skip: (req) => {
+    const fullPath = (req.originalUrl || req.url || '').split('?')[0];
+    return fullPath.startsWith('/api/health') || isMonitoringEndpoint(fullPath);
+  }
 });
 
 // Security headers configuration
@@ -180,11 +182,15 @@ export const securityHeaders = helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https:"],
       connectSrc: ["'self'", "wss:", "https:"],
+      objectSrc: ["'none'"],
+      frameAncestors: ["'none'"],
     },
   },
+  crossOriginEmbedderPolicy: false,
   hsts: {
     maxAge: 31536000,
     includeSubDomains: true,

@@ -1,0 +1,44 @@
+{
+  "image": "electiontracker:integrated-ad",
+  "builder": "electiontracker:et5-builder",
+  "network": "internal, no published ports",
+  "passed": false,
+  "http": [
+    {
+      "path": "/",
+      "status": 200,
+      "bytes": 1306
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "bytes": 239
+    },
+    {
+      "path": "/api/elections",
+      "status": 200,
+      "bytes": 197570
+    }
+  ],
+  "elections": {
+    "total": 537,
+    "distinct": 537
+  },
+  "boundary": "production-only paths verified",
+  "imageId": "sha256:0b55cddcef247947ee054ad3dc86ad98185c64aa02a22d7c3f8e3e18c4ab7ff8",
+  "proxyLoad": {
+    "fixture": "one proxy client, real landing/JS/CSS",
+    "targetRps": 20,
+    "seconds": 60,
+    "sent": 1200,
+    "elapsedMs": 60635,
+    "statuses": {
+      "200": 999,
+      "429": 201
+    },
+    "errors": 0,
+    "p95Ms": 38,
+    "passed": false
+  },
+  "error": "Proxy load acceptance failed: every landing/asset request must return 200, zero 429"
+}
