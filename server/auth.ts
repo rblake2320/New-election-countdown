@@ -4,17 +4,13 @@ import { pool } from "./db";
 import argon2 from "argon2";
 import { nanoid } from "nanoid";
 import crypto from "crypto";
+import { getRequiredSecret } from "./config/secrets";
 
 export const SESSION_COOKIE = process.env.SESSION_COOKIE_NAME || "et.sid";
-const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(32).toString('hex');
+const JWT_SECRET = getRequiredSecret("JWT_SECRET");
 const SESSION_TTL_HOURS = parseInt(process.env.SESSION_TTL_HOURS || "720", 10); // 30 days
 const SECURE = process.env.NODE_ENV === "production";
 
-// Store JWT secret in env if not set
-if (!process.env.JWT_SECRET) {
-  process.env.JWT_SECRET = JWT_SECRET;
-  console.log("⚠️  Generated JWT_SECRET - add to .env for production");
-}
 
 export function signSession(payload: { uid: string; jti: string }, hours = SESSION_TTL_HOURS) {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: `${hours}h` });
@@ -73,15 +69,11 @@ export function authRequired() {
           return next();
         }
       } catch (dbError) {
-        // Database query failed - fall back to JWT-only validation for memory sessions
-        console.log('Database session validation failed, accepting JWT-only session during outage');
+        // Fail closed: without the session table we cannot honour revocation.
+        console.error('Session store unavailable; refusing authenticated request');
+        return res.status(503).json({ error: "session_store_unavailable" });
       }
-      
-      // Fallback for memory-only sessions during database outages
-      // If JWT is valid (already verified above), accept the session
-      (req as any).userId = uid;
-      (req as any).jti = jti;
-      next();
+      return res.status(401).json({ error: "unauthorized" });
     } catch (jwtError) {
       return res.status(401).json({ error: "unauthorized" });
     }

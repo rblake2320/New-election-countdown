@@ -1,52 +1,45 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import helmet from "helmet";
 import compression from "compression";
+import { securityHeaders } from "./security-middleware";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { globalWriteGuard, healthAwareErrorHandler } from "./middleware/health-guard";
 
 const app = express();
 
-// Apply security and optimization middleware
-app.use(helmet({
-  contentSecurityPolicy: false, // Allow inline scripts for development
-  crossOriginEmbedderPolicy: false
-}));
-app.use(compression());
-app.use(cors({ origin: true, credentials: true }));
-app.options("*", cors());
+// Behind nginx/Hostinger proxy: first hop is trusted so req.ip, rate limits
+// and secure cookies key off the real client address.
+app.set("trust proxy", 1);
 
-// Essential security middleware
-app.use((req: Request, res: Response, next: NextFunction) => {
-  // Security headers
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('X-XSS-Protection', '1; mode=block');
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  
-  // CORS configuration
-  const origin = req.headers.origin;
-  const allowedOrigins = [
-    'http://localhost:5000',
-    'https://localhost:5000'
-  ];
-  
-  if (!origin || allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin || '*');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  }
-  
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
-  }
-  
-  next();
-});
+// One helmet instance (CSP on) — see security-middleware.ts
+app.use(securityHeaders);
+app.use(compression());
+
+// CORS: explicit allow-list. APP_ORIGIN / APP_URL (comma-separated) plus
+// localhost in non-production. Credentials only for listed origins.
+const allowedOrigins = new Set(
+  [process.env.APP_ORIGIN, process.env.APP_URL]
+    .filter(Boolean)
+    .flatMap((v) => String(v).split(","))
+    .map((v) => v.trim().replace(/\/$/, ""))
+    .filter(Boolean),
+);
+const isDev = process.env.NODE_ENV !== "production";
+const corsOptions: cors.CorsOptions = {
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization"],
+  origin(origin, cb) {
+    if (!origin) return cb(null, true); // same-origin / curl
+    if (allowedOrigins.has(origin)) return cb(null, true);
+    if (isDev && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) return cb(null, true);
+    return cb(null, false);
+  },
+};
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
