@@ -16,7 +16,11 @@ try{
   for(let i=0;i<30;i++){try{await docker('exec',db,'pg_isready','-U','et_congress_official_test','-d','et_congress_official_test');break;}catch{await new Promise(r=>setTimeout(r,1000));}}
   const run=async(command)=>docker('run','--rm','--network',network,'-e','DATABASE_URL='+databaseURL,'-e','CONGRESS_EVIDENCE_DIR=/evidence','-v',evidence+':/evidence','--entrypoint','sh',image,'-c',command);
   await writeFile(resolve(evidence,'schema-initial.txt'),await run('node_modules/.bin/drizzle-kit push --force'));
-  await writeFile(resolve(evidence,'compiled-acceptance.txt'),await run('node scripts/build-congress-import.mjs && node_modules/.bin/esbuild scripts/verify_official_congress.ts --bundle --platform=node --format=esm --packages=external --outfile=dist/verify-official-congress.js && node dist/verify-official-congress.js'));
+  await writeFile(resolve(evidence,'compiled-resource-paths.txt'),await run('node scripts/build-congress-import.mjs && node_modules/.bin/esbuild scripts/verify_congress_resource_paths.ts --bundle --platform=node --format=esm --packages=external --outfile=dist/verify-congress-resource-paths.js && node dist/verify-congress-resource-paths.js'));
+  // This is an owned disposable image filesystem, never a shared worktree.
+  // Remove source-tree availability during the real compiled PG acceptance.
+  await writeFile(resolve(evidence,'compiled-acceptance.txt'),await run('node scripts/build-congress-import.mjs && node_modules/.bin/esbuild scripts/verify_official_congress.ts --bundle --platform=node --format=esm --packages=external --outfile=dist/verify-official-congress.js && node -e "const fs=require(\'node:fs\');for(const file of [\'official-current-members.json\',\'source-derivation-receipt.json\',\'house-source-receipt.json\',\'senate-source-receipt.json\',\'contact-free-check-receipt.json\'])fs.unlinkSync(\'/app/data/congress/119/\'+file)" && node dist/verify-official-congress.js'));
+  report.compiledAcceptanceSourceTree='all five named source JSON files absent; only dist/congress-data reviewed assets available';
   const before=await docker('exec',db,'psql','-U','et_congress_official_test','-d','et_congress_official_test','-Atc',"SELECT count(*),md5(string_agg(row_to_json(r)::text,'' ORDER BY id)) FROM congress_official_import_runs r");
   // The unknown synthetic column was proved preserved by the importer. Remove
   // it explicitly before a full schema sync; no unmodelled column drop is credited.

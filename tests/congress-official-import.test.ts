@@ -5,7 +5,7 @@ import {join} from 'node:path';
 const mock=vi.hoisted(()=>({rows:[] as any[],writes:vi.fn(),connect:vi.fn()}));
 vi.mock('../server/db',()=>({db:{select:()=>({from:async()=>mock.rows}),delete:mock.writes,insert:mock.writes},pool:{connect:mock.connect}}));
 import {CongressImportService} from '../server/congress-import-service';
-import {loadOfficialCongressSnapshot,validateOfficialCongressSnapshot,syncOfficialCongress,LegacyCongressImportRefused,sourceCoverageComplete,OFFICIAL_CONGRESS_MANIFEST_SHA} from '../server/congress-official-import';
+import {loadOfficialCongressSnapshot,defaultOfficialCongressManifestPath,validateOfficialCongressSnapshot,syncOfficialCongress,LegacyCongressImportRefused,sourceCoverageComplete,OFFICIAL_CONGRESS_MANIFEST_SHA} from '../server/congress-official-import';
 const actual=JSON.parse(readFileSync('data/congress/119/official-current-members.json','utf8'));
 beforeEach(()=>{mock.rows=[];mock.writes.mockClear();mock.connect.mockClear();});
 describe('reviewed official Congress admission',()=>{
@@ -15,6 +15,10 @@ describe('reviewed official Congress admission',()=>{
   });
   it('loads539 occupied real identities and two explicit null-person vacancies',()=>{
     const loaded=loadOfficialCongressSnapshot();expect(loaded.manifestSha256).toBe(OFFICIAL_CONGRESS_MANIFEST_SHA);expect(loaded.snapshot.members).toHaveLength(539);expect(loaded.snapshot.vacancies).toHaveLength(2);
+  });
+  it('source-tree fallback resolves the reviewed asset relative to module location',()=>{
+    expect(defaultOfficialCongressManifestPath().replaceAll('\\','/')).toMatch(/\/data\/congress\/119\/official-current-members.json$/);
+    expect(loadOfficialCongressSnapshot(defaultOfficialCongressManifestPath()).manifestSha256).toBe(OFFICIAL_CONGRESS_MANIFEST_SHA);
   });
   for(const [name,change] of [
     ['empty',(s:any)=>{s.members=[];}],['missing-member',(s:any)=>{s.members.pop();}],

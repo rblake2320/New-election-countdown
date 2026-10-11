@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { readFileSync, existsSync } from 'node:fs';
+import { fileURLToPath, URL as NodeURL } from 'node:url';
 import type { Pool, PoolClient } from 'pg';
 import { z } from 'zod';
 
@@ -61,7 +61,13 @@ export function validateOfficialCongressSnapshot(value:unknown):OfficialCongress
   refuse(snapshot.counts.houseOccupiedMembers===439&&snapshot.counts.senateOccupiedMembers===100&&snapshot.counts.occupiedIncludingNonVoting===539&&snapshot.counts.houseVotingOccupied===433&&snapshot.counts.houseNonVotingOccupied===6&&snapshot.counts.houseExplicitVacancies===2,'Source scope/count mismatch');
   return snapshot;
 }
-export function loadOfficialCongressSnapshot(path=resolve('data/congress/119/official-current-members.json')):{snapshot:OfficialCongressSnapshot;manifestSha256:string} {
+export function defaultOfficialCongressManifestPath():string {
+  const packaged=fileURLToPath(new NodeURL('./congress-data/official-current-members.json',import.meta.url));
+  // An existing packaged asset is authoritative and must pass the same SHA gate.
+  // A malformed packaged file never silently falls back to another source copy.
+  return existsSync(packaged)?packaged:fileURLToPath(new NodeURL('../data/congress/119/official-current-members.json',import.meta.url));
+}
+export function loadOfficialCongressSnapshot(path=defaultOfficialCongressManifestPath()):{snapshot:OfficialCongressSnapshot;manifestSha256:string} {
   const bytes=readFileSync(path);const hash=createHash('sha256').update(bytes).digest('hex');
   refuse(hash===OFFICIAL_CONGRESS_MANIFEST_SHA,'Official Congress snapshot SHA differs from reviewed immutable source');
   return {snapshot:validateOfficialCongressSnapshot(JSON.parse(bytes.toString('utf8'))),manifestSha256:hash};
