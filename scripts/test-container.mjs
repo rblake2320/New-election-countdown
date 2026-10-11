@@ -133,6 +133,20 @@ try {
     `;
     report.listingContract = JSON.parse(await docker('exec', app, 'node', '--input-type=module', '-e', listingProbe));
   }
+  if (process.env.TEST_CANDIDATE_INGESTION === '1') {
+    await docker('exec', db, 'psql', '-U', 'et_test', '-d', 'et_test', '-c',
+      'create database et_sol_c_fec_test;');
+    const fecOutput = await docker('run', '--rm', '--network', network,
+      '-e', `DATABASE_URL=${databaseURL.replace(/\/et_test$/, '/et_sol_c_fec_test')}`,
+      '--entrypoint', 'sh', builder, '-c',
+      'node_modules/.bin/esbuild scripts/verify_fec_sync.ts --bundle --platform=node --format=esm --packages=external --outfile=fec-acceptance.mjs && node fec-acceptance.mjs');
+    report.fecIngestion = JSON.parse(fecOutput);
+    const nomineeOutput = await docker('run', '--rm', '--network', network,
+      '-e', `DATABASE_URL=${databaseURL}`, '-e', `INTERNAL_APP_ORIGIN=http://${app}:5000`,
+      '--entrypoint', 'sh', builder, '-c',
+      'node_modules/.bin/esbuild scripts/verify-candidate-integration.ts --bundle --platform=node --format=esm --packages=external --outfile=nominee-acceptance.mjs && node nominee-acceptance.mjs');
+    report.nomineeIngestion = JSON.parse(nomineeOutput);
+  }
   if (preview) {
     report.network = `isolated test bridge; browser preview bound only to 127.0.0.1:${previewPort}`;
     console.log(`Isolated browser preview ready at http://127.0.0.1:${previewPort} (maximum 5 minutes)`);
