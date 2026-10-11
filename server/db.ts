@@ -49,7 +49,7 @@ export const db = drizzle({ client: pool, schema });
  * `neon(process.env.DATABASE_URL!)` HTTP clients, which only speak to Neon's endpoint and fail
  * against the plain PostgreSQL this deployment runs.
  */
-export async function rawSql<T extends Record<string, unknown> = Record<string, unknown>>(
+export async function rawSql<T extends object = Record<string, unknown>>(
   strings: TemplateStringsArray | string,
   ...values: unknown[]
 ): Promise<T[]> {

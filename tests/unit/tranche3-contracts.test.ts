@@ -95,6 +95,23 @@ describe("steward routes (tranche 4b)", () => {
   });
 });
 
+describe("track4 performance routes (tranche 4c)", () => {
+  it("call service methods that exist, with the table contract as the validator", () => {
+    const routes = read("routes", "track4-performance-routes.ts");
+    const service = read("services", "rto-rpo-dashboard-service.ts");
+    for (const m of routes.match(/dashboardService\.(\w+)\(/g) ?? []) {
+      const name = m.replace("dashboardService.", "").replace("(", "");
+      expect(service, name).toMatch(new RegExp(`\\n  async ${name}\\(`));
+    }
+    expect(routes).toContain("const createTargetSchema = insertRtoRpoTargetSchema.extend(");
+    expect(routes).toContain("const createBenchmarkSchema = insertPerformanceBenchmarkSchema.extend(");
+    expect(routes).toContain("dashboardService.recordMeasurement(m.targetId, m.measurementType, m.actualRtoSeconds, m.actualRpoSeconds, m.context)");
+    for (const gone of ["rtoTargetMinutes", "actualRtoMinutes", "getTargetTrends", "dashboardService.createRtoRpoTarget"]) {
+      expect(routes, gone).not.toContain(gone);
+    }
+  });
+});
+
 describe("notification queue processor", () => {
   it("drives delivery rows and never the removed in-memory maps", () => {
     const queue = read("services", "notification-queue-service.ts");
