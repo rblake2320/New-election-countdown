@@ -1,0 +1,30 @@
+{
+  "image": "electiontracker:a-review",
+  "builder": "electiontracker:a-review-builder",
+  "network": "internal, no published ports",
+  "passed": false,
+  "http": [
+    {
+      "path": "/",
+      "status": 200,
+      "bytes": 1832
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "bytes": 239
+    },
+    {
+      "path": "/api/elections",
+      "status": 200,
+      "bytes": 197570
+    }
+  ],
+  "elections": {
+    "total": 537,
+    "distinct": 537
+  },
+  "boundary": "production-only paths verified",
+  "imageId": "sha256:ebed50ec73c09acd4366c680b47e38e3a974f1b3a07ce8b42dfc62860abb9000",
+  "error": "docker exec failed: file:///app/[eval1]:10\n        if(response.status!==200)throw Error(path+' status '+response.status);\n                                       ^\n\nError: /api/recommendations status 500\n    at file:///app/[eval1]:10:40\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n\nNode.js v24.21.0\n"
+}
