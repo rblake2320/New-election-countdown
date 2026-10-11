@@ -351,6 +351,15 @@ describe('CongressData Component', () => {
       expect(screen.getByText('Congressional Data')).toBeInTheDocument();
     });
   });
+  it('members query failure (non-JSON body) still shows an empty list (members ?? [] preserves prior behavior)', async () => {
+    // queryFn throws on a non-JSON body, so members is undefined once loading ends;
+    // filterMembers already fell back to [], so the default is type-only, not a behavior change.
+    server.use(http.get('/api/members', () => new HttpResponse('<html>gateway error</html>', { status: 502 })));
+    renderWithClient(<CongressData />);
+    await waitFor(() => {
+      expect(screen.getByText(/Showing 0 of 0 members/)).toBeInTheDocument();
+    });
+  });
 });
 
 describe('Accessibility', () => {

@@ -1,0 +1,292 @@
+{
+  "sourceHead": "0968cfdbf47953b4169fac794235c9b51f625ab7",
+  "checkedAt": "2026-10-11T12:14:41.302899+00:00",
+  "outcome": "Worked",
+  "exitCode": 0,
+  "passed": 26,
+  "failed": 0,
+  "sourceFilesSha256": {
+    "D:\\projects\\et-wt\\nc-sc-review-beb1\\client\\src\\components\\general-roster.tsx": "739ebe01ea3f3f5f33590cf1128cc39e55cfe026227f84227025fb5fe675cf1b",
+    "D:\\projects\\et-wt\\nc-sc-review-beb1\\client\\src\\lib\\general-roster.ts": "d0cf28cb46b3c17c2c81a2bb6a91465ca3a8f9ba631262fe74284b5135147029"
+  },
+  "testFilesSha256": {
+    "D:\\projects\\et-wt\\nc-sc-review-beb1\\tests\\phase2-real-general-roster.test.tsx": "8d13c8040b71ab7f9887dd86cb0c6345f132b2aabf56dab899be55f328496c3e",
+    "D:\\projects\\et-wt\\nc-sc-review-beb1\\tests\\phase2-roster-boundaries.test.tsx": "1f9a6fd47e091809fc4e13ae6ee60d9aee8dce641fb153e2869d45232f94e46a",
+    "D:\\projects\\et-wt\\nc-sc-review-beb1\\tests\\phase2-ma-three-ticket-receiving.test.tsx": "cb4c1b40ba1b7b04ccfb2d69f58bb259f7270300e503cbebe755e5d3ab6fb459"
+  },
+  "fixtureDigestsUnchangedAfterRun": true,
+  "actualRootRetainedCaptures": [
+    {
+      "state": "CA",
+      "path": "D:\\projects\\et-wt\\nc-sc-review-beb1\\tests\\fixtures\\phase2-pinned-0b5c63e\\CA-72.json",
+      "sha256": "4c741e5b9d8e7c9e30d3e126c304ba83b16f57f03e88601c713c8939d4f83274",
+      "candidateCount": 2,
+      "coverage": "scoped",
+      "captureReceipt": {
+        "source": "actual private PostgreSQL through real Express handler",
+        "httpStatus": 200,
+        "manifestSha256": "d2365f2487a2705f1b311364446e6024e28f2ba9b2036d69cda18550ed84290c",
+        "capturedAt": "2026-10-11T11:24:38.152Z",
+        "electionId": 72
+      },
+      "sourceSnapshots": [
+        {
+          "url": "https://elections.cdn.sos.ca.gov/statewide-elections/2026-general/cert-list-candidates.pdf",
+          "checkedAt": "2026-10-11T10:08:21.218Z",
+          "snapshotSha256": "e5241906b31c7bd22a68418d7cbc93370540c0e98c0a7607211ec43eed49daaa",
+          "name": "California Secretary of State Certified List of Candidates for November3 2026 General Election",
+          "publishedAt": "2026-08-27",
+          "scope": {
+            "office": "H",
+            "district": "01",
+            "expectedCount": 2,
+            "ballotAccessType": "printed"
+          }
+        }
+      ]
+    },
+    {
+      "state": "AK",
+      "path": "D:\\projects\\et-wt\\nc-sc-review-beb1\\tests\\fixtures\\phase2-pinned-0b5c63e\\AK-2.json",
+      "sha256": "045be8b9c6aa94cce4eafc0f72b9282ca302682ce06ddf42978b1551929113d5",
+      "candidateCount": 6,
+      "coverage": "scoped",
+      "captureReceipt": {
+        "source": "actual private PostgreSQL through real Express handler",
+        "httpStatus": 200,
+        "manifestSha256": "d2365f2487a2705f1b311364446e6024e28f2ba9b2036d69cda18550ed84290c",
+        "capturedAt": "2026-10-11T11:24:37.867Z",
+        "electionId": 2
+      },
+      "sourceSnapshots": [
+        {
+          "url": "https://www.elections.alaska.gov/candidates/?election=26genr",
+          "checkedAt": "2026-10-11T10:16:13.106Z",
+          "snapshotSha256": "69480516a27b7d2b021022656db37bda218f7eb773d794fea304b2ba2e35f7e1",
+          "name": "Alaska Division of Elections Certified 2026 General Election Candidates including certified write-ins",
+          "publishedAt": "2026-09-25",
+          "scope": {
+            "office": "S",
+            "district": "00",
+            "expectedCount": 4,
+            "ballotAccessType": "printed"
+          }
+        },
+        {
+          "url": "https://www.elections.alaska.gov/candidates/?election=26genr",
+          "checkedAt": "2026-10-11T10:16:13.106Z",
+          "snapshotSha256": "69480516a27b7d2b021022656db37bda218f7eb773d794fea304b2ba2e35f7e1",
+          "name": "Alaska Division of Elections Certified 2026 General Election Candidates including certified write-ins",
+          "publishedAt": "2026-09-25",
+          "scope": {
+            "office": "S",
+            "district": "00",
+            "expectedCount": 2,
+            "ballotAccessType": "write_in"
+          }
+        }
+      ]
+    },
+    {
+      "state": "FL",
+      "path": "D:\\projects\\et-wt\\nc-sc-review-beb1\\tests\\fixtures\\phase2-pinned-0b5c63e\\FL-43.json",
+      "sha256": "ef51745507826a56654ee1ab2954686202ddfb4fddf6aacf2c3fb27feb703e14",
+      "candidateCount": 10,
+      "coverage": "scoped",
+      "captureReceipt": {
+        "source": "actual private PostgreSQL through real Express handler",
+        "httpStatus": 200,
+        "manifestSha256": "d2365f2487a2705f1b311364446e6024e28f2ba9b2036d69cda18550ed84290c",
+        "capturedAt": "2026-10-11T11:24:39.613Z",
+        "electionId": 43
+      },
+      "sourceSnapshots": [
+        {
+          "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN",
+          "checkedAt": "2026-10-11T10:41:05.399Z",
+          "snapshotSha256": "73b2135abb802d4caa154a1c676fe666d41e24aaad5788d02374c8a0753f86b0",
+          "name": "Florida Division of Elections 2026 General Election Candidate Listing - Qualified records only",
+          "publishedAt": null,
+          "scope": {
+            "office": "G",
+            "district": "00",
+            "expectedCount": 8,
+            "ballotAccessType": "printed"
+          }
+        },
+        {
+          "url": "https://dos.elections.myflorida.com/candidates/CanList.asp?elecid=20261103-GEN",
+          "checkedAt": "2026-10-11T10:41:05.399Z",
+          "snapshotSha256": "73b2135abb802d4caa154a1c676fe666d41e24aaad5788d02374c8a0753f86b0",
+          "name": "Florida Division of Elections 2026 General Election Candidate Listing - Qualified records only",
+          "publishedAt": null,
+          "scope": {
+            "office": "G",
+            "district": "00",
+            "expectedCount": 2,
+            "ballotAccessType": "write_in"
+          }
+        }
+      ]
+    },
+    {
+      "state": "CT",
+      "path": "D:\\projects\\et-wt\\nc-sc-review-beb1\\tests\\fixtures\\phase2-pinned-0b5c63e\\CT-42.json",
+      "sha256": "d0ad0a2ef55936aba393470a332416667a36a3566641230caac9aace8d0d7a4c",
+      "candidateCount": 2,
+      "coverage": "scoped",
+      "captureReceipt": {
+        "source": "actual private PostgreSQL through real Express handler",
+        "httpStatus": 200,
+        "manifestSha256": "d2365f2487a2705f1b311364446e6024e28f2ba9b2036d69cda18550ed84290c",
+        "capturedAt": "2026-10-11T11:24:39.163Z",
+        "electionId": 42
+      },
+      "sourceSnapshots": [
+        {
+          "url": "https://portal.ct.gov/-/media/sots/electionservices/town_ballots/2026/nov-ada-2026/eastford_sample_ada.pdf?rev=9f0ae3b327634636b51f823ab81473e0&hash=26D8B09694E49CCBFA59AB0E924620B6",
+          "checkedAt": "2026-10-11T11:00:50.305Z",
+          "snapshotSha256": "6f090c0185a9c9da554a00982699cc6cf86b50811f5db8b424c5a8867b35c1ff",
+          "name": "Connecticut Secretary of the State 2026 November3 Eastford official sample ballot - printed candidates",
+          "publishedAt": null,
+          "scope": {
+            "office": "G",
+            "district": "00",
+            "expectedCount": 2,
+            "ballotAccessType": "printed"
+          }
+        }
+      ]
+    },
+    {
+      "state": "OR",
+      "path": "D:\\projects\\et-wt\\nc-sc-review-beb1\\tests\\fixtures\\phase2-pinned-0b5c63e\\OR-62.json",
+      "sha256": "dfbe40666e57946a21383891c8f12e6522b3d2be39303e8e4661833f8f33d5fb",
+      "candidateCount": 3,
+      "coverage": "scoped",
+      "captureReceipt": {
+        "source": "actual private PostgreSQL through real Express handler",
+        "httpStatus": 200,
+        "manifestSha256": "d2365f2487a2705f1b311364446e6024e28f2ba9b2036d69cda18550ed84290c",
+        "capturedAt": "2026-10-11T11:24:42.572Z",
+        "electionId": 62
+      },
+      "sourceSnapshots": [
+        {
+          "url": "https://multco.us/file/ballot_directive_-_november_3,_2026_general/download",
+          "checkedAt": "2026-10-11T10:25:22.204Z",
+          "snapshotSha256": "a66074c6dfe70acbebc6b2c3fca7541faf08f8b2ea682f20bf608baf989c343c",
+          "name": "Oregon Secretary of State Directive 2026-09 Official General Ballot Statement",
+          "publishedAt": "2026-09-03",
+          "scope": {
+            "office": "G",
+            "district": "00",
+            "expectedCount": 3,
+            "ballotAccessType": "printed"
+          }
+        }
+      ]
+    },
+    {
+      "state": "WY",
+      "path": "D:\\projects\\et-wt\\nc-sc-review-beb1\\tests\\fixtures\\phase2-pinned-0b5c63e\\WY-505.json",
+      "sha256": "452526e77f1237954853225626daabedd82449263bae0665e431cde33ceecc94",
+      "candidateCount": 4,
+      "coverage": "scoped",
+      "captureReceipt": {
+        "source": "actual private PostgreSQL through real Express handler",
+        "httpStatus": 200,
+        "manifestSha256": "d2365f2487a2705f1b311364446e6024e28f2ba9b2036d69cda18550ed84290c",
+        "capturedAt": "2026-10-11T11:24:44.341Z",
+        "electionId": 505
+      },
+      "sourceSnapshots": [
+        {
+          "url": "https://sos.wyo.gov/Elections/Docs/2026/2026_WY_General_Election_Candidates.csv",
+          "checkedAt": "2026-10-11T10:04:25.775Z",
+          "snapshotSha256": "6b42491d61c2621ba371bcafbeff266c994aa5dcc0c56f87693b7db85dfcf03b",
+          "name": "Wyoming Secretary of State 2026 General Election Candidate Roster CSV",
+          "publishedAt": null,
+          "scope": {
+            "office": "H",
+            "district": "00",
+            "expectedCount": 4,
+            "ballotAccessType": "printed"
+          }
+        }
+      ]
+    },
+    {
+      "state": "MA",
+      "path": "D:\\projects\\et-wt\\nc-sc-review-beb1\\tests\\fixtures\\phase2-pinned-0b5c63e\\MA-52.json",
+      "sha256": "ef214f31a5a37d5c8046bf3153dae90edbdc40b5de044a7f88b002a4ba4fc924",
+      "candidateCount": 2,
+      "coverage": "unspecified",
+      "captureReceipt": {
+        "source": "actual private PostgreSQL through real Express handler",
+        "httpStatus": 200,
+        "manifestSha256": "d2365f2487a2705f1b311364446e6024e28f2ba9b2036d69cda18550ed84290c",
+        "capturedAt": "2026-10-11T11:24:40.615Z",
+        "electionId": 52
+      },
+      "sourceSnapshots": []
+    },
+    {
+      "state": "MA3",
+      "path": "D:\\projects\\et-wt\\nc-sc-review-beb1\\tests\\fixtures\\phase2-ma3-eaa3008\\MA-52.json",
+      "sha256": "4a22f9821004f35ba8443fb19053a589b3cff437d46a5deea29af54e7980198b",
+      "candidateCount": 3,
+      "coverage": "scoped",
+      "captureReceipt": {
+        "source": "actual private PostgreSQL through real Express handler",
+        "httpStatus": 200,
+        "manifestSha256": "eaa3008ea0589aab351d41fb203a45361d64fc983d4ac3e8c344cfbd528e9bb5",
+        "capturedAt": "2026-10-11T12:09:43.798Z",
+        "electionId": 52
+      },
+      "sourceSnapshots": [
+        {
+          "url": "https://www.sec.state.ma.us/divisions/elections/research-and-statistics/2026-state-election-candidates.htm",
+          "checkedAt": "2026-10-11T12:06:01.142Z",
+          "snapshotSha256": "47bf5ec4569aa0c6a984e15f5df8c6bba2c8cfb694473d314bd700421c59952e",
+          "name": "2026 State Election Candidates",
+          "publishedAt": null,
+          "scope": {
+            "office": "G",
+            "district": "00",
+            "expectedCount": 3,
+            "ballotAccessType": "printed"
+          }
+        }
+      ]
+    }
+  ],
+  "report": {
+    "path": "D:\\projects\\et-wt\\nc-sc-review-beb1\\artifacts\\phase2-real-ma3-0968cfd-20261011T121439Z-vitest.json",
+    "sha256": "b3e5ae3b47fdb671e0d19867c4ea3c7ab5dce2fdd4a61c350b09c608cb828e89"
+  },
+  "log": {
+    "path": "D:\\projects\\et-wt\\nc-sc-review-beb1\\artifacts\\phase2-real-ma3-0968cfd-20261011T121439Z-log.txt",
+    "sha256": "014762c4e593082d6ae7edadb5f471fac2e8891ef39af8682607b032a6c41bae"
+  },
+  "dependencyProvenance": {
+    "ownPhysicalNpmCi": true,
+    "lockfileSha256": "12528cb66141146c61378fe80ce00224a8bed0a450b2be6900618b4a535e39ee",
+    "browserDownloadsSkippedProcessOnly": true,
+    "provenanceReceipt": "phase2-boundaries-eb1d721-receipt.json",
+    "installationSourceHead": "eb1d721cf91dec1dfb7d9a9a9257540d300e09d4",
+    "sameLockfileAfterCheckout": true
+  },
+  "componentFetchCalls": 0,
+  "browserRuns": 0,
+  "dbWrites": false,
+  "peerSourceWrites": false,
+  "mockBoundary": "Only use-general-roster data hook; real React/GeneralRoster/Card/Badge/helper sources. Candidate payload bodies unmodified.",
+  "receivingDom": {
+    "path": "D:\\projects\\et-wt\\nc-sc-review-beb1\\artifacts\\phase2-real-ma3-0968cfd-20261011T121439Z-receiving-dom.jsonl",
+    "sha256": "5e0785dd0827e778eb14f95e78ca1452ae84e94f8220d68cb67c926e062451c4",
+    "renderCount": 20
+  },
+  "pending": 0,
+  "prior7FixturesPreserved": "tests/fixtures/phase2-pinned-0b5c63e original seven unchanged; MA3 new separate versioned fixture, original MA2 not overwritten"
+}

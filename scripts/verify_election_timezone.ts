@@ -25,7 +25,7 @@ try {
       (4,'Timezone fixture Next day','Fixture','CO','2026-11-04','general','federal','America/Denver',true),
       (5,'Timezone fixture Month end','Fixture','NY','2026-02-28','general','federal','America/New_York',true),
       (6,'Timezone fixture Next month','Fixture','NY','2026-03-01','general','federal','America/New_York',true);
-    insert into candidates values (10,1,null),(11,2,'D'),(12,2,'Republican');
+    insert into candidates values (10,1,null),(11,2,'D'),(12,2,'Republican'),(13,4,'DEM/PROG');
     set default_transaction_read_only=on;
   `);
   const outcomes: Record<string, unknown>[] = [];
@@ -40,9 +40,13 @@ try {
     outcomes.push({ scenario: 'upcoming', time, expected, actual });
   }
   const other = await buildElectionListQuery(database, { party: 'O' }, new Date('2026-11-04T05:30:00Z'));
-  assert.deepEqual(other.map(row => row.id), [1]);
+  assert.deepEqual(other.map(row => row.id), [1,4]);
   assert.equal(other[0].candidateCount, 1);
-  outcomes.push({ scenario: 'legacy NULL party is Other', expected: [1], actual: other.map(row => row.id) });
+  outcomes.push({ scenario: 'legacy NULL and minor fusion component match Other', expected: [1,4], actual: other.map(row => row.id) });
+  const fusionDem=await buildElectionListQuery(database,{party:'D'},new Date('2026-11-04T05:30:00Z'));
+  assert.deepEqual(fusionDem.map(row=>row.id),[2,4]);
+  assert.deepEqual(fusionDem.map(row=>row.candidateCount),[2,1]);
+  outcomes.push({scenario:'one fusion identity matches its Democratic component without changing full counts',expected:[2,4],actual:fusionDem.map(row=>row.id),candidateCounts:fusionDem.map(row=>row.candidateCount)});
   const month = await buildElectionListQuery(database, { timeframe: 'month' }, new Date('2026-01-31T12:00:00Z'));
   assert.deepEqual(month.map(row => row.id), [5]);
   outcomes.push({ scenario: 'calendar month clamps to February end', expected: [5], actual: month.map(row => row.id) });

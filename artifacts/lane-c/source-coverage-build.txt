@@ -1,0 +1,41 @@
+
+> rest-express@1.0.0 build
+> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+vite v5.4.21 building for production...
+transforming...
+Browserslist: browsers data (caniuse-lite) is 24 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+
+warn - The class `group-focus-within:before:duration-[4000ms]` is ambiguous and matches multiple utilities.
+warn - If this is content and not a class, replace it with `group-focus-within:before:duration-&lsqb;4000ms&rsqb;` to silence this warning.
+✓ 3026 modules transformed.
+rendering chunks...
+computing gzip size...
+../dist/public/index.html                     1.31 kB │ gzip:   0.58 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+../dist/public/assets/index-BmDSC3ly.css    131.25 kB │ gzip:  20.45 kB
+../dist/public/assets/index-Bv_oQdkZ.js   1,445.43 kB │ gzip: 392.23 kB
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 6.03s
+▲ [WARNING] Duplicate member "calculateUserEngagementScore" in class body [duplicate-class-member]
+
+    server/analytics-service.ts:743:8:
+      743 │   async calculateUserEngagementScore(userId: string, period: 'dai...
+          ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  The original member "calculateUserEngagementScore" is here:
+
+    server/analytics-service.ts:425:8:
+      425 │   async calculateUserEngagementScore(userId: string, period: 'dai...
+          ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+1 warning
+
+  dist\index.js  1.7mb
+
+Done in 28ms

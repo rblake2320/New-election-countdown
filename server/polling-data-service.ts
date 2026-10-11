@@ -2,6 +2,16 @@
  * Authentic Polling Data Service
  * Aggregates real polling data from reliable sources
  */
+import type { FirecrawlService } from './firecrawl-service';
+
+type PollingScrape = NonNullable<Awaited<ReturnType<FirecrawlService['scrapeUrl']>>>;
+
+// Availability is distinct from poll age; weighting still uses the recorded poll date.
+export function isFulfilledPollingScrape(
+  result: PromiseSettledResult<PollingScrape | null>,
+): result is PromiseFulfilledResult<PollingScrape> {
+  return result.status === 'fulfilled' && result.value !== null && result.value !== undefined;
+}
 
 interface PollingResult {
   candidateName: string;
@@ -182,9 +192,7 @@ export class PollingDataService {
       );
 
       const allContent = results
-        .filter((result): result is PromiseFulfilledResult<any> => 
-          result.status === 'fulfilled' && result.value
-        )
+        .filter(isFulfilledPollingScrape)
         .map(result => result.value.content)
         .join('\n');
 

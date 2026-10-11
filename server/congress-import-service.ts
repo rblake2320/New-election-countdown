@@ -11,6 +11,18 @@ interface CongressMemberImport {
   chamber: string;
 }
 
+export interface CongressImportValidation {
+  total: number;
+  house: number;
+  senate: number;
+  states: number;
+  parties: Record<string, number>;
+  unrecordedPartyCount: number;
+  unrecordedStateCount: number;
+  isComplete: boolean;
+  expectedCounts: { house: number; senate: number; total: number };
+}
+
 export class CongressImportService {
   async importFromCompleteDataset(): Promise<{ count: number; breakdown: any }> {
     try {
@@ -170,20 +182,26 @@ export class CongressImportService {
     return cleanedMembers;
   }
   
-  async validateImport(): Promise<any> {
+  async validateImport(): Promise<CongressImportValidation> {
     try {
       const totalMembers = await db.select().from(congressMembers);
       const houseMembers = totalMembers.filter(m => m.chamber === 'House');
       const senateMembers = totalMembers.filter(m => m.chamber === 'Senate');
       
       // Count by state
-      const stateCount = new Set(totalMembers.map(m => m.state)).size;
-      
-      // Count by party
-      const partyBreakdown = totalMembers.reduce((acc, member) => {
-        acc[member.party] = (acc[member.party] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
+      const recordedStates = new Set<string>();
+      const partyBreakdown: Record<string, number> = {};
+      let unrecordedPartyCount = 0;
+      let unrecordedStateCount = 0;
+      for (const member of totalMembers) {
+        const state = member.state;
+        if (state !== null && state.trim()) recordedStates.add(state);
+        else unrecordedStateCount++;
+        const party = member.party;
+        if (party !== null && party.trim()) partyBreakdown[party] = (partyBreakdown[party] ?? 0) + 1;
+        else unrecordedPartyCount++;
+      }
+      const stateCount = recordedStates.size;
       
       return {
         total: totalMembers.length,
@@ -191,6 +209,8 @@ export class CongressImportService {
         senate: senateMembers.length,
         states: stateCount,
         parties: partyBreakdown,
+        unrecordedPartyCount,
+        unrecordedStateCount,
         isComplete: totalMembers.length >= 535,
         expectedCounts: {
           house: 435,
