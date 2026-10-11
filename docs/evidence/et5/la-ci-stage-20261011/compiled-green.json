@@ -1,0 +1,2619 @@
+{
+  "image": "electiontracker:la-ci",
+  "builder": "electiontracker:la-ci-builder",
+  "network": "internal, no published ports",
+  "passed": true,
+  "http": [
+    {
+      "path": "/",
+      "status": 200,
+      "bytes": 1832
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "bytes": 239
+    },
+    {
+      "path": "/api/elections",
+      "status": 200,
+      "bytes": 260273
+    }
+  ],
+  "elections": {
+    "total": 537,
+    "distinct": 537
+  },
+  "boundary": "production-only paths verified",
+  "imageId": "sha256:17db44756182f218587a225b5f0055e566c4151acf4fa7c41ba8b3fc2bdc7080",
+  "fecIngestion": {
+    "outcome": "worked",
+    "fixture": "isolated synthetic PostgreSQL",
+    "checks": {
+      "dry_run_no_writes": true,
+      "atomic_apply": true,
+      "exact_repeat_no_candidate_changes": true,
+      "missing_migration_refuses_without_writes": true,
+      "migration_idempotent": true,
+      "existing_ballot_hash_and_timestamp_preserved": true,
+      "separate_fec_source_retained": true,
+      "transactional_apply_receipt": true,
+      "committed_receipt_survives_local_disk_failure": true,
+      "registration_never_certified": true,
+      "unknown_party_not_independent": true,
+      "parameterized_apostrophe_name": true,
+      "injected_failure_full_rollback": true,
+      "concurrent_apply_one_identity": true,
+      "imported_party_refresh": true,
+      "historical_source_reactivation_updates_current_version": true
+    },
+    "first_actions": 3,
+    "repeated_actions": 0
+  },
+  "realFecFirstNomineeIngestion": {
+    "migrationsAppliedTwice": true,
+    "manifestSha256": "7890860f047cb79e64144c57f56ea721669348c2f5905fd25159ba738c81982e",
+    "mode": "actual parsed FEC projection -> historical ingest -> pinned proof refresh -> reviewed nominees",
+    "sourceZipSha256": "6062f203fd5dd90a7e33e487088a4d496bd9634cc1e560f94b0f5e7ff8ea0126",
+    "projectionSha256": "677e8eb2118af3f492ddcdc572a1a0c7e2f14bd0c9bef012813ac68b0d04a2d0",
+    "editorialRows": 136,
+    "actualFecRows": 2523,
+    "legacyActions": 2467,
+    "legacyProfiles": 2572,
+    "legacyProfilesUnchanged": true,
+    "louisianaRegistrationInserts": 28,
+    "louisianaRegistrations": [
+      {
+        "candidateId": 2573,
+        "fecCandidateId": "H0LA01087",
+        "electionId": 429,
+        "party": "R",
+        "registrationOnly": true
+      },
+      {
+        "candidateId": 2574,
+        "fecCandidateId": "H2LA02149",
+        "electionId": 430,
+        "party": "D",
+        "registrationOnly": true
+      },
+      {
+        "candidateId": 2575,
+        "fecCandidateId": "H2LA03105",
+        "electionId": 431,
+        "party": "NPA",
+        "registrationOnly": true
+      },
+      {
+        "candidateId": 2576,
+        "fecCandidateId": "H2LA05126",
+        "electionId": 433,
+        "party": "R",
+        "registrationOnly": true
+      },
+      {
+        "candidateId": 2577,
+        "fecCandidateId": "H4LA06211",
+        "electionId": 434,
+        "party": "D",
+        "registrationOnly": true
+      },
+      {
+        "candidateId": 2578,
+        "fecCandidateId": "H6LA01258",
+        "electionId": 429,
+        "party": "D",
+        "registrationOnly": true
+      },
+      {
+        "candidateId": 2579,
+        "fecCandidateId": "H6LA03148",
+        "electionId": 431,
+        "party": "R",
+        "registrationOnly": true
+      },
+      {
+        "candidateId": 2580,
+        "fecCandidateId": "H6LA03205",
+        "electionId": 431,
+        "party": "D",
+        "registrationOnly": true
+      },
+      {
+        "candidateId": 2581,
+        "fecCandidateId": "H6LA04138",
+        "electionId": 432,
+        "party": "R",
+        "registrationOnly": true
+      },
+      {
+        "candidateId": 2582,
+        "fecCandidateId": "H6LA04187",
+        "electionId": 432,
+        "party": "D",
+        "registrationOnly": true
+      },
+      {
+        "candidateId": 2583,
+        "fecCandidateId": "H6LA04195",
+        "electionId": 432,
+        "party": "D",
+        "registrationOnly": true
+      },
+      {
+        "candidateId": 2584,
+        "fecCandidateId": "H6LA04203",
+        "electionId": 432,
+        "party": "R",
+        "registrationOnly": true
+      },
+      {
+        "candidateId": 2585,
+        "fecCandidateId": "H6LA05168",
+        "electionId": 434,
+        "party": "R",
+        "registrationOnly": true
+      },
+      {
+        "candidateId": 2586,
+        "fecCandidateId": "H6LA05176",
+        "electionId": 433,
+        "party": "D",
+        "registrationOnly": true
+      },
+      {
+        "candidateId": 2587,
+        "fecCandidateId": "H6LA05184",
+        "electionId": 433,
+        "party": "R",
+        "registrationOnly": true
+      },
+      {
+        "candidateId": 2588,
+        "fecCandidateId": "H6LA05192",
+        "electionId": 433,
+        "party": "R",
+        "registrationOnly": true
+      },
+      {
+        "candidateId": 2589,
+        "fecCandidateId": "H6LA05200",
+        "electionId": 433,
+        "party": "R",
+        "registrationOnly": true
+      },
+      {
+        "candidateId": 2590,
+        "fecCandidateId": "H6LA05218",
+        "electionId": 433,
+        "party": "R",
+        "registrationOnly": true
+      },
+      {
+        "candidateId": 2591,
+        "fecCandidateId": "H6LA05226",
+        "electionId": 434,
+        "party": "R",
+        "registrationOnly": true
+      },
+      {
+        "candidateId": 2592,
+        "fecCandidateId": "H6LA05234",
+        "electionId": 434,
+        "party": "R",
+        "registrationOnly": true
+      },
+      {
+        "candidateId": 2593,
+        "fecCandidateId": "H6LA05242",
+        "electionId": 433,
+        "party": "R",
+        "registrationOnly": true
+      },
+      {
+        "candidateId": 2594,
+        "fecCandidateId": "H6LA05259",
+        "electionId": 434,
+        "party": "R",
+        "registrationOnly": true
+      },
+      {
+        "candidateId": 2595,
+        "fecCandidateId": "H6LA05275",
+        "electionId": 433,
+        "party": "D",
+        "registrationOnly": true
+      },
+      {
+        "candidateId": 2596,
+        "fecCandidateId": "H6LA05283",
+        "electionId": 433,
+        "party": "R",
+        "registrationOnly": true
+      },
+      {
+        "candidateId": 2597,
+        "fecCandidateId": "H6LA05291",
+        "electionId": 433,
+        "party": "D",
+        "registrationOnly": true
+      },
+      {
+        "candidateId": 2598,
+        "fecCandidateId": "H6LA05309",
+        "electionId": 434,
+        "party": "D",
+        "registrationOnly": true
+      },
+      {
+        "candidateId": 2599,
+        "fecCandidateId": "H6LA05317",
+        "electionId": 433,
+        "party": "R",
+        "registrationOnly": true
+      },
+      {
+        "candidateId": 2600,
+        "fecCandidateId": "H6LA06158",
+        "electionId": 434,
+        "party": "R",
+        "registrationOnly": true
+      }
+    ],
+    "prooflessAdmissionRefused": true,
+    "sourceProofRefreshActions": 2467,
+    "manifestRecords": 1361,
+    "independentSqlRaces": 467,
+    "exactRaceNegativeRefused": true,
+    "injectedNomineeRollback": true,
+    "opposingPartyRefusals": 15,
+    "invalidAndMissingHttpCases": 2,
+    "originalCandidates": 2600,
+    "originalProfilesPreserved": true,
+    "candidateInserts": 844,
+    "sourceChanges": 1361,
+    "repeatCandidateInserts": 0,
+    "repeatSourceChanges": 0,
+    "compiledCliPreflightRefusedWithoutWrites": true,
+    "compiledCliRepeatAuditCommitted": true,
+    "compiledHttpRaces": 467,
+    "compiledHttpRecords": 1361,
+    "outcomes": [
+      {
+        "electionId": 37,
+        "rows": 5,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 2,
+        "rows": 6,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 506,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 1,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 417,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 418,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 419,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 36,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 415,
+        "rows": 1,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 416,
+        "rows": 1,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 420,
+        "rows": 1,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 421,
+        "rows": 1,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 3,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 463,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 39,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 339,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 341,
+        "rows": 1,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 342,
+        "rows": 1,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 347,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 40,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 72,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 73,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 74,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 75,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 76,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 77,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 78,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 79,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 80,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 81,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 82,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 83,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 84,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 85,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 86,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 87,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 88,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 89,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 90,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 91,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 92,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 93,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 94,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 95,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 96,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 97,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 98,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 99,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 100,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 101,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 102,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 103,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 104,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 105,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 106,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 107,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 108,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 109,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 110,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 111,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 112,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 113,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 114,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 115,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 116,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 117,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 118,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 119,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 120,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 121,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 122,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 123,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 4,
+        "rows": 9,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 407,
+        "rows": 8,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 408,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 409,
+        "rows": 4,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 410,
+        "rows": 4,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 411,
+        "rows": 5,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 412,
+        "rows": 5,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 413,
+        "rows": 6,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 414,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 41,
+        "rows": 7,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 452,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 453,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 454,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 455,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 456,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 42,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 5,
+        "rows": 5,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 503,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 6,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 162,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 163,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 164,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 165,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 166,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 167,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 168,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 169,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 170,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 172,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 173,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 174,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 175,
+        "rows": 5,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 176,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 177,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 178,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 179,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 180,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 181,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 182,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 183,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 184,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 185,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 186,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 187,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 188,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 189,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 43,
+        "rows": 10,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 7,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 44,
+        "rows": 7,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 274,
+        "rows": 1,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 275,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 277,
+        "rows": 1,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 278,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 491,
+        "rows": 4,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 492,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 45,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 10,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 457,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 458,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 459,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 460,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 48,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 8,
+        "rows": 4,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 489,
+        "rows": 4,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 490,
+        "rows": 5,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 46,
+        "rows": 6,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 9,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 233,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 234,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 235,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 236,
+        "rows": 4,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 237,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 238,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 239,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 240,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 241,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 242,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 243,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 244,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 245,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 246,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 247,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 248,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 249,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 355,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 352,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 348,
+        "rows": 4,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 351,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 356,
+        "rows": 4,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 349,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 354,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 353,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 350,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 11,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 465,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 466,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 467,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 468,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 49,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 12,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 440,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 436,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 439,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 435,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 438,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 13,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 15,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 357,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 358,
+        "rows": 1,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 359,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 360,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 361,
+        "rows": 1,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 362,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 363,
+        "rows": 1,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 364,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 365,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 52,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 51,
+        "rows": 4,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 375,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 376,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 377,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 378,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 379,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 380,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 381,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 382,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 14,
+        "rows": 8,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 493,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 494,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 50,
+        "rows": 5,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 53,
+        "rows": 5,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 16,
+        "rows": 6,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 293,
+        "rows": 7,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 294,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 295,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 296,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 297,
+        "rows": 5,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 298,
+        "rows": 6,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 299,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 300,
+        "rows": 5,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 301,
+        "rows": 6,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 302,
+        "rows": 5,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 303,
+        "rows": 5,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 304,
+        "rows": 5,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 305,
+        "rows": 5,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 17,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 385,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 54,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 391,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 392,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 393,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 394,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 395,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 396,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 397,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 398,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 18,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 469,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 470,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 471,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 472,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 19,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 499,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 500,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 279,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 280,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 281,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 282,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 283,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 284,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 285,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 286,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 287,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 288,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 289,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 290,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 291,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 292,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 24,
+        "rows": 4,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 501,
+        "rows": 4,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 20,
+        "rows": 5,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 484,
+        "rows": 4,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 485,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 486,
+        "rows": 5,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 55,
+        "rows": 4,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 57,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 21,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 495,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 496,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 22,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 306,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 307,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 308,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 309,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 310,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 311,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 312,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 313,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 314,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 315,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 316,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 317,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 23,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 481,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 482,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 483,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 58,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 474,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 476,
+        "rows": 4,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 56,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 473,
+        "rows": 4,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 475,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 190,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 191,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 192,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 193,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 194,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 195,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 196,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 197,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 198,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 199,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 200,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 201,
+        "rows": 4,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 202,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 203,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 204,
+        "rows": 5,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 205,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 206,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 207,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 208,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 209,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 210,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 211,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 212,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 213,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 214,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 215,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 59,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 60,
+        "rows": 7,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 25,
+        "rows": 7,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 263,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 251,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 253,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 254,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 252,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 264,
+        "rows": 5,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 256,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 260,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 250,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 257,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 255,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 258,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 259,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 261,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 262,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 61,
+        "rows": 5,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 447,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 448,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 449,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 450,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 451,
+        "rows": 4,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 26,
+        "rows": 5,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 27,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 441,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 442,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 443,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 444,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 445,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 446,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 62,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 216,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 217,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 218,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 219,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 220,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 221,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 222,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 223,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 224,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 225,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 226,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 227,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 228,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 229,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 230,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 231,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 232,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 63,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 64,
+        "rows": 5,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 497,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 498,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 28,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 65,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 29,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 422,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 427,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 428,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 30,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 502,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 66,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 67,
+        "rows": 15,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 31,
+        "rows": 10,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 366,
+        "rows": 7,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 367,
+        "rows": 4,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 368,
+        "rows": 7,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 369,
+        "rows": 4,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 370,
+        "rows": 4,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 371,
+        "rows": 4,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 372,
+        "rows": 4,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 373,
+        "rows": 8,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 374,
+        "rows": 4,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 68,
+        "rows": 7,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 124,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 125,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 126,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 127,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 128,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 129,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 130,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 131,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 132,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 133,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 134,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 135,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 136,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 137,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 138,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 139,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 140,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 141,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 142,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 143,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 144,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 145,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 146,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 147,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 148,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 149,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 150,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 151,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 152,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 153,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 154,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 155,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 156,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 157,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 158,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 159,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 160,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 161,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 32,
+        "rows": 7,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 477,
+        "rows": 5,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 478,
+        "rows": 5,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 479,
+        "rows": 6,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 480,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 33,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 318,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 319,
+        "rows": 4,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 320,
+        "rows": 4,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 321,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 322,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 323,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 324,
+        "rows": 6,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 325,
+        "rows": 4,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 326,
+        "rows": 2,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 327,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 328,
+        "rows": 3,
+        "coverage": "complete"
+      },
+      {
+        "electionId": 504,
+        "rows": 6,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 69,
+        "rows": 5,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 329,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 330,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 331,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 332,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 333,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 334,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 335,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 336,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 337,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 338,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 70,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 399,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 400,
+        "rows": 1,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 401,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 402,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 403,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 404,
+        "rows": 5,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 405,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 406,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 34,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 487,
+        "rows": 3,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 488,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 35,
+        "rows": 2,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 505,
+        "rows": 4,
+        "coverage": "scoped"
+      },
+      {
+        "electionId": 71,
+        "rows": 3,
+        "coverage": "scoped"
+      }
+    ]
+  }
+}
