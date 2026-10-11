@@ -20,7 +20,7 @@ export const partyAliases: Record<string, string> = {
 export const canonicalParty = (party: string | null | undefined) => partyAliases[(party ?? '').trim().toLowerCase()] ?? 'O';
 
 export const US_ELECTION_TIME_ZONES = [
-  'America/New_York', 'America/Detroit', 'America/Chicago', 'America/Denver',
+  'America/New_York', 'America/Detroit', 'America/Menominee', 'America/Chicago', 'America/Denver',
   'America/Los_Angeles', 'America/Phoenix', 'America/Boise', 'America/Anchorage',
   'America/Adak', 'Pacific/Honolulu', 'America/Puerto_Rico',
   'America/Indiana/Indianapolis', 'America/Indiana/Knox', 'America/Indiana/Tell_City',

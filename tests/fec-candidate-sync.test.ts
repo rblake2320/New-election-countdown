@@ -1,9 +1,16 @@
-import { describe, it, expect } from 'vitest';
-import { parseFecMaster, buildFecSyncPlan } from '../server/fec-candidate-sync';
+import { describe, it, expect, vi } from 'vitest';
+import { parseFecMaster, buildFecSyncPlan, runFecSync } from '../server/fec-candidate-sync';
 const line = (id = 'H6TX01001', name = 'EXAMPLE, ALEX', party = 'DEM', state = 'TX', office = 'H', district = '01') => [id, name, party, '2026', state, office, district, 'C', 'C', 'C00000001', '', '', '', '', ''].join('|');
 const house = { id: 1, state: 'TX', title: 'U.S. House Election - TX-01', level: 'federal', type: 'general', date: '2026-11-03', offices: ['U.S. House of Representatives'] };
 const candidate = { id: 10, election_id: 1, name: 'Alex Example', party: 'Democratic', fec_candidate_id: null, fec_status: null, source_file_sha256: null, data_source: null, source_status: null, ballot_status: 'certified' };
 describe('FEC sync identity, provenance and race safety', () => {
+  it.each(['N','P'])('refuses applying audit-only status %s before opening a database connection', async status => {
+    const fields=line().split('|');fields[8]=status;
+    const rows=parseFecMaster(fields.join('|'),true).rows;
+    const connect=vi.fn(async()=>{throw new Error('Unexpected fixture database connection');});
+    await expect(runFecSync({connect} as any,rows,'a'.repeat(64),true)).rejects.toThrow(/audit-only|current.*future/i);
+    expect(connect).not.toHaveBeenCalled();
+  });
   it('accepts the official 15-field layout, retaining raw status and party', () => {
     const parsed = parseFecMaster(line());
     expect(parsed.rows[0]).toMatchObject({ candId: 'H6TX01001', displayName: 'Alex Example', party: 'D', partyRaw: 'DEM', status: 'C' });

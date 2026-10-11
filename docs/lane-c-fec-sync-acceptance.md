@@ -44,3 +44,7 @@ The command refreshes the source again and refuses if its hash changed; then it 
 Deployment must run additive `migrations/20261011_candidate_source_records.sql` (also represented in `shared/schema.ts`) before apply. Dry-run works without that migration; apply refuses before candidate writes when the source/audit tables are absent. The migration has only been exercised against the labelled private fixture, not applied to the shared DB.
 
 Calendar dates are read as PostgreSQL text, avoiding the driver's operator-local timestamp-to-Date conversion. A private Asia/Tokyo run first failed race mapping (zero actions) and then passed after this fix. Actual ingest instants use timezone-aware source records; legacy candidate timestamp writes use UTC ISO text.
+# Prior status audit and calendar compatibility
+
+`--include-prior` is read-only audit mode. It cannot be combined with apply, and the importer rejects N/P rows before opening a write connection. Those statuses do not establish a current registration. The known election timezone set includes C3's Michigan latest-zone `America/Menominee`, so listing membership rolls over at its actual local midnight.
+
