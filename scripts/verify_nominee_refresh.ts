@@ -1,6 +1,6 @@
 /** Apply actual reviewed source records only to the dedicated disposable database. */
 import assert from 'node:assert/strict';
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { parse } from 'dotenv';
 import pg from 'pg';
@@ -72,7 +72,11 @@ try{
    for(const c of body.candidates){assert(c.generalListSourceUrl.startsWith('https://'));assert.equal(c.generalListSource.ballotCertificationPromoted,false);assert(!('contactEmail' in c));assert(!('campaignPhone' in c));}
    const firstRecord=body.candidates[0]?.generalListSource;
    const keep=(firstRecord?.state==='TX'&&firstRecord?.office==='S')||(firstRecord?.state==='NE'&&firstRecord?.office==='G')||(firstRecord?.state==='WA'&&firstRecord?.district==='01')||(firstRecord?.state==='NV'&&firstRecord?.district==='03');
-   if(keep)writeFileSync(`artifacts/lane-c/real-roster-payloads/${firstRecord.state}-${id}.json`,JSON.stringify({receipt:{source:'actual private PostgreSQL through real Express handler',httpStatus:response.status,manifestSha256:hash,capturedAt:new Date().toISOString(),electionId:id},body},null,2));
+   if(keep){
+    const path=`artifacts/lane-c/real-roster-payloads/${firstRecord.state}-${id}.json`;
+    if(existsSync(path)){const retained=JSON.parse(readFileSync(path,'utf8'));assert.equal(retained.receipt.manifestSha256,hash);assert.deepEqual(retained.body,body,'Retained receiving payload must match the fresh actual HTTP response');}
+    else writeFileSync(path,JSON.stringify({receipt:{source:'actual private PostgreSQL through real Express handler',httpStatus:response.status,manifestSha256:hash,capturedAt:new Date().toISOString(),electionId:id},body},null,2));
+   }
    records+=body.candidates.length;httpCases++;
   }
   assert.equal(records,259);
@@ -113,7 +117,14 @@ try{
  const narrowSources=await sourceDigest(),narrowSnapshots=await snapshotDigest(),narrowAudits=(await fixture.query('SELECT count(*)::int AS n FROM candidate_ingest_runs')).rows[0].n;
  await assert.rejects(runNomineeRefresh(fixture,parseNomineeManifest(staleParty),'2'.repeat(64),true),/Older or undated publication/);
  assert.deepEqual(await candidateDigest(fixture),after);assert.equal(await sourceDigest(),narrowSources);assert.equal(await snapshotDigest(),narrowSnapshots);assert.equal((await fixture.query('SELECT count(*)::int AS n FROM candidate_ingest_runs')).rows[0].n,narrowAudits);
+ const undated=structuredClone(manifest),undatedSource=undated.sources.find(s=>s.state==='NC')!;
+ assert.equal(undatedSource.publishedAt,null);undated.sources=[undatedSource];undated.candidates=[];undatedSource.expectedRowCount=0;undatedSource.retrievedAt='2026-10-12T12:00:00Z';undatedSource.completeScopes=[{office:'H',district:'01',expectedCount:0}];
+ await runNomineeRefresh(fixture,parseNomineeManifest(undated),'3'.repeat(64),true);
+ const undatedSources=await sourceDigest(),undatedSnapshots=await snapshotDigest(),undatedAudits=(await fixture.query('SELECT count(*)::int AS n FROM candidate_ingest_runs')).rows[0].n;
+ await assert.rejects(runNomineeRefresh(fixture,manifest,hash,false),/Older source observation/);
+ await assert.rejects(runNomineeRefresh(fixture,manifest,hash,true),/Older source observation/);
+ assert.deepEqual(await candidateDigest(fixture),after);assert.equal(await sourceDigest(),undatedSources);assert.equal(await snapshotDigest(),undatedSnapshots);assert.equal((await fixture.query('SELECT count(*)::int AS n FROM candidate_ingest_runs')).rows[0].n,undatedAudits);
  assert.deepEqual(await candidateDigest(source),sharedBefore,'Shared source candidates changed');
- const receipt={outcome:'worked',fixture:'dedicated disposable PostgreSQL',manifestSha256:hash,sourceRecords:259,states:9,receivingRaces:new Set(first.actions.map(a=>a.electionId)).size,firstCandidateInserts:first.candidateInserts,repeatCandidateInserts:second.candidateInserts,repeatSourceChanges:second.sourceChanges,httpContracts:httpCases,emptyReceivingScopes:neRaceIds.length,checks:{source_row_conservation:true,dry_run_no_writes:true,original_profiles_fec_ballot_fields_unchanged:true,repeat_idempotent:true,write_in_unknown_party_preserved:true,receiving_http_records_and_provenance_verified:true,private_contacts_not_exposed:true,injected_failure_full_rollback:true,known_empty_scope_source_receivable:true,qualified_empty_scope_receivable_without_full_coverage_claim:true,historical_broad_scope_preserves_freshness_after_narrow_update:true,newest_publication_wins_over_latest_retrieval:true,older_snapshot_refused_in_dry_run_and_apply_with_no_changes:true,shared_candidate_table_unchanged:true},sharedBefore};
+ const receipt={outcome:'worked',fixture:'dedicated disposable PostgreSQL',manifestSha256:hash,sourceRecords:259,states:9,receivingRaces:new Set(first.actions.map(a=>a.electionId)).size,firstCandidateInserts:first.candidateInserts,repeatCandidateInserts:second.candidateInserts,repeatSourceChanges:second.sourceChanges,httpContracts:httpCases,emptyReceivingScopes:neRaceIds.length,checks:{source_row_conservation:true,dry_run_no_writes:true,original_profiles_fec_ballot_fields_unchanged:true,repeat_idempotent:true,write_in_unknown_party_preserved:true,receiving_http_records_and_provenance_verified:true,private_contacts_not_exposed:true,injected_failure_full_rollback:true,known_empty_scope_source_receivable:true,qualified_empty_scope_receivable_without_full_coverage_claim:true,historical_broad_scope_preserves_freshness_after_narrow_update:true,newest_publication_wins_over_latest_retrieval:true,older_snapshot_refused_in_dry_run_and_apply_with_no_changes:true,undated_source_older_observation_refused_without_changes:true,shared_candidate_table_unchanged:true},sharedBefore};
  writeFileSync('artifacts/lane-c/nominees-private-postgres.json',JSON.stringify(receipt,null,2));console.log(JSON.stringify(receipt));
 }finally{await fixture.end();await source.end();}
