@@ -18,7 +18,7 @@ export function useWatchlist() {
   const [syncPromptShown, setSyncPromptShown] = useLocalStorage<boolean>("watchlist-sync-prompted", false);
   
   // Server watchlist for authenticated users
-  const { data: serverWatchlist = [], isLoading } = useQuery({
+  const { data: serverWatchlist = [], isLoading } = useQuery<Array<{ electionId: number | string }>>({
     queryKey: ["/api/user/watchlist"],
     enabled: isAuthenticated,
     retry: false,

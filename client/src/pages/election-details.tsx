@@ -26,7 +26,7 @@ function useCandidateDetails(candidateId: number | null) {
 }
 
 export default function ElectionDetails() {
-  const params = useParams();
+  const params = useParams<{ id: string }>();
   const electionId = parseInt(params.id || "0");
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedCandidateId, setSelectedCandidateId] = useState<number | null>(null);
