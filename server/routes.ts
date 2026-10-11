@@ -1441,7 +1441,7 @@ Please provide detailed, current information about this specific election.`;
 
   app.post('/api/admin/results-ingestion/stop', isAuthenticated, requireAdmin, async (req: any, res) => {
     try {
-      resultsIngestionService.stopPolling();
+      await resultsIngestionService.stopPolling();
       res.json({ 
         message: 'Results ingestion stopped',
         status: resultsIngestionService.getStatus()
