@@ -1,0 +1,53 @@
+{
+  "imports": [
+    "fs",
+    "@neondatabase/serverless"
+  ],
+  "envReads": [
+    "DATABASE_URL"
+  ],
+  "fileCalls": [
+    "./attached_assets/congress_members_complete.json"
+  ],
+  "dbCalls": [
+    {
+      "kind": "pool",
+      "options": {
+        "connectionString": "explicit-synthetic-connection-placeholder"
+      }
+    },
+    {
+      "kind": "delete"
+    },
+    {
+      "kind": "insert"
+    },
+    {
+      "kind": "insert"
+    },
+    {
+      "kind": "end"
+    }
+  ],
+  "rows": [],
+  "inserted": [
+    {
+      "bioguideId": "Explicit Fixture Missing ID A",
+      "name": "Explicit Fixture Missing ID A",
+      "congress": 119
+    },
+    {
+      "bioguideId": "Explicit Fixture Missing ID B",
+      "name": "Explicit Fixture Missing ID B",
+      "congress": 119
+    }
+  ],
+  "stdout": [
+    "Found 2 members to restore",
+    "Cleared existing congressional data"
+  ],
+  "stderr": [
+    "Error restoring congressional members: Error: Explicit synthetic insert failure"
+  ],
+  "exitCode": 0
+}

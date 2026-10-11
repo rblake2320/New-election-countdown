@@ -1,0 +1,19 @@
+{
+  "exitCode": 1,
+  "stdout": "",
+  "message": {
+    "outcome": "refused",
+    "code": "LEGACY_CONGRESS_SOURCE_UNVERIFIED",
+    "operation": "bulk_restore_congress",
+    "stage": "before_file_or_database_access",
+    "writes": false,
+    "reason": "The delete-first attached-asset restore cannot establish reviewed official member identities or provenance.",
+    "remediation": "Use the separately reviewed scripts/sync_official_congress.ts importer. After its audited build, run node dist/sync_official_congress.js --receipt <new-dry-run-receipt.json>; dry-run is the default. Apply requires independent manifest and preimage review plus the importer guards. This legacy command never applies."
+  },
+  "applicationImports": [],
+  "applicationFileCalls": 0,
+  "applicationDatabaseCalls": 0,
+  "callBasis": "Actual loader refuses any application import; guarded source has no file/database access, confirmed separately by identical source mock probe",
+  "emptyWorkingDirectory": true,
+  "environment": "empty; no DB/provider/secrets"
+}
