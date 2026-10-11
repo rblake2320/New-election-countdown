@@ -448,8 +448,10 @@ export class SecretsRotationService {
         // Y-02: no provider API issues credentials from here. Record that honestly and change
         // nothing - no lastRotated, no nextRotation bump, no "completed".
         console.log(`⚠️ ${serviceConfig.serviceName} requires manual rotation in the provider console`);
-        if (storage.updateSecretRotationHistory) {
-          await storage.updateSecretRotationHistory(rotationId, {
+        // Optional on the storage surface (same shape as the existing history calls below).
+        const history = (storage as { updateSecretRotationHistory?: (id: string, patch: Record<string, unknown>) => Promise<unknown> }).updateSecretRotationHistory;
+        if (history) {
+          await history(rotationId, {
             status: 'manual_required',
             completedAt: new Date(),
             rollbackRequired: false,
