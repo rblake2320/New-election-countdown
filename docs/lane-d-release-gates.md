@@ -5,9 +5,11 @@ Parent: https://rob47595-1791122756383.atlassian.net/browse/ET-1
 Lane: https://rob47595-1791122756383.atlassian.net/browse/ET-5
 
 This PR separates development tools from the runtime, updates dependencies,
-corrects test-runner discovery, and adds reproducible CI gates. Typecheck is a
-visible diagnostic job while legacy errors are repaired; it is not a passing
-type-safety claim. Full audit reports include development dependencies. The
+corrects test-runner discovery, and adds reproducible CI gates. Client source and
+global/configuration type errors are enforced by scripts/check-client-types.mjs;
+server/shared diagnostics remain visible in the uploaded typecheck.txt while
+legacy errors are repaired. Full-project type safety remains a release gate.
+The client gate requires lane B commit 4ad6a93. Full audit reports include development dependencies. The
 400,000-byte entry budget is enforced separately and requires the client lane's
 route splitting. Browser discovery is not browser execution.
 
@@ -18,6 +20,7 @@ npm ci
 npm test
 npm run test:e2e:list
 npm run build
+node scripts/check-client-types.mjs
 npm audit --omit=dev --audit-level=high
 node scripts/check-bundle.mjs
 docker build -t electiontracker:et5 .

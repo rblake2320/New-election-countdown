@@ -25,9 +25,8 @@ jobs:
       - run: npm run build
       - name: Runtime dependency audit
         run: npm audit --omit=dev --audit-level=high
-      - name: Legacy typecheck report (not a passing type gate)
-        continue-on-error: true
-        run: npm run check > typecheck.txt 2>&1
+      - name: Enforce client types and report full-project diagnostics
+        run: node scripts/check-client-types.mjs
       - name: Full dependency audit report
         if: always()
         run: npm audit --json > audit.json || true
