@@ -128,3 +128,19 @@ describe("GeneralRoster coverage field (complete | scoped | unspecified)", () =>
     expect(await screen.findByTestId("general-roster-empty")).toBeTruthy();
   });
 });
+
+describe("party preference labelling (top-two states)", () => {
+  const row = (partyRaw: string | null, party: string | null = "D") =>
+    ({ party, generalListSource: { partyBasis: "preference", partyRaw } }) as any;
+  it("CA-style raw label without 'prefer' gets an explicit 'Party preference:' prefix", () => {
+    expect(rosterParty(row("Democratic"))).toBe("Party preference: Democratic");
+    expect(rosterParty(row("Republican", "R"))).toBe("Party preference: Republican");
+  });
+  it("WA-style raw text that already states the preference stays verbatim", () => {
+    expect(rosterParty(row("(Prefers Republican Party)", "R"))).toBe("(Prefers Republican Party)");
+    expect(rosterParty(row("Party Preference: None"))).toBe("Party Preference: None");
+  });
+  it("non-preference rows are unchanged", () => {
+    expect(rosterParty({ party: "D", generalListSource: { partyBasis: "source_label", partyRaw: "Democratic" } } as any)).toBe("Democratic");
+  });
+});

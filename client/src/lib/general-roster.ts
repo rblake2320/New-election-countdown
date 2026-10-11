@@ -88,13 +88,16 @@ export function knownEmptySources(data: GeneralRosterResponse): RosterSnapshot[]
 
 /**
  * Party as the official list gives it. A stated preference (top-two states such
- * as WA: "(Prefers Republican Party)") is shown verbatim as the preference, not as party
+ * as WA "(Prefers Republican Party)", CA "PARTY PREFERENCE: Democratic") is shown as a
+ * preference, not as party
  * nomination. Unknown stays empty (e.g. write-ins), never guessed.
  */
 export function rosterParty(c: GeneralRosterCandidate): string | null {
   const raw = c.generalListSource?.partyRaw?.trim();
   if (c.generalListSource?.partyBasis === "preference" && raw) {
-    return raw; // the official wording verbatim, e.g. "(Prefers Republican Party)"
+    // Official wording verbatim when it already says so (WA: "(Prefers Republican
+    // Party)"); otherwise label it (CA's PARTY PREFERENCE column: "Democratic").
+    return /prefer/i.test(raw) ? raw : `Party preference: ${raw}`;
   }
   if (c.party && c.party.trim()) {
     const code = c.party.trim();
