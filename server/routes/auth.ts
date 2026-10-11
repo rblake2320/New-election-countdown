@@ -360,10 +360,11 @@ router.get("/dashboard", authRequired(), async (req, res) => {
           type: election.type,
           level: election.level,
           candidate_count: candidates.length,
-          subtitle: election.subtitle,
+          // the dashboard contract's optionals are undefined, not null
+          subtitle: election.subtitle ?? undefined,
           state: election.state,
-          offices: election.offices || [],
-          description: election.description,
+          offices: election.offices ?? [],
+          description: election.description ?? undefined,
           isActive: election.isActive !== false
         };
       })

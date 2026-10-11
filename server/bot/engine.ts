@@ -2,7 +2,7 @@ import { rawSql as sql } from '../db';
 
 // Row shapes of the steward views/tables these tasks read (postgres counts arrive as strings).
 interface CongressMismatchRow { state: string; expected_total: number | string; actual_total: number | string; delta: number | string }
-interface PriorityMissingRow { election_id: number; state: string | null; title: string; date: string | Date | null; candidate_count: number | string; min_candidates: number | string }
+interface PriorityMissingRow { election_id: number; state: string | null; title: string; election_date: string | Date | null; candidate_count: number | string; min_candidates: number | string }
 interface DateDriftRow { election_id: number; authority: string; reported_date: string | Date | null; priority: number; confidence: number | string | null; title: string; state: string; current_date: string | Date }
 interface UdelRow { election_id: number; title: string; state: string; election_date: string | Date }
 interface SuggestionRow { id: number; kind: string; status: string; payload: { title?: string; state?: string; date?: string; seed?: unknown } | null }
