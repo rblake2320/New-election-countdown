@@ -209,7 +209,7 @@ describe('requireAdminForAutofix Middleware', () => {
           error: 'insufficient_privileges',
           message: 'Admin privileges required for auto-fix operations',
           userRole: 'user',
-          required: 'admin role or @admin.com email',
+          required: 'admin role',
           endpoint: '/autofix/apply/123'
         });
       });
@@ -239,7 +239,7 @@ describe('requireAdminForAutofix Middleware', () => {
       expect(res.status).not.toHaveBeenCalled();
     });
 
-    it('should grant access for user with @admin.com email', async () => {
+    it('should DENY a non-admin user even with an @admin.com email (bypass removed 2026-10-11)', async () => {
       mockPool.query.mockResolvedValue({
         rowCount: 1,
         rows: [{ id: 2, email: 'user@admin.com', role: 'user' }]
@@ -251,17 +251,13 @@ describe('requireAdminForAutofix Middleware', () => {
       requireAdminForAutofix(req, res, next);
 
       await vi.waitFor(() => {
-        expect(next).toHaveBeenCalledOnce();
-        expect(req.isAdmin).toBe(true);
-        expect(req.adminUser).toEqual({
-          id: 2,
-          email: 'user@admin.com',
-          role: 'user'
-        });
+        expect(res.status).toHaveBeenCalledWith(403);
       });
+      expect(next).not.toHaveBeenCalled();
+      expect(req.isAdmin).toBeFalsy();
     });
 
-    it('should grant access when ADMIN_FEATURES environment flag is set', async () => {
+    it('should DENY a non-admin user even when ADMIN_FEATURES=1 (env bypass removed 2026-10-11)', async () => {
       mockProcess.env.ADMIN_FEATURES = '1';
       mockPool.query.mockResolvedValue({
         rowCount: 1,
@@ -274,9 +270,10 @@ describe('requireAdminForAutofix Middleware', () => {
       requireAdminForAutofix(req, res, next);
 
       await vi.waitFor(() => {
-        expect(next).toHaveBeenCalledOnce();
-        expect(req.isAdmin).toBe(true);
+        expect(res.status).toHaveBeenCalledWith(403);
       });
+      expect(next).not.toHaveBeenCalled();
+      expect(req.isAdmin).toBeFalsy();
     });
 
     it('should handle database query errors gracefully', async () => {

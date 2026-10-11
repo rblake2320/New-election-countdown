@@ -72,7 +72,8 @@ const candidateProfileSchema = z.object({
 });
 
 // JWT Secret
-const JWT_SECRET = process.env.JWT_SECRET || 'your-jwt-secret-here';
+import { getRequiredSecret } from './config/secrets';
+const JWT_SECRET = getRequiredSecret('JWT_SECRET');
 
 // Middleware to authenticate candidate requests
 export const authenticateCandidate = async (req: Request & { candidate?: any }, res: Response, next: Function) => {

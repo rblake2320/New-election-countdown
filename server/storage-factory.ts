@@ -1017,6 +1017,18 @@ export class StorageFactory implements IStorage {
     return this.currentStorage.getUserWatchlist(userId);
   }
 
+  // Used by RecommendationService (was missing on the factory -> /api/recommendations 500).
+  async getUserPreferences(userId: string) {
+    const impl = (this.currentStorage as any).getUserPreferences;
+    // MemStorage (degraded mode) has no preferences table: treat as "no preferences".
+    return typeof impl === "function" ? impl.call(this.currentStorage, userId) : null;
+  }
+
+  // Convenience for services that need the whole catalogue (no filters, no date window).
+  async getAllElections() {
+    return this.currentStorage.getElections({} as any);
+  }
+
   async addToWatchlist(userId: string, electionId: number): Promise<WatchlistItem> {
     const result = await this.currentStorage.addToWatchlist(userId, electionId);
     this.queueWriteOperation('addToWatchlist', [userId, electionId]);
@@ -1352,4 +1364,20 @@ export class StorageFactory implements IStorage {
 }
 
 // Create global storage factory instance
-export const storageFactory = new StorageFactory();
+const storageFactoryInstance = new StorageFactory();
+
+/**
+ * The factory implements health gating and failover for the hot paths, but
+ * DatabaseStorage has ~60 further methods (notifications, runbooks, tracking…)
+ * that route code calls through this export. Anything the factory does not
+ * define itself is forwarded to the currently active storage, so a missing
+ * delegation can no longer turn into a 500 (2026-10-11: /api/recommendations).
+ */
+export const storageFactory: StorageFactory = new Proxy(storageFactoryInstance, {
+  get(target, prop, receiver) {
+    if (prop in target) return Reflect.get(target, prop, receiver);
+    const current = (target as any).currentStorage;
+    const value = current?.[prop as any];
+    return typeof value === "function" ? value.bind(current) : value;
+  },
+});

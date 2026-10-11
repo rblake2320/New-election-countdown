@@ -1,3 +1,4 @@
+import { getRequiredSecret } from './config/secrets';
 import { db } from "./db";
 import { candidateSubscriptions, candidates, candidateQA, candidatePositions, campaignContent, voterInteractions } from "@shared/schema";
 import { eq, and, gte, desc, sql } from "drizzle-orm";
@@ -14,7 +15,7 @@ interface CandidateSession {
 }
 
 export class CandidateSecurityService {
-  private readonly JWT_SECRET = process.env.CANDIDATE_JWT_SECRET || 'candidate-secure-key-2024';
+  private readonly JWT_SECRET = getRequiredSecret('CANDIDATE_JWT_SECRET');
   private readonly SESSION_DURATION = '7d';
   
   // Rate limiting configurations per subscription tier

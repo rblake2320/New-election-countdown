@@ -2511,8 +2511,8 @@ export interface RunbookFilters {
 export const dashboardUserSchema = z.object({
   id: z.string(),
   email: z.string().email(),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
+  firstName: z.string().nullish().transform((v) => v ?? undefined),
+  lastName: z.string().nullish().transform((v) => v ?? undefined),
   emailVerified: z.boolean(),
   joinedAt: z.string().datetime(),
   daysSinceJoining: z.number().int().min(0),

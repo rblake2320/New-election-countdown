@@ -10,6 +10,8 @@ import { perplexityCongressService } from "./perplexity-congress-service";
 import { congressImportService } from "./congress-import-service";
 import { setupAuth, isAuthenticated } from "./auth";
 import { requireAdmin } from "./middleware/require-admin";
+import { verifySendGridWebhook, verifyTwilioWebhook } from "./webhook-verify";
+import { deliveryTrackingService } from "./services/delivery-tracking-service";
 import { mapQuestService } from "./mapquest-service";
 import { realTimeMonitor } from "./real-time-monitor";
 import { electionScraper } from "./web-scraper";
@@ -77,6 +79,8 @@ import {
   additionalSecurity, 
   apiLimiter, 
   searchLimiter, 
+  authLimiter,
+  trackLimiter,
   validateInput,
   sanitizeInput,
   logSuspiciousActivity 
@@ -106,6 +110,9 @@ import { notificationQueueService } from "./services/notification-queue-service"
 import { RecommendationService } from "./recommendation-service";
 import { z } from "zod";
 
+// Admin gate: authenticated session + users.role === "admin" (see middleware/require-admin.ts)
+const adminOnly = [isAuthenticated, requireAdmin] as const;
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize storage system with health-gated seeding
   // This is called here to ensure it happens after storage factory is ready
@@ -117,7 +124,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
   
   // Apply security middleware
-  app.use(securityHeaders);
+  // securityHeaders is applied once in server/index.ts
   app.use(additionalSecurity);
   
   // Add system status headers to all responses
@@ -129,7 +136,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add advanced security middleware for threat detection
   app.use(advancedSecurityService.middleware());
   // Apply rate limiter for production security
-  app.use(apiLimiter);
+  // Scoped to /api: the old global mount also counted HTML, static assets and
+  // Vite modules, so 3-4 dev page loads returned 429 for the page itself (Opus, 2026-10-11).
+  app.use("/api", apiLimiter);
   
   // Keep-alive headers for analytics ingestion
   app.use("/api/track", (req, res, next) => {
@@ -150,43 +159,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/elections", electionDegradedModeHandler, electionsGuardRouter);
   
   // Register analytics routes
-  app.use("/api/track", trackRouter);
+  app.use("/api/track", trackLimiter, trackRouter);
   app.use("/api/analytics", analyticsRouter);
   app.use("/api/health", healthRouter);
   app.use("/api/health", healthEnhancedRouter);
   app.use("/api/monitoring", monitoringRouter);
   app.use("/api/security", securityRouter);
   app.use("/api/accessibility", accessibilityRouter);
-  app.use("/api/load-testing", loadTestingRouter);
+  app.use("/api/load-testing", ...adminOnly, loadTestingRouter);
   app.use("/api/advanced-analytics", advancedAnalyticsRouter);
   
   // Register failover routes
-  app.use("/api/failover", failoverRouter);
+  app.use("/api/failover", ...adminOnly, failoverRouter);
   
   // Platform Continuity Routes (Track 3)
-  app.use("/api/platform-continuity", platformContinuityRouter);
-  app.use("/api/secrets-rotation", secretsRotationRouter);
-  app.use("/api/artifact-retention", artifactRetentionRouter);
-  app.use("/api/environment-bootstrap", environmentBootstrapRouter);
+  app.use("/api/platform-continuity", ...adminOnly, platformContinuityRouter);
+  app.use("/api/secrets-rotation", ...adminOnly, secretsRotationRouter);
+  app.use("/api/artifact-retention", ...adminOnly, artifactRetentionRouter);
+  app.use("/api/environment-bootstrap", ...adminOnly, environmentBootstrapRouter);
   
   // Track 4: Monitoring & Runbooks Routes
-  app.use("/api/v1/track4/drills", track4DrillRouter);
-  app.use("/api/v1/track4/backup", track4BackupRouter);
-  app.use("/api/v1/track4/performance", track4PerformanceRouter);
-  app.use("/api/v1/track4/runbooks", track4RunbookRouter);
+  app.use("/api/v1/track4/drills", ...adminOnly, track4DrillRouter);
+  app.use("/api/v1/track4/backup", ...adminOnly, track4BackupRouter);
+  app.use("/api/v1/track4/performance", ...adminOnly, track4PerformanceRouter);
+  app.use("/api/v1/track4/runbooks", ...adminOnly, track4RunbookRouter);
   
   // Register notification management routes
   registerNotificationRoutes(app);
   
   // Register bot routes for data stewardship
-  app.use("/api/bot", botRouter);
-  app.use("/api/mcp", mcpRouter);
-  app.use("/api/autofix", autofixRouter);
-  app.use("/api/steward", stewardPoliciesRouter);
-  app.use("/api/steward", stewardAuditRouter);
+  app.use("/api/bot", ...adminOnly, botRouter);
+  app.use("/api/mcp", ...adminOnly, mcpRouter);
+  app.use("/api/autofix", ...adminOnly, autofixRouter);
+  app.use("/api/steward", ...adminOnly, stewardPoliciesRouter);
+  app.use("/api/steward", ...adminOnly, stewardAuditRouter);
   
   // Register admin validation routes
-  app.use("/api/admin", adminDegradedModeHandler, adminValidationRouter);
+  app.use("/api/admin", adminDegradedModeHandler, ...adminOnly, adminValidationRouter);
   
   // Register polling routes
   app.use("/api", pollsRouter);
@@ -364,7 +373,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Data integrity cleanup endpoint (admin only)
-  app.post("/api/admin/data-cleanup", adminDegradedModeHandler, async (req, res) => {
+  app.post("/api/admin/data-cleanup", isAuthenticated, requireAdmin, adminDegradedModeHandler, async (req, res) => {
     try {
       const results = await dataIntegrityService.performFullCleanup();
       res.json({
@@ -495,7 +504,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
   // Scrape official election data for a state
-  app.post("/api/scrape-election-data", async (req, res) => {
+  app.post("/api/scrape-election-data", isAuthenticated, requireAdmin, async (req, res) => {
     try {
       const { state, electionType = 'general' } = req.body;
       
@@ -603,7 +612,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Scrape election site using browser automation
-  app.post("/api/scrape-election-site", async (req, res) => {
+  app.post("/api/scrape-election-site", isAuthenticated, requireAdmin, async (req, res) => {
     try {
       const { url } = req.body;
       
@@ -848,7 +857,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Election data audit and integrity endpoint
-  app.post('/api/audit-elections', async (req, res) => {
+  app.post('/api/audit-elections', isAuthenticated, requireAdmin, async (req, res) => {
     try {
       const today = new Date().toISOString().split('T')[0];
       
@@ -957,7 +966,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Remove ended elections from database
-  app.post('/api/cleanup-elections', async (req, res) => {
+  app.post('/api/cleanup-elections', isAuthenticated, requireAdmin, async (req, res) => {
     try {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -1119,7 +1128,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/congress/sync-all', async (req, res) => {
+  app.post('/api/congress/sync-all', isAuthenticated, requireAdmin, async (req, res) => {
     try {
       console.log('Starting complete Congress import from authenticated dataset...');
       
@@ -1268,7 +1277,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Duplicate search route removed - moved above to fix routing conflict
 
   // Find missing congressional member using Perplexity
-  app.post('/api/congress/find-member', requireCongressionalAPI, async (req, res) => {
+  app.post('/api/congress/find-member', isAuthenticated, requireAdmin, requireCongressionalAPI, async (req, res) => {
     try {
       const { memberName } = req.body;
       if (!memberName) {
@@ -1296,7 +1305,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update election results endpoint
-  app.post('/api/elections/:id/results', async (req, res) => {
+  app.post('/api/elections/:id/results', isAuthenticated, requireAdmin, async (req, res) => {
     try {
       const electionId = parseInt(req.params.id);
       const resultsData = req.body;
@@ -1309,7 +1318,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Perplexity AI endpoints
-  app.post('/api/search-elections', async (req, res) => {
+  app.post('/api/search-elections', isAuthenticated, searchLimiter, async (req, res) => {
     try {
       const { query } = req.body;
       if (!query) {
@@ -1418,7 +1427,7 @@ Please provide detailed, current information about this specific election.`;
     }
   });
 
-  app.post('/api/expand-elections', async (req, res) => {
+  app.post('/api/expand-elections', isAuthenticated, requireAdmin, async (req, res) => {
     try {
       await storage.expandElectionData();
       res.json({ message: 'Election data expansion initiated' });
@@ -1431,7 +1440,7 @@ Please provide detailed, current information about this specific election.`;
 
 
   // Real-time election results updates
-  app.post('/api/elections/:id/update-results', async (req, res) => {
+  app.post('/api/elections/:id/update-results', isAuthenticated, requireAdmin, async (req, res) => {
     try {
       const electionId = parseInt(req.params.id);
       const { candidates, totalVotes, reportingPercent } = req.body;
@@ -1525,58 +1534,7 @@ Please provide detailed, current information about this specific election.`;
     }
   });
 
-  // Authentication endpoints
-  app.post('/api/auth/signup', async (req, res) => {
-    try {
-      const { email, password } = req.body;
-      
-      if (!email || !password) {
-        return res.status(400).json({ error: 'Email and password are required' });
-      }
-
-      if (password.length < 6) {
-        return res.status(400).json({ error: 'Password must be at least 6 characters' });
-      }
-
-      const result = await storage.createUser(email, password);
-      res.json(result);
-    } catch (error: any) {
-      console.error('Error during signup:', error);
-      res.status(400).json({ error: error.message });
-    }
-  });
-
-  app.post('/api/auth/signin', async (req, res) => {
-    try {
-      const { email, password } = req.body;
-      
-      if (!email || !password) {
-        return res.status(400).json({ error: 'Email and password are required' });
-      }
-
-      const result = await storage.authenticateUser(email, password);
-      res.json(result);
-    } catch (error: any) {
-      console.error('Error during signin:', error);
-      res.status(401).json({ error: error.message });
-    }
-  });
-
-  app.post('/api/auth/signout', async (req, res) => {
-    try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (token) {
-        await storage.signoutUser(token);
-      }
-      res.json({ message: 'Signed out successfully' });
-    } catch (error: any) {
-      console.error('Error during signout:', error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-
-  // Congressional data import and analysis endpoints
-  app.post('/api/congress/import', async (req, res) => {
+  app.post('/api/congress/import', isAuthenticated, requireAdmin, async (req, res) => {
     try {
       const result = await congressImportService.importFromCompleteDataset();
       res.json(result);
@@ -1586,7 +1544,7 @@ Please provide detailed, current information about this specific election.`;
     }
   });
 
-  app.post('/api/congress/find-missing', requireCongressionalAPI, async (req, res) => {
+  app.post('/api/congress/find-missing', isAuthenticated, requireAdmin, requireCongressionalAPI, async (req, res) => {
     try {
       // Import the new Congress API service
       const { congressService } = await import('./congress-api-service');
@@ -1622,34 +1580,9 @@ Please provide detailed, current information about this specific election.`;
     }
   });
 
-  app.get('/api/auth/me', async (req, res) => {
+  app.get('/api/user/watchlist', isAuthenticated, async (req, res) => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'No token provided' });
-      }
-
-      const user = await storage.validateUserSession(token);
-      if (!user) {
-        return res.status(401).json({ error: 'Invalid token' });
-      }
-
-      res.json({ user });
-    } catch (error: any) {
-      console.error('Error validating user:', error);
-      res.status(401).json({ error: 'Invalid token' });
-    }
-  });
-
-  // User watchlist endpoint (with authentication)
-  app.get('/api/user/watchlist', async (req, res) => {
-    try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
+      const user = await storage.getUser(String((req as any).userId));
       if (!user) {
         return res.status(401).json({ error: 'Invalid token' });
       }
@@ -1674,14 +1607,9 @@ Please provide detailed, current information about this specific election.`;
   // ============================================================================
 
   // Get personalized recommendations for user
-  app.get('/api/recommendations', async (req, res) => {
+  app.get('/api/recommendations', isAuthenticated, async (req, res) => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
+      const user = await storage.getUser(String((req as any).userId));
       if (!user) {
         return res.status(401).json({ error: 'Invalid token' });
       }
@@ -1709,14 +1637,9 @@ Please provide detailed, current information about this specific election.`;
   });
 
   // Track recommendation interactions
-  app.post('/api/recommendations/track', async (req, res) => {
+  app.post('/api/recommendations/track', isAuthenticated, async (req, res) => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
+      const user = await storage.getUser(String((req as any).userId));
       if (!user) {
         return res.status(401).json({ error: 'Invalid token' });
       }
@@ -1756,14 +1679,9 @@ Please provide detailed, current information about this specific election.`;
   });
 
   // Get recommendation analytics for user
-  app.get('/api/recommendations/analytics', async (req, res) => {
+  app.get('/api/recommendations/analytics', isAuthenticated, async (req, res) => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
+      const user = await storage.getUser(String((req as any).userId));
       if (!user) {
         return res.status(401).json({ error: 'Invalid token' });
       }
@@ -1786,19 +1704,15 @@ Please provide detailed, current information about this specific election.`;
   });
 
   // Force refresh recommendations cache
-  app.post('/api/recommendations/refresh', async (req, res) => {
+  app.post('/api/recommendations/refresh', isAuthenticated, async (req, res) => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
+      const user = await storage.getUser(String((req as any).userId));
       if (!user) {
         return res.status(401).json({ error: 'Invalid token' });
       }
 
-      await storage.refreshRecommendationCache(user.id);
+      // No cache layer exists; "refresh" regenerates recommendations for the user.
+      await recommendationService.generateRecommendations(user.id, { forceRefresh: true } as any);
       res.json({ message: 'Recommendation cache refreshed' });
     } catch (error: any) {
       console.error('Error refreshing recommendations:', error);
@@ -1811,14 +1725,9 @@ Please provide detailed, current information about this specific election.`;
   // ============================================================================
 
   // Get enhanced watchlist with organization features
-  app.get('/api/watchlist/enhanced', async (req, res) => {
+  app.get('/api/watchlist/enhanced', isAuthenticated, async (req, res) => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
+      const user = await storage.getUser(String((req as any).userId));
       if (!user) {
         return res.status(401).json({ error: 'Invalid token' });
       }
@@ -1856,14 +1765,9 @@ Please provide detailed, current information about this specific election.`;
   });
 
   // Update individual watchlist item with enhanced fields
-  app.patch('/api/watchlist/:itemId', async (req, res) => {
+  app.patch('/api/watchlist/:itemId', isAuthenticated, async (req, res) => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
+      const user = await storage.getUser(String((req as any).userId));
       if (!user) {
         return res.status(401).json({ error: 'Invalid token' });
       }
@@ -1897,14 +1801,9 @@ Please provide detailed, current information about this specific election.`;
   });
 
   // Bulk update multiple watchlist items
-  app.post('/api/watchlist/bulk', async (req, res) => {
+  app.post('/api/watchlist/bulk', isAuthenticated, async (req, res) => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
+      const user = await storage.getUser(String((req as any).userId));
       if (!user) {
         return res.status(401).json({ error: 'Invalid token' });
       }
@@ -1944,14 +1843,9 @@ Please provide detailed, current information about this specific election.`;
   });
 
   // Get watchlist analytics
-  app.get('/api/watchlist/analytics', async (req, res) => {
+  app.get('/api/watchlist/analytics', isAuthenticated, async (req, res) => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
+      const user = await storage.getUser(String((req as any).userId));
       if (!user) {
         return res.status(401).json({ error: 'Invalid token' });
       }
@@ -1997,19 +1891,14 @@ Please provide detailed, current information about this specific election.`;
   });
 
   // Analytics endpoints with GDPR compliance
-  app.post('/api/analytics/interaction', async (req, res) => {
+  app.post('/api/analytics/interaction', isAuthenticated, async (req, res) => {
     try {
       const { eventType, targetType, targetId, metadata } = req.body;
       const sessionId = req.headers['x-session-id'] as string;
       const ipAddress = req.ip || req.connection.remoteAddress;
       
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      let userId = null;
-      
-      if (token) {
-        const user = await storage.validateUserSession(token);
-        if (user) userId = user.id;
-      }
+      // Session user from the cookie session (route is behind isAuthenticated)
+      const userId = String((req as any).userId);
 
       await storage.logInteraction({
         userId,
@@ -2028,18 +1917,13 @@ Please provide detailed, current information about this specific election.`;
     }
   });
 
-  app.post('/api/analytics/engagement', async (req, res) => {
+  app.post('/api/analytics/engagement', isAuthenticated, async (req, res) => {
     try {
       const { timeOnPage, scrollDepth, electionCycleId } = req.body;
       const sessionId = req.headers['x-session-id'] as string;
       
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      let userId = null;
-      
-      if (token) {
-        const user = await storage.validateUserSession(token);
-        if (user) userId = user.id;
-      }
+      // Session user from the cookie session (route is behind isAuthenticated)
+      const userId = String((req as any).userId);
 
       await storage.recordEngagement({
         userId,
@@ -2057,14 +1941,9 @@ Please provide detailed, current information about this specific election.`;
   });
 
   // User preferences and demographics
-  app.put('/api/user/preferences', async (req, res) => {
+  app.put('/api/user/preferences', isAuthenticated, async (req, res) => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
+      const user = await storage.getUser(String((req as any).userId));
       if (!user) {
         return res.status(401).json({ error: 'Invalid token' });
       }
@@ -2077,14 +1956,9 @@ Please provide detailed, current information about this specific election.`;
     }
   });
 
-  app.put('/api/user/demographics', async (req, res) => {
+  app.put('/api/user/demographics', isAuthenticated, async (req, res) => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
+      const user = await storage.getUser(String((req as any).userId));
       if (!user) {
         return res.status(401).json({ error: 'Invalid token' });
       }
@@ -2098,14 +1972,9 @@ Please provide detailed, current information about this specific election.`;
   });
 
   // GDPR compliance endpoints
-  app.get('/api/user/data-export', async (req, res) => {
+  app.get('/api/user/data-export', isAuthenticated, async (req, res) => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
+      const user = await storage.getUser(String((req as any).userId));
       if (!user) {
         return res.status(401).json({ error: 'Invalid token' });
       }
@@ -2118,14 +1987,9 @@ Please provide detailed, current information about this specific election.`;
     }
   });
 
-  app.delete('/api/user/data', async (req, res) => {
+  app.delete('/api/user/data', isAuthenticated, async (req, res) => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
+      const user = await storage.getUser(String((req as any).userId));
       if (!user) {
         return res.status(401).json({ error: 'Invalid token' });
       }
@@ -2153,36 +2017,9 @@ Please provide detailed, current information about this specific election.`;
     }
   });
 
-  // Comprehensive Test Suite
-  app.get('/api/test/run-all', async (req, res) => {
-    try {
-      const { exec } = require('child_process');
-      const util = require('util');
-      const execPromise = util.promisify(exec);
-      
-      console.log('Running comprehensive platform test suite...');
-      const { stdout, stderr } = await execPromise('node test-all-systems.js');
-      
-      res.json({
-        success: true,
-        output: stdout,
-        errors: stderr || null,
-        timestamp: new Date().toISOString()
-      });
-    } catch (error: any) {
-      console.error('Test suite execution error:', error);
-      res.status(500).json({ 
-        success: false,
-        error: error.message,
-        output: error.stdout || null,
-        errors: error.stderr || null
-      });
-    }
-  });
-
   // Campaign Portal API Endpoints
   // Campaign Portal Registration API
-  app.post('/api/campaign/register', async (req, res) => {
+  app.post('/api/campaign/register', authLimiter, async (req, res) => {
     try {
       const { organizationName, contactEmail, electionId, subscriptionTier = 'basic' } = req.body;
 
@@ -2422,7 +2259,7 @@ Please provide detailed, current information about this specific election.`;
   });
 
   // Database Optimization Endpoints
-  app.post('/api/admin/optimize/maintenance', async (req, res) => {
+  app.post('/api/admin/optimize/maintenance', isAuthenticated, requireAdmin, async (req, res) => {
     try {
       const { databaseOptimizationService } = await import('./database-optimization-service');
       await databaseOptimizationService.runMaintenance();
@@ -2445,7 +2282,7 @@ Please provide detailed, current information about this specific election.`;
   });
 
   // Backup Management Endpoints
-  app.post('/api/admin/backup/full', async (req, res) => {
+  app.post('/api/admin/backup/full', isAuthenticated, requireAdmin, async (req, res) => {
     try {
       const { backupService } = await import('./backup-service');
       const backupPath = await backupService.createFullBackup();
@@ -2456,7 +2293,7 @@ Please provide detailed, current information about this specific election.`;
     }
   });
 
-  app.post('/api/admin/backup/pre-archival', async (req, res) => {
+  app.post('/api/admin/backup/pre-archival', isAuthenticated, requireAdmin, async (req, res) => {
     try {
       const { backupService } = await import('./backup-service');
       const backupPaths = await backupService.createPreArchivalBackup();
@@ -2844,7 +2681,7 @@ Please provide specific, factual information with sources where possible. Focus 
   });
 
   // Election data scraping endpoint  
-  app.post("/api/scrape/election", async (req, res) => {
+  app.post("/api/scrape/election", isAuthenticated, requireAdmin, async (req, res) => {
     try {
       const { url } = req.body;
       
@@ -2965,7 +2802,7 @@ Please provide specific, factual information with sources where possible. Focus 
   });
 
   // Event processing endpoints
-  app.post("/api/events/ingest", async (req, res) => {
+  app.post("/api/events/ingest", isAuthenticated, requireAdmin, async (req, res) => {
     try {
       const { event, source } = req.body;
       const eventId = await eventProcessingService.ingestEvent(event, source || 'api');
@@ -3114,73 +2951,6 @@ Please provide specific, factual information with sources where possible. Focus 
     }
   });
 
-  // Comprehensive election sync endpoints
-  app.post("/api/sync/elections/all", async (req, res) => {
-    try {
-      const { comprehensiveElectionSync } = await import('./comprehensive-election-sync');
-      const result = await comprehensiveElectionSync.syncAllElections();
-      
-      res.json({
-        success: true,
-        message: `Successfully synced elections. ${result.summary}`,
-        details: result,
-        timestamp: new Date().toISOString()
-      });
-    } catch (error: any) {
-      console.error("Error syncing elections:", error);
-      res.status(500).json({ error: "Failed to sync elections", details: error.message });
-    }
-  });
-
-  // Get current election count and sync status
-  app.get("/api/sync/status", async (req, res) => {
-    try {
-      const stats = await storage.getElectionStats();
-      // Remove the getLastSyncTimestamp call since it doesn't exist in storage
-      const lastSync = null;
-      
-      res.json({
-        currentCount: stats.total,
-        target: "601+",
-        status: stats.total >= 601 ? "sufficient" : "needs_sync",
-        breakdown: {
-          byType: stats.byType,
-          byLevel: stats.byLevel
-        },
-        lastSync,
-        recommendation: stats.total < 601 ? "Run full election sync" : "Count maintained"
-      });
-    } catch (error) {
-      console.error("Error getting sync status:", error);
-      res.status(500).json({ error: "Failed to get sync status" });
-    }
-  });
-
-  // Michigan election and candidate setup
-  app.post("/api/setup/michigan-primary", async (req, res) => {
-    try {
-      const { addMichiganPrimaryWithCandidates } = await import('./add-michigan-election');
-      const result = await addMichiganPrimaryWithCandidates();
-      
-      res.json({
-        success: true,
-        message: `Created Michigan primary with ${result.candidatesAdded} candidates`,
-        election: {
-          id: result.election.id,
-          title: result.election.title,
-          date: result.election.date,
-          state: result.election.state
-        },
-        candidatesAdded: result.candidatesAdded,
-        totalCandidates: result.totalCandidates
-      });
-
-    } catch (error) {
-      console.error("Error setting up Michigan primary:", error);
-      res.status(500).json({ error: "Failed to setup Michigan primary" });
-    }
-  });
-
   const httpServer = createServer(app);
   return httpServer;
 }
@@ -3293,7 +3063,7 @@ function registerNotificationRoutes(app: Express) {
   // Get user notification preferences
   app.get("/api/notifications/preferences", isAuthenticated, async (req, res) => {
     try {
-      const userId = req.user?.id;
+      const userId = String((req as any).userId); // cookie session (isAuthenticated sets req.userId)
       if (!userId) {
         return res.status(401).json({ error: "User authentication required" });
       }
@@ -3315,7 +3085,7 @@ function registerNotificationRoutes(app: Express) {
   // Update user notification preferences
   app.patch("/api/notifications/preferences", isAuthenticated, validateInput, async (req, res) => {
     try {
-      const userId = req.user?.id;
+      const userId = String((req as any).userId); // cookie session (isAuthenticated sets req.userId)
       if (!userId) {
         return res.status(401).json({ error: "User authentication required" });
       }
@@ -3337,7 +3107,7 @@ function registerNotificationRoutes(app: Express) {
   // Get user subscriptions
   app.get("/api/notifications/subscriptions", isAuthenticated, async (req, res) => {
     try {
-      const userId = req.user?.id;
+      const userId = String((req as any).userId); // cookie session (isAuthenticated sets req.userId)
       if (!userId) {
         return res.status(401).json({ error: "User authentication required" });
       }
@@ -3351,12 +3121,12 @@ function registerNotificationRoutes(app: Express) {
   });
 
   // Create notification campaign
-  app.post("/api/notifications/campaigns", isAuthenticated, validateInput, async (req, res) => {
+  app.post("/api/notifications/campaigns", isAuthenticated, requireAdmin, validateInput, async (req, res) => {
     try {
       const campaignData = {
         ...req.body,
         status: 'draft' as const,
-        createdBy: req.user?.id || 'system'
+        createdBy: String((req as any).userId)
       };
       
       const campaign = await storage.createNotificationCampaign(campaignData);
@@ -3372,10 +3142,10 @@ function registerNotificationRoutes(app: Express) {
   // Get delivery status
   app.get("/api/notifications/deliveries", isAuthenticated, async (req, res) => {
     try {
-      const userId = req.user?.id;
-      const deliveries = userId ? 
-        await storage.getUserNotificationDeliveries(userId) : 
-        await storage.getNotificationDeliveries();
+      const userId = String((req as any).userId); // cookie session (isAuthenticated sets req.userId)
+      // Always scoped to the signed-in user: the unscoped branch returned every
+      // user's deliveries (recipient addresses included) when the session id was read from the wrong field (always undefined).
+      const deliveries = await storage.getNotificationDeliveries(undefined, userId);
       
       res.json(deliveries);
     } catch (error) {
@@ -3413,24 +3183,16 @@ function registerNotificationRoutes(app: Express) {
     }
   });
 
-  // SendGrid webhook
-  app.post("/api/notifications/webhooks/sendgrid", async (req, res) => {
+  // SendGrid Event Webhook — signature verified in verifySendGridWebhook; events
+  // are resolved to deliveries by external_id in deliveryTrackingService.
+  app.post("/api/notifications/webhooks/sendgrid", verifySendGridWebhook, async (req, res) => {
     try {
-      const events = req.body;
-      
+      const events = Array.isArray(req.body) ? req.body : [];
       for (const event of events) {
-        const { sg_message_id, event: eventType, timestamp } = event;
-        
-        if (sg_message_id) {
-          await storage.updateNotificationStatusByMessageId(sg_message_id, eventType, {
-            timestamp: new Date(timestamp * 1000),
-            provider: 'sendgrid'
-          });
-          
-          console.log(`📧 SendGrid webhook: ${eventType} for message ${sg_message_id}`);
+        if (event && typeof event === 'object' && event.event) {
+          await deliveryTrackingService.processWebhook('sendgrid', String(event.event), event);
         }
       }
-      
       res.status(200).send('OK');
     } catch (error) {
       console.error("Error processing SendGrid webhook:", error);
@@ -3438,24 +3200,13 @@ function registerNotificationRoutes(app: Express) {
     }
   });
 
-  // Twilio webhook
-  app.post("/api/notifications/webhooks/twilio", async (req, res) => {
+  // Twilio status callback — signature verified in verifyTwilioWebhook.
+  app.post("/api/notifications/webhooks/twilio", verifyTwilioWebhook, async (req, res) => {
     try {
-      const { MessageSid, MessageStatus } = req.body;
-      
-      if (MessageSid) {
-        let ourStatus = MessageStatus;
-        if (MessageStatus === 'delivered') ourStatus = 'delivered';
-        else if (MessageStatus === 'failed' || MessageStatus === 'undelivered') ourStatus = 'failed';
-        
-        await storage.updateNotificationStatusByMessageId(MessageSid, ourStatus, {
-          timestamp: new Date(),
-          provider: 'twilio'
-        });
-        
-        console.log(`📱 Twilio webhook: ${MessageStatus} for message ${MessageSid}`);
+      const { MessageSid, MessageStatus } = req.body ?? {};
+      if (MessageSid && MessageStatus) {
+        await deliveryTrackingService.processWebhook('twilio', String(MessageStatus), req.body);
       }
-      
       res.status(200).send('OK');
     } catch (error) {
       console.error("Error processing Twilio webhook:", error);
