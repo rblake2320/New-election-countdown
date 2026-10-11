@@ -10,28 +10,25 @@ export default function Congress() {
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-border sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <Link href="/">
-                <Button variant="ghost" size="sm">
+          {/* Wraps on phones so the admin link is never pushed off-screen. */}
+          <div className="flex flex-wrap items-center justify-between gap-2 min-h-16 py-2">
+            <div className="flex items-center gap-4 min-w-0">
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/">
                   <ArrowLeft className="h-4 w-4 mr-1" />
                   Elections
-                </Button>
-              </Link>
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold">C</span>
+                </Link>
+              </Button>
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-8 h-8 shrink-0 bg-primary rounded-lg flex items-center justify-center">
+                  <span className="text-primary-foreground font-bold">C</span>
                 </div>
                 <h1 className="text-xl font-bold">Congress Data</h1>
               </div>
             </div>
-            <div>
-              <Link href="/congress/admin">
-                <Button variant="outline" size="sm">
-                  Data Management
-                </Button>
-              </Link>
-            </div>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/congress-admin">Data Management</Link>
+            </Button>
           </div>
         </div>
       </header>
