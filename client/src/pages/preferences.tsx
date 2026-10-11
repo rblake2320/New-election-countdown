@@ -33,7 +33,6 @@ import {
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { updateUserPreferencesSchema } from "@shared/schema";
 
 // US States list (abbreviated for code readability)
 const US_STATES = [
@@ -90,11 +89,37 @@ const US_STATES = [
   { code: "DC", name: "District of Columbia" }
 ];
 
-// Validation schema for preferences
-const preferencesFormSchema = updateUserPreferencesSchema.extend({
-  // Additional validation for the form
-  state: z.string().optional(),
-  city: z.string().optional(),
+// The form's own contract, mirroring the editable user_preferences columns.
+// (The drizzle-zod derived updateUserPreferencesSchema infers only state/city
+// with the installed versions, so every other field was untyped.)
+const optionalText = z.string().nullable().optional();
+const optionalFlag = z.boolean().nullable().optional();
+const preferencesFormSchema = z.object({
+  state: optionalText,
+  city: optionalText,
+  congressionalDistrict: optionalText,
+  federalElectionsInterest: optionalFlag,
+  stateElectionsInterest: optionalFlag,
+  localElectionsInterest: optionalFlag,
+  candidateProfilesInterest: optionalFlag,
+  votingRecordsInterest: optionalFlag,
+  primaryElectionsEnabled: optionalFlag,
+  generalElectionsEnabled: optionalFlag,
+  specialElectionsEnabled: optionalFlag,
+  runoffElectionsEnabled: optionalFlag,
+  candidateInformationDepth: z.enum(["minimal", "standard", "detailed"]).nullable().optional(),
+  electionTimelinePreference: z.enum(["upcoming_only", "current_cycle", "all"]).nullable().optional(),
+  pollingDataInterest: optionalFlag,
+  endorsementDataInterest: optionalFlag,
+  digestFrequency: z.enum(["daily", "weekly", "monthly", "never"]).nullable().optional(),
+  breakingNewsAlerts: optionalFlag,
+  electionReminderAlerts: optionalFlag,
+  candidateUpdateAlerts: optionalFlag,
+  partyAffiliations: z.array(z.string()).nullable().optional(),
+  issueInterests: z.array(z.string()).nullable().optional(),
+  dataUsageConsent: optionalFlag,
+  personalizationEnabled: optionalFlag,
+  analyticsOptOut: optionalFlag,
 });
 
 type PreferencesFormData = z.infer<typeof preferencesFormSchema>;

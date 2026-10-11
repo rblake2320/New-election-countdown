@@ -31,17 +31,16 @@ export function QuickRecommendations({
   onAddToWatchlist,
   className = ""
 }: QuickRecommendationsProps) {
-  const { user, token } = useAuth();
+  // Session is the httpOnly cookie; there is no client-side token.
+  const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
 
   // Fetch quick recommendations
   const { data: recommendationsData, isLoading } = useQuery({
     queryKey: ['/api/recommendations', { limit, types: ['location_based', 'trending'] }],
-    enabled: !!user && !!token,
+    enabled: isAuthenticated,
     queryFn: async () => {
-      const response = await fetch(`/api/recommendations?limit=${limit}&types=location_based,trending`, {
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
+      const response = await fetch(`/api/recommendations?limit=${limit}&types=location_based,trending`, { credentials: 'include' });
       
       if (response.ok) {
         return response.json();
@@ -70,10 +69,8 @@ export function QuickRecommendations({
       
       const response = await fetch('/api/watchlist', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ electionId: recommendation.election.id }),
       });
 

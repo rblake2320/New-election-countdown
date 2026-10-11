@@ -100,8 +100,7 @@ export default function Home() {
   };
 
   const removeFilter = (filterType: keyof ElectionFilters, value?: string) => {
-    const newFilters = { ...filters };
-    newFilters[filterType] = undefined;
+    const newFilters: ElectionFilters = { ...filters, [filterType]: undefined };
     setFilters(newFilters);
     // Invalidate elections cache to force fresh data fetch
     queryClient.invalidateQueries({ queryKey: ['/api/elections'] });
@@ -115,13 +114,13 @@ export default function Home() {
   
   const handleDismissGuidance = () => {
     // Create a key based on current filter state to dismiss this specific guidance
-    const guidanceKey = `${filters.state || 'none'}-${(filters.level || []).join(',')}`;
-    setDismissedGuidance(prev => new Set([...prev, guidanceKey]));
+    const guidanceKey = `${filters.state || 'none'}-${[filters.level ?? []].flat().join(',')}`;
+    setDismissedGuidance(prev => new Set(prev).add(guidanceKey));
   };
   
   // Filter out dismissed guidance issues
   const activeGuidanceIssues = guidanceIssues.filter(issue => {
-    const guidanceKey = `${filters.state || 'none'}-${(filters.level || []).join(',')}`;
+    const guidanceKey = `${filters.state || 'none'}-${[filters.level ?? []].flat().join(',')}`;
     return !dismissedGuidance.has(guidanceKey);
   });
 
@@ -275,10 +274,7 @@ export default function Home() {
             
             {/* Featured Election Cards */}
             {!isLoading && elections.length > 0 && (
-              <FeaturedElectionCards elections={elections.map(e => ({
-                ...e,
-                date: e.date instanceof Date ? e.date.toISOString() : e.date
-              }))} />
+              <FeaturedElectionCards elections={elections} />
             )}
             
             {/* Dashboard Header */}
