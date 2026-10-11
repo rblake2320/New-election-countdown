@@ -29,7 +29,7 @@ const rowSchema = z.object({
   sourcePage:z.number().int().positive().optional(),ticketText:z.string().optional(),raceTitle:z.string().optional(),ballotAccessType:access.optional(),
   aliases:z.array(z.string().min(1).max(200)).optional(),ballotName:z.string().min(1).max(200).optional(),
 }).strict();
-const manifestSchema = z.object({version:z.literal(1),sources:z.array(sourceSchema).min(1),candidates:z.array(rowSchema).min(1)}).strict();
+const manifestSchema = z.object({version:z.literal(1),sources:z.array(sourceSchema).min(1),candidates:z.array(rowSchema)}).strict();
 export type NomineeManifest = z.infer<typeof manifestSchema>;
 type NomineeRow = NomineeManifest['candidates'][number];
 type NomineeSource = NomineeManifest['sources'][number];
@@ -42,6 +42,7 @@ export function parseNomineeManifest(raw:unknown):NomineeManifest {
   for(const s of m.sources){
     if(sourceIds.has(s.id))throw new Error('duplicate source ID');sourceIds.add(s.id);
     const count=m.candidates.filter(r=>r.sourceId===s.id).length;
+    if(count===0 && !s.completeScopes.length)throw new Error('Empty source requires an explicitly complete zero-candidate scope');
     if(s.expectedRowCount!=null && count!==s.expectedRowCount)throw new Error('source row count mismatch');
     for(const scope of s.completeScopes){
       const next={state:s.state,date:s.electionDate,office:scope.office,district:scope.district,party:scope.partyRaw?partyKey(scope.partyRaw):undefined,access:scope.ballotAccessType};
@@ -67,6 +68,9 @@ function party(raw:string):string|undefined {
   return ({republican:'R',rep:'R',democratic:'D',democrat:'D',dem:'D','democratic-npl':'D','democratic-nonpartisan league':'D','democratic-farmer-labor':'D',independent:'I',ind:'I',green:'G',gre:'G',libertarian:'L',lib:'L',constitution:'CON',conservative:'CRV'} as Record<string,string>)[key] ?? p;
 }
 function partyKey(raw:string):string{return (party(raw)??'method:by petition').toLowerCase();}
+function snapshotVersion(m:NomineeManifest,s:NomineeSource):string {
+  return createHash('sha256').update(JSON.stringify({url:s.url,documentSha:s.sha256,publishedAt:s.publishedAt,electionDate:s.electionDate,completeScopes:s.completeScopes,expectedRowCount:s.expectedRowCount,rows:m.candidates.filter(r=>r.sourceId===s.id).slice().sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b)))})).digest('hex');
+}
 function raceKey(e:RaceRow):string|undefined {
   const date=typeof e.date==='string'?e.date.slice(0,10):e.date.toISOString().slice(0,10);
   if(!['general','special'].includes(e.type.toLowerCase()))return;
@@ -76,7 +80,7 @@ function raceKey(e:RaceRow):string|undefined {
 }
 export function planNomineeRefresh(m:NomineeManifest,elections:RaceRow[],candidates:ExistingCandidate[]):NomineePlan {
   const plan:NomineePlan={actions:[],unresolved:[]};
-  const sourceHashes=new Map(m.sources.map(s=>[s.id,createHash('sha256').update(JSON.stringify({url:s.url,documentSha:s.sha256,publishedAt:s.publishedAt,electionDate:s.electionDate,rows:m.candidates.filter(r=>r.sourceId===s.id).slice().sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b)))})).digest('hex')]));
+  const sourceHashes=new Map(m.sources.map(s=>[s.id,snapshotVersion(m,s)]));
   for(const row of m.candidates){
     const key=`${row.state}|${row.office}|${row.district}|${row.date}`;
     const races=elections.filter(e=>raceKey(e)===key && (!row.raceTitle || e.title===row.raceTitle));
@@ -90,7 +94,15 @@ export function planNomineeRefresh(m:NomineeManifest,elections:RaceRow[],candida
     const source=m.sources.find(s=>s.id===row.sourceId)!;
     plan.actions.push({electionId:races[0].id,candidateId:sameParty[0]?.id,party:affiliation===undefined || affiliation===''?sameParty[0]?.party??'':affiliation,record:row,source,versionSha:sourceHashes.get(source.id)!});
   }
+  const sharedIdentities=new Set(plan.actions.filter(a=>a.candidateId!=null && plan.actions.filter(b=>b.candidateId===a.candidateId).length>1).map(a=>a.candidateId));
+  for(const a of plan.actions.filter(a=>sharedIdentities.has(a.candidateId)))plan.unresolved.push({name:a.record.name,reason:'shared-existing-identity'});
+  plan.actions=plan.actions.filter(a=>!sharedIdentities.has(a.candidateId));
   return plan;
+}
+
+/** A retrieval timestamp cannot make an older (or undated) publication newer. */
+function assertPublicationFresh(incoming:string|null,previous:unknown):void {
+  if(typeof previous==='string' && /^\d{4}-\d{2}-\d{2}$/.test(previous) && (!incoming || incoming<previous))throw new Error('Older or undated publication cannot replace a newer current general list');
 }
 
 async function runNomineeRefreshOnce(pool:Pool,m:NomineeManifest,manifestSha:string,apply:boolean):Promise<NomineePlan>{
@@ -100,14 +112,42 @@ async function runNomineeRefreshOnce(pool:Pool,m:NomineeManifest,manifestSha:str
     await client.query(apply?'BEGIN ISOLATION LEVEL SERIALIZABLE':'BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
     await client.query("SET LOCAL statement_timeout='30s'");await client.query("SET LOCAL lock_timeout='5s'");
     if(apply)await client.query('SELECT pg_advisory_xact_lock($1)',[2026110301]); // Shared identity writer lock with FEC.
-    const tables=(await client.query("SELECT to_regclass('public.elections') AS elections,to_regclass('public.candidates') AS candidates,to_regclass('public.candidate_source_records') AS sources,to_regclass('public.candidate_ingest_runs') AS audit")).rows[0];
+    const tables=(await client.query("SELECT to_regclass('public.elections') AS elections,to_regclass('public.candidates') AS candidates,to_regclass('public.candidate_source_records') AS sources,to_regclass('public.candidate_ingest_runs') AS audit,to_regclass('public.general_candidate_list_snapshots') AS snapshots")).rows[0];
     if(!tables.elections || !tables.candidates)throw new Error('ElectionTracker schema absent');
-    if(apply && (!tables.sources || !tables.audit))throw new Error('Candidate source migration required');
+    if(apply && (!tables.sources || !tables.audit || !tables.snapshots))throw new Error('Candidate source and general-list snapshot migrations required');
     const elections=(await client.query<RaceRow>('SELECT id,state,title,level,type,date::text AS date,offices FROM elections ORDER BY id')).rows;
     const candidates=(await client.query<ExistingCandidate>('SELECT id,election_id,name,party,fec_candidate_id,fec_status,source_file_sha256,data_source,source_status FROM candidates ORDER BY id')).rows;
     const plan=planNomineeRefresh(m,elections,candidates);
+    if(plan.unresolved.length){
+      if(apply)throw new Error('Resolve all identity/race conflicts before applying a complete nominee snapshot');
+      await client.query('ROLLBACK');return plan;
+    }
+    const previousByAction=new Map<NomineeAction,Array<{id:number,source_file_sha256:string,metadata:Record<string,unknown>}>>();
+    for(const a of plan.actions){
+      const previous=a.candidateId!=null && tables.sources?(await client.query('SELECT id,source_file_sha256,metadata FROM candidate_source_records WHERE candidate_id=$1 AND source_layer=$2 AND is_current=true',[a.candidateId,'general_candidate_list'])).rows:[];
+      for(const record of previous)assertPublicationFresh(a.source.publishedAt,record.metadata?.publishedAt);
+      previousByAction.set(a,previous);
+    }
+    // Preflight every receiving scope before inserting even a disjoint new identity.
+    const receivingScopes=[];
+    for(const source of m.sources)for(const scope of source.completeScopes){
+      const raceIds=elections.filter(e=>raceKey(e)===`${source.state}|${scope.office}|${scope.district}|${source.electionDate}`).map(e=>e.id);
+      if(raceIds.length!==1)throw new Error('Complete scope has no unique receiving race');
+      const electionId=raceIds[0];
+      const current=tables.sources?(await client.query(`SELECT s.metadata FROM candidate_source_records s JOIN candidates c ON c.id=s.candidate_id WHERE c.election_id=$1 AND s.source_layer='general_candidate_list' AND s.is_current=true
+        AND ($2::text IS NULL OR s.metadata->>'partyKey'=$2) AND ($3::text IS NULL OR s.metadata->>'ballotAccessType'=$3)`,[electionId,scope.partyRaw?partyKey(scope.partyRaw):null,scope.ballotAccessType??null])).rows:[];
+      for(const record of current)assertPublicationFresh(source.publishedAt,record.metadata?.publishedAt);
+      // Superseded broad scopes remain freshness watermarks for untouched facets.
+      const snapshots=tables.snapshots?(await client.query('SELECT id,scope_key,source_url,source_file_sha256,is_current,metadata FROM general_candidate_list_snapshots WHERE election_id=$1',[electionId])).rows:[];
+      const overlappingHistory=snapshots.filter(record=>{
+        const old=record.metadata.scope;
+        return old.office===scope.office && old.district===scope.district && (!old.partyRaw || !scope.partyRaw || partyKey(old.partyRaw)===partyKey(scope.partyRaw)) && (!old.ballotAccessType || !scope.ballotAccessType || old.ballotAccessType===scope.ballotAccessType);
+      });
+      for(const record of overlappingHistory)assertPublicationFresh(source.publishedAt,record.metadata.publishedAt);
+      const overlaps=overlappingHistory.filter(record=>record.is_current===true);
+      receivingScopes.push({source,scope,electionId,overlaps});
+    }
     if(!apply){await client.query('ROLLBACK');return plan;}
-    if(plan.unresolved.length)throw new Error('Resolve all identity/race conflicts before applying a complete nominee snapshot');
     let inserted=0,sourceChanges=0;
     for(const a of plan.actions){
       if(a.candidateId==null){
@@ -116,7 +156,7 @@ async function runNomineeRefreshOnce(pool:Pool,m:NomineeManifest,manifestSha:str
         a.candidateId=added.rows[0].id;inserted++;
       }
       // Existing profile, FEC and ballot fields are never overwritten.
-      const previous=(await client.query('SELECT id,source_file_sha256 FROM candidate_source_records WHERE candidate_id=$1 AND source_layer=$2 AND source_url=$3 AND is_current=true',[a.candidateId,'general_candidate_list',a.source.url])).rows;
+      const previous=previousByAction.get(a)??[];
       if(previous.length===1 && previous[0].source_file_sha256===a.versionSha)continue;
       await client.query("UPDATE candidate_source_records SET is_current=false WHERE candidate_id=$1 AND source_layer='general_candidate_list' AND source_url=$2 AND is_current=true",[a.candidateId,a.source.url]);
       const metadata={electionId:a.electionId,state:a.record.state,office:a.record.office,district:a.record.district,electionDate:a.record.date,sourceId:a.source.id,sourceName:a.source.name,sourceKind:a.source.kind,documentSha256:a.source.sha256,publishedAt:a.source.publishedAt,partyRaw:a.record.partyRaw,partyValue:party(a.record.partyRaw)??'',partyKey:partyKey(a.record.partyRaw),partyBasis:/^\(Prefers /i.test(a.record.partyRaw)?'preference':a.record.partyRaw.toLowerCase()==='by petition'?'filing_method':'source_label',incumbent:a.record.incumbent??null,sourcePage:a.record.sourcePage??null,ticketText:a.record.ticketText??null,ballotName:a.record.ballotName??null,legalName:a.record.name,aliases:a.record.aliases??[],ballotAccessType:a.record.ballotAccessType??'not_specified',ballotCertificationPromoted:false};
@@ -125,19 +165,23 @@ async function runNomineeRefreshOnce(pool:Pool,m:NomineeManifest,manifestSha:str
         DO UPDATE SET is_current=true,source_synced_at=EXCLUDED.source_synced_at,metadata=EXCLUDED.metadata`,[a.candidateId,a.source.url,a.versionSha,a.source.retrievedAt,JSON.stringify(metadata)]);sourceChanges++;
     }
     // Only an explicitly complete office/party scope establishes absence from the latest list.
-    for(const source of m.sources)for(const scope of source.completeScopes){
+    for(const {source,scope,electionId,overlaps} of receivingScopes){
       const actions=plan.actions.filter(a=>a.source.id===source.id && a.record.office===scope.office && a.record.district===scope.district && (!scope.partyRaw || partyKey(a.record.partyRaw)===partyKey(scope.partyRaw)) && (!scope.ballotAccessType || a.record.ballotAccessType===scope.ballotAccessType));
-      const raceIds=elections.filter(e=>raceKey(e)===`${source.state}|${scope.office}|${scope.district}|${source.electionDate}`).map(e=>e.id);
-      if(raceIds.length!==1)throw new Error('Complete scope has no unique receiving race');
       const keep=actions.map(a=>a.candidateId!);
-      const versionSha=plan.actions.find(a=>a.source.id===source.id)?.versionSha;
+      const versionSha=snapshotVersion(m,source);
+      const scopeKey=[scope.office,scope.district,scope.partyRaw?partyKey(scope.partyRaw):'*',scope.ballotAccessType??'*'].join('|');
       const deactivated=await client.query(`UPDATE candidate_source_records s SET is_current=false FROM candidates c WHERE s.candidate_id=c.id AND c.election_id=$1 AND s.source_layer='general_candidate_list' AND s.is_current=true
         AND (NOT(c.id=ANY($2::int[])) OR s.source_url<>$4 OR s.source_file_sha256<>$5) AND ($3::text IS NULL OR s.metadata->>'partyKey'=$3)
-        AND ($6::text IS NULL OR s.metadata->>'ballotAccessType'=$6)`,[raceIds[0],keep,scope.partyRaw?partyKey(scope.partyRaw):null,source.url,versionSha??'',scope.ballotAccessType??null]);sourceChanges+=deactivated.rowCount??0;
+        AND ($6::text IS NULL OR s.metadata->>'ballotAccessType'=$6)`,[electionId,keep,scope.partyRaw?partyKey(scope.partyRaw):null,source.url,versionSha,scope.ballotAccessType??null]);sourceChanges+=deactivated.rowCount??0;
+      if(overlaps.length===1 && overlaps[0].scope_key===scopeKey && overlaps[0].source_url===source.url && overlaps[0].source_file_sha256===versionSha)continue;
+      if(overlaps.length)await client.query('UPDATE general_candidate_list_snapshots SET is_current=false WHERE id=ANY($1::int[])',[overlaps.map(r=>r.id)]);
+      await client.query(`INSERT INTO general_candidate_list_snapshots(election_id,scope_key,source_url,source_file_sha256,source_synced_at,metadata,is_current)
+        VALUES($1,$2,$3,$4,$5,$6::jsonb,true) ON CONFLICT(election_id,scope_key,source_url,source_file_sha256)
+        DO UPDATE SET is_current=true,source_synced_at=EXCLUDED.source_synced_at,metadata=EXCLUDED.metadata`,[electionId,scopeKey,source.url,versionSha,source.retrievedAt,JSON.stringify({sourceId:source.id,sourceName:source.name,sourceKind:source.kind,publishedAt:source.publishedAt,documentSha256:source.sha256,state:source.state,electionDate:source.electionDate,scope})]);
     }
     plan.candidateInserts=inserted;plan.sourceChanges=sourceChanges;
     const receipt=await client.query<{id:number}>(`INSERT INTO candidate_ingest_runs(source_layer,source_url,source_file_sha256,applied_at,receipt)
-      VALUES('general_candidate_list','urn:electiontracker:reviewed-general-list-manifest',$1,now(),$2::jsonb) RETURNING id`,[manifestSha,JSON.stringify({candidateInserts:inserted,sourceChanges,unresolved:plan.unresolved,sourceIds:m.sources.map(s=>s.id)})]);
+      VALUES('general_candidate_list','urn:electiontracker:reviewed-general-list-manifest',$1,now(),$2::jsonb) RETURNING id`,[manifestSha,JSON.stringify({candidateInserts:inserted,sourceChanges,unresolved:plan.unresolved,sources:m.sources.map(s=>({id:s.id,url:s.url,publishedAt:s.publishedAt,completeScopes:s.completeScopes}))})]);
     plan.auditId=receipt.rows[0].id;
     await client.query('COMMIT');return plan;
   }catch(error){await client.query('ROLLBACK').catch(()=>{});throw error;}finally{client.release();}

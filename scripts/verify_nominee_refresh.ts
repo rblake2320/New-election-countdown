@@ -19,6 +19,7 @@ const bytes=readFileSync('data/nominees/combined-2026-reviewed.json');
 const manifest=parseNomineeManifest(JSON.parse(bytes.toString('utf8'))),hash=createHash('sha256').update(bytes).digest('hex');
 async function candidateDigest(pool:pg.Pool,ids?:number[]){return (await pool.query("SELECT count(*)::int AS count,md5(coalesce(string_agg(row_to_json(c)::text,'' ORDER BY id),'')) AS digest FROM candidates c WHERE $1::int[] IS NULL OR id=ANY($1::int[])",[ids??null])).rows[0];}
 async function sourceDigest(){return (await fixture.query("SELECT md5(coalesce(string_agg(row_to_json(s)::text,'' ORDER BY id),'')) AS digest FROM candidate_source_records s")).rows[0].digest;}
+async function snapshotDigest(){return (await fixture.query("SELECT md5(coalesce(string_agg(row_to_json(s)::text,'' ORDER BY id),'')) AS digest FROM general_candidate_list_snapshots s")).rows[0].digest;}
 try{
  assert.equal((await fixture.query('SELECT current_database() AS name')).rows[0].name,'et_sol_c_nominees_test');
  const sharedBefore=await candidateDigest(source);
@@ -32,20 +33,30 @@ try{
  for(const c of candidates)await fixture.query(`INSERT INTO candidates(${candidateColumns.join(',')}) VALUES(${candidateColumns.map((_,i)=>'$'+(i+1)).join(',')})`,candidateColumns.map(k=>c[k]));
  await fixture.query("SELECT setval(pg_get_serial_sequence('candidates','id'),(SELECT max(id) FROM candidates))");
  await fixture.query(readFileSync('migrations/20261011_candidate_source_records.sql','utf8'));
+ await fixture.query(readFileSync('migrations/20261011_general_candidate_list_snapshots.sql','utf8'));
  const existingIds=candidates.map(c=>c.id),before=await candidateDigest(fixture,existingIds);
  const dry=await runNomineeRefresh(fixture,manifest,hash,false);
  assert.equal(dry.unresolved.length,0);assert.equal(dry.actions.length,259);assert.deepEqual(await candidateDigest(fixture,existingIds),before);
  const first=await runNomineeRefresh(fixture,manifest,hash,true);
  assert.equal(first.candidateInserts,244);assert.equal(first.sourceChanges,259);
  assert.deepEqual(await candidateDigest(fixture,existingIds),before,'Original profile/FEC/ballot fields changed');
- const after=await candidateDigest(fixture),sourcesAfter=await sourceDigest();
+ const after=await candidateDigest(fixture),sourcesAfter=await sourceDigest(),snapshotsAfter=await snapshotDigest();
  const second=await runNomineeRefresh(fixture,manifest,hash,true);
  assert.equal(second.candidateInserts,0);assert.equal(second.sourceChanges,0);
- assert.deepEqual(await candidateDigest(fixture),after);assert.equal(await sourceDigest(),sourcesAfter);
+ assert.deepEqual(await candidateDigest(fixture),after);assert.equal(await sourceDigest(),sourcesAfter);assert.equal(await snapshotDigest(),snapshotsAfter);
  const count=(await fixture.query("SELECT count(*)::int AS n FROM candidate_source_records WHERE source_layer='general_candidate_list' AND is_current=true")).rows[0].n;
  assert.equal(count,259);
  const unknownParty=(await fixture.query("SELECT count(*)::int AS n FROM candidates c JOIN candidate_source_records s ON s.candidate_id=c.id WHERE s.is_current=true AND s.metadata->>'ballotAccessType'='write_in' AND s.metadata->>'partyRaw'='' AND c.party=''")).rows[0].n;
  assert.equal(unknownParty,11);
+ // Isolated old-document/new-retrieval fixture must not win the actual API projection.
+ const currentSource=(await fixture.query("SELECT * FROM candidate_source_records WHERE metadata->>'state'='NE' AND is_current=true ORDER BY id LIMIT 1")).rows[0];
+ const oldMetadata={...currentSource.metadata,publishedAt:'2026-08-01',sourceName:'Isolated ordering fixture'};
+ const stale=(await fixture.query("INSERT INTO candidate_source_records(candidate_id,source_layer,source_url,source_file_sha256,source_synced_at,metadata,is_current) VALUES($1,'general_candidate_list','https://sos.nebraska.gov/isolated-ordering-fixture.pdf',$2,'2026-10-14T00:00:00Z',$3::jsonb,true) RETURNING id",[currentSource.candidate_id,'d'.repeat(64),JSON.stringify(oldMetadata)])).rows[0];
+ const {getGeneralCandidateList}=await import('../server/general-candidate-list');
+ const projection=await getGeneralCandidateList(fixture,currentSource.metadata.electionId);
+ assert.equal(projection.candidates.find(c=>c.id===currentSource.candidate_id)?.generalListSourceUrl,currentSource.source_url);
+ await fixture.query('DELETE FROM candidate_source_records WHERE id=$1',[stale.id]);
+ assert.equal(await sourceDigest(),sourcesAfter);
  const app=express();app.get('/api/elections/:id/general-candidates',generalCandidateListHandler(fixture));
  const listener=app.listen(0,'127.0.0.1');await new Promise<void>(resolve=>listener.on('listening',resolve));
  let httpCases=0,records=0;
@@ -77,8 +88,32 @@ try{
  modified.candidates.push({sourceId:ne.id,state:'NE',office:'H',district:'01',date:'2026-11-03',name:'Failure Example',partyRaw:'Republican',incumbent:null,sourcePage:1});
  const auditBefore=(await fixture.query('SELECT count(*)::int AS n FROM candidate_ingest_runs')).rows[0].n;
  let rolledBack=false;try{await runNomineeRefresh(fixture,parseNomineeManifest(modified),'f'.repeat(64),true);}catch(error){rolledBack=(error as {code?:string}).code==='P0001';}
- assert(rolledBack);assert.deepEqual(await candidateDigest(fixture),after);assert.equal(await sourceDigest(),sourcesAfter);assert.equal((await fixture.query('SELECT count(*)::int AS n FROM candidate_ingest_runs')).rows[0].n,auditBefore);
+ assert(rolledBack);assert.deepEqual(await candidateDigest(fixture),after);assert.equal(await sourceDigest(),sourcesAfter);assert.equal(await snapshotDigest(),snapshotsAfter);assert.equal((await fixture.query('SELECT count(*)::int AS n FROM candidate_ingest_runs')).rows[0].n,auditBefore);
+ // Isolated transition fixture: a newer explicitly complete empty list preserves
+ // its source proof through the actual API, then refuses an older nonempty list.
+ const empty=structuredClone(manifest),emptySource=empty.sources.find(s=>s.state==='NE')!;
+ empty.sources=[emptySource];empty.candidates=[];emptySource.expectedRowCount=0;emptySource.publishedAt='2026-10-12';emptySource.retrievedAt='2026-10-13T00:00:00Z';
+ emptySource.completeScopes=emptySource.completeScopes.map(s=>({...s,expectedCount:0}));
+ await runNomineeRefresh(fixture,parseNomineeManifest(empty),'e'.repeat(64),true);
+ const neRaceIds=Array.from(new Set(first.actions.filter(a=>a.source.state==='NE').map(a=>a.electionId)));
+ for(const id of neRaceIds){const received=await getGeneralCandidateList(fixture,id);assert.equal(received.status,'sourced');assert.equal(received.candidates.length,0);assert(received.sources?.some(s=>s.url===emptySource.url&&s.publishedAt==='2026-10-12'));}
+ assert.deepEqual(await candidateDigest(fixture),after,'Empty membership scope deleted or modified profiles');
+ const emptySources=await sourceDigest(),emptySnapshots=await snapshotDigest(),emptyAudits=(await fixture.query('SELECT count(*)::int AS n FROM candidate_ingest_runs')).rows[0].n;
+ await assert.rejects(runNomineeRefresh(fixture,manifest,hash,false),/Older or undated publication/);
+ await assert.rejects(runNomineeRefresh(fixture,manifest,hash,true),/Older or undated publication/);
+ assert.deepEqual(await candidateDigest(fixture),after);assert.equal(await sourceDigest(),emptySources);assert.equal(await snapshotDigest(),emptySnapshots);assert.equal((await fixture.query('SELECT count(*)::int AS n FROM candidate_ingest_runs')).rows[0].n,emptyAudits);
+ const narrow=structuredClone(empty),narrowSource=narrow.sources[0];
+ narrowSource.publishedAt='2026-10-13';narrowSource.retrievedAt='2026-10-14T00:00:00Z';narrowSource.completeScopes=[{office:'H',district:'01',partyRaw:'Republican',expectedCount:0}];
+ await runNomineeRefresh(fixture,parseNomineeManifest(narrow),'1'.repeat(64),true);
+ const h01=first.actions.find(a=>a.record.state==='NE'&&a.record.office==='H'&&a.record.district==='01')!.electionId;
+ const qualified=await getGeneralCandidateList(fixture,h01);assert.equal(qualified.status,'sourced');assert.equal(qualified.coverage,'scoped');assert.equal(qualified.candidates.length,0);assert(qualified.sources?.some(s=>s.scope.partyRaw==='Republican'));
+ const staleParty=structuredClone(manifest),staleSource=staleParty.sources.find(s=>s.state==='NE')!;
+ staleParty.sources=[staleSource];staleParty.candidates=staleParty.candidates.filter(r=>r.state==='NE'&&r.office==='H'&&r.district==='01'&&r.partyRaw==='Democratic');
+ staleSource.expectedRowCount=staleParty.candidates.length;staleSource.completeScopes=[{office:'H',district:'01',partyRaw:'Democratic',expectedCount:staleParty.candidates.length}];
+ const narrowSources=await sourceDigest(),narrowSnapshots=await snapshotDigest(),narrowAudits=(await fixture.query('SELECT count(*)::int AS n FROM candidate_ingest_runs')).rows[0].n;
+ await assert.rejects(runNomineeRefresh(fixture,parseNomineeManifest(staleParty),'2'.repeat(64),true),/Older or undated publication/);
+ assert.deepEqual(await candidateDigest(fixture),after);assert.equal(await sourceDigest(),narrowSources);assert.equal(await snapshotDigest(),narrowSnapshots);assert.equal((await fixture.query('SELECT count(*)::int AS n FROM candidate_ingest_runs')).rows[0].n,narrowAudits);
  assert.deepEqual(await candidateDigest(source),sharedBefore,'Shared source candidates changed');
- const receipt={outcome:'worked',fixture:'dedicated disposable PostgreSQL',manifestSha256:hash,sourceRecords:259,states:9,receivingRaces:new Set(first.actions.map(a=>a.electionId)).size,firstCandidateInserts:first.candidateInserts,repeatCandidateInserts:second.candidateInserts,repeatSourceChanges:second.sourceChanges,httpContracts:httpCases,checks:{source_row_conservation:true,dry_run_no_writes:true,original_profiles_fec_ballot_fields_unchanged:true,repeat_idempotent:true,write_in_unknown_party_preserved:true,receiving_http_records_and_provenance_verified:true,private_contacts_not_exposed:true,injected_failure_full_rollback:true,shared_candidate_table_unchanged:true},sharedBefore};
+ const receipt={outcome:'worked',fixture:'dedicated disposable PostgreSQL',manifestSha256:hash,sourceRecords:259,states:9,receivingRaces:new Set(first.actions.map(a=>a.electionId)).size,firstCandidateInserts:first.candidateInserts,repeatCandidateInserts:second.candidateInserts,repeatSourceChanges:second.sourceChanges,httpContracts:httpCases,emptyReceivingScopes:neRaceIds.length,checks:{source_row_conservation:true,dry_run_no_writes:true,original_profiles_fec_ballot_fields_unchanged:true,repeat_idempotent:true,write_in_unknown_party_preserved:true,receiving_http_records_and_provenance_verified:true,private_contacts_not_exposed:true,injected_failure_full_rollback:true,known_empty_scope_source_receivable:true,qualified_empty_scope_receivable_without_full_coverage_claim:true,historical_broad_scope_preserves_freshness_after_narrow_update:true,newest_publication_wins_over_latest_retrieval:true,older_snapshot_refused_in_dry_run_and_apply_with_no_changes:true,shared_candidate_table_unchanged:true},sharedBefore};
  writeFileSync('artifacts/lane-c/nominees-private-postgres.json',JSON.stringify(receipt,null,2));console.log(JSON.stringify(receipt));
 }finally{await fixture.end();await source.end();}
