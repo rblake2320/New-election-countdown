@@ -14,7 +14,8 @@ import { apiRequest } from "@/lib/queryClient";
 import { cn } from "@/lib/utils";
 import type { Election, Candidate } from "@shared/schema";
 import { useCandidates, useElectionResults } from "@/hooks/use-elections";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
+import { rememberPendingWatch, signInUrl, takePendingWatch } from "@/lib/auth-return";
 import { PoliticalLeaningBorder } from "@/components/ui/political-leaning-border";
 import { calculateAdvancedPoliticalLeaningWithMomentum } from "@/lib/political-analysis";
 
@@ -60,6 +61,7 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const { user, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
 
@@ -142,13 +144,19 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
     },
   });
 
+  // Finish a Watch that was started before sign-in, once the watchlist has loaded.
+  useEffect(() => {
+    if (!isAuthenticated || !Array.isArray(watchlist)) return;
+    if (!takePendingWatch(election.id)) return;
+    if (!isInWatchlist) addToWatchlistMutation.mutate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, watchlist, election.id]);
+
   const toggleWatchlist = () => {
     if (!isAuthenticated) {
-      toast({
-        title: "Sign In Required",
-        description: "Please sign in to add elections to your watchlist.",
-        variant: "destructive",
-      });
+      // Keep the intent: sign in, come back here, and the watch completes.
+      rememberPendingWatch(election.id);
+      setLocation(signInUrl(window.location.pathname + window.location.search));
       return;
     }
 

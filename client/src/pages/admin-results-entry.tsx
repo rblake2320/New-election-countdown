@@ -1,3 +1,4 @@
+import { useAuth } from "@/hooks/use-auth";
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -45,7 +46,8 @@ interface CandidateInput {
 
 export default function AdminResultsEntry() {
   const { toast } = useToast();
-  const isAdmin = useIsAdmin();
+  const { user } = useAuth();
+  const isAdmin = useIsAdmin(user || undefined);
   const [selectedElectionId, setSelectedElectionId] = useState<number | null>(null);
   const [totalVotes, setTotalVotes] = useState<number>(0);
   const [reportingPrecincts, setReportingPrecincts] = useState<number>(0);

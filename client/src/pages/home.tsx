@@ -285,7 +285,7 @@ export default function Home() {
             <div style={{ marginBottom: 'var(--section-spacing)' }}>
               <div className="flex items-center justify-between" style={{ marginBottom: 'var(--content-spacing)' }}>
                 <div>
-                  <h2 className="text-2xl font-bold">Upcoming Elections</h2>
+                  <h2 className="text-2xl font-bold">{isUpcomingTimeframe(filters.timeframe) ? "Upcoming Elections" : "All Elections"}</h2>
                   <p className="text-muted-foreground">
                     {isLoading ? (
                       "Loading elections..."
