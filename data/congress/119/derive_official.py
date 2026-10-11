@@ -5,6 +5,7 @@ They do not overwrite the pinned official-current-members.json loader input.
 A changed source requires a new source review and immutable loader SHA update.
 """
 import collections, datetime, hashlib, json, pathlib, re, urllib.request, xml.etree.ElementTree as ET
+from member_names import senate_display_name
 OUT=pathlib.Path(__file__).resolve().parent
 def fetch(url):
     with urllib.request.urlopen(urllib.request.Request(url,headers={'User-Agent':'ElectionTracker-official-source-review/1.0'}),timeout=45) as r:
@@ -43,7 +44,8 @@ for m in hr.findall('./members/member'):
 for m in sr.findall('member'):
     bid=text(m,'bioguide_id');require(bool(re.fullmatch('[A-Z][0-9]{6}',bid)),'Invalid Senate bioguide')
     first=text(m,'first_name');last=text(m,'last_name');require(bool(first and last),'Missing Senate name')
-    senate.append({'sourceId':'senate-current-members','congress':119,'chamber':'Senate','state':text(m,'state'),'district':None,'senateClassRaw':text(m,'class'),'role':'senator','bioguideId':bid,'name':first+' '+last,'nameDerivation':'exact first_name + one space + exact last_name','nameEvidence':{'firstName':first,'lastName':last,'memberFull':text(m,'member_full')},'partyRaw':text(m,'party') or None})
+    display_name,name_derivation=senate_display_name(first,last)
+    senate.append({'sourceId':'senate-current-members','congress':119,'chamber':'Senate','state':text(m,'state'),'district':None,'senateClassRaw':text(m,'class'),'role':'senator','bioguideId':bid,'name':display_name,'nameDerivation':name_derivation,'nameEvidence':{'firstName':first,'lastName':last,'memberFull':text(m,'member_full')},'partyRaw':text(m,'party') or None})
 allmembers=house+senate;ids=[r['bioguideId'] for r in allmembers];housekeys=[r['seatRaw'] for r in seats];senatekeys=[(r['state'],r['senateClassRaw']) for r in senate]
 require(len(ids)==len(set(ids)),'Duplicate government bioguide across sources')
 require(len(housekeys)==len(set(housekeys)),'Duplicate House seat')
