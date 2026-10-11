@@ -18,7 +18,10 @@ describe('database listing query contract', () => {
     expect(sql).toContain('exists (select 1');
     expect(sql).toContain('group by "elections"."id"');
     expect(params).toContain('2026-10-11T00:00:00.000Z');
-    expect(params).toContain('2026-11-11T00:00:00.000Z');
+    expect(params).toContain(30);
+    expect(sql).toContain('at time zone');
+    expect(params).toContain('Etc/GMT+11');
+    expect(params).toContain('Etc/GMT+4');
     expect(params).toContain('federal');
     expect(params).toContain('democratic');
   });

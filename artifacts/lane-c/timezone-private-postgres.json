@@ -1,0 +1,65 @@
+{
+  "synthetic_private_database": true,
+  "source_database_untouched": true,
+  "postgres_actual_execution": true,
+  "outcomes": [
+    {
+      "scenario": "upcoming",
+      "time": "2026-11-04T03:30:00Z",
+      "expected": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "actual": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "scenario": "upcoming",
+      "time": "2026-11-04T05:30:00Z",
+      "expected": [
+        2,
+        3,
+        4
+      ],
+      "actual": [
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "scenario": "upcoming",
+      "time": "2026-11-04T11:01:00Z",
+      "expected": [
+        4
+      ],
+      "actual": [
+        4
+      ]
+    },
+    {
+      "scenario": "legacy NULL party is Other",
+      "expected": [
+        1
+      ],
+      "actual": [
+        1
+      ]
+    },
+    {
+      "scenario": "calendar month clamps to February end",
+      "expected": [
+        5
+      ],
+      "actual": [
+        5
+      ]
+    }
+  ]
+}

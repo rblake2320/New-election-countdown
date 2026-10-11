@@ -1,11 +1,11 @@
 import type { RequestHandler } from 'express';
 import type { ElectionListing, ElectionQueryFilters } from './election-list-filters';
-import { ElectionFilterError, normalizeElectionFilters, utcDay } from './election-list-filters';
+import { ElectionFilterError, electionCalendarDay, normalizeElectionFilters } from './election-list-filters';
 
 export function electionListHandler(storage: { getElections(filters: ElectionQueryFilters): Promise<ElectionListing[]> }, clock = () => new Date()): RequestHandler {
   return async (req, res) => {
     try {
-      const minDate = utcDay(clock());
+      const minDate = electionCalendarDay(clock());
       minDate.setUTCDate(minDate.getUTCDate() - 30);
       const filters = { ...req.query, minDate } as ElectionQueryFilters;
       normalizeElectionFilters(filters, clock());

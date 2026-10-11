@@ -1,8 +1,8 @@
-import { and, eq, getTableColumns, gte, ilike, inArray, notInArray, lt, or, sql, type SQL } from 'drizzle-orm';
+import { and, eq, getTableColumns, gte, ilike, inArray, isNull, notInArray, lt, or, sql, type SQL } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '@shared/schema';
 import { elections, candidates } from '@shared/schema';
-import { normalizeElectionFilters, partyAliases, type ElectionQueryFilters } from './election-list-filters';
+import { normalizeElectionFilters, partyAliases, US_ELECTION_TIME_ZONES, type ElectionQueryFilters } from './election-list-filters';
 
 // One SQL statement: date predicates, party membership and all-candidate count.
 // The party EXISTS filter intentionally does not restrict the count's LEFT JOIN.
@@ -10,7 +10,19 @@ export function buildElectionListQuery(database: NodePgDatabase<typeof schema>, 
   const normalized = normalizeElectionFilters(filters, now);
   const conditions: SQL[] = [eq(elections.isActive, true)];
   if (normalized.from) conditions.push(gte(elections.date, normalized.from));
-  if (normalized.until) conditions.push(lt(elections.date, normalized.until));
+  if (normalized.period) {
+    const knownZone = inArray(elections.timezone, Array.from(US_ELECTION_TIME_ZONES));
+    const lowerZone = sql`case when ${knownZone} then ${elections.timezone} else ${'Etc/GMT+11'} end`;
+    const upperZone = sql`case when ${knownZone} then ${elections.timezone} else ${'Etc/GMT+4'} end`;
+    const localDay = sql`(${now.toISOString()}::timestamptz at time zone ${lowerZone})::date`;
+    const upperDay = sql`(${now.toISOString()}::timestamptz at time zone ${upperZone})::date`;
+    conditions.push(gte(elections.date, localDay));
+    if (normalized.period.days !== undefined) {
+      conditions.push(lt(elections.date, sql`${upperDay} + ${normalized.period.days} * interval '1 day' + interval '1 day'`));
+    } else if (normalized.period.months !== undefined) {
+      conditions.push(lt(elections.date, sql`${upperDay} + ${normalized.period.months} * interval '1 month' + interval '1 day'`));
+    }
+  } else if (normalized.until) conditions.push(lt(elections.date, normalized.until));
   if (normalized.state) conditions.push(eq(elections.state, normalized.state));
   if (normalized.types.length) conditions.push(inArray(sql`lower(trim(${elections.type}))`, normalized.types));
   if (normalized.electionTypes.length) conditions.push(inArray(sql`lower(trim(${elections.type}))`, normalized.electionTypes));
@@ -27,7 +39,7 @@ export function buildElectionListQuery(database: NodePgDatabase<typeof schema>, 
     const aliases = Object.entries(partyAliases).filter(([, code]) => normalized.parties.includes(code)).map(([alias]) => alias);
     const knownAliases = Object.keys(partyAliases);
     const partyMatch = normalized.parties.includes('O')
-      ? or(inArray(sql`lower(trim(${candidates.party}))`, aliases), notInArray(sql`lower(trim(${candidates.party}))`, knownAliases))!
+      ? or(isNull(candidates.party), inArray(sql`lower(trim(${candidates.party}))`, aliases), notInArray(sql`lower(trim(${candidates.party}))`, knownAliases))!
       : inArray(sql`lower(trim(${candidates.party}))`, aliases);
     conditions.push(sql`exists (select 1 from ${candidates} where ${candidates.electionId} = ${elections.id} and ${partyMatch})`);
   }
