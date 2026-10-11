@@ -14,3 +14,13 @@ it('rejects an office-prefix mismatch',()=>{const input=single();input.candidate
 
 it.each(['state','office','district','electionYear','electionId','electionDate','normalizedName'])('refuses wrong current FEC proof %s',field=>{const f=structuredClone(fecSource);(f.metadata as any)[field]=field==='electionYear'?2024:field==='electionId'?999:field==='state'?'NJ':field==='office'?'H':field==='district'?'01':field==='electionDate'?'2026-11-10':'otherperson';const p=planNomineeRefresh(parseNomineeManifest(single()),[race],[core],[f]);expect(p.actions).toHaveLength(0);expect(p.unresolved[0].reason).toBe('fec-identity-resolution-conflict')});
 it('refuses an absent authoritative source tuple',()=>{const f={...fecSource,metadata:{fecCandidateId:'S6NE00152',partyRaw:'OTH',fecStatus:'C'}};expect(planNomineeRefresh(parseNomineeManifest(single()),[race],[core],[f]).actions).toHaveLength(0)});
+
+it('preserves all reviewed declarations in the authoritative per-state compiler inputs',()=>{
+ const inputRows=['ne','nv','ut'].flatMap(state=>parseNomineeManifest(JSON.parse(readFileSync(`data/nominees/${state}-2026-general.json`,'utf8'))).candidates);
+ const reviewed=raw.candidates.filter((candidate:any)=>candidate.identityResolution);
+ expect(reviewed).toHaveLength(4);
+ for(const candidate of reviewed){
+  const input=inputRows.find(row=>row.sourceId===candidate.sourceId&&row.name===candidate.name&&row.office===candidate.office&&row.district===candidate.district);
+  expect(input?.identityResolution).toEqual(candidate.identityResolution);
+ }
+});
