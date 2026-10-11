@@ -1,88 +1,35 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Search, User, MapPin, Loader2, Plus } from 'lucide-react';
-import { apiRequest } from '@/lib/queryClient';
-import { useToast } from '@/hooks/use-toast';
+import { Search, User, MapPin, Loader2 } from 'lucide-react';
+import { currentCongress, fetchMembers, inCongress, memberPartyLabel, partyCode, seatLabel } from '@/lib/congress-members';
 
-interface CongressMember {
-  id: number;
-  bioguideId: string;
-  name: string;
-  party: string;
-  state: string;
-  district?: string;
-  chamber: string;
-}
-
+// Searches the member records already in the database. Adding members is done only
+// by the source-bound Congress import, so this public search offers no write.
 export function CongressMemberSearch() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [hasSearched, setHasSearched] = useState(false);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const term = searchTerm.trim();
 
-  // Search existing members with proper query parameter
-  const { data: searchResults = [], isLoading: searchLoading } = useQuery({
-    queryKey: ['/api/members/search', searchTerm],
-    enabled: searchTerm.length >= 2,
-    queryFn: async () => {
-      if (!searchTerm || searchTerm.length < 2) return [];
-      const response = await fetch(`/api/members/search?q=${encodeURIComponent(searchTerm)}`);
-      if (!response.ok) throw new Error('Search failed');
-      return response.json();
-    },
+  const searchQuery = useQuery({
+    queryKey: ['/api/members/search', term],
+    enabled: term.length >= 2,
+    queryFn: ({ signal }) => fetchMembers(`/api/members/search?q=${encodeURIComponent(term)}`, signal),
   });
+  const searchLoading = searchQuery.isFetching;
+  const searchResults = searchQuery.data ? inCongress(searchQuery.data, currentCongress()) : [];
 
-  // Perplexity search for missing members
-  const perplexitySearch = useMutation({
-    mutationFn: async (name: string) => {
-      const res = await apiRequest('POST', `/api/congress/find-member`, { memberName: name });
-      return res.json();
-    },
-    onSuccess: (data) => {
-      if (data.found) {
-        toast({
-          title: "Member Found and Added",
-          description: `${data.member.name} has been added to the database.`,
-        });
-        // Refresh the search results
-        queryClient.invalidateQueries({ queryKey: ['/api/members/search'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/members'] });
-      } else {
-        toast({
-          title: "Member Not Found",
-          description: data.message || "Could not find this member in official records.",
-          variant: "destructive",
-        });
-      }
-    },
-    onError: (error) => {
-      toast({
-        title: "Search Error",
-        description: "Failed to search for member. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
-
+  // Results update as you type; the button and Enter re-run the current search.
   const handleSearch = () => {
-    setHasSearched(true);
+    if (term.length >= 2) searchQuery.refetch();
   };
 
-  const handlePerplexitySearch = () => {
-    if (searchTerm.trim()) {
-      perplexitySearch.mutate(searchTerm.trim());
-    }
-  };
-
-  const getPartyColor = (party: string) => {
-    switch (party?.toLowerCase()) {
-      case 'republican': return 'bg-red-100 text-red-800';
-      case 'democratic': return 'bg-blue-100 text-blue-800';
-      case 'independent': return 'bg-gray-100 text-gray-800';
+  const getPartyColor = (party: string | null | undefined) => {
+    switch (partyCode(party)) {
+      case 'R': return 'bg-red-100 text-red-800';
+      case 'D': return 'bg-blue-100 text-blue-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -100,13 +47,15 @@ export function CongressMemberSearch() {
           <div className="flex gap-2">
             <Input
               placeholder="Enter member name (e.g., Nancy Pelosi, Ted Cruz)"
+              aria-label="Member name"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             />
             <Button 
               onClick={handleSearch}
-              disabled={searchTerm.length < 2 || searchLoading}
+              disabled={term.length < 2}
+              aria-label="Search members"
             >
               {searchLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -116,52 +65,42 @@ export function CongressMemberSearch() {
             </Button>
           </div>
 
-          {searchTerm.length >= 2 && (
+          {term.length >= 2 && (
             <div className="space-y-3">
-              {searchResults.length > 0 ? (
+              {searchQuery.isError ? (
+                <div role="alert" className="text-center py-6 space-y-3">
+                  <p className="text-sm text-destructive">Search could not be completed, so no results are shown.</p>
+                  <Button variant="outline" size="sm" onClick={() => searchQuery.refetch()}>Try again</Button>
+                </div>
+              ) : searchResults.length > 0 ? (
                 <div className="space-y-2">
                   <h4 className="font-medium text-sm">Found in Database:</h4>
-                  {searchResults.map((member: CongressMember) => (
-                    <Card key={member.id} className="p-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
+                  {searchResults.map((member, i) => (
+                    <Card key={member.id ?? member.bioguideId ?? i} className="p-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100">
                             <User className="h-5 w-5 text-blue-600" />
                           </div>
-                          <div>
+                          <div className="min-w-0">
                             <p className="font-medium">{member.name}</p>
                             <div className="flex items-center gap-2 text-sm text-gray-600">
-                              <MapPin className="h-3 w-3" />
-                              {member.state}{member.district ? `-${member.district}` : ''} • {member.chamber}
+                              <MapPin className="h-3 w-3 shrink-0" />
+                              {member.state} · {seatLabel(member)}
                             </div>
                           </div>
                         </div>
                         <Badge className={getPartyColor(member.party)}>
-                          {member.party || 'Unknown'}
+                          {memberPartyLabel(member.party)}
                         </Badge>
                       </div>
                     </Card>
                   ))}
                 </div>
-              ) : hasSearched && !searchLoading ? (
-                <div className="text-center py-6 space-y-3">
-                  <p className="text-gray-600">
-                    No members found in current database for "{searchTerm}"
-                  </p>
-                  <Button
-                    onClick={handlePerplexitySearch}
-                    disabled={perplexitySearch.isPending}
-                    variant="outline"
-                    className="gap-2"
-                  >
-                    {perplexitySearch.isPending ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Plus className="h-4 w-4" />
-                    )}
-                    Search Official Records & Add to Database
-                  </Button>
-                </div>
+              ) : searchQuery.isSuccess && !searchLoading ? (
+                <p className="text-center py-6 text-gray-600">
+                  No current members match "{term}".
+                </p>
               ) : null}
             </div>
           )}

@@ -1,419 +1,197 @@
 /**
- * React component tests for CongressData component.
- * Tests UI logic, filtering, and user interactions.
- * Uses MSW for API mocking to ensure deterministic tests.
+ * React component tests for CongressData.
+ *
+ * Member data is the exact GET /api/members response captured from the production
+ * image after the official 539-member import (tests/fixtures/congress-members, SHA
+ * pinned in the helper). It is served byte-for-byte at the HTTP boundary and also
+ * primed into a QueryClient configured like the app's, so the real component and its
+ * real query run with no hook replacement. Bills and committees keep small stand-in
+ * payloads; this file asserts nothing about their content.
  */
 import { describe, it, expect, beforeAll, afterAll, afterEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { CongressData } from '../client/src/components/congress-data.jsx';
+import { queryClient as appQueryClient } from '../client/src/lib/queryClient';
+import { actualMemberRows, actualMembersResponseBytes } from './helpers/congress-api-rows';
 
-// Mock data matching our real API structure
-const mockMembers = [
-  {
-    id: 1,
-    bioguideId: 'S000148',
-    name: 'Chuck Schumer',
-    party: 'Democratic',
-    state: 'NY',
-    chamber: 'Senate',
-    district: null,
-    congress: 119
-  },
-  {
-    id: 2,
-    bioguideId: 'G000555',
-    name: 'Kirsten Gillibrand',
-    party: 'Democratic',
-    state: 'NY',
-    chamber: 'Senate',
-    district: null,
-    congress: 119
-  },
-  {
-    id: 3,
-    bioguideId: 'A000071',
-    name: 'Tom Suozzi',
-    party: 'Democratic',
-    state: 'NY',
-    chamber: 'House',
-    district: '3',
-    congress: 119
-  },
-  {
-    id: 4,
-    bioguideId: 'M000194',
-    name: 'Nancy Mace',
-    party: 'Republican',
-    state: 'SC',
-    chamber: 'House',
-    district: '1',
-    congress: 119
-  }
+const memberBytes = actualMembersResponseBytes();
+const members = actualMemberRows();
+const serveMembers = () =>
+  new HttpResponse(memberBytes, { status: 200, headers: { 'Content-Type': 'application/json; charset=utf-8' } });
+
+const committees = [
+  { id: 1, systemCode: 'HSJU', name: 'House Committee on the Judiciary', chamber: 'House', committeeTypeCode: 'Standing' },
+  { id: 2, systemCode: 'SSJU', name: 'Senate Committee on the Judiciary', chamber: 'Senate', committeeTypeCode: 'Standing' },
 ];
 
-const mockCommittees = [
-  {
-    id: 1,
-    systemCode: 'HSJU',
-    name: 'House Committee on the Judiciary',
-    chamber: 'House',
-    committeeTypeCode: 'Standing'
-  },
-  {
-    id: 2,
-    systemCode: 'SSJU',
-    name: 'Senate Committee on the Judiciary',
-    chamber: 'Senate',
-    committeeTypeCode: 'Standing'
-  }
-];
-
-const mockBills = [
-  {
-    id: 1,
-    congress: 119,
-    number: 'H.R.1',
-    title: 'For the People Act',
-    latestAction: {
-      actionDate: '2025-01-03',
-      text: 'Introduced in House'
-    }
-  }
-];
-
-// MSW server setup
+const stateRequests: string[] = [];
 const server = setupServer(
-  http.get('/api/members', () => HttpResponse.json(mockMembers)),
-
-  http.get('/api/members/search', ({ request }) => {
-    const query = new URL(request.url).searchParams.get('q');
-    if (!query) {
-      return HttpResponse.json({ error: 'Search query is required' }, { status: 400 });
-    }
-    const filtered = mockMembers.filter(member =>
-      member.name.toLowerCase().includes(query.toLowerCase()) ||
-      member.bioguideId.toLowerCase().includes(query.toLowerCase())
-    );
-    return HttpResponse.json(filtered);
-  }),
-
+  http.get('/api/members', serveMembers),
   http.get('/api/members/:state', ({ params }) => {
-    const filtered = mockMembers.filter(member =>
-      member.state.toLowerCase() === (params.state as string).toLowerCase()
-    );
-    return HttpResponse.json(filtered);
+    const state = String(params.state);
+    stateRequests.push(state);
+    return HttpResponse.json(members.filter(m => m.state === state));
   }),
-
-  http.get('/api/committees', () => HttpResponse.json(mockCommittees)),
-  http.get('/api/bills', () => HttpResponse.json(mockBills)),
-  http.get('/api/bills/:congress', () => HttpResponse.json(mockBills)),
-
-  http.post('/api/congress/sync-all', () => HttpResponse.json({
-    success: true,
-    membersProcessed: mockMembers.length
-  }))
+  http.get('/api/committees', () => HttpResponse.json(committees)),
+  http.get('/api/bills', () => HttpResponse.json([])),
+  http.get('/api/bills/:congress', () => HttpResponse.json([])),
 );
 
-beforeAll(() => server.listen());
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
+beforeAll(() => {
+  server.listen({ onUnhandledRequest: 'error' });
+  // The sitting Congress is derived from the date; pin it to the capture date.
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-10-11T17:30:00Z'));
+});
+afterEach(() => { server.resetHandlers(); stateRequests.length = 0; });
+afterAll(() => { server.close(); vi.useRealTimers(); });
 
-const renderWithClient = (ui: React.ReactElement) => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false }
-    }
-  });
-  return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
+/** A client with the app's real defaults; optionally primed with the actual response. */
+const renderWithClient = (ui: React.ReactElement, { prime = true } = {}) => {
+  const client = new QueryClient({ defaultOptions: appQueryClient.getDefaultOptions() });
+  if (prime) client.setQueryData(['/api/members'], members);
+  return render(<QueryClientProvider client={client}>{ui}</QueryClientProvider>);
 };
 
-describe('CongressData Component', () => {
-  it('renders loading state initially', async () => {
+const memberCard = (name: string) => screen.getByText(name).closest('div.p-3') as HTMLElement;
+
+describe('CongressData members on the actual /api/members response', () => {
+  it('lists the sitting Congress only and states honest composition counts', () => {
     renderWithClient(<CongressData />);
-    
-    expect(screen.getByText('Congressional Data')).toBeInTheDocument();
-    expect(screen.getByText('Real-time data from the U.S. Congress API')).toBeInTheDocument();
+    expect(screen.getByText('Members, bills and committees of the U.S. Congress')).toBeInTheDocument();
+    expect(screen.getByText(
+      '119th Congress: 100 senators, 433 voting representatives, 6 nonvoting House members, 1 without a recognized seat',
+    )).toBeInTheDocument();
+    // 540 current rows; the 118th-Congress preservation row is not listed as a sitting member.
+    expect(screen.getByText('Showing 540 of 540 members')).toBeInTheDocument();
+    expect(screen.queryByText('Synthetic historical preservation fixture')).not.toBeInTheDocument();
   });
 
-  it('displays all members after loading', async () => {
-    renderWithClient(<CongressData />);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Chuck Schumer')).toBeInTheDocument();
-    });
-    
-    expect(screen.getByText('Kirsten Gillibrand')).toBeInTheDocument();
-    expect(screen.getByText('Tom Suozzi')).toBeInTheDocument();
-    expect(screen.getByText('Nancy Mace')).toBeInTheDocument();
-    
-    // Check member count display
-    expect(screen.getByText(/Showing 4 of 4 members/)).toBeInTheDocument();
+  it('fetches the same bytes over HTTP when the cache is empty', async () => {
+    renderWithClient(<CongressData />, { prime: false });
+    expect(await screen.findByText('Showing 540 of 540 members')).toBeInTheDocument();
   });
 
-  it('filters members by name search', async () => {
+  it('shows party names and seat labels instead of raw codes or "District 00"', () => {
     renderWithClient(<CongressData />);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Chuck Schumer')).toBeInTheDocument();
-    });
-    
-    const searchInput = screen.getByPlaceholderText('Search by name or ID...');
-    fireEvent.change(searchInput, { target: { value: 'Chuck' } });
-    
-    await waitFor(() => {
-      expect(screen.getByText('Chuck Schumer')).toBeInTheDocument();
-      expect(screen.queryByText('Kirsten Gillibrand')).not.toBeInTheDocument();
-    });
+    fireEvent.change(screen.getByPlaceholderText('State (e.g., CA, NY)'), { target: { value: 'VT' } });
+    expect(screen.getByText('Showing 3 of 540 members')).toBeInTheDocument();
+    expect(within(memberCard('Becca Balint')).getByText('VT · At-large district')).toBeInTheDocument();
+    expect(within(memberCard('Becca Balint')).getByText('Democratic')).toBeInTheDocument();
+    expect(within(memberCard('Bernard Sanders')).getByText('VT · Senator')).toBeInTheDocument();
+    expect(within(memberCard('Bernard Sanders')).getByText('Independent')).toBeInTheDocument();
   });
 
-  // Radix pointer interactions need a real browser — covered by tests/e2e
-  it.skip('filters members by party', async () => {
+  it('labels the Resident Commissioner, delegates and numbered districts', () => {
     renderWithClient(<CongressData />);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Chuck Schumer')).toBeInTheDocument();
-    });
-    
-    const partySelect = screen.getByRole('combobox', { name: /filter by party/i });
-    fireEvent.click(partySelect);
-
-    const republicanOption = await screen.findByRole('option', { name: /republican/i });
-    fireEvent.click(republicanOption);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Nancy Mace')).toBeInTheDocument();
-      expect(screen.queryByText('Chuck Schumer')).not.toBeInTheDocument();
-    });
+    const search = screen.getByPlaceholderText('Search by name or ID...');
+    fireEvent.change(search, { target: { value: 'H001103' } });
+    expect(screen.getByText('PR · Resident Commissioner (nonvoting)')).toBeInTheDocument();
+    fireEvent.change(search, { target: { value: 'N000147' } });
+    expect(screen.getByText('DC · Delegate (nonvoting)')).toBeInTheDocument();
+    fireEvent.change(search, { target: { value: 'Nancy Mace' } });
+    expect(within(memberCard('Nancy Mace')).getByText('SC · District 1')).toBeInTheDocument();
+    expect(within(memberCard('Nancy Mace')).getByText('Republican')).toBeInTheDocument();
   });
 
-  it('filters members by state', async () => {
+  it('labels the preserved row with no seat and no party honestly', () => {
     renderWithClient(<CongressData />);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Chuck Schumer')).toBeInTheDocument();
-    });
-    
-    const stateInput = screen.getByPlaceholderText('State (e.g., CA, NY)');
-    fireEvent.change(stateInput, { target: { value: 'SC' } });
-    
-    await waitFor(() => {
-      expect(screen.getByText('Nancy Mace')).toBeInTheDocument();
-      expect(screen.queryByText('Chuck Schumer')).not.toBeInTheDocument();
-    });
+    fireEvent.change(screen.getByPlaceholderText('Search by name or ID...'), { target: { value: 'IMPORT_D_FIXTURE' } });
+    expect(screen.getByText('ZZ · Seat not recorded')).toBeInTheDocument();
+    expect(screen.getByText('Party not recorded')).toBeInTheDocument();
   });
 
-  // Radix pointer interactions need a real browser — covered by tests/e2e
-  it.skip('filters members by chamber', async () => {
+  it('distinguishes "no match" from "no data" and clears filters back to the full list', () => {
     renderWithClient(<CongressData />);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Chuck Schumer')).toBeInTheDocument();
-    });
-    
-    const chamberSelect = screen.getByRole('combobox', { name: /filter by chamber/i });
-    fireEvent.click(chamberSelect);
-
-    const houseOption = await screen.findByRole('option', { name: /^house$/i });
-    fireEvent.click(houseOption);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Tom Suozzi')).toBeInTheDocument();
-      expect(screen.getByText('Nancy Mace')).toBeInTheDocument();
-      expect(screen.queryByText('Chuck Schumer')).not.toBeInTheDocument();
-    });
+    const search = screen.getByPlaceholderText('Search by name or ID...');
+    fireEvent.change(search, { target: { value: 'Schumer' } });
+    expect(screen.getByText('Showing 1 of 540 members')).toBeInTheDocument();
+    fireEvent.change(search, { target: { value: 'NoSuchMember' } });
+    expect(screen.getByText('No members found matching current filters')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Clear Filters'));
+    expect(search).toHaveValue('');
+    expect(screen.getByText('Showing 540 of 540 members')).toBeInTheDocument();
   });
 
-  it('clears all filters when Clear Filters button is clicked', async () => {
+  it('offers no member sync on the public page (the admin route refuses legacy sync)', () => {
     renderWithClient(<CongressData />);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Chuck Schumer')).toBeInTheDocument();
-    });
-    
-    // Apply filters
-    const searchInput = screen.getByPlaceholderText('Search by name or ID...');
-    fireEvent.change(searchInput, { target: { value: 'Chuck' } });
-    
-    await waitFor(() => {
-      expect(screen.queryByText('Kirsten Gillibrand')).not.toBeInTheDocument();
-    });
-    
-    // Clear filters
-    const clearButton = screen.getByText('Clear Filters');
-    fireEvent.click(clearButton);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Chuck Schumer')).toBeInTheDocument();
-      expect(screen.getByText('Kirsten Gillibrand')).toBeInTheDocument();
-      expect(screen.getByText('Tom Suozzi')).toBeInTheDocument();
-      expect(screen.getByText('Nancy Mace')).toBeInTheDocument();
-    });
-    
-    expect(searchInput).toHaveValue('');
+    expect(screen.queryByText(/Sync All/)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /sync/i })).not.toBeInTheDocument();
+  });
+});
+
+describe('CongressData member load states', () => {
+  it('a server error is shown as an error with retry, never as an empty roster', async () => {
+    server.use(http.get('/api/members', () => HttpResponse.json({ error: 'Internal server error' }, { status: 500 })));
+    renderWithClient(<CongressData />, { prime: false });
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent('Member data could not be loaded, so no members are shown.');
+    expect(screen.queryByText(/Showing 0 of 0 members/)).not.toBeInTheDocument();
+    expect(screen.queryByText('No members found matching current filters')).not.toBeInTheDocument();
+
+    server.use(http.get('/api/members', serveMembers));
+    fireEvent.click(within(alert).getByRole('button', { name: 'Try again' }));
+    expect(await screen.findByText('Showing 540 of 540 members')).toBeInTheDocument();
   });
 
-  it('displays member details correctly', async () => {
-    renderWithClient(<CongressData />);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Chuck Schumer')).toBeInTheDocument();
-    });
-    
-    // Check member details (two NY Democratic senators in mock data)
-    expect(screen.getAllByText('Democratic - NY').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Senate').length).toBeGreaterThan(0);
-    
-    // Check district display for House members
-    expect(screen.getByText('Democratic - NY District 3')).toBeInTheDocument();
-    expect(screen.getByText('Republican - SC District 1')).toBeInTheDocument();
-  });
-
-  it('handles sync button click', async () => {
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-    
-    renderWithClient(<CongressData />);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Sync All 535+ Members')).toBeInTheDocument();
-    });
-    
-    const syncButton = screen.getByText('Sync All 535+ Members');
-    fireEvent.click(syncButton);
-    
-    await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith('Sync result:', {
-        success: true,
-        membersProcessed: 4
-      });
-    });
-    
-    consoleSpy.mockRestore();
-  });
-
-  // Radix pointer interactions need a real browser — covered by tests/e2e
-  it.skip('switches between tabs correctly', async () => {
-    renderWithClient(<CongressData />);
-    
-    // Initially on Members tab
-    await waitFor(() => {
-      expect(screen.getByText('Chuck Schumer')).toBeInTheDocument();
-    });
-    
-    // Switch to Bills tab (Radix activates on mousedown in jsdom)
-    const billsTab = screen.getByRole('tab', { name: 'Bills' });
-    fireEvent.mouseDown(billsTab);
-    fireEvent.click(billsTab);
-    
-    await waitFor(() => {
-      expect(screen.getByText('For the People Act')).toBeInTheDocument();
-    });
-    
-    // Switch to Committees tab
-    const committeesTab = screen.getByRole('tab', { name: 'Committees' });
-    fireEvent.mouseDown(committeesTab);
-    fireEvent.click(committeesTab);
-    
-    await waitFor(() => {
-      expect(screen.getByText('House Committee on the Judiciary')).toBeInTheDocument();
-    });
-  });
-
-  it('displays no results message when filters return empty', async () => {
-    renderWithClient(<CongressData />);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Chuck Schumer')).toBeInTheDocument();
-    });
-    
-    const searchInput = screen.getByPlaceholderText('Search by name or ID...');
-    fireEvent.change(searchInput, { target: { value: 'NonExistentMember' } });
-    
-    await waitFor(() => {
-      expect(screen.getAllByText('No members found matching current filters').length).toBeGreaterThan(0);
-    });
-  });
-
-  it('handles API errors gracefully', async () => {
-    server.use(
-      http.get('/api/members', () =>
-        HttpResponse.json({ error: 'Internal server error' }, { status: 500 })
-      )
-    );
-    
-    renderWithClient(<CongressData />);
-    
-    // Component should handle error without crashing
-    await waitFor(() => {
-      expect(screen.getByText('Congressional Data')).toBeInTheDocument();
-    });
-  });
-  it('members query failure (non-JSON body) still shows an empty list (members ?? [] preserves prior behavior)', async () => {
-    // queryFn throws on a non-JSON body, so members is undefined once loading ends;
-    // filterMembers already fell back to [], so the default is type-only, not a behavior change.
+  it('a non-JSON gateway body is an error, not an empty list', async () => {
     server.use(http.get('/api/members', () => new HttpResponse('<html>gateway error</html>', { status: 502 })));
+    renderWithClient(<CongressData />, { prime: false });
+    expect(await screen.findByRole('alert')).toHaveTextContent('could not be loaded');
+  });
+
+  it('a 200 with a non-list body is an error', async () => {
+    server.use(http.get('/api/members', () => HttpResponse.json({ error: 'not a list' })));
+    renderWithClient(<CongressData />, { prime: false });
+    expect(await screen.findByRole('alert')).toHaveTextContent('could not be loaded');
+  });
+
+  it('an empty table says no records are loaded, not that filters matched nothing', async () => {
+    server.use(http.get('/api/members', () => HttpResponse.json([])));
+    renderWithClient(<CongressData />, { prime: false });
+    expect(await screen.findByText('No member records are loaded yet.')).toBeInTheDocument();
+    expect(screen.queryByText('No members found matching current filters')).not.toBeInTheDocument();
+  });
+
+  it('members-by-state waits for a full two-letter code before requesting', async () => {
     renderWithClient(<CongressData />);
-    await waitFor(() => {
-      expect(screen.getByText(/Showing 0 of 0 members/)).toBeInTheDocument();
-    });
+    const input = screen.getByLabelText('State code');
+    fireEvent.change(input, { target: { value: 'a' } });
+    expect(screen.getByText('Enter a two-letter state code.')).toBeInTheDocument();
+    fireEvent.change(input, { target: { value: 'ak' } });
+    expect(await screen.findByText('Showing 3 of 3 members')).toBeInTheDocument();
+    expect(stateRequests).toEqual(['AK']);
+  });
+
+  it('members-by-state errors are shown as errors', async () => {
+    server.use(http.get('/api/members/:state', () => HttpResponse.json({ error: 'invalid_state' }, { status: 400 })));
+    renderWithClient(<CongressData />);
+    fireEvent.change(screen.getByLabelText('State code'), { target: { value: 'ZZ' } });
+    expect(await screen.findByRole('alert')).toHaveTextContent('could not be loaded');
   });
 });
 
 describe('Accessibility', () => {
-  it('provides proper ARIA labels and roles', async () => {
+  it('provides proper ARIA labels and roles', () => {
     renderWithClient(<CongressData />);
-    
     expect(screen.getByRole('tablist')).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Members' })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Bills' })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Committees' })).toBeInTheDocument();
-  });
-
-  it('supports keyboard navigation', async () => {
-    renderWithClient(<CongressData />);
-    
-    const membersTab = screen.getByRole('tab', { name: 'Members' });
-    const billsTab = screen.getByRole('tab', { name: 'Bills' });
-    
-    membersTab.focus();
-    expect(membersTab).toHaveFocus();
-    
-    // Simulate Tab key navigation
-    fireEvent.keyDown(membersTab, { key: 'Tab' });
-    
-    // Should be able to navigate between tabs
-    expect(billsTab).toBeDefined();
+    expect(screen.getByRole('combobox', { name: /filter by party/i })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: /filter by chamber/i })).toBeInTheDocument();
+    expect(screen.getByLabelText('State code')).toBeInTheDocument();
   });
 });
 
 describe('Performance', () => {
-  it('renders large member lists efficiently', async () => {
-    const largeMembers = Array.from({ length: 1000 }, (_, i) => ({
-      id: i + 1000,
-      bioguideId: `T${i.toString().padStart(6, '0')}`,
-      name: `Test Member ${i}`,
-      party: i % 2 === 0 ? 'Democratic' : 'Republican',
-      state: ['NY', 'CA', 'TX', 'FL'][i % 4],
-      chamber: i % 2 === 0 ? 'House' : 'Senate',
-      district: i % 2 === 0 ? (i % 10).toString() : null,
-      congress: 119
-    }));
-    
-    server.use(
-      http.get('/api/members', () => HttpResponse.json(largeMembers))
-    );
-    
-    const startTime = Date.now();
-    renderWithClient(<CongressData />);
-    
-    await waitFor(() => {
-      expect(screen.getByText(/Showing \d+ of 1000 members/)).toBeInTheDocument();
-    });
-    
-    const renderTime = Date.now() - startTime;
-    expect(renderTime).toBeLessThan(3000); // Should render within 3 seconds
+  it('renders the full actual roster within budget', async () => {
+    const start = performance.now();
+    renderWithClient(<CongressData />, { prime: false });
+    expect(await screen.findByText('Showing 540 of 540 members')).toBeInTheDocument();
+    expect(performance.now() - start).toBeLessThan(3000);
   });
 });

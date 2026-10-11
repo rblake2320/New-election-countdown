@@ -8,6 +8,18 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { PARTY_OPTIONS } from "@/lib/filter-codes";
+import {
+  composition, currentCongress, fetchMembers, filterMembers as applyMemberFilters, inCongress, memberPartyLabel,
+  partyCode, seatLabel, type CongressMemberRow,
+} from "@/lib/congress-members";
+
+// Light chips with dark text pass WCAG AA contrast in both themes.
+const PARTY_CHIP: Record<string, string> = {
+  D: 'border-transparent bg-blue-100 text-blue-800',
+  R: 'border-transparent bg-red-100 text-red-800',
+  I: 'border-transparent bg-gray-100 text-gray-800',
+};
 
 export function CongressData() {
   const [selectedCongress, setSelectedCongress] = useState("119");
@@ -44,23 +56,21 @@ export function CongressData() {
     }
   });
 
-  const { data: members, isLoading: membersLoading } = useQuery({
+  // A failed request is an error state, never an empty roster.
+  const membersQuery = useQuery({
     queryKey: ['/api/members'],
-    queryFn: async () => {
-      const response = await fetch('/api/members');
-      const result = await response.json();
-      // Ensure we always return an array, even if API returns error
-      return Array.isArray(result) ? result : [];
-    }
+    queryFn: ({ signal }) => fetchMembers('/api/members', signal),
   });
+  // /api/members returns every Congress the table holds; this page lists the sitting one.
+  const congress = currentCongress();
+  const members = membersQuery.data ? inCongress(membersQuery.data, congress) : undefined;
 
-  const { data: membersByState, isLoading: membersByStateLoading } = useQuery({
-    queryKey: ['/api/members', selectedState],
-    queryFn: async () => {
-      const response = await fetch(`/api/members/${selectedState}`);
-      return response.json();
-    },
-    enabled: !!selectedState
+  // The server only accepts two-letter codes; don't send partial input.
+  const stateCode = /^[A-Z]{2}$/.test(selectedState) ? selectedState : "";
+  const membersByStateQuery = useQuery({
+    queryKey: ['/api/members', stateCode],
+    queryFn: ({ signal }) => fetchMembers(`/api/members/${stateCode}`, signal),
+    enabled: !!stateCode
   });
 
   const { data: committees, isLoading: committeesLoading } = useQuery({
@@ -81,24 +91,9 @@ export function CongressData() {
   });
 
   // Filter functions
-  const filterMembers = (membersList: any[]) => {
-    return membersList?.filter(member => {
-      const matchesSearch = !memberSearch || 
-        member.name?.toLowerCase().includes(memberSearch.toLowerCase()) ||
-        member.bioguideId?.toLowerCase().includes(memberSearch.toLowerCase());
-      
-      const matchesParty = !memberPartyFilter || memberPartyFilter === "all" ||
-        member.party?.toLowerCase().includes(memberPartyFilter.toLowerCase());
-      
-      const matchesState = !memberStateFilter || 
-        member.state?.toLowerCase() === memberStateFilter.toLowerCase();
-      
-      const matchesChamber = !memberChamberFilter || memberChamberFilter === "all" ||
-        member.chamber?.toLowerCase().includes(memberChamberFilter.toLowerCase());
-      
-      return matchesSearch && matchesParty && matchesState && matchesChamber;
-    }) || [];
-  };
+  const filterMembers = (membersList: CongressMemberRow[]) => applyMemberFilters(membersList, {
+    search: memberSearch, party: memberPartyFilter, state: memberStateFilter, chamber: memberChamberFilter,
+  });
 
   const filterBills = (billsList: any[]) => {
     return billsList?.filter(bill => {
@@ -125,55 +120,76 @@ export function CongressData() {
     }) || [];
   };
 
-  const MembersList = ({ members, loading }: { members: any[], loading: boolean }) => {
-    const filteredMembers = filterMembers(members);
-    
+  const MembersList = ({ label, members, loading, error, onRetry, emptyText }: {
+    label: string; members: CongressMemberRow[] | undefined; loading: boolean; error: unknown; onRetry: () => void; emptyText: string;
+  }) => {
+    if (loading) {
+      return (
+        <div className="space-y-3" aria-busy="true">
+          {[...Array(10)].map((_, i) => (
+            <Skeleton key={i} className="h-16 w-full" />
+          ))}
+        </div>
+      );
+    }
+    if (error) {
+      return (
+        <div role="alert" className="text-center py-8 space-y-3">
+          <p className="text-sm text-destructive">Member data could not be loaded, so no members are shown.</p>
+          <Button variant="outline" size="sm" onClick={onRetry}>Try again</Button>
+        </div>
+      );
+    }
+    const all = members ?? [];
+    if (all.length === 0) {
+      return <div className="text-center py-8 text-muted-foreground">{emptyText}</div>;
+    }
+    const filteredMembers = filterMembers(all);
+    // A native scroll region so keyboard users can focus and scroll the list.
     return (
-      <ScrollArea className="h-96">
-        {loading ? (
-          <div className="space-y-3">
-            {[...Array(10)].map((_, i) => (
-              <Skeleton key={i} className="h-16 w-full" />
-            ))}
+      <div role="region" aria-label={`${label} list`} tabIndex={0}
+        className="h-96 overflow-y-auto rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        <div className="space-y-3 pr-1">
+          <div className="text-sm text-muted-foreground mb-2">
+            Showing {filteredMembers.length} of {all.length} members
           </div>
-        ) : (
-          <div className="space-y-3">
-            <div className="text-sm text-muted-foreground mb-2">
-              Showing {filteredMembers.length} of {members?.length || 0} members
+          {filteredMembers.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              No members found matching current filters
             </div>
-            {filteredMembers.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                No members found matching current filters
-              </div>
-            ) : (
-              filteredMembers.map((member: any, i: number) => (
+          ) : (
+            filteredMembers.map((member, i) => {
+              const code = partyCode(member.party);
+              return (
                 <Card key={`${member.bioguideId || member.id || i}`} className="p-3">
-                  <div className="flex justify-between items-center">
-                    <div>
+                  <div className="flex justify-between items-center gap-2">
+                    <div className="min-w-0">
                       <h4 className="font-semibold text-sm">{member.name}</h4>
                       <p className="text-sm text-muted-foreground">
-                        {member.party} - {member.state} {member.district && `District ${member.district}`}
+                        {member.state} · {seatLabel(member)}
                       </p>
                       <p className="text-xs text-muted-foreground">{member.chamber}</p>
                     </div>
-                    <Badge variant={member.party === 'Democratic' ? 'default' : member.party === 'Republican' ? 'destructive' : 'secondary'}>
-                      {member.party}
+                    <Badge variant="outline" className={PARTY_CHIP[code] ?? 'bg-muted text-foreground'}>
+                      {memberPartyLabel(member.party)}
                     </Badge>
                   </div>
                 </Card>
-              ))
-            )}
-          </div>
-        )}
-      </ScrollArea>
+              );
+            })
+          )}
+        </div>
+      </div>
     );
   };
+
+  const counts = membersQuery.data ? composition(membersQuery.data, congress) : null;
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold">Congressional Data</h2>
-        <p className="text-muted-foreground">Real-time data from the U.S. Congress API</p>
+        <p className="text-muted-foreground">Members, bills and committees of the U.S. Congress</p>
       </div>
 
       <Tabs defaultValue="members" className="w-full">
@@ -203,9 +219,9 @@ export function CongressData() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Parties</SelectItem>
-                    <SelectItem value="Democratic">Democratic</SelectItem>
-                    <SelectItem value="Republican">Republican</SelectItem>
-                    <SelectItem value="Independent">Independent</SelectItem>
+                    {PARTY_OPTIONS.filter(o => ["D", "R", "I"].includes(o.value)).map(o => (
+                      <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <Input
@@ -243,27 +259,23 @@ export function CongressData() {
             <Card>
               <CardHeader>
                 <CardTitle>All Members</CardTitle>
-                <CardDescription>House and Senate members ({members?.length || 0} total)</CardDescription>
-                <Button 
-                  onClick={async () => {
-                    try {
-                      const response = await fetch('/api/congress/sync-all', { method: 'POST' });
-                      const result = await response.json();
-                      console.log('Sync result:', result);
-                      window.location.reload();
-                    } catch (error) {
-                      console.error('Sync failed:', error);
-                    }
-                  }}
-                  variant="outline"
-                  size="sm"
-                  className="w-fit"
-                >
-                  Sync All 535+ Members
-                </Button>
+                <CardDescription>
+                  {counts && counts.total > 0
+                    ? `${congress}th Congress: ${counts.senate} senators, ${counts.houseVoting} voting representatives, ${counts.houseNonVoting} nonvoting House members`
+                      + (counts.total > counts.senate + counts.houseVoting + counts.houseNonVoting
+                        ? `, ${counts.total - counts.senate - counts.houseVoting - counts.houseNonVoting} without a recognized seat` : "")
+                    : `${congress}th Congress House and Senate members`}
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <MembersList members={members ?? []} loading={membersLoading} />
+                <MembersList
+                  label="All members"
+                  members={members}
+                  loading={membersQuery.isLoading}
+                  error={membersQuery.error}
+                  onRetry={() => membersQuery.refetch()}
+                  emptyText="No member records are loaded yet."
+                />
               </CardContent>
             </Card>
 
@@ -273,7 +285,9 @@ export function CongressData() {
                 <CardDescription>Filter members by state</CardDescription>
                 <div className="flex gap-2">
                   <Input
-                    placeholder="State code (e.g., CA, NY)"
+                    placeholder="e.g. CA"
+                    aria-label="State code"
+                    maxLength={2}
                     value={selectedState}
                     onChange={(e) => setSelectedState(e.target.value.toUpperCase())}
                     className="w-32"
@@ -281,7 +295,18 @@ export function CongressData() {
                 </div>
               </CardHeader>
               <CardContent>
-                <MembersList members={membersByState} loading={membersByStateLoading} />
+                {stateCode ? (
+                  <MembersList
+                    label={`${stateCode} members`}
+                    members={membersByStateQuery.data ? inCongress(membersByStateQuery.data, congress) : undefined}
+                    loading={membersByStateQuery.isLoading}
+                    error={membersByStateQuery.error}
+                    onRetry={() => membersByStateQuery.refetch()}
+                    emptyText={`No member records for ${stateCode}.`}
+                  />
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">Enter a two-letter state code.</div>
+                )}
               </CardContent>
             </Card>
           </div>
