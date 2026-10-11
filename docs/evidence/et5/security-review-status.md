@@ -13,3 +13,5 @@ Failed before repair: production image lacked pg_dump/pg_restore; alternate Comp
 Open release work stays assigned in ET-22: server authorization and secret-management repairs, error/decision telemetry, shutdown handling, development dependency findings (12 affected nodes, runtime audit 0), supply-chain and full-project type gates. Shared database and deployment were not changed. Three peer seats received the review and owner assignments with SelfConnect delivery read-back.
 
 PostgreSQL reference used for the client/archive contract: [pg_dump](https://www.postgresql.org/docs/16/app-pgdump.html) and [pg_restore](https://www.postgresql.org/docs/17/app-pgrestore.html). Actual compatibility was exercised by the private restore above.
+
+Final CI: PR9 head019c95d, run38136575115 passed verify52s, bundle-budget18s and compiled container52s including required backup/restore. Result saved in Jira ET-22.
