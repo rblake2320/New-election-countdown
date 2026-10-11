@@ -8,7 +8,7 @@ import { db } from "./db";
 import { eq } from "drizzle-orm";
 import { getCongressBillService } from "./congress-bill-service";
 import { perplexityCongressService } from "./perplexity-congress-service";
-import { congressImportService } from "./congress-import-service";
+import { registerCongressImportRoutes } from "./congress-import-routes";
 import { setupAuth, isAuthenticated } from "./auth";
 import { requireAdmin } from "./middleware/require-admin";
 import { verifySendGridWebhook, verifyTwilioWebhook } from "./webhook-verify";
@@ -1077,31 +1077,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/congress/sync-all', isAuthenticated, requireAdmin, async (req, res) => {
-    try {
-      console.log('Starting complete Congress import from authenticated dataset...');
-
-      const { congressImportService } = await import('./congress-import-service');
-
-      // Import from the complete authenticated dataset
-      const result = await congressImportService.importFromCompleteDataset();
-      console.log(`Successfully imported ${result.count} members`);
-
-      // Validate the import
-      const validation = await congressImportService.validateImport();
-
-      res.json({
-        message: `Imported ${result.count} congressional members`,
-        count: result.count,
-        breakdown: result.breakdown,
-        validation: validation,
-        source: 'Complete authenticated dataset'
-      });
-    } catch (error: any) {
-      console.error('Import error:', error);
-      res.status(500).json({ error: error.message });
-    }
-  });
 
   // Congressional member search - MUST come before /:state route
   app.get('/api/members/search', searchLimiter, validateInput, async (req, res) => {
@@ -1226,6 +1201,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Duplicate search route removed - moved above to fix routing conflict
 
   // Find missing congressional member using Perplexity
+  // Admin Congress import (extracted: server/congress-import-routes.ts). The importer is
+  // injected so Lane C's source-bound importer can replace the legacy one here only.
+  registerCongressImportRoutes(app, async () => (await import('./congress-import-service')).congressImportService);
+
   app.post('/api/congress/find-member', isAuthenticated, requireAdmin, requireCongressionalAPI, async (req, res) => {
     try {
       const { memberName } = req.body;
@@ -1455,7 +1434,7 @@ Please provide detailed, current information about this specific election.`;
   app.post('/api/admin/results-ingestion/stop', isAuthenticated, requireAdmin, async (req: any, res) => {
     try {
       await resultsIngestionService.stopPolling();
-      res.json({ 
+      res.json({
         message: 'Results ingestion stopped',
         status: resultsIngestionService.getStatus()
       });
@@ -1485,15 +1464,6 @@ Please provide detailed, current information about this specific election.`;
     }
   });
 
-  app.post('/api/congress/import', isAuthenticated, requireAdmin, async (req, res) => {
-    try {
-      const result = await congressImportService.importFromCompleteDataset();
-      res.json(result);
-    } catch (error: any) {
-      console.error('Error importing congressional data:', error);
-      res.status(500).json({ error: error.message });
-    }
-  });
 
   app.post('/api/congress/find-missing', isAuthenticated, requireAdmin, requireCongressionalAPI, async (req, res) => {
     try {
