@@ -17,6 +17,7 @@ import { useCandidates, useElectionResults } from "@/hooks/use-elections";
 import { Link, useLocation } from "wouter";
 import { rememberPendingWatch, signInUrl, takePendingWatch } from "@/lib/auth-return";
 import { isUpcomingElection } from "@/lib/election-timing";
+import { safeSourceUrl } from "@/lib/general-roster";
 import { PoliticalLeaningBorder } from "@/components/ui/political-leaning-border";
 
 interface ElectionDetailsResponse {
@@ -466,7 +467,7 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
         
         <div className="flex flex-wrap items-center gap-1.5">
           {/* View Trends Button */}
-          <Link href={`/elections/${election.id}`}>
+          <Link href={`/elections/${election.id}?tab=polling`}>
             <Button 
               size="sm" 
               variant="outline"
@@ -540,30 +541,33 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
                 <div className="space-y-4">
                   <div>
                     <h3 className="text-lg font-semibold mb-3 text-white">AI Analysis</h3>
-                    <div 
-                      className="text-white [&>*]:!text-white [&_p]:!text-white [&_h1]:!text-white [&_h2]:!text-white [&_h3]:!text-white [&_h4]:!text-white [&_h5]:!text-white [&_h6]:!text-white [&_strong]:!text-white [&_em]:!text-white [&_span]:!text-white [&_div]:!text-white [&_li]:!text-white [&_ul]:!text-white [&_ol]:!text-white"
-                      style={{ color: '#ffffff !important' }}
-                      dangerouslySetInnerHTML={{ 
-                        __html: (electionDetails as any).aiAnalysis?.replace(/\n/g, '<br>') || 'Analysis not available'
-                      }}
-                    />
+                    {/* External AI output is untrusted: rendered as text, never as HTML. */}
+                    <p className="whitespace-pre-line text-white" data-testid="ai-analysis">
+                      {String((electionDetails as any).aiAnalysis || "Analysis not available")}
+                    </p>
                   </div>
                   
                   {(electionDetails as any).sources?.length > 0 && (
                     <div>
                       <h4 className="font-medium mb-2">Sources</h4>
                       <div className="space-y-1">
-                        {(electionDetails as any).sources.map((source: string, index: number) => (
-                          <a 
-                            key={index}
-                            href={source}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs text-blue-600 hover:underline block"
-                          >
-                            {source}
-                          </a>
-                        ))}
+                        {(electionDetails as any).sources.map((source: string, index: number) => {
+                          // Only http(s) sources become links; anything else (javascript:, data:) is shown as text.
+                          const href = safeSourceUrl(String(source));
+                          return href ? (
+                            <a 
+                              key={index}
+                              href={href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-blue-600 hover:underline block"
+                            >
+                              {String(source)}
+                            </a>
+                          ) : (
+                            <span key={index} className="text-xs block">{String(source)}</span>
+                          );
+                        })}
                       </div>
                     </div>
                   )}

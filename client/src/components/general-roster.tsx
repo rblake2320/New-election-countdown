@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollText } from "lucide-react";
-import { isWriteIn, rosterCoverage, rosterParty, rosterSources, safeSourceUrl, scopeLabels, snapshotLines, type SourceLine } from "@/lib/general-roster";
+import { evidenceLines, type EvidenceLine, isWriteIn, rosterCoverage, rosterParty, rosterSources, safeSourceUrl, scopeLabels, snapshotLines, type SourceLine } from "@/lib/general-roster";
 import { useGeneralRoster } from "@/hooks/use-general-roster";
 
 const fmtDate = (iso: string | null) => {
@@ -32,12 +32,33 @@ function SourceLines({ lines }: { lines: SourceLine[] }) {
   );
 }
 
+/** Supporting documents (party-label derivation, name identity). Not nomination or certification. */
+function EvidenceLines({ lines }: { lines: EvidenceLine[] }) {
+  if (lines.length === 0) return null;
+  return (
+    <div className="mt-1 space-y-1 text-xs text-muted-foreground" data-testid="general-roster-evidence">
+      {lines.map(e => {
+        const href = safeSourceUrl(e.url);
+        return (
+          <p key={`${e.kind}|${e.url}|${e.page ?? ""}`}>
+            {e.kind}: {href ? <a href={href} target="_blank" rel="noopener noreferrer" className="underline">{e.title}</a> : e.title}
+            {e.page ? <> (p. {e.page})</> : null}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
 export function GeneralRoster({ electionId }: { electionId: number }) {
   const { data, isLoading, error } = useGeneralRoster(electionId);
   // Hide only when there is nothing to say: still loading, no endpoint on this
   // server (null), or unknown election. A failed request (503 etc.) leaves data
   // undefined and must still show the error state (lane C review of a90ae7e).
   if (isLoading || (!error && (data === null || data === undefined)) || data?.status === "election_not_found") return null;
+  // A primary or runoff has no general-election list; saying "not recorded" there
+  // would imply one is missing. Show nothing.
+  if (data?.status === "not_applicable") return null;
 
   return (
     <Card data-testid="general-roster">
@@ -96,6 +117,7 @@ export function GeneralRoster({ electionId }: { electionId: number }) {
               </p>
             )}
             <SourceLines lines={rosterSources(data.candidates)} />
+            <EvidenceLines lines={evidenceLines(data.candidates)} />
           </>
         )}
       </CardContent>

@@ -62,7 +62,7 @@ export function VersionSwitcher({ currentCycle, onCycleChange, compact = false }
       <div className="flex items-center gap-2">
         <Flag className="h-4 w-4 text-muted-foreground" />
         <Select value={selectedCycle} onValueChange={handleCycleChange}>
-          <SelectTrigger className="w-48">
+          <SelectTrigger aria-label="Election cycle" className="w-48">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -93,7 +93,7 @@ export function VersionSwitcher({ currentCycle, onCycleChange, compact = false }
       </CardHeader>
       <CardContent className="space-y-4">
         <Select value={selectedCycle} onValueChange={handleCycleChange}>
-          <SelectTrigger>
+          <SelectTrigger aria-label="Election cycle">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
