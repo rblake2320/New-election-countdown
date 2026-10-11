@@ -1,6 +1,6 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { render, screen, cleanup, act } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Router, Route } from "wouter";
 import { memoryLocation } from "wouter/memory-location";
@@ -46,6 +46,8 @@ function renderActualDetail(at: string) {
     scenario: at,
     browserZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     localClock: new Date().toString(),
+    electionZone: fixture.timezone,
+    closeKind: fixture.pollCloseKind,
     pastBadge: Boolean(screen.queryByText("Past Election")),
     upcomingBadge: Boolean(screen.queryByText("Upcoming")),
     timerCount: screen.queryAllByRole("timer").length,
@@ -57,6 +59,7 @@ function renderActualDetail(at: string) {
 
 describe("actual election detail preserves active election-day timing", () => {
   beforeEach(() => {
+    Object.assign(fixture, { title: "Texas election timing acceptance fixture", state: "Texas", pollsOpen: "07:00", pollsClose: "19:00", timezone: "America/Chicago", pollCloseKind: "polls" });
     vi.useFakeTimers();
     vi.stubGlobal("fetch", vi.fn(() => Promise.reject(new Error("Network forbidden in isolated review"))));
   });
@@ -83,5 +86,45 @@ describe("actual election detail preserves active election-day timing", () => {
     renderActualDetail("2026-11-03T15:00:00Z");
     expect(screen.queryByText("Past Election")).toBeNull();
     expect(screen.getByRole("timer").getAttribute("aria-label")).toContain("until polls close");
+  });
+
+  it("mounted detail changes Upcoming to Election Day when Texas polls open", () => {
+    const view = renderActualDetail("2026-11-03T12:59:30Z");
+    const originalHeading = view.container.querySelector("h1");
+    expect(screen.queryByText("Upcoming")).not.toBeNull();
+    act(() => { vi.advanceTimersByTime(60_000); });
+    expect(view.container.querySelector("h1")).toBe(originalHeading);
+    expect(screen.queryByText("Upcoming")).toBeNull();
+    expect(screen.queryByText("Election Day")).not.toBeNull();
+    expect(screen.getByRole("timer").getAttribute("aria-label")).toContain("until polls close");
+    console.log(JSON.stringify({ rollover: "Texas opening", at: new Date().toISOString(), badge: "Election Day", timer: screen.getByRole("timer").getAttribute("aria-label"), sameMountedHeading: true }));
+  });
+
+  it("mounted detail changes Election Day to Polls closed after Texas closes", () => {
+    const view = renderActualDetail("2026-11-04T00:59:30Z");
+    const originalHeading = view.container.querySelector("h1");
+    expect(screen.queryByText("Election Day")).not.toBeNull();
+    act(() => { vi.advanceTimersByTime(60_000); });
+    expect(view.container.querySelector("h1")).toBe(originalHeading);
+    expect(screen.queryByText("Election Day")).toBeNull();
+    expect(screen.queryByText("Polls closed")).not.toBeNull();
+    expect(screen.queryByRole("timer")).toBeNull();
+    expect(screen.getByRole("status").textContent).toContain("Polls closed · results pending");
+    console.log(JSON.stringify({ rollover: "Texas closing", at: new Date().toISOString(), badge: "Polls closed", status: screen.getByRole("status").textContent, sameMountedHeading: true }));
+  });
+
+  it("unknown opening on a ballot-return election says deadline pending", () => {
+    Object.assign(fixture, { title: "Oregon ballot deadline acceptance fixture", state: "Oregon", pollsOpen: null, pollsClose: "20:00", timezone: "America/Los_Angeles", pollCloseKind: "ballot_return" });
+    renderActualDetail("2026-11-03T08:30:00Z");
+    expect(screen.queryByText(/ballot drop-off open/)).toBeNull();
+    expect(screen.queryByText("Election Day · ballot drop-off deadline pending")).not.toBeNull();
+    expect(screen.getByRole("timer").getAttribute("aria-label")).toContain("until ballot drop-off deadline");
+  });
+
+  it("ballot-return deadline passed must not call mail-election polls closed", () => {
+    Object.assign(fixture, { title: "Oregon ballot deadline acceptance fixture", state: "Oregon", pollsOpen: null, pollsClose: "20:00", timezone: "America/Los_Angeles", pollCloseKind: "ballot_return" });
+    renderActualDetail("2026-11-04T04:01:00Z");
+    expect(screen.getByRole("status").textContent).toContain("Ballot drop-off closed · results pending");
+    expect(screen.queryByText("Polls closed")).toBeNull();
   });
 });

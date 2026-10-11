@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ArrowLeft, Calendar, MapPin, Users, Trophy, TrendingUp, BarChart3, Eye } from "lucide-react";
 import { format } from "date-fns";
 import { CountdownTimer } from "@/components/countdown-timer";
-import { getElectionTiming } from "@/lib/election-timing";
+import { getElectionTiming, type ElectionTimingInput } from "@/lib/election-timing";
 import { useNow } from "@/hooks/use-now";
 import { CandidateComparisonWizard } from "@/components/candidate-comparison-wizard";
 import { PollingTrendChart } from "@/components/polling-trend-chart";
@@ -101,7 +101,9 @@ export default function ElectionDetails() {
   const isUpcoming = phase === "upcoming";
   const isLive = phase === "election-day" || phase === "polls-open";
   const badgeText = isUpcoming ? "Upcoming" : isLive ? "Election Day"
-    : hasResults ? "Results Available" : phase === "polls-closed" ? "Polls closed" : "Past Election";
+    : hasResults ? "Results Available"
+    : phase === "polls-closed" ? ((election as ElectionTimingInput | undefined)?.pollCloseKind === "ballot_return" ? "Drop-off closed" : "Polls closed")
+    : "Past Election";
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-6">
