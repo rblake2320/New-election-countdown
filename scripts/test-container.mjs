@@ -2,6 +2,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { randomBytes } from 'node:crypto';
 import fs from 'node:fs/promises';
+import { testProxyLoad } from './test-proxy-load.mjs';
 
 const exec = promisify(execFile);
 const suffix = `${process.pid}-${randomBytes(3).toString('hex')}`;
@@ -13,6 +14,7 @@ const builder = process.env.TEST_BUILDER_IMAGE || 'electiontracker:et5-builder';
 const password = randomBytes(24).toString('hex');
 const databaseURL = `postgresql://et_test:${password}@${db}:5432/et_test`;
 const evidence = process.env.CONTAINER_EVIDENCE_DIR || 'test-results/container';
+const preview = process.env.TEST_BROWSER_PREVIEW === '1';
 await fs.mkdir(evidence, { recursive: true });
 const docker = async (...args) => {
   try {
@@ -25,7 +27,7 @@ const docker = async (...args) => {
 const delay = () => new Promise(resolve => setTimeout(resolve, 1000));
 const report = { image, builder, network: 'internal, no published ports', passed: false };
 try {
-  await docker('network', 'create', '--internal', network);
+  await docker('network', 'create', ...(preview ? [] : ['--internal']), network);
   await docker('run', '-d', '--name', db, '--network', network,
     '-e', 'POSTGRES_USER=et_test', '-e', `POSTGRES_PASSWORD=${password}`,
     '-e', 'POSTGRES_DB=et_test', 'postgres:16-alpine');
@@ -39,6 +41,7 @@ try {
     '-e', `DATABASE_URL=${databaseURL}`, '--entrypoint', 'npx', builder, 'drizzle-kit', 'push', '--force');
   await fs.writeFile(`${evidence}/schema.log`, schemaLog);
   await docker('run', '-d', '--name', app, '--network', network,
+    ...(preview ? ['-p', '127.0.0.1:5059:5000'] : []),
     '-e', `DATABASE_URL=${databaseURL}`, '-e', `JWT_SECRET=${password}`,
     '-e', `CANDIDATE_JWT_SECRET=${password}`, '-e', 'APP_ORIGIN=http://127.0.0.1:5000', image);
   const probe = `Promise.all(['/', '/api/health', '/api/elections'].map(async path => {
@@ -66,6 +69,41 @@ try {
   report.boundary = await docker('exec', app, 'node', '-e',
     `const fs=require('fs');for(const p of ['node_modules/vite','node_modules/vitest','node_modules/@playwright/test','node_modules/tailwindcss','server','shared'])if(fs.existsSync(p))throw Error('Unexpected runtime path '+p);console.log('production-only paths verified')`);
   report.imageId = await docker('inspect', '--format', '{{.Image}}', app);
+  if (preview) {
+    report.network = 'isolated test bridge; browser preview bound only to 127.0.0.1:5059';
+    console.log('Isolated browser preview ready at http://127.0.0.1:5059 (maximum 5 minutes)');
+    for (let i = 0; i < 300; i++) {
+      try { await fs.access(`${evidence}/browser-done`); break; } catch {}
+      await delay();
+    }
+  }
+  if (process.env.TEST_DB_OUTAGE === '1') {
+    const healthProbe = `fetch('http://127.0.0.1:5000/api/health',{signal:AbortSignal.timeout(10000)}).then(async r=>console.log(JSON.stringify({status:r.status,body:await r.json()}))).catch(e=>{console.error(e.message);process.exitCode=1})`;
+    const waitHealth = async (status, ok, timeout) => {
+      const started = Date.now();
+      let last;
+      while (Date.now() - started < timeout) {
+        try {
+          last = JSON.parse(await docker('exec', app, 'node', '-e', healthProbe));
+          if (last.status === status && last.body.ok === ok) return { ...last, elapsedMs: Date.now() - started };
+        } catch (error) { last = { error: error.message }; }
+        await delay();
+      }
+      throw new Error(`Health transition timed out: expected ${status}/${ok}, last ${JSON.stringify(last)}`);
+    };
+    await docker('stop', '-t', '5', db);
+    report.outage = await waitHealth(503, false, 90_000);
+    await docker('start', db);
+    report.recovery = await waitHealth(200, true, 120_000);
+    const recoveredCounts = await docker('exec', db, 'psql', '-U', 'et_test', '-d', 'et_test', '-Atc',
+      'select count(*), count(distinct (title,state,date,type)) from elections;');
+    if (recoveredCounts !== counts) throw new Error('Election counts changed across database outage');
+    report.recovery.countsPreserved = true;
+    report.recovery.http = JSON.parse(await docker('exec', app, 'node', '-e', probe));
+  }
+  if (process.env.TEST_PROXY_LOAD === '1') {
+    await testProxyLoad({ docker, network, app, evidence, report });
+  }
   report.passed = true;
 } catch (error) {
   report.error = error.message;
