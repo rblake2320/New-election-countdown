@@ -1,0 +1,3790 @@
+{
+  "checkedAt": "2026-10-11T13:58:29.032Z",
+  "newHead": "91420049901cbce8981bc675530486a0f4a3e05d",
+  "oldHead": "554ab9020a0c2937a2df5bbc56a5e963444a3be9",
+  "receivingScope": "Pure actual exported receiving projection plus exact old detail receiving expression; no HTTP/browser/database execution claimed",
+  "sourcePayloadSha256": "401e79f55b0db62d3e790f694e1f2650422f3fc229d6c6f65d7377914c5d5d82",
+  "edgeCases": [
+    {
+      "scenario": "ISO same date",
+      "expectedProjection": "preserve",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "generic_results_portal",
+          "publisher": "Election Results",
+          "checkedAt": "2026-10-11T12:29:09.125709+00:00",
+          "routeVerification": "worked",
+          "status": "unknown",
+          "availabilityReason": "unknown_portal_election_context",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639"
+        }
+      },
+      "oldFieldsMatched": true,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Date-only same date",
+      "expectedProjection": "preserve",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "generic_results_portal",
+          "publisher": "Election Results",
+          "checkedAt": "2026-10-11T12:29:09.125709+00:00",
+          "routeVerification": "worked",
+          "status": "unknown",
+          "availabilityReason": "unknown_portal_election_context",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639"
+        }
+      },
+      "oldFieldsMatched": true,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "SQL timestamp same date",
+      "expectedProjection": "preserve",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "generic_results_portal",
+          "publisher": "Election Results",
+          "checkedAt": "2026-10-11T12:29:09.125709+00:00",
+          "routeVerification": "worked",
+          "status": "unknown",
+          "availabilityReason": "unknown_portal_election_context",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639"
+        }
+      },
+      "oldFieldsMatched": true,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Outer date shifted to next day",
+      "expectedProjection": "null",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": null,
+        "officialResultsSource": null
+      },
+      "oldFieldsMatched": false,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Outer date shifted to previous day",
+      "expectedProjection": "null",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": null,
+        "officialResultsSource": null
+      },
+      "oldFieldsMatched": false,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Outer date shifted year",
+      "expectedProjection": "null",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": null,
+        "officialResultsSource": null
+      },
+      "oldFieldsMatched": false,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Outer phase changed primary",
+      "expectedProjection": "null",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": null,
+        "officialResultsSource": null
+      },
+      "oldFieldsMatched": false,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Outer phase changed runoff",
+      "expectedProjection": "null",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": null,
+        "officialResultsSource": null
+      },
+      "oldFieldsMatched": false,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Existing LA429 primary preserved",
+      "expectedProjection": "preserve",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": "https://www.sos.la.gov/elections-voting/election-results-statistics",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "primary",
+          "routeType": "government_results_gateway",
+          "publisher": "Election Results & Statistics",
+          "checkedAt": "2026-10-11T12:30:20.291319+00:00",
+          "routeVerification": "worked",
+          "status": "unknown",
+          "availabilityReason": "unknown_election_phase",
+          "governmentUrl": "https://www.sos.la.gov/elections-voting/election-results-statistics",
+          "fallbackUrl": "https://www.sos.la.gov/elections-voting/election-results-statistics",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "3d5c944e6affb852e9c1ed0c10c748903c2de9f732c92ef54a714587a57b3855",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639"
+        }
+      },
+      "oldFieldsMatched": true,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Existing primary changed to general",
+      "expectedProjection": "null",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": null,
+        "officialResultsSource": null
+      },
+      "oldFieldsMatched": false,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Synthetic published general correct state/date/phase",
+      "expectedProjection": "preserve",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "election_specific_results",
+          "publisher": "Election Results",
+          "checkedAt": "2026-11-04T02:00:00Z",
+          "routeVerification": "worked",
+          "status": "published",
+          "availabilityReason": "published_for_target_election",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639",
+          "publicationEvidence": {
+            "state": "GA",
+            "electionDate": "2026-11-03",
+            "electionPhase": "general",
+            "destinationUrl": "https://results.sos.ga.gov/",
+            "officialElectionLabel": "SYNTHETIC OFFLINE fixture November 3 general election results, not real publication",
+            "officialContextVerified": true,
+            "officialContextReceiptSha256": "7a3ccdd064c878488e706f271d53065cc98dce3ca4c636c4e6a9d8ec6f700497",
+            "receivingOutcome": "worked",
+            "receivingResultsObserved": true,
+            "receivingReceiptSha256": "7a3ccdd064c878488e706f271d53065cc98dce3ca4c636c4e6a9d8ec6f700497",
+            "receivingCheckedAt": "2026-11-04T02:00:00Z"
+          }
+        }
+      },
+      "oldFieldsMatched": true,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Synthetic published primary correct state/date/phase",
+      "expectedProjection": "preserve",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "primary",
+          "routeType": "election_specific_results",
+          "publisher": "Election Results",
+          "checkedAt": "2026-11-04T02:00:00Z",
+          "routeVerification": "worked",
+          "status": "published",
+          "availabilityReason": "published_for_target_election",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639",
+          "publicationEvidence": {
+            "state": "GA",
+            "electionDate": "2026-11-03",
+            "electionPhase": "primary",
+            "destinationUrl": "https://results.sos.ga.gov/",
+            "officialElectionLabel": "SYNTHETIC OFFLINE fixture November 3 primary election results, not real publication",
+            "officialContextVerified": true,
+            "officialContextReceiptSha256": "7baa38f38dc8f5d5424f551362483fd1a99a439f5727efafeba1f266a34554d6",
+            "receivingOutcome": "worked",
+            "receivingResultsObserved": true,
+            "receivingReceiptSha256": "7baa38f38dc8f5d5424f551362483fd1a99a439f5727efafeba1f266a34554d6",
+            "receivingCheckedAt": "2026-11-04T02:00:00Z"
+          }
+        }
+      },
+      "oldFieldsMatched": true,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Synthetic published state changed away receipt",
+      "expectedProjection": "null",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": null,
+        "officialResultsSource": null
+      },
+      "oldFieldsMatched": false,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Synthetic published phase changed away receipt",
+      "expectedProjection": "null",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": null,
+        "officialResultsSource": null
+      },
+      "oldFieldsMatched": false,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Synthetic published outer date changed away receipt",
+      "expectedProjection": "null",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": null,
+        "officialResultsSource": null
+      },
+      "oldFieldsMatched": false,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Empty date",
+      "expectedProjection": "null",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": null,
+        "officialResultsSource": null
+      },
+      "oldFieldsMatched": false,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Null date",
+      "expectedProjection": "null",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": null,
+        "officialResultsSource": null
+      },
+      "oldFieldsMatched": false,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Nondate text",
+      "expectedProjection": "null",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": null,
+        "officialResultsSource": null
+      },
+      "oldFieldsMatched": false,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Nov3 prefix plus garbage",
+      "expectedProjection": "null",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": null,
+        "officialResultsSource": null
+      },
+      "oldFieldsMatched": false,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Impossible hour",
+      "expectedProjection": "null",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": null,
+        "officialResultsSource": null
+      },
+      "oldFieldsMatched": false,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Impossible minute",
+      "expectedProjection": "null",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": null,
+        "officialResultsSource": null
+      },
+      "oldFieldsMatched": false,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Impossible second",
+      "expectedProjection": "null",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": null,
+        "officialResultsSource": null
+      },
+      "oldFieldsMatched": false,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Impossible offset",
+      "expectedProjection": "null",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": null,
+        "officialResultsSource": null
+      },
+      "oldFieldsMatched": false,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Malformed timestamp tail",
+      "expectedProjection": "null",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": null,
+        "officialResultsSource": null
+      },
+      "oldFieldsMatched": false,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Invalid calendar day",
+      "expectedProjection": "null",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": null,
+        "officialResultsSource": null
+      },
+      "oldFieldsMatched": false,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Integer as date",
+      "expectedProjection": "null",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": null,
+        "officialResultsSource": null
+      },
+      "oldFieldsMatched": false,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Plain object as date",
+      "expectedProjection": "null",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": null,
+        "officialResultsSource": null
+      },
+      "oldFieldsMatched": false,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Ordinary null result defaults",
+      "expectedProjection": "null",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": null,
+        "officialResultsSource": null
+      },
+      "oldFieldsMatched": true,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Synthetic publication receipt state mismatched to outer election",
+      "expectedProjection": "null",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": null,
+        "officialResultsSource": null
+      },
+      "oldFieldsMatched": false,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Finite UTC Date object same day",
+      "expectedProjection": "preserve",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": "https://results.sos.ga.gov/",
+        "officialResultsSource": {
+          "targetElectionDate": "2026-11-03",
+          "electionPhase": "general",
+          "routeType": "generic_results_portal",
+          "publisher": "Election Results",
+          "checkedAt": "2026-10-11T12:29:09.125709+00:00",
+          "routeVerification": "worked",
+          "status": "unknown",
+          "availabilityReason": "unknown_portal_election_context",
+          "governmentUrl": "https://results.sos.ga.gov/",
+          "fallbackUrl": "https://results.sos.ga.gov/",
+          "advertisedGeneralUrl": null,
+          "documentSha256": "9a5bb6d3c3c758e913ed4706e8a0f4e36b54ab2a8c97bb8a3b715b659de43783",
+          "sourceReviewSha256": "decd29f0af38ffada3b02c3b997a171def043ad3ba7cdab854cc99d9e3ba5639"
+        }
+      },
+      "oldFieldsMatched": true,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Invalid Date object",
+      "expectedProjection": "null",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": null,
+        "officialResultsSource": null
+      },
+      "oldFieldsMatched": false,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    },
+    {
+      "scenario": "Missing undefined date",
+      "expectedProjection": "null",
+      "outcome": "Worked",
+      "exception": null,
+      "actualFields": {
+        "officialResultsUrl": null,
+        "officialResultsSource": null
+      },
+      "oldFieldsMatched": false,
+      "oldException": null,
+      "newFieldsMatchExpected": true
+    }
+  ],
+  "originalPayloadChecks": [
+    {
+      "id": 1,
+      "state": "AL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 2,
+      "state": "AK",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 3,
+      "state": "AR",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 4,
+      "state": "CO",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 5,
+      "state": "DE",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 6,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 7,
+      "state": "GA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 8,
+      "state": "ID",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 9,
+      "state": "IL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 10,
+      "state": "IA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 11,
+      "state": "KS",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 12,
+      "state": "KY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 13,
+      "state": "LA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 14,
+      "state": "ME",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 15,
+      "state": "MA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 16,
+      "state": "MI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 17,
+      "state": "MN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 18,
+      "state": "MS",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 19,
+      "state": "MT",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 20,
+      "state": "NE",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 21,
+      "state": "NH",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 22,
+      "state": "NJ",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 23,
+      "state": "NM",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 24,
+      "state": "NC",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 25,
+      "state": "OH",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 26,
+      "state": "OK",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 27,
+      "state": "OR",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 28,
+      "state": "RI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 29,
+      "state": "SC",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 30,
+      "state": "SD",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 31,
+      "state": "TN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 32,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 33,
+      "state": "VA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 34,
+      "state": "WV",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 35,
+      "state": "WY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 36,
+      "state": "AL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 37,
+      "state": "AK",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 38,
+      "state": "AZ",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 39,
+      "state": "AR",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 40,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 41,
+      "state": "CO",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 42,
+      "state": "CT",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 43,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 44,
+      "state": "GA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 45,
+      "state": "HI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 46,
+      "state": "ID",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 47,
+      "state": "IL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 48,
+      "state": "IA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 49,
+      "state": "KS",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 50,
+      "state": "ME",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 51,
+      "state": "MD",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 52,
+      "state": "MA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 53,
+      "state": "MI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 54,
+      "state": "MN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 55,
+      "state": "NE",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 56,
+      "state": "NV",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 57,
+      "state": "NH",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 58,
+      "state": "NM",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 59,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 60,
+      "state": "OH",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 61,
+      "state": "OK",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 62,
+      "state": "OR",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 63,
+      "state": "PA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 64,
+      "state": "RI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 65,
+      "state": "SC",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 66,
+      "state": "SD",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 67,
+      "state": "TN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 68,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 69,
+      "state": "VT",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 70,
+      "state": "WI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 71,
+      "state": "WY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 72,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 73,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 74,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 75,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 76,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 77,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 78,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 79,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 80,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 81,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 82,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 83,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 84,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 85,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 86,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 87,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 88,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 89,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 90,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 91,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 92,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 93,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 94,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 95,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 96,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 97,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 98,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 99,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 100,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 101,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 102,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 103,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 104,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 105,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 106,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 107,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 108,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 109,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 110,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 111,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 112,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 113,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 114,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 115,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 116,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 117,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 118,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 119,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 120,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 121,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 122,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 123,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 124,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 125,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 126,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 127,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 128,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 129,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 130,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 131,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 132,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 133,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 134,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 135,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 136,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 137,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 138,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 139,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 140,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 141,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 142,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 143,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 144,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 145,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 146,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 147,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 148,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 149,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 150,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 151,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 152,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 153,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 154,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 155,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 156,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 157,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 158,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 159,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 160,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 161,
+      "state": "TX",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 162,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 163,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 164,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 165,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 166,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 167,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 168,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 169,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 170,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 171,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 172,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 173,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 174,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 175,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 176,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 177,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 178,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 179,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 180,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 181,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 182,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 183,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 184,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 185,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 186,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 187,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 188,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 189,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 190,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 191,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 192,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 193,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 194,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 195,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 196,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 197,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 198,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 199,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 200,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 201,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 202,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 203,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 204,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 205,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 206,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 207,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 208,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 209,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 210,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 211,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 212,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 213,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 214,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 215,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 216,
+      "state": "PA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 217,
+      "state": "PA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 218,
+      "state": "PA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 219,
+      "state": "PA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 220,
+      "state": "PA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 221,
+      "state": "PA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 222,
+      "state": "PA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 223,
+      "state": "PA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 224,
+      "state": "PA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 225,
+      "state": "PA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 226,
+      "state": "PA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 227,
+      "state": "PA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 228,
+      "state": "PA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 229,
+      "state": "PA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 230,
+      "state": "PA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 231,
+      "state": "PA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 232,
+      "state": "PA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 233,
+      "state": "IL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 234,
+      "state": "IL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 235,
+      "state": "IL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 236,
+      "state": "IL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 237,
+      "state": "IL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 238,
+      "state": "IL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 239,
+      "state": "IL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 240,
+      "state": "IL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 241,
+      "state": "IL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 242,
+      "state": "IL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 243,
+      "state": "IL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 244,
+      "state": "IL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 245,
+      "state": "IL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 246,
+      "state": "IL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 247,
+      "state": "IL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 248,
+      "state": "IL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 249,
+      "state": "IL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 250,
+      "state": "OH",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 251,
+      "state": "OH",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 252,
+      "state": "OH",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 253,
+      "state": "OH",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 254,
+      "state": "OH",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 255,
+      "state": "OH",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 256,
+      "state": "OH",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 257,
+      "state": "OH",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 258,
+      "state": "OH",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 259,
+      "state": "OH",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 260,
+      "state": "OH",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 261,
+      "state": "OH",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 262,
+      "state": "OH",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 263,
+      "state": "OH",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 264,
+      "state": "OH",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 265,
+      "state": "GA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 266,
+      "state": "GA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 267,
+      "state": "GA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 268,
+      "state": "GA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 269,
+      "state": "GA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 270,
+      "state": "GA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 271,
+      "state": "GA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 272,
+      "state": "GA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 273,
+      "state": "GA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 274,
+      "state": "GA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 275,
+      "state": "GA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 276,
+      "state": "GA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 277,
+      "state": "GA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 278,
+      "state": "GA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 279,
+      "state": "NC",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 280,
+      "state": "NC",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 281,
+      "state": "NC",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 282,
+      "state": "NC",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 283,
+      "state": "NC",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 284,
+      "state": "NC",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 285,
+      "state": "NC",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 286,
+      "state": "NC",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 287,
+      "state": "NC",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 288,
+      "state": "NC",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 289,
+      "state": "NC",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 290,
+      "state": "NC",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 291,
+      "state": "NC",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 292,
+      "state": "NC",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 293,
+      "state": "MI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 294,
+      "state": "MI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 295,
+      "state": "MI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 296,
+      "state": "MI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 297,
+      "state": "MI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 298,
+      "state": "MI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 299,
+      "state": "MI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 300,
+      "state": "MI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 301,
+      "state": "MI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 302,
+      "state": "MI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 303,
+      "state": "MI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 304,
+      "state": "MI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 305,
+      "state": "MI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 306,
+      "state": "NJ",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 307,
+      "state": "NJ",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 308,
+      "state": "NJ",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 309,
+      "state": "NJ",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 310,
+      "state": "NJ",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 311,
+      "state": "NJ",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 312,
+      "state": "NJ",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 313,
+      "state": "NJ",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 314,
+      "state": "NJ",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 315,
+      "state": "NJ",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 316,
+      "state": "NJ",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 317,
+      "state": "NJ",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 318,
+      "state": "VA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 319,
+      "state": "VA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 320,
+      "state": "VA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 321,
+      "state": "VA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 322,
+      "state": "VA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 323,
+      "state": "VA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 324,
+      "state": "VA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 325,
+      "state": "VA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 326,
+      "state": "VA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 327,
+      "state": "VA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 328,
+      "state": "VA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 329,
+      "state": "WA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 330,
+      "state": "WA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 331,
+      "state": "WA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 332,
+      "state": "WA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 333,
+      "state": "WA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 334,
+      "state": "WA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 335,
+      "state": "WA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 336,
+      "state": "WA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 337,
+      "state": "WA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 338,
+      "state": "WA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 339,
+      "state": "AZ",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 340,
+      "state": "AZ",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 341,
+      "state": "AZ",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 342,
+      "state": "AZ",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 343,
+      "state": "AZ",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 344,
+      "state": "AZ",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 345,
+      "state": "AZ",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 346,
+      "state": "AZ",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 347,
+      "state": "AZ",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 348,
+      "state": "IN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 349,
+      "state": "IN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 350,
+      "state": "IN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 351,
+      "state": "IN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 352,
+      "state": "IN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 353,
+      "state": "IN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 354,
+      "state": "IN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 355,
+      "state": "IN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 356,
+      "state": "IN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 357,
+      "state": "MA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 358,
+      "state": "MA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 359,
+      "state": "MA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 360,
+      "state": "MA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 361,
+      "state": "MA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 362,
+      "state": "MA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 363,
+      "state": "MA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 364,
+      "state": "MA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 365,
+      "state": "MA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 366,
+      "state": "TN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 367,
+      "state": "TN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 368,
+      "state": "TN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 369,
+      "state": "TN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 370,
+      "state": "TN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 371,
+      "state": "TN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 372,
+      "state": "TN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 373,
+      "state": "TN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 374,
+      "state": "TN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 375,
+      "state": "MD",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 376,
+      "state": "MD",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 377,
+      "state": "MD",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 378,
+      "state": "MD",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 379,
+      "state": "MD",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 380,
+      "state": "MD",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 381,
+      "state": "MD",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 382,
+      "state": "MD",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 383,
+      "state": "MN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 384,
+      "state": "MN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 385,
+      "state": "MN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 386,
+      "state": "MN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 387,
+      "state": "MN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 388,
+      "state": "MN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 389,
+      "state": "MN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 390,
+      "state": "MN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 391,
+      "state": "MO",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 392,
+      "state": "MO",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 393,
+      "state": "MO",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 394,
+      "state": "MO",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 395,
+      "state": "MO",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 396,
+      "state": "MO",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 397,
+      "state": "MO",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 398,
+      "state": "MO",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 399,
+      "state": "WI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 400,
+      "state": "WI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 401,
+      "state": "WI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 402,
+      "state": "WI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 403,
+      "state": "WI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 404,
+      "state": "WI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 405,
+      "state": "WI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 406,
+      "state": "WI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 407,
+      "state": "CO",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 408,
+      "state": "CO",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 409,
+      "state": "CO",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 410,
+      "state": "CO",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 411,
+      "state": "CO",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 412,
+      "state": "CO",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 413,
+      "state": "CO",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 414,
+      "state": "CO",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 415,
+      "state": "AL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 416,
+      "state": "AL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 417,
+      "state": "AL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 418,
+      "state": "AL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 419,
+      "state": "AL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 420,
+      "state": "AL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 421,
+      "state": "AL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 422,
+      "state": "SC",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 423,
+      "state": "SC",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 424,
+      "state": "SC",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 425,
+      "state": "SC",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 426,
+      "state": "SC",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 427,
+      "state": "SC",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 428,
+      "state": "SC",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 429,
+      "state": "LA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 430,
+      "state": "LA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 431,
+      "state": "LA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 432,
+      "state": "LA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 433,
+      "state": "LA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 434,
+      "state": "LA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 435,
+      "state": "KY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 436,
+      "state": "KY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 437,
+      "state": "KY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 438,
+      "state": "KY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 439,
+      "state": "KY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 440,
+      "state": "KY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 441,
+      "state": "OR",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 442,
+      "state": "OR",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 443,
+      "state": "OR",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 444,
+      "state": "OR",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 445,
+      "state": "OR",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 446,
+      "state": "OR",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 447,
+      "state": "OK",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 448,
+      "state": "OK",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 449,
+      "state": "OK",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 450,
+      "state": "OK",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 451,
+      "state": "OK",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 452,
+      "state": "CT",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 453,
+      "state": "CT",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 454,
+      "state": "CT",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 455,
+      "state": "CT",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 456,
+      "state": "CT",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 457,
+      "state": "IA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 458,
+      "state": "IA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 459,
+      "state": "IA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 460,
+      "state": "IA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 461,
+      "state": "AR",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 462,
+      "state": "AR",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 463,
+      "state": "AR",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 464,
+      "state": "AR",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 465,
+      "state": "KS",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 466,
+      "state": "KS",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 467,
+      "state": "KS",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 468,
+      "state": "KS",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 469,
+      "state": "MS",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 470,
+      "state": "MS",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 471,
+      "state": "MS",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 472,
+      "state": "MS",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 473,
+      "state": "NV",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 474,
+      "state": "NV",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 475,
+      "state": "NV",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 476,
+      "state": "NV",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 477,
+      "state": "UT",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 478,
+      "state": "UT",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 479,
+      "state": "UT",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 480,
+      "state": "UT",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 481,
+      "state": "NM",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 482,
+      "state": "NM",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 483,
+      "state": "NM",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 484,
+      "state": "NE",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 485,
+      "state": "NE",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 486,
+      "state": "NE",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 487,
+      "state": "WV",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 488,
+      "state": "WV",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 489,
+      "state": "ID",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 490,
+      "state": "ID",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 491,
+      "state": "HI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 492,
+      "state": "HI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 493,
+      "state": "ME",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 494,
+      "state": "ME",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 495,
+      "state": "NH",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 496,
+      "state": "NH",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 497,
+      "state": "RI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 498,
+      "state": "RI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 499,
+      "state": "MT",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 500,
+      "state": "MT",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 501,
+      "state": "ND",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 502,
+      "state": "SD",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 503,
+      "state": "DE",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 504,
+      "state": "VT",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 505,
+      "state": "WY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 506,
+      "state": "AK",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 507,
+      "state": "OK",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 508,
+      "state": "MD",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 509,
+      "state": "NY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 510,
+      "state": "UT",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 511,
+      "state": "CO",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 512,
+      "state": "AZ",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 513,
+      "state": "KS",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 514,
+      "state": "MI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 515,
+      "state": "MO",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 516,
+      "state": "VA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 517,
+      "state": "WA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 518,
+      "state": "TN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 519,
+      "state": "HI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 520,
+      "state": "CT",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 521,
+      "state": "MN",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 522,
+      "state": "VT",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 523,
+      "state": "WI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 524,
+      "state": "AK",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 525,
+      "state": "FL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 526,
+      "state": "WY",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 527,
+      "state": "MA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 528,
+      "state": "NH",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 529,
+      "state": "RI",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 530,
+      "state": "DE",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 531,
+      "state": "AL",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 532,
+      "state": "GA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 533,
+      "state": "SC",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 534,
+      "state": "LA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 535,
+      "state": "SD",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 536,
+      "state": "CA",
+      "outcome": "Worked",
+      "changed": false
+    },
+    {
+      "id": 537,
+      "state": "GA",
+      "outcome": "Worked",
+      "changed": false
+    }
+  ],
+  "summary": {
+    "edgeCases": 32,
+    "edgeCasesWorked": 32,
+    "edgeCasesFailed": 0,
+    "oldStaleContextControlsReproduced": 24,
+    "originalPayloads": 537,
+    "originalPayloadsUnchanged": 537,
+    "originalPayloadsChanged": 0,
+    "noProjectionThrows": true
+  },
+  "scope": {
+    "offlineOnly": true,
+    "networkUsed": false,
+    "browserUsed": false,
+    "dbWrites": false,
+    "peerFileEdits": false
+  }
+}

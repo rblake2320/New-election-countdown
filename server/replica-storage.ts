@@ -1,4 +1,4 @@
-import { buildElectionListQuery } from "./election-list-query";
+import { buildElectionListQuery, projectElectionResultsRow, resultsCatalogTimestamp } from "./election-list-query";
 import type { ElectionListing, ElectionQueryFilters } from "./election-list-filters";
 import { validateNotMockData } from "./validators/state-election-rules";
 /**
@@ -13,7 +13,7 @@ import ws from "ws";
 import * as schema from "@shared/schema";
 import type { IStorage } from "./storage";
 import { type Election, type InsertElection, type Candidate, type InsertCandidate, type ElectionFilters, type CongressMember, type InsertCongressMember, type User, type UpsertUser, type WatchlistItem, type InsertWatchlistItem, type CandidateAccount, type InsertCandidateAccount, type CandidateProfile, type InsertCandidateProfile, type CandidateDataSource, type InsertCandidateDataSource, type CandidatePosition, type InsertCandidatePosition, type CandidateQA, type InsertCandidateQA } from "@shared/schema";
-import { eq, and, gte, lte, ilike, or, desc, inArray } from "drizzle-orm";
+import { eq, and, gte, lte, ilike, or, desc, inArray, getTableColumns } from "drizzle-orm";
 
 // Configure Neon for replica connections
 neonConfig.webSocketConstructor = ws;
@@ -179,16 +179,16 @@ export class ReplicaStorage implements IStorage {
 
   async getElections(filters?: ElectionQueryFilters): Promise<ElectionListing[]> {
     const query = buildElectionListQuery(this.db, filters);
-    return this.executeQuery(async () => (await query).filter(election => validateNotMockData(election).ok), 'getElections');
+    return this.executeQuery(async () => (await query).filter(election => validateNotMockData(election).ok).map(projectElectionResultsRow), 'getElections');
   }
 
   async getElection(id: number): Promise<Election | undefined> {
     return this.executeQuery(async () => {
-      const results = await this.db.select()
+      const results = await this.db.select({ ...getTableColumns(schema.elections), resultsCatalogTimestamp })
         .from(schema.elections)
         .where(eq(schema.elections.id, id))
         .execute();
-      return results[0];
+      return results[0] ? projectElectionResultsRow<Election & { resultsCatalogTimestamp: string }>(results[0]) : undefined;
     }, 'getElection');
   }
 

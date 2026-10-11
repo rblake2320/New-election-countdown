@@ -1,0 +1,387 @@
+{
+  "checkedAt": "2026-10-11T13:38:33.828Z",
+  "clientHead": "bb17d7b0225b95dea3e6e4d8f93468d8fb50445a",
+  "negativeControlHead": "421e17aba77f0345e368735db3f25bd9da79a508",
+  "sharedHead": "554ab9020a0c2937a2df5bbc56a5e963444a3be9",
+  "actualPayloads": {
+    "details": {
+      "path": "D:/projects/et-wt/sol-c6-results/artifacts/c6-private-81224-3e46a2/actual-detail-payloads.json",
+      "sha256": "401e79f55b0db62d3e790f694e1f2650422f3fc229d6c6f65d7377914c5d5d82"
+    },
+    "upcoming": {
+      "path": "D:/projects/et-wt/sol-c6-results/artifacts/c6-private-81224-3e46a2/actual-upcoming-payloads.json",
+      "sha256": "b8ea7f72e7015f3f8a2b496d817d5b59b5fa97eb2ab666a4d3ad739e66311cf8"
+    }
+  },
+  "checks": [
+    {
+      "scenario": "Retained actual detail and upcoming record conservation",
+      "outcome": "Worked",
+      "evidence": {
+        "details": 537,
+        "upcoming": 506,
+        "target": 506
+      }
+    },
+    {
+      "scenario": "Every retained official result field pair obeys immutable C6 shared schema",
+      "outcome": "Worked",
+      "evidence": null
+    },
+    {
+      "scenario": "All actual payloads render without any posted/certified/numeric-vote-total claim",
+      "outcome": "Worked",
+      "evidence": {
+        "renderedRecords": 537,
+        "publicationStatusCount": 0
+      }
+    },
+    {
+      "scenario": "31 non-target detail rows have no official result links",
+      "outcome": "Worked",
+      "evidence": {
+        "rows": 31
+      }
+    },
+    {
+      "scenario": "NH null destinations render nothing for all four target races",
+      "outcome": "Worked",
+      "evidence": {
+        "targetRaces": 4
+      }
+    },
+    {
+      "scenario": "GA healthy generic portal gets navigation label without publication claim",
+      "outcome": "Worked",
+      "evidence": {
+        "rows": 16,
+        "example": {
+          "href": "https://results.sos.ga.gov/",
+          "publisher": "Election Results",
+          "checkedAt": "2026-10-11T12:29:09.125709+00:00",
+          "label": "Official election results portal",
+          "note": "We couldn't confirm whether this page will carry Nov 3, 2026 results."
+        }
+      }
+    },
+    {
+      "scenario": "MA healthy generic portal gets navigation label without publication claim",
+      "outcome": "Worked",
+      "evidence": {
+        "rows": 11,
+        "example": {
+          "href": "https://electionstats.state.ma.us/",
+          "publisher": "PD43+ » Massachusetts Election Results and Statistics",
+          "checkedAt": "2026-10-11T12:29:11.123620+00:00",
+          "label": "Official election results portal",
+          "note": "When checked, this page did not yet provide a Nov 3, 2026 results link."
+        }
+      }
+    },
+    {
+      "scenario": "LA429 retained correction context remains primary/unknown; no general-results claim",
+      "outcome": "Worked",
+      "evidence": {
+        "id": 429,
+        "type": "primary",
+        "sourcePhase": "primary",
+        "status": "unknown",
+        "baselineScope": "C6 main426c7095 plus LA429 fixture, not post-C7 catalog; remaining LA old types are untouched"
+      }
+    },
+    {
+      "scenario": "MT actual served pending heading has corrected results-link wording",
+      "outcome": "Worked",
+      "evidence": {
+        "id": 19,
+        "oldNote": "When checked, this page did not yet list the Nov 3, 2026 election.",
+        "fixedNote": "When checked, this page did not yet provide a Nov 3, 2026 results link."
+      }
+    },
+    {
+      "scenario": "ND actual served pending heading has corrected results-link wording",
+      "outcome": "Worked",
+      "evidence": {
+        "id": 501,
+        "oldNote": "When checked, this page did not yet list the Nov 3, 2026 election.",
+        "fixedNote": "When checked, this page did not yet provide a Nov 3, 2026 results link."
+      }
+    },
+    {
+      "scenario": "OK actual served pending heading has corrected results-link wording",
+      "outcome": "Worked",
+      "evidence": {
+        "id": 61,
+        "oldNote": "When checked, this page did not yet list the Nov 3, 2026 election.",
+        "fixedNote": "When checked, this page did not yet provide a Nov 3, 2026 results link."
+      }
+    },
+    {
+      "scenario": "Rendered links all open in new tab with noopener/noreferrer",
+      "outcome": "Worked",
+      "evidence": {
+        "links": 502
+      }
+    },
+    {
+      "scenario": "Invalid/missing destination is hidden 12",
+      "outcome": "Worked",
+      "evidence": null
+    },
+    {
+      "scenario": "Invalid/missing destination is hidden 13",
+      "outcome": "Worked",
+      "evidence": null
+    },
+    {
+      "scenario": "Invalid/missing destination is hidden 14",
+      "outcome": "Worked",
+      "evidence": null
+    },
+    {
+      "scenario": "Invalid/missing destination is hidden 15",
+      "outcome": "Worked",
+      "evidence": null
+    },
+    {
+      "scenario": "Invalid/missing destination is hidden 16",
+      "outcome": "Worked",
+      "evidence": null
+    },
+    {
+      "scenario": "Invalid/missing destination is hidden 17",
+      "outcome": "Worked",
+      "evidence": null
+    },
+    {
+      "scenario": "Synthetic shared-schema-valid positive renders exact date and general phase",
+      "outcome": "Worked",
+      "evidence": null
+    },
+    {
+      "scenario": "Synthetic shared-schema-valid primary publication stays explicitly primary",
+      "outcome": "Worked",
+      "evidence": null
+    },
+    {
+      "scenario": "Client read-flag publication control: Wrong route type",
+      "outcome": "Worked",
+      "evidence": {
+        "scenario": "Wrong route type",
+        "outcome": "Worked",
+        "sharedAccepts": false,
+        "directHelperNote": "We couldn't confirm whether this page will carry Nov 3, 2026 results.",
+        "directHelperSaysPosted": false,
+        "classification": "Direct helper mutation only; schema rejects before this C6 endpoint serves it. Not a current API defect.",
+        "sharedIssues": [
+          "Published requires a verified exact-date/phase specific results receipt"
+        ]
+      }
+    },
+    {
+      "scenario": "Client read-flag publication control: Missing published reason",
+      "outcome": "Worked",
+      "evidence": {
+        "scenario": "Missing published reason",
+        "outcome": "Worked",
+        "sharedAccepts": false,
+        "directHelperNote": "We couldn't confirm whether this page will carry Nov 3, 2026 results.",
+        "directHelperSaysPosted": false,
+        "classification": "Direct helper mutation only; schema rejects before this C6 endpoint serves it. Not a current API defect.",
+        "sharedIssues": [
+          "Required"
+        ]
+      }
+    },
+    {
+      "scenario": "Client read-flag publication control: Blocked route",
+      "outcome": "Worked",
+      "evidence": {
+        "scenario": "Blocked route",
+        "outcome": "Worked",
+        "sharedAccepts": false,
+        "directHelperNote": null,
+        "directHelperSaysPosted": false,
+        "classification": "Direct helper mutation only; schema rejects before this C6 endpoint serves it. Not a current API defect.",
+        "sharedIssues": [
+          "Published requires a verified exact-date/phase specific results receipt",
+          "A destination requires verified source metadata"
+        ]
+      }
+    },
+    {
+      "scenario": "Client read-flag publication control: Unknown publication status",
+      "outcome": "Worked",
+      "evidence": {
+        "scenario": "Unknown publication status",
+        "outcome": "Worked",
+        "sharedAccepts": false,
+        "directHelperNote": "We couldn't confirm whether this page will carry Nov 3, 2026 results.",
+        "directHelperSaysPosted": false,
+        "classification": "Direct helper mutation only; schema rejects before this C6 endpoint serves it. Not a current API defect.",
+        "sharedIssues": [
+          "Specific publication evidence cannot be asserted on pending or unknown routes"
+        ]
+      }
+    }
+  ],
+  "negativeControls": [
+    {
+      "scenario": "MT same actual payload negative control at B421e17a",
+      "outcome": "Expected failure reproduced",
+      "oldNote": "When checked, this page did not yet list the Nov 3, 2026 election."
+    },
+    {
+      "scenario": "ND same actual payload negative control at B421e17a",
+      "outcome": "Expected failure reproduced",
+      "oldNote": "When checked, this page did not yet list the Nov 3, 2026 election."
+    },
+    {
+      "scenario": "OK same actual payload negative control at B421e17a",
+      "outcome": "Expected failure reproduced",
+      "oldNote": "When checked, this page did not yet list the Nov 3, 2026 election."
+    }
+  ],
+  "futurePublicationGateCases": [
+    {
+      "scenario": "Missing publication receipt",
+      "outcome": "Worked",
+      "sharedAccepts": false,
+      "directHelperNote": "Posted for the Nov 3, 2026 general election.",
+      "directHelperSaysPosted": true,
+      "classification": "Direct helper mutation only; schema rejects before this C6 endpoint serves it. Not a current API defect.",
+      "sharedIssues": [
+        "Published requires a verified exact-date/phase specific results receipt",
+        "Published destination must match the observed receiving receipt"
+      ]
+    },
+    {
+      "scenario": "Receipt destination differs",
+      "outcome": "Worked",
+      "sharedAccepts": false,
+      "directHelperNote": "Posted for the Nov 3, 2026 general election.",
+      "directHelperSaysPosted": true,
+      "classification": "Direct helper mutation only; schema rejects before this C6 endpoint serves it. Not a current API defect.",
+      "sharedIssues": [
+        "Published destination must match the observed receiving receipt"
+      ]
+    },
+    {
+      "scenario": "Receipt phase differs",
+      "outcome": "Worked",
+      "sharedAccepts": false,
+      "directHelperNote": "Posted for the Nov 3, 2026 general election.",
+      "directHelperSaysPosted": true,
+      "classification": "Direct helper mutation only; schema rejects before this C6 endpoint serves it. Not a current API defect.",
+      "sharedIssues": [
+        "Published requires a verified exact-date/phase specific results receipt"
+      ]
+    },
+    {
+      "scenario": "Target date differs",
+      "outcome": "Worked",
+      "sharedAccepts": false,
+      "directHelperNote": "Posted for the Nov 4, 2026 general election.",
+      "directHelperSaysPosted": true,
+      "classification": "Direct helper mutation only; schema rejects before this C6 endpoint serves it. Not a current API defect.",
+      "sharedIssues": [
+        "Invalid literal value, expected \"2026-11-03\""
+      ]
+    },
+    {
+      "scenario": "Missing target date",
+      "outcome": "Worked",
+      "sharedAccepts": false,
+      "directHelperNote": "Posted for the this election general election.",
+      "directHelperSaysPosted": true,
+      "classification": "Direct helper mutation only; schema rejects before this C6 endpoint serves it. Not a current API defect.",
+      "sharedIssues": [
+        "Invalid literal value, expected \"2026-11-03\""
+      ]
+    },
+    {
+      "scenario": "Receipt checked time differs",
+      "outcome": "Worked",
+      "sharedAccepts": false,
+      "directHelperNote": "Posted for the Nov 3, 2026 general election.",
+      "directHelperSaysPosted": true,
+      "classification": "Direct helper mutation only; schema rejects before this C6 endpoint serves it. Not a current API defect.",
+      "sharedIssues": [
+        "Published requires a verified exact-date/phase specific results receipt"
+      ]
+    },
+    {
+      "scenario": "Wrong route type",
+      "outcome": "Worked",
+      "sharedAccepts": false,
+      "directHelperNote": "We couldn't confirm whether this page will carry Nov 3, 2026 results.",
+      "directHelperSaysPosted": false,
+      "classification": "Direct helper mutation only; schema rejects before this C6 endpoint serves it. Not a current API defect.",
+      "sharedIssues": [
+        "Published requires a verified exact-date/phase specific results receipt"
+      ]
+    },
+    {
+      "scenario": "Missing published reason",
+      "outcome": "Worked",
+      "sharedAccepts": false,
+      "directHelperNote": "We couldn't confirm whether this page will carry Nov 3, 2026 results.",
+      "directHelperSaysPosted": false,
+      "classification": "Direct helper mutation only; schema rejects before this C6 endpoint serves it. Not a current API defect.",
+      "sharedIssues": [
+        "Required"
+      ]
+    },
+    {
+      "scenario": "Blocked route",
+      "outcome": "Worked",
+      "sharedAccepts": false,
+      "directHelperNote": null,
+      "directHelperSaysPosted": false,
+      "classification": "Direct helper mutation only; schema rejects before this C6 endpoint serves it. Not a current API defect.",
+      "sharedIssues": [
+        "Published requires a verified exact-date/phase specific results receipt",
+        "A destination requires verified source metadata"
+      ]
+    },
+    {
+      "scenario": "Unknown publication status",
+      "outcome": "Worked",
+      "sharedAccepts": false,
+      "directHelperNote": "We couldn't confirm whether this page will carry Nov 3, 2026 results.",
+      "directHelperSaysPosted": false,
+      "classification": "Direct helper mutation only; schema rejects before this C6 endpoint serves it. Not a current API defect.",
+      "sharedIssues": [
+        "Specific publication evidence cannot be asserted on pending or unknown routes"
+      ]
+    }
+  ],
+  "testEvidenceFinding": {
+    "scenario": "B synthetic positive fixture lacks required publicationEvidence",
+    "outcome": "Reproduced",
+    "classification": "Test-evidence defect, not a current API defect",
+    "sharedIssues": [
+      "Published requires a verified exact-date/phase specific results receipt",
+      "Published destination must match the observed receiving receipt"
+    ],
+    "replacement": "fixtures/schema-valid-future-sources.json with complete retained typed receipt bytes and actual fixture digests"
+  },
+  "summary": {
+    "finiteChecks": 24,
+    "worked": 24,
+    "failed": 0,
+    "actualComponentRenders": 537,
+    "oldWordingFailuresReproduced": 3,
+    "futureGateCases": 10,
+    "sharedRefusalsWorked": 10,
+    "totalFiniteScenarios": 37,
+    "totalFiniteScenariosWorked": 37,
+    "directHelperPostedForMalformedInputs": 6
+  },
+  "scope": {
+    "browserUsed": false,
+    "networkUsed": false,
+    "dbWrites": false,
+    "peerFileEdits": false
+  }
+}

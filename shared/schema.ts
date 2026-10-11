@@ -1,7 +1,8 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar, numeric, bigint, index, uniqueIndex } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar, numeric, bigint, index, uniqueIndex, check, foreignKey } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { type OfficialResultsSource } from './official-results';
 
 export const elections = pgTable("elections", {
   id: serial("id").primaryKey(),
@@ -21,6 +22,8 @@ export const elections = pgTable("elections", {
   pollCloseKind: text("poll_close_kind"), // 'polls' | 'ballot_return'
   pollHoursBasis: text("poll_hours_basis"), // 'statewide_latest' | 'district_latest' | 'local_variable'
   pollHoursSource: text("poll_hours_source"), // primary URL
+  officialResultsUrl: text("official_results_url"),
+  officialResultsSource: jsonb("official_results_source").$type<OfficialResultsSource>(),
   isActive: boolean("is_active").default(true),
 });
 
@@ -95,6 +98,31 @@ export const candidateIngestRuns = pgTable("candidate_ingest_runs", {
   appliedAt: timestamp("applied_at", { withTimezone: true }).notNull(),
   receipt: jsonb("receipt").notNull(),
 });
+
+// Keep the hand-operated migration represented in Drizzle's schema so later
+// schema synchronization cannot mistake durable results audits for drift.
+export const officialResultsSyncRuns = pgTable('official_results_sync_runs', {
+  id: text('id').primaryKey(),
+  operation: text('operation').notNull(),
+  manifestSha256: text('manifest_sha256').notNull(),
+  preimageSha256: text('preimage_sha256').notNull(),
+  postimageSha256: text('postimage_sha256').notNull(),
+  targetCount: integer('target_count').notNull(),
+  changedCount: integer('changed_count').notNull(),
+  changes: jsonb('changes').$type<unknown[]>().notNull(),
+  rollbackOf: text('rollback_of'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, table => [
+  check('official_results_sync_runs_operation_check', sql`${table.operation} IN ('apply', 'rollback')`),
+  check('official_results_sync_runs_manifest_sha256_check', sql`${table.manifestSha256} ~ '^[a-f0-9]{64}$'`),
+  check('official_results_sync_runs_preimage_sha256_check', sql`${table.preimageSha256} ~ '^[a-f0-9]{64}$'`),
+  check('official_results_sync_runs_postimage_sha256_check', sql`${table.postimageSha256} ~ '^[a-f0-9]{64}$'`),
+  check('official_results_sync_runs_target_count_check', sql`${table.targetCount} > 0`),
+  check('official_results_sync_runs_changed_count_check', sql`${table.changedCount} >= 0`),
+  check('official_results_sync_runs_changes_check', sql`jsonb_typeof(${table.changes}) = 'array'`),
+  foreignKey({ columns: [table.rollbackOf], foreignColumns: [table.id], name: 'official_results_sync_runs_rollback_of_fkey' }),
+  uniqueIndex('official_results_one_rollback').on(table.rollbackOf).where(sql`${table.rollbackOf} IS NOT NULL`),
+]);
 
 // Complete official list coverage persists independently of candidate count.
 export const generalCandidateListSnapshots = pgTable("general_candidate_list_snapshots", {
@@ -819,8 +847,17 @@ export const filterSchema = z.object({
 });
 
 // Insert schemas
-export const insertElectionSchema = createInsertSchema(elections).omit({
-  id: true,
+// Results provenance is populated by the audited source importer, not callers.
+export const insertElectionSchema = z.object({
+  title: z.string(), subtitle: z.string().nullable().optional(),
+  location: z.string(), state: z.string(), date: z.date(),
+  type: z.string(), level: z.string(),
+  offices: z.array(z.string()).nullable().optional(),
+  description: z.string().nullable().optional(),
+  pollsOpen: z.string().nullable().optional(), pollsClose: z.string().nullable().optional(),
+  timezone: z.string().nullable().optional(), pollCloseKind: z.string().nullable().optional(),
+  pollHoursBasis: z.string().nullable().optional(), pollHoursSource: z.string().nullable().optional(),
+  isActive: z.boolean().nullable().optional(),
 });
 
 export const insertCandidateSchema = createInsertSchema(candidates).omit({

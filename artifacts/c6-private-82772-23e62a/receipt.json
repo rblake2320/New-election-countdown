@@ -1,0 +1,127 @@
+{
+  "manifestSha256": "edbc1deff97cba8a154f3322e305be08427be1db358761635e59153328e04c86",
+  "outcome": "Worked",
+  "nullDefaults": {
+    "sqlRecords": 537,
+    "httpRecords": 507,
+    "outcome": "Worked"
+  },
+  "dryRun": {
+    "outcome": "Worked",
+    "targetCount": 506,
+    "proposedChanges": 506,
+    "catalogUnchanged": true,
+    "auditRows": 0
+  },
+  "manifestGuard": "Manifest SHA guard rejected this apply",
+  "preimageGuard": "Catalog preimage guard rejected this apply",
+  "missingReceivingState": "No November 3 receiving elections for reviewed states: WY",
+  "unknownManifestFields": "[\n  {\n    \"code\": \"unrecognized_keys\",\n    \"keys\": [\n      \"unreviewedStatus\"\n    ],\n    \"path\": [\n      \"states\",\n      0,\n      \"source\"\n    ],\n    \"message\": \"Unrecognized key(s) in object: 'unreviewedStatus'\"\n  }\n]",
+  "interveningChange": "Catalog preimage guard rejected this apply",
+  "injectedRollback": "Injected C6 rollback acceptance failure",
+  "writerLock": "canceling statement due to lock timeout",
+  "apply": {
+    "outcome": "Worked",
+    "targetCount": 506,
+    "changedCount": 506,
+    "historicalRowsUnchanged": 31,
+    "futureColumnPreserved": true,
+    "candidateRowsUnchanged": true,
+    "nhUnknown": 4,
+    "miGateway": 15,
+    "laPrimaryUnknown": true,
+    "runId": "0d1c68d6-d9cc-455f-88ab-4de8190660b8"
+  },
+  "dateCorrectionReceiving": {
+    "outcome": "Worked",
+    "adminStatus": 200,
+    "storedSourceUnchanged": true,
+    "detail": {
+      "id": 1,
+      "title": "U.S. Senate Election - Alabama",
+      "date": "2026-11-04T00:00:00.000Z",
+      "state": "AL",
+      "level": "federal",
+      "type": "general",
+      "officialResultsUrl": null,
+      "officialResultsSource": null,
+      "candidates": 0
+    },
+    "listing": {
+      "id": 1,
+      "title": "U.S. Senate Election - Alabama",
+      "subtitle": "Open Seat (Tuberville running for Governor)",
+      "location": "AL",
+      "state": "AL",
+      "date": "2026-11-04T00:00:00.000Z",
+      "type": "general",
+      "level": "federal",
+      "offices": [
+        "U.S. Senate"
+      ],
+      "description": "Open seat — incumbent Tommy Tuberville (R) is running for governor. Nominees decided in June 16 runoffs.",
+      "pollsOpen": null,
+      "pollsClose": null,
+      "timezone": null,
+      "pollCloseKind": null,
+      "pollHoursBasis": null,
+      "pollHoursSource": null,
+      "officialResultsUrl": null,
+      "officialResultsSource": null,
+      "isActive": true,
+      "candidateCount": 0
+    },
+    "wrapped": {
+      "id": 1,
+      "title": "U.S. Senate Election - Alabama",
+      "subtitle": "Open Seat (Tuberville running for Governor)",
+      "location": "AL",
+      "state": "AL",
+      "date": "2026-11-04T00:00:00.000Z",
+      "type": "general",
+      "level": "federal",
+      "offices": [
+        "U.S. Senate"
+      ],
+      "description": "Open seat — incumbent Tommy Tuberville (R) is running for governor. Nominees decided in June 16 runoffs.",
+      "pollsOpen": null,
+      "pollsClose": null,
+      "timezone": null,
+      "pollCloseKind": null,
+      "pollHoursBasis": null,
+      "pollHoursSource": null,
+      "officialResultsUrl": null,
+      "officialResultsSource": null,
+      "isActive": true
+    }
+  },
+  "repeat": {
+    "outcome": "Worked",
+    "changedCount": 0,
+    "rowVersionsUnchanged": true
+  },
+  "compiledReceivingHttp": {
+    "outcome": "Worked",
+    "details": 537,
+    "listings": 506,
+    "fieldComparisons": 2086,
+    "mismatches": 0,
+    "quotaWaits": 1,
+    "durationMs": 51316
+  },
+  "staleRollback": "Rollback refused: catalog changed after this run",
+  "operatorRollback": {
+    "outcome": "Worked",
+    "changedCount": 506,
+    "restoredExactPreimage": true,
+    "runId": "4dfd1b4f-f73b-4961-86d4-9809d7fafd39"
+  },
+  "duplicateRollback": "Apply run has already been rolled back",
+  "readyForPackagedApply": {
+    "manifestSha256": "edbc1deff97cba8a154f3322e305be08427be1db358761635e59153328e04c86",
+    "preimageSha256": "661ed24e8d5e7aa462b2d96ac0b63e7329f3a5e30841561d87747ff355e19b14",
+    "postimageSha256": "d3cfc09619d0824dd4e3b94c20541ebfe978eaaf7b78a485d3f1b29cdf32100f",
+    "changedCount": 506,
+    "auditRows": 3
+  }
+}
