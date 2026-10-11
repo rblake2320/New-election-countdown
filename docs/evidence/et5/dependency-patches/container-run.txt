@@ -1,0 +1,105 @@
+nominee ingestion acceptance skipped: PR #8 CLI not present in this checkout
+{
+  "image": "electiontracker:dependency-patches",
+  "builder": "electiontracker:dependency-patches-builder",
+  "network": "internal, no published ports",
+  "passed": true,
+  "http": [
+    {
+      "path": "/",
+      "status": 200,
+      "bytes": 1832
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "bytes": 239
+    },
+    {
+      "path": "/api/elections",
+      "status": 200,
+      "bytes": 231032
+    }
+  ],
+  "elections": {
+    "total": 537,
+    "distinct": 537
+  },
+  "boundary": "production-only paths verified",
+  "imageId": "sha256:510fa045df13c11016538c90846890132fce2ba5b6eb5a4addef990d4c3ac6ef",
+  "listingContract": [
+    {
+      "query": "",
+      "status": 200,
+      "rows": 507,
+      "membershipAndCountsMatch": true
+    },
+    {
+      "query": "?timeframe=upcoming",
+      "status": 200,
+      "rows": 506,
+      "membershipAndCountsMatch": true
+    },
+    {
+      "query": "?timeframe=next-30-days",
+      "status": 200,
+      "rows": 506,
+      "membershipAndCountsMatch": true
+    },
+    {
+      "query": "?level=federal",
+      "status": 200,
+      "rows": 470,
+      "membershipAndCountsMatch": true
+    },
+    {
+      "query": "?level=Federal",
+      "status": 200,
+      "rows": 470,
+      "membershipAndCountsMatch": true
+    },
+    {
+      "query": "?party=D",
+      "status": 200,
+      "rows": 55,
+      "membershipAndCountsMatch": true
+    },
+    {
+      "query": "?party=Democratic",
+      "status": 200,
+      "rows": 55,
+      "membershipAndCountsMatch": true
+    },
+    {
+      "query": "?timeframe=typo",
+      "status": 400
+    }
+  ],
+  "fecIngestion": {
+    "outcome": "worked",
+    "fixture": "isolated synthetic PostgreSQL",
+    "checks": {
+      "dry_run_no_writes": true,
+      "atomic_apply": true,
+      "exact_repeat_no_candidate_changes": true,
+      "missing_migration_refuses_without_writes": true,
+      "migration_idempotent": true,
+      "existing_ballot_hash_and_timestamp_preserved": true,
+      "separate_fec_source_retained": true,
+      "transactional_apply_receipt": true,
+      "committed_receipt_survives_local_disk_failure": true,
+      "registration_never_certified": true,
+      "unknown_party_not_independent": true,
+      "parameterized_apostrophe_name": true,
+      "injected_failure_full_rollback": true,
+      "concurrent_apply_one_identity": true,
+      "imported_party_refresh": true,
+      "historical_source_reactivation_updates_current_version": true
+    },
+    "first_actions": 3,
+    "repeated_actions": 0
+  },
+  "nomineeIngestion": {
+    "skipped": "scripts/refresh_general_candidates.ts not in this tree (PR #8 / ET-9 not merged); FEC ingestion above still enforced"
+  }
+}

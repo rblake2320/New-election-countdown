@@ -1,0 +1,81 @@
+{
+  "image": "electiontracker:integrated-ad",
+  "builder": "electiontracker:et5-builder",
+  "network": "internal, no published ports",
+  "passed": true,
+  "http": [
+    {
+      "path": "/",
+      "status": 200,
+      "bytes": 1306
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "bytes": 239
+    },
+    {
+      "path": "/api/elections",
+      "status": 200,
+      "bytes": 197570
+    }
+  ],
+  "elections": {
+    "total": 537,
+    "distinct": 537
+  },
+  "boundary": "production-only paths verified",
+  "imageId": "sha256:0b55cddcef247947ee054ad3dc86ad98185c64aa02a22d7c3f8e3e18c4ab7ff8",
+  "outage": {
+    "status": 503,
+    "body": {
+      "ok": false,
+      "mode": "memory",
+      "dbHealthy": false,
+      "message": "Database health check failed - operating in memory mode",
+      "total_elections": 0,
+      "visible_elections": 0,
+      "elections": 0,
+      "candidates": 0,
+      "congress": 0,
+      "congress_total": 0
+    },
+    "elapsedMs": 5276
+  },
+  "recovery": {
+    "status": 200,
+    "body": {
+      "ok": true,
+      "mode": "database",
+      "dbHealthy": true,
+      "systemHealthy": true,
+      "total_elections": 537,
+      "visible_elections": 537,
+      "elections": 537,
+      "candidates": 136,
+      "congress": 0,
+      "congress_total": 0,
+      "queueLength": 0,
+      "lastHealthCheck": "2026-10-11T06:35:09.902Z"
+    },
+    "elapsedMs": 296,
+    "countsPreserved": true,
+    "http": [
+      {
+        "path": "/",
+        "status": 200,
+        "bytes": 1306
+      },
+      {
+        "path": "/api/health",
+        "status": 200,
+        "bytes": 239
+      },
+      {
+        "path": "/api/elections",
+        "status": 200,
+        "bytes": 197570
+      }
+    ]
+  }
+}

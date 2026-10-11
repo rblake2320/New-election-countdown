@@ -1,5 +1,6 @@
 import { storage } from './storage';
 import fetch from 'node-fetch';
+import { BackgroundWork } from './background-work';
 
 interface ElectionResult {
   electionId: number;
@@ -21,7 +22,7 @@ interface CandidateResult {
 }
 
 export class ResultsIngestionService {
-  private pollingInterval: NodeJS.Timeout | null = null;
+  private pollingWork = new BackgroundWork();
   private isRunning = false;
   private googleCivicApiKey: string | null = null;
 
@@ -41,24 +42,28 @@ export class ResultsIngestionService {
     console.log(`Starting automated results ingestion (every ${intervalSeconds} seconds)`);
     this.isRunning = true;
 
+    const previous = this.pollingWork;
+    if (previous.isStopped) {
+      await previous.stop();
+      if (!this.isRunning) return;
+      this.pollingWork = new BackgroundWork();
+    }
+    const work = this.pollingWork;
+
     // Initial run
-    await this.ingestResults();
+    await work.run(() => this.ingestResults());
 
     // Schedule recurring polls
-    this.pollingInterval = setInterval(async () => {
-      await this.ingestResults();
-    }, intervalSeconds * 1000);
+    work.every(intervalSeconds * 1000, () => this.ingestResults(),
+      () => console.error('Scheduled results ingestion failed'));
   }
 
   /**
    * Stop the automated polling
    */
-  stopPolling(): void {
-    if (this.pollingInterval) {
-      clearInterval(this.pollingInterval);
-      this.pollingInterval = null;
-    }
+  async stopPolling(): Promise<void> {
     this.isRunning = false;
+    await this.pollingWork.stop();
     console.log('Results ingestion stopped');
   }
 
@@ -318,7 +323,7 @@ export class ResultsIngestionService {
     return {
       isRunning: this.isRunning,
       hasGoogleCivicKey: !!this.googleCivicApiKey,
-      pollingActive: !!this.pollingInterval,
+      pollingActive: this.pollingWork.hasTimers,
     };
   }
 }

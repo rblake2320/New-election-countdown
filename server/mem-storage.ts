@@ -1,3 +1,4 @@
+import { canonicalParty, electionCalendarWindow, normalizeElectionFilters, type ElectionListing, type ElectionQueryFilters } from "./election-list-filters";
 import { type Election, type InsertElection, type Candidate, type InsertCandidate, type ElectionFilters, type CongressMember, type InsertCongressMember, type User, type UpsertUser, type WatchlistItem, type InsertWatchlistItem, type CandidateAccount, type InsertCandidateAccount, type CandidateProfile, type InsertCandidateProfile, type CandidateDataSource, type InsertCandidateDataSource, type CandidatePosition, type InsertCandidatePosition, type CandidateQA, type InsertCandidateQA } from "@shared/schema";
 import { IStorage } from "./storage";
 import { getGoogleCivicService } from "./google-civic-service";
@@ -67,104 +68,37 @@ export class MemStorage implements IStorage {
   }
 
   // Elections methods
-  async getElections(filters?: ElectionFilters): Promise<Election[]> {
-    let results = Array.from(this.elections.values());
-
-    if (filters) {
-      // Filter by time range
-      if (filters.timeframe && filters.timeframe !== 'all') {
-        const now = new Date();
-        let endDate = new Date();
-        
-        switch (filters.timeframe) {
-          case 'week':
-            endDate.setDate(now.getDate() + 7);
-            break;
-          case 'month':
-            endDate.setMonth(now.getMonth() + 1);
-            break;
-          case 'quarter':
-            endDate.setMonth(now.getMonth() + 3);
-            break;
-          case 'year':
-            endDate.setFullYear(now.getFullYear() + 1);
-            break;
-        }
-        
-        results = results.filter(e => e.date >= now && e.date <= endDate);
-      }
-
-      // Filter by election type
-      if (filters.type) {
-        const types = Array.isArray(filters.type) ? filters.type : [filters.type];
-        // Convert types to lowercase for case-insensitive comparison
-        const lowercaseTypes = types.map(t => t.toLowerCase());
-        results = results.filter(e => lowercaseTypes.includes(e.type.toLowerCase()));
-      }
-
-      // Filter by election type array (from frontend)
-      if (filters.electionType) {
-        const types = Array.isArray(filters.electionType) ? filters.electionType : [filters.electionType];
-        // Convert types to lowercase for case-insensitive comparison
-        const lowercaseTypes = types.map(t => t.toLowerCase());
-        results = results.filter(e => lowercaseTypes.includes(e.type.toLowerCase()));
-      }
-
-      // Filter by level (case-insensitive)
-      if (filters.level) {
-        const levels = Array.isArray(filters.level) ? filters.level : [filters.level];
-        // Convert levels to lowercase for case-insensitive comparison
-        const lowercaseLevels = levels.map(l => l.toLowerCase());
-        results = results.filter(e => lowercaseLevels.includes(e.level.toLowerCase()));
-      }
-
-      // Filter by party (check candidates)
-      if (filters.party) {
-        const parties = Array.isArray(filters.party) ? filters.party : [filters.party];
-        results = results.filter(election => {
-          const candidateIds = this.candidatesByElection.get(election.id) || [];
-          return candidateIds.some(candidateId => {
-            const candidate = this.candidates.get(candidateId);
-            return candidate && parties.includes(candidate.party);
-          });
-        });
-      }
-
-      // Filter by state
-      if (filters.state && filters.state !== 'all') {
-        // Handle both full names and abbreviations
-        const stateAbbreviations: { [key: string]: string } = {
-          'Alabama': 'AL', 'Alaska': 'AK', 'Arizona': 'AZ', 'Arkansas': 'AR', 'California': 'CA',
-          'Colorado': 'CO', 'Connecticut': 'CT', 'Delaware': 'DE', 'Florida': 'FL', 'Georgia': 'GA',
-          'Hawaii': 'HI', 'Idaho': 'ID', 'Illinois': 'IL', 'Indiana': 'IN', 'Iowa': 'IA',
-          'Kansas': 'KS', 'Kentucky': 'KY', 'Louisiana': 'LA', 'Maine': 'ME', 'Maryland': 'MD',
-          'Massachusetts': 'MA', 'Michigan': 'MI', 'Minnesota': 'MN', 'Mississippi': 'MS', 'Missouri': 'MO',
-          'Montana': 'MT', 'Nebraska': 'NE', 'Nevada': 'NV', 'New Hampshire': 'NH', 'New Jersey': 'NJ',
-          'New Mexico': 'NM', 'New York': 'NY', 'North Carolina': 'NC', 'North Dakota': 'ND', 'Ohio': 'OH',
-          'Oklahoma': 'OK', 'Oregon': 'OR', 'Pennsylvania': 'PA', 'Rhode Island': 'RI', 'South Carolina': 'SC',
-          'South Dakota': 'SD', 'Tennessee': 'TN', 'Texas': 'TX', 'Utah': 'UT', 'Vermont': 'VT',
-          'Virginia': 'VA', 'Washington': 'WA', 'West Virginia': 'WV', 'Wisconsin': 'WI', 'Wyoming': 'WY'
-        };
-        
-        const stateValue = stateAbbreviations[filters.state] || filters.state;
-        results = results.filter(e => e.state === stateValue);
-      }
-
-      // Filter by search
-      if (filters.search) {
-        const searchTerm = filters.search.toLowerCase().trim();
-        results = results.filter(e => 
-          e.title.toLowerCase().includes(searchTerm) ||
-          e.subtitle?.toLowerCase().includes(searchTerm) ||
-          e.location.toLowerCase().includes(searchTerm)
-        );
-      }
+  async getElections(filters: ElectionQueryFilters = {}): Promise<ElectionListing[]> {
+    const now = new Date();
+    const f = normalizeElectionFilters(filters, now);
+    const counts = new Map<number, number>();
+    const parties = new Map<number, Set<string>>();
+    for (const candidate of Array.from(this.candidates.values())) {
+      if (candidate.electionId == null) continue;
+      counts.set(candidate.electionId, (counts.get(candidate.electionId) ?? 0) + 1);
+      const set = parties.get(candidate.electionId) ?? new Set<string>();
+      set.add(canonicalParty(candidate.party));
+      parties.set(candidate.electionId, set);
     }
-
-    // Sort by date (ascending)
-    results.sort((a, b) => a.date.getTime() - b.date.getTime());
-
-    return results;
+    const search = f.search?.toLowerCase();
+    return Array.from(this.elections.values()).filter(election => {
+      if (election.isActive !== true) return false;
+      const date = new Date(election.date);
+      if (f.from && date < f.from) return false;
+      const window = f.period ? electionCalendarWindow(now, f.period, election.timezone) : undefined;
+      if (window && date < window.from) return false;
+      const until = window?.until ?? f.until;
+      if (until && date >= until) return false;
+      if (f.state && election.state !== f.state) return false;
+      if (f.types.length && !f.types.includes(election.type.trim().toLowerCase())) return false;
+      if (f.electionTypes.length && !f.electionTypes.includes(election.type.trim().toLowerCase())) return false;
+      if (f.levels.length && !f.levels.includes(election.level.trim().toLowerCase())) return false;
+      if (f.parties.length && !f.parties.some(party => parties.get(election.id)?.has(party))) return false;
+      if (f.cycle && date.getUTCFullYear() !== f.cycle) return false;
+      if (search && ![election.title, election.subtitle, election.location].some(value => value?.toLowerCase().includes(search))) return false;
+      return true;
+    }).sort((a, b) => a.date.getTime() - b.date.getTime() || a.id - b.id)
+      .map(election => ({ ...election, candidateCount: counts.get(election.id) ?? 0 }));
   }
 
   async getElection(id: number): Promise<Election | undefined> {
@@ -607,6 +541,22 @@ export class MemStorage implements IStorage {
     };
     this.candidateAccounts.set(newAccount.id, newAccount);
     return newAccount;
+  }
+
+  async getCandidateAccountById(id: number): Promise<CandidateAccount | null> {
+    return this.candidateAccounts.get(id) ?? null;
+  }
+
+  async listCandidateAccounts(filter: { isActive?: boolean } = {}): Promise<CandidateAccount[]> {
+    return Array.from(this.candidateAccounts.values()).filter(a => filter.isActive === undefined || a.isActive === filter.isActive);
+  }
+
+  async setCandidateAccountActive(id: number, isActive: boolean, accessLevel?: string): Promise<CandidateAccount | null> {
+    const existing = this.candidateAccounts.get(id);
+    if (!existing) return null;
+    const updated = { ...existing, isActive, accessLevel: accessLevel ?? existing.accessLevel, updatedAt: new Date() };
+    this.candidateAccounts.set(id, updated);
+    return updated;
   }
 
   async getCandidateProfile(candidateId: number): Promise<CandidateProfile | null> {

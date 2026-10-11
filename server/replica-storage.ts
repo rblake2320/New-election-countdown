@@ -1,3 +1,6 @@
+import { buildElectionListQuery } from "./election-list-query";
+import type { ElectionListing, ElectionQueryFilters } from "./election-list-filters";
+import { validateNotMockData } from "./validators/state-election-rules";
 /**
  * Replica Storage Implementation
  * Handles read-only connections to Neon database replicas
@@ -174,26 +177,9 @@ export class ReplicaStorage implements IStorage {
     return this.isHealthy && this.consecutiveErrors < 3;
   }
 
-  async getElections(filters?: ElectionFilters): Promise<Election[]> {
-    return this.executeQuery(async () => {
-      let query = this.db.select().from(schema.elections);
-      
-      if (filters) {
-        const conditions = [];
-        if (filters.state) conditions.push(eq(schema.elections.state, filters.state));
-        if (filters.type) conditions.push(eq(schema.elections.type, filters.type));
-        if (filters.level) conditions.push(eq(schema.elections.level, filters.level));
-        if (filters.isActive !== undefined) conditions.push(eq(schema.elections.isActive, filters.isActive));
-        if (filters.dateFrom) conditions.push(gte(schema.elections.date, filters.dateFrom));
-        if (filters.dateTo) conditions.push(lte(schema.elections.date, filters.dateTo));
-        
-        if (conditions.length > 0) {
-          query = query.where(and(...conditions));
-        }
-      }
-      
-      return query.orderBy(schema.elections.date).execute();
-    }, 'getElections');
+  async getElections(filters?: ElectionQueryFilters): Promise<ElectionListing[]> {
+    const query = buildElectionListQuery(this.db, filters);
+    return this.executeQuery(async () => (await query).filter(election => validateNotMockData(election).ok), 'getElections');
   }
 
   async getElection(id: number): Promise<Election | undefined> {
@@ -382,6 +368,11 @@ export class ReplicaStorage implements IStorage {
   async getElectionCycle(slug: string): Promise<any> { return null; }
   async logInteraction(data: any): Promise<void> {}
   async authenticateCandidate(email: string, password: string): Promise<CandidateAccount | null> { return null; }
+  async getCandidateAccountById(_id: number): Promise<CandidateAccount | null> { return null; }
+  async listCandidateAccounts(_filter: { isActive?: boolean } = {}): Promise<CandidateAccount[]> { return []; }
+  async setCandidateAccountActive(_id: number, _isActive: boolean, _accessLevel?: string): Promise<CandidateAccount | null> {
+    throw new Error('Replica storage is read-only');
+  }
   async getCandidateDataSources(candidateId: number): Promise<CandidateDataSource[]> { return []; }
   async recordDataSource(source: InsertCandidateDataSource): Promise<CandidateDataSource> { throw new Error('Write operations not supported on read-only replica'); }
   async getCandidateWithRAG(candidateId: number): Promise<any> { return null; }
