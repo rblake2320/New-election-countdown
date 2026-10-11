@@ -1711,7 +1711,8 @@ Please provide detailed, current information about this specific election.`;
         return res.status(401).json({ error: 'Invalid token' });
       }
 
-      await storage.refreshRecommendationCache(user.id);
+      // No cache layer exists; "refresh" regenerates recommendations for the user.
+      await recommendationService.generateRecommendations(user.id, { forceRefresh: true } as any);
       res.json({ message: 'Recommendation cache refreshed' });
     } catch (error: any) {
       console.error('Error refreshing recommendations:', error);
