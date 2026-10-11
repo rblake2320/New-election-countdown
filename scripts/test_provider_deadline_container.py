@@ -27,10 +27,10 @@ receipt = {"capturedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(
            "image": image, "builder": builder, "stages": [], "passed": False}
 
 def docker(*args, timeout=180):
-    result = subprocess.run(["docker", *args], capture_output=True, text=True, timeout=timeout)
+    result = subprocess.run(["docker", *args], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=timeout)
     if result.returncode:
         raise RuntimeError("docker " + args[0] + " failed: " + result.stderr.replace(password, "[redacted]"))
-    return (result.stdout + result.stderr if args[0] == "logs" else result.stdout).strip()
+    return ((result.stdout or "") + (result.stderr or "") if args[0] == "logs" else (result.stdout or "")).strip()
 
 def sql(query):
     return docker("exec", database, "psql", "-U", "et_test", "-d", "et_test", "-Atc", query)
@@ -65,7 +65,9 @@ try:
                         "--entrypoint", "npx", builder, "drizzle-kit", "push", "--force")
     (evidence / "schema.log").write_text(schema_log, encoding="utf-8")
     initial_digest = None
-    for index, mode in enumerate(["baseline", "broken", "hanging_headers", "hanging_body"]):
+    modes = os.environ.get("PROVIDER_STAGES", "baseline,broken,hanging_headers,hanging_body").split(",")
+    assert modes and set(modes) <= {"baseline", "broken", "hanging_headers", "hanging_body"}, "Unknown private fixture stage"
+    for index, mode in enumerate(modes):
         app, provider = "et-provider-app-" + suffix + "-" + str(index), "et-provider-upstream-" + suffix + "-" + str(index)
         mount = "type=bind,source=" + fixture.as_posix() + ",target=/fixture,readonly"
         if mode != "baseline":
@@ -86,6 +88,7 @@ try:
             try:
                 health = node(app, "const r=await fetch('http://127.0.0.1:5000/api/health'); console.log(JSON.stringify({status:r.status,body:await r.json()}));")
                 if health["status"] == 200 and health["body"]["ok"]:
+                    receipt.pop("lastStartupError", None)
                     break
             except RuntimeError as error:
                 receipt["lastStartupError"] = str(error).replace(password, "[redacted]")
@@ -102,9 +105,9 @@ try:
                 pass
             raise RuntimeError("Packaged app did not become ready in " + mode)
         if initial_digest is None:
-            context = json.loads(sql("select json_agg(e) from (select id,title,state,type from elections where id in (2,37) order by id) e"))
-            assert len(context) == 2 and context[1]["id"] == 37 and context[1]["state"] == "AK" and "Governor" in context[1]["title"]
+            context = json.loads(sql("select json_agg(e) from (select id,title,state,type,offices from elections where id in (2,37) order by id) e"))
             receipt["electionContext"] = context
+            assert len(context) == 2 and context[1]["id"] == 37 and context[1]["state"] == "AK" and "Governor" in context[1]["offices"], "Fixture requires canonical Alaska Governor37/Senate2"
             sql("""INSERT INTO candidates(id,election_id,name,party,description,campaign_bio,website,profile_image_url,is_verified,data_source,source_status,ballot_status,fec_status,source_file_sha256)
               VALUES (900001,37,'Explicit Fixture Governor A','R','Private synthetic local biography A','Private synthetic campaign biography A','https://fixture.invalid/a','https://fixture.invalid/a.png',false,'fixture_local','fixture_editorial','unknown',NULL,repeat('a',64)),
                      (900002,37,'Explicit Fixture Governor B','D','Private synthetic local biography B',NULL,'https://fixture.invalid/b',NULL,false,'fixture_local','fixture_editorial','unknown',NULL,repeat('b',64)),
