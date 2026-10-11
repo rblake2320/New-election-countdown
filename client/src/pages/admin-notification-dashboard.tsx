@@ -112,7 +112,7 @@ export default function AdminNotificationDashboard() {
   // Create campaign mutation
   const createCampaignMutation = useMutation({
     mutationFn: (campaignData: Partial<NotificationCampaign>) =>
-      apiRequest('/api/admin/notification-campaigns', 'POST', campaignData),
+      apiRequest('POST', '/api/admin/notification-campaigns', campaignData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/notification-campaigns'] });
       setIsCreateDialogOpen(false);
@@ -134,7 +134,7 @@ export default function AdminNotificationDashboard() {
   // Update campaign status mutation
   const updateCampaignStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: number; status: string }) =>
-      apiRequest(`/api/admin/notification-campaigns/${id}/status`, 'PUT', { status }),
+      apiRequest('PUT', `/api/admin/notification-campaigns/${id}/status`, { status }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/notification-campaigns'] });
       toast({
@@ -147,7 +147,7 @@ export default function AdminNotificationDashboard() {
   // Send test notification mutation
   const sendTestMutation = useMutation({
     mutationFn: (testData: any) =>
-      apiRequest('/api/admin/notifications/send-test', 'POST', testData),
+      apiRequest('POST', '/api/admin/notifications/send-test', testData),
     onSuccess: () => {
       toast({
         title: 'Test Sent',

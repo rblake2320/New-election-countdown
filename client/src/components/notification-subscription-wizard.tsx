@@ -131,7 +131,7 @@ export function NotificationSubscriptionWizard({ isOpen, onClose, initialType, i
   // Subscribe mutation
   const subscribeMutation = useMutation({
     mutationFn: (subscriptionData: any) =>
-      apiRequest('/api/notifications/subscribe', 'POST', subscriptionData),
+      apiRequest('POST', '/api/notifications/subscribe', subscriptionData),
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ['/api/notifications/subscriptions'] });
       

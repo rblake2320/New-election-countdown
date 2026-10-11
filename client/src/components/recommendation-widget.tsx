@@ -62,10 +62,7 @@ export function RecommendationWidget({
   // Track interaction
   const trackInteraction = async (action: string, recommendationId: number, electionId?: number) => {
     try {
-      await apiRequest('/api/recommendations/track', {
-        method: 'POST',
-        body: JSON.stringify({ action, recommendationId, electionId }),
-      });
+      await apiRequest('POST', '/api/recommendations/track', { action, recommendationId, electionId });
     } catch (error) {
       console.error('Failed to track recommendation:', error);
     }
@@ -112,7 +109,7 @@ export function RecommendationWidget({
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
-      await apiRequest('/api/recommendations/refresh', { method: 'POST' });
+      await apiRequest('POST', '/api/recommendations/refresh');
       await refetch();
     } catch (error) {
       toast({

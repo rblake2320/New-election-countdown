@@ -25,12 +25,14 @@ import { useAuth } from "@/hooks/use-auth";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useIsAdmin } from "@/lib/useIsAdmin";
 import { type ElectionFilters } from "@shared/schema";
+import { normalizeFilters, isUpcomingTimeframe, levelLabel, partyLabel, timeframeLabel } from "@/lib/filter-codes";
+import { electionCalendarDate } from "@/lib/election-timing";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
 export default function Home() {
   const queryClient = useQueryClient();
-  const [filters, setFilters] = useLocalStorage<ElectionFilters>("election-filters", {
+  const [storedFilters, setFilters] = useLocalStorage<ElectionFilters>("election-filters", {
     state: undefined,
     type: undefined,
     level: undefined,
@@ -40,6 +42,8 @@ export default function Home() {
     electionType: undefined,
     search: undefined
   });
+  // Older builds stored display labels ("Federal", "Democratic"); map them to API codes.
+  const filters = useMemo(() => normalizeFilters(storedFilters), [storedFilters]);
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [dismissedGuidance, setDismissedGuidance] = useState<Set<string>>(new Set());
@@ -58,7 +62,17 @@ export default function Home() {
     search: searchQuery || undefined,
   }), [filters, searchQuery]);
   
-  const { data: elections = [], isLoading, error } = useElections(queryFilters);
+  const { data: fetchedElections = [], isLoading, error } = useElections(queryFilters);
+  // "Next N days" must never show a race whose date has already passed.
+  const elections = useMemo(() => {
+    if (!isUpcomingTimeframe(filters.timeframe)) return fetchedElections;
+    const t = new Date();
+    const today = t.getFullYear() * 10000 + (t.getMonth() + 1) * 100 + t.getDate();
+    return fetchedElections.filter(e => {
+      const [y, m, d] = electionCalendarDate(e.date);
+      return y * 10000 + m * 100 + d >= today;
+    });
+  }, [fetchedElections, filters.timeframe]);
   
   // Filter guidance system
   const { 
@@ -308,7 +322,7 @@ export default function Home() {
                 <div className="flex flex-wrap gap-2 mb-4">
                   {filters.timeframe && (
                     <Badge variant="secondary" className="gap-1">
-                      Time: {filters.timeframe}
+                      Time: {timeframeLabel(filters.timeframe)}
                       <button 
                         onClick={() => removeFilter('timeframe')}
                         className="ml-1 hover:bg-muted-foreground/20 rounded-full p-0.5"
@@ -341,7 +355,7 @@ export default function Home() {
                   )}
                   {filters.level && (
                     <Badge variant="secondary" className="gap-1">
-                      Level: {filters.level}
+                      Level: {[filters.level].flat().map(levelLabel).join(", ")}
                       <button 
                         onClick={() => removeFilter('level')}
                         className="ml-1 hover:bg-muted-foreground/20 rounded-full p-0.5"
@@ -352,7 +366,7 @@ export default function Home() {
                   )}
                   {filters.party && (
                     <Badge variant="secondary" className="gap-1">
-                      Party: {filters.party}
+                      Party: {[filters.party].flat().map(partyLabel).join(", ")}
                       <button 
                         onClick={() => removeFilter('party')}
                         className="ml-1 hover:bg-muted-foreground/20 rounded-full p-0.5"
@@ -398,14 +412,6 @@ export default function Home() {
               </div>
             )}
 
-            {/* Load More */}
-            {elections.length > 0 && stats && elections.length < stats.total && (
-              <div className="text-center py-8">
-                <Button variant="outline">
-                  Load More Elections ({stats.total - elections.length} remaining)
-                </Button>
-              </div>
-            )}
           </main>
         </div>
       </div>

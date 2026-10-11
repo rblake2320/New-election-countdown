@@ -1,16 +1,9 @@
-import { useState, useEffect } from "react";
-import { calculateTimeRemaining } from "@/lib/election-data";
+import { useNow } from "@/hooks/use-now";
+import { getElectionTiming, splitDuration, type ElectionTimingInput } from "@/lib/election-timing";
 
-export function useCountdown(targetDate: Date | string, precision: 'full' | 'seconds' | 'minutes' = 'full') {
-  const [timeRemaining, setTimeRemaining] = useState(() => calculateTimeRemaining(targetDate));
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTimeRemaining(calculateTimeRemaining(targetDate));
-    }, precision === 'full' ? 50 : 1000); // Update every 50ms for full precision, 1s otherwise
-
-    return () => clearInterval(interval);
-  }, [targetDate, precision]);
-
-  return timeRemaining;
+export function useCountdown(election: ElectionTimingInput) {
+  const now = useNow();
+  const timing = getElectionTiming(election, new Date(now));
+  const remaining = splitDuration(timing.target ? timing.target.getTime() - now : 0);
+  return { ...timing, ...remaining };
 }

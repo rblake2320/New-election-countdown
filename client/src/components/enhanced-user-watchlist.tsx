@@ -179,10 +179,7 @@ export function EnhancedUserWatchlist() {
   // Update watchlist item mutation
   const updateItemMutation = useMutation({
     mutationFn: async ({ itemId, updates }: { itemId: number; updates: any }) => {
-      return apiRequest(`/api/watchlist/${itemId}`, {
-        method: 'PATCH',
-        body: JSON.stringify(updates),
-      });
+      return apiRequest('PATCH', `/api/watchlist/${itemId}`, updates);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/watchlist/enhanced'] });
@@ -196,10 +193,7 @@ export function EnhancedUserWatchlist() {
   // Bulk update mutation
   const bulkUpdateMutation = useMutation({
     mutationFn: async ({ itemIds, updates }: { itemIds: number[]; updates: any }) => {
-      return apiRequest('/api/watchlist/bulk', {
-        method: 'POST',
-        body: JSON.stringify({ itemIds, updates }),
-      });
+      return apiRequest('POST', '/api/watchlist/bulk', { itemIds, updates });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/watchlist/enhanced'] });
@@ -215,10 +209,7 @@ export function EnhancedUserWatchlist() {
   // Track recommendation interaction
   const trackRecommendation = async (action: string, recommendationId: number, electionId?: number) => {
     try {
-      await apiRequest('/api/recommendations/track', {
-        method: 'POST',
-        body: JSON.stringify({ action, recommendationId, electionId }),
-      });
+      await apiRequest('POST', '/api/recommendations/track', { action, recommendationId, electionId });
     } catch (error) {
       console.error('Failed to track recommendation:', error);
     }
@@ -702,7 +693,7 @@ export function EnhancedUserWatchlist() {
                         {/* Footer Row */}
                         <div className="flex items-center justify-between pt-2 border-t">
                           <CountdownTimer 
-                            targetDate={item.election.date} 
+                            election={item.election} 
                             size="sm"
                             className="text-sm"
                           />
@@ -784,7 +775,7 @@ export function EnhancedUserWatchlist() {
                           </p>
 
                           <CountdownTimer 
-                            targetDate={rec.election.date} 
+                            election={rec.election} 
                             size="sm"
                             className="text-sm"
                           />

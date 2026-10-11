@@ -139,7 +139,7 @@ export function UserWatchlist() {
                 
                 <div className="pt-2">
                   <CountdownTimer 
-                    targetDate={election.date} 
+                    election={election} 
                     size="sm"
                     className="text-xs"
                   />

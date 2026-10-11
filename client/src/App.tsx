@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -11,26 +12,26 @@ import { ServiceStatusBanner } from "@/components/service-status-banner";
 import { CompareProvider } from "@/compare/CompareContext";
 import { WelcomeModal, useWelcomeModal } from "@/components/welcome-modal";
 import Home from "@/pages/home";
-import Dashboard from "@/pages/dashboard";
-import Congress from "@/pages/congress";
-import CongressAdmin from "@/pages/congress-admin";
-import CampaignPortal from "@/pages/campaign-portal";
-import CandidatePortalFixed from "@/pages/candidate-portal-fixed";
-import MonitoringDashboard from "@/pages/monitoring-dashboard";
-import ApiStatusPage from "@/pages/api-status";
-import GlobalDashboard from "@/pages/global-dashboard";
-import CivicDashboard from "@/pages/civic-dashboard";
-import ElectionDetails from "@/pages/election-details";
-import Midterm2026 from "@/pages/midterm-2026";
-import ComparePage from "@/pages/Compare";
-import DataSteward from "@/pages/DataSteward";
-import AuthPage from "@/pages/auth";
-import PreferencesPage from "@/pages/preferences";
-import AdminResultsEntry from "@/pages/admin-results-entry";
-import AdminSettings from "@/pages/admin-settings";
-import InvestorDashboard from "@/pages/investor-dashboard";
-import HappeningNow from "@/pages/happening-now";
-import NotFound from "@/pages/not-found";
+const Dashboard = lazy(() => import("@/pages/dashboard"));
+const Congress = lazy(() => import("@/pages/congress"));
+const CongressAdmin = lazy(() => import("@/pages/congress-admin"));
+const CampaignPortal = lazy(() => import("@/pages/campaign-portal"));
+const CandidatePortalFixed = lazy(() => import("@/pages/candidate-portal-fixed"));
+const MonitoringDashboard = lazy(() => import("@/pages/monitoring-dashboard"));
+const ApiStatusPage = lazy(() => import("@/pages/api-status"));
+const GlobalDashboard = lazy(() => import("@/pages/global-dashboard"));
+const CivicDashboard = lazy(() => import("@/pages/civic-dashboard"));
+const ElectionDetails = lazy(() => import("@/pages/election-details"));
+const Midterm2026 = lazy(() => import("@/pages/midterm-2026"));
+const ComparePage = lazy(() => import("@/pages/Compare"));
+const DataSteward = lazy(() => import("@/pages/DataSteward"));
+const AuthPage = lazy(() => import("@/pages/auth"));
+const PreferencesPage = lazy(() => import("@/pages/preferences"));
+const AdminResultsEntry = lazy(() => import("@/pages/admin-results-entry"));
+const AdminSettings = lazy(() => import("@/pages/admin-settings"));
+const InvestorDashboard = lazy(() => import("@/pages/investor-dashboard"));
+const HappeningNow = lazy(() => import("@/pages/happening-now"));
+const NotFound = lazy(() => import("@/pages/not-found"));
 
 function Router() {
   return (
@@ -38,6 +39,7 @@ function Router() {
       <div className="space-y-4">
         <ServiceStatusBanner className="mx-4 mt-4" />
         <div className="px-4">
+          <Suspense fallback={<div className="p-8 text-center text-muted-foreground" role="status">Loading…</div>}>
           <Switch>
             <Route path="/" component={Home} />
             <Route path="/dashboard" component={Dashboard} />
@@ -61,6 +63,7 @@ function Router() {
             <Route path="/happening-now" component={HappeningNow} />
             <Route component={NotFound} />
           </Switch>
+          </Suspense>
         </div>
       </div>
     </ModernLayout>

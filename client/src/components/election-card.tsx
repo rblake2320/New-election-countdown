@@ -107,7 +107,7 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
 
   // Watchlist mutations
   const addToWatchlistMutation = useMutation({
-    mutationFn: () => apiRequest(`/api/watchlist`, "POST", { electionId: election.id }),
+    mutationFn: () => apiRequest('POST', `/api/watchlist`, { electionId: election.id }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/watchlist"] });
       toast({
@@ -125,7 +125,7 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
   });
 
   const removeFromWatchlistMutation = useMutation({
-    mutationFn: () => apiRequest(`/api/watchlist/${election.id}`, "DELETE"),
+    mutationFn: () => apiRequest('DELETE', `/api/watchlist/${election.id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/watchlist"] });
       toast({
@@ -289,9 +289,8 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
       <div className="flex justify-center items-center py-3">
         <div className="text-center bg-gradient-to-br from-background/80 to-muted/50 rounded-lg p-3 border border-border/50">
           <CountdownTimer 
-            targetDate={election.date.toString()} 
+            election={election} 
             size={viewMode === "grid" ? "md" : "sm"} 
-            showMilliseconds={viewMode === "grid"}
             className="text-foreground font-mono"
           />
         </div>

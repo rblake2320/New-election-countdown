@@ -68,14 +68,11 @@ export function RecommendationCard({
   // Track recommendation interaction
   const trackInteraction = async (action: string, electionId?: number) => {
     try {
-      await apiRequest('/api/recommendations/track', {
-        method: 'POST',
-        body: JSON.stringify({ 
+      await apiRequest('POST', '/api/recommendations/track', { 
           action, 
           recommendationId: recommendation.id, 
           electionId 
-        }),
-      });
+        });
     } catch (error) {
       console.error('Failed to track recommendation:', error);
     }
@@ -284,7 +281,7 @@ export function RecommendationCard({
 
             {/* Countdown */}
             <CountdownTimer 
-              targetDate={recommendation.election.date} 
+              election={recommendation.election} 
               size="sm"
               className="text-sm"
             />
@@ -362,7 +359,7 @@ export function RecommendationCard({
 
           {/* Countdown */}
           <CountdownTimer 
-            targetDate={recommendation.election.date} 
+            election={recommendation.election} 
             size="sm"
             className="text-sm"
           />
