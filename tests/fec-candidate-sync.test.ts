@@ -81,4 +81,21 @@ describe('FEC sync identity, provenance and race safety', () => {
   it('does not turn No Party Affiliation into an Independent registration', () => {
     expect(parseFecMaster(line('H6TX01001','EXAMPLE, ALEX','NPA')).rows[0].party).toBe('NPA');
   });
+  it('updates when a historically seen source returns after a different current version', () => {
+    const current = { ...candidate, data_source: 'fec_bulk', party: 'R', fec_candidate_id: 'H6TX01001', fec_status: 'C', source_file_sha256: 'b'.repeat(64) };
+    const history = [
+      { candidate_id: 10, source_file_sha256: 'a'.repeat(64), is_current: false, metadata: { fecStatus: 'C' } },
+      { candidate_id: 10, source_file_sha256: 'b'.repeat(64), is_current: true, metadata: { fecStatus: 'C' } },
+    ];
+    const plan = buildFecSyncPlan(parseFecMaster(line()).rows,[house],[current],'a'.repeat(64),history);
+    expect(plan.actions[0]?.kind).toBe('update');
+    expect(plan.unchanged).toBe(0);
+  });
+  it('does not mistake inactive historical evidence for a current editorial enrichment', () => {
+    const plan = buildFecSyncPlan(parseFecMaster(line()).rows,[house],[{...candidate,fec_candidate_id:'H6TX01001',fec_status:'C'}],'a'.repeat(64),[
+      {candidate_id:10,source_file_sha256:'a'.repeat(64),is_current:false,metadata:{fecStatus:'C'}},
+      {candidate_id:10,source_file_sha256:'b'.repeat(64),is_current:true,metadata:{fecStatus:'C'}},
+    ]);
+    expect(plan.actions[0]?.kind).toBe('update');
+  });
 });

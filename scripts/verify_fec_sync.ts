@@ -70,7 +70,12 @@ try {
   const refreshed = await runFecSync(pool, changedParty, 'c'.repeat(64), true);
   assert.equal(refreshed.actions.length, 1);
   assert.equal((await pool.query('SELECT party FROM candidates WHERE fec_candidate_id=$1', ['H6TX01002'])).rows[0].party, 'D');
-  const receipt = { outcome: 'worked', fixture: 'isolated synthetic PostgreSQL', checks: { dry_run_no_writes: true, atomic_apply: true, exact_repeat_no_candidate_changes: true, migration_idempotent: true, existing_ballot_hash_and_timestamp_preserved: true, separate_fec_source_retained: true, transactional_apply_receipt: true, committed_receipt_survives_local_disk_failure: true, registration_never_certified: true, unknown_party_not_independent: true, parameterized_apostrophe_name: true, injected_failure_full_rollback: true, concurrent_apply_one_identity: true, imported_party_refresh: true }, first_actions: first.actions.length, repeated_actions: repeat.actions.length };
+  const restored = await runFecSync(pool,parseFecMaster(line('H6TX01002','DISTINCT, TAYLOR','REP')).rows,hash,true);
+  assert.equal(restored.actions.length,1);
+  assert.equal((await pool.query('SELECT party FROM candidates WHERE fec_candidate_id=$1',['H6TX01002'])).rows[0].party,'R');
+  const current = (await pool.query('SELECT s.source_file_sha256 FROM candidate_source_records s JOIN candidates c ON c.id=s.candidate_id WHERE c.fec_candidate_id=$1 AND s.is_current=true',['H6TX01002'])).rows;
+  assert.deepEqual(current,[{source_file_sha256:hash}]);
+  const receipt = { outcome: 'worked', fixture: 'isolated synthetic PostgreSQL', checks: { dry_run_no_writes: true, atomic_apply: true, exact_repeat_no_candidate_changes: true, migration_idempotent: true, existing_ballot_hash_and_timestamp_preserved: true, separate_fec_source_retained: true, transactional_apply_receipt: true, committed_receipt_survives_local_disk_failure: true, registration_never_certified: true, unknown_party_not_independent: true, parameterized_apostrophe_name: true, injected_failure_full_rollback: true, concurrent_apply_one_identity: true, imported_party_refresh: true, historical_source_reactivation_updates_current_version: true }, first_actions: first.actions.length, repeated_actions: repeat.actions.length };
   writeFileSync('artifacts/lane-c/fec-private-postgres.json', JSON.stringify(receipt,null,2));
   console.log(JSON.stringify(receipt));
 } finally { await pool.end(); }

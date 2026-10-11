@@ -75,8 +75,13 @@ export const candidateSourceRecords = pgTable("candidate_source_records", {
   sourceUrl: text("source_url").notNull(),
   sourceFileSha256: text("source_file_sha256").notNull(),
   sourceSyncedAt: timestamp("source_synced_at", { withTimezone: true }).notNull(),
+  firstObservedAt: timestamp("first_observed_at", { withTimezone: true }).notNull().defaultNow(),
+  isCurrent: boolean("is_current").notNull().default(true),
   metadata: jsonb("metadata").notNull(),
-}, table => [uniqueIndex("idx_candidate_source_version").on(table.candidateId, table.sourceLayer, table.sourceUrl, table.sourceFileSha256)]);
+}, table => [
+  uniqueIndex("idx_candidate_source_version").on(table.candidateId, table.sourceLayer, table.sourceUrl, table.sourceFileSha256),
+  uniqueIndex("idx_candidate_source_current").on(table.candidateId, table.sourceLayer, table.sourceUrl).where(sql`${table.isCurrent} = true`),
+]);
 
 export const candidateIngestRuns = pgTable("candidate_ingest_runs", {
   id: serial("id").primaryKey(),
