@@ -3,6 +3,7 @@ import { describe, it, expect } from 'vitest';
 import { loadResultsManifest, manifestFromReviews, RESULTS_STATES, sha256, sourceForElection } from '../../server/official-results-manifest';
 import { officialResultsFieldsSchema } from '../../shared/official-results';
 import { insertElectionSchema } from '../../shared/schema';
+import { publishedResultsReceiptSchema } from '../../shared/official-results';
 
 const path = 'data/official-results/2026-11-03.json';
 describe('reviewed official-results receiving contract', () => {
@@ -48,5 +49,82 @@ describe('reviewed official-results receiving contract', () => {
     const original = { title: 'U.S. House Election - AK-AL', location: 'AK', state: 'AK', date: new Date('2026-11-03T00:00:00Z'), type: 'general', level: 'federal' };
     const parsed = insertElectionSchema.parse({ ...original, officialResultsUrl: manifest.states[0].officialResultsUrl, officialResultsSource: manifest.states[0].source });
     expect(parsed).toEqual(original);
+  });
+});
+
+// This is an isolated future-shape acceptance fixture, never a live source or
+// product manifest. All committed government records remain pending/unknown.
+async function futurePublicationFixture() {
+  const initial = await readFile('data/official-results/source-reviews/initial-14.json');
+  const remaining = JSON.parse(await readFile('data/official-results/source-reviews/remaining-36.json', 'utf8'));
+  const record = remaining.records.find((state: { state: string }) => state.state === 'LA');
+  const checkedAt = '2026-11-04T06:00:00.000Z';
+  const context = {
+    outcome: 'worked', electionDate: '2026-11-03', electionPhase: 'general',
+    destinationUrl: record.recommendedUrl, sourceUrl: record.officialGovernmentPage,
+    contextVerified: true, resultsObserved: true,
+    observedElectionLabel: 'Fixture-only future-shape November 3, 2026 General results', checkedAt,
+  };
+  const receiving = { ...context, sourceUrl: record.recommendedUrl,
+    observedElectionLabel: 'Fixture-only receiving context: 2026-11-03 General returns' };
+  const contextBytes = Buffer.from(JSON.stringify(context));
+  const receivingBytes = Buffer.from(JSON.stringify(receiving));
+  record.routeType = 'election_specific_results';
+  record.generalPublicationStatus = 'published_for_target_election';
+  record.publicationEvidence = {
+    electionDate: '2026-11-03', electionPhase: 'general', destinationUrl: record.recommendedUrl,
+    officialElectionLabel: context.observedElectionLabel, officialContextVerified: true,
+    officialContextReceiptSha256: sha256(contextBytes), receivingOutcome: 'worked', receivingResultsObserved: true,
+    receivingReceiptSha256: sha256(receivingBytes), receivingCheckedAt: checkedAt,
+  };
+  record.publicationReceipts = { officialContext: 'fixture-only-context.json', receiving: 'fixture-only-receiving.json' };
+  const receipts = new Map([['fixture-only-context.json', contextBytes], ['fixture-only-receiving.json', receivingBytes]]);
+  return { initial, remaining, record, receipts, context, receiving, reviews: () => [
+    { file: 'initial-14.json', bytes: initial },
+    { file: 'remaining-36.json', bytes: Buffer.from(JSON.stringify(remaining)), publicationReceipts: receipts },
+  ] };
+}
+describe('isolated future specific-publication shape', () => {
+  it('admits reviewed positive exact-date/phase/destination plus both retained receiving/context receipts', async () => {
+    const fixture = await futurePublicationFixture();
+    const entry = manifestFromReviews(fixture.reviews()).states.find(state => state.state === 'LA')!;
+    expect(entry.source.status).toBe('published');
+    expect(officialResultsFieldsSchema.parse({ officialResultsUrl: entry.officialResultsUrl, officialResultsSource: entry.source }).officialResultsUrl).toBe(entry.source.publicationEvidence!.destinationUrl);
+    expect(sourceForElection(entry, 'general').status).toBe('published');
+  });
+  it('refuses General-specific publication for an actual primary phase such as LA November House', async () => {
+    const fixture = await futurePublicationFixture();
+    const entry = manifestFromReviews(fixture.reviews()).states.find(state => state.state === 'LA')!;
+    expect(() => sourceForElection(entry, 'primary')).toThrow('different election phase');
+  });
+  it('refuses a positive claim without its retained receiving proof bytes', async () => {
+    const fixture = await futurePublicationFixture();
+    fixture.receipts.delete('fixture-only-receiving.json');
+    expect(() => manifestFromReviews(fixture.reviews())).toThrow('retained positive publication receipts');
+  });
+  it('refuses prior-primary date, mismatched phase, and HTTP200-only contexts', () => {
+    expect(publishedResultsReceiptSchema.safeParse({ outcome: 'worked', httpStatus: 200 }).success).toBe(false);
+  });
+  it.each(['date', 'phase', 'destination', 'results_observed'])('refuses mismatched %s in a receiving receipt even when its digest is recomputed', async mismatch => {
+    const fixture = await futurePublicationFixture();
+    const changed = { ...fixture.receiving };
+    if (mismatch === 'date') changed.electionDate = '2026-08-04';
+    if (mismatch === 'phase') changed.electionPhase = 'primary';
+    if (mismatch === 'destination') changed.destinationUrl = 'https://elections.ny.gov/election-results';
+    if (mismatch === 'results_observed') changed.resultsObserved = false;
+    const bytes = Buffer.from(JSON.stringify(changed));
+    fixture.receipts.set('fixture-only-receiving.json', bytes);
+    fixture.record.publicationEvidence.receivingReceiptSha256 = sha256(bytes);
+    expect(() => manifestFromReviews(fixture.reviews())).toThrow();
+  });
+  it('refuses a receiving destination that differs from the published source', async () => {
+    const fixture = await futurePublicationFixture();
+    const entry = manifestFromReviews(fixture.reviews()).states.find(state => state.state === 'LA')!;
+    expect(officialResultsFieldsSchema.safeParse({ officialResultsUrl: 'https://elections.ny.gov/election-results', officialResultsSource: entry.source }).success).toBe(false);
+  });
+  it('leaves the current committed 50-state snapshot unchanged and unpublished', async () => {
+    const { manifest, manifestSha256 } = await loadResultsManifest(path);
+    expect(manifestSha256).toBe('edbc1deff97cba8a154f3322e305be08427be1db358761635e59153328e04c86');
+    expect(manifest.states.every(entry => entry.source.status !== 'published' && entry.source.publicationEvidence === undefined)).toBe(true);
   });
 });

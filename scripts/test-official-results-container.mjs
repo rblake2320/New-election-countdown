@@ -13,7 +13,7 @@ const evidence = `artifacts/c6-private-${suffix}`;
 await fs.mkdir(evidence, { recursive: true });
 const docker = async (...args) => {
   try { return (await exec('docker', args, { timeout: 300000, maxBuffer: 8 * 1024 * 1024 })).stdout.trim(); }
-  catch (error) { throw new Error(`docker ${args[0]} failed: ${String(error.stderr || error.code).replaceAll(password, '[redacted]')}`); }
+  catch (error) { throw new Error(`docker ${args[0]} failed: ${String(error.stderr || '') + String(error.stdout || error.code)} `.replaceAll(databaseUrl, '[private database]').replaceAll(password, '[redacted]')); }
 };
 const report = { outcome: 'Failed', network: 'internal, zero published ports', image, builder, physicalDependencies: true };
 const delay = () => new Promise(resolve => setTimeout(resolve, 1000));
@@ -31,7 +31,7 @@ try {
     '-e', `DATABASE_URL=${databaseUrl}`, '--entrypoint', 'npx', builder, 'drizzle-kit', 'push', '--force'));
   // Exercise the additive migration against a schema without the new columns.
   await docker('exec', db, 'psql', '-U', 'et_c6_test', '-d', 'et_c6_test', '-v', 'ON_ERROR_STOP=1', '-c',
-    'ALTER TABLE public.elections DROP COLUMN official_results_url, DROP COLUMN official_results_source;');
+    'ALTER TABLE public.elections DROP COLUMN official_results_url, DROP COLUMN official_results_source; DROP TABLE public.official_results_sync_runs;');
   const migrate = `const {default:pg}=await import('pg');const fs=await import('node:fs/promises');
     const pool=new pg.Pool({connectionString:process.env.DATABASE_URL});try{
       const sql=await fs.readFile('migrations/20261011_official_results_routes.sql','utf8');
@@ -87,10 +87,21 @@ try {
     '--rollback-run', report.compiledApply.runId, '--expect-sha256', rollbackDry.manifestSha256,
     '--expect-preimage-sha256', rollbackDry.preimageSha256, '--receipt', 'artifacts/c6-cli-rollback-apply.json'));
   if (report.compiledRollback.postimageSha256 !== finalDry.preimageSha256) throw new Error('Packaged rollback did not restore full preimage');
+  const receiptFault = await fs.readFile('scripts/verify-official-results-receipt-fault.mjs', 'utf8');
+  report.postcommitReceiptFault = JSON.parse(await docker('exec', app, 'node', '--input-type=module', '-e', receiptFault,
+    finalDry.manifestSha256, finalDry.preimageSha256, expected.postimageSha256));
   report.compiledReapply = JSON.parse(await docker('exec', app, 'node', 'dist/sync_official_results.js', '--apply',
-    '--expect-sha256', finalDry.manifestSha256, '--expect-preimage-sha256', finalDry.preimageSha256,
+    '--expect-sha256', finalDry.manifestSha256, '--expect-preimage-sha256', expected.postimageSha256,
     '--receipt', 'artifacts/c6-cli-reapply.json'));
   if (report.compiledReapply.postimageSha256 !== expected.postimageSha256) throw new Error('Packaged reapply differs from receiving evidence');
+  const auditFingerprint = () => docker('exec', db, 'psql', '-U', 'et_c6_test', '-d', 'et_c6_test', '-Atc',
+    "SELECT (SELECT md5(string_agg(to_jsonb(e)::text,'' ORDER BY id)) FROM elections e), (SELECT md5(string_agg(to_jsonb(r)::text,'' ORDER BY id)) FROM official_results_sync_runs r), (SELECT count(*) FROM official_results_sync_runs);");
+  const beforeSchemaSync = await auditFingerprint();
+  await fs.writeFile(evidence + '/audit-schema-sync.log', await docker('run', '--rm', '--network', network,
+    '-e', `DATABASE_URL=${databaseUrl}`, '--entrypoint', 'npx', builder,
+    'drizzle-kit', 'push', '--force', '--config', 'scripts/drizzle-official-results.config.ts'));
+  if (await auditFingerprint() !== beforeSchemaSync) throw new Error('Later Drizzle audit-table synchronization altered data or durable audit receipts');
+  report.auditSchemaSync = { outcome: 'Worked', catalogAndAuditPreserved: true, auditRows: Number(beforeSchemaSync.split('|')[2]) };
   report.outcome = 'Worked';
 } catch (error) { report.error = error.message; process.exitCode = 1; }
 finally {
@@ -101,6 +112,7 @@ finally {
   try { await docker('cp', app + ':/app/artifacts/c6-cli-final-dry.json', evidence + '/compiled-final-dry.json'); } catch {}
   try { await docker('cp', app + ':/app/artifacts/c6-cli-rollback-apply.json', evidence + '/compiled-rollback.json'); } catch {}
   try { await docker('cp', app + ':/app/artifacts/c6-cli-reapply.json', evidence + '/compiled-reapply.json'); } catch {}
+  try { await docker('cp', app + ':/app/artifacts/c6-receipt-fault', evidence + '/postcommit-receipt-fault'); } catch {}
   await fs.writeFile(evidence + '/harness-receipt.json', JSON.stringify(report, null, 2) + '\n');
   for (const owned of [app, db]) { try { await docker('rm', '-f', owned); } catch {} }
   try { await docker('network', 'rm', network); } catch {}

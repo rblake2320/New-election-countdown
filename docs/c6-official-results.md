@@ -25,7 +25,7 @@ No network fetching, schema migration, or importer execution runs at web boot.
 Run the additive migration before deploying code that selects the new columns:
 
 ```sh
-psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f migrations/20261011_official_results_routes.sql
+node --input-type=module -e "import pg from 'pg'; import {readFile} from 'node:fs/promises'; if(!process.env.DATABASE_URL) throw Error('DATABASE_URL required'); const p=new pg.Pool({connectionString:process.env.DATABASE_URL}); try { await p.query(await readFile('migrations/20261011_official_results_routes.sql','utf8')); } finally { await p.end(); }"
 ```
 
 The image includes the compiled CLI, manifest, review bytes and migration.
@@ -33,6 +33,21 @@ Credentials are supplied through the process environment, never CLI arguments.
 Use distinct receipt filenames in an existing writable directory. A source
 refresh is reviewed separately; the importer does not claim the old snapshot
 is freshly checked whenever it runs.
+
+Future reviewed publications use `routeType: "election_specific_results"`,
+`status: "published"` and `availabilityReason: "published_for_target_election"`.
+Their optional `publicationEvidence` binds the exact November 3 date, election
+phase, destination, official contextual label, two retained proof digests and
+the receiving check timestamp. Both the government-context receipt and actual
+receiving-results receipt must declare verified context and observed results;
+their retained bytes, dates, phases and URLs are checked. An HTTP 200 response,
+advertised selector, previous primary or route shell alone is refused.
+Off-government destinations additionally need the exact observed government
+delegation. A specific General source is refused for a primary receiving row;
+it cannot silently inherit published status. `published` says returns are
+available, never that they are certified or that a candidate has won.
+The current committed 50-state snapshot has **zero published entries**; the
+future positive/negative shapes exist only in isolated acceptance tests.
 
 ```sh
 # Default is READ ONLY dry-run, with no audit/data writes.
@@ -91,6 +106,12 @@ migration twice, compiled CLI defaults/guards/apply/rollback/reapply, source
 availability cases, transactional injected failure, writer lock contention,
 missing receiving states, stale preimages/rollbacks, unknown manifest fields,
 future DB columns, repeat row versions, and candidate preservation.
+It also forces a real non-root filesystem rename failure after commit and
+checks that the CLI reports **Applied**, retains its audit ID and temporary
+receipt, and refuses to describe the committed data as rolled back.
+The audit table is also represented in Drizzle. A later schema synchronization
+restricted to that table is tested with populated receipts to ensure durable
+audit history and the full election catalog survive unchanged.
 Every real detail response plus the upcoming list is compared with independent
 SQL. HTTP quota is respected via `Retry-After`, with waits recorded.
 

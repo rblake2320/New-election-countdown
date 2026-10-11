@@ -3,7 +3,8 @@ import { readFile, realpath } from 'node:fs/promises';
 import { dirname, resolve, relative, isAbsolute } from 'node:path';
 import { z } from 'zod';
 import { OfficialResultsError } from './official-results-error';
-import { httpsResultsUrl, officialResultsSourceSchema, type OfficialResultsSource } from '../shared/official-results';
+import { httpsResultsUrl, officialResultsSourceSchema, publishedResultsReceiptSchema,
+  resultsPublicationEvidenceSchema, type OfficialResultsSource } from '../shared/official-results';
 
 export const RESULTS_DATE = '2026-11-03' as const;
 export const RESULTS_STATES = 'AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY'.split(' ').sort();
@@ -37,7 +38,7 @@ export const resultsManifestSchema = z.object({
 });
 export type ResultsManifest = z.infer<typeof resultsManifestSchema>;
 export type ResultsManifestEntry = z.infer<typeof entrySchema>;
-export interface ReviewedBytes { file: string; bytes: Buffer }
+export interface ReviewedBytes { file: string; bytes: Buffer; publicationReceipts?: Map<string, Buffer> }
 
 function governmentUrl(value: unknown): string {
   const url = httpsResultsUrl.parse(value);
@@ -57,26 +58,85 @@ export function manifestFromReviews(reviews: ReviewedBytes[]): ResultsManifest {
     for (const record of document.records) {
       const verified = ['worked', 'worked_primary_source_web_fetch'].includes(record.verification?.outcome);
       if (!verified && record.verification?.outcome !== 'blocked') throw new OfficialResultsError('Missing source verification');
+      const publicationStatus = record.publicationStatus ?? record.generalPublicationStatus;
+      if (record.publicationStatus && record.generalPublicationStatus && record.publicationStatus !== record.generalPublicationStatus) {
+        throw new OfficialResultsError('Conflicting publication classifications');
+      }
+      const published = publicationStatus === 'published_for_target_election';
+      const publicationEvidence = published ? resultsPublicationEvidenceSchema.parse(record.publicationEvidence) : undefined;
+      const destination = verified ? (published ? httpsResultsUrl.parse(record.recommendedUrl) : governmentUrl(record.recommendedUrl)) : null;
+      if (published) {
+        if (!verified || record.routeType !== 'election_specific_results' || publicationEvidence!.destinationUrl !== destination) {
+          throw new OfficialResultsError('Positive publication requires the exact verified receiving destination');
+        }
+        const files = record.publicationReceipts;
+        const contextBytes = review.publicationReceipts?.get(files?.officialContext);
+        const receivingBytes = review.publicationReceipts?.get(files?.receiving);
+        if (!contextBytes || !receivingBytes || sha256(contextBytes) !== publicationEvidence!.officialContextReceiptSha256 ||
+            sha256(receivingBytes) !== publicationEvidence!.receivingReceiptSha256) {
+          throw new OfficialResultsError('Missing or changed retained positive publication receipts');
+        }
+        const context = publishedResultsReceiptSchema.parse(JSON.parse(contextBytes.toString('utf8')));
+        const receiving = publishedResultsReceiptSchema.parse(JSON.parse(receivingBytes.toString('utf8')));
+        if ([context, receiving].some(receipt => receipt.electionDate !== RESULTS_DATE ||
+            receipt.electionPhase !== publicationEvidence!.electionPhase || receipt.destinationUrl !== destination) ||
+            context.sourceUrl !== record.officialGovernmentPage || context.observedElectionLabel !== publicationEvidence!.officialElectionLabel ||
+            receiving.sourceUrl !== destination || receiving.checkedAt !== publicationEvidence!.receivingCheckedAt) {
+          throw new OfficialResultsError('Publication receipt date, phase, official context or destination mismatch');
+        }
+        // Off-government providers require the exact observed government link;
+        // neither an advertised selector nor an invented corrected href suffices.
+        try { governmentUrl(destination); }
+        catch {
+          if (record.governmentDelegation?.kind !== 'observed_government_link' ||
+              record.governmentDelegation.sourceUrl !== record.officialGovernmentPage ||
+              record.governmentDelegation.observedHref !== destination) {
+            throw new OfficialResultsError('Specific provider lacks exact government delegation');
+          }
+        }
+      }
       const source: OfficialResultsSource = officialResultsSourceSchema.parse({
-        targetElectionDate: RESULTS_DATE, electionPhase: 'general',
+        targetElectionDate: RESULTS_DATE, electionPhase: publicationEvidence?.electionPhase ?? 'general',
         routeType: record.routeType, publisher: record.publisher,
-        checkedAt: record.verification.checkedAt,
+        checkedAt: publicationEvidence?.receivingCheckedAt ?? record.verification.checkedAt,
         routeVerification: verified ? 'worked' : 'blocked',
-        status: verified && record.generalPublicationStatus === 'not_linked_in_checked_official_sources' ? 'not_linked' : 'unknown',
-        availabilityReason: record.generalPublicationStatus,
+        status: published ? 'published' : verified && publicationStatus === 'not_linked_in_checked_official_sources' ? 'not_linked' : 'unknown',
+        availabilityReason: publicationStatus,
         governmentUrl: governmentUrl(record.officialGovernmentPage),
         fallbackUrl: record.fallbackGovernmentUrl === null ? null : governmentUrl(record.fallbackGovernmentUrl),
-        advertisedGeneralUrl: record.nov3GeneralSpecificUrl === null ? null : governmentUrl(record.nov3GeneralSpecificUrl),
+        advertisedGeneralUrl: record.nov3GeneralSpecificUrl === null ? null :
+          published && record.nov3GeneralSpecificUrl === destination ? destination : governmentUrl(record.nov3GeneralSpecificUrl),
         documentSha256: record.verification.originalResponseSha256,
         sourceReviewSha256: sha256(review.bytes),
+        ...(publicationEvidence ? { publicationEvidence } : {}),
       });
       states.push(entrySchema.parse({ state: record.state,
-        officialResultsUrl: verified ? governmentUrl(record.recommendedUrl) : null, source }));
+        officialResultsUrl: destination, source }));
     }
   }
   states.sort((a, b) => a.state.localeCompare(b.state));
   return resultsManifestSchema.parse({ version: 1, targetElectionDate: RESULTS_DATE,
     reviews: reviews.map(r => ({ file: r.file, sha256: sha256(r.bytes) })), states });
+}
+async function guardedRead(directory: string, file: string): Promise<Buffer> {
+  if (isAbsolute(file) || file.includes('\\')) throw new OfficialResultsError('Review paths must be relative');
+  const actual = await realpath(resolve(directory, file));
+  const rel = relative(directory, actual);
+  if (rel.startsWith('..') || isAbsolute(rel)) throw new OfficialResultsError('Review path escapes manifest directory');
+  return readFile(actual);
+}
+export async function readResultsReview(directory: string, file: string): Promise<ReviewedBytes> {
+  directory = await realpath(directory);
+  const bytes = await guardedRead(directory, file);
+  const publicationReceipts = new Map<string, Buffer>();
+  for (const record of JSON.parse(bytes.toString('utf8')).records ?? []) {
+    if ((record.publicationStatus ?? record.generalPublicationStatus) !== 'published_for_target_election') continue;
+    for (const receipt of [record.publicationReceipts?.officialContext, record.publicationReceipts?.receiving]) {
+      if (typeof receipt !== 'string') throw new OfficialResultsError('Retained positive publication receipt path required');
+      publicationReceipts.set(receipt, await guardedRead(directory, receipt));
+    }
+  }
+  return { file, bytes, publicationReceipts };
 }
 export async function loadResultsManifest(path: string): Promise<{ manifest: ResultsManifest; manifestSha256: string }> {
   const bytes = await readFile(path);
@@ -84,13 +144,9 @@ export async function loadResultsManifest(path: string): Promise<{ manifest: Res
   const directory = await realpath(dirname(resolve(path)));
   const reviews: ReviewedBytes[] = [];
   for (const review of manifest.reviews) {
-    if (isAbsolute(review.file) || review.file.includes('\\')) throw new OfficialResultsError('Review paths must be relative');
-    const actual = await realpath(resolve(directory, review.file));
-    const rel = relative(directory, actual);
-    if (rel.startsWith('..') || isAbsolute(rel)) throw new OfficialResultsError('Review path escapes manifest directory');
-    const proof = await readFile(actual);
-    if (sha256(proof) !== review.sha256) throw new OfficialResultsError('Source review bytes changed');
-    reviews.push({ file: review.file, bytes: proof });
+    const proof = await readResultsReview(directory, review.file);
+    if (sha256(proof.bytes) !== review.sha256) throw new OfficialResultsError('Source review bytes changed');
+    reviews.push(proof);
   }
   if (canonical(manifestFromReviews(reviews)) !== canonical(manifest)) throw new OfficialResultsError('Manifest differs from reviewed source facts');
   return { manifest, manifestSha256: sha256(bytes) };
@@ -98,6 +154,10 @@ export async function loadResultsManifest(path: string): Promise<{ manifest: Res
 export function sourceForElection(entry: ResultsManifestEntry, electionType: string): OfficialResultsSource {
   const type = electionType.trim().toLowerCase();
   const electionPhase = type === 'general' ? 'general' : type.includes('primary') ? 'primary' : type.includes('runoff') ? 'runoff' : 'other';
+  if (entry.source.status === 'published') {
+    if (entry.source.electionPhase !== electionPhase) throw new OfficialResultsError('Specific results source cannot serve a different election phase');
+    return officialResultsSourceSchema.parse(entry.source);
+  }
   return officialResultsSourceSchema.parse({ ...entry.source, electionPhase,
     ...(electionPhase === 'general' ? {} : { status: 'unknown', availabilityReason: 'unknown_election_phase' }) });
 }
