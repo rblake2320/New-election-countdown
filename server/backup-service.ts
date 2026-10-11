@@ -32,10 +32,10 @@ function backupConnectionEnvironment(): NodeJS.ProcessEnv {
     channel_binding: 'PGCHANNELBINDING', target_session_attrs: 'PGTARGETSESSIONATTRS',
     options: 'PGOPTIONS', gssencmode: 'PGGSSENCMODE',
   };
-  for (const [key, value] of connection.searchParams) {
+  connection.searchParams.forEach((value, key) => {
     if (!parameters[key]) throw new Error('Unsupported backup database configuration');
     env[parameters[key]] = value;
-  }
+  });
   return env;
 }
 
