@@ -27,6 +27,16 @@ export const elections = pgTable("elections", {
   isActive: boolean("is_active").default(true),
 });
 
+// Atomic source receipts for explicitly reviewed election catalog repairs.
+export const electionCatalogCorrectionRuns = pgTable("election_catalog_correction_runs", {
+  id: serial("id").primaryKey(),
+  planSha256: text("plan_sha256").notNull(),
+  sourceUrl: text("source_url").notNull(),
+  sourceFileSha256: text("source_file_sha256").notNull(),
+  appliedAt: timestamp("applied_at", { withTimezone: true }).notNull().defaultNow(),
+  receipt: jsonb("receipt").notNull(),
+});
+
 export const candidates = pgTable("candidates", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),

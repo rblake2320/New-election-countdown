@@ -1,3 +1,4 @@
+import { isLouisiana2026HouseOpenPrimary } from './louisiana-house-catalog';
 import type { Pool } from 'pg';
 import type { RequestHandler } from 'express';
 
@@ -5,7 +6,9 @@ import type { RequestHandler } from 'express';
 export async function getGeneralCandidateList(pool:Pool,electionId:number){
   const available=(await pool.query("SELECT to_regclass('public.candidate_source_records') AS sources,to_regclass('public.candidates') AS candidates,to_regclass('public.elections') AS elections,to_regclass('public.general_candidate_list_snapshots') AS snapshots")).rows[0];
   if(!available.elections)throw new Error('Election schema unavailable');
-  if(!(await pool.query('SELECT id FROM elections WHERE id=$1',[electionId])).rowCount)return {status:'election_not_found',electionId,candidates:[]};
+  const election=(await pool.query('SELECT id,state,title,type,level,date::text AS date,offices FROM elections WHERE id=$1',[electionId])).rows[0];
+  if(!election)return {status:'election_not_found',electionId,candidates:[]};
+  if(isLouisiana2026HouseOpenPrimary(election) || !['general','special'].includes(election.type.toLowerCase()))return {status:'not_applicable',reason:'not_a_general_election',electionId,candidates:[]};
   if(!available.sources)return {status:'not_recorded',electionId,candidates:[]};
   if(!available.candidates)throw new Error('Candidate schema unavailable');
   const result=await pool.query(`SELECT c.id,coalesce(s.metadata->>'ballotName',c.name) AS name,coalesce(s.metadata->>'partyValue','') AS party,c.election_id AS "electionId",
