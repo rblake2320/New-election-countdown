@@ -1,0 +1,8 @@
+{
+  "outcome": "Diagnosed and repaired",
+  "failedScenario": "Expanded green acceptance reached final assertion without assigning a full apply result",
+  "cause": "Test harness moved application after baseline captures, but omitted the full-apply assignment when all1361 dry-run identities resolved",
+  "productionDryPlan": {"actions":1361,"resolvedReviewedIdentities":15,"unresolved":0},
+  "repair": "Execute full application after baseline captures and skip partial AK replay when the full manifest applied",
+  "sharedWrites": false
+}
