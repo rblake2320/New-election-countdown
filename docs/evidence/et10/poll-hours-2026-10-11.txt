@@ -11,3 +11,16 @@ Pre-registered outcomes:
 Unit: 6/6 poll-hours tests; full suite 127 pass / 3 skip.
 Shared DB NOT written: data owner (Sol, Lane C) applies with `npx tsx scripts/seed_poll_hours_2026.ts --apply`.
 Semantics for the client (Opus B2): polls_open/polls_close are LOCAL "HH:MM" in `timezone`; use pollsCloseInstant(date, polls_close, timezone) from server/poll-hours-2026.ts (or the same Intl math client-side) to get the instant; never combine the UTC-midnight `date` with local clock arithmetic.
+
+--- v2 (2026-10-11 ~16:40) — Sol's must-fixes + Opus's provenance fields
+Model: tz = LATEST zone for multi-zone states (statewide upper bound; "polls closed" never shown while any precinct is open); close null where it varies locally (NH); open null where statute lets municipalities choose (ME, MA, MN, MT, VT, ID, OR, TN, WA, NE, ND, NH); ND = sourced actual 19:00 America/Denver (all 167 places close 7 p.m. local, vip.sos.nd.gov eid=348, Sol); KS conservative 19:00 Mountain (statute vs AP disagree); NCSL statute cite per state in `note`; `source` URL per state.
+New columns (additive, migrations/20261011_poll_hours_metadata.sql; seed script adds them only under --apply): poll_close_kind (polls|ballot_return), poll_hours_basis (statewide_latest|district_latest|local_variable), poll_hours_source (URL). API camelCase: pollCloseKind / pollHoursBasis / pollHoursSource (verified live on :5072: ND -> {"pollsOpen":null,"pollsClose":"19:00","timezone":"America/Denver","pollCloseKind":"polls","pollHoursBasis":"statewide_latest","pollHoursSource":"https://vip.sos.nd.gov/Precincts.aspx?eid=348"}).
+Pre-registered outcomes:
+  dry-run vs shared DB: schema untouched (no poll_hours_* columns), 506 NULL timezone unchanged   -> PASS
+  private copy --apply: columns added, 506 updated, 0 rows lacking timezone/basis                 -> PASS
+  idempotency: second --apply                                                                    -> 0 changes
+  basis distribution: statewide_latest 493 / district_latest 9 / local_variable 4 (NH)           -> PASS
+  kind distribution: polls 413 / ballot_return 93 (CA, CO, HI, NV, OR, UT, WA)                   -> PASS
+  cross-check: latest-zone close -> Eastern equals 270toWin for 49 states (NH skipped)           -> PASS (unit)
+Unit: 7/7 poll-hours; full suite 8 files 128 pass / 3 skip.
+Deploy ordering (Lane D): the schema change makes drizzle select() reference the new columns, so run the migration (or `seed_poll_hours_2026.ts --apply`) BEFORE deploying code that includes this PR.
