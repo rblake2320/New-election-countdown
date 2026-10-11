@@ -1,4 +1,4 @@
-import { canonicalParty, normalizeElectionFilters, type ElectionListing, type ElectionQueryFilters } from "./election-list-filters";
+import { canonicalParty, electionCalendarWindow, normalizeElectionFilters, type ElectionListing, type ElectionQueryFilters } from "./election-list-filters";
 import { type Election, type InsertElection, type Candidate, type InsertCandidate, type ElectionFilters, type CongressMember, type InsertCongressMember, type User, type UpsertUser, type WatchlistItem, type InsertWatchlistItem, type CandidateAccount, type InsertCandidateAccount, type CandidateProfile, type InsertCandidateProfile, type CandidateDataSource, type InsertCandidateDataSource, type CandidatePosition, type InsertCandidatePosition, type CandidateQA, type InsertCandidateQA } from "@shared/schema";
 import { IStorage } from "./storage";
 import { getGoogleCivicService } from "./google-civic-service";
@@ -69,7 +69,8 @@ export class MemStorage implements IStorage {
 
   // Elections methods
   async getElections(filters: ElectionQueryFilters = {}): Promise<ElectionListing[]> {
-    const f = normalizeElectionFilters(filters);
+    const now = new Date();
+    const f = normalizeElectionFilters(filters, now);
     const counts = new Map<number, number>();
     const parties = new Map<number, Set<string>>();
     for (const candidate of Array.from(this.candidates.values())) {
@@ -84,7 +85,10 @@ export class MemStorage implements IStorage {
       if (election.isActive !== true) return false;
       const date = new Date(election.date);
       if (f.from && date < f.from) return false;
-      if (f.until && date >= f.until) return false;
+      const window = f.period ? electionCalendarWindow(now, f.period, election.timezone) : undefined;
+      if (window && date < window.from) return false;
+      const until = window?.until ?? f.until;
+      if (until && date >= until) return false;
       if (f.state && election.state !== f.state) return false;
       if (f.types.length && !f.types.includes(election.type.trim().toLowerCase())) return false;
       if (f.electionTypes.length && !f.electionTypes.includes(election.type.trim().toLowerCase())) return false;

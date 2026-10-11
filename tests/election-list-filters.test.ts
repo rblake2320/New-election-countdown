@@ -56,4 +56,21 @@ describe('election listing contract in failover memory', () => {
     const result = await store.getElections({ minDate: new Date('2026-10-12T00:00:00Z') } as any);
     expect(result.map(e => e.id)).toEqual([2, 4]);
   });
+  it('keeps Nov 3 races at 05:30 UTC on Nov 4 when timezone metadata is absent', async () => {
+    vi.setSystemTime(new Date('2026-11-04T05:30:00Z'));
+    expect((await store.getElections({ timeframe: 'upcoming' })).map(e => e.id)).toContain(2);
+  });
+  it('uses each known election timezone, retaining Aleutian races after New York midnight', async () => {
+    vi.setSystemTime(new Date('2026-11-04T05:30:00Z'));
+    const fixture = store as any;
+    fixture.elections.get(2).timezone = 'America/Adak';
+    fixture.elections.set(6, { ...election(6, '2026-11-03T00:00:00Z'), timezone: 'America/New_York' });
+    const ids = (await store.getElections({ timeframe: 'upcoming' })).map(e => e.id);
+    expect(ids).toContain(2);
+    expect(ids).not.toContain(6);
+  });
+  it('treats a legacy missing party as Other without crashing', async () => {
+    (store as any).candidates.set(12, { id: 12, electionId: 3, party: null });
+    expect((await store.getElections({ party: 'O' })).map(e => e.id)).toEqual([3]);
+  });
 });

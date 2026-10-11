@@ -17,7 +17,36 @@ export const partyAliases: Record<string, string> = {
   l: 'L', lib: 'L', libertarian: 'L', 'libertarian party': 'L',
   o: 'O', oth: 'O', other: 'O', c: 'O', con: 'O', w: 'O',
 };
-export const canonicalParty = (party: string) => partyAliases[party.trim().toLowerCase()] ?? 'O';
+export const canonicalParty = (party: string | null | undefined) => partyAliases[(party ?? '').trim().toLowerCase()] ?? 'O';
+
+export const US_ELECTION_TIME_ZONES = [
+  'America/New_York', 'America/Detroit', 'America/Chicago', 'America/Denver',
+  'America/Los_Angeles', 'America/Phoenix', 'America/Boise', 'America/Anchorage',
+  'America/Adak', 'Pacific/Honolulu', 'America/Puerto_Rico',
+  'America/Indiana/Indianapolis', 'America/Indiana/Knox', 'America/Indiana/Tell_City',
+  'America/Indiana/Vincennes', 'America/Indiana/Winamac', 'America/Indiana/Marengo',
+  'America/Indiana/Vevay', 'America/Kentucky/Louisville', 'America/Kentucky/Monticello',
+  'America/North_Dakota/Beulah', 'America/North_Dakota/New_Salem', 'America/North_Dakota/Center',
+] as const;
+const knownZones = new Set<string>(US_ELECTION_TIME_ZONES);
+export function electionCalendarDay(now: Date, timezone?: string | null, upperBound = false): Date {
+  if (!timezone || !knownZones.has(timezone)) {
+    // Missing metadata spans US calendar dates; retain the westernmost date.
+    // Upper windows use the easternmost date so an uncertain zone loses no race.
+    return utcDay(new Date(now.getTime() - (upperBound ? 4 : 11) * 3_600_000));
+  }
+  const parts = new Intl.DateTimeFormat('en-US', { timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(now);
+  const value = (type: string) => Number(parts.find(part => part.type === type)?.value);
+  return new Date(Date.UTC(value('year'), value('month') - 1, value('day')));
+}
+export type ElectionPeriod = { days?: number; months?: number };
+export function electionCalendarWindow(now: Date, period: ElectionPeriod, timezone?: string | null) {
+  const from = electionCalendarDay(now, timezone);
+  const upperDay = electionCalendarDay(now, timezone, true);
+  const end = period.days !== undefined ? addDays(upperDay, period.days)
+    : period.months !== undefined ? addMonths(upperDay, period.months) : undefined;
+  return { from, until: end ? addDays(end, 1) : undefined };
+}
 
 export const utcDay = (date: Date) => new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
 const addDays = (date: Date, days: number) => new Date(date.getTime() + days * 86_400_000);
@@ -49,29 +78,29 @@ export function normalizeElectionFilters(input: Record<string, unknown> = {}, no
   const timeRange = scalar('timeRange')?.toLowerCase();
   if (timeframe && timeRange && timeframe !== timeRange) throw new ElectionFilterError('Conflicting timeframe and timeRange');
   const range = timeframe ?? timeRange;
-  const today = utcDay(now);
+  const today = electionCalendarDay(now);
   let from: Date | undefined;
   let until: Date | undefined;
+  let period: ElectionPeriod | undefined;
   if (input.minDate != null) {
     if (!(input.minDate instanceof Date) || !Number.isFinite(input.minDate.getTime())) throw new ElectionFilterError('Invalid minDate');
     from = utcDay(input.minDate);
   }
   if (range) {
-    let end: Date | undefined;
+    period = {};
     switch (range) {
       case 'upcoming': break;
-      case 'week': end = addDays(today, 7); break;
-      case 'next-30-days': end = addDays(today, 30); break;
-      case 'next-90-days': end = addDays(today, 90); break;
-      case 'month': end = addMonths(today, 1); break;
-      case 'quarter': end = addMonths(today, 3); break;
-      case 'next-6-months': end = addMonths(today, 6); break;
-      case 'next-year': case 'year': end = addMonths(today, 12); break;
+      case 'week': period.days = 7; break;
+      case 'next-30-days': period.days = 30; break;
+      case 'next-90-days': period.days = 90; break;
+      case 'month': period.months = 1; break;
+      case 'quarter': period.months = 3; break;
+      case 'next-6-months': period.months = 6; break;
+      case 'next-year': case 'year': period.months = 12; break;
       default: throw new ElectionFilterError(`Invalid timeframe: ${range}`);
     }
     if (!from || today > from) from = today;
-    // Inclusive end calendar date, regardless of database timestamp precision.
-    if (end) until = addDays(end, 1);
+    until = electionCalendarWindow(now, period).until;
   }
   const levels = list('level');
   if (levels.some(level => !['federal', 'state', 'local'].includes(level))) throw new ElectionFilterError('Invalid level');
@@ -88,5 +117,5 @@ export function normalizeElectionFilters(input: Record<string, unknown> = {}, no
   if (cycle !== undefined && (!Number.isInteger(cycle) || cycle < 1000 || cycle > 9998 || (typeof cycleRaw === 'string' && !/^\d{4}$/.test(cycleRaw)))) throw new ElectionFilterError('Invalid cycle');
   const search = scalar('search', false);
   if (search && search.length > 200) throw new ElectionFilterError('Invalid search: maximum 200 characters');
-  return { from, until, state: stateCode, types: list('type'), electionTypes: list('electionType'), levels, parties: Array.from(new Set(parties)), cycle, search };
+  return { from, until, period, state: stateCode, types: list('type'), electionTypes: list('electionType'), levels, parties: Array.from(new Set(parties)), cycle, search };
 }
