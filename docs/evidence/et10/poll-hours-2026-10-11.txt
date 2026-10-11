@@ -24,3 +24,10 @@ Pre-registered outcomes:
   cross-check: latest-zone close -> Eastern equals 270toWin for 49 states (NH skipped)           -> PASS (unit)
 Unit: 7/7 poll-hours; full suite 8 files 128 pass / 3 skip.
 Deploy ordering (Lane D): the schema change makes drizzle select() reference the new columns, so run the migration (or `seed_poll_hours_2026.ts --apply`) BEFORE deploying code that includes this PR.
+
+--- v3 (2026-10-11 ~18:35) — Sol's second review
+KS = 19:00 America/Chicago per K.S.A. 25-106 (7-7 CT / 6-6 MT, same instant) — not a "conservative" guess.
+Multi-zone statewide OPEN is null (AL AK FL IN KS KY MI SD TX + the earlier set): an earlier zone's precincts are open before the latest zone's, so no single statewide opening time exists.
+District exactness claims withdrawn: DISTRICT_TZ_OVERRIDES is empty (FL-02 / ID-01 / TX-23 span zones); every row in a multi-zone state carries the statewide latest bound (basis statewide_latest 502, local_variable 4; district_latest unused).
+ballot_return documented as the in-person / drop-box election-day deadline; mail postmark/receipt rules are state-specific and NOT represented.
+Private copy: v2 -> v3 delta 123 rows, re-run 0 changes; opens null 195, closes null 4 (NH). Unit 7/7 (KS cross-check now 20:00 ET).

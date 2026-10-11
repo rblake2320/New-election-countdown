@@ -11,7 +11,9 @@
  *   open/close  LOCAL 24h "HH:MM" in `tz`; null = varies by county/municipality (unknown preserved).
  *   tz          the state's LATEST zone where a state spans zones, so `close` is the instant after
  *               which no precinct in the race is still open (a statewide upper bound); exact elsewhere.
- *   kind        "polls" (in-person close) | "ballot_return" (vote-by-mail states: ballot return deadline).
+ *   kind        "polls" (in-person close) | "ballot_return" (vote-by-mail states: in-person / drop-box
+ *               return deadline on election day; MAIL postmark/receipt rules differ by state — e.g. Nevada
+ *               accepts postmarked ballots received later — and are NOT represented by this field).
  *   basis       "statewide_latest" (bound as above; exact in single-zone states) |
  *               "district_latest" (House district wholly in one zone) | "local_variable" (no statewide close).
  *   source      primary URL the row's hours were taken from.
@@ -22,28 +24,28 @@ export type PollHoursBasis = "statewide_latest" | "district_latest" | "local_var
 export type PollHours = { open: string | null; close: string | null; tz: string; kind: PollCloseKind; basis: PollHoursBasis; source: string; note: string };
 
 export const STATE_HOURS: Record<string, PollHours> = {
-  AL: { open: "07:00", close: "19:00", tz: "America/Chicago", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 7 p.m.; Ala. Code § 17-9-6; multi-zone; latest zone used (predominant America/Chicago)" },
-  AK: { open: "07:00", close: "20:00", tz: "America/Adak", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 8 p.m.; Alaska Stat. § 15.15.080; multi-zone; latest zone used (predominant America/Anchorage)" },
+  AL: { open: null, close: "19:00", tz: "America/Chicago", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 7 p.m.; Ala. Code § 17-9-6; multi-zone; latest zone used (predominant America/Chicago)" },
+  AK: { open: null, close: "20:00", tz: "America/Adak", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 8 p.m.; Alaska Stat. § 15.15.080; multi-zone; latest zone used (predominant America/Anchorage)" },
   AZ: { open: "06:00", close: "19:00", tz: "America/Phoenix", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 6 a.m. to 7 p.m.; Ariz. Rev. Stat. § 16-565" },
   AR: { open: "07:30", close: "19:30", tz: "America/Chicago", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7:30 a.m. to 7:30 p.m.; Ark. Code Ann. § 7-5-304" },
   CA: { open: "07:00", close: "20:00", tz: "America/Los_Angeles", kind: "ballot_return", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 8 p.m.; Cal. Elec. Code § 14212" },
   CO: { open: "07:00", close: "19:00", tz: "America/Denver", kind: "ballot_return", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 7 p.m.; Colo. Rev. Stat. § 1-7-101" },
   CT: { open: "06:00", close: "20:00", tz: "America/New_York", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 6 a.m. to 8 p.m.; Conn. Gen. Stat. § 9-174" },
   DE: { open: "07:00", close: "20:00", tz: "America/New_York", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 8 p.m.; Del. Code Ann. tit. 15, §§ 4931, 4947" },
-  FL: { open: "07:00", close: "19:00", tz: "America/Chicago", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 7 p.m.; Fla. Stat. § 100.011; multi-zone; latest zone used (predominant America/New_York)" },
+  FL: { open: null, close: "19:00", tz: "America/Chicago", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 7 p.m.; Fla. Stat. § 100.011; multi-zone; latest zone used (predominant America/New_York)" },
   GA: { open: "07:00", close: "19:00", tz: "America/New_York", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 7 p.m. Until 8 p.m. for cities with a population of 300,000 or more.; Ga. Code Ann. § 21-2-403" },
   HI: { open: "07:00", close: "19:00", tz: "Pacific/Honolulu", kind: "ballot_return", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 7 p.m.; Haw. Rev. Stat. §§ 11-1, 11-131" },
   ID: { open: null, close: "20:00", tz: "America/Los_Angeles", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 8 a.m. to 8 p.m. County clerks may opt to open at 7 a.m. during primary or general elections.; Idaho Code § 34-1101; multi-zone; latest zone used (predominant America/Boise)" },
   IL: { open: "06:00", close: "19:00", tz: "America/Chicago", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 6 a.m. to 7 p.m.; 10 Ill. Comp. Stat. 5/17-1" },
-  IN: { open: "06:00", close: "18:00", tz: "America/Chicago", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 6 a.m. to 6 p.m.; Ind. Code § 3-11-8-8; multi-zone; latest zone used (predominant America/Indiana/Indianapolis)" },
+  IN: { open: null, close: "18:00", tz: "America/Chicago", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 6 a.m. to 6 p.m.; Ind. Code § 3-11-8-8; multi-zone; latest zone used (predominant America/Indiana/Indianapolis)" },
   IA: { open: "07:00", close: "20:00", tz: "America/Chicago", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 8 p.m.; Iowa Code § 49.73" },
-  KS: { open: "07:00", close: "19:00", tz: "America/Denver", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 7 p.m. for counties in central time zone. 6 a.m. to 6 p.m. for counties in mountain time zone.; Kan. Stat. Ann. § 25-106; multi-zone; latest zone used (predominant America/Chicago); statute 6-6 MT/7-7 CT vs AP 7 p.m. local statewide; conservative latest bound" },
-  KY: { open: "06:00", close: "18:00", tz: "America/Chicago", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 6 a.m. to 6 p.m.; Ky. Rev. Stat. § 118.035; multi-zone; latest zone used (predominant America/Kentucky/Louisville)" },
+  KS: { open: null, close: "19:00", tz: "America/Chicago", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 7 p.m. for counties in central time zone. 6 a.m. to 6 p.m. for counties in mountain time zone.; Kan. Stat. Ann. § 25-106; multi-zone; latest zone used (predominant America/Chicago); statute 6-6 MT/7-7 CT vs AP 7 p.m. local statewide; conservative latest bound" },
+  KY: { open: null, close: "18:00", tz: "America/Chicago", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 6 a.m. to 6 p.m.; Ky. Rev. Stat. § 118.035; multi-zone; latest zone used (predominant America/Kentucky/Louisville)" },
   LA: { open: "06:00", close: "20:00", tz: "America/Chicago", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 8 p.m. (Polls open at 6 a.m. for congressional elections.); La. Rev. Stat. § 18:541" },
   ME: { open: null, close: "20:00", tz: "America/New_York", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 6-8 a.m. to 8 p.m. Opening times are flexible and may be as late as 10 a.m. depending on size of the municipality.; Me. Rev. Stat. Ann. tit. 21-A, § 626" },
   MD: { open: "07:00", close: "20:00", tz: "America/New_York", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 8 p.m.; Md. Election Law Code Ann. § 10-301" },
   MA: { open: null, close: "20:00", tz: "America/New_York", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 5:45-7 a.m. to 8 p.m. Opening times are flexible.; Mass. Gen. Laws Ann. ch. 54, § 64" },
-  MI: { open: "07:00", close: "20:00", tz: "America/Menominee", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 8 p.m.; Mich. Comp. Laws § 168.720; multi-zone; latest zone used (predominant America/Detroit)" },
+  MI: { open: null, close: "20:00", tz: "America/Menominee", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 8 p.m.; Mich. Comp. Laws § 168.720; multi-zone; latest zone used (predominant America/Detroit)" },
   MN: { open: null, close: "20:00", tz: "America/Chicago", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 8 p.m.; Minn. Stat. § 204C.05" },
   MS: { open: "07:00", close: "19:00", tz: "America/Chicago", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 7 p.m.; Miss. Code Ann. § 23-15-541" },
   MO: { open: "06:00", close: "19:00", tz: "America/Chicago", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 6 a.m. to 7 p.m.; Mo. Rev. Stat. § 115.407" },
@@ -62,9 +64,9 @@ export const STATE_HOURS: Record<string, PollHours> = {
   PA: { open: "07:00", close: "20:00", tz: "America/New_York", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 8 p.m.; Pa. Stat. tit. 25, § 3045" },
   RI: { open: "07:00", close: "20:00", tz: "America/New_York", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 8 p.m.; R.I. Gen. Laws §§ 17-18-10, 17-18-11" },
   SC: { open: "07:00", close: "19:00", tz: "America/New_York", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 7 p.m.; S.C. Code Ann. § 7-13-60" },
-  SD: { open: "07:00", close: "19:00", tz: "America/Denver", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 7 p.m.; S.D. Codified Laws § 12-2-3; multi-zone; latest zone used (predominant America/Chicago)" },
+  SD: { open: null, close: "19:00", tz: "America/Denver", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 7 p.m.; S.D. Codified Laws § 12-2-3; multi-zone; latest zone used (predominant America/Chicago)" },
   TN: { open: null, close: "19:00", tz: "America/Chicago", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: Opening times vary by county. Polls close at 8 p.m. in eastern time zone and 7 p.m. in central time zone.; Tenn. Code Ann. § 2-3-201; multi-zone; latest zone used (predominant America/Chicago)" },
-  TX: { open: "07:00", close: "19:00", tz: "America/Denver", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 7 p.m.; Tex. Elec. Code § 41.031; multi-zone; latest zone used (predominant America/Chicago)" },
+  TX: { open: null, close: "19:00", tz: "America/Denver", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 7 p.m.; Tex. Elec. Code § 41.031; multi-zone; latest zone used (predominant America/Chicago)" },
   UT: { open: "07:00", close: "20:00", tz: "America/Denver", kind: "ballot_return", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 8 p.m.; Utah Code Ann. § 20A-1-302" },
   VT: { open: null, close: "19:00", tz: "America/New_York", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: Polls open between 5-10 a.m. as determined by towns. Polls close at 7 p.m.; Vt. Stat. Ann. tit. 17, § 2561" },
   VA: { open: "06:00", close: "19:00", tz: "America/New_York", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 6 a.m. to 7 p.m.; Va. Code Ann. § 24.2-603" },
@@ -74,18 +76,12 @@ export const STATE_HOURS: Record<string, PollHours> = {
   WY: { open: "07:00", close: "19:00", tz: "America/Denver", kind: "polls", basis: "statewide_latest", source: "https://www.ncsl.org/elections-and-campaigns/polling-places", note: "NCSL: 7 a.m. to 7 p.m.; Wyo. Stat. § 22-13-101" },
 };
 
-/** House districts lying wholly in one zone of a multi-zone state: exact, not a bound. */
-export const DISTRICT_TZ_OVERRIDES: Record<string, string> = {
-  "FL-01": "America/Chicago",
-  "FL-02": "America/Chicago",
-  "ID-01": "America/Los_Angeles",
-  "IN-01": "America/Chicago",
-  "IN-08": "America/Chicago",
-  "KY-01": "America/Chicago",
-  "KY-02": "America/Chicago",
-  "TX-16": "America/Denver",
-  "TX-23": "America/Denver",
-};
+/**
+ * Per-district zone overrides are intentionally EMPTY: several candidate districts
+ * (FL-02, ID-01, TX-23) span two zones, so no "wholly in one zone" claim is made.
+ * Every row in a multi-zone state carries the statewide latest bound.
+ */
+export const DISTRICT_TZ_OVERRIDES: Record<string, string> = {};
 
 export const ELECTION_DAY_2026 = "2026-11-03";
 
@@ -102,7 +98,7 @@ export function pollHoursFor(state: string, title: string): PollHours | undefine
   if (district && DISTRICT_TZ_OVERRIDES[district]) {
     return { ...h, tz: DISTRICT_TZ_OVERRIDES[district], basis: "district_latest" };
   }
-  return { ...h };
+  return { ...h }; // overrides are empty today: statewide bound for every row
 }
 
 /** The instant at which `close` (local wall-clock in `tz`) occurs on `dateISO`. */
