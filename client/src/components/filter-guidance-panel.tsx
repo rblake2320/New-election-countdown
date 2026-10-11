@@ -56,9 +56,9 @@ export function FilterGuidancePanel({
             <div key={index} className="space-y-2">
               <div className="flex items-start gap-2">
                 {issue.severity === 'warning' ? (
-                  <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
                 ) : (
-                  <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <Info className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
                 )}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">

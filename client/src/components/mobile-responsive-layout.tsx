@@ -53,9 +53,9 @@ export function TouchCard({ children, onClick, className, pressable = true }: To
         // Touch feedback
         pressable && onClick && [
           "cursor-pointer touch-manipulation",
-          "active:scale-[0.98] active:shadow-sm",
+          "active:scale-[0.98] active:shadow-xs",
           "hover:shadow-lg hover:border-gray-300 dark:hover:border-gray-600",
-          isPressed && "scale-[0.98] shadow-sm"
+          isPressed && "scale-[0.98] shadow-xs"
         ],
         // Mobile-first spacing
         "p-4 sm:p-6",
