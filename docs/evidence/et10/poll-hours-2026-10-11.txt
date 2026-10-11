@@ -1,0 +1,13 @@
+ET-10 / C3 — statutory poll hours + IANA timezone for all 2026-11-03 rows — 2026-10-11 (Fable, on behalf of Lane C)
+Source of record: Ballotpedia "State Poll Opening and Closing Times (2026)" (statute-cited; retrieved 2026-10-11 via authenticated Chrome; table captured in server/poll-hours-2026.ts with footnote refs).
+Independent cross-check: 270toWin "Poll Closing Times" (Eastern). tests/unit/poll-hours-2026.test.ts converts every state's local close to Eastern and asserts equality for all 50 states (NH: statute minimum 7 p.m. stored; 270toWin lists latest town close 8 p.m. — documented).
+Pre-registered outcomes:
+  broken system: 506 Nov-3 rows with polls_close/timezone NULL (shared DB today)         -> observed 506
+  dry-run must write nothing: shared DB NULL count before/after dry-run                   -> 506 / 506
+  apply on private copy elections_fable: rows updated / NULL after                        -> 506 / 0
+  idempotency: second --apply                                                              -> 0 need changes, 0 updated
+  district overrides (minority-zone House seats)                                           -> 9 (FL-01, FL-02, ID-01, IN-01, IN-08, KY-01, KY-02, TX-16, TX-23)
+  distinct zones written                                                                   -> 11 (New_York 200, Chicago 156, Los_Angeles 77, Denver 27, Detroit 15, Phoenix 10, Indiana/Indianapolis 7, Kentucky/Louisville 5, Anchorage 3, Boise 3, Honolulu 3)
+Unit: 6/6 poll-hours tests; full suite 127 pass / 3 skip.
+Shared DB NOT written: data owner (Sol, Lane C) applies with `npx tsx scripts/seed_poll_hours_2026.ts --apply`.
+Semantics for the client (Opus B2): polls_open/polls_close are LOCAL "HH:MM" in `timezone`; use pollsCloseInstant(date, polls_close, timezone) from server/poll-hours-2026.ts (or the same Intl math client-side) to get the instant; never combine the UTC-midnight `date` with local clock arithmetic.
