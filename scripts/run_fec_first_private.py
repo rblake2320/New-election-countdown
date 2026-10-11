@@ -10,6 +10,7 @@ import uuid
 
 MODES = {
     "producer": "scripts/verify_fec_source_proof_private.ts",
+    "expanded": "scripts/verify_expanded_fec_first.ts",
     "acceptance": "scripts/verify_fec_first_acceptance.ts",
     "original": "scripts/reproduce_fec_first.ts",
     
