@@ -1111,11 +1111,11 @@ export class StorageFactory {
     return updated;
   }
 
-  async exportUserData(userId: number): Promise<any> {
+  async exportUserData(userId: string): Promise<any> {
     return this.currentStorage.exportUserData(userId);
   }
 
-  async deleteUserData(userId: number): Promise<boolean> {
+  async deleteUserData(userId: string): Promise<boolean> {
     const result = await this.currentStorage.deleteUserData(userId);
     this.queueWriteOperation('deleteUserData', [userId]);
     return result;

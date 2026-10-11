@@ -1,18 +1,37 @@
-import { 
-  NotificationDelivery, 
-  InsertNotificationDelivery, 
-  NotificationTemplate,
-  NotificationCampaign,
-  NotificationEvent,
-  NotificationSubscription
+import { and, eq, lt } from 'drizzle-orm';
+import {
+  notificationDeliveries,
+  type NotificationDelivery,
+  type InsertNotificationDelivery,
+  type NotificationTemplate,
+  type NotificationEvent,
+  type NotificationSubscription
 } from '@shared/schema';
 import { sendGridNotificationService } from './sendgrid-notification-service';
 import { twilioNotificationService } from './twilio-notification-service';
 import { storage } from '../storage';
+import { db } from '../db';
+
+/**
+ * Database-backed notification queue (strict tranche 3).
+ *
+ * The queue rows live in notification_deliveries. The processor used to call
+ * `this.processNotificationDelivery`, which did not exist, and the stats read in-memory maps
+ * that were never declared: every tick logged a TypeError and no queued notification was
+ * ever sent. Everything below reads and writes the delivery rows:
+ *  - due rows (status queued, nextRetryAt not in the future) go to SendGrid / Twilio;
+ *  - a channel whose provider is not configured marks its rows failed with
+ *    `provider_not_configured` (no retry storm, no pretending);
+ *  - success -> sent + externalId; failure -> retry with exponential backoff up to
+ *    MAX_RETRIES, then failed with the provider's error;
+ *  - stats come from the table, not from this process's memory.
+ */
+
+export type NotificationChannel = 'email' | 'sms';
 
 export interface QueuedNotification {
   id: string;
-  type: 'email' | 'sms';
+  type: NotificationChannel;
   priority: 'low' | 'normal' | 'high' | 'urgent';
   recipient: string;
   content: {
@@ -44,30 +63,77 @@ export interface NotificationQueueStats {
   successRate: number;
 }
 
+export interface ProviderSendResult { success: boolean; messageId?: string; error?: string; statusCode?: number }
+export interface DeliveryProvider {
+  isReady(): boolean;
+  getStatus(): { configured: boolean; error?: string };
+  send(delivery: NotificationDelivery): Promise<ProviderSendResult>;
+}
+
+/** The slice of storage the queue uses; the real storage satisfies it. */
+export interface DeliveryStore {
+  createNotificationDelivery(delivery: InsertNotificationDelivery): Promise<NotificationDelivery>;
+  getQueuedNotifications(limit?: number): Promise<NotificationDelivery[]>;
+  updateNotificationDelivery(id: number, updates: Partial<NotificationDelivery>): Promise<NotificationDelivery>;
+  getNotificationDeliveryStats(campaignId?: number): Promise<{ total: number; queued: number; sending: number; sent: number; delivered: number; failed: number; bounced: number; opened: number; clicked: number }>;
+}
+
+export interface NotificationQueueOptions {
+  store?: DeliveryStore;
+  providers?: Record<NotificationChannel, DeliveryProvider>;
+  /** false disables the interval timers (tests drive processQueue directly). */
+  timers?: boolean;
+  now?: () => number;
+}
+
+export const MAX_RETRIES = 3;
+export const QUEUE_BATCH = 50;
+const EXPIRE_AFTER_MS = 24 * 60 * 60 * 1000;
+
+const emailProvider: DeliveryProvider = {
+  isReady: () => sendGridNotificationService.isReady(),
+  getStatus: () => sendGridNotificationService.getStatus(),
+  send: (d) => sendGridNotificationService.sendEmail({
+    to: d.recipient,
+    from: process.env.NOTIFICATION_FROM_EMAIL || 'notifications@electiontracker.app',
+    subject: d.subject || 'Election Tracker Alert',
+    text: d.content,
+  }),
+};
+const smsProvider: DeliveryProvider = {
+  isReady: () => twilioNotificationService.isReady(),
+  getStatus: () => twilioNotificationService.getStatus(),
+  send: (d) => twilioNotificationService.sendSMS({ to: d.recipient, message: d.content }),
+};
+
 export class NotificationQueueService {
   private isProcessing = false;
-  private rateLimits = {
-    email: 100, // per minute
-    sms: 60    // per minute
+  private rateLimits: Record<NotificationChannel, number> = { email: 100, sms: 60 }; // per minute
+  private window: Record<NotificationChannel, { startedAt: number; sent: number }> = {
+    email: { startedAt: 0, sent: 0 },
+    sms: { startedAt: 0, sent: 0 },
   };
-  
-  private lastProcessed = {
-    email: 0,
-    sms: 0
-  };
+  private processingTimesMs: number[] = []; // this process, last 200 sends
+  private providerWarned: Record<NotificationChannel, boolean> = { email: false, sms: false };
+  private readonly store: DeliveryStore;
+  private readonly providers: Record<NotificationChannel, DeliveryProvider>;
+  private readonly now: () => number;
+  private timers: NodeJS.Timeout[] = [];
 
-  constructor() {
-    this.startQueueProcessor();
-    this.startCleanupTask();
-    console.log('✅ Database-backed Notification Queue Service initialized');
+  constructor(options: NotificationQueueOptions = {}) {
+    this.store = options.store ?? (storage as unknown as DeliveryStore);
+    this.providers = options.providers ?? { email: emailProvider, sms: smsProvider };
+    this.now = options.now ?? (() => Date.now());
+    if (options.timers !== false) {
+      this.startQueueProcessor();
+      this.startCleanupTask();
+      console.log('✅ Database-backed Notification Queue Service initialized');
+    }
   }
 
-  /**
-   * Add notification to queue
-   */
+  /** Add notification to queue (a notification_deliveries row in status queued). */
   async queueNotification(notification: Omit<QueuedNotification, 'id' | 'retryCount'>): Promise<string> {
     try {
-      // Create database delivery record
       const deliveryData: InsertNotificationDelivery = {
         campaignId: notification.metadata.campaignId || null,
         userId: notification.metadata.userId || null,
@@ -79,11 +145,11 @@ export class NotificationQueueService {
         content: notification.content.message,
         status: 'queued',
         retryCount: 0,
-        queuedAt: notification.scheduledAt || new Date()
+        queuedAt: notification.scheduledAt || new Date(this.now()),
+        // A scheduled delivery is simply not due before its time.
+        nextRetryAt: notification.scheduledAt && notification.scheduledAt.getTime() > this.now() ? notification.scheduledAt : null,
       };
-      
-      const delivery = await storage.createNotificationDelivery(deliveryData);
-      
+      const delivery = await this.store.createNotificationDelivery(deliveryData);
       console.log(`📬 Notification queued: ${delivery.id} (${notification.type})`);
       return delivery.id.toString();
     } catch (error) {
@@ -92,90 +158,56 @@ export class NotificationQueueService {
     }
   }
 
-  /**
-   * Add multiple notifications to queue
-   */
   async queueBulkNotifications(notifications: Omit<QueuedNotification, 'id' | 'retryCount'>[]): Promise<string[]> {
     const ids: string[] = [];
-    
     for (const notification of notifications) {
-      const id = await this.queueNotification(notification);
-      ids.push(id);
+      ids.push(await this.queueNotification(notification));
     }
-    
     console.log(`📬 Bulk notifications queued: ${ids.length} notifications`);
     return ids;
   }
 
-  /**
-   * Process election event and create notifications
-   */
+  /** Turn an election event into one queued delivery per active, verified email/sms subscription. */
   async processElectionEvent(
     event: NotificationEvent,
     subscriptions: NotificationSubscription[],
     template?: NotificationTemplate
   ): Promise<string[]> {
     const notifications: Omit<QueuedNotification, 'id' | 'retryCount'>[] = [];
-    
     for (const subscription of subscriptions) {
       if (!subscription.isActive || !subscription.isVerified) continue;
-      
-      const priority = event.priority as any || 'normal';
-      const scheduledAt = new Date();
-      
-      // Set urgency-based scheduling
-      if (priority === 'urgent') {
-        // Immediate delivery
-      } else if (priority === 'high') {
-        scheduledAt.setMinutes(scheduledAt.getMinutes() + 1);
-      } else {
-        scheduledAt.setMinutes(scheduledAt.getMinutes() + 5);
-      }
+      if (subscription.channel !== 'email' && subscription.channel !== 'sms') continue;
+      if (!subscription.targetValue) continue;
 
-      let content: any = {};
-      
-      if (subscription.channel === 'email') {
-        content = {
-          subject: this.generateSubjectFromEvent(event),
-          message: this.generateTextFromEvent(event),
-          html: this.generateHtmlFromEvent(event),
-          templateData: event.eventData
-        };
-      } else if (subscription.channel === 'sms') {
-        content = {
-          message: this.generateSMSFromEvent(event)
-        };
-      }
+      const priority = (event.priority as QueuedNotification['priority']) || 'normal';
+      const scheduledAt = new Date(this.now());
+      if (priority === 'high') scheduledAt.setMinutes(scheduledAt.getMinutes() + 1);
+      else if (priority !== 'urgent') scheduledAt.setMinutes(scheduledAt.getMinutes() + 5);
+
+      const content = subscription.channel === 'email'
+        ? { subject: this.generateSubjectFromEvent(event), message: this.generateTextFromEvent(event), html: this.generateHtmlFromEvent(event), templateData: this.eventData(event) }
+        : { message: this.generateSMSFromEvent(event) };
 
       notifications.push({
-        type: subscription.channel as 'email' | 'sms',
+        type: subscription.channel,
         priority,
-        recipient: subscription.targetValue!,
+        recipient: subscription.targetValue,
         content,
-        metadata: {
-          userId: subscription.userId,
-          subscriptionId: subscription.id,
-          templateId: template?.id,
-          eventId: event.id
-        },
-        maxRetries: priority === 'urgent' ? 5 : 3,
+        metadata: { userId: subscription.userId, subscriptionId: subscription.id, templateId: template?.id, eventId: event.id },
+        maxRetries: priority === 'urgent' ? 5 : MAX_RETRIES,
         scheduledAt,
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+        expiresAt: new Date(this.now() + EXPIRE_AFTER_MS),
       });
     }
-    
     return this.queueBulkNotifications(notifications);
   }
 
-  /**
-   * Start the queue processor
-   */
+  // ---------------------------------------------------------------- processing
+
   private startQueueProcessor() {
-    setInterval(async () => {
+    this.timers.push(setInterval(async () => {
       if (this.isProcessing) return;
-      
       this.isProcessing = true;
-      
       try {
         await this.processQueue();
       } catch (error) {
@@ -183,231 +215,188 @@ export class NotificationQueueService {
       } finally {
         this.isProcessing = false;
       }
-    }, 5000); // Process every 5 seconds
+    }, 5000));
   }
 
-  /**
-   * Process queued notifications
-   */
-  private async processQueue() {
-    try {
-      // Get queued notifications from database
-      const queuedDeliveries = await storage.getQueuedNotifications(50); // Limit to 50 at a time
-      
-      if (queuedDeliveries.length === 0) return;
-      
-      // Filter by rate limits
-      const emailDeliveries = queuedDeliveries
-        .filter(d => d.channel === 'email')
-        .slice(0, this.getRemainingRateLimit('email'));
-        
-      const smsDeliveries = queuedDeliveries
-        .filter(d => d.channel === 'sms')
-        .slice(0, this.getRemainingRateLimit('sms'));
-      
-      // Process both types
-      const allDeliveries = [...emailDeliveries, ...smsDeliveries];
-      
-      for (const delivery of allDeliveries) {
-        await this.processNotificationDelivery(delivery);
+  /** One pass: send every due, rate-limit-admissible queued row. Returns how many were attempted. */
+  async processQueue(): Promise<number> {
+    const queued = await this.store.getQueuedNotifications(QUEUE_BATCH);
+    if (queued.length === 0) return 0;
+    const now = this.now();
+    const due = queued.filter((d) => !d.nextRetryAt || new Date(d.nextRetryAt).getTime() <= now);
+    const batch = [
+      ...due.filter((d) => d.channel === 'email').slice(0, this.remainingRateLimit('email')),
+      ...due.filter((d) => d.channel === 'sms').slice(0, this.remainingRateLimit('sms')),
+    ];
+    for (const delivery of batch) {
+      await this.processNotificationDelivery(delivery);
+    }
+    return batch.length;
+  }
+
+  /** Send one delivery row and record exactly what happened on it. */
+  async processNotificationDelivery(delivery: NotificationDelivery): Promise<NotificationDelivery> {
+    const channel: NotificationChannel | null = delivery.channel === 'sms' ? 'sms' : delivery.channel === 'email' ? 'email' : null;
+    if (!channel) {
+      return this.store.updateNotificationDelivery(delivery.id, {
+        status: 'failed', failedAt: new Date(this.now()), errorCode: 'unsupported_channel', errorMessage: `Unsupported channel: ${delivery.channel}`,
+      });
+    }
+    const provider = this.providers[channel];
+    if (!provider.isReady()) {
+      if (!this.providerWarned[channel]) {
+        this.providerWarned[channel] = true;
+        console.warn(`⚠️ ${channel} notifications cannot be sent: ${provider.getStatus().error ?? 'provider not configured'}`);
       }
+      return this.store.updateNotificationDelivery(delivery.id, {
+        status: 'failed', failedAt: new Date(this.now()), errorCode: 'provider_not_configured',
+        errorMessage: provider.getStatus().error ?? `${channel} provider not configured`,
+      });
+    }
+
+    await this.store.updateNotificationDelivery(delivery.id, { status: 'sending' });
+    const started = this.now();
+    let result: ProviderSendResult;
+    try {
+      result = await provider.send(delivery);
     } catch (error) {
-      console.error('Error processing queue:', error);
+      result = { success: false, error: error instanceof Error ? error.message : String(error) };
     }
-  }
+    this.countSend(channel, this.now() - started);
 
-  /**
-   * Process individual notification
-   */
-  private async processNotification(notification: QueuedNotification) {
-    const startTime = Date.now();
-    this.processing.add(notification.id);
-    
-    try {
-      let result: any;
-      
-      if (notification.type === 'email') {
-        result = await sendGridNotificationService.sendEmail({
-          to: notification.recipient,
-          from: 'notifications@electiontracker.app',
-          subject: notification.content.subject!,
-          text: notification.content.message,
-          html: notification.content.html,
-          templateData: notification.content.templateData
-        });
-      } else if (notification.type === 'sms') {
-        result = await twilioNotificationService.sendSMS({
-          to: notification.recipient,
-          message: notification.content.message
-        });
-      }
-
-      const processingTime = Date.now() - startTime;
-      
-      if (result.success) {
-        this.completed.set(notification.id, {
-          success: true,
-          timestamp: new Date(),
-          processingTime
-        });
-        
-        console.log(`✅ Notification sent: ${notification.id} (${processingTime}ms)`);
-      } else {
-        throw new Error(result.error || 'Unknown delivery error');
-      }
-      
-      // Remove from queue
-      this.queue.delete(notification.id);
-      
-    } catch (error: any) {
-      console.error(`❌ Notification failed: ${notification.id}`, error.message);
-      
-      notification.retryCount++;
-      
-      if (notification.retryCount >= notification.maxRetries) {
-        // Max retries reached, mark as failed
-        this.failed.set(notification.id, {
-          error: error.message,
-          timestamp: new Date(),
-          retryCount: notification.retryCount
-        });
-        
-        this.queue.delete(notification.id);
-      } else {
-        // Retry with exponential backoff
-        const backoffMinutes = Math.pow(2, notification.retryCount) * 5; // 5, 10, 20, 40 minutes
-        notification.scheduledAt = new Date(Date.now() + backoffMinutes * 60 * 1000);
-        
-        console.log(`🔄 Retrying notification ${notification.id} in ${backoffMinutes} minutes (attempt ${notification.retryCount}/${notification.maxRetries})`);
-      }
-    } finally {
-      this.processing.delete(notification.id);
-      this.updateRateLimit(notification.type);
+    if (result.success) {
+      console.log(`✅ Notification sent: ${delivery.id} (${channel})`);
+      return this.store.updateNotificationDelivery(delivery.id, {
+        status: 'sent', sentAt: new Date(this.now()), externalId: result.messageId ?? null, errorCode: null, errorMessage: null,
+        providerResponse: { messageId: result.messageId ?? null, statusCode: result.statusCode ?? null },
+      });
     }
-  }
 
-  /**
-   * Get remaining rate limit for type
-   */
-  private getRemainingRateLimit(type: 'email' | 'sms'): number {
-    const now = Date.now();
-    const oneMinuteAgo = now - 60 * 1000;
-    
-    if (this.lastProcessed[type] < oneMinuteAgo) {
-      // Reset counter if more than a minute has passed
-      return this.rateLimits[type];
+    const retryCount = (delivery.retryCount ?? 0) + 1;
+    const error = result.error ?? 'Unknown delivery error';
+    if (retryCount >= MAX_RETRIES) {
+      console.error(`❌ Notification failed permanently: ${delivery.id} (${channel}) after ${retryCount} attempts: ${error}`);
+      return this.store.updateNotificationDelivery(delivery.id, {
+        status: 'failed', failedAt: new Date(this.now()), retryCount, errorCode: 'provider_error', errorMessage: error,
+        providerResponse: { statusCode: result.statusCode ?? null, error },
+      });
     }
-    
-    // Calculate based on current processing
-    const currentProcessing = Array.from(this.processing.values()).filter(id => {
-      const notification = this.queue.get(id);
-      return notification?.type === type;
-    }).length;
-    
-    return Math.max(0, this.rateLimits[type] - currentProcessing);
+    const backoffMinutes = Math.pow(2, retryCount) * 5; // 10, 20 minutes
+    console.log(`🔄 Retrying notification ${delivery.id} in ${backoffMinutes} minutes (attempt ${retryCount}/${MAX_RETRIES}): ${error}`);
+    return this.store.updateNotificationDelivery(delivery.id, {
+      status: 'queued', retryCount, nextRetryAt: new Date(this.now() + backoffMinutes * 60 * 1000), errorCode: 'provider_error', errorMessage: error,
+    });
   }
 
-  /**
-   * Update rate limit tracking
-   */
-  private updateRateLimit(type: 'email' | 'sms') {
-    this.lastProcessed[type] = Date.now();
+  private remainingRateLimit(channel: NotificationChannel): number {
+    const w = this.window[channel];
+    if (this.now() - w.startedAt >= 60_000) return this.rateLimits[channel];
+    return Math.max(0, this.rateLimits[channel] - w.sent);
   }
 
-  /**
-   * Get queue statistics
-   */
-  getQueueStats(): NotificationQueueStats {
-    const queued = this.queue.size;
-    const processing = this.processing.size;
-    const completedEntries = Array.from(this.completed.values());
-    const failedEntries = Array.from(this.failed.values());
-    
-    const totalProcessed = completedEntries.length + failedEntries.length;
-    const successful = completedEntries.length;
-    
-    const averageProcessingTime = completedEntries.length > 0
-      ? completedEntries.reduce((sum, entry) => sum + entry.processingTime, 0) / completedEntries.length
+  private countSend(channel: NotificationChannel, durationMs: number) {
+    const w = this.window[channel];
+    if (this.now() - w.startedAt >= 60_000) { w.startedAt = this.now(); w.sent = 0; }
+    w.sent += 1;
+    this.processingTimesMs.push(durationMs);
+    if (this.processingTimesMs.length > 200) this.processingTimesMs.shift();
+  }
+
+  // ---------------------------------------------------------------- status
+
+  /** Queue statistics from the delivery table (this process only contributes the timing sample). */
+  async getQueueStats(): Promise<NotificationQueueStats> {
+    const s = await this.store.getNotificationDeliveryStats();
+    const completed = s.sent + s.delivered;
+    const totalProcessed = completed + s.failed + s.bounced;
+    const averageProcessingTime = this.processingTimesMs.length > 0
+      ? this.processingTimesMs.reduce((a, b) => a + b, 0) / this.processingTimesMs.length
       : 0;
-    
-    const successRate = totalProcessed > 0 ? (successful / totalProcessed) * 100 : 0;
-
     return {
-      queued,
-      processing,
-      completed: successful,
-      failed: failedEntries.length,
+      queued: s.queued,
+      processing: s.sending,
+      completed,
+      failed: s.failed + s.bounced,
       totalProcessed,
       averageProcessingTime,
-      successRate
+      successRate: totalProcessed > 0 ? (completed / totalProcessed) * 100 : 0,
     };
   }
 
-  /**
-   * Get detailed queue status
-   */
-  getDetailedStatus() {
+  async getDetailedStatus() {
     return {
-      stats: this.getQueueStats(),
-      queuedNotifications: Array.from(this.queue.values()),
-      recentCompleted: Array.from(this.completed.entries()).slice(-10),
-      recentFailed: Array.from(this.failed.entries()).slice(-10),
+      stats: await this.getQueueStats(),
+      queuedNotifications: await this.store.getQueuedNotifications(20),
+      providers: { email: this.providers.email.getStatus(), sms: this.providers.sms.getStatus() },
       rateLimits: this.rateLimits,
-      isProcessing: this.isProcessing
+      isProcessing: this.isProcessing,
+      timingSampleSize: this.processingTimesMs.length,
     };
   }
 
-  /**
-   * Clear completed and failed entries (cleanup task)
-   */
-  private startCleanupTask() {
-    setInterval(() => {
-      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-      
-      // Clean completed entries older than 1 hour
-      for (const [id, entry] of this.completed.entries()) {
-        if (entry.timestamp < oneHourAgo) {
-          this.completed.delete(id);
-        }
-      }
-      
-      // Clean failed entries older than 1 hour
-      for (const [id, entry] of this.failed.entries()) {
-        if (entry.timestamp < oneHourAgo) {
-          this.failed.delete(id);
-        }
-      }
-      
-      // Remove expired notifications from queue
-      for (const [id, notification] of this.queue.entries()) {
-        if (notification.expiresAt && notification.expiresAt < new Date()) {
-          this.queue.delete(id);
-          console.log(`🗑️ Expired notification removed: ${id}`);
-        }
-      }
-    }, 15 * 60 * 1000); // Every 15 minutes
+  /** Cancel a queued delivery; a row already sending/sent is left alone. */
+  async cancelNotification(id: number | string): Promise<boolean> {
+    const numeric = Number(id);
+    if (!Number.isInteger(numeric)) return false;
+    const [row] = await db.update(notificationDeliveries)
+      .set({ status: 'cancelled', failedAt: new Date(this.now()), errorCode: 'cancelled', updatedAt: new Date(this.now()) })
+      .where(and(eq(notificationDeliveries.id, numeric), eq(notificationDeliveries.status, 'queued')))
+      .returning({ id: notificationDeliveries.id });
+    if (row) console.log(`❌ Notification cancelled: ${row.id}`);
+    return Boolean(row);
   }
 
-  /**
-   * Generate event-based content
-   */
+  /** Rows queued for more than 24 h without a send are expired, on the row, every 15 minutes. */
+  private startCleanupTask() {
+    this.timers.push(setInterval(async () => {
+      try {
+        const cutoff = new Date(this.now() - EXPIRE_AFTER_MS);
+        const expired = await db.update(notificationDeliveries)
+          .set({ status: 'expired', failedAt: new Date(this.now()), errorCode: 'expired', errorMessage: 'Not sent within 24 hours of queueing', updatedAt: new Date(this.now()) })
+          .where(and(eq(notificationDeliveries.status, 'queued'), lt(notificationDeliveries.queuedAt, cutoff)))
+          .returning({ id: notificationDeliveries.id });
+        if (expired.length > 0) console.log(`🗑️ Expired ${expired.length} queued notification(s) older than 24 h`);
+      } catch (error) {
+        console.error('Notification queue cleanup error:', error);
+      }
+    }, 15 * 60 * 1000));
+  }
+
+  updateRateLimits(email: number, sms: number) {
+    this.rateLimits.email = email;
+    this.rateLimits.sms = sms;
+    console.log(`📊 Rate limits updated: email=${email}/min, sms=${sms}/min`);
+  }
+
+  destroy(): void {
+    for (const t of this.timers) clearInterval(t);
+    this.timers = [];
+  }
+
+  // ---------------------------------------------------------------- content
+
+  private eventData(event: NotificationEvent): Record<string, any> {
+    return (event.eventData && typeof event.eventData === 'object') ? (event.eventData as Record<string, any>) : {};
+  }
+
   private generateSubjectFromEvent(event: NotificationEvent): string {
+    const data = this.eventData(event);
     switch (event.eventType) {
       case 'election_result':
-        return `🗳️ Election Results: ${event.eventData.electionTitle}`;
+        return `🗳️ Election Results: ${data.electionTitle ?? ''}`.trim();
       case 'candidate_update':
-        return `📢 Candidate Update: ${event.eventData.candidateName}`;
+        return `📢 Candidate Update: ${data.candidateName ?? ''}`.trim();
       case 'breaking_news':
-        return `🚨 Breaking Election News`;
+        return '🚨 Breaking Election News';
       case 'deadline_reminder':
-        return `⏰ Election Deadline Reminder`;
+        return '⏰ Election Deadline Reminder';
       default:
         return 'Election Tracker Alert';
     }
   }
 
   private generateTextFromEvent(event: NotificationEvent): string {
-    return event.eventData.message || 'New election update available.';
+    return this.eventData(event).message || 'New election update available.';
   }
 
   private generateHtmlFromEvent(event: NotificationEvent): string {
@@ -418,39 +407,10 @@ export class NotificationQueueService {
   }
 
   private generateSMSFromEvent(event: NotificationEvent): string {
-    const emoji = event.eventType === 'election_result' ? '🗳️' : 
-                  event.eventType === 'breaking_news' ? '🚨' : 
+    const emoji = event.eventType === 'election_result' ? '🗳️' :
+                  event.eventType === 'breaking_news' ? '🚨' :
                   event.eventType === 'deadline_reminder' ? '⏰' : '📢';
-    
-    return `${emoji} ${event.eventData.message || 'Election update'}\n\nReply STOP to unsubscribe`;
-  }
-
-  /**
-   * Generate unique ID
-   */
-  private generateId(): string {
-    return `notification_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  }
-
-  /**
-   * Cancel queued notification
-   */
-  cancelNotification(id: string): boolean {
-    if (this.queue.has(id) && !this.processing.has(id)) {
-      this.queue.delete(id);
-      console.log(`❌ Notification cancelled: ${id}`);
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * Update rate limits
-   */
-  updateRateLimits(email: number, sms: number) {
-    this.rateLimits.email = email;
-    this.rateLimits.sms = sms;
-    console.log(`📊 Rate limits updated: email=${email}/min, sms=${sms}/min`);
+    return `${emoji} ${this.generateTextFromEvent(event)}\n\nReply STOP to unsubscribe`;
   }
 }
 

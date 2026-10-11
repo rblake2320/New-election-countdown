@@ -56,6 +56,41 @@ export interface EventTrackingData {
   utmCampaign?: string;
   utmTerm?: string;
   utmContent?: string;
+  userAgent?: string;
+  ipAddress?: string;
+}
+
+/** Legacy interaction_logs row (table may not exist in a deployment; the insert is guarded). */
+export interface InteractionLogInput {
+  userId?: string | null;
+  sessionId?: string | null;
+  eventType?: string;
+  metadata?: Record<string, unknown> | null;
+  ipAddress?: string | null;
+}
+
+/** In-flight funnel state; the required columns of conversion_funnels are always present. */
+interface FunnelState {
+  userId?: string;
+  sessionId: string;
+  funnelName: string;
+  funnelVersion: string;
+  currentStep: string;
+  stepOrder: number;
+  totalSteps: number;
+  stepsCompleted: string[];
+  stepTimestamps: Record<string, Date>;
+  stepDurations: Record<string, number>;
+  isCompleted?: boolean;
+  completedAt?: Date;
+  timeToComplete?: number;
+  entryPoint?: string;
+  campaignData?: Record<string, unknown>;
+  deviceContext?: Record<string, unknown>;
+  experimentId?: string;
+  variantId?: string;
+  cohortId?: string;
+  attemptNumber: number;
 }
 
 export interface SessionData {
@@ -94,7 +129,7 @@ export class AnalyticsService {
   private lastHealthyStatus = true;
   private eventQueue: InsertUserEvent[] = [];
   private sessionCache = new Map<string, Partial<UserSession>>();
-  private funnelCache = new Map<string, Partial<ConversionFunnel>>();
+  private funnelCache = new Map<string, FunnelState>();
   
   constructor() {
     // Check database health periodically
@@ -301,7 +336,6 @@ export class AnalyticsService {
     let funnel = this.funnelCache.get(funnelKey);
 
     if (!funnel) {
-      // Create new funnel entry
       funnel = {
         userId: funnelData.userId,
         sessionId: funnelData.sessionId,
@@ -321,42 +355,31 @@ export class AnalyticsService {
         cohortId: funnelData.cohortId,
         attemptNumber: 1
       };
-
       this.funnelCache.set(funnelKey, funnel);
     } else {
-      // Update existing funnel
       const previousStep = funnel.currentStep;
-      const previousTimestamp = funnel.stepTimestamps?.[previousStep as string];
-      
+      const previousTimestamp = funnel.stepTimestamps[previousStep];
       if (previousTimestamp) {
-        const stepDuration = Math.floor((new Date().getTime() - new Date(previousTimestamp).getTime()) / 1000);
-        funnel.stepDurations = { 
-          ...funnel.stepDurations, 
-          [previousStep as string]: stepDuration 
+        funnel.stepDurations = {
+          ...funnel.stepDurations,
+          [previousStep]: Math.floor((Date.now() - previousTimestamp.getTime()) / 1000)
         };
       }
-
       funnel.currentStep = funnelData.currentStep;
       funnel.stepOrder = funnelData.stepOrder;
-      funnel.stepsCompleted = [...(funnel.stepsCompleted || []), funnelData.currentStep];
-      funnel.stepTimestamps = {
-        ...funnel.stepTimestamps,
-        [funnelData.currentStep]: new Date()
-      };
+      funnel.stepsCompleted = [...funnel.stepsCompleted, funnelData.currentStep];
+      funnel.stepTimestamps = { ...funnel.stepTimestamps, [funnelData.currentStep]: new Date() };
 
-      // Check if funnel is completed
       if (funnelData.stepOrder >= funnelData.totalSteps) {
         funnel.isCompleted = true;
         funnel.completedAt = new Date();
-        
-        const startTime = Object.values(funnel.stepTimestamps || {})[0];
+        const startTime = Object.values(funnel.stepTimestamps)[0];
         if (startTime) {
-          funnel.timeToComplete = Math.floor((new Date().getTime() - new Date(startTime).getTime()) / 1000);
+          funnel.timeToComplete = Math.floor((Date.now() - startTime.getTime()) / 1000);
         }
       }
     }
 
-    // Save to database if healthy
     if (this.isDbHealthy) {
       try {
         const insertData: InsertConversionFunnel = {
@@ -367,7 +390,7 @@ export class AnalyticsService {
           currentStep: funnel.currentStep,
           stepOrder: funnel.stepOrder,
           totalSteps: funnel.totalSteps,
-          isCompleted: funnel.isCompleted || false,
+          isCompleted: funnel.isCompleted ?? false,
           completedAt: funnel.completedAt,
           stepsCompleted: funnel.stepsCompleted,
           stepTimestamps: funnel.stepTimestamps,
@@ -380,9 +403,9 @@ export class AnalyticsService {
           variantId: funnel.variantId,
           cohortId: funnel.cohortId,
           attemptNumber: funnel.attemptNumber,
-          conversionValue: this.calculateConversionValue(funnel.funnelName, funnel.isCompleted)
+          // numeric(10,2) travels as a string through Drizzle
+          conversionValue: this.calculateConversionValue(funnel.funnelName, funnel.isCompleted ?? false).toFixed(2)
         };
-
         await db.insert(conversionFunnels).values(insertData);
       } catch (error) {
         console.error('❌ Failed to track funnel step:', error);
@@ -480,26 +503,26 @@ export class AnalyticsService {
           userId: userId,
           scoreDate: new Date(),
           scorePeriod: period,
-          totalScore: totalScore,
-          loginFrequency: scores.loginFrequency,
-          sessionDuration: scores.sessionDuration,
-          pageViewDepth: scores.pageViewDepth,
-          featureUsage: scores.featureUsage,
-          contentInteraction: scores.contentInteraction,
-          watchlistActivity: scores.watchlistActivity,
-          electionViews: scores.electionViews,
-          candidateComparisons: scores.candidateComparisons,
-          preferencesUpdates: scores.preferencesUpdates,
-          notificationEngagement: scores.notificationEngagement,
-          qualityScore: qualityScore,
-          retentionRisk: retentionRisk,
-          loyaltyScore: loyaltyScore,
+          totalScore: (totalScore).toFixed(2),
+          loginFrequency: (scores.loginFrequency).toFixed(2),
+          sessionDuration: (scores.sessionDuration).toFixed(2),
+          pageViewDepth: (scores.pageViewDepth).toFixed(2),
+          featureUsage: (scores.featureUsage).toFixed(2),
+          contentInteraction: (scores.contentInteraction).toFixed(2),
+          watchlistActivity: (scores.watchlistActivity).toFixed(2),
+          electionViews: (scores.electionViews).toFixed(2),
+          candidateComparisons: (scores.candidateComparisons).toFixed(2),
+          preferencesUpdates: (scores.preferencesUpdates).toFixed(2),
+          notificationEngagement: (scores.notificationEngagement).toFixed(2),
+          qualityScore: (qualityScore).toFixed(2),
+          retentionRisk: (retentionRisk).toFixed(2),
+          loyaltyScore: (loyaltyScore).toFixed(2),
           engagementTier: tier,
           userSegment: segment,
           nextBestAction: this.recommendNextAction(tier, segment, scores),
           calculationMethod: 'v1.0',
           dataPoints: events.length,
-          confidenceLevel: this.calculateConfidenceLevel(events.length)
+          confidenceLevel: (this.calculateConfidenceLevel(events.length)).toFixed(2)
         };
 
         await db.insert(userEngagementScores).values(scoreRecord);
@@ -598,7 +621,7 @@ export class AnalyticsService {
 
   async getUserEvents(userId: string, limit: number = 100): Promise<any[]> {
     // Use queued events and try database if healthy
-    const events = [];
+    const events: Array<UserEvent | InsertUserEvent> = [];
     
     // Get events from memory queue
     const queuedEvents = this.eventQueue.filter(event => event.userId === userId);
@@ -740,55 +763,6 @@ export class AnalyticsService {
     return { registration, activation };
   }
 
-  async calculateUserEngagementScore(userId: string, period: 'daily' | 'weekly' | 'monthly' = 'daily'): Promise<number> {
-    try {
-      // Calculate engagement score using available data
-      const userEvents = await this.getUserEvents(userId, 1000);
-      const userSession = Array.from(this.sessionCache.values())
-        .find(s => s.userId === userId);
-      
-      if (!userEvents.length && !userSession) {
-        return 0;
-      }
-      
-      // Calculate component scores
-      const scores = {
-        loginFrequency: userSession ? Math.min(5, (userSession.pageViews || 0) / 2) : 0,
-        sessionDuration: userSession ? Math.min(5, (userSession.duration || 0) / 300) : 0, // 5 minutes = max score
-        pageViewDepth: userSession ? Math.min(5, (userSession.pageViews || 0) / 3) : 0,
-        featureUsage: Math.min(5, userEvents.filter(e => e.eventAction).length / 5),
-        contentInteraction: Math.min(5, userEvents.filter(e => e.eventType === 'click').length / 10),
-        watchlistActivity: Math.min(5, userEvents.filter(e => e.eventAction === 'add_to_watchlist').length * 2),
-        electionViews: Math.min(5, userEvents.filter(e => e.targetType === 'election').length / 3),
-        candidateComparisons: Math.min(5, userEvents.filter(e => e.eventAction === 'compare_candidates').length * 3)
-      };
-      
-      // Weight the scores
-      const weights = {
-        loginFrequency: 0.15,
-        sessionDuration: 0.15,
-        pageViewDepth: 0.15,
-        featureUsage: 0.15,
-        contentInteraction: 0.10,
-        watchlistActivity: 0.15,
-        electionViews: 0.10,
-        candidateComparisons: 0.05
-      };
-      
-      let totalScore = 0;
-      for (const [metric, score] of Object.entries(scores)) {
-        totalScore += score * weights[metric as keyof typeof weights];
-      }
-      
-      // Scale to 0-100
-      return Math.round(totalScore * 20); // 5 * 20 = 100 max
-      
-    } catch (error) {
-      console.error('Failed to calculate engagement score:', error);
-      return 0;
-    }
-  }
-
   async getAnalyticsOverview(timeframe: string = '7d'): Promise<any> {
     const allEvents = [...this.eventQueue];
     const allSessions = Array.from(this.sessionCache.values());
@@ -909,7 +883,9 @@ export class AnalyticsService {
 
   private getSessionId(req: Request): string {
     // Try to get from existing session or generate new one
-    return req.sessionID || req.headers['x-session-id'] as string || this.generateSessionId();
+    // No session middleware is mounted: the client's X-Session-Id header is the session.
+    const header = req.headers['x-session-id'];
+    return (typeof header === 'string' && header) || this.generateSessionId();
   }
 
   private generateSessionId(): string {
@@ -1135,7 +1111,7 @@ export class AnalyticsService {
       if (userSessionsData.length <= 1) return 0;
       
       const daysSinceFirst = Math.floor(
-        (new Date().getTime() - new Date(userSessionsData[userSessionsData.length - 1].startedAt).getTime()) / 
+        (new Date().getTime() - new Date(userSessionsData[userSessionsData.length - 1].startedAt ?? Date.now()).getTime()) / 
         (1000 * 60 * 60 * 24)
       );
       
@@ -1166,7 +1142,7 @@ export class AnalyticsService {
   // EXISTING GDPR COMPLIANCE METHODS (Enhanced)
   // =============================================================================
   // Track user interactions with GDPR compliance
-  async logInteraction(data: InsertInteractionLog): Promise<void> {
+  async logInteraction(data: InteractionLogInput): Promise<void> {
     try {
       // Anonymize IP address for privacy compliance
       if (data.ipAddress) {
@@ -1185,34 +1161,6 @@ export class AnalyticsService {
     }
   }
 
-
-  // Save user preferences with consent tracking
-  async updateUserPreferences(userId: number, preferences: Partial<InsertUserPreferences>): Promise<void> {
-    try {
-      const existingPrefs = await db
-        .select()
-        .from(userPreferences)
-        .where(eq(userPreferences.userId, userId));
-
-      if (existingPrefs.length > 0) {
-        await db
-          .update(userPreferences)
-          .set({ ...preferences, updatedAt: new Date() })
-          .where(eq(userPreferences.userId, userId));
-      } else {
-        await db
-          .insert(userPreferences)
-          .values({ 
-            userId, 
-            ...preferences,
-            consentGiven: true,
-            consentDate: new Date()
-          });
-      }
-    } catch (error) {
-      console.error('Error updating user preferences:', error);
-    }
-  }
 
   // Get analytics insights (aggregated data only)
   async getEngagementInsights(electionCycleId?: number) {
@@ -1247,7 +1195,7 @@ export class AnalyticsService {
   }
 
   // GDPR compliance: data export for user
-  async exportUserData(userId: number) {
+  async exportUserData(userId: string) {
     try {
       const [preferences] = await db
         .select()
@@ -1257,7 +1205,7 @@ export class AnalyticsService {
       const interactions = await db
         .select()
         .from(voterInteractions)
-        .where(eq(voterInteractions.userId, String(userId)));
+        .where(eq(voterInteractions.userId, userId));
 
       return {
         preferences: preferences || null,
@@ -1271,17 +1219,18 @@ export class AnalyticsService {
   }
 
   // GDPR compliance: delete user data
-  async deleteUserData(userId: number): Promise<boolean> {
+  async deleteUserData(userId: string): Promise<boolean> {
     try {
       await db.delete(userPreferences).where(eq(userPreferences.userId, userId));
-      await db.delete(voterInteractions).where(eq(voterInteractions.userId, String(userId)));
-      // Legacy tables — guarded deletes (tables may not exist in this deployment)
+      await db.delete(voterInteractions).where(eq(voterInteractions.userId, userId));
+      // Legacy tables (may not exist in this deployment): existence check, then a parameterised delete.
       for (const table of ['user_demographics', 'non_voter_tracking', 'interaction_logs']) {
-        await db.execute(sql.raw(
-          `DO $$ BEGIN IF to_regclass('${table}') IS NOT NULL THEN DELETE FROM ${table} WHERE user_id = '${String(userId).replace(/'/g, "''")}'; END IF; END $$;`
-        ));
+        const exists = await db.execute(sql`select to_regclass(${table}) as t`);
+        if (exists.rows?.[0]?.t) {
+          await db.execute(sql`DELETE FROM ${sql.identifier(table)} WHERE user_id = ${userId}`);
+        }
       }
-      
+
       return true;
     } catch (error) {
       console.error('Error deleting user data:', error);

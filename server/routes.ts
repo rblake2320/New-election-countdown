@@ -1877,7 +1877,10 @@ Please provide detailed, current information about this specific election.`;
         return res.status(401).json({ error: 'Invalid token' });
       }
 
-      const userData = await storage.exportUserData(parseInt(user.id));
+      const userData = await storage.exportUserData(user.id);
+      if (!userData) {
+        return res.status(503).json({ error: 'export_unavailable', message: 'User data could not be exported right now' });
+      }
       res.json(userData);
     } catch (error: any) {
       console.error('Error exporting user data:', error);
@@ -1892,7 +1895,7 @@ Please provide detailed, current information about this specific election.`;
         return res.status(401).json({ error: 'Invalid token' });
       }
 
-      const success = await storage.deleteUserData(parseInt(user.id));
+      const success = await storage.deleteUserData(user.id);
       if (success) {
         res.json({ message: 'All user data deleted successfully' });
       } else {

@@ -5,6 +5,12 @@
 
 import { Router } from 'express';
 import { z } from 'zod';
+import type { StorageMode } from '../storage-factory';
+
+type Orchestration = typeof import('../services/failover-orchestration-service')['failoverOrchestrationService'];
+type OrchestrationStatus = Awaited<ReturnType<Orchestration['getStatus']>>;
+type OrchestrationRules = Awaited<ReturnType<Orchestration['getFailoverRules']>>;
+type OrchestrationHistory = Awaited<ReturnType<Orchestration['getExecutionHistory']>>;
 
 const router = Router();
 
@@ -32,16 +38,17 @@ router.get('/status', async (req, res) => {
     const replicaStatus = storage.getReplicaStatus();
     
     // Get orchestration service status if available
-    let orchestrationStatus = null;
+    let orchestrationStatus: OrchestrationStatus | null = null;
     try {
       const { failoverOrchestrationService } = await import('../services/failover-orchestration-service');
-      orchestrationStatus = failoverOrchestrationService.getStatus();
+      // The singleton is an async facade: without await this was a Promise serialised as {}.
+      orchestrationStatus = await failoverOrchestrationService.getStatus();
     } catch (error) {
       console.log('Orchestration service not available:', error);
     }
     
     // Get enhanced health metrics if available
-    let enhancedHealthMetrics = null;
+    let enhancedHealthMetrics: unknown = null;
     try {
       const { healthCheckService } = await import('../services/health-check-service');
       const comprehensiveHealth = await healthCheckService.performComprehensiveHealthCheck();
@@ -106,7 +113,7 @@ router.get('/health', async (req, res) => {
     
     // Calculate health score
     let healthScore = 0;
-    const factors = [];
+    const factors: string[] = [];
     
     if (healthStatus.isDatabaseHealthy) {
       healthScore += 40;
@@ -128,7 +135,7 @@ router.get('/health', async (req, res) => {
       factors.push('High connection success rate');
     }
 
-    const recommendations = [];
+    const recommendations: string[] = [];
     if (!healthStatus.isDatabaseHealthy) {
       recommendations.push('Investigate primary database connectivity');
     }
@@ -189,7 +196,7 @@ router.post('/trigger', async (req, res) => {
     
     console.log(`🔄 Manual failover triggered: ${targetMode}`, { reason });
     
-    const result = await storage.triggerManualFailover(targetMode, reason);
+    const result = await storage.triggerManualFailover(targetMode as StorageMode, reason);
     
     if (result.success) {
       res.json({
@@ -264,10 +271,10 @@ router.get('/history', async (req, res) => {
     const failoverHistory = storage.getFailoverHistory(limit);
     
     // Get orchestration history if available
-    let orchestrationHistory = [];
+    let orchestrationHistory: OrchestrationHistory = [];
     try {
       const { failoverOrchestrationService } = await import('../services/failover-orchestration-service');
-      orchestrationHistory = failoverOrchestrationService.getExecutionHistory(limit);
+      orchestrationHistory = await failoverOrchestrationService.getExecutionHistory(limit);
     } catch (error) {
       console.log('Orchestration history not available:', error);
     }
@@ -300,13 +307,13 @@ router.get('/history', async (req, res) => {
  */
 router.get('/rules', async (req, res) => {
   try {
-    let rules = [];
+    let rules: OrchestrationRules = [];
     let serviceEnabled = false;
-    
+
     try {
       const { failoverOrchestrationService } = await import('../services/failover-orchestration-service');
-      rules = failoverOrchestrationService.getFailoverRules();
-      const status = failoverOrchestrationService.getStatus();
+      rules = await failoverOrchestrationService.getFailoverRules();
+      const status = await failoverOrchestrationService.getStatus();
       serviceEnabled = status.enabled;
     } catch (error) {
       console.log('Orchestration service not available:', error);
@@ -346,8 +353,11 @@ router.put('/rules/:ruleId', async (req, res) => {
     const updates = failoverRuleUpdateSchema.parse(req.body);
     
     const { failoverOrchestrationService } = await import('../services/failover-orchestration-service');
-    failoverOrchestrationService.updateFailoverRule(ruleId, updates);
-    
+    const found = await failoverOrchestrationService.updateFailoverRule(ruleId, updates);
+    if (!found) {
+      return res.status(404).json({ error: 'rule_not_found', ruleId });
+    }
+
     res.json({
       success: true,
       message: `Failover rule ${ruleId} updated`,
@@ -444,11 +454,11 @@ router.get('/diagnostics', async (req, res) => {
     const replicaStatus = storage.getReplicaStatus();
     
     // Get orchestration diagnostics if available
-    let orchestrationDiagnostics = null;
+    let orchestrationDiagnostics: { serviceEnabled: boolean; activeExecutions: number; rulesEnabled: number; recentExecutions: number } | null = null;
     try {
       const { failoverOrchestrationService } = await import('../services/failover-orchestration-service');
-      const activeExecutions = failoverOrchestrationService.getActiveExecutions();
-      const status = failoverOrchestrationService.getStatus();
+      const activeExecutions = await failoverOrchestrationService.getActiveExecutions();
+      const status = await failoverOrchestrationService.getStatus();
       
       orchestrationDiagnostics = {
         serviceEnabled: status.enabled,

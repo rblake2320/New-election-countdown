@@ -737,9 +737,9 @@ export class MemStorage implements IStorage {
 
   async updateUserDemographics(_userId: string, _demographics: UpdateUserPreferences): Promise<UserPreferences> { return this.degraded('updateUserDemographics'); }
 
-  async exportUserData(_userId: number): Promise<any> { return this.degraded('exportUserData'); }
+  async exportUserData(_userId: string): Promise<any> { return this.degraded('exportUserData'); }
 
-  async deleteUserData(_userId: number): Promise<boolean> {
+  async deleteUserData(_userId: string): Promise<boolean> {
     // A deletion request (GDPR) cannot be honoured without the database; refusing is the
     // only truthful answer - returning true here used to fake a completed erasure.
     return this.degraded('deleteUserData');

@@ -206,8 +206,8 @@ export interface IStorage {
   getCandidateWithRAG(candidateId: number): Promise<any>;
   recordEngagement(data: EngagementRecord): Promise<void>;
   updateUserDemographics(userId: string, demographics: UpdateUserPreferences): Promise<UserPreferences>;
-  exportUserData(userId: number): Promise<any>;
-  deleteUserData(userId: number): Promise<boolean>;
+  exportUserData(userId: string): Promise<any>;
+  deleteUserData(userId: string): Promise<boolean>;
 
   // Campaign Portal & Data Marketplace
   createCampaignAccount(data: any): Promise<any>;
@@ -1403,12 +1403,12 @@ export class DatabaseStorage implements IStorage {
     return await this.updateUserPreferences(userId, parsed.data);
   }
 
-  async exportUserData(userId: number): Promise<any> {
+  async exportUserData(userId: string): Promise<any> {
     const { analyticsService } = await import('./analytics-service');
     return await analyticsService.exportUserData(userId);
   }
 
-  async deleteUserData(userId: number): Promise<boolean> {
+  async deleteUserData(userId: string): Promise<boolean> {
     const { analyticsService } = await import('./analytics-service');
     return await analyticsService.deleteUserData(userId);
   }
