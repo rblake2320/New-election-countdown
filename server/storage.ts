@@ -321,6 +321,10 @@ export interface IStorage {
   getUserNotificationConsents(userId: string): Promise<any[]>;
   recordNotificationConsent(consent: any): Promise<any>;
   withdrawNotificationConsent(userId: string, consentType: string): Promise<void>;
+  getNotificationConsentsBetween(start: Date, end: Date): Promise<NotificationConsent[]>;
+  getExpiredNotificationConsents(asOf: Date): Promise<NotificationConsent[]>;
+  unsubscribeNotificationSubscriptionByToken(token: string): Promise<NotificationSubscription | null>;
+  getNotificationSubscriptionsVerifiedBetween(start: Date, end: Date): Promise<NotificationSubscription[]>;
 
   // Notification Templates
   getNotificationTemplates(type?: string, category?: string): Promise<any[]>;
@@ -2317,6 +2321,44 @@ export class DatabaseStorage implements IStorage {
         .where(eq(notificationConsents.userId, userId))
         .orderBy(desc(notificationConsents.createdAt));
     }, [], 'getUserNotificationConsents');
+  }
+
+  async getNotificationConsentsBetween(start: Date, end: Date): Promise<NotificationConsent[]> {
+    return await this.handleDatabaseOperation(async () => {
+      return await db.select().from(notificationConsents)
+        .where(and(gte(notificationConsents.consentDate, start), lte(notificationConsents.consentDate, end)))
+        .orderBy(desc(notificationConsents.consentDate));
+    }, [], 'getNotificationConsentsBetween');
+  }
+
+  /** Active grants whose data_retention_period (days) has elapsed since consent_date. */
+  async getExpiredNotificationConsents(asOf: Date): Promise<NotificationConsent[]> {
+    return await this.handleDatabaseOperation(async () => {
+      return await db.select().from(notificationConsents)
+        .where(and(
+          eq(notificationConsents.isActive, true),
+          eq(notificationConsents.consentGiven, true),
+          isNotNull(notificationConsents.dataRetentionPeriod),
+          sql`${notificationConsents.consentDate} + make_interval(days => ${notificationConsents.dataRetentionPeriod}) < ${asOf}`
+        ));
+    }, [], 'getExpiredNotificationConsents');
+  }
+
+  async unsubscribeNotificationSubscriptionByToken(token: string): Promise<NotificationSubscription | null> {
+    return await this.handleDatabaseOperation(async () => {
+      const [updated] = await db.update(notificationSubscriptions)
+        .set({ isActive: false, unsubscribedAt: new Date(), updatedAt: new Date() })
+        .where(and(eq(notificationSubscriptions.unsubscribeToken, token), eq(notificationSubscriptions.isActive, true)))
+        .returning();
+      return updated ?? null;
+    }, null, 'unsubscribeNotificationSubscriptionByToken');
+  }
+
+  async getNotificationSubscriptionsVerifiedBetween(start: Date, end: Date): Promise<NotificationSubscription[]> {
+    return await this.handleDatabaseOperation(async () => {
+      return await db.select().from(notificationSubscriptions)
+        .where(and(isNotNull(notificationSubscriptions.verifiedAt), gte(notificationSubscriptions.verifiedAt, start), lte(notificationSubscriptions.verifiedAt, end)));
+    }, [], 'getNotificationSubscriptionsVerifiedBetween');
   }
 
   async recordNotificationConsent(consent: InsertNotificationConsent): Promise<NotificationConsent> {

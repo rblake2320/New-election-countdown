@@ -3,7 +3,7 @@
  * Comprehensive web scraping using Puppeteer, Playwright, and Selenium
  */
 
-import puppeteer, { type Page } from 'puppeteer';
+import puppeteer, { type Browser, type Page } from 'puppeteer';
 
 interface BrowserScrapingResult {
   url: string;
@@ -28,12 +28,12 @@ interface ElectionPageData {
 }
 
 export class BrowserAutomationService {
-  private puppeteerBrowser: any = null;
+  private puppeteerBrowser: Browser | null = null;
 
   /**
    * Initialize Puppeteer browser
    */
-  async initializePuppeteer() {
+  async initializePuppeteer(): Promise<Browser> {
     if (!this.puppeteerBrowser) {
       try {
         this.puppeteerBrowser = await puppeteer.launch({

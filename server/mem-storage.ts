@@ -2374,6 +2374,10 @@ export class MemStorage implements IStorage {
   async updateRestoreValidation(..._args: unknown[]): Promise<never> { return this.degraded('updateRestoreValidation'); }
   async updateSchemaVersion(..._args: unknown[]): Promise<never> { return this.degraded('updateSchemaVersion'); }
   async updateUserRecommendationAnalytics(..._args: unknown[]): Promise<never> { return this.degraded('updateUserRecommendationAnalytics'); }
+  async getNotificationConsentsBetween(..._args: unknown[]): Promise<never> { return this.degraded('getNotificationConsentsBetween'); }
+  async getExpiredNotificationConsents(..._args: unknown[]): Promise<never> { return this.degraded('getExpiredNotificationConsents'); }
+  async unsubscribeNotificationSubscriptionByToken(..._args: unknown[]): Promise<never> { return this.degraded('unsubscribeNotificationSubscriptionByToken'); }
+  async getNotificationSubscriptionsVerifiedBetween(..._args: unknown[]): Promise<never> { return this.degraded('getNotificationSubscriptionsVerifiedBetween'); }
   async withdrawNotificationConsent(..._args: unknown[]): Promise<never> { return this.degraded('withdrawNotificationConsent'); }
 
 }

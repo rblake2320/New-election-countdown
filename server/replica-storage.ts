@@ -685,6 +685,10 @@ export class ReplicaStorage implements IStorage {
   async updateSecretRotationHistory(..._args: unknown[]): Promise<never> { return this.readOnly('updateSecretRotationHistory'); }
   async updateUserRecommendationAnalytics(..._args: unknown[]): Promise<never> { return this.readOnly('updateUserRecommendationAnalytics'); }
   async validateUserSession(..._args: unknown[]): Promise<never> { return this.readOnly('validateUserSession'); }
+  async getNotificationConsentsBetween(..._args: unknown[]): Promise<never> { return this.readOnly('getNotificationConsentsBetween'); }
+  async getExpiredNotificationConsents(..._args: unknown[]): Promise<never> { return this.readOnly('getExpiredNotificationConsents'); }
+  async unsubscribeNotificationSubscriptionByToken(..._args: unknown[]): Promise<never> { return this.readOnly('unsubscribeNotificationSubscriptionByToken'); }
+  async getNotificationSubscriptionsVerifiedBetween(..._args: unknown[]): Promise<never> { return this.readOnly('getNotificationSubscriptionsVerifiedBetween'); }
   async withdrawNotificationConsent(..._args: unknown[]): Promise<never> { return this.readOnly('withdrawNotificationConsent'); }
 
 }
