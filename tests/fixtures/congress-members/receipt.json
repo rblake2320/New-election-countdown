@@ -1,0 +1,214 @@
+{
+  "outcome": "Worked",
+  "image": "electiontracker:congress-production-main7ca",
+  "builder": "electiontracker:congress-production-main7ca-builder",
+  "network": "internal; no published ports",
+  "checks": [
+    {
+      "name": "runtime-only artifacts and nonroot identity",
+      "outcome": "Worked"
+    },
+    {
+      "name": "owned PostgreSQL ready",
+      "outcome": "Worked"
+    },
+    {
+      "name": "actual packaged HTTP server healthy",
+      "outcome": "Worked"
+    },
+    {
+      "name": "default compiled-relative loader dry-run receives 539 real members",
+      "outcome": "Worked"
+    },
+    {
+      "name": "dry-run leaves full catalog and audit unchanged",
+      "outcome": "Worked"
+    },
+    {
+      "name": "apply without explicit digest refuses",
+      "outcome": "Worked"
+    },
+    {
+      "name": "changed source bytes refuse",
+      "outcome": "Worked"
+    },
+    {
+      "name": "missing audit migration refuses",
+      "outcome": "Worked"
+    },
+    {
+      "name": "shipped migration applies and repeats",
+      "outcome": "Worked"
+    },
+    {
+      "name": "CLI receives after shipped migration",
+      "outcome": "Worked"
+    },
+    {
+      "name": "actual admin legacy routes return typed refusal",
+      "outcome": "Worked"
+    },
+    {
+      "name": "all refusal paths preserve full catalog and zero audits",
+      "outcome": "Worked"
+    },
+    {
+      "name": "positive fixture dry-run plans 538 inserts and one update",
+      "outcome": "Worked"
+    },
+    {
+      "name": "actual production CLI commits guarded positive apply",
+      "outcome": "Worked"
+    },
+    {
+      "name": "independent SQL receives exactly 539 real IDs and every approved field",
+      "outcome": "Worked"
+    },
+    {
+      "name": "legacy/history full rows and all unrelated existing fields preserved",
+      "outcome": "Worked"
+    },
+    {
+      "name": "repeat dry-run plans zero member writes",
+      "outcome": "Worked"
+    },
+    {
+      "name": "guarded production repeat commits zero member writes with stable xmin/full rows",
+      "outcome": "Worked"
+    },
+    {
+      "name": "separate database connection reads exact committed audits and full image scopes",
+      "outcome": "Worked"
+    },
+    {
+      "name": "shipped audit migration repeat preserves durable audit rows byte-for-byte",
+      "outcome": "Worked"
+    },
+    {
+      "name": "actual GET members payload matches independent SQL for all 541 rows and exposed fields",
+      "outcome": "Worked"
+    }
+  ],
+  "imageId": "sha256:63f8d82d83453393f9595f34fb8f02868ecaa40c48928329c20f41345a2e3406",
+  "builderId": "sha256:b0804c525547339b2a812c15fcb821512531b5c93429d6c6a0e8a9aba040dcf7",
+  "boundary": {
+    "uid": 1001,
+    "rootCongressSourcePresent": false,
+    "otherRootData": [
+      "official-results"
+    ],
+    "manifestSha256": "b09efc0e8a2b98ffc1e5e4740c8c0ba03a381e745cdf8d53a501e053bfa8ad56"
+  },
+  "anonymous": [
+    {
+      "path": "/api/congress/import",
+      "status": 401,
+      "body": {
+        "error": "unauthorized"
+      }
+    },
+    {
+      "path": "/api/congress/sync-all",
+      "status": 401,
+      "body": {
+        "error": "unauthorized"
+      }
+    }
+  ],
+  "ordinary": [
+    {
+      "path": "/api/congress/import",
+      "status": 403,
+      "body": {
+        "error": "Forbidden",
+        "message": "Administrative privileges required to access this resource"
+      }
+    },
+    {
+      "path": "/api/congress/sync-all",
+      "status": 403,
+      "body": {
+        "error": "Forbidden",
+        "message": "Administrative privileges required to access this resource"
+      }
+    }
+  ],
+  "legacy": [
+    {
+      "path": "/api/congress/import",
+      "status": 422,
+      "body": {
+        "error": "source_unverified",
+        "code": "LEGACY_CONGRESS_SOURCE_UNVERIFIED",
+        "message": "Legacy Congress dataset has no reviewed source digest; nothing was imported",
+        "details": null
+      }
+    },
+    {
+      "path": "/api/congress/sync-all",
+      "status": 422,
+      "body": {
+        "error": "source_unverified",
+        "code": "LEGACY_CONGRESS_SOURCE_UNVERIFIED",
+        "message": "Legacy Congress dataset has no reviewed source digest; nothing was imported",
+        "details": null
+      }
+    }
+  ],
+  "positiveSQL": {
+    "expected": 539,
+    "distinctExpected": 539,
+    "received": 539,
+    "mismatches": 0,
+    "total": 541
+  },
+  "audit": {
+    "rows": 2,
+    "runIds": [
+      "569d5016-2de1-462d-a334-9e5f90f82d9c",
+      "1ccdc2eb-61fb-40e2-a80b-adcbad8aff15"
+    ],
+    "afterCounts": [
+      541,
+      541
+    ]
+  },
+  "positiveRepeat": {
+    "changedCount": 0,
+    "xminDigest": "75d1f96223b2b0409e508f93db93c26a",
+    "catalog": "541:fe2b66b2ac7cf82d7a49183414ce9f9c",
+    "auditDigest": "7a1fd9a9d3a0cdc69127e5ca69bba412"
+  },
+  "membersReceiving": {
+    "status": 200,
+    "contentType": "application/json; charset=utf-8",
+    "responseSha256": "4e2b8e72e1e56dc114f055e9e704bde76dd9fcda4ee0ee764e5c1ae9d8d1ebb0",
+    "responseBytes": 113754,
+    "rows": 541,
+    "sqlRows": 541,
+    "mismatches": 0,
+    "duplicateIds": 0,
+    "partyCounts": {
+      "UNKNOWN": 2,
+      "R": 274,
+      "D": 262,
+      "I": 3
+    },
+    "territoryCounts": {
+      "PR": 1,
+      "GU": 1,
+      "AS": 1,
+      "MP": 1,
+      "VI": 1
+    },
+    "path": "/api/members",
+    "sourceBase": "http://127.0.0.1:5000 inside owned runtime container",
+    "imageId": "sha256:63f8d82d83453393f9595f34fb8f02868ecaa40c48928329c20f41345a2e3406",
+    "manifestSha256": "b09efc0e8a2b98ffc1e5e4740c8c0ba03a381e745cdf8d53a501e053bfa8ad56",
+    "phase": "after guarded 539-member apply and zero-write repeat",
+    "actualSourceMembers": 539,
+    "syntheticPreservationControls": 2,
+    "responseFile": "members-response.json",
+    "sqlFile": "members-sql-projection.json"
+  }
+}

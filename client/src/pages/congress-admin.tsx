@@ -6,23 +6,24 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { AlertCircle, Users, Search, RefreshCw } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { apiRequest } from '@/lib/queryClient';
+import { SEATS, composition, compositionIssues, fetchMembers, ordinal } from '@/lib/congress-members';
 
-interface CongressMember {
-  id: number;
-  name: string;
-  state: string;
-  district: string | null;
-  party: string;
-  chamber: string;
-}
-
-interface CongressStats {
-  total: number;
-  house: number;
-  senate: number;
-  partyBreakdown: Record<string, number>;
-  stateIssues: string[];
+/**
+ * POST an admin Congress route and return its JSON only on 2xx. Refusals (422 unverified
+ * source, 409 refused import, 401/403) and failures are thrown with the server's own
+ * message so the page never reports them as a completed import.
+ */
+export async function postAdminAction(url: string): Promise<unknown> {
+  const res = await fetch(url, { method: 'POST', credentials: 'include' });
+  const body: any = await res.json().catch(() => null);
+  if (!res.ok) {
+    const reason = typeof body?.message === 'string' ? body.message
+      : typeof body?.error === 'string' ? body.error
+      : res.statusText || 'Request failed';
+    const code = typeof body?.code === 'string' ? ` (${body.code})` : '';
+    throw new Error(`${res.status}: ${reason}${code}`);
+  }
+  return body;
 }
 
 export default function CongressAdminPage() {
@@ -30,41 +31,18 @@ export default function CongressAdminPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const queryClient = useQueryClient();
 
-  // Get current congressional data
-  const { data: members = [], isLoading } = useQuery<CongressMember[]>({
+  // Current member rows; a failed load is shown as an error, not as zero members.
+  const membersQuery = useQuery({
     queryKey: ['/api/members'],
+    queryFn: ({ signal }) => fetchMembers('/api/members', signal),
   });
+  const { isLoading } = membersQuery;
+  const stats = composition(membersQuery.data ?? []);
+  const dataIssues = compositionIssues(stats);
 
-  // Calculate statistics
-  const stats: CongressStats = {
-    total: members.length,
-    house: members.filter(m => m.chamber === 'House').length,
-    senate: members.filter(m => m.chamber === 'Senate').length,
-    partyBreakdown: members.reduce((acc, member) => {
-      const party = member.party || 'Unknown';
-      acc[party] = (acc[party] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>),
-    stateIssues: []
-  };
-
-  // Check for state issues
-  const senateByState = members
-    .filter(m => m.chamber === 'Senate')
-    .reduce((acc, senator) => {
-      acc[senator.state] = (acc[senator.state] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-  Object.entries(senateByState).forEach(([state, count]) => {
-    if (count !== 2) {
-      stats.stateIssues.push(`${state}: ${count} senators`);
-    }
-  });
-
-  // Import mutation
+  // Import mutation: only a 2xx result counts as an import; refusals stay visible.
   const importMutation = useMutation({
-    mutationFn: () => fetch('/api/congress/import', { method: 'POST' }).then(res => res.json()),
+    mutationFn: () => postAdminAction('/api/congress/import'),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/members'] });
     }
@@ -72,9 +50,12 @@ export default function CongressAdminPage() {
 
   // Perplexity analysis mutation
   const perplexityMutation = useMutation({
-    mutationFn: () => fetch('/api/congress/find-missing', { method: 'POST' }).then(res => res.json()),
+    mutationFn: () => postAdminAction('/api/congress/find-missing'),
     onSuccess: (data) => {
       setPerplexityResult(data);
+    },
+    onError: (error: Error) => {
+      setPerplexityResult({ success: false, error: error.message });
     }
   });
 
@@ -82,6 +63,8 @@ export default function CongressAdminPage() {
     setIsAnalyzing(true);
     try {
       await perplexityMutation.mutateAsync();
+    } catch {
+      // Shown through onError; nothing else to do here.
     } finally {
       setIsAnalyzing(false);
     }
@@ -99,9 +82,10 @@ export default function CongressAdminPage() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Congressional Data Management</h1>
-        <div className="flex gap-2">
+      {/* Stacks on phones so both actions stay reachable. */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-2xl sm:text-3xl font-bold">Congressional Data Management</h1>
+        <div className="flex flex-wrap gap-2">
           <Button 
             onClick={() => importMutation.mutate()}
             disabled={importMutation.isPending}
@@ -120,76 +104,110 @@ export default function CongressAdminPage() {
         </div>
       </div>
 
-      {/* Current Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Members</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-            <p className="text-xs text-muted-foreground">
-              Expected: 535 ({535 - stats.total} missing)
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">House</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.house}</div>
-            <p className="text-xs text-muted-foreground">
-              Expected: 435 ({435 - stats.house} missing)
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Senate</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.senate}</div>
-            <p className="text-xs text-muted-foreground">
-              Expected: 100 ({stats.senate > 100 ? `${stats.senate - 100} extra` : `${100 - stats.senate} missing`})
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Issues Alert */}
-      {stats.stateIssues.length > 0 && (
-        <Alert>
+      {importMutation.isError && (
+        <Alert variant="destructive" role="alert">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            <div className="font-medium">Data Issues Detected:</div>
-            <ul className="mt-2 space-y-1">
-              {stats.stateIssues.map((issue, index) => (
-                <li key={index} className="text-sm">• {issue}</li>
-              ))}
-            </ul>
+            <div className="font-medium">Import not performed</div>
+            <div className="text-sm">{importMutation.error.message}</div>
           </AlertDescription>
         </Alert>
       )}
+      {importMutation.isSuccess && (
+        <Alert role="status">
+          <AlertDescription>The importer accepted the request. Member counts below are re-read from the database.</AlertDescription>
+        </Alert>
+      )}
 
-      {/* Party Breakdown */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Party Breakdown</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
-            {Object.entries(stats.partyBreakdown).map(([party, count]) => (
-              <Badge key={party} variant="outline">
-                {party}: {count}
-              </Badge>
-            ))}
+      {membersQuery.isError ? (
+        <Alert variant="destructive" role="alert">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            <div className="font-medium">Member data could not be loaded</div>
+            <div className="text-sm">{membersQuery.error.message}. Counts are not shown because no rows were received.</div>
+            <Button variant="outline" size="sm" className="mt-2" onClick={() => membersQuery.refetch()}>Try again</Button>
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <>
+          {/* Current Statistics: seats are fixed by law; rows are what the database holds. */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">{ordinal(stats.congress)} Congress Member Records</CardTitle>
+                <Users className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.total}</div>
+                <p className="text-xs text-muted-foreground">
+                  {SEATS.senate + SEATS.houseVoting + SEATS.houseNonVoting} seats in total, including {SEATS.houseNonVoting} nonvoting House seats.
+                  {stats.otherCongress > 0 && ` ${stats.otherCongress} record(s) from other Congresses are not counted.`}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">House</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.houseVoting} <span className="text-base font-normal text-muted-foreground">of {SEATS.houseVoting} voting seats</span></div>
+                <p className="text-xs text-muted-foreground">
+                  {stats.houseVoting < SEATS.houseVoting
+                    ? `${SEATS.houseVoting - stats.houseVoting} voting seat(s) have no member record (a vacancy or a missing row; the importer receipt lists vacancies). `
+                    : ''}
+                  Nonvoting delegates and resident commissioner: {stats.houseNonVoting} of {SEATS.houseNonVoting}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Senate</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.senate} <span className="text-base font-normal text-muted-foreground">of {SEATS.senate} seats</span></div>
+                <p className="text-xs text-muted-foreground">
+                  {stats.senate === SEATS.senate ? 'Every seat has a member record'
+                    : stats.senate > SEATS.senate ? `${stats.senate - SEATS.senate} more record(s) than seats`
+                    : `${SEATS.senate - stats.senate} seat(s) have no member record`}
+                </p>
+              </CardContent>
+            </Card>
           </div>
-        </CardContent>
-      </Card>
+
+          {/* Issues Alert */}
+          {dataIssues.length > 0 && (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                <div className="font-medium">Data Issues Detected:</div>
+                <ul className="mt-2 space-y-1">
+                  {dataIssues.map((issue, index) => (
+                    <li key={index} className="text-sm">• {issue}</li>
+                  ))}
+                </ul>
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* Party Breakdown */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Party Breakdown</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                {Object.entries(stats.byParty).map(([party, count]) => (
+                  <Badge key={party} variant="outline">
+                    {party}: {count}
+                  </Badge>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </>
+      )}
 
       {/* Perplexity Analysis Results */}
       {perplexityResult && (

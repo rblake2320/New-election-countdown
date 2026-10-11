@@ -1,0 +1,7 @@
+# Actual production GET /api/members receiving
+
+Response SHA256 4e2b8e72e1e56dc114f055e9e704bde76dd9fcda4ee0ee764e5c1ae9d8d1ebb0; 113754 bytes. Runtime image63f8d82d, source composition0e59a7e/main7ca + D harness; actual HTTP GET http://127.0.0.1:5000/api/members inside the owned runtime container after guarded official539 apply and repeat0. Capture is exact response body bytes, not reserialized. Both CLI and HTTP run in actual production image; no source mounts or hook mocks.
+
+Independent SQL projection compares every exposed field on all541 rows:0 mismatches,0 duplicate IDs. The539 official people are actual pinned source identities. Two explicit synthetic preservation controls (IMPORT_D_FIXTURE/current119 and HISTORY_D_FIXTURE/historical118) were retained by the real import and appear in the real API response; they are not government identities. Raw parties R274/D262/I3/UNKNOWN2. PR/GU/AS/MP/VI each have1 record in the all-members response; this capture does not claim those state-specific routes accept their codes.
+
+For B receiving tests, parse members-response.json and prime the actual QueryClient key ['/api/members']; use the actual component without hook replacement. JSON source/bytes remain pinned; keep the two labelled preservation rows visible to count/scope controls. Existing legacy HTTP422 bodies are in receipt.json. members-sql-projection.json is the independently read PG projection, members-receiving.json has payload/image/manifest metadata. No live server remains at the internal address after the owned test teardown. Shared apply held.
