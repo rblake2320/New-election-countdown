@@ -82,7 +82,7 @@ export class CivicAggregatorService {
       candidateIds.map(id => withBudget(
         `enrich ${id}`,
         UPSTREAM_DEFAULTS.enrichmentBudgetMs,
-        () => this.aggregateCandidateData(id, electionId, fields),
+        (signal) => this.aggregateCandidateData(id, electionId, fields, signal),
         { id, name: '', party: '', office: '' } as CandidateData,
       ))
     );
@@ -94,7 +94,7 @@ export class CivicAggregatorService {
     return results;
   }
 
-  private async aggregateCandidateData(candidateId: string, electionId: string, fields: readonly CandidateDataField[] = ALL_CANDIDATE_DATA_FIELDS): Promise<CandidateData> {
+  private async aggregateCandidateData(candidateId: string, electionId: string, fields: readonly CandidateDataField[] = ALL_CANDIDATE_DATA_FIELDS, signal?: AbortSignal): Promise<CandidateData> {
     const baseData: CandidateData = {
       id: candidateId,
       name: '',
@@ -112,11 +112,11 @@ export class CivicAggregatorService {
       openStatesData,
       pollingData
     ] = await Promise.allSettled([
-      want.has('propublica') ? this.fetchPropublicaData(candidateId) : skip,
-      want.has('fec') ? this.fetchFECData(candidateId) : skip,
-      want.has('votesmart') ? this.fetchVoteSmartData(candidateId) : skip,
-      want.has('openstates') ? this.fetchOpenStatesData(candidateId) : skip,
-      want.has('polling') ? this.fetchPollingData(candidateId) : skip,
+      want.has('propublica') ? this.fetchPropublicaData(candidateId, signal) : skip,
+      want.has('fec') ? this.fetchFECData(candidateId, signal) : skip,
+      want.has('votesmart') ? this.fetchVoteSmartData(candidateId, signal) : skip,
+      want.has('openstates') ? this.fetchOpenStatesData(candidateId, signal) : skip,
+      want.has('polling') ? this.fetchPollingData(candidateId, signal) : skip,
     ]);
 
     // Merge successful results
@@ -148,11 +148,12 @@ export class CivicAggregatorService {
     return baseData;
   }
 
-  private async fetchPropublicaData(candidateId: string): Promise<any> {
+  private async fetchPropublicaData(candidateId: string, signal?: AbortSignal): Promise<any> {
     if (!this.propublicaKey) return null;
 
     try {
       const response = await boundedUpstreamFetch(`https://api.propublica.org/congress/v1/members/${candidateId}.json`, {
+        signal,
         headers: {
           'X-API-Key': this.propublicaKey
         }
@@ -167,11 +168,11 @@ export class CivicAggregatorService {
     }
   }
 
-  private async fetchFECData(candidateId: string): Promise<any> {
+  private async fetchFECData(candidateId: string, signal?: AbortSignal): Promise<any> {
     if (!this.openFecKey) return null;
 
     try {
-      const response = await boundedUpstreamFetch(`https://api.open.fec.gov/v1/candidates/search/?api_key=${this.openFecKey}&candidate_id=${candidateId}&per_page=1`);
+      const response = await boundedUpstreamFetch(`https://api.open.fec.gov/v1/candidates/search/?api_key=${this.openFecKey}&candidate_id=${candidateId}&per_page=1`, { signal });
       if (!response.ok) throw new Error(`OpenFEC API error: ${response.status}`);
       const data = await response.json() as any;
       return data.results?.[0];
@@ -181,7 +182,7 @@ export class CivicAggregatorService {
     }
   }
 
-  private async fetchVoteSmartData(candidateId: string): Promise<any> {
+  private async fetchVoteSmartData(candidateId: string, signal?: AbortSignal): Promise<any> {
     if (!voteSmartService) {
       console.warn(`VoteSmart service unavailable for candidate ${candidateId} - API key not configured`);
       return {
@@ -198,7 +199,7 @@ export class CivicAggregatorService {
 
     try {
       // Get comprehensive candidate data using the new VoteSmart service
-      const comprehensiveData = await voteSmartService.getComprehensiveCandidateData(candidateId);
+      const comprehensiveData = await voteSmartService.getComprehensiveCandidateData(candidateId, signal);
 
       // Extract photo URL from biography data if available
       const photoUrl = comprehensiveData.bio?.photo ||
@@ -231,16 +232,16 @@ export class CivicAggregatorService {
     }
   }
 
-  private async fetchOpenStatesData(candidateId: string): Promise<any> {
+  private async fetchOpenStatesData(candidateId: string, signal?: AbortSignal): Promise<any> {
     if (!this.openStatesKey) return null;
 
     try {
       // First try to get person by ID
-      const response = await boundedUpstreamFetch(`https://v3.openstates.org/people/${candidateId}?apikey=${this.openStatesKey}`);
+      const response = await boundedUpstreamFetch(`https://v3.openstates.org/people/${candidateId}?apikey=${this.openStatesKey}`, { signal });
 
       if (!response.ok) {
         // If direct lookup fails, search by name
-        const searchResponse = await boundedUpstreamFetch(`https://v3.openstates.org/people?apikey=${this.openStatesKey}&jurisdiction=us&name=${candidateId}&per_page=1`);
+        const searchResponse = await boundedUpstreamFetch(`https://v3.openstates.org/people?apikey=${this.openStatesKey}&jurisdiction=us&name=${candidateId}&per_page=1`, { signal });
 
         if (searchResponse.ok) {
           const searchData = await searchResponse.json() as any;
@@ -276,8 +277,14 @@ export class CivicAggregatorService {
   /** Test hook. */
   static resetPollingCache(): void { CivicAggregatorService.pollingCsv.reset(); }
 
-  private async fetchPollingData(candidateId: string): Promise<any> {
-    const polls = await CivicAggregatorService.pollingCsv.get();
+  private async fetchPollingData(candidateId: string, signal?: AbortSignal): Promise<any> {
+    // The CSV download is shared by every caller (single-flight memo); a caller whose
+    // budget expires stops waiting but does not cancel the download for the others.
+    if (signal?.aborted) return null;
+    const polls = await Promise.race([
+      CivicAggregatorService.pollingCsv.get(),
+      new Promise<null>((resolve) => signal?.addEventListener('abort', () => resolve(null), { once: true })),
+    ]);
     if (!polls) return null;
     return polls.filter(poll => poll.candidate?.toLowerCase().includes(candidateId.toLowerCase()));
   }
