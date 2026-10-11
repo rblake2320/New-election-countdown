@@ -1,0 +1,20 @@
+{
+  "state": "NH",
+  "url": "https://www.sos.nh.gov/",
+  "checkedAt": "2026-10-11T12:29:11.128400+00:00",
+  "tlsValidation": true,
+  "attempts": [
+    {
+      "method": "Python Requests default TLS",
+      "httpStatus": 403,
+      "finalUrl": "https://www.sos.nh.gov/",
+      "bytes": 370,
+      "sha256": "8fe3a0d4e43940a9c0221f8b806577e031f9368ea1f6f1f8e4fa4af17433a022"
+    },
+    {
+      "method": "Windows Invoke-WebRequest default TLS",
+      "error": "Invoke-WebRequest : \nAccess Denied\nAccess Denied\n \nYou don't have permission to access \"http&#58;&#47;&#47;www&#46;sos&#46;nh&#46;gov&#47;\" on this server.\nReference&#32;&#35;18&#46;2950db17&#46;1791721752&#46;7d68484\nhttps&#58;&#47;&#47;errors&#46;edgesuite&#46;net&#47;18&#46;2950db17&#46;1791721752&#46;7d68484\nAt line:1 char:34\n+ ... e='Stop';$r=Invoke-WebRequest -Uri 'https://www.sos.nh.gov/' -UseBasi ...\n+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], WebExc \n   eption\n    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.C"
+    }
+  ],
+  "status": "blocked_transport"
+}

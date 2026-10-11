@@ -1,0 +1,20 @@
+{
+  "state": "MA",
+  "url": "https://www.sec.state.ma.us/divisions/elections/research-and-statistics/election-results.htm",
+  "checkedAt": "2026-10-11T12:27:49.918157+00:00",
+  "tlsValidation": true,
+  "attempts": [
+    {
+      "method": "Python Requests default TLS",
+      "httpStatus": 403,
+      "finalUrl": "https://www.sec.state.ma.us/divisions/elections/research-and-statistics/election-results.htm",
+      "bytes": 878,
+      "sha256": "378210bb6631abe4aca85b93b6616375ec3b4e73a8583a35b9e85aaece3c0f81"
+    },
+    {
+      "method": "Windows Invoke-WebRequest default TLS",
+      "error": "Invoke-WebRequest : Request unsuccessful. Incapsula incident ID: 439000760000923256-3292242785014530\nAt line:1 char:34\n+ ... e='Stop';$r=Invoke-WebRequest -Uri 'https://www.sec.state.ma.us/divis ...\n+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], WebExc \n   eption\n    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand\n"
+    }
+  ],
+  "status": "blocked_transport"
+}
