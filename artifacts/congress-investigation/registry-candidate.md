@@ -1,0 +1,5 @@
+Candidate; not a central Registry edit. Existing registry was searched for Congress/transaction/source lessons; no specific source-defined vacancy/member-count rule was found. Parent owns deduplication/adoption.
+
+| id | title | rule | rationale | origin | scope | severity | enforcement | status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| CONGRESS-SOURCE-OCCUPANCY | Bind current-member completeness to official occupancy | Validate every imported member identity and completeness against a reviewed official occupied-seat scope before starting one atomic write transaction. | Actual legacy importer deleted before transformation and partially persisted failed batches; generated order-dependent IDs and a535 count accepted duplicate/nonmember records, while complete official voting snapshot533 was marked incomplete. | Actual-service offline failure probes + key-free government XML fetch,2026-10-11,ElectionTracker | project:ElectionTracker | critical | Diagnostic probe retained; implementing refusal/transaction and private PostgreSQL acceptance awaits owning repair | candidate |

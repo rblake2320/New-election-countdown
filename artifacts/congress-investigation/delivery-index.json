@@ -1,0 +1,120 @@
+{
+  "kind": "read_only_congress_import_investigation",
+  "sourceHead": "8b49d60030b7c94ce772c1b3137ba43a4f85fbcb",
+  "sourceFileSha256": "6738c030182b5a6914a85536bdcaa8c00f225bb337de9bff867a386afa8c867c",
+  "reviewedAt": "2026-10-11T15:58:43.841786+00:00",
+  "outcomes": {
+    "legacyUnsafeBehaviorReproduced": {
+      "outcome": "Worked",
+      "diagnosticAssertionsPassed": 11,
+      "diagnosticAssertionsFailed": 0,
+      "productionImporterSafety": "Failed"
+    },
+    "governmentSourceFetchAndDerivation": "Worked",
+    "contactFreeSnapshotValidation": "Worked",
+    "baselineUnit": {
+      "success": true,
+      "passed": 513,
+      "failed": 0,
+      "pending": 3
+    },
+    "baselineBuildExit": 0
+  },
+  "dependencyProvenance": {
+    "installation": "physical npm ci in isolated worktree",
+    "packagesInstalled": 757,
+    "junction": false,
+    "packageLockSha256": "7fdc202b54634987e81da56d44cc5d20a7c65e7dbab5a9758254480ddd8fc921",
+    "downloadSkips": "process-only PUPPETEER_SKIP_DOWNLOAD=true PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1"
+  },
+  "scope": {
+    "sourceCodeChanges": 0,
+    "databaseConnections": 0,
+    "sharedWrites": 0,
+    "appBrowserOrPreview": 0,
+    "providerKeys": 0,
+    "rawContactFieldValuesRetained": 0
+  },
+  "files": {
+    ".gitattributes": {
+      "sha256": "99ef1260a073f58cb79a48c9cb491ccc31ebad0f7cea9eeac60e9c571ca62dfe",
+      "bytes": 98
+    },
+    "baseline-unit.json": {
+      "sha256": "f08074a98f90ad693b3e6eae11292acd321dabd8b7b1a0bf4066a3359d78c3ad",
+      "bytes": 194721
+    },
+    "baseline-unit.txt": {
+      "sha256": "5c800b54cb031b88ab8588d321586b84544124bc362a1e346c17ffe357c7279d",
+      "bytes": 254
+    },
+    "build.txt": {
+      "sha256": "f1614b602c68b61fb72e813d0de37088bc5d50e9d0b2c2d8a554e00e7a8f99cc",
+      "bytes": 4212
+    },
+    "check-contact-free.py": {
+      "sha256": "8398334d91bc0d0abdaf66317ad3ff77b874c0489504ecedf486cd0deed1d3ba",
+      "bytes": 2219
+    },
+    "contact-free-check-receipt.json": {
+      "sha256": "696dfd93ca8030dd0599d85f82f657f278f9bdebc6345b9536025d4f14bd2ab9",
+      "bytes": 542
+    },
+    "derive_official.py": {
+      "sha256": "c6967c6dc29c82e6f360f79506cbf048534998e9672f74a3bd71e52e3adb6313",
+      "bytes": 8309
+    },
+    "DESIGN.md": {
+      "sha256": "35a43c281f76377350d5a09364711503ef47f404411a77e2f1e156c4b549064e",
+      "bytes": 9564
+    },
+    "fetch_official.py": {
+      "sha256": "22fab0bd1d7c55b886ed900f4e8a4d93829fb2e43cdb5647d08efb8eb2624a8c",
+      "bytes": 2930
+    },
+    "house-source-receipt.json": {
+      "sha256": "731b89e73269bc83925f085ec7b97290e5149a6f609710bac96d022744f6bdde",
+      "bytes": 578054
+    },
+    "legacy-import-probe.test.ts.txt": {
+      "sha256": "89cda96ffce004030e6fc3a1a1f93eeb8cc07c33bfbcf09e9c0fe2115d9a199b",
+      "bytes": 8369
+    },
+    "legacy-probe-receipt.json": {
+      "sha256": "08e5c2aba7913f1bbf6f62147bd1d5e77570969a88db4452acd144e00a320e61",
+      "bytes": 978078
+    },
+    "legacy-vitest.json": {
+      "sha256": "c6b887941396036ba5cdc71a75e8cb36dc0f1d413ed92e0a45c0cc08d37a0254",
+      "bytes": 5950
+    },
+    "legacy-vitest.txt": {
+      "sha256": "1005bd1d76ef200a534604ae1ddeb4e996b68a36cd1c391f499ec8de4dcb5a84",
+      "bytes": 127
+    },
+    "npm-ci.txt": {
+      "sha256": "d4506367b258ecf686416d5955ecafc4c5df82dd704e6c560fae7fe9fd50d1aa",
+      "bytes": 430
+    },
+    "official-current-members-contact-free.json": {
+      "sha256": "b09efc0e8a2b98ffc1e5e4740c8c0ba03a381e745cdf8d53a501e053bfa8ad56",
+      "bytes": 422897
+    },
+    "official-derivation-receipt.json": {
+      "sha256": "eb5e2cffca6d1def7b82c350b57bcdaefc59e5d021f976401514fe3cf11e565e",
+      "bytes": 9678
+    },
+    "registry-candidate.md": {
+      "sha256": "785b5db9828a15196794dc97ea37ab0111562f4c5cb04fcdbc93ffa756691dd1",
+      "bytes": 1103
+    },
+    "replay-legacy.mjs": {
+      "sha256": "8fd924cc5a422a24e089a2d4a916a28e24310c651654bafd5dce1ab91b3031fb",
+      "bytes": 1298
+    },
+    "senate-source-receipt.json": {
+      "sha256": "b2dcbb1f6fb6b4092ab73ff3168b4a6b48600022cfb06c5195e62b90efbcac74",
+      "bytes": 65170
+    }
+  }
+}

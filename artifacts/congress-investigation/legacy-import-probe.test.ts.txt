@@ -1,0 +1,119 @@
+// Investigation only. All members here are synthetic and only the actual legacy
+// service runs. DB and its local-file boundary are mocked; no socket is opened.
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { createHash } from 'node:crypto';
+import { writeFileSync, readFileSync as realRead } from 'node:fs';
+import { resolve } from 'node:path';
+
+const fixture = vi.hoisted(() => ({
+  main: [] as unknown[], supplement: [] as unknown[], malformed: false,
+  rows: [] as any[], events: [] as any[], failBatch: 0, batches: 0,
+  transactionCalls: 0,
+}));
+vi.mock('../../server/db', () => ({ db: {
+  delete: async () => { fixture.events.push({op:'delete',previousCount:fixture.rows.length}); fixture.rows=[]; },
+  insert: () => ({values: async (rows:any[]) => {
+    fixture.batches++;
+    fixture.events.push({op:'insert',batch:fixture.batches,count:rows.length,ids:rows.map(r=>r.bioguideId)});
+    if (fixture.batches === fixture.failBatch) throw new Error('SYNTHETIC_BATCH_WRITE_FAILURE');
+    fixture.rows.push(...structuredClone(rows));
+  }}),
+  select: () => ({from: async () => {fixture.events.push({op:'select'});return fixture.rows;}}),
+  transaction: async () => {fixture.transactionCalls++;throw new Error('UNEXPECTED_TRANSACTION');},
+}}));
+vi.mock('fs', () => ({ readFileSync: (path:string) => {
+  const supplement=path.endsWith('missing_members_supplement.json');
+  fixture.events.push({op:'read',file:supplement?'supplement':'main'});
+  return fixture.malformed && !supplement ? '{' : JSON.stringify(supplement?fixture.supplement:fixture.main);
+}}));
+import { CongressImportService } from '../../server/congress-import-service';
+
+const results: any[]=[];
+const member=(n:number)=>({full_name:`Synthetic Person ${n}`,state:'ZZ',district:String(n),party:'Democrat',chamber:'House'});
+function retain(scenario:string,extra:Record<string,unknown>={}) {
+  results.push({scenario,events:structuredClone(fixture.events),remainingCount:fixture.rows.length,
+    remainingRows:structuredClone(fixture.rows),transactionCalls:fixture.transactionCalls,...extra});
+}
+beforeEach(()=>{
+  fixture.main=[];fixture.supplement=[];fixture.malformed=false;
+  fixture.rows=[{bioguideId:'SYNTHETIC_OLD',name:'Synthetic preserved predecessor'}];
+  fixture.events=[];fixture.failBatch=0;fixture.batches=0;fixture.transactionCalls=0;
+  vi.spyOn(console,'log').mockImplementation(()=>{});
+  vi.spyOn(console,'error').mockImplementation(()=>{});
+});
+
+describe('actual legacy Congress importer — offline destructive behavior diagnosis',()=>{
+  it('malformed JSON refuses before any write (safe input-order control)',async()=>{
+    fixture.malformed=true;
+    await expect(new CongressImportService().importFromCompleteDataset()).rejects.toThrow();
+    expect(fixture.events.map(e=>e.op)).toEqual(['read']);
+    expect(fixture.rows).toHaveLength(1); retain('malformed-json-before-write');
+  });
+  it('null row transforms after delete and leaves the table empty',async()=>{
+    fixture.main=[null];
+    await expect(new CongressImportService().importFromCompleteDataset()).rejects.toThrow();
+    expect(fixture.rows).toHaveLength(0);
+    expect(fixture.events.map(e=>e.op)).toEqual(['read','read','delete']);
+    retain('null-row-after-delete');
+  });
+  for(const [failBatch,remainingCount] of [[2,100],[3,200]]){
+    it(`batch ${failBatch} failure leaves ${remainingCount} inserted rows without a transaction`,async()=>{
+      fixture.main=Array.from({length:201},(_,i)=>member(i+1));fixture.failBatch=failBatch;
+      await expect(new CongressImportService().importFromCompleteDataset()).rejects.toThrow('SYNTHETIC_BATCH_WRITE_FAILURE');
+      expect(fixture.rows).toHaveLength(remainingCount);expect(fixture.transactionCalls).toBe(0);
+      expect(fixture.events[2].op).toBe('delete'); retain(`batch-${failBatch}-partial-persistence`);
+    });
+  }
+  it('empty arrays erase existing rows and return successful zero',async()=>{
+    const returned=await new CongressImportService().importFromCompleteDataset();
+    expect(returned.count).toBe(0);expect(fixture.rows).toHaveLength(0);
+    retain('empty-input-success-erases-old', {returned});
+  });
+  it('duplicate, former and vacant records survive the actually invoked cleaner',async()=>{
+    fixture.main=[member(1),member(1),{...member(2),full_name:'Synthetic Person (former)'},{...member(3),full_name:'(vacant)'},{...member(4),district:'At-large'},{...member(5),chamber:'Senate',district:'Senate'}];
+    const returned=await new CongressImportService().importFromCompleteDataset();
+    expect(fixture.rows.map(r=>r.bioguideId)).toEqual(['IMPORT_1','IMPORT_2','IMPORT_3','IMPORT_4','IMPORT_5','IMPORT_6']);
+    expect(fixture.rows.filter(r=>r.name==='Synthetic Person 1')).toHaveLength(2);
+    expect(fixture.rows[3].name).toBe('(vacant)');expect(fixture.rows[4].district).toBeNull();expect(fixture.rows[5].district).toBeNull();
+    expect(fixture.rows.every(r=>r.congress===119&&r.party==='Democratic')).toBe(true);
+    expect(fixture.events.some(e=>e.op==='select')).toBe(false);
+    retain('synthetic-identifiers-no-cleaning-no-readback',{returned});
+  });
+  it('same person changes identifier solely when the source order changes',async()=>{
+    fixture.main=[member(1),member(2)];await new CongressImportService().importFromCompleteDataset();
+    const first=structuredClone(fixture.rows);fixture.main=[member(2),member(1)];await new CongressImportService().importFromCompleteDataset();
+    expect(first.find(r=>r.name==='Synthetic Person 1').bioguideId).toBe('IMPORT_1');
+    expect(fixture.rows.find(r=>r.name==='Synthetic Person 1').bioguideId).toBe('IMPORT_2');
+    retain('order-dependent-person-identity',{first});
+  });
+  it('535 duplicate House records claim isComplete despite zero Senators and one state',async()=>{
+    fixture.rows=Array.from({length:535},()=>({chamber:'House',party:'R',state:'AL',bioguideId:'SYNTHETIC_DUPLICATE'}));
+    const validation=await new CongressImportService().validateImport();
+    expect(validation).toMatchObject({total:535,house:535,senate:0,states:1,isComplete:true});
+    retain('count-only-false-completeness',{validation});
+  });
+  it('complete fetched current voting source has533 members yet legacy completeness says false',async()=>{
+    const official=JSON.parse(realRead(resolve('artifacts/congress-investigation/official-current-members-contact-free.json'),'utf8'));
+    fixture.rows=official.members.filter((r:any)=>r.role==='representative'||r.role==='senator').map((r:any)=>({...r,party:r.partyRaw}));
+    const validation=await new CongressImportService().validateImport();
+    expect(validation).toMatchObject({total:533,house:433,senate:100,states:50,isComplete:false});
+    retain('actual-official-voting-snapshot-false-incomplete',{validation,sourceCounts:official.counts});
+  });
+  it('including six official nonvoting members yields539 and mixes House scope against435 expectation',async()=>{
+    const official=JSON.parse(realRead(resolve('artifacts/congress-investigation/official-current-members-contact-free.json'),'utf8'));
+    fixture.rows=official.members.map((r:any)=>({...r,party:r.partyRaw}));
+    const validation=await new CongressImportService().validateImport();
+    expect(validation).toMatchObject({total:539,house:439,senate:100,states:56,isComplete:true,expectedCounts:{house:435,senate:100,total:535}});
+    retain('actual-official-all-roles-mixed-scope',{validation,sourceCounts:official.counts});
+  });
+  it('retains a replayable contact-free diagnostic receipt',()=>{
+    const source=realRead(resolve('server/congress-import-service.ts'));
+    const receipt={kind:'offline_actual_service_diagnosis',head:'8b49d60030b7c94ce772c1b3137ba43a4f85fbcb',
+      sourceSha256:createHash('sha256').update(source).digest('hex'),scenarios:results,
+      boundaries:{actualService:true,mockedDb:true,mockedLocalFiles:true,databaseConnections:0,governmentFetchCalls:0,userVisibleData:false},
+      fixtureKinds:['synthetic local-file inputs for destructive behavior','actual contact-free government snapshot for recorded count controls'],
+      interpretation:'Probe pass confirms observed unsafe legacy behavior; it is not importer acceptance or a repair.'};
+    expect(results).toHaveLength(10);
+    writeFileSync(resolve('artifacts/congress-investigation/legacy-probe-receipt.json'),JSON.stringify(receipt,null,2)+'\n');
+  });
+});
