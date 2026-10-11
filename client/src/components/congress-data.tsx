@@ -263,7 +263,7 @@ export function CongressData() {
                 </Button>
               </CardHeader>
               <CardContent>
-                <MembersList members={members} loading={membersLoading} />
+                <MembersList members={members ?? []} loading={membersLoading} />
               </CardContent>
             </Card>
 
