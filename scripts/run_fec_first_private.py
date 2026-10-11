@@ -14,7 +14,6 @@ MODES = {
     "producer": "scripts/verify_fec_source_proof_private.ts",
     "acceptance": "scripts/verify_fec_first_acceptance.ts",
     "original": "scripts/reproduce_fec_first.ts",
-    
 }
 if len(sys.argv) != 2 or sys.argv[1] not in MODES:
     raise SystemExit("Choose producer, acceptance or original")
