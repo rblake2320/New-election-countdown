@@ -1,0 +1,73 @@
+{
+  "outcome": "Worked",
+  "operation": "explicit owner-requested additive schema repair only",
+  "migration": "20261011_poll_hours_metadata.sql",
+  "migrationSha256": "5cf1ac01e24a7e9d992f6ccee9a53cfe25416cdeeba775ba05b34c549ef54d89",
+  "target": "approved loopback ElectionTracker elections database",
+  "committed": true,
+  "createdColumns": [
+    "poll_close_kind",
+    "poll_hours_basis",
+    "poll_hours_source"
+  ],
+  "before": {
+    "catalog": {
+      "rows": 537,
+      "existingcolumndigest": "97aa1697bca28b2ae13cf99fbb3652eb",
+      "rowversiondigest": "41888f66a85553c4c1a61e2ac6573c69"
+    },
+    "candidates": {
+      "rows": 136,
+      "digest": "d0b1eb10863dc80024fff0128d0ffe88"
+    },
+    "columns": []
+  },
+  "after": {
+    "catalog": {
+      "rows": 537,
+      "existingcolumndigest": "97aa1697bca28b2ae13cf99fbb3652eb",
+      "rowversiondigest": "41888f66a85553c4c1a61e2ac6573c69"
+    },
+    "candidates": {
+      "rows": 136,
+      "digest": "d0b1eb10863dc80024fff0128d0ffe88"
+    },
+    "columns": [
+      {
+        "column_name": "poll_close_kind",
+        "data_type": "text",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "poll_hours_basis",
+        "data_type": "text",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "column_name": "poll_hours_source",
+        "data_type": "text",
+        "is_nullable": "YES",
+        "column_default": null
+      }
+    ]
+  },
+  "repeatWorked": true,
+  "namedSqlReads": {
+    "known37": [
+      {
+        "id": 37,
+        "poll_close_kind": null,
+        "poll_hours_basis": null,
+        "poll_hours_source": null
+      }
+    ],
+    "unknown99999": []
+  },
+  "candidateAndSourceImports": false,
+  "pollValueApply": false,
+  "deployment": false,
+  "sourceApplyHold": true,
+  "checkedAt": "2026-10-11T14:50:15.191Z"
+}

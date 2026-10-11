@@ -44,11 +44,28 @@
       ]
     },
     {
-      "scenario": "legacy NULL party is Other",
+      "scenario": "legacy NULL and minor fusion component match Other",
       "expected": [
-        1
+        1,
+        4
       ],
       "actual": [
+        1,
+        4
+      ]
+    },
+    {
+      "scenario": "one fusion identity matches its Democratic component without changing full counts",
+      "expected": [
+        2,
+        4
+      ],
+      "actual": [
+        2,
+        4
+      ],
+      "candidateCounts": [
+        2,
         1
       ]
     },

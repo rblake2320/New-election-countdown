@@ -10,27 +10,51 @@ const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(value => {
 }, 'Invalid calendar date');
 const stateCode = z.string().refine(value => states.has(value), 'Expected a US state');
 const access = z.enum(['printed','write_in','not_specified']);
+const officialSourceUrl=z.string().url().refine(value=>{
+  const u=new URL(value);
+  const ncOfficialBucket=u.hostname==='s3.amazonaws.com' && u.pathname.startsWith('/dl.ncsbe.gov/Elections/2026/');
+  const floridaOfficialPortal=u.hostname==='dos.elections.myflorida.com' && u.pathname.startsWith('/candidates/');
+  const michiganOfficialPortal=u.hostname==='mi-boe.entellitrak.com' && u.pathname==='/etk-mi-boe-prod/page.request.do' && u.searchParams.get('electionType')==='GEN' && u.searchParams.get('electionYear')==='2026' && u.searchParams.get('page')==='page.miboePublicReport';
+  const tennesseeOfficialFiles=u.hostname==='sos-prod.tnsosgovfiles.com' && ['/s3fs-public/document/Governor_Nov2026.xlsx','/s3fs-public/document/USSenate_Nov2026.xlsx','/s3fs-public/document/USHouse_Nov2026.xlsx'].includes(u.pathname);
+  const oregonOfficialDirective=['multco.us','www.multco.us'].includes(u.hostname) && u.pathname==='/file/ballot_directive_-_november_3,_2026_general/download';
+  // The county .gov election page delegates this public document library.
+  // Admit only the reviewed ballot, not arbitrary SharePoint tenants/files.
+  const montanaReviewedBallot=u.hostname==='missoulacounty.sharepoint.com'
+    && u.pathname==='/administration/elect/Public/Forms/AllItems.aspx'
+    && u.searchParams.get('id')==='/administration/elect/Public/Sample Ballots/20261103 Federal General Sample Ballots/01-BONN92.pdf';
+  return u.protocol==='https:' && !u.username && !u.password && (!u.port || u.port==='443') && (u.hostname.endsWith('.gov') || /\.state\.[a-z]{2}\.us$/i.test(u.hostname) || ncOfficialBucket || floridaOfficialPortal || michiganOfficialPortal || tennesseeOfficialFiles || oregonOfficialDirective || montanaReviewedBallot);
+},'Expected an official government HTTPS source');
+// Government-linked OCPF filing proves this person's name/office only.
+// It cannot serve as a general-list source or party evidence.
+export const MASSACHUSETTS_JAMES_IDENTITY_URL='https://ocpf2.blob.core.windows.net/pdf/filers/19010/19010-cpf101-1-030325.pdf';
+const identityEvidenceUrl=z.union([officialSourceUrl,z.literal(MASSACHUSETTS_JAMES_IDENTITY_URL)]);
 const scopeSchema = z.object({ office:z.enum(['H','S','G']), district:z.string().regex(/^\d{2}$/), partyRaw:z.string().optional(),ballotAccessType:access.optional(),expectedCount:z.number().int().nonnegative() }).strict();
 const sourceSchema = z.object({
   id:z.string().min(1), state:stateCode, kind:z.literal('official_general_candidate_list'),
-  name:z.string().min(1), url:z.string().url().refine(value => {
-    const u = new URL(value);
-    const ncOfficialBucket=u.hostname==='s3.amazonaws.com' && u.pathname.startsWith('/dl.ncsbe.gov/Elections/2026/');
-    return u.protocol === 'https:' && !u.username && !u.password && (u.hostname.endsWith('.gov') || /\.state\.[a-z]{2}\.us$/i.test(u.hostname) || ncOfficialBucket);
-  }, 'Expected an official government HTTPS source'),
+  name:z.string().min(1), url:officialSourceUrl,
   sha256:z.string().regex(/^[a-f0-9]{64}$/).nullable(), publishedAt:day.nullable(),
   retrievedAt:z.string().refine(value => Number.isFinite(new Date(value).getTime()), 'Invalid retrieval timestamp'),
   electionDate:day.refine(value=>value.startsWith('2026-'), 'Expected 2026 source'),
   completeScopes:z.array(scopeSchema), expectedRowCount:z.number().int().nonnegative(),
-}).strict();
+}).strict().superRefine((source,ctx)=>{
+  const host=new URL(source.url).hostname;
+  const expected=host==='mi-boe.entellitrak.com'?'MI':host==='dos.elections.myflorida.com'?'FL':host==='s3.amazonaws.com'?'NC':host==='sos-prod.tnsosgovfiles.com'?'TN':['multco.us','www.multco.us'].includes(host)?'OR':host==='missoulacounty.sharepoint.com'?'MT':null;
+  if(expected&&source.state!==expected)ctx.addIssue({code:z.ZodIssueCode.custom,message:'Delegated source does not match its government authority state',path:['state']});
+});
 const rowSchema = z.object({
   sourceId:z.string(),state:stateCode,office:z.enum(['H','S','G']),district:z.string().regex(/^\d{2}$/),date:day,
   name:z.string().trim().min(1).max(200),partyRaw:z.string(),incumbent:z.boolean().nullable().optional(),
+  partyBasis:z.enum(['preference','registration','filing_method','source_label']).optional(),
+  partyValue:z.string().trim().max(100).optional(),
+  partyLabels:z.array(z.string().trim().min(1).max(100)).min(1).optional(),
+  partyEvidence:z.object({url:officialSourceUrl,sha256:z.string().regex(/^[a-f0-9]{64}$/).nullable(),sourcePage:z.number().int().positive().optional(),title:z.string().min(1)}).strict().optional(),
+  identityEvidence:z.object({url:identityEvidenceUrl,sha256:z.string().regex(/^[a-f0-9]{64}$/).nullable(),sourcePage:z.number().int().positive().optional(),title:z.string().min(1)}).strict().optional(),
   sourcePage:z.number().int().positive().optional(),ticketText:z.string().optional(),raceTitle:z.string().optional(),ballotAccessType:access.optional(),
   aliases:z.array(z.string().min(1).max(200)).optional(),ballotName:z.string().min(1).max(200).optional(),
   identityResolution:z.object({
     kind:z.literal('reviewed_fec_identity'),fecCandidateId:z.string().regex(/^[HS]\d[A-Z]{2}\d{5}$/),
-    expectedFecPartyRaw:z.enum(['OTH','IND','UN']),expectedStatePartyRaw:z.string().min(1),
+    expectedFecPartyRaw:z.enum(['OTH','IND','UN','LIB','IDP']),expectedStatePartyRaw:z.string().min(1),
+    expectedFecName:z.string().trim().min(1).max(200).optional(),
     fecEvidence:z.object({url:z.string().url(),sha256:z.string().regex(/^[a-f0-9]{64}$/),retrievedAt:z.string().refine(v=>Number.isFinite(new Date(v).getTime()))}).strict(),
   }).strict().optional(),
 }).strict();
@@ -60,10 +84,15 @@ export function parseNomineeManifest(raw:unknown):NomineeManifest {
   for(const r of m.candidates){
     const source=m.sources.find(s=>s.id===r.sourceId);
     if(!source || source.state!==r.state || source.electionDate!==r.date)throw new Error('candidate does not match its source state/date');
+    if(r.identityEvidence?.url===MASSACHUSETTS_JAMES_IDENTITY_URL && (r.state!=='MA'||r.office!=='G'||r.name!=='Andrea Corinne James'))throw new Error('Reviewed OCPF name identity does not match this candidate and office');
     if(r.office!=='H' && r.district!=='00')throw new Error('Statewide office must use district 00');
+    if(r.partyBasis==='filing_method' && r.partyValue)throw new Error('A filing method cannot establish party affiliation');
+    if(r.partyLabels && !r.partyLabels.includes(r.partyRaw))throw new Error('Primary raw party label must be one of the actual ballot lines');
+    if(r.partyBasis==='filing_method' && r.partyLabels)throw new Error('Filing-method rows cannot establish party ballot lines');
     if(r.identityResolution){
       const resolution=r.identityResolution;
       if(resolution.expectedStatePartyRaw!==r.partyRaw)throw new Error('Identity resolution state party label differs from the reviewed row');
+      if(resolution.expectedFecName && ![r.name,...(r.aliases??[])].some(name=>normalizedCandidateName(name)===normalizedCandidateName(resolution.expectedFecName!)))throw new Error('Reviewed FEC name must match the official name or a recorded official alias');
       if(r.office==='G' || resolution.fecCandidateId[0]!==r.office)throw new Error('FEC evidence identity office differs from the reviewed row');
       if(resolution.fecCandidateId.slice(2,4)!==r.state)throw new Error('FEC evidence identity state differs from the reviewed row');
       if(resolution.fecEvidence.url!==`https://www.fec.gov/data/candidate/${resolution.fecCandidateId}/`)throw new Error('FEC evidence URL must identify the exact reviewed identity');
@@ -74,11 +103,14 @@ export function parseNomineeManifest(raw:unknown):NomineeManifest {
   return m;
 }
 function party(raw:string):string|undefined {
-  const p=raw.trim(),preference=p.match(/^\(Prefers (.+) Party\)$/i);
+  const wrapped=raw.trim().match(/^(?:\(Registered (.+)\)|Write-In \((.+)\))$/i);
+  const p=(wrapped?.[1]??wrapped?.[2]??raw).trim(),preference=p.match(/^\(Prefers (.+) Party\)$/i);
   const key=(preference?.[1]??p).toLowerCase().replace(/\s+party$/,'');
   if(key==='by petition')return undefined; // A filing method does not establish affiliation.
   return ({republican:'R',rep:'R',democratic:'D',democrat:'D',dem:'D','democratic-npl':'D','democratic-nonpartisan league':'D','democratic-farmer-labor':'D',independent:'I',ind:'I',green:'G',gre:'G',libertarian:'L',lib:'L',constitution:'CON',conservative:'CRV'} as Record<string,string>)[key] ?? p;
 }
+function rowParty(row:NomineeRow):string|undefined{return row.partyBasis==='filing_method'?undefined:row.partyValue??(row.partyLabels?row.partyLabels.map(label=>party(label)??'').join('/'):party(row.partyRaw));}
+function partyComponents(raw:string):string[]{return raw.split(/[\/,]/).map(value=>party(value.trim())??'').filter(Boolean);}
 function partyKey(raw:string):string{return (party(raw)??'method:by petition').toLowerCase();}
 function snapshotVersion(m:NomineeManifest,s:NomineeSource):string {
   return createHash('sha256').update(JSON.stringify({url:s.url,documentSha:s.sha256,publishedAt:s.publishedAt,electionDate:s.electionDate,completeScopes:s.completeScopes,expectedRowCount:s.expectedRowCount,rows:m.candidates.filter(r=>r.sourceId===s.id).slice().sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b)))})).digest('hex');
@@ -94,8 +126,9 @@ export interface NomineeFecSourceRecord {candidate_id:number;is_current:boolean;
 /** An explicit reviewed ID resolves source-label granularity, never a generic party equivalence. */
 function reviewedFecIdentityMatches(row:NomineeRow,c:ExistingCandidate,sources:NomineeFecSourceRecord[]):boolean {
   const resolution=row.identityResolution;
-  if(!resolution || c.data_source!=='fec_bulk' || c.source_status!=='fec_registered' || !['C','F'].includes(c.fec_status??'') || c.fec_candidate_id!==resolution.fecCandidateId || c.party!==party(resolution.expectedFecPartyRaw) || normalizedCandidateName(c.name)!==normalizedCandidateName(row.name))return false;
-  return sources.some(s=>s.candidate_id===c.id && s.is_current===true && s.source_url===FEC_MASTER_URL && s.source_file_sha256===c.source_file_sha256 && s.metadata.fecCandidateId===resolution.fecCandidateId && s.metadata.partyRaw===resolution.expectedFecPartyRaw && s.metadata.fecStatus===c.fec_status && s.metadata.electionYear===2026 && s.metadata.state===row.state && s.metadata.office===row.office && s.metadata.district===row.district && s.metadata.electionId===c.election_id && s.metadata.electionDate===row.date && s.metadata.normalizedName===normalizedCandidateName(row.name));
+  const expectedName=normalizedCandidateName(resolution?.expectedFecName??row.name);
+  if(!resolution || c.data_source!=='fec_bulk' || c.source_status!=='fec_registered' || !['C','F'].includes(c.fec_status??'') || c.fec_candidate_id!==resolution.fecCandidateId || c.party!==party(resolution.expectedFecPartyRaw) || !/^[a-f0-9]{64}$/.test(c.source_file_sha256??'') || normalizedCandidateName(c.name)!==expectedName)return false;
+  return sources.some(s=>s.candidate_id===c.id && s.is_current===true && s.source_url===FEC_MASTER_URL && s.source_file_sha256===c.source_file_sha256 && s.metadata.fecCandidateId===resolution.fecCandidateId && s.metadata.partyRaw===resolution.expectedFecPartyRaw && s.metadata.fecStatus===c.fec_status && s.metadata.electionYear===2026 && s.metadata.state===row.state && s.metadata.office===row.office && s.metadata.district===row.district && s.metadata.electionId===c.election_id && s.metadata.electionDate===row.date && s.metadata.normalizedName===expectedName);
 }
 export function planNomineeRefresh(m:NomineeManifest,elections:RaceRow[],candidates:ExistingCandidate[],fecSources:NomineeFecSourceRecord[]=[]):NomineePlan {
   const plan:NomineePlan={actions:[],unresolved:[]};
@@ -106,8 +139,8 @@ export function planNomineeRefresh(m:NomineeManifest,elections:RaceRow[],candida
     if(races.length!==1){plan.unresolved.push({name:row.name,reason:races.length?'ambiguous-race':'missing-race'});continue;}
     const names=[row.name,row.ballotName,...(row.aliases??[])].filter((name):name is string=>typeof name==='string').map(normalizedCandidateName);
     const matches=candidates.filter(c=>c.election_id===races[0].id && names.includes(normalizedCandidateName(c.name)));
-    const affiliation=party(row.partyRaw);
-    let sameParty=matches.filter(c=>affiliation===undefined || affiliation==='' || party(c.party??'')===affiliation);
+    const affiliation=rowParty(row);
+    let sameParty=matches.filter(c=>affiliation===undefined || affiliation==='' || partyComponents(c.party??'').some(value=>partyComponents(affiliation).includes(value)));
     let identityResolutionApplied=false;
     if(row.identityResolution){
       // Refuse even a declared ID if the same legal name/race is ambiguous,
@@ -196,10 +229,11 @@ async function runNomineeRefreshOnce(pool:Pool,m:NomineeManifest,manifestSha:str
         continue;
       }
       await client.query("UPDATE candidate_source_records SET is_current=false WHERE candidate_id=$1 AND source_layer='general_candidate_list' AND source_url=$2 AND is_current=true",[a.candidateId,a.source.url]);
-      const metadata={electionId:a.electionId,state:a.record.state,office:a.record.office,district:a.record.district,electionDate:a.record.date,sourceId:a.source.id,sourceName:a.source.name,sourceKind:a.source.kind,documentSha256:a.source.sha256,publishedAt:a.source.publishedAt,partyRaw:a.record.partyRaw,partyValue:party(a.record.partyRaw)??'',partyKey:partyKey(a.record.partyRaw),partyBasis:/^\(Prefers /i.test(a.record.partyRaw)?'preference':a.record.partyRaw.toLowerCase()==='by petition'?'filing_method':'source_label',incumbent:a.record.incumbent??null,sourcePage:a.record.sourcePage??null,ticketText:a.record.ticketText??null,ballotName:a.record.ballotName??null,legalName:a.record.name,aliases:a.record.aliases??[],ballotAccessType:a.record.ballotAccessType??'not_specified',ballotCertificationPromoted:false,...(a.record.identityResolution?{identityResolution:a.record.identityResolution,identityResolutionApplied:a.identityResolutionApplied===true}:{} )};
+      const metadata={electionId:a.electionId,state:a.record.state,office:a.record.office,district:a.record.district,electionDate:a.record.date,sourceId:a.source.id,sourceName:a.source.name,sourceKind:a.source.kind,documentSha256:a.source.sha256,publishedAt:a.source.publishedAt,partyRaw:a.record.partyRaw,partyValue:rowParty(a.record)??'',partyKey:partyKey(a.record.partyRaw),partyBasis:a.record.partyBasis??(/^\(Prefers /i.test(a.record.partyRaw)?'preference':/^\(Registered /i.test(a.record.partyRaw)?'registration':a.record.partyRaw.toLowerCase()==='by petition'?'filing_method':'source_label'),incumbent:a.record.incumbent??null,sourcePage:a.record.sourcePage??null,ticketText:a.record.ticketText??null,ballotName:a.record.ballotName??null,legalName:a.record.name,aliases:a.record.aliases??[],ballotAccessType:a.record.ballotAccessType??'not_specified',ballotCertificationPromoted:false};
+      const sourceMetadata={...metadata,...(a.record.partyEvidence?{partyEvidence:a.record.partyEvidence}:{}),...(a.record.identityEvidence?{identityEvidence:a.record.identityEvidence}:{}),...(a.record.partyLabels?{partyLabels:a.record.partyLabels}:{}),...(a.record.identityResolution?{identityResolution:a.record.identityResolution,identityResolutionApplied:a.identityResolutionApplied===true}:{})};
       await client.query(`INSERT INTO candidate_source_records(candidate_id,source_layer,source_url,source_file_sha256,source_synced_at,metadata,is_current)
         VALUES($1,'general_candidate_list',$2,$3,$4,$5::jsonb,true) ON CONFLICT(candidate_id,source_layer,source_url,source_file_sha256)
-        DO UPDATE SET is_current=true,source_synced_at=EXCLUDED.source_synced_at,metadata=EXCLUDED.metadata`,[a.candidateId,a.source.url,a.versionSha,a.source.retrievedAt,JSON.stringify(metadata)]);sourceChanges++;
+        DO UPDATE SET is_current=true,source_synced_at=EXCLUDED.source_synced_at,metadata=EXCLUDED.metadata`,[a.candidateId,a.source.url,a.versionSha,a.source.retrievedAt,JSON.stringify(sourceMetadata)]);sourceChanges++;
     }
     // Only an explicitly complete office/party scope establishes absence from the latest list.
     for(const {source,scope,electionId,overlaps} of receivingScopes){
