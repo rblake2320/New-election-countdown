@@ -1,5 +1,6 @@
 import type { ElectionListing, ElectionQueryFilters } from "./election-list-filters";
 import { MemStorage } from "./mem-storage";
+import { BackgroundWork } from './background-work';
 import type { IStorage } from "./storage";
 import { type Election, type InsertElection, type Candidate, type InsertCandidate, type ElectionFilters, type CongressMember, type InsertCongressMember, type User, type UpsertUser, type WatchlistItem, type InsertWatchlistItem, type CandidateAccount, type InsertCandidateAccount, type CandidateProfile, type InsertCandidateProfile, type CandidateDataSource, type InsertCandidateDataSource, type CandidatePosition, type InsertCandidatePosition, type CandidateQA, type InsertCandidateQA } from "@shared/schema";
 
@@ -78,7 +79,8 @@ export class StorageFactory implements IStorage {
   
   // Write-ahead queue for database operations
   private writeQueue: WriteOperation[] = [];
-  private queueProcessingInterval: NodeJS.Timer | null = null;
+  private backgroundWork = new BackgroundWork();
+  private stopQueueTimer: (() => void) | null = null;
   
   // Read-only mode tracking
   private isReadOnlyMode: boolean = false;
@@ -92,7 +94,8 @@ export class StorageFactory implements IStorage {
     this.isMemoryOptimized = false; // Will become true after max retries
     
     this.initializeReplicaConfigs();
-    this.initializeHealthChecking();
+    void this.backgroundWork.run(() => this.initializeHealthChecking())
+      .catch(() => console.error('Storage health initialization failed'));
     this.initializeQueueProcessing();
   }
   
@@ -146,19 +149,19 @@ export class StorageFactory implements IStorage {
     await this.checkReplicaHealth();
     
     // Set up periodic health checks
-    setInterval(async () => {
+    this.backgroundWork.every(this.healthCheckInterval, async () => {
       await this.checkDatabaseHealth();
       await this.checkReplicaHealth();
-    }, this.healthCheckInterval);
+    }, () => console.error('Scheduled storage health check failed'));
   }
 
   private initializeQueueProcessing(): void {
     // Process write queue every 5 seconds when database is available
-    this.queueProcessingInterval = setInterval(async () => {
+    this.stopQueueTimer = this.backgroundWork.every(5000, async () => {
       if (this.isDatabaseHealthy && this.writeQueue.length > 0) {
         await this.processWriteQueue();
       }
-    }, 5000);
+    }, () => console.error('Scheduled storage queue processing failed'));
   }
 
   private async checkDatabaseHealth(): Promise<void> {
@@ -221,12 +224,12 @@ export class StorageFactory implements IStorage {
       }
       
       // Connection failed - handle accordingly
-      this.handleConnectionFailure(healthCheck.error, healthCheck.details);
+      await this.handleConnectionFailure(healthCheck.error, healthCheck.details);
       
     } catch (error) {
       // Unexpected error in health check process
       console.error('❌ Primary database health check error:', error);
-      this.handleConnectionFailure(
+      await this.handleConnectionFailure(
         error instanceof Error ? error.message : 'Unknown health check error',
         { error }
       );
@@ -733,10 +736,8 @@ export class StorageFactory implements IStorage {
               this.writeQueue = [];
             }
             
-            if (this.queueProcessingInterval) {
-              clearInterval(this.queueProcessingInterval as NodeJS.Timeout);
-              this.queueProcessingInterval = null;
-            }
+            this.stopQueueTimer?.();
+            this.stopQueueTimer = null;
             
             this.healthCheckInterval = 120000; // 2 minutes in memory-optimized mode
             this.retryAttempts = 0;
@@ -1352,11 +1353,8 @@ export class StorageFactory implements IStorage {
   }
 
   // Cleanup method
-  public destroy(): void {
-    if (this.queueProcessingInterval) {
-      clearInterval(this.queueProcessingInterval as any);
-      this.queueProcessingInterval = null;
-    }
+  public async destroy(): Promise<void> {
+    await this.backgroundWork.stop();
     
     // Clear event listeners
     this.failoverEventListeners = [];

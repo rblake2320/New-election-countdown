@@ -1,4 +1,5 @@
 import { buildElectionListQuery } from "./election-list-query";
+import { BackgroundWork } from './background-work';
 import type { ElectionListing, ElectionQueryFilters } from "./election-list-filters";
 import { elections, candidates, congressMembers, congressBills, congressCommittees, users, sessions, watchlist, electionResults, electionCycles, campaignAccounts, candidateAccounts, candidateProfiles, candidateDataSources, candidatePositions, candidateQA, notificationPreferences, notificationConsents, notificationSubscriptions, notificationTemplates, notificationCampaigns, notificationDeliveries, notificationEvents, notificationWebhooks, userPreferences, congressionalDistricts, backupStorageLocations, backupRetentionPolicies, backupOperations, schemaVersions, restoreValidations, backupSystemConfig, failoverDrillConfigurations, drillExecutions, drillSteps, backupMonitoringConfigurations, backupAlerts, backupHealthMetrics, rtoRpoTargets, rtoRpoMeasurements, performanceBenchmarks, incidentRunbooks, runbookSteps, runbookContacts, contactEscalationTrees, runbookExecutions, type Election, type InsertElection, type Candidate, type InsertCandidate, type ElectionFilters, type CongressMember, type InsertCongressMember, type User, type UpsertUser, type WatchlistItem, type InsertWatchlistItem, type UserPreferences, type InsertUserPreferences, type UpdateUserPreferences, type CongressionalDistrict, type InsertCongressionalDistrict, type CandidateAccount, type InsertCandidateAccount, type CandidateProfile, type InsertCandidateProfile, type CandidateDataSource, type InsertCandidateDataSource, type CandidatePosition, type InsertCandidatePosition, type CandidateQA, type InsertCandidateQA, type NotificationPreferences, type InsertNotificationPreferences, type NotificationConsent, type InsertNotificationConsent, type NotificationSubscription, type InsertNotificationSubscription, type NotificationTemplate, type InsertNotificationTemplate, type NotificationCampaign, type InsertNotificationCampaign, type NotificationDelivery, type InsertNotificationDelivery, type NotificationEvent, type InsertNotificationEvent, type NotificationWebhook, type InsertNotificationWebhook, type BackupStorageLocation, type InsertBackupStorageLocation, type BackupRetentionPolicy, type InsertBackupRetentionPolicy, type BackupOperation, type InsertBackupOperation, type SchemaVersion, type InsertSchemaVersion, type RestoreValidation, type InsertRestoreValidation, type BackupSystemConfig, type InsertBackupSystemConfig, type FailoverDrillConfiguration, type InsertFailoverDrillConfiguration, type DrillExecution, type InsertDrillExecution, type DrillStep, type InsertDrillStep, type BackupMonitoringConfiguration, type InsertBackupMonitoringConfiguration, type BackupAlert, type InsertBackupAlert, type BackupHealthMetric, type InsertBackupHealthMetric, type RtoRpoTarget, type InsertRtoRpoTarget, type RtoRpoMeasurement, type InsertRtoRpoMeasurement, type PerformanceBenchmark, type InsertPerformanceBenchmark, type IncidentRunbook, type InsertIncidentRunbook, type RunbookStep, type InsertRunbookStep, type RunbookContact, type InsertRunbookContact, type ContactEscalationTree, type InsertContactEscalationTree, type RunbookExecution, type InsertRunbookExecution } from "@shared/schema";
 import { db } from "./db";
@@ -4295,7 +4296,8 @@ export async function initializeData() {
 // This prevents import-time database operations that could cause stack traces
 
 // Set up periodic sync every 6 hours using factory
-setInterval(async () => {
+const periodicSyncWork = new BackgroundWork();
+periodicSyncWork.every(6 * 60 * 60 * 1000, async () => {
   try {
     await storage.syncElectionsFromGoogleCivic();
     console.log('Periodic sync with Google Civic API completed');
@@ -4308,15 +4310,12 @@ setInterval(async () => {
   } catch (error) {
     console.log('Periodic sync completed with fallbacks:', error);
   }
-}, 6 * 60 * 60 * 1000); // 6 hours
+}, () => console.error('Scheduled election sync failed')); // 6 hours
 
-// Graceful shutdown handler
-process.on('SIGTERM', () => {
-  console.log('Shutting down storage factory...');
-  storage.destroy();
-});
-
-process.on('SIGINT', () => {
-  console.log('Shutting down storage factory...');
-  storage.destroy();
-});
+// Called by the one server lifecycle owner, before closing the database pool.
+export async function stopStorageBackground(): Promise<void> {
+  const results = await Promise.allSettled([periodicSyncWork.stop(), storage.destroy()]);
+  if (results.some(result => result.status === 'rejected')) {
+    throw new Error('Storage background shutdown failed');
+  }
+}

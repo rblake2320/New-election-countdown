@@ -231,6 +231,16 @@ try {
   if (process.env.TEST_PROXY_LOAD === '1') {
     await testProxyLoad({ docker, network, app, evidence, report });
   }
+  if (process.env.TEST_SHUTDOWN === '1') {
+    const started = Date.now();
+    await docker('stop', '--time', '10', app);
+    const state = JSON.parse(await docker('inspect', '--format', '{{json .State}}', app));
+    const logs = await docker('logs', app);
+    report.shutdown = { elapsedMs: Date.now() - started, exitCode: state.ExitCode, running: state.Running, completed: logs.includes('Shutdown complete') };
+    if (state.ExitCode !== 0 || state.Running || !report.shutdown.completed || report.shutdown.elapsedMs >= 10_000) {
+      throw new Error('Compiled shutdown failed to drain before container kill deadline');
+    }
+  }
   report.passed = true;
 } catch (error) {
   report.error = error.message;

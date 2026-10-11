@@ -6,6 +6,9 @@ import { securityHeaders } from "./security-middleware";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { globalWriteGuard, healthAwareErrorHandler } from "./middleware/health-guard";
+import { createGracefulShutdown } from './graceful-shutdown';
+import { pool } from './db';
+import { stopStorageBackground } from './storage';
 import { requestIdMiddleware, publicErrorBody, internalErrorRecord, getRequestId } from "./security-events";
 
 const app = express();
@@ -82,16 +85,20 @@ app.use((req, res, next) => {
   } catch (error: any) {
     log(`⚠️  Results ingestion service failed to start: ${error.message}`);
   }
-
-  // Graceful shutdown handler for results ingestion service
-  const shutdownHandler = () => {
-    log("🛑 Shutting down gracefully...");
-    if (resultsIngestionServiceInstance) {
-      resultsIngestionServiceInstance.stopPolling();
-      log("✅ Results ingestion service stopped");
-    }
-  };
-
+  
+  const { shutdown: shutdownHandler } = createGracefulShutdown({
+    server,
+    stopBackground: async () => {
+      await Promise.all([
+        resultsIngestionServiceInstance?.stopPolling(),
+        stopStorageBackground(),
+      ]);
+    },
+    closeDatabase: () => pool.end(),
+    exit: code => process.exit(code),
+    log,
+  });
+  
   process.on('SIGTERM', shutdownHandler);
   process.on('SIGINT', shutdownHandler);
 
