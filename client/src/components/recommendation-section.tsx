@@ -71,9 +71,7 @@ export function RecommendationSection({
   // Refresh recommendations
   const handleRefresh = async () => {
     try {
-      await apiRequest('/api/recommendations/refresh', {
-        method: 'POST',
-      });
+      await apiRequest('POST', '/api/recommendations/refresh');
       await refetch();
       toast({
         title: "Recommendations updated",

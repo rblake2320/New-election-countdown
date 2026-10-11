@@ -121,11 +121,7 @@ export default function AdminResultsEntry() {
   // Update results mutation
   const updateResultsMutation = useMutation({
     mutationFn: async (resultsData: any) => {
-      return apiRequest(`/api/elections/${selectedElectionId}/results`, {
-        method: 'POST',
-        body: JSON.stringify(resultsData),
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return apiRequest('POST', `/api/elections/${selectedElectionId}/results`, resultsData);
     },
     onSuccess: () => {
       toast({

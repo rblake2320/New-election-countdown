@@ -134,7 +134,7 @@ export default function NotificationPreferences() {
   // Update preferences mutation
   const updatePreferencesMutation = useMutation({
     mutationFn: (updates: Partial<NotificationPreferences>) =>
-      apiRequest('/api/notifications/preferences', 'PUT', updates),
+      apiRequest('PUT', '/api/notifications/preferences', updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/notifications/preferences'] });
       toast({
@@ -153,8 +153,8 @@ export default function NotificationPreferences() {
 
   // Subscribe mutation
   const subscribeMutation = useMutation({
-    mutationFn: (subscriptionData: any) =>
-      apiRequest('/api/notifications/subscribe', 'POST', subscriptionData),
+    mutationFn: async (subscriptionData: any) =>
+      (await apiRequest('POST', '/api/notifications/subscribe', subscriptionData)).json(),
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ['/api/notifications/subscriptions'] });
       if (data.verificationRequired) {
@@ -182,7 +182,7 @@ export default function NotificationPreferences() {
   // Verify subscription mutation
   const verifyMutation = useMutation({
     mutationFn: (token: string) =>
-      apiRequest('/api/notifications/verify', 'POST', { token }),
+      apiRequest('POST', '/api/notifications/verify', { token }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/notifications/subscriptions'] });
       toast({
@@ -235,7 +235,7 @@ export default function NotificationPreferences() {
 
   const handleTestNotification = async (type: 'email' | 'sms') => {
     try {
-      await apiRequest('/api/notifications/test', 'POST', { type });
+      await apiRequest('POST', '/api/notifications/test', { type });
       toast({
         title: 'Test Notification Sent',
         description: `Check your ${type} for the test notification.`,

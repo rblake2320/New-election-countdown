@@ -107,7 +107,7 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
 
   // Watchlist mutations
   const addToWatchlistMutation = useMutation({
-    mutationFn: () => apiRequest(`/api/watchlist`, "POST", { electionId: election.id }),
+    mutationFn: () => apiRequest('POST', `/api/watchlist`, { electionId: election.id }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/watchlist"] });
       toast({
@@ -125,7 +125,7 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
   });
 
   const removeFromWatchlistMutation = useMutation({
-    mutationFn: () => apiRequest(`/api/watchlist/${election.id}`, "DELETE"),
+    mutationFn: () => apiRequest('DELETE', `/api/watchlist/${election.id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/watchlist"] });
       toast({
