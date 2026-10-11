@@ -30,8 +30,6 @@ node scripts/test-container.mjs
 does not reuse an occupied port automatically. Running browser tests against a
 shared server requires its steward's approval because some specs mutate data.
 
-## Migrations and deployment
-
 ## Executed milestone (2026-10-11)
 
 - Clean install: 760 packages versus 1,253 at baseline.

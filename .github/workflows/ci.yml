@@ -2,7 +2,7 @@ name: ElectionTracker CI
 on:
   pull_request:
   push:
-    branches: [main, 'lane-*/**', 'opus/**']
+    branches: [main]
 permissions:
   contents: read
 concurrency:
@@ -55,6 +55,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
       - run: docker build --tag electiontracker:ci .
       - run: docker build --target builder --tag electiontracker:ci-builder .
       - name: Verify production image dependency boundary
