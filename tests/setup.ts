@@ -33,8 +33,7 @@ afterAll(() => {
   vi.restoreAllMocks();
 });
 
-// Mock fetch for environments that don't have it
-global.fetch = vi.fn();
+// Tests that replace fetch own and restore their mock. Node 24 provides fetch.
 
 // Mock WebSocket for real-time features
 global.WebSocket = vi.fn(() => ({

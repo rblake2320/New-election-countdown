@@ -476,7 +476,8 @@ describe('validateAutofixPolicies Middleware', () => {
 
   describe('error handling', () => {
     it('should handle database errors gracefully', async () => {
-      mockSql.mockRejectedValue(new Error('Database query failed'));
+      // Clear queued one-shot successes before testing the failure path.
+      mockSql.mockReset().mockRejectedValue(new Error('Database query failed'));
       
       const { req, res, next } = createMockReqRes('POST', '/autofix/apply/123');
 

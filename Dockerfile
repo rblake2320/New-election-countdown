@@ -1,6 +1,7 @@
 # Multi-stage build for optimized production image
 # Stage 1: Build the application
 FROM node:24-alpine AS builder
+ENV PUPPETEER_SKIP_DOWNLOAD=true
 
 # Set working directory
 WORKDIR /app
@@ -18,6 +19,7 @@ RUN npm run build
 
 # Stage 2: Production image
 FROM node:24-alpine AS production
+ENV PUPPETEER_SKIP_DOWNLOAD=true
 
 # Install dumb-init for proper signal handling
 RUN apk add --no-cache dumb-init
@@ -32,15 +34,16 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Full install (drizzle-kit/tsx needed for `db:push` schema management on the VPS)
-RUN npm ci && \
+# Schema changes run as a separate reviewed release operation, never at web boot.
+RUN npm ci --omit=dev && \
     npm cache clean --force
 
-# Copy built application + schema tooling from builder
+# Runtime contains only compiled application files.
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nodejs:nodejs /app/shared ./shared
-COPY --from=builder --chown=nodejs:nodejs /app/server ./server
-COPY --from=builder --chown=nodejs:nodejs /app/drizzle.config.ts ./drizzle.config.ts
+
+# Services create retention/log directories at boot while running as nodejs.
+RUN mkdir -p /app/artifacts /app/backups /app/logs /app/infrastructure && \
+    chown nodejs:nodejs /app/artifacts /app/backups /app/logs /app/infrastructure
 
 # Switch to non-root user
 USER nodejs

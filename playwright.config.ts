@@ -1,14 +1,20 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const port = Number(process.env.PORT || 5058);
+const baseURL = process.env.BASE_URL || `http://127.0.0.1:${port}`;
+process.env.BASE_URL = baseURL;
+process.env.API_BASE ||= baseURL;
+
 export default defineConfig({
   timeout: 30_000,
   expect: { timeout: 5_000 },
   testDir: 'tests',
+  testMatch: ['e2e/**/*.spec.ts', 'admin-widget-visibility.spec.ts', 'featured-layout.spec.ts'],
   fullyParallel: true,
   retries: process.env.CI ? 1 : 0,
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
-    baseURL: process.env.BASE_URL || 'http://localhost:5000',
+    baseURL,
     headless: true,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
@@ -18,9 +24,11 @@ export default defineConfig({
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
   ],
-  webServer: {
+  // Never silently attach to a different seat's server.
+  webServer: process.env.E2E_EXTERNAL_SERVER === '1' ? undefined : {
     command: 'npm run dev',
-    port: 5000,
-    reuseExistingServer: true,
+    url: baseURL,
+    env: { PORT: String(port), HOST: '127.0.0.1' },
+    reuseExistingServer: false,
   },
 });
