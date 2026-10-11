@@ -161,7 +161,12 @@ async function runNomineeRefreshOnce(pool:Pool,m:NomineeManifest,manifestSha:str
       previousByAction.set(a,previous);
     }
     // Preflight every receiving scope before inserting even a disjoint new identity.
-    const receivingScopes=[];
+    const receivingScopes:Array<{
+      source:NomineeSource;
+      scope:NomineeSource['completeScopes'][number];
+      electionId:number;
+      overlaps:Array<{id:number;scope_key:string;source_url:string;source_file_sha256:string;source_synced_at:Date|string}>;
+    }>=[];
     for(const source of m.sources)for(const scope of source.completeScopes){
       const raceIds=elections.filter(e=>raceKey(e)===`${source.state}|${scope.office}|${scope.district}|${source.electionDate}`).map(e=>e.id);
       if(raceIds.length!==1)throw new Error('Complete scope has no unique receiving race');
