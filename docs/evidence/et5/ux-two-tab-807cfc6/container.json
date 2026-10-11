@@ -1,0 +1,29 @@
+{
+  "image": "electiontracker:ux-retest",
+  "builder": "electiontracker:ux-retest-builder",
+  "network": "isolated test bridge; browser preview bound only to 127.0.0.1:5079",
+  "passed": true,
+  "http": [
+    {
+      "path": "/",
+      "status": 200,
+      "bytes": 1832
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "bytes": 239
+    },
+    {
+      "path": "/api/elections",
+      "status": 200,
+      "bytes": 231032
+    }
+  ],
+  "elections": {
+    "total": 537,
+    "distinct": 537
+  },
+  "boundary": "production-only paths verified",
+  "imageId": "sha256:77f4489d608b54b6d5a10a77cc3990b80e76c4a0b6014de2df4eda7adba80d2e"
+}
