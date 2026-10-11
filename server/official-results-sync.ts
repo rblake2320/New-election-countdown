@@ -2,17 +2,19 @@ import { randomUUID } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
 import { z } from 'zod';
 import { OfficialResultsError } from './official-results-error';
-import { officialResultsFieldsSchema, officialResultsSourceSchema } from '../shared/official-results';
+import { officialResultsElectionPhase, officialResultsFieldsSchema, officialResultsSourceSchema } from '../shared/official-results';
 import { canonical, sha256, RESULTS_DATE, RESULTS_STATES, sourceForElection, resultsManifestSchema, type ResultsManifest } from './official-results-manifest';
 
 export const RESULTS_WRITER_LOCK = 2026110301;
 type CatalogRow = Record<string, unknown> & { id: number; state: string; date: string; type: string };
 type Fields = { official_results_url: unknown; official_results_source: unknown };
 type Change = { id: number; before: Fields; after: Fields };
+export interface PhaseSkippedElection { id: number; state: string; electionType: string; sourcePhase: string }
 export interface ResultsPlan {
   version: 1; operation: 'apply' | 'rollback'; manifestSha256: string;
   preimageSha256: string; postimageSha256: string; targetCount: number;
   stateCounts: Record<string, number>; changes: Change[]; rollbackOf: string | null;
+  phaseSkipped: PhaseSkippedElection[]; phaseSkippedCount: number;
 }
 export interface ResultsReceipt extends ResultsPlan {
   mode: 'dry-run' | 'apply'; changedCount: number; runId: string | null;
@@ -34,10 +36,15 @@ export function planResults(rows: CatalogRow[], manifest: ResultsManifest, manif
   const entries = new Map(manifest.states.map(entry => [entry.state, entry]));
   const stateCounts = Object.fromEntries(RESULTS_STATES.map(state => [state, 0]));
   const changes: Change[] = [];
+  const phaseSkipped: PhaseSkippedElection[] = [];
   for (const row of rows) {
     if (row.date.slice(0, 10) !== RESULTS_DATE || !entries.has(row.state)) continue;
-    stateCounts[row.state]++;
     const entry = entries.get(row.state)!;
+    if (entry.source.status === 'published' && officialResultsElectionPhase(row.type) !== entry.source.electionPhase) {
+      phaseSkipped.push({ id: row.id, state: row.state, electionType: row.type, sourcePhase: entry.source.electionPhase });
+      continue; // Preserve every existing byte for this unreviewed phase.
+    }
+    stateCounts[row.state]++;
     const source = sourceForElection(entry, row.type);
     const before = fields(row);
     if (before.official_results_source !== null) {
@@ -54,7 +61,7 @@ export function planResults(rows: CatalogRow[], manifest: ResultsManifest, manif
   return { version: 1, operation: 'apply', manifestSha256,
     preimageSha256: catalogHash(rows), postimageSha256: catalogHash(afterChanges(rows, changes)),
     targetCount: Object.values(stateCounts).reduce((sum, count) => sum + count, 0),
-    stateCounts, changes, rollbackOf: null };
+    stateCounts, changes, rollbackOf: null, phaseSkipped, phaseSkippedCount: phaseSkipped.length };
 }
 async function snapshot(client: PoolClient): Promise<CatalogRow[]> {
   const result = await client.query<{ row: CatalogRow }>(
@@ -84,7 +91,7 @@ async function rollbackPlan(client: PoolClient, rows: CatalogRow[], runId: strin
   if (postimageSha256 !== run.preimage_sha256) throw new OfficialResultsError('Rollback audit preimage mismatch');
   return { version: 1, operation: 'rollback', manifestSha256: run.manifest_sha256,
     preimageSha256: run.postimage_sha256, postimageSha256,
-    targetCount: run.target_count, stateCounts: {}, changes, rollbackOf: runId };
+    targetCount: run.target_count, stateCounts: {}, changes, rollbackOf: runId, phaseSkipped: [], phaseSkippedCount: 0 };
 }
 export interface SyncResultsOptions {
   mode?: 'dry-run' | 'apply'; manifest?: ResultsManifest; manifestSha256?: string;

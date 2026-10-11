@@ -51,6 +51,7 @@ try {
   await rename(temporary, destination);
   console.log(JSON.stringify({ mode: receipt.mode, operation: receipt.operation, runId: receipt.runId,
     targetCount: receipt.targetCount, changedCount: receipt.changedCount,
+    phaseSkippedCount: receipt.phaseSkippedCount, phaseSkipped: receipt.phaseSkipped,
     manifestSha256: receipt.manifestSha256, preimageSha256: receipt.preimageSha256,
     postimageSha256: receipt.postimageSha256, receipt: destination }));
 } catch (error) {

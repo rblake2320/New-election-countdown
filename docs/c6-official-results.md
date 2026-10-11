@@ -51,8 +51,15 @@ receiving-results receipt must declare verified context and observed results;
 their retained bytes, dates, phases and URLs are checked. An HTTP 200 response,
 advertised selector, previous primary or route shell alone is refused.
 Off-government destinations additionally need the exact observed government
-delegation. A specific General source is refused for a primary receiving row;
-it cannot silently inherit published status. `published` says returns are
+delegation. A specific source applies only to receiving rows with the same
+phase. Other phases retain their previous source columns byte for byte and are
+reported as `phaseSkipped` (ID, state, election type, source phase) with an
+explicit `phaseSkippedCount`. `targetCount` and `stateCounts` count eligible
+matching rows; a reviewed state with zero eligible rows still refuses the sync.
+This allows a Louisiana General Senate source and House Primary sources to be
+refreshed in either order and coexist. No specific URL is relabelled as generic
+or assigned to another phase. Direct `sourceForElection` calls still refuse an
+incompatible specific source. `published` says returns are
 available, never that they are certified or that a candidate has won.
 The current committed 50-state snapshot has **zero published entries**; the
 future positive/negative shapes exist only in isolated acceptance tests.

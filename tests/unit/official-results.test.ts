@@ -106,7 +106,7 @@ describe('isolated future specific-publication shape', () => {
     const actual = JSON.parse(await readFile('data/official-results/acceptance/LA-429-context.json', 'utf8')).receipt.electionContext;
     const manifest = manifestFromReviews(fixture.reviews());
     expect(actual.type).toBe('primary');
-    expect(() => planResults([actual], manifest, sha256(JSON.stringify(manifest)))).toThrow('different election phase');
+    expect(() => planResults([actual], manifest, sha256(JSON.stringify(manifest)))).toThrow('No November 3 receiving elections');
   });
   it('refuses a positive claim without its retained receiving proof bytes', async () => {
     const fixture = await futurePublicationFixture();
@@ -156,6 +156,23 @@ describe('isolated future specific-publication shape', () => {
     const { manifest, manifestSha256 } = await loadResultsManifest(path);
     expect(manifestSha256).toBe('edbc1deff97cba8a154f3322e305be08427be1db358761635e59153328e04c86');
     expect(manifest.states.every(entry => entry.source.status !== 'published' && entry.source.publicationEvidence === undefined)).toBe(true);
+  });
+  it('routes General publication without aborting concurrent House primary rows', async () => {
+    const fixture = await futurePublicationFixture();
+    const manifest = manifestFromReviews(fixture.reviews());
+    const rows = JSON.parse(await readFile('artifacts/c6-private-43588-2e2b84/independent-sql-results-fields.json', 'utf8'))
+      .map((row: any) => ({ id: row.id, state: row.state, date: row.date, type: row.type,
+        official_results_url: row.officialResultsUrl, official_results_source: row.officialResultsSource }));
+    for (const row of rows) if (row.state === 'LA' && row.id >= 429 && row.id <= 434) row.type = 'primary';
+    const plan = planResults(rows, manifest, sha256(JSON.stringify(manifest)));
+    expect(plan.stateCounts.LA).toBe(1);
+    expect(plan.targetCount).toBe(500);
+    expect(plan.phaseSkippedCount).toBe(6);
+    expect(plan.phaseSkipped.map(row => row.id)).toEqual([429, 430, 431, 432, 433, 434]);
+    expect(plan.phaseSkipped.every(row => row.state === 'LA' && row.sourcePhase === 'general')).toBe(true);
+    expect(plan.changes.filter(change => change.id === 13)).toHaveLength(1);
+    expect(plan.changes.some(change => plan.phaseSkipped.some(row => row.id === change.id))).toBe(false);
+    expect(() => planResults(rows.filter((row: any) => row.id !== 13), manifest, sha256(JSON.stringify(manifest)))).toThrow('No November 3 receiving elections for reviewed states: LA');
   });
 });
 
