@@ -179,7 +179,7 @@ try {
     const nomineeOutput = await docker('run', '--rm', '--network', network,
       '-e', `DATABASE_URL=${databaseURL}`, '-e', `INTERNAL_APP_ORIGIN=http://${app}:5000`,
       '--entrypoint', 'sh', builder, '-c',
-      'node_modules/.bin/esbuild scripts/verify-candidate-integration.ts --bundle --platform=node --format=esm --packages=external --outfile=nominee-acceptance.mjs && node nominee-acceptance.mjs');
+      'node_modules/.bin/esbuild scripts/refresh_general_candidates.ts --bundle --platform=node --format=esm --packages=external --outfile=nominee-cli-acceptance.mjs && node_modules/.bin/esbuild scripts/verify-candidate-integration.ts --bundle --platform=node --format=esm --packages=external --outfile=nominee-acceptance.mjs && node nominee-acceptance.mjs');
     report.nomineeIngestion = JSON.parse(nomineeOutput);
   }
   if (preview) {
