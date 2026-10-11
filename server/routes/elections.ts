@@ -412,7 +412,7 @@ electionsRouter.get("/:electionId/candidates/:candidateId", async (req, res) => 
 
     try {
       // Get comprehensive candidate data using CivicAggregator
-      const searchId = candidate.votesmartId ?? candidate.votesmart_id ?? candidate.name;
+      const searchId = (candidate as any).votesmartId ?? (candidate as any).votesmart_id ?? candidate.name;
       const comprehensiveData = await civicAggregatorService.getComprehensiveCandidateData([searchId], electionId.toString(), ['votesmart']);
 
       const baseResponse = {

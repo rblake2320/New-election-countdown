@@ -54,7 +54,7 @@ export class CivicAggregatorService {
   }
 
   private validateApiKeys() {
-    const missingKeys = [];
+    const missingKeys: string[] = [];
     if (!this.propublicaKey) missingKeys.push('PROPUBLICA_API_KEY');
     if (!this.googleCivicKey) missingKeys.push('GOOGLE_CIVIC_API_KEY');
     if (!this.openFecKey) missingKeys.push('OPENFEC_API_KEY');
@@ -407,7 +407,7 @@ export class CivicAggregatorService {
 
   private extractPolicyDetails(candidate: CandidateData, category: string): string {
     // Combine details from multiple sources, prioritizing VoteSmart data
-    const details = [];
+    const details: string[] = [];
 
     // VoteSmart biographical information
     if (candidate.voteSmartData?.bio?.education || candidate.voteSmartData?.detailedBio?.education) {
