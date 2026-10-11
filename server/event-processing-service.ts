@@ -1,7 +1,25 @@
 import { EventEmitter } from 'events';
 import { storage } from './storage';
+
+/**
+ * Results ingestion storage is not implemented yet (ET-6: owner decision on live results).
+ * These optional members make that explicit: when absent, the event is refused with a
+ * clear error instead of a TypeError half-way through processing.
+ */
+interface ResultsIngestStorage {
+  updateCandidateResults?(candidateId: number, results: Record<string, unknown>): Promise<unknown>;
+  updateElection?(electionId: number, updates: Record<string, unknown>): Promise<unknown>;
+  updateCandidate?(candidateId: number, updates: Record<string, unknown>): Promise<unknown>;
+}
+const ingest = storage as unknown as ResultsIngestStorage;
+function requireIngest<K extends keyof ResultsIngestStorage>(method: K): NonNullable<ResultsIngestStorage[K]> {
+  const fn = ingest[method];
+  if (typeof fn !== 'function') {
+    throw Object.assign(new Error(`${String(method)} is not implemented: results ingestion is pending the ET-6 live-results decision`), { status: 501, publicCode: 'not_implemented', publicMessage: 'Results ingestion is not enabled' });
+  }
+  return fn.bind(storage) as NonNullable<ResultsIngestStorage[K]>;
+}
 import { aiValidationService } from './ai-validation-service';
-import { realTimeMonitor } from './real-time-monitor';
 
 interface ElectionEvent {
   id: string;
@@ -164,7 +182,7 @@ export class EventProcessingService extends EventEmitter {
     // Update candidate results
     if (data.candidates) {
       for (const candidate of data.candidates) {
-        await storage.updateCandidateResults(candidate.id, {
+        await requireIngest('updateCandidateResults')(candidate.id, {
           votes: candidate.votes,
           percentage: candidate.percentage,
           lastUpdated: event.timestamp
@@ -185,7 +203,7 @@ export class EventProcessingService extends EventEmitter {
     
     // Validate candidate change
     if (event.validated && event.confidence > 0.7) {
-      await storage.updateCandidate(data.candidateId, {
+      await requireIngest('updateCandidate')(data.candidateId, {
         name: data.name,
         party: data.party,
         lastUpdated: event.timestamp
@@ -243,7 +261,7 @@ export class EventProcessingService extends EventEmitter {
     const { electionId, data } = event;
     
     // Flag election for recount
-    await storage.updateElection(electionId, {
+    await requireIngest('updateElection')(electionId, {
       status: 'recount_declared',
       recountReason: data.reason,
       recountDeadline: data.deadline,
@@ -281,18 +299,6 @@ export class EventProcessingService extends EventEmitter {
     this.eventQueue.sort((a, b) => 
       priorityOrder[a.priority] - priorityOrder[b.priority]
     );
-  }
-
-  // Integration with existing real-time monitor
-  async connectToRealTimeMonitor(): Promise<void> {
-    realTimeMonitor.on('election_data_scraped', async (data) => {
-      await this.ingestEvent({
-        type: 'result_update',
-        electionId: data.electionId,
-        data: data.results,
-        timestamp: data.scrapedAt
-      }, 'real_time_monitor');
-    });
   }
 
   // External API integration points

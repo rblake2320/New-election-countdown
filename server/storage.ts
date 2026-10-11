@@ -1,15 +1,33 @@
 import { buildElectionListQuery, projectElectionResultsRow, resultsCatalogTimestamp } from "./election-list-query";
 import { BackgroundWork } from './background-work';
 import type { ElectionListing, ElectionQueryFilters } from "./election-list-filters";
-import { elections, candidates, congressMembers, congressBills, congressCommittees, users, sessions, watchlist, electionResults, electionCycles, campaignAccounts, candidateAccounts, candidateProfiles, candidateDataSources, candidatePositions, candidateQA, notificationPreferences, notificationConsents, notificationSubscriptions, notificationTemplates, notificationCampaigns, notificationDeliveries, notificationEvents, notificationWebhooks, userPreferences, congressionalDistricts, backupStorageLocations, backupRetentionPolicies, backupOperations, schemaVersions, restoreValidations, backupSystemConfig, failoverDrillConfigurations, drillExecutions, drillSteps, backupMonitoringConfigurations, backupAlerts, backupHealthMetrics, rtoRpoTargets, rtoRpoMeasurements, performanceBenchmarks, incidentRunbooks, runbookSteps, runbookContacts, contactEscalationTrees, runbookExecutions, type Election, type InsertElection, type Candidate, type InsertCandidate, type ElectionFilters, type CongressMember, type InsertCongressMember, type User, type UpsertUser, type WatchlistItem, type InsertWatchlistItem, type UserPreferences, type InsertUserPreferences, type UpdateUserPreferences, type CongressionalDistrict, type InsertCongressionalDistrict, type CandidateAccount, type InsertCandidateAccount, type CandidateProfile, type InsertCandidateProfile, type CandidateDataSource, type InsertCandidateDataSource, type CandidatePosition, type InsertCandidatePosition, type CandidateQA, type InsertCandidateQA, type NotificationPreferences, type InsertNotificationPreferences, type NotificationConsent, type InsertNotificationConsent, type NotificationSubscription, type InsertNotificationSubscription, type NotificationTemplate, type InsertNotificationTemplate, type NotificationCampaign, type InsertNotificationCampaign, type NotificationDelivery, type InsertNotificationDelivery, type NotificationEvent, type InsertNotificationEvent, type NotificationWebhook, type InsertNotificationWebhook, type BackupStorageLocation, type InsertBackupStorageLocation, type BackupRetentionPolicy, type InsertBackupRetentionPolicy, type BackupOperation, type InsertBackupOperation, type SchemaVersion, type InsertSchemaVersion, type RestoreValidation, type InsertRestoreValidation, type BackupSystemConfig, type InsertBackupSystemConfig, type FailoverDrillConfiguration, type InsertFailoverDrillConfiguration, type DrillExecution, type InsertDrillExecution, type DrillStep, type InsertDrillStep, type BackupMonitoringConfiguration, type InsertBackupMonitoringConfiguration, type BackupAlert, type InsertBackupAlert, type BackupHealthMetric, type InsertBackupHealthMetric, type RtoRpoTarget, type InsertRtoRpoTarget, type RtoRpoMeasurement, type InsertRtoRpoMeasurement, type PerformanceBenchmark, type InsertPerformanceBenchmark, type IncidentRunbook, type InsertIncidentRunbook, type RunbookStep, type InsertRunbookStep, type RunbookContact, type InsertRunbookContact, type ContactEscalationTree, type InsertContactEscalationTree, type RunbookExecution, type InsertRunbookExecution } from "@shared/schema";
+import { recommendationCache, userRecommendationAnalytics, electionRecommendations, elections, candidates, congressMembers, congressBills, congressCommittees, users, sessions, watchlist, electionResults, electionCycles, campaignAccounts, candidateAccounts, candidateProfiles, candidateDataSources, candidatePositions, candidateQA, notificationPreferences, notificationConsents, notificationSubscriptions, notificationTemplates, notificationCampaigns, notificationDeliveries, notificationEvents, notificationWebhooks, userPreferences, congressionalDistricts, backupStorageLocations, backupRetentionPolicies, backupOperations, schemaVersions, restoreValidations, backupSystemConfig, failoverDrillConfigurations, drillExecutions, drillSteps, backupMonitoringConfigurations, backupAlerts, backupHealthMetrics, rtoRpoTargets, rtoRpoMeasurements, performanceBenchmarks, incidentRunbooks, runbookSteps, runbookContacts, contactEscalationTrees, runbookExecutions, artifactStorage, deploymentHistory, environmentConfigurations, platformContinuityEvents, secretsRotationHistory, secretsVault, type Election, type InsertElection, type Candidate, type InsertCandidate, type ElectionFilters, type CongressMember, type InsertCongressMember, type User, type UpsertUser, type WatchlistItem, type InsertWatchlistItem, type UserPreferences, type InsertUserPreferences, type UpdateUserPreferences, type CongressionalDistrict, type InsertCongressionalDistrict, type CandidateAccount, type InsertCandidateAccount, type CandidateProfile, type InsertCandidateProfile, type CandidateDataSource, type InsertCandidateDataSource, type CandidatePosition, type InsertCandidatePosition, type CandidateQA, type InsertCandidateQA, type NotificationPreferences, type InsertNotificationPreferences, type NotificationConsent, type InsertNotificationConsent, type NotificationSubscription, type InsertNotificationSubscription, type NotificationTemplate, type InsertNotificationTemplate, type NotificationCampaign, type InsertNotificationCampaign, type NotificationDelivery, type InsertNotificationDelivery, type NotificationEvent, type InsertNotificationEvent, type NotificationWebhook, type InsertNotificationWebhook, type BackupStorageLocation, type InsertBackupStorageLocation, type BackupRetentionPolicy, type InsertBackupRetentionPolicy, type BackupOperation, type InsertBackupOperation, type SchemaVersion, type InsertSchemaVersion, type RestoreValidation, type InsertRestoreValidation, type BackupSystemConfig, type InsertBackupSystemConfig, type FailoverDrillConfiguration, type InsertFailoverDrillConfiguration, type DrillExecution, type InsertDrillExecution, type DrillStep, type InsertDrillStep, type BackupMonitoringConfiguration, type InsertBackupMonitoringConfiguration, type BackupAlert, type InsertBackupAlert, type BackupHealthMetric, type InsertBackupHealthMetric, type RtoRpoTarget, type InsertRtoRpoTarget, type RtoRpoMeasurement, type InsertRtoRpoMeasurement, type PerformanceBenchmark, type InsertPerformanceBenchmark, type IncidentRunbook, type InsertIncidentRunbook, type RunbookStep, type InsertRunbookStep, type RunbookContact, type InsertRunbookContact, type ContactEscalationTree, type InsertContactEscalationTree, type RunbookExecution, type InsertRunbookExecution } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, gte, lte, ilike, or, desc, inArray, isNotNull, getTableColumns } from "drizzle-orm";
+import { eq, and, gte, lte, lt, ilike, or, desc, asc, inArray, isNotNull, getTableColumns, sql, type SQL } from "drizzle-orm";
+import type { ElectionRecommendation, UserRecommendationAnalytics, RecommendationCache, WatchlistAnalytics, EnhancedWatchlistResponse, RecommendationResponse } from "@shared/schema";
+import { updateUserPreferencesSchema } from "@shared/schema";
 import { getGoogleCivicService } from "./google-civic-service";
 import { getCongressBillService } from './congress-bill-service';
 import { getPerplexityService } from './perplexity-service';
 import { censusService } from './census-service';
 import bcrypt from 'bcryptjs';
 import { validateElectionData, validateNotMockData } from './validators/state-election-rules';
+
+/** Page-level engagement reported by the client (POST /api/analytics/engagement). */
+export interface EngagementRecord {
+  userId?: string;
+  sessionId?: string;
+  pageUrl?: string;
+  pagePath?: string;
+  timeOnPage?: number;
+  scrollDepth?: number;
+  electionCycleId?: number;
+}
+
+/** Demographic / location fields a user may self-report; everything else on the body is ignored. */
+export const userDemographicsSchema = updateUserPreferencesSchema.pick({
+  state: true, city: true, congressionalDistrict: true, partyAffiliations: true, issueInterests: true,
+});
 
 export interface IStorage {
   // Health checking
@@ -177,10 +195,17 @@ export interface IStorage {
   getCandidateProfile(candidateId: number): Promise<CandidateProfile | null>;
   updateCandidateProfile(candidateId: number, profile: Partial<CandidateProfile>): Promise<CandidateProfile>;
   getCandidateDataSources(candidateId: number): Promise<CandidateDataSource[]>;
+  getCandidatePositions(candidateId: number, category?: string): Promise<CandidatePosition[]>;
+  getCandidatePositionById(positionId: number): Promise<CandidatePosition | null>;
+  getCandidateQAEntries(candidateId: number, category?: string): Promise<CandidateQA[]>;
+  createCandidateProfile(profile: InsertCandidateProfile): Promise<CandidateProfile>;
+  createCandidatePosition(position: InsertCandidatePosition): Promise<CandidatePosition>;
+  updateCandidatePosition(positionId: number, updates: Partial<CandidatePosition>): Promise<CandidatePosition>;
+  deleteCandidatePosition(positionId: number): Promise<void>;
   recordDataSource(source: InsertCandidateDataSource): Promise<CandidateDataSource>;
   getCandidateWithRAG(candidateId: number): Promise<any>;
-  recordEngagement(data: any): Promise<void>;
-  updateUserDemographics(userId: number, demographics: any): Promise<void>;
+  recordEngagement(data: EngagementRecord): Promise<void>;
+  updateUserDemographics(userId: string, demographics: UpdateUserPreferences): Promise<UserPreferences>;
   exportUserData(userId: number): Promise<any>;
   deleteUserData(userId: number): Promise<boolean>;
 
@@ -450,12 +475,12 @@ export interface IStorage {
   getEscalationTreeByIncidentType(incidentType: string, severity: string): Promise<ContactEscalationTree | undefined>;
 
   // Runbook Executions
-  getRunbookExecutions(filters?: { runbookId?: string; status?: string; executedBy?: string; page?: number; limit?: number }): Promise<RunbookExecution[]>;
+  getRunbookExecutions(filters?: { runbookId?: number; status?: string; executedBy?: string; page?: number; limit?: number }): Promise<RunbookExecution[]>;
   getRunbookExecution(executionId: string): Promise<RunbookExecution | undefined>;
   createRunbookExecution(execution: InsertRunbookExecution): Promise<RunbookExecution>;
   updateRunbookExecution(executionId: string, updates: Partial<RunbookExecution>): Promise<RunbookExecution>;
   getRecentRunbookExecutions(limit: number): Promise<RunbookExecution[]>;
-  getRunbookExecutionsByRunbook(runbookId: string): Promise<RunbookExecution[]>;
+  getRunbookExecutionsByRunbook(runbookId: number): Promise<RunbookExecution[]>;
   getActiveRunbookExecutions(): Promise<RunbookExecution[]>;
   completeRunbookExecution(executionId: string, results: any): Promise<RunbookExecution>;
 
@@ -1117,13 +1142,7 @@ export class DatabaseStorage implements IStorage {
   async getUserWatchlist(userId: string): Promise<WatchlistItem[]> {
     try {
       const userWatchlist = await db
-        .select({
-          id: watchlist.id,
-          electionId: watchlist.electionId,
-          userId: watchlist.userId,
-          createdAt: watchlist.createdAt,
-          election: elections,
-        })
+        .select({ ...getTableColumns(watchlist), election: elections })
         .from(watchlist)
         .innerJoin(elections, eq(watchlist.electionId, elections.id))
         .where(eq(watchlist.userId, userId));
@@ -1180,7 +1199,6 @@ export class DatabaseStorage implements IStorage {
   // Version Control & Election Cycles
   async getElectionCycles(): Promise<any[]> {
     try {
-      const { electionCycles } = await import('@shared/schema');
       return await db.select().from(electionCycles);
     } catch (error) {
       console.error('Error fetching election cycles:', error);
@@ -1190,8 +1208,6 @@ export class DatabaseStorage implements IStorage {
 
   async getElectionCycle(slug: string): Promise<any> {
     try {
-      const { electionCycles } = await import('@shared/schema');
-      const { eq } = await import('drizzle-orm');
 
       const [cycle] = await db
         .select()
@@ -1211,9 +1227,26 @@ export class DatabaseStorage implements IStorage {
     return await analyticsService.logInteraction(data);
   }
 
-  async recordEngagement(data: any): Promise<void> {
+  async recordEngagement(data: EngagementRecord): Promise<void> {
+    if (!data.sessionId) {
+      throw Object.assign(new Error('recordEngagement requires a sessionId'), { status: 400, publicCode: 'session_required', publicMessage: 'X-Session-Id header is required' });
+    }
+    // Persisted as a user_events row through the consent-aware tracker (anonymised or
+    // dropped per the user's analytics consent), never as a bare console.log.
     const { analyticsService } = await import('./analytics-service');
-    return await analyticsService.recordEngagement(data);
+    await analyticsService.trackEvent({
+      userId: data.userId,
+      sessionId: data.sessionId,
+      eventType: 'engagement',
+      eventAction: 'page_engagement',
+      eventCategory: 'engagement',
+      pageUrl: data.pageUrl ?? '',
+      pagePath: data.pagePath ?? '/',
+      timeOnPage: data.timeOnPage,
+      scrollDepth: data.scrollDepth,
+      targetType: data.electionCycleId != null ? 'election_cycle' : undefined,
+      targetId: data.electionCycleId,
+    });
   }
 
   // Comprehensive User Preferences Implementation
@@ -1314,7 +1347,7 @@ export class DatabaseStorage implements IStorage {
   // Congressional District Support Methods
   async getCongressionalDistricts(state?: string): Promise<CongressionalDistrict[]> {
     return await this.handleDatabaseOperation(async () => {
-      let query = db.select().from(congressionalDistricts);
+      let query = db.select().from(congressionalDistricts).$dynamic();
 
       if (state) {
         query = query.where(eq(congressionalDistricts.state, state.toUpperCase()));
@@ -1361,9 +1394,13 @@ export class DatabaseStorage implements IStorage {
     }, null, 'lookupCongressionalDistrict');
   }
 
-  async updateUserDemographics(userId: number, demographics: any): Promise<void> {
-    const { analyticsService } = await import('./analytics-service');
-    return await analyticsService.updateUserDemographics(userId, demographics);
+  async updateUserDemographics(userId: string, demographics: UpdateUserPreferences): Promise<UserPreferences> {
+    // Demographics live on user_preferences; only the self-reported subset is writable here.
+    const parsed = userDemographicsSchema.safeParse(demographics);
+    if (!parsed.success) {
+      throw Object.assign(new Error('invalid demographics'), { status: 400, publicCode: 'invalid_demographics', publicMessage: parsed.error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join('; ') });
+    }
+    return await this.updateUserPreferences(userId, parsed.data);
   }
 
   async exportUserData(userId: number): Promise<any> {
@@ -1469,6 +1506,294 @@ export class DatabaseStorage implements IStorage {
       .where(eq(candidateAccounts.id, id))
       .returning();
     return updated ?? null;
+  }
+
+  async updateWatchlistItem(userId: string, itemId: number, updates: {
+    priority?: string; category?: string; status?: string; tags?: string[]; notes?: string;
+    notificationsEnabled?: boolean; reminderDaysBefore?: number; sortOrder?: number;
+  }): Promise<WatchlistItem> {
+    // Only the caller's own row; the route already restricts the field set.
+    const [row] = await db.update(watchlist)
+      .set(updates)
+      .where(and(eq(watchlist.id, itemId), eq(watchlist.userId, userId)))
+      .returning();
+    if (!row) throw Object.assign(new Error('Watchlist item not found'), { status: 404, publicCode: 'not_found', publicMessage: 'Watchlist item not found' });
+    return row;
+  }
+
+  // ===========================================================================
+  // Contract completion (strict tranche 1): members IStorage declared and routes
+  // called that had NO implementation anywhere (they threw "not a function" at
+  // runtime). Everything below is backed by its real table; nothing is invented.
+  // ===========================================================================
+  private notFound(what: string): never {
+    throw Object.assign(new Error(`${what} not found`), { status: 404, publicCode: 'not_found', publicMessage: `${what} not found` });
+  }
+  private notImplemented(method: string, hint: string): never {
+    throw Object.assign(new Error(`${method} is not implemented: ${hint}`), { status: 501, publicCode: 'not_implemented', publicMessage: 'This capability is not available yet' });
+  }
+
+  // --- Backup operations ---------------------------------------------------
+  async createBackupOperation(operation: InsertBackupOperation): Promise<BackupOperation> {
+    const [row] = await db.insert(backupOperations).values(operation).returning();
+    return row;
+  }
+  async getBackupOperation(id: number): Promise<BackupOperation | undefined> {
+    const [row] = await db.select().from(backupOperations).where(eq(backupOperations.id, id)).limit(1);
+    return row;
+  }
+  async getBackupOperations(filters: { page?: number; limit?: number; status?: string; type?: string } = {}): Promise<BackupOperation[]> {
+    const conditions: SQL[] = [];
+    if (filters.status) conditions.push(eq(backupOperations.status, filters.status));
+    if (filters.type) conditions.push(eq(backupOperations.type, filters.type));
+    const limit = Math.min(500, Math.max(1, filters.limit ?? 50));
+    const offset = Math.max(0, ((filters.page ?? 1) - 1) * limit);
+    const base = db.select().from(backupOperations);
+    const q = conditions.length ? base.where(and(...conditions)) : base;
+    return q.orderBy(desc(backupOperations.startedAt), desc(backupOperations.id)).limit(limit).offset(offset);
+  }
+  async getRecentBackupOperations(limit: number): Promise<BackupOperation[]> {
+    return db.select().from(backupOperations).orderBy(desc(backupOperations.startedAt), desc(backupOperations.id)).limit(Math.min(500, Math.max(1, limit)));
+  }
+  async updateBackupOperation(operationId: string, updates: Partial<BackupOperation>): Promise<BackupOperation> {
+    const { id: _id, ...rest } = updates;
+    const [row] = await db.update(backupOperations).set(rest).where(eq(backupOperations.operationId, operationId)).returning();
+    return row ?? this.notFound('Backup operation');
+  }
+
+  // --- Retention policies ----------------------------------------------------
+  async createBackupRetentionPolicy(policy: InsertBackupRetentionPolicy): Promise<BackupRetentionPolicy> {
+    const [row] = await db.insert(backupRetentionPolicies).values(policy).returning();
+    return row;
+  }
+  async getBackupRetentionPolicies(): Promise<BackupRetentionPolicy[]> {
+    return db.select().from(backupRetentionPolicies).orderBy(asc(backupRetentionPolicies.name));
+  }
+  async getActiveRetentionPolicies(): Promise<BackupRetentionPolicy[]> {
+    return db.select().from(backupRetentionPolicies).where(eq(backupRetentionPolicies.isActive, true)).orderBy(asc(backupRetentionPolicies.name));
+  }
+  async updateBackupRetentionPolicy(id: number, updates: Partial<BackupRetentionPolicy>): Promise<BackupRetentionPolicy> {
+    const { id: _id, ...rest } = updates;
+    const [row] = await db.update(backupRetentionPolicies).set({ ...rest, updatedAt: new Date() }).where(eq(backupRetentionPolicies.id, id)).returning();
+    return row ?? this.notFound('Retention policy');
+  }
+
+  // --- Storage locations -----------------------------------------------------
+  async createBackupStorageLocation(location: InsertBackupStorageLocation): Promise<BackupStorageLocation> {
+    const [row] = await db.insert(backupStorageLocations).values(location).returning();
+    return row;
+  }
+  async getBackupStorageLocations(): Promise<BackupStorageLocation[]> {
+    return db.select().from(backupStorageLocations).orderBy(asc(backupStorageLocations.name));
+  }
+  async updateBackupStorageLocation(id: number, updates: Partial<BackupStorageLocation>): Promise<BackupStorageLocation> {
+    const { id: _id, ...rest } = updates;
+    const [row] = await db.update(backupStorageLocations).set({ ...rest, updatedAt: new Date() }).where(eq(backupStorageLocations.id, id)).returning();
+    return row ?? this.notFound('Storage location');
+  }
+
+  // --- System config ---------------------------------------------------------
+  async getBackupSystemConfig(): Promise<BackupSystemConfig[]> {
+    return db.select().from(backupSystemConfig).orderBy(asc(backupSystemConfig.configKey));
+  }
+  async setBackupSystemConfig(key: string, value: any): Promise<BackupSystemConfig> {
+    // config_value is text: scalars are stored verbatim, structured values as JSON with configType 'json'.
+    const isScalar = ['string', 'number', 'boolean'].includes(typeof value);
+    const configType = isScalar ? typeof value : 'json';
+    const configValue = isScalar ? String(value) : JSON.stringify(value);
+    const [updated] = await db.update(backupSystemConfig).set({ configValue, configType, updatedAt: new Date() }).where(eq(backupSystemConfig.configKey, key)).returning();
+    if (updated) return updated;
+    const [inserted] = await db.insert(backupSystemConfig).values({ configKey: key, configValue, configType } as any).returning();
+    return inserted;
+  }
+
+  // --- Restore validations ---------------------------------------------------
+  async createRestoreValidation(validation: InsertRestoreValidation): Promise<RestoreValidation> {
+    const [row] = await db.insert(restoreValidations).values(validation).returning();
+    return row;
+  }
+  async getRestoreValidations(filters: { page?: number; limit?: number; status?: string } = {}): Promise<RestoreValidation[]> {
+    const limit = Math.min(500, Math.max(1, filters.limit ?? 50));
+    const offset = Math.max(0, ((filters.page ?? 1) - 1) * limit);
+    const base = db.select().from(restoreValidations);
+    const q = filters.status ? base.where(eq(restoreValidations.status, filters.status)) : base;
+    return q.orderBy(desc(restoreValidations.startedAt), desc(restoreValidations.id)).limit(limit).offset(offset);
+  }
+  async getRecentRestoreValidations(limit: number): Promise<RestoreValidation[]> {
+    return db.select().from(restoreValidations).orderBy(desc(restoreValidations.startedAt), desc(restoreValidations.id)).limit(Math.min(500, Math.max(1, limit)));
+  }
+  async updateRestoreValidation(validationId: string, updates: Partial<RestoreValidation>): Promise<RestoreValidation> {
+    const { id: _id, ...rest } = updates;
+    const [row] = await db.update(restoreValidations).set(rest).where(eq(restoreValidations.validationId, validationId)).returning();
+    return row ?? this.notFound('Restore validation');
+  }
+
+  // --- Schema versions -------------------------------------------------------
+  async createSchemaVersion(version: InsertSchemaVersion): Promise<SchemaVersion> {
+    const [row] = await db.insert(schemaVersions).values(version).returning();
+    return row;
+  }
+  async getSchemaVersions(): Promise<SchemaVersion[]> {
+    return db.select().from(schemaVersions).orderBy(desc(schemaVersions.detectedAt), desc(schemaVersions.id));
+  }
+  async getLatestSchemaVersion(): Promise<SchemaVersion | undefined> {
+    const [row] = await db.select().from(schemaVersions).orderBy(desc(schemaVersions.detectedAt), desc(schemaVersions.id)).limit(1);
+    return row;
+  }
+  async updateSchemaVersion(id: number, updates: Partial<SchemaVersion>): Promise<SchemaVersion> {
+    const { id: _id, ...rest } = updates;
+    const [row] = await db.update(schemaVersions).set(rest).where(eq(schemaVersions.id, id)).returning();
+    return row ?? this.notFound('Schema version');
+  }
+
+  // --- Watchlist (enhanced) --------------------------------------------------
+  private async watchlistRowsFor(userId: string) {
+    return db.select({ item: watchlist, election: elections })
+      .from(watchlist)
+      .innerJoin(elections, eq(watchlist.electionId, elections.id))
+      .where(eq(watchlist.userId, userId));
+  }
+  async getWatchlistAnalytics(userId: string): Promise<WatchlistAnalytics> {
+    const rows = await this.watchlistRowsFor(userId);
+    const now = Date.now(), weekAgo = now - 7 * 24 * 3600 * 1000;
+    const tally = (pick: (r: typeof rows[number]) => string | null | undefined) => {
+      const out: Record<string, number> = {};
+      for (const r of rows) { const k = pick(r) ?? 'unspecified'; out[k] = (out[k] ?? 0) + 1; }
+      return out;
+    };
+    return {
+      totalItems: rows.length,
+      byStatus: tally((r) => r.item.status),
+      byCategory: tally((r) => r.item.category),
+      byPriority: tally((r) => r.item.priority),
+      recentlyAdded: rows.filter((r) => (r.item.createdAt?.getTime() ?? 0) >= weekAgo).length,
+      upcomingElections: rows.filter((r) => r.election.date.getTime() >= now).length,
+      completedElections: rows.filter((r) => r.election.date.getTime() < now).length,
+    };
+  }
+  async getEnhancedWatchlist(userId: string, filters: {
+    status?: string[]; category?: string[]; priority?: string[]; tags?: string[]; search?: string;
+    sortBy?: 'date' | 'priority' | 'category' | 'recent' | 'custom'; sortOrder?: 'asc' | 'desc'; limit?: number; offset?: number;
+  } = {}): Promise<EnhancedWatchlistResponse> {
+    const conditions: SQL[] = [eq(watchlist.userId, userId)];
+    if (filters.status?.length) conditions.push(inArray(watchlist.status, filters.status));
+    if (filters.category?.length) conditions.push(inArray(watchlist.category, filters.category));
+    if (filters.priority?.length) conditions.push(inArray(watchlist.priority, filters.priority));
+    if (filters.tags?.length) conditions.push(sql`${watchlist.tags} && ${filters.tags}::text[]`);
+    if (filters.search?.trim()) conditions.push(or(ilike(elections.title, `%${filters.search.trim()}%`), ilike(elections.location, `%${filters.search.trim()}%`))!);
+    const dir = filters.sortOrder === 'asc' ? asc : desc;
+    const order = filters.sortBy === 'priority' ? dir(watchlist.priority)
+      : filters.sortBy === 'category' ? dir(watchlist.category)
+      : filters.sortBy === 'recent' ? dir(watchlist.createdAt)
+      : filters.sortBy === 'custom' ? dir(watchlist.sortOrder)
+      : dir(elections.date);
+    const limit = Math.min(200, Math.max(1, Number.isFinite(filters.limit) ? (filters.limit as number) : 50));
+    const offset = Math.max(0, Number.isFinite(filters.offset) ? (filters.offset as number) : 0);
+    const where = and(...conditions);
+    const [rows, [{ total }]] = await Promise.all([
+      db.select({ item: watchlist, election: elections }).from(watchlist).innerJoin(elections, eq(watchlist.electionId, elections.id)).where(where).orderBy(order, asc(watchlist.id)).limit(limit).offset(offset),
+      db.select({ total: sql<number>`count(*)`.mapWith(Number) }).from(watchlist).innerJoin(elections, eq(watchlist.electionId, elections.id)).where(where),
+    ]);
+    const items = rows.map(({ item, election }) => ({
+      id: item.id,
+      priority: item.priority ?? 'medium',
+      category: item.category ?? undefined,
+      status: item.status ?? 'active',
+      tags: item.tags ?? [],
+      notes: item.notes ?? undefined,
+      addedVia: item.addedVia ?? 'manual',
+      interactionCount: item.interactionCount ?? 0,
+      lastInteraction: item.lastInteraction?.toISOString(),
+      notificationsEnabled: item.notificationsEnabled ?? true,
+      reminderDaysBefore: item.reminderDaysBefore ?? 7,
+      election: {
+        id: election.id, title: election.title, subtitle: election.subtitle ?? undefined, location: election.location, state: election.state,
+        date: election.date.toISOString(), type: election.type, level: election.level, offices: election.offices ?? undefined, description: election.description ?? undefined,
+      },
+      createdAt: (item.createdAt ?? new Date(0)).toISOString(),
+      // watchlist rows carry no updated_at column; the last interaction is the truthful proxy.
+      updatedAt: (item.lastInteraction ?? item.createdAt ?? new Date(0)).toISOString(),
+    }));
+    return { items, analytics: await this.getWatchlistAnalytics(userId), totalCount: total, hasMore: offset + items.length < total };
+  }
+  async bulkUpdateWatchlistItems(userId: string, itemIds: number[], updates: { priority?: string; category?: string; status?: string; tags?: string[] }): Promise<WatchlistItem[]> {
+    if (!itemIds.length) return [];
+    return db.update(watchlist).set(updates).where(and(eq(watchlist.userId, userId), inArray(watchlist.id, itemIds))).returning();
+  }
+
+  // --- Recommendations (stored rows; generation lives in recommendation-service) ---
+  async getUserRecommendationAnalytics(userId: string): Promise<UserRecommendationAnalytics | null> {
+    const [row] = await db.select().from(userRecommendationAnalytics).where(eq(userRecommendationAnalytics.userId, userId)).limit(1);
+    return row ?? null;
+  }
+  async updateUserRecommendationAnalytics(userId: string, updates: Partial<UserRecommendationAnalytics>): Promise<UserRecommendationAnalytics> {
+    const { id: _id, userId: _u, ...rest } = updates;
+    const [updated] = await db.update(userRecommendationAnalytics).set(rest).where(eq(userRecommendationAnalytics.userId, userId)).returning();
+    if (updated) return updated;
+    const [inserted] = await db.insert(userRecommendationAnalytics).values({ userId, ...rest } as any).returning();
+    return inserted;
+  }
+  async calculateRecommendationPerformance(userId: string): Promise<{ viewRate: number; clickRate: number; conversionRate: number; dismissalRate: number }> {
+    const [c] = await db.select({
+      total: sql<number>`count(*)`.mapWith(Number),
+      viewed: sql<number>`count(*) filter (where ${electionRecommendations.isViewed})`.mapWith(Number),
+      clicked: sql<number>`count(*) filter (where ${electionRecommendations.isClicked})`.mapWith(Number),
+      added: sql<number>`count(*) filter (where ${electionRecommendations.isAddedToWatchlist})`.mapWith(Number),
+      dismissed: sql<number>`count(*) filter (where ${electionRecommendations.isDismissed})`.mapWith(Number),
+    }).from(electionRecommendations).where(eq(electionRecommendations.userId, userId));
+    const rate = (n: number) => (c.total > 0 ? Math.round((n / c.total) * 1000) / 10 : 0);
+    return { viewRate: rate(c.viewed), clickRate: rate(c.clicked), conversionRate: rate(c.added), dismissalRate: rate(c.dismissed) };
+  }
+  async getRecommendationInsights(userId: string): Promise<{ preferredTypes: string[]; preferredLevels: string[]; optimalTiming: string; qualityScore: number }> {
+    // Derived strictly from this user's recorded interactions; empty history -> empty answer.
+    const rows = await db.select({ type: electionRecommendations.recommendationType, level: elections.level, clickedAt: electionRecommendations.clickedAt, isClicked: electionRecommendations.isClicked, isViewed: electionRecommendations.isViewed })
+      .from(electionRecommendations).innerJoin(elections, eq(electionRecommendations.electionId, elections.id))
+      .where(and(eq(electionRecommendations.userId, userId), eq(electionRecommendations.isClicked, true)));
+    const top = (vals: Array<string | null>) => Object.entries(vals.reduce<Record<string, number>>((m, v) => { if (v) m[v] = (m[v] ?? 0) + 1; return m; }, {})).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k]) => k);
+    const hours = rows.map((r) => r.clickedAt?.getHours()).filter((h): h is number => typeof h === 'number');
+    const hourMode = hours.length ? Number(Object.entries(hours.reduce<Record<string, number>>((m, h) => { m[h] = (m[h] ?? 0) + 1; return m; }, {})).sort((a, b) => b[1] - a[1])[0][0]) : null;
+    const perf = await this.calculateRecommendationPerformance(userId);
+    return {
+      preferredTypes: top(rows.map((r) => r.type)),
+      preferredLevels: top(rows.map((r) => r.level)),
+      optimalTiming: hourMode === null ? 'unknown' : `${String(hourMode).padStart(2, '0')}:00`,
+      qualityScore: perf.clickRate,
+    };
+  }
+  async getCachedRecommendations(userId: string, cacheKey: string): Promise<RecommendationCache | null> {
+    const [row] = await db.select().from(recommendationCache)
+      .where(and(eq(recommendationCache.userId, userId), eq(recommendationCache.cacheKey, cacheKey), eq(recommendationCache.isValid, true), gte(recommendationCache.validUntil, new Date())))
+      .limit(1);
+    return row ?? null;
+  }
+  async setCachedRecommendations(userId: string, cacheKey: string, data: any, validUntil: Date): Promise<RecommendationCache> {
+    await db.delete(recommendationCache).where(and(eq(recommendationCache.userId, userId), eq(recommendationCache.cacheKey, cacheKey)));
+    // recommendation_type is NOT NULL: callers key caches as "<type>:<hash>"; a key with no
+    // prefix is a general (personalized) cache.
+    const recommendationType = typeof data?.type === 'string' ? data.type : (cacheKey.includes(':') ? cacheKey.slice(0, cacheKey.indexOf(':')) : 'personalized');
+    const [row] = await db.insert(recommendationCache).values({ userId, cacheKey, recommendationType, recommendationData: data, validUntil, isValid: true, totalRecommendations: Array.isArray(data?.recommendations) ? data.recommendations.length : 0 }).returning();
+    return row;
+  }
+  async invalidateRecommendationCache(userId: string, pattern?: string): Promise<void> {
+    const where = pattern ? and(eq(recommendationCache.userId, userId), ilike(recommendationCache.cacheKey, `${pattern}%`)) : eq(recommendationCache.userId, userId);
+    await db.update(recommendationCache).set({ isValid: false, updatedAt: new Date() }).where(where);
+  }
+  private async storedRecommendations(userId: string, type: string, limit = 10): Promise<ElectionRecommendation[]> {
+    return db.select().from(electionRecommendations)
+      .where(and(eq(electionRecommendations.userId, userId), eq(electionRecommendations.recommendationType, type), eq(electionRecommendations.isActive, true)))
+      .orderBy(desc(electionRecommendations.scoreTotal), desc(electionRecommendations.id)).limit(Math.min(100, Math.max(1, limit)));
+  }
+  async getPersonalizedRecommendations(userId: string, limit = 10): Promise<ElectionRecommendation[]> { return this.storedRecommendations(userId, 'personalized', limit); }
+  async getInterestBasedRecommendations(userId: string, limit = 10): Promise<ElectionRecommendation[]> { return this.storedRecommendations(userId, 'interest', limit); }
+  async getLocationBasedRecommendations(userId: string, limit = 10): Promise<ElectionRecommendation[]> { return this.storedRecommendations(userId, 'location', limit); }
+  async getSimilarUsersRecommendations(userId: string, limit = 10): Promise<ElectionRecommendation[]> { return this.storedRecommendations(userId, 'similar_users', limit); }
+  async getTrendingRecommendations(userId: string, limit = 10): Promise<ElectionRecommendation[]> { return this.storedRecommendations(userId, 'trending', limit); }
+  async generateRecommendations(_userId: string, _options?: { limit?: number; types?: string[]; includeExpired?: boolean; forceRefresh?: boolean }): Promise<RecommendationResponse> {
+    return this.notImplemented('storage.generateRecommendations', 'recommendation generation is owned by recommendation-service; the storage layer only stores and reads recommendations');
+  }
+  async refreshRecommendationCache(userId: string): Promise<void> {
+    // Invalidation is real; regeneration belongs to recommendation-service.
+    await this.invalidateRecommendationCache(userId);
   }
 
   async getCandidateProfile(candidateId: number): Promise<CandidateProfile | null> {
@@ -1779,8 +2104,6 @@ export class DatabaseStorage implements IStorage {
 
   async getCampaignSubscription(campaignId: number): Promise<any> {
     const { SUBSCRIPTION_TIERS } = await import('./campaign-portal-service');
-    const { campaignAccounts } = await import('@shared/schema');
-    const { eq } = await import('drizzle-orm');
 
     const [campaign] = await db
       .select()
@@ -1824,7 +2147,6 @@ export class DatabaseStorage implements IStorage {
   // Congressional Search & Missing Member Detection
   async searchCongressMembers(searchTerm: string): Promise<CongressMember[]> {
     return await this.handleDatabaseOperation(async () => {
-      const { ilike, or } = await import('drizzle-orm');
       const results = await db.select()
         .from(congressMembers)
         .where(
@@ -2025,7 +2347,7 @@ export class DatabaseStorage implements IStorage {
 
   async getNotificationTemplates(type?: string, category?: string): Promise<NotificationTemplate[]> {
     return await this.handleDatabaseOperation(async () => {
-      let query = db.select().from(notificationTemplates);
+      let query = db.select().from(notificationTemplates).$dynamic();
 
       const conditions = [eq(notificationTemplates.isActive, true)];
       if (type) conditions.push(eq(notificationTemplates.type, type));
@@ -2071,7 +2393,7 @@ export class DatabaseStorage implements IStorage {
 
   async getNotificationCampaigns(status?: string): Promise<NotificationCampaign[]> {
     return await this.handleDatabaseOperation(async () => {
-      let query = db.select().from(notificationCampaigns);
+      let query = db.select().from(notificationCampaigns).$dynamic();
 
       if (status) {
         query = query.where(eq(notificationCampaigns.status, status));
@@ -2115,9 +2437,9 @@ export class DatabaseStorage implements IStorage {
 
   async getNotificationDeliveries(campaignId?: number, userId?: string): Promise<NotificationDelivery[]> {
     return await this.handleDatabaseOperation(async () => {
-      let query = db.select().from(notificationDeliveries);
+      let query = db.select().from(notificationDeliveries).$dynamic();
 
-      const conditions = [];
+      const conditions: SQL[] = [];
       if (campaignId) conditions.push(eq(notificationDeliveries.campaignId, campaignId));
       if (userId) conditions.push(eq(notificationDeliveries.userId, userId));
 
@@ -2152,7 +2474,7 @@ export class DatabaseStorage implements IStorage {
 
   async getNotificationDeliveryStats(campaignId?: number): Promise<any> {
     return await this.handleDatabaseOperation(async () => {
-      let query = db.select().from(notificationDeliveries);
+      let query = db.select().from(notificationDeliveries).$dynamic();
 
       if (campaignId) {
         query = query.where(eq(notificationDeliveries.campaignId, campaignId));
@@ -2173,12 +2495,12 @@ export class DatabaseStorage implements IStorage {
       };
 
       return stats;
-    }, {}, 'getNotificationDeliveryStats');
+    }, { total: 0, queued: 0, sending: 0, sent: 0, delivered: 0, failed: 0, bounced: 0, opened: 0, clicked: 0 }, 'getNotificationDeliveryStats');
   }
 
   async getNotificationEvents(processed?: boolean): Promise<NotificationEvent[]> {
     return await this.handleDatabaseOperation(async () => {
-      let query = db.select().from(notificationEvents);
+      let query = db.select().from(notificationEvents).$dynamic();
 
       if (processed !== undefined) {
         query = query.where(eq(notificationEvents.isProcessed, processed));
@@ -2244,7 +2566,8 @@ export class DatabaseStorage implements IStorage {
         .select()
         .from(notificationDeliveries)
         .where(eq(notificationDeliveries.status, 'queued'))
-        .orderBy(notificationDeliveries.queuedAt);
+        .orderBy(notificationDeliveries.queuedAt)
+        .$dynamic();
 
       if (limit) {
         query = query.limit(limit);
@@ -2294,7 +2617,8 @@ export class DatabaseStorage implements IStorage {
           eq(notificationDeliveries.status, 'failed'),
           lte(notificationDeliveries.retryCount, 3)
         ))
-        .orderBy(notificationDeliveries.nextRetryAt);
+        .orderBy(notificationDeliveries.nextRetryAt)
+        .$dynamic();
 
       if (limit) {
         query = query.limit(limit);
@@ -2311,8 +2635,6 @@ export class DatabaseStorage implements IStorage {
   // Secrets Management Methods
   async getSecretByName(secretName: string): Promise<any> {
     return await this.handleDatabaseOperation(async () => {
-      const { secretsVault } = await import('@shared/schema');
-      const { eq } = await import('drizzle-orm');
 
       const [secret] = await db
         .select()
@@ -2326,8 +2648,6 @@ export class DatabaseStorage implements IStorage {
 
   async getSecretById(secretId: number): Promise<any> {
     return await this.handleDatabaseOperation(async () => {
-      const { secretsVault } = await import('@shared/schema');
-      const { eq } = await import('drizzle-orm');
 
       const [secret] = await db
         .select()
@@ -2341,15 +2661,12 @@ export class DatabaseStorage implements IStorage {
 
   async getAllSecrets(): Promise<any[]> {
     return await this.handleDatabaseOperation(async () => {
-      const { secretsVault } = await import('@shared/schema');
       return await db.select().from(secretsVault);
     }, [], 'getAllSecrets');
   }
 
   async getExpiredSecrets(): Promise<any[]> {
     return await this.handleDatabaseOperation(async () => {
-      const { secretsVault } = await import('@shared/schema');
-      const { lte } = await import('drizzle-orm');
 
       return await db
         .select()
@@ -2360,7 +2677,6 @@ export class DatabaseStorage implements IStorage {
 
   async createSecret(secret: any): Promise<number> {
     return await this.handleDatabaseOperation(async () => {
-      const { secretsVault } = await import('@shared/schema');
 
       const [newSecret] = await db
         .insert(secretsVault)
@@ -2373,8 +2689,6 @@ export class DatabaseStorage implements IStorage {
 
   async updateSecret(secretId: number, updates: any): Promise<void> {
     return await this.handleDatabaseOperation(async () => {
-      const { secretsVault } = await import('@shared/schema');
-      const { eq } = await import('drizzle-orm');
 
       await db
         .update(secretsVault)
@@ -2385,7 +2699,6 @@ export class DatabaseStorage implements IStorage {
 
   async createSecretRotationHistory(history: any): Promise<void> {
     return await this.handleDatabaseOperation(async () => {
-      const { secretsRotationHistory } = await import('@shared/schema');
 
       await db
         .insert(secretsRotationHistory)
@@ -2395,8 +2708,6 @@ export class DatabaseStorage implements IStorage {
 
   async updateSecretRotationHistory(rotationId: string, updates: any): Promise<void> {
     return await this.handleDatabaseOperation(async () => {
-      const { secretsRotationHistory } = await import('@shared/schema');
-      const { eq } = await import('drizzle-orm');
 
       await db
         .update(secretsRotationHistory)
@@ -2407,11 +2718,9 @@ export class DatabaseStorage implements IStorage {
 
   async getRotationHistory(filters: any): Promise<any[]> {
     return await this.handleDatabaseOperation(async () => {
-      const { secretsRotationHistory } = await import('@shared/schema');
-      const { eq, and, desc } = await import('drizzle-orm');
 
-      let query = db.select().from(secretsRotationHistory);
-      const conditions = [];
+      let query = db.select().from(secretsRotationHistory).$dynamic();
+      const conditions: SQL[] = [];
 
       if (filters.secretId) {
         conditions.push(eq(secretsRotationHistory.secretId, filters.secretId));
@@ -2433,8 +2742,6 @@ export class DatabaseStorage implements IStorage {
 
   async getRecentRotationFailures(days: number): Promise<any[]> {
     return await this.handleDatabaseOperation(async () => {
-      const { secretsRotationHistory } = await import('@shared/schema');
-      const { eq, and, gte, desc } = await import('drizzle-orm');
 
       const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
@@ -2451,8 +2758,6 @@ export class DatabaseStorage implements IStorage {
 
   async deleteOldRotationHistory(cutoffDate: Date): Promise<number> {
     return await this.handleDatabaseOperation(async () => {
-      const { secretsRotationHistory } = await import('@shared/schema');
-      const { lt } = await import('drizzle-orm');
 
       const result = await db
         .delete(secretsRotationHistory)
@@ -2465,7 +2770,6 @@ export class DatabaseStorage implements IStorage {
   // Artifact Storage Methods
   async createArtifact(artifact: any): Promise<number> {
     return await this.handleDatabaseOperation(async () => {
-      const { artifactStorage } = await import('@shared/schema');
 
       const [newArtifact] = await db
         .insert(artifactStorage)
@@ -2478,8 +2782,6 @@ export class DatabaseStorage implements IStorage {
 
   async getArtifactByHash(contentHash: string): Promise<any> {
     return await this.handleDatabaseOperation(async () => {
-      const { artifactStorage } = await import('@shared/schema');
-      const { eq } = await import('drizzle-orm');
 
       const [artifact] = await db
         .select()
@@ -2493,8 +2795,6 @@ export class DatabaseStorage implements IStorage {
 
   async getArtifactByNameVersion(artifactName: string, version: string, environment?: string): Promise<any> {
     return await this.handleDatabaseOperation(async () => {
-      const { artifactStorage } = await import('@shared/schema');
-      const { eq, and } = await import('drizzle-orm');
 
       const conditions = [
         eq(artifactStorage.artifactName, artifactName),
@@ -2517,8 +2817,6 @@ export class DatabaseStorage implements IStorage {
 
   async getArtifactVersions(artifactName: string, environment?: string): Promise<any[]> {
     return await this.handleDatabaseOperation(async () => {
-      const { artifactStorage } = await import('@shared/schema');
-      const { eq, and, desc } = await import('drizzle-orm');
 
       const conditions = [eq(artifactStorage.artifactName, artifactName)];
 
@@ -2536,8 +2834,6 @@ export class DatabaseStorage implements IStorage {
 
   async getArtifactById(artifactId: number): Promise<any> {
     return await this.handleDatabaseOperation(async () => {
-      const { artifactStorage } = await import('@shared/schema');
-      const { eq } = await import('drizzle-orm');
 
       const [artifact] = await db
         .select()
@@ -2551,8 +2847,6 @@ export class DatabaseStorage implements IStorage {
 
   async updateArtifact(artifactId: number, updates: any): Promise<void> {
     return await this.handleDatabaseOperation(async () => {
-      const { artifactStorage } = await import('@shared/schema');
-      const { eq } = await import('drizzle-orm');
 
       await db
         .update(artifactStorage)
@@ -2563,8 +2857,6 @@ export class DatabaseStorage implements IStorage {
 
   async deleteArtifact(artifactId: number): Promise<void> {
     return await this.handleDatabaseOperation(async () => {
-      const { artifactStorage } = await import('@shared/schema');
-      const { eq } = await import('drizzle-orm');
 
       await db
         .delete(artifactStorage)
@@ -2574,11 +2866,9 @@ export class DatabaseStorage implements IStorage {
 
   async getArtifacts(filters: any): Promise<any[]> {
     return await this.handleDatabaseOperation(async () => {
-      const { artifactStorage } = await import('@shared/schema');
-      const { eq, and, desc } = await import('drizzle-orm');
 
-      let query = db.select().from(artifactStorage);
-      const conditions = [];
+      let query = db.select().from(artifactStorage).$dynamic();
+      const conditions: SQL[] = [];
 
       if (filters.artifactType) {
         conditions.push(eq(artifactStorage.artifactType, filters.artifactType));
@@ -2600,8 +2890,6 @@ export class DatabaseStorage implements IStorage {
 
   async getActiveArtifacts(): Promise<any[]> {
     return await this.handleDatabaseOperation(async () => {
-      const { artifactStorage } = await import('@shared/schema');
-      const { eq } = await import('drizzle-orm');
 
       return await db
         .select()
@@ -2612,15 +2900,12 @@ export class DatabaseStorage implements IStorage {
 
   async getAllArtifacts(): Promise<any[]> {
     return await this.handleDatabaseOperation(async () => {
-      const { artifactStorage } = await import('@shared/schema');
       return await db.select().from(artifactStorage);
     }, [], 'getAllArtifacts');
   }
 
   async getExpiredArtifacts(): Promise<any[]> {
     return await this.handleDatabaseOperation(async () => {
-      const { artifactStorage } = await import('@shared/schema');
-      const { lte } = await import('drizzle-orm');
 
       return await db
         .select()
@@ -2632,7 +2917,6 @@ export class DatabaseStorage implements IStorage {
   // Deployment History Methods
   async createDeploymentHistory(deployment: any): Promise<void> {
     return await this.handleDatabaseOperation(async () => {
-      const { deploymentHistory } = await import('@shared/schema');
 
       await db
         .insert(deploymentHistory)
@@ -2642,8 +2926,6 @@ export class DatabaseStorage implements IStorage {
 
   async updateDeploymentHistory(deploymentId: string, updates: any): Promise<void> {
     return await this.handleDatabaseOperation(async () => {
-      const { deploymentHistory } = await import('@shared/schema');
-      const { eq } = await import('drizzle-orm');
 
       await db
         .update(deploymentHistory)
@@ -2654,8 +2936,6 @@ export class DatabaseStorage implements IStorage {
 
   async getRecentDeployments(limit: number): Promise<any[]> {
     return await this.handleDatabaseOperation(async () => {
-      const { deploymentHistory } = await import('@shared/schema');
-      const { desc } = await import('drizzle-orm');
 
       return await db
         .select()
@@ -2667,8 +2947,6 @@ export class DatabaseStorage implements IStorage {
 
   async getDeploymentById(deploymentId: string): Promise<any> {
     return await this.handleDatabaseOperation(async () => {
-      const { deploymentHistory } = await import('@shared/schema');
-      const { eq } = await import('drizzle-orm');
 
       const [deployment] = await db
         .select()
@@ -2683,7 +2961,6 @@ export class DatabaseStorage implements IStorage {
   // Environment Configuration Methods
   async createEnvironmentConfiguration(config: any): Promise<number> {
     return await this.handleDatabaseOperation(async () => {
-      const { environmentConfigurations } = await import('@shared/schema');
 
       const [newConfig] = await db
         .insert(environmentConfigurations)
@@ -2696,7 +2973,6 @@ export class DatabaseStorage implements IStorage {
 
   async getEnvironmentConfigurations(): Promise<any[]> {
     return await this.handleDatabaseOperation(async () => {
-      const { environmentConfigurations } = await import('@shared/schema');
       return await db.select().from(environmentConfigurations);
     }, [], 'getEnvironmentConfigurations');
   }
@@ -2704,7 +2980,6 @@ export class DatabaseStorage implements IStorage {
   // Platform Continuity Events Methods
   async createPlatformContinuityEvent(event: any): Promise<void> {
     return await this.handleDatabaseOperation(async () => {
-      const { platformContinuityEvents } = await import('@shared/schema');
 
       await db
         .insert(platformContinuityEvents)
@@ -2714,8 +2989,6 @@ export class DatabaseStorage implements IStorage {
 
   async getRecentPlatformContinuityEvents(limit: number): Promise<any[]> {
     return await this.handleDatabaseOperation(async () => {
-      const { platformContinuityEvents } = await import('@shared/schema');
-      const { desc } = await import('drizzle-orm');
 
       return await db
         .select()
@@ -2727,11 +3000,9 @@ export class DatabaseStorage implements IStorage {
 
   async getPlatformContinuityEvents(filters: any): Promise<any[]> {
     return await this.handleDatabaseOperation(async () => {
-      const { platformContinuityEvents } = await import('@shared/schema');
-      const { eq, and, desc } = await import('drizzle-orm');
 
-      let query = db.select().from(platformContinuityEvents);
-      const conditions = [];
+      let query = db.select().from(platformContinuityEvents).$dynamic();
+      const conditions: SQL[] = [];
 
       if (filters.eventType) {
         conditions.push(eq(platformContinuityEvents.eventType, filters.eventType));
@@ -2758,7 +3029,6 @@ export class DatabaseStorage implements IStorage {
   async getHealth(): Promise<void> {
     // For DatabaseStorage, this could check database connectivity
     return await this.handleDatabaseOperation(async () => {
-      const { sql } = await import('drizzle-orm');
       // Simple health check - attempt to query a system table
       await db.execute(sql`SELECT 1`);
     }, undefined, 'getHealth');
@@ -2771,10 +3041,9 @@ export class DatabaseStorage implements IStorage {
   // Synthetic Failover Drill System - Drill Configurations
   async getFailoverDrillConfigurations(filters?: { enabled?: boolean; drillType?: string; scenario?: string }): Promise<FailoverDrillConfiguration[]> {
     return this.handleDatabaseOperation(async () => {
-      const { failoverDrillConfigurations } = await import('@shared/schema');
-      let query = db.select().from(failoverDrillConfigurations);
+      let query = db.select().from(failoverDrillConfigurations).$dynamic();
 
-      const conditions = [];
+      const conditions: SQL[] = [];
       if (filters?.enabled !== undefined) {
         conditions.push(eq(failoverDrillConfigurations.isEnabled, filters.enabled));
       }
@@ -2795,7 +3064,6 @@ export class DatabaseStorage implements IStorage {
 
   async getFailoverDrillConfiguration(id: number): Promise<FailoverDrillConfiguration | undefined> {
     return this.handleDatabaseOperation(async () => {
-      const { failoverDrillConfigurations } = await import('@shared/schema');
       const [config] = await db.select().from(failoverDrillConfigurations).where(eq(failoverDrillConfigurations.id, id));
       return config;
     }, undefined, 'getFailoverDrillConfiguration');
@@ -2803,7 +3071,6 @@ export class DatabaseStorage implements IStorage {
 
   async createFailoverDrillConfiguration(config: InsertFailoverDrillConfiguration): Promise<FailoverDrillConfiguration> {
     return this.handleDatabaseOperation(async () => {
-      const { failoverDrillConfigurations } = await import('@shared/schema');
       const [newConfig] = await db.insert(failoverDrillConfigurations).values(config).returning();
       return newConfig;
     }, {} as FailoverDrillConfiguration, 'createFailoverDrillConfiguration');
@@ -2811,7 +3078,6 @@ export class DatabaseStorage implements IStorage {
 
   async updateFailoverDrillConfiguration(id: number, updates: Partial<FailoverDrillConfiguration>): Promise<FailoverDrillConfiguration> {
     return this.handleDatabaseOperation(async () => {
-      const { failoverDrillConfigurations } = await import('@shared/schema');
       const [updated] = await db.update(failoverDrillConfigurations)
         .set({ ...updates, updatedAt: new Date() })
         .where(eq(failoverDrillConfigurations.id, id))
@@ -2822,30 +3088,29 @@ export class DatabaseStorage implements IStorage {
 
   async deleteFailoverDrillConfiguration(id: number): Promise<void> {
     return this.handleDatabaseOperation(async () => {
-      const { failoverDrillConfigurations } = await import('@shared/schema');
       await db.delete(failoverDrillConfigurations).where(eq(failoverDrillConfigurations.id, id));
     }, undefined, 'deleteFailoverDrillConfiguration');
   }
 
   async getScheduledDrillConfigurations(): Promise<FailoverDrillConfiguration[]> {
     return this.handleDatabaseOperation(async () => {
-      const { failoverDrillConfigurations } = await import('@shared/schema');
+      // The table has no trigger_type / next_scheduled_run columns; a scheduled drill is an
+      // enabled configuration that carries a schedule.
       return await db.select().from(failoverDrillConfigurations)
         .where(and(
           eq(failoverDrillConfigurations.isEnabled, true),
-          eq(failoverDrillConfigurations.triggerType, 'scheduled')
+          isNotNull(failoverDrillConfigurations.schedule)
         ))
-        .orderBy(desc(failoverDrillConfigurations.nextScheduledRun));
+        .orderBy(desc(failoverDrillConfigurations.updatedAt));
     }, [], 'getScheduledDrillConfigurations');
   }
 
   // Drill Executions
   async getDrillExecutions(filters?: { configurationId?: number; status?: string; triggerType?: string; page?: number; limit?: number }): Promise<DrillExecution[]> {
     return this.handleDatabaseOperation(async () => {
-      const { drillExecutions } = await import('@shared/schema');
-      let query = db.select().from(drillExecutions);
+      let query = db.select().from(drillExecutions).$dynamic();
 
-      const conditions = [];
+      const conditions: SQL[] = [];
       if (filters?.configurationId) {
         conditions.push(eq(drillExecutions.configurationId, filters.configurationId));
       }
@@ -2875,7 +3140,6 @@ export class DatabaseStorage implements IStorage {
 
   async getDrillExecution(executionId: string): Promise<DrillExecution | undefined> {
     return this.handleDatabaseOperation(async () => {
-      const { drillExecutions } = await import('@shared/schema');
       const [execution] = await db.select().from(drillExecutions).where(eq(drillExecutions.executionId, executionId));
       return execution;
     }, undefined, 'getDrillExecution');
@@ -2883,7 +3147,6 @@ export class DatabaseStorage implements IStorage {
 
   async createDrillExecution(execution: InsertDrillExecution): Promise<DrillExecution> {
     return this.handleDatabaseOperation(async () => {
-      const { drillExecutions } = await import('@shared/schema');
       const [newExecution] = await db.insert(drillExecutions).values(execution).returning();
       return newExecution;
     }, {} as DrillExecution, 'createDrillExecution');
@@ -2891,7 +3154,6 @@ export class DatabaseStorage implements IStorage {
 
   async updateDrillExecution(executionId: string, updates: Partial<DrillExecution>): Promise<DrillExecution> {
     return this.handleDatabaseOperation(async () => {
-      const { drillExecutions } = await import('@shared/schema');
       const [updated] = await db.update(drillExecutions)
         .set(updates)
         .where(eq(drillExecutions.executionId, executionId))
@@ -2902,7 +3164,6 @@ export class DatabaseStorage implements IStorage {
 
   async getRecentDrillExecutions(limit: number): Promise<DrillExecution[]> {
     return this.handleDatabaseOperation(async () => {
-      const { drillExecutions } = await import('@shared/schema');
       return await db.select().from(drillExecutions)
         .orderBy(desc(drillExecutions.startedAt))
         .limit(limit);
@@ -2911,7 +3172,6 @@ export class DatabaseStorage implements IStorage {
 
   async getDrillExecutionsByConfiguration(configurationId: number): Promise<DrillExecution[]> {
     return this.handleDatabaseOperation(async () => {
-      const { drillExecutions } = await import('@shared/schema');
       return await db.select().from(drillExecutions)
         .where(eq(drillExecutions.configurationId, configurationId))
         .orderBy(desc(drillExecutions.startedAt));
@@ -2920,7 +3180,6 @@ export class DatabaseStorage implements IStorage {
 
   async getDrillExecutionsForDashboard(days: number): Promise<DrillExecution[]> {
     return this.handleDatabaseOperation(async () => {
-      const { drillExecutions } = await import('@shared/schema');
       const since = new Date();
       since.setDate(since.getDate() - days);
 
@@ -2933,7 +3192,6 @@ export class DatabaseStorage implements IStorage {
   // Drill Steps
   async getDrillSteps(executionId: string): Promise<DrillStep[]> {
     return this.handleDatabaseOperation(async () => {
-      const { drillSteps } = await import('@shared/schema');
       return await db.select().from(drillSteps)
         .where(eq(drillSteps.executionId, executionId))
         .orderBy(drillSteps.stepOrder);
@@ -2942,7 +3200,6 @@ export class DatabaseStorage implements IStorage {
 
   async createDrillStep(step: InsertDrillStep): Promise<DrillStep> {
     return this.handleDatabaseOperation(async () => {
-      const { drillSteps } = await import('@shared/schema');
       const [newStep] = await db.insert(drillSteps).values(step).returning();
       return newStep;
     }, {} as DrillStep, 'createDrillStep');
@@ -2950,7 +3207,6 @@ export class DatabaseStorage implements IStorage {
 
   async updateDrillStep(id: number, updates: Partial<DrillStep>): Promise<DrillStep> {
     return this.handleDatabaseOperation(async () => {
-      const { drillSteps } = await import('@shared/schema');
       const [updated] = await db.update(drillSteps)
         .set(updates)
         .where(eq(drillSteps.id, id))
@@ -2961,7 +3217,6 @@ export class DatabaseStorage implements IStorage {
 
   async getDrillStepsByExecution(executionId: string): Promise<DrillStep[]> {
     return this.handleDatabaseOperation(async () => {
-      const { drillSteps } = await import('@shared/schema');
       return await db.select().from(drillSteps)
         .where(eq(drillSteps.executionId, executionId))
         .orderBy(drillSteps.stepOrder);
@@ -2971,10 +3226,9 @@ export class DatabaseStorage implements IStorage {
   // Backup Success Alert System - Backup Monitoring Configurations
   async getBackupMonitoringConfigurations(filters?: { enabled?: boolean; monitoringType?: string }): Promise<BackupMonitoringConfiguration[]> {
     return this.handleDatabaseOperation(async () => {
-      const { backupMonitoringConfigurations } = await import('@shared/schema');
-      let query = db.select().from(backupMonitoringConfigurations);
+      let query = db.select().from(backupMonitoringConfigurations).$dynamic();
 
-      const conditions = [];
+      const conditions: SQL[] = [];
       if (filters?.enabled !== undefined) {
         conditions.push(eq(backupMonitoringConfigurations.isEnabled, filters.enabled));
       }
@@ -2992,7 +3246,6 @@ export class DatabaseStorage implements IStorage {
 
   async getBackupMonitoringConfiguration(id: number): Promise<BackupMonitoringConfiguration | undefined> {
     return this.handleDatabaseOperation(async () => {
-      const { backupMonitoringConfigurations } = await import('@shared/schema');
       const [config] = await db.select().from(backupMonitoringConfigurations).where(eq(backupMonitoringConfigurations.id, id));
       return config;
     }, undefined, 'getBackupMonitoringConfiguration');
@@ -3000,7 +3253,6 @@ export class DatabaseStorage implements IStorage {
 
   async createBackupMonitoringConfiguration(config: InsertBackupMonitoringConfiguration): Promise<BackupMonitoringConfiguration> {
     return this.handleDatabaseOperation(async () => {
-      const { backupMonitoringConfigurations } = await import('@shared/schema');
       const [newConfig] = await db.insert(backupMonitoringConfigurations).values(config).returning();
       return newConfig;
     }, {} as BackupMonitoringConfiguration, 'createBackupMonitoringConfiguration');
@@ -3008,7 +3260,6 @@ export class DatabaseStorage implements IStorage {
 
   async updateBackupMonitoringConfiguration(id: number, updates: Partial<BackupMonitoringConfiguration>): Promise<BackupMonitoringConfiguration> {
     return this.handleDatabaseOperation(async () => {
-      const { backupMonitoringConfigurations } = await import('@shared/schema');
       const [updated] = await db.update(backupMonitoringConfigurations)
         .set({ ...updates, updatedAt: new Date() })
         .where(eq(backupMonitoringConfigurations.id, id))
@@ -3019,14 +3270,12 @@ export class DatabaseStorage implements IStorage {
 
   async deleteBackupMonitoringConfiguration(id: number): Promise<void> {
     return this.handleDatabaseOperation(async () => {
-      const { backupMonitoringConfigurations } = await import('@shared/schema');
       await db.delete(backupMonitoringConfigurations).where(eq(backupMonitoringConfigurations.id, id));
     }, undefined, 'deleteBackupMonitoringConfiguration');
   }
 
   async getActiveMonitoringConfigurations(): Promise<BackupMonitoringConfiguration[]> {
     return this.handleDatabaseOperation(async () => {
-      const { backupMonitoringConfigurations } = await import('@shared/schema');
       return await db.select().from(backupMonitoringConfigurations)
         .where(eq(backupMonitoringConfigurations.isEnabled, true))
         .orderBy(desc(backupMonitoringConfigurations.createdAt));
@@ -3036,10 +3285,9 @@ export class DatabaseStorage implements IStorage {
   // Backup Alerts
   async getBackupAlerts(filters?: { status?: string; severity?: string; alertType?: string; page?: number; limit?: number }): Promise<BackupAlert[]> {
     return this.handleDatabaseOperation(async () => {
-      const { backupAlerts } = await import('@shared/schema');
-      let query = db.select().from(backupAlerts);
+      let query = db.select().from(backupAlerts).$dynamic();
 
-      const conditions = [];
+      const conditions: SQL[] = [];
       if (filters?.status) {
         conditions.push(eq(backupAlerts.status, filters.status));
       }
@@ -3069,7 +3317,6 @@ export class DatabaseStorage implements IStorage {
 
   async getBackupAlert(alertId: string): Promise<BackupAlert | undefined> {
     return this.handleDatabaseOperation(async () => {
-      const { backupAlerts } = await import('@shared/schema');
       const [alert] = await db.select().from(backupAlerts).where(eq(backupAlerts.alertId, alertId));
       return alert;
     }, undefined, 'getBackupAlert');
@@ -3077,7 +3324,6 @@ export class DatabaseStorage implements IStorage {
 
   async createBackupAlert(alert: InsertBackupAlert): Promise<BackupAlert> {
     return this.handleDatabaseOperation(async () => {
-      const { backupAlerts } = await import('@shared/schema');
       const [newAlert] = await db.insert(backupAlerts).values(alert).returning();
       return newAlert;
     }, {} as BackupAlert, 'createBackupAlert');
@@ -3085,7 +3331,6 @@ export class DatabaseStorage implements IStorage {
 
   async updateBackupAlert(alertId: string, updates: Partial<BackupAlert>): Promise<BackupAlert> {
     return this.handleDatabaseOperation(async () => {
-      const { backupAlerts } = await import('@shared/schema');
       const [updated] = await db.update(backupAlerts)
         .set(updates)
         .where(eq(backupAlerts.alertId, alertId))
@@ -3096,7 +3341,6 @@ export class DatabaseStorage implements IStorage {
 
   async acknowledgeBackupAlert(alertId: string, acknowledgedBy: string): Promise<BackupAlert> {
     return this.handleDatabaseOperation(async () => {
-      const { backupAlerts } = await import('@shared/schema');
       const [updated] = await db.update(backupAlerts)
         .set({
           status: 'acknowledged',
@@ -3111,7 +3355,6 @@ export class DatabaseStorage implements IStorage {
 
   async resolveBackupAlert(alertId: string, resolvedBy: string): Promise<BackupAlert> {
     return this.handleDatabaseOperation(async () => {
-      const { backupAlerts } = await import('@shared/schema');
       const [updated] = await db.update(backupAlerts)
         .set({
           status: 'resolved',
@@ -3126,7 +3369,6 @@ export class DatabaseStorage implements IStorage {
 
   async getActiveBackupAlerts(): Promise<BackupAlert[]> {
     return this.handleDatabaseOperation(async () => {
-      const { backupAlerts } = await import('@shared/schema');
       return await db.select().from(backupAlerts)
         .where(inArray(backupAlerts.status, ['new', 'acknowledged', 'investigating']))
         .orderBy(desc(backupAlerts.createdAt));
@@ -3135,7 +3377,6 @@ export class DatabaseStorage implements IStorage {
 
   async getBackupAlertsByConfiguration(configurationId: number): Promise<BackupAlert[]> {
     return this.handleDatabaseOperation(async () => {
-      const { backupAlerts } = await import('@shared/schema');
       return await db.select().from(backupAlerts)
         .where(eq(backupAlerts.configurationId, configurationId))
         .orderBy(desc(backupAlerts.createdAt));
@@ -3145,31 +3386,29 @@ export class DatabaseStorage implements IStorage {
   // Backup Health Metrics
   async getBackupHealthMetrics(filters?: { metricType?: string; dateFrom?: Date; dateTo?: Date }): Promise<BackupHealthMetric[]> {
     return this.handleDatabaseOperation(async () => {
-      const { backupHealthMetrics } = await import('@shared/schema');
-      let query = db.select().from(backupHealthMetrics);
+      let query = db.select().from(backupHealthMetrics).$dynamic();
 
-      const conditions = [];
+      const conditions: SQL[] = [];
       if (filters?.metricType) {
         conditions.push(eq(backupHealthMetrics.metricType, filters.metricType));
       }
       if (filters?.dateFrom) {
-        conditions.push(gte(backupHealthMetrics.metricTimestamp, filters.dateFrom));
+        conditions.push(gte(backupHealthMetrics.metricDate, filters.dateFrom));
       }
       if (filters?.dateTo) {
-        conditions.push(lte(backupHealthMetrics.metricTimestamp, filters.dateTo));
+        conditions.push(lte(backupHealthMetrics.metricDate, filters.dateTo));
       }
 
       if (conditions.length > 0) {
         query = query.where(and(...conditions));
       }
 
-      return await query.orderBy(desc(backupHealthMetrics.metricTimestamp));
+      return await query.orderBy(desc(backupHealthMetrics.metricDate));
     }, [], 'getBackupHealthMetrics');
   }
 
   async createBackupHealthMetric(metric: InsertBackupHealthMetric): Promise<BackupHealthMetric> {
     return this.handleDatabaseOperation(async () => {
-      const { backupHealthMetrics } = await import('@shared/schema');
       const [newMetric] = await db.insert(backupHealthMetrics).values(metric).returning();
       return newMetric;
     }, {} as BackupHealthMetric, 'createBackupHealthMetric');
@@ -3177,10 +3416,9 @@ export class DatabaseStorage implements IStorage {
 
   async getLatestBackupHealthMetrics(metricType: string): Promise<BackupHealthMetric | undefined> {
     return this.handleDatabaseOperation(async () => {
-      const { backupHealthMetrics } = await import('@shared/schema');
       const [metric] = await db.select().from(backupHealthMetrics)
         .where(eq(backupHealthMetrics.metricType, metricType))
-        .orderBy(desc(backupHealthMetrics.metricTimestamp))
+        .orderBy(desc(backupHealthMetrics.metricDate))
         .limit(1);
       return metric;
     }, undefined, 'getLatestBackupHealthMetrics');
@@ -3188,32 +3426,30 @@ export class DatabaseStorage implements IStorage {
 
   async getBackupHealthTrends(days: number): Promise<BackupHealthMetric[]> {
     return this.handleDatabaseOperation(async () => {
-      const { backupHealthMetrics } = await import('@shared/schema');
       const since = new Date();
       since.setDate(since.getDate() - days);
 
       return await db.select().from(backupHealthMetrics)
-        .where(gte(backupHealthMetrics.metricTimestamp, since))
-        .orderBy(desc(backupHealthMetrics.metricTimestamp));
+        .where(gte(backupHealthMetrics.metricDate, since))
+        .orderBy(desc(backupHealthMetrics.metricDate));
     }, [], 'getBackupHealthTrends');
   }
 
   async generateBackupHealthSummary(dateFrom: Date, dateTo: Date): Promise<any> {
     return this.handleDatabaseOperation(async () => {
-      const { backupHealthMetrics } = await import('@shared/schema');
-      const { sql } = await import('drizzle-orm');
 
       // Generate summary statistics for the date range
       const result = await db.execute(sql`
         SELECT
           metric_type,
           COUNT(*) as total_measurements,
-          AVG(metric_value) as avg_value,
-          MIN(metric_value) as min_value,
-          MAX(metric_value) as max_value,
-          STDDEV(metric_value) as stddev_value
+          AVG(health_score) as avg_value,
+          MIN(health_score) as min_value,
+          MAX(health_score) as max_value,
+          STDDEV(health_score) as stddev_value,
+          AVG(success_rate) as avg_success_rate
         FROM backup_health_metrics
-        WHERE metric_timestamp >= ${dateFrom} AND metric_timestamp <= ${dateTo}
+        WHERE metric_date >= ${dateFrom} AND metric_date <= ${dateTo}
         GROUP BY metric_type
       `);
 
@@ -3224,10 +3460,9 @@ export class DatabaseStorage implements IStorage {
   // RTO/RPO Performance Tracking - RTO/RPO Targets
   async getRtoRpoTargets(filters?: { active?: boolean; serviceType?: string; businessCriticality?: string }): Promise<RtoRpoTarget[]> {
     return this.handleDatabaseOperation(async () => {
-      const { rtoRpoTargets } = await import('@shared/schema');
-      let query = db.select().from(rtoRpoTargets);
+      let query = db.select().from(rtoRpoTargets).$dynamic();
 
-      const conditions = [];
+      const conditions: SQL[] = [];
       if (filters?.active !== undefined) {
         conditions.push(eq(rtoRpoTargets.isActive, filters.active));
       }
@@ -3248,7 +3483,6 @@ export class DatabaseStorage implements IStorage {
 
   async getRtoRpoTarget(id: number): Promise<RtoRpoTarget | undefined> {
     return this.handleDatabaseOperation(async () => {
-      const { rtoRpoTargets } = await import('@shared/schema');
       const [target] = await db.select().from(rtoRpoTargets).where(eq(rtoRpoTargets.id, id));
       return target;
     }, undefined, 'getRtoRpoTarget');
@@ -3256,7 +3490,6 @@ export class DatabaseStorage implements IStorage {
 
   async createRtoRpoTarget(target: InsertRtoRpoTarget): Promise<RtoRpoTarget> {
     return this.handleDatabaseOperation(async () => {
-      const { rtoRpoTargets } = await import('@shared/schema');
       const [newTarget] = await db.insert(rtoRpoTargets).values(target).returning();
       return newTarget;
     }, {} as RtoRpoTarget, 'createRtoRpoTarget');
@@ -3264,7 +3497,6 @@ export class DatabaseStorage implements IStorage {
 
   async updateRtoRpoTarget(id: number, updates: Partial<RtoRpoTarget>): Promise<RtoRpoTarget> {
     return this.handleDatabaseOperation(async () => {
-      const { rtoRpoTargets } = await import('@shared/schema');
       const [updated] = await db.update(rtoRpoTargets)
         .set({ ...updates, updatedAt: new Date() })
         .where(eq(rtoRpoTargets.id, id))
@@ -3275,14 +3507,12 @@ export class DatabaseStorage implements IStorage {
 
   async deleteRtoRpoTarget(id: number): Promise<void> {
     return this.handleDatabaseOperation(async () => {
-      const { rtoRpoTargets } = await import('@shared/schema');
       await db.delete(rtoRpoTargets).where(eq(rtoRpoTargets.id, id));
     }, undefined, 'deleteRtoRpoTarget');
   }
 
   async getActiveRtoRpoTargets(): Promise<RtoRpoTarget[]> {
     return this.handleDatabaseOperation(async () => {
-      const { rtoRpoTargets } = await import('@shared/schema');
       return await db.select().from(rtoRpoTargets)
         .where(eq(rtoRpoTargets.isActive, true))
         .orderBy(desc(rtoRpoTargets.createdAt));
@@ -3292,10 +3522,9 @@ export class DatabaseStorage implements IStorage {
   // RTO/RPO Measurements
   async getRtoRpoMeasurements(filters?: { targetId?: number; measurementType?: string; dateFrom?: Date; dateTo?: Date; page?: number; limit?: number }): Promise<RtoRpoMeasurement[]> {
     return this.handleDatabaseOperation(async () => {
-      const { rtoRpoMeasurements } = await import('@shared/schema');
-      let query = db.select().from(rtoRpoMeasurements);
+      let query = db.select().from(rtoRpoMeasurements).$dynamic();
 
-      const conditions = [];
+      const conditions: SQL[] = [];
       if (filters?.targetId) {
         conditions.push(eq(rtoRpoMeasurements.targetId, filters.targetId));
       }
@@ -3303,17 +3532,17 @@ export class DatabaseStorage implements IStorage {
         conditions.push(eq(rtoRpoMeasurements.measurementType, filters.measurementType));
       }
       if (filters?.dateFrom) {
-        conditions.push(gte(rtoRpoMeasurements.measuredAt, filters.dateFrom));
+        conditions.push(gte(rtoRpoMeasurements.recoveryCompleteTime, filters.dateFrom));
       }
       if (filters?.dateTo) {
-        conditions.push(lte(rtoRpoMeasurements.measuredAt, filters.dateTo));
+        conditions.push(lte(rtoRpoMeasurements.recoveryCompleteTime, filters.dateTo));
       }
 
       if (conditions.length > 0) {
         query = query.where(and(...conditions));
       }
 
-      query = query.orderBy(desc(rtoRpoMeasurements.measuredAt));
+      query = query.orderBy(desc(rtoRpoMeasurements.recoveryCompleteTime));
 
       if (filters?.limit) {
         query = query.limit(filters.limit);
@@ -3328,7 +3557,6 @@ export class DatabaseStorage implements IStorage {
 
   async getRtoRpoMeasurement(measurementId: string): Promise<RtoRpoMeasurement | undefined> {
     return this.handleDatabaseOperation(async () => {
-      const { rtoRpoMeasurements } = await import('@shared/schema');
       const [measurement] = await db.select().from(rtoRpoMeasurements).where(eq(rtoRpoMeasurements.measurementId, measurementId));
       return measurement;
     }, undefined, 'getRtoRpoMeasurement');
@@ -3336,7 +3564,6 @@ export class DatabaseStorage implements IStorage {
 
   async createRtoRpoMeasurement(measurement: InsertRtoRpoMeasurement): Promise<RtoRpoMeasurement> {
     return this.handleDatabaseOperation(async () => {
-      const { rtoRpoMeasurements } = await import('@shared/schema');
       const [newMeasurement] = await db.insert(rtoRpoMeasurements).values(measurement).returning();
       return newMeasurement;
     }, {} as RtoRpoMeasurement, 'createRtoRpoMeasurement');
@@ -3344,7 +3571,6 @@ export class DatabaseStorage implements IStorage {
 
   async updateRtoRpoMeasurement(measurementId: string, updates: Partial<RtoRpoMeasurement>): Promise<RtoRpoMeasurement> {
     return this.handleDatabaseOperation(async () => {
-      const { rtoRpoMeasurements } = await import('@shared/schema');
       const [updated] = await db.update(rtoRpoMeasurements)
         .set(updates)
         .where(eq(rtoRpoMeasurements.measurementId, measurementId))
@@ -3355,41 +3581,36 @@ export class DatabaseStorage implements IStorage {
 
   async getRtoRpoMeasurementsByTarget(targetId: number): Promise<RtoRpoMeasurement[]> {
     return this.handleDatabaseOperation(async () => {
-      const { rtoRpoMeasurements } = await import('@shared/schema');
       return await db.select().from(rtoRpoMeasurements)
         .where(eq(rtoRpoMeasurements.targetId, targetId))
-        .orderBy(desc(rtoRpoMeasurements.measuredAt));
+        .orderBy(desc(rtoRpoMeasurements.recoveryCompleteTime));
     }, [], 'getRtoRpoMeasurementsByTarget');
   }
 
   async getRecentRtoRpoMeasurements(limit: number): Promise<RtoRpoMeasurement[]> {
     return this.handleDatabaseOperation(async () => {
-      const { rtoRpoMeasurements } = await import('@shared/schema');
       return await db.select().from(rtoRpoMeasurements)
-        .orderBy(desc(rtoRpoMeasurements.measuredAt))
+        .orderBy(desc(rtoRpoMeasurements.recoveryCompleteTime))
         .limit(limit);
     }, [], 'getRecentRtoRpoMeasurements');
   }
 
   async getRtoRpoPerformanceTrends(targetId: number, days: number): Promise<RtoRpoMeasurement[]> {
     return this.handleDatabaseOperation(async () => {
-      const { rtoRpoMeasurements } = await import('@shared/schema');
       const since = new Date();
       since.setDate(since.getDate() - days);
 
       return await db.select().from(rtoRpoMeasurements)
         .where(and(
           eq(rtoRpoMeasurements.targetId, targetId),
-          gte(rtoRpoMeasurements.measuredAt, since)
+          gte(rtoRpoMeasurements.recoveryCompleteTime, since)
         ))
-        .orderBy(desc(rtoRpoMeasurements.measuredAt));
+        .orderBy(desc(rtoRpoMeasurements.recoveryCompleteTime));
     }, [], 'getRtoRpoPerformanceTrends');
   }
 
   async getRtoRpoComplianceReport(dateFrom: Date, dateTo: Date): Promise<any> {
     return this.handleDatabaseOperation(async () => {
-      const { rtoRpoMeasurements, rtoRpoTargets } = await import('@shared/schema');
-      const { sql } = await import('drizzle-orm');
 
       // Generate compliance report with target vs actual performance
       const result = await db.execute(sql`
@@ -3397,18 +3618,18 @@ export class DatabaseStorage implements IStorage {
           t.service_name,
           t.service_type,
           t.business_criticality,
-          t.rto_target_minutes,
-          t.rpo_target_minutes,
+          t.rto_target_seconds / 60.0 as rto_target_minutes,
+          t.rpo_target_seconds / 60.0 as rpo_target_minutes,
           COUNT(m.measurement_id) as total_measurements,
-          AVG(m.actual_rto_minutes) as avg_rto_actual,
-          AVG(m.actual_rpo_minutes) as avg_rpo_actual,
-          COUNT(CASE WHEN m.actual_rto_minutes <= t.rto_target_minutes THEN 1 END) as rto_compliant_count,
-          COUNT(CASE WHEN m.actual_rpo_minutes <= t.rpo_target_minutes THEN 1 END) as rpo_compliant_count
+          AVG(m.actual_rto_seconds) / 60.0 as avg_rto_actual,
+          AVG(m.actual_rpo_seconds) / 60.0 as avg_rpo_actual,
+          COUNT(CASE WHEN m.actual_rto_seconds <= t.rto_target_seconds THEN 1 END) as rto_compliant_count,
+          COUNT(CASE WHEN m.actual_rpo_seconds <= t.rpo_target_seconds THEN 1 END) as rpo_compliant_count
         FROM rto_rpo_targets t
         LEFT JOIN rto_rpo_measurements m ON t.id = m.target_id
-          AND m.measured_at >= ${dateFrom} AND m.measured_at <= ${dateTo}
+          AND m.recovery_complete_time >= ${dateFrom} AND m.recovery_complete_time <= ${dateTo}
         WHERE t.is_active = true
-        GROUP BY t.id, t.service_name, t.service_type, t.business_criticality, t.rto_target_minutes, t.rpo_target_minutes
+        GROUP BY t.id, t.service_name, t.service_type, t.business_criticality, t.rto_target_seconds, t.rpo_target_seconds
       `);
 
       return result.rows || [];
@@ -3418,10 +3639,9 @@ export class DatabaseStorage implements IStorage {
   // Performance Benchmarks
   async getPerformanceBenchmarks(filters?: { active?: boolean; industry?: string; sourceType?: string }): Promise<PerformanceBenchmark[]> {
     return this.handleDatabaseOperation(async () => {
-      const { performanceBenchmarks } = await import('@shared/schema');
-      let query = db.select().from(performanceBenchmarks);
+      let query = db.select().from(performanceBenchmarks).$dynamic();
 
-      const conditions = [];
+      const conditions: SQL[] = [];
       if (filters?.active !== undefined) {
         conditions.push(eq(performanceBenchmarks.isActive, filters.active));
       }
@@ -3442,7 +3662,6 @@ export class DatabaseStorage implements IStorage {
 
   async getPerformanceBenchmark(id: number): Promise<PerformanceBenchmark | undefined> {
     return this.handleDatabaseOperation(async () => {
-      const { performanceBenchmarks } = await import('@shared/schema');
       const [benchmark] = await db.select().from(performanceBenchmarks).where(eq(performanceBenchmarks.id, id));
       return benchmark;
     }, undefined, 'getPerformanceBenchmark');
@@ -3450,7 +3669,6 @@ export class DatabaseStorage implements IStorage {
 
   async createPerformanceBenchmark(benchmark: InsertPerformanceBenchmark): Promise<PerformanceBenchmark> {
     return this.handleDatabaseOperation(async () => {
-      const { performanceBenchmarks } = await import('@shared/schema');
       const [newBenchmark] = await db.insert(performanceBenchmarks).values(benchmark).returning();
       return newBenchmark;
     }, {} as PerformanceBenchmark, 'createPerformanceBenchmark');
@@ -3458,7 +3676,6 @@ export class DatabaseStorage implements IStorage {
 
   async updatePerformanceBenchmark(id: number, updates: Partial<PerformanceBenchmark>): Promise<PerformanceBenchmark> {
     return this.handleDatabaseOperation(async () => {
-      const { performanceBenchmarks } = await import('@shared/schema');
       const [updated] = await db.update(performanceBenchmarks)
         .set(updates)
         .where(eq(performanceBenchmarks.id, id))
@@ -3469,14 +3686,12 @@ export class DatabaseStorage implements IStorage {
 
   async deletePerformanceBenchmark(id: number): Promise<void> {
     return this.handleDatabaseOperation(async () => {
-      const { performanceBenchmarks } = await import('@shared/schema');
       await db.delete(performanceBenchmarks).where(eq(performanceBenchmarks.id, id));
     }, undefined, 'deletePerformanceBenchmark');
   }
 
   async getIndustryBenchmarks(industry: string, serviceCategory: string): Promise<PerformanceBenchmark[]> {
     return this.handleDatabaseOperation(async () => {
-      const { performanceBenchmarks } = await import('@shared/schema');
       return await db.select().from(performanceBenchmarks)
         .where(and(
           eq(performanceBenchmarks.industry, industry),
@@ -3490,10 +3705,9 @@ export class DatabaseStorage implements IStorage {
   // Incident Runbook Management System - Incident Runbooks
   async getIncidentRunbooks(filters?: { status?: string; incidentType?: string; severity?: string; accessLevel?: string; page?: number; limit?: number }): Promise<IncidentRunbook[]> {
     return this.handleDatabaseOperation(async () => {
-      const { incidentRunbooks } = await import('@shared/schema');
-      let query = db.select().from(incidentRunbooks);
+      let query = db.select().from(incidentRunbooks).$dynamic();
 
-      const conditions = [];
+      const conditions: SQL[] = [];
       if (filters?.status) {
         conditions.push(eq(incidentRunbooks.status, filters.status));
       }
@@ -3526,7 +3740,6 @@ export class DatabaseStorage implements IStorage {
 
   async getIncidentRunbook(runbookId: string): Promise<IncidentRunbook | undefined> {
     return this.handleDatabaseOperation(async () => {
-      const { incidentRunbooks } = await import('@shared/schema');
       const [runbook] = await db.select().from(incidentRunbooks).where(eq(incidentRunbooks.runbookId, runbookId));
       return runbook;
     }, undefined, 'getIncidentRunbook');
@@ -3534,7 +3747,6 @@ export class DatabaseStorage implements IStorage {
 
   async createIncidentRunbook(runbook: InsertIncidentRunbook): Promise<IncidentRunbook> {
     return this.handleDatabaseOperation(async () => {
-      const { incidentRunbooks } = await import('@shared/schema');
       const [newRunbook] = await db.insert(incidentRunbooks).values(runbook).returning();
       return newRunbook;
     }, {} as IncidentRunbook, 'createIncidentRunbook');
@@ -3542,7 +3754,6 @@ export class DatabaseStorage implements IStorage {
 
   async updateIncidentRunbook(runbookId: string, updates: Partial<IncidentRunbook>): Promise<IncidentRunbook> {
     return this.handleDatabaseOperation(async () => {
-      const { incidentRunbooks } = await import('@shared/schema');
       const [updated] = await db.update(incidentRunbooks)
         .set({ ...updates, updatedAt: new Date() })
         .where(eq(incidentRunbooks.runbookId, runbookId))
@@ -3553,14 +3764,12 @@ export class DatabaseStorage implements IStorage {
 
   async deleteIncidentRunbook(runbookId: string): Promise<void> {
     return this.handleDatabaseOperation(async () => {
-      const { incidentRunbooks } = await import('@shared/schema');
       await db.delete(incidentRunbooks).where(eq(incidentRunbooks.runbookId, runbookId));
     }, undefined, 'deleteIncidentRunbook');
   }
 
   async getRunbooksByIncidentType(incidentType: string): Promise<IncidentRunbook[]> {
     return this.handleDatabaseOperation(async () => {
-      const { incidentRunbooks } = await import('@shared/schema');
       return await db.select().from(incidentRunbooks)
         .where(and(
           eq(incidentRunbooks.incidentType, incidentType),
@@ -3572,7 +3781,6 @@ export class DatabaseStorage implements IStorage {
 
   async getPublishedRunbooks(): Promise<IncidentRunbook[]> {
     return this.handleDatabaseOperation(async () => {
-      const { incidentRunbooks } = await import('@shared/schema');
       return await db.select().from(incidentRunbooks)
         .where(inArray(incidentRunbooks.status, ['approved', 'active']))
         .orderBy(desc(incidentRunbooks.createdAt));
@@ -3581,7 +3789,6 @@ export class DatabaseStorage implements IStorage {
 
   async approveRunbook(runbookId: string, approvedBy: string): Promise<IncidentRunbook> {
     return this.handleDatabaseOperation(async () => {
-      const { incidentRunbooks } = await import('@shared/schema');
       const [updated] = await db.update(incidentRunbooks)
         .set({
           status: 'approved',
@@ -3597,7 +3804,6 @@ export class DatabaseStorage implements IStorage {
 
   async getRunbookVersions(runbookId: string): Promise<IncidentRunbook[]> {
     return this.handleDatabaseOperation(async () => {
-      const { incidentRunbooks } = await import('@shared/schema');
       return await db.select().from(incidentRunbooks)
         .where(eq(incidentRunbooks.runbookId, runbookId))
         .orderBy(desc(incidentRunbooks.version));
@@ -3607,7 +3813,6 @@ export class DatabaseStorage implements IStorage {
   // Runbook Steps
   async getRunbookSteps(runbookId: string): Promise<RunbookStep[]> {
     return this.handleDatabaseOperation(async () => {
-      const { runbookSteps } = await import('@shared/schema');
       return await db.select().from(runbookSteps)
         .where(eq(runbookSteps.runbookId, runbookId))
         .orderBy(runbookSteps.stepOrder);
@@ -3616,7 +3821,6 @@ export class DatabaseStorage implements IStorage {
 
   async getRunbookStep(id: number): Promise<RunbookStep | undefined> {
     return this.handleDatabaseOperation(async () => {
-      const { runbookSteps } = await import('@shared/schema');
       const [step] = await db.select().from(runbookSteps).where(eq(runbookSteps.id, id));
       return step;
     }, undefined, 'getRunbookStep');
@@ -3624,7 +3828,6 @@ export class DatabaseStorage implements IStorage {
 
   async createRunbookStep(step: InsertRunbookStep): Promise<RunbookStep> {
     return this.handleDatabaseOperation(async () => {
-      const { runbookSteps } = await import('@shared/schema');
       const [newStep] = await db.insert(runbookSteps).values(step).returning();
       return newStep;
     }, {} as RunbookStep, 'createRunbookStep');
@@ -3632,7 +3835,6 @@ export class DatabaseStorage implements IStorage {
 
   async updateRunbookStep(id: number, updates: Partial<RunbookStep>): Promise<RunbookStep> {
     return this.handleDatabaseOperation(async () => {
-      const { runbookSteps } = await import('@shared/schema');
       const [updated] = await db.update(runbookSteps)
         .set(updates)
         .where(eq(runbookSteps.id, id))
@@ -3643,14 +3845,12 @@ export class DatabaseStorage implements IStorage {
 
   async deleteRunbookStep(id: number): Promise<void> {
     return this.handleDatabaseOperation(async () => {
-      const { runbookSteps } = await import('@shared/schema');
       await db.delete(runbookSteps).where(eq(runbookSteps.id, id));
     }, undefined, 'deleteRunbookStep');
   }
 
   async getRunbookStepsByOrder(runbookId: string): Promise<RunbookStep[]> {
     return this.handleDatabaseOperation(async () => {
-      const { runbookSteps } = await import('@shared/schema');
       return await db.select().from(runbookSteps)
         .where(eq(runbookSteps.runbookId, runbookId))
         .orderBy(runbookSteps.stepOrder);
@@ -3659,7 +3859,6 @@ export class DatabaseStorage implements IStorage {
 
   async reorderRunbookSteps(runbookId: string, stepOrders: { id: number; order: number }[]): Promise<void> {
     return this.handleDatabaseOperation(async () => {
-      const { runbookSteps } = await import('@shared/schema');
 
       // Update each step's order in a transaction
       for (const stepOrder of stepOrders) {
@@ -3676,10 +3875,9 @@ export class DatabaseStorage implements IStorage {
   // Runbook Contacts
   async getRunbookContacts(filters?: { active?: boolean; available24x7?: boolean; escalationLevel?: number }): Promise<RunbookContact[]> {
     return this.handleDatabaseOperation(async () => {
-      const { runbookContacts } = await import('@shared/schema');
-      let query = db.select().from(runbookContacts);
+      let query = db.select().from(runbookContacts).$dynamic();
 
-      const conditions = [];
+      const conditions: SQL[] = [];
       if (filters?.active !== undefined) {
         conditions.push(eq(runbookContacts.isActive, filters.active));
       }
@@ -3700,7 +3898,6 @@ export class DatabaseStorage implements IStorage {
 
   async getRunbookContact(contactId: string): Promise<RunbookContact | undefined> {
     return this.handleDatabaseOperation(async () => {
-      const { runbookContacts } = await import('@shared/schema');
       const [contact] = await db.select().from(runbookContacts).where(eq(runbookContacts.contactId, contactId));
       return contact;
     }, undefined, 'getRunbookContact');
@@ -3708,7 +3905,6 @@ export class DatabaseStorage implements IStorage {
 
   async createRunbookContact(contact: InsertRunbookContact): Promise<RunbookContact> {
     return this.handleDatabaseOperation(async () => {
-      const { runbookContacts } = await import('@shared/schema');
       const [newContact] = await db.insert(runbookContacts).values(contact).returning();
       return newContact;
     }, {} as RunbookContact, 'createRunbookContact');
@@ -3716,7 +3912,6 @@ export class DatabaseStorage implements IStorage {
 
   async updateRunbookContact(contactId: string, updates: Partial<RunbookContact>): Promise<RunbookContact> {
     return this.handleDatabaseOperation(async () => {
-      const { runbookContacts } = await import('@shared/schema');
       const [updated] = await db.update(runbookContacts)
         .set({ ...updates, updatedAt: new Date() })
         .where(eq(runbookContacts.contactId, contactId))
@@ -3727,14 +3922,12 @@ export class DatabaseStorage implements IStorage {
 
   async deleteRunbookContact(contactId: string): Promise<void> {
     return this.handleDatabaseOperation(async () => {
-      const { runbookContacts } = await import('@shared/schema');
       await db.delete(runbookContacts).where(eq(runbookContacts.contactId, contactId));
     }, undefined, 'deleteRunbookContact');
   }
 
   async getContactsByEscalationLevel(escalationLevel: number): Promise<RunbookContact[]> {
     return this.handleDatabaseOperation(async () => {
-      const { runbookContacts } = await import('@shared/schema');
       return await db.select().from(runbookContacts)
         .where(and(
           eq(runbookContacts.escalationLevel, escalationLevel),
@@ -3746,27 +3939,16 @@ export class DatabaseStorage implements IStorage {
 
   async getAvailableContacts(timezone?: string): Promise<RunbookContact[]> {
     return this.handleDatabaseOperation(async () => {
-      const { runbookContacts } = await import('@shared/schema');
-      let query = db.select().from(runbookContacts)
-        .where(eq(runbookContacts.isActive, true));
-
-      if (timezone) {
-        query = query.where(and(
-          eq(runbookContacts.isActive, true),
-          or(
-            eq(runbookContacts.isAvailable24x7, true),
-            eq(runbookContacts.timezone, timezone)
-          )
-        ));
-      }
-
-      return await query.orderBy(runbookContacts.escalationLevel, runbookContacts.name);
+      const available = timezone
+        ? and(eq(runbookContacts.isActive, true), or(eq(runbookContacts.isAvailable24x7, true), eq(runbookContacts.timezone, timezone)))
+        : eq(runbookContacts.isActive, true);
+      return await db.select().from(runbookContacts).where(available)
+        .orderBy(runbookContacts.escalationLevel, runbookContacts.name);
     }, [], 'getAvailableContacts');
   }
 
   async updateContactLastContacted(contactId: string): Promise<void> {
     return this.handleDatabaseOperation(async () => {
-      const { runbookContacts } = await import('@shared/schema');
       await db.update(runbookContacts)
         .set({ lastContactedAt: new Date() })
         .where(eq(runbookContacts.contactId, contactId));
@@ -3776,10 +3958,9 @@ export class DatabaseStorage implements IStorage {
   // Contact Escalation Trees
   async getContactEscalationTrees(filters?: { active?: boolean; incidentTypes?: string[] }): Promise<ContactEscalationTree[]> {
     return this.handleDatabaseOperation(async () => {
-      const { contactEscalationTrees } = await import('@shared/schema');
-      let query = db.select().from(contactEscalationTrees);
+      let query = db.select().from(contactEscalationTrees).$dynamic();
 
-      const conditions = [];
+      const conditions: SQL[] = [];
       if (filters?.active !== undefined) {
         conditions.push(eq(contactEscalationTrees.isActive, filters.active));
       }
@@ -3799,7 +3980,6 @@ export class DatabaseStorage implements IStorage {
 
   async getContactEscalationTree(treeId: string): Promise<ContactEscalationTree | undefined> {
     return this.handleDatabaseOperation(async () => {
-      const { contactEscalationTrees } = await import('@shared/schema');
       const [tree] = await db.select().from(contactEscalationTrees).where(eq(contactEscalationTrees.treeId, treeId));
       return tree;
     }, undefined, 'getContactEscalationTree');
@@ -3807,7 +3987,6 @@ export class DatabaseStorage implements IStorage {
 
   async createContactEscalationTree(tree: InsertContactEscalationTree): Promise<ContactEscalationTree> {
     return this.handleDatabaseOperation(async () => {
-      const { contactEscalationTrees } = await import('@shared/schema');
       const [newTree] = await db.insert(contactEscalationTrees).values(tree).returning();
       return newTree;
     }, {} as ContactEscalationTree, 'createContactEscalationTree');
@@ -3815,7 +3994,6 @@ export class DatabaseStorage implements IStorage {
 
   async updateContactEscalationTree(treeId: string, updates: Partial<ContactEscalationTree>): Promise<ContactEscalationTree> {
     return this.handleDatabaseOperation(async () => {
-      const { contactEscalationTrees } = await import('@shared/schema');
       const [updated] = await db.update(contactEscalationTrees)
         .set({ ...updates, updatedAt: new Date() })
         .where(eq(contactEscalationTrees.treeId, treeId))
@@ -3826,18 +4004,15 @@ export class DatabaseStorage implements IStorage {
 
   async deleteContactEscalationTree(treeId: string): Promise<void> {
     return this.handleDatabaseOperation(async () => {
-      const { contactEscalationTrees } = await import('@shared/schema');
       await db.delete(contactEscalationTrees).where(eq(contactEscalationTrees.treeId, treeId));
     }, undefined, 'deleteContactEscalationTree');
   }
 
   async getEscalationTreeByIncidentType(incidentType: string, severity: string): Promise<ContactEscalationTree | undefined> {
     return this.handleDatabaseOperation(async () => {
-      const { contactEscalationTrees } = await import('@shared/schema');
-      const { sql } = await import('drizzle-orm');
 
       // Use SQL to query arrays - check if incidentType is in incidentTypes array
-      const [tree] = await db.execute(sql`
+      const result = await db.execute(sql`
         SELECT * FROM contact_escalation_trees
         WHERE is_active = true
           AND ${incidentType} = ANY(incident_types)
@@ -3846,18 +4021,17 @@ export class DatabaseStorage implements IStorage {
         LIMIT 1
       `);
 
-      return tree.rows?.[0] as ContactEscalationTree | undefined;
+      return result.rows?.[0] as ContactEscalationTree | undefined;
     }, undefined, 'getEscalationTreeByIncidentType');
   }
 
   // Runbook Executions
-  async getRunbookExecutions(filters?: { runbookId?: string; status?: string; executedBy?: string; page?: number; limit?: number }): Promise<RunbookExecution[]> {
+  async getRunbookExecutions(filters?: { runbookId?: number; status?: string; executedBy?: string; page?: number; limit?: number }): Promise<RunbookExecution[]> {
     return this.handleDatabaseOperation(async () => {
-      const { runbookExecutions } = await import('@shared/schema');
-      let query = db.select().from(runbookExecutions);
+      let query = db.select().from(runbookExecutions).$dynamic();
 
-      const conditions = [];
-      if (filters?.runbookId) {
+      const conditions: SQL[] = [];
+      if (filters?.runbookId !== undefined) {
         conditions.push(eq(runbookExecutions.runbookId, filters.runbookId));
       }
       if (filters?.status) {
@@ -3886,7 +4060,6 @@ export class DatabaseStorage implements IStorage {
 
   async getRunbookExecution(executionId: string): Promise<RunbookExecution | undefined> {
     return this.handleDatabaseOperation(async () => {
-      const { runbookExecutions } = await import('@shared/schema');
       const [execution] = await db.select().from(runbookExecutions).where(eq(runbookExecutions.executionId, executionId));
       return execution;
     }, undefined, 'getRunbookExecution');
@@ -3894,7 +4067,6 @@ export class DatabaseStorage implements IStorage {
 
   async createRunbookExecution(execution: InsertRunbookExecution): Promise<RunbookExecution> {
     return this.handleDatabaseOperation(async () => {
-      const { runbookExecutions } = await import('@shared/schema');
       const [newExecution] = await db.insert(runbookExecutions).values(execution).returning();
       return newExecution;
     }, {} as RunbookExecution, 'createRunbookExecution');
@@ -3902,7 +4074,6 @@ export class DatabaseStorage implements IStorage {
 
   async updateRunbookExecution(executionId: string, updates: Partial<RunbookExecution>): Promise<RunbookExecution> {
     return this.handleDatabaseOperation(async () => {
-      const { runbookExecutions } = await import('@shared/schema');
       const [updated] = await db.update(runbookExecutions)
         .set(updates)
         .where(eq(runbookExecutions.executionId, executionId))
@@ -3913,16 +4084,14 @@ export class DatabaseStorage implements IStorage {
 
   async getRecentRunbookExecutions(limit: number): Promise<RunbookExecution[]> {
     return this.handleDatabaseOperation(async () => {
-      const { runbookExecutions } = await import('@shared/schema');
       return await db.select().from(runbookExecutions)
         .orderBy(desc(runbookExecutions.startedAt))
         .limit(limit);
     }, [], 'getRecentRunbookExecutions');
   }
 
-  async getRunbookExecutionsByRunbook(runbookId: string): Promise<RunbookExecution[]> {
+  async getRunbookExecutionsByRunbook(runbookId: number): Promise<RunbookExecution[]> {
     return this.handleDatabaseOperation(async () => {
-      const { runbookExecutions } = await import('@shared/schema');
       return await db.select().from(runbookExecutions)
         .where(eq(runbookExecutions.runbookId, runbookId))
         .orderBy(desc(runbookExecutions.startedAt));
@@ -3931,7 +4100,6 @@ export class DatabaseStorage implements IStorage {
 
   async getActiveRunbookExecutions(): Promise<RunbookExecution[]> {
     return this.handleDatabaseOperation(async () => {
-      const { runbookExecutions } = await import('@shared/schema');
       return await db.select().from(runbookExecutions)
         .where(inArray(runbookExecutions.status, ['pending', 'in_progress', 'paused']))
         .orderBy(desc(runbookExecutions.startedAt));
@@ -3940,7 +4108,6 @@ export class DatabaseStorage implements IStorage {
 
   async completeRunbookExecution(executionId: string, results: any): Promise<RunbookExecution> {
     return this.handleDatabaseOperation(async () => {
-      const { runbookExecutions } = await import('@shared/schema');
       const [updated] = await db.update(runbookExecutions)
         .set({
           status: 'completed',
@@ -3963,8 +4130,6 @@ export class DatabaseStorage implements IStorage {
     recentExecutions: any[];
   }> {
     return this.handleDatabaseOperation(async () => {
-      const { drillExecutions, backupHealthMetrics, rtoRpoMeasurements, backupAlerts, runbookExecutions } = await import('@shared/schema');
-      const { sql } = await import('drizzle-orm');
 
       // Get recent drill summary
       const drillSummary = await db.execute(sql`
@@ -3972,7 +4137,7 @@ export class DatabaseStorage implements IStorage {
           COUNT(*) as total_drills,
           COUNT(CASE WHEN status = 'completed' THEN 1 END) as successful_drills,
           COUNT(CASE WHEN status = 'failed' THEN 1 END) as failed_drills,
-          AVG(CASE WHEN actual_rto_minutes IS NOT NULL THEN actual_rto_minutes END) as avg_rto_minutes
+          AVG(actual_rto_seconds) / 60.0 as avg_rto_minutes
         FROM drill_executions
         WHERE started_at >= NOW() - INTERVAL '30 days'
       `);
@@ -3981,10 +4146,11 @@ export class DatabaseStorage implements IStorage {
       const backupHealth = await db.execute(sql`
         SELECT
           metric_type,
-          AVG(metric_value) as avg_value,
+          AVG(health_score) as avg_value,
+          AVG(success_rate) as avg_success_rate,
           COUNT(*) as measurement_count
         FROM backup_health_metrics
-        WHERE metric_timestamp >= NOW() - INTERVAL '24 hours'
+        WHERE metric_date >= NOW() - INTERVAL '24 hours'
         GROUP BY metric_type
       `);
 
@@ -3992,11 +4158,11 @@ export class DatabaseStorage implements IStorage {
       const rtoRpoCompliance = await db.execute(sql`
         SELECT
           COUNT(*) as total_measurements,
-          COUNT(CASE WHEN m.actual_rto_minutes <= t.rto_target_minutes THEN 1 END) as rto_compliant,
-          COUNT(CASE WHEN m.actual_rpo_minutes <= t.rpo_target_minutes THEN 1 END) as rpo_compliant
+          COUNT(CASE WHEN m.actual_rto_seconds <= t.rto_target_seconds THEN 1 END) as rto_compliant,
+          COUNT(CASE WHEN m.actual_rpo_seconds <= t.rpo_target_seconds THEN 1 END) as rpo_compliant
         FROM rto_rpo_measurements m
         JOIN rto_rpo_targets t ON m.target_id = t.id
-        WHERE m.measured_at >= NOW() - INTERVAL '30 days'
+        WHERE m.recovery_complete_time >= NOW() - INTERVAL '30 days'
       `);
 
       // Get active alerts
@@ -4033,43 +4199,32 @@ export class DatabaseStorage implements IStorage {
     complianceScore: number;
   }> {
     return this.handleDatabaseOperation(async () => {
-      const { rtoRpoTargets, rtoRpoMeasurements } = await import('@shared/schema');
-      const { sql } = await import('drizzle-orm');
 
       const daysPeriod = days || 30;
       const since = new Date();
       since.setDate(since.getDate() - daysPeriod);
 
       // Get targets
-      let targetsQuery = db.select().from(rtoRpoTargets)
-        .where(eq(rtoRpoTargets.isActive, true));
-
-      if (serviceType) {
-        targetsQuery = targetsQuery.where(and(
-          eq(rtoRpoTargets.isActive, true),
-          eq(rtoRpoTargets.serviceType, serviceType)
-        ));
-      }
-
-      const targets = await targetsQuery;
+      const targets = await db.select().from(rtoRpoTargets)
+        .where(serviceType ? and(eq(rtoRpoTargets.isActive, true), eq(rtoRpoTargets.serviceType, serviceType)) : eq(rtoRpoTargets.isActive, true));
 
       // Get recent measurements
       let measurementsQuery = db.select().from(rtoRpoMeasurements)
-        .where(gte(rtoRpoMeasurements.measuredAt, since))
-        .orderBy(desc(rtoRpoMeasurements.measuredAt));
+        .where(gte(rtoRpoMeasurements.recoveryCompleteTime, since))
+        .orderBy(desc(rtoRpoMeasurements.recoveryCompleteTime));
 
       const measurements = await measurementsQuery;
 
       // Get trends
       const trends = await db.execute(sql`
         SELECT
-          DATE_TRUNC('day', measured_at) as date,
-          AVG(actual_rto_minutes) as avg_rto,
-          AVG(actual_rpo_minutes) as avg_rpo,
+          DATE_TRUNC('day', recovery_complete_time) as date,
+          AVG(actual_rto_seconds) / 60.0 as avg_rto,
+          AVG(actual_rpo_seconds) / 60.0 as avg_rpo,
           COUNT(*) as measurement_count
         FROM rto_rpo_measurements
-        WHERE measured_at >= ${since}
-        GROUP BY DATE_TRUNC('day', measured_at)
+        WHERE recovery_complete_time >= ${since}
+        GROUP BY DATE_TRUNC('day', recovery_complete_time)
         ORDER BY date
       `);
 
@@ -4077,15 +4232,16 @@ export class DatabaseStorage implements IStorage {
       const complianceData = await db.execute(sql`
         SELECT
           COUNT(*) as total,
-          COUNT(CASE WHEN m.actual_rto_minutes <= t.rto_target_minutes AND m.actual_rpo_minutes <= t.rpo_target_minutes THEN 1 END) as compliant
+          COUNT(CASE WHEN m.actual_rto_seconds <= t.rto_target_seconds AND m.actual_rpo_seconds <= t.rpo_target_seconds THEN 1 END) as compliant
         FROM rto_rpo_measurements m
         JOIN rto_rpo_targets t ON m.target_id = t.id
-        WHERE m.measured_at >= ${since}
+        WHERE m.recovery_complete_time >= ${since}
       `);
 
-      const complianceResult = complianceData.rows?.[0];
-      const complianceScore = complianceResult?.total > 0
-        ? (complianceResult.compliant / complianceResult.total) * 100
+      const complianceResult = complianceData.rows?.[0] as { total?: unknown; compliant?: unknown } | undefined;
+      const complianceTotal = Number(complianceResult?.total ?? 0);
+      const complianceScore = complianceTotal > 0
+        ? (Number(complianceResult?.compliant ?? 0) / complianceTotal) * 100
         : 0;
 
       return {
@@ -4109,8 +4265,6 @@ export class DatabaseStorage implements IStorage {
     contactAvailability: any[];
   }> {
     return this.handleDatabaseOperation(async () => {
-      const { incidentRunbooks, runbookExecutions, runbookContacts } = await import('@shared/schema');
-      const { sql } = await import('drizzle-orm');
 
       // Get total runbooks count
       const totalRunbooksResult = await db.execute(sql`

@@ -56,6 +56,6 @@ describe("storage surface used by routes", () => {
 
   it("the factory export forwards unknown methods to the active storage (Proxy)", () => {
     const src = read("storage-factory.ts");
-    expect(src).toMatch(/export const storageFactory(?::\s*StorageFactory)?\s*=\s*new Proxy\(/);
+    expect(src).toMatch(/export const storageFactory(?::\s*StorageFactory(?:\s*&\s*IStorage)?)?\s*=\s*new Proxy\(/);
   });
 });

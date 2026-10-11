@@ -1,8 +1,8 @@
 import type { ElectionListing, ElectionQueryFilters } from "./election-list-filters";
 import { MemStorage } from "./mem-storage";
 import { BackgroundWork } from './background-work';
-import type { IStorage } from "./storage";
-import { type Election, type InsertElection, type Candidate, type InsertCandidate, type ElectionFilters, type CongressMember, type InsertCongressMember, type User, type UpsertUser, type WatchlistItem, type InsertWatchlistItem, type CandidateAccount, type InsertCandidateAccount, type CandidateProfile, type InsertCandidateProfile, type CandidateDataSource, type InsertCandidateDataSource, type CandidatePosition, type InsertCandidatePosition, type CandidateQA, type InsertCandidateQA } from "@shared/schema";
+import type { IStorage, EngagementRecord } from "./storage";
+import { type Election, type InsertElection, type Candidate, type InsertCandidate, type ElectionFilters, type CongressMember, type InsertCongressMember, type User, type UpsertUser, type WatchlistItem, type InsertWatchlistItem, type CandidateAccount, type InsertCandidateAccount, type CandidateProfile, type InsertCandidateProfile, type CandidateDataSource, type InsertCandidateDataSource, type CandidatePosition, type InsertCandidatePosition, type CandidateQA, type InsertCandidateQA, type UpdateUserPreferences, type UserPreferences } from "@shared/schema";
 
 export enum StorageMode {
   DATABASE = 'database',
@@ -50,7 +50,9 @@ interface ReplicaConfig {
   priority: number; // Higher priority = preferred replica
 }
 
-export class StorageFactory implements IStorage {
+// The class forwards the bulk of IStorage through the Proxy exported below; the exported
+// value is typed `StorageFactory & IStorage`, which is the contract callers compile against.
+export class StorageFactory {
   private currentStorage: IStorage;
   private databaseStorage: IStorage | null = null;
   private replicaStorages: Map<string, IStorage> = new Map(); // replica id -> storage
@@ -1092,19 +1094,21 @@ export class StorageFactory implements IStorage {
     return this.currentStorage.getCandidateWithRAG(candidateId);
   }
 
-  async recordEngagement(data: any): Promise<void> {
+  async recordEngagement(data: EngagementRecord): Promise<void> {
     await this.currentStorage.recordEngagement(data);
     this.queueWriteOperation('recordEngagement', [data]);
   }
 
-  async updateUserPreferences(userId: number, preferences: any): Promise<void> {
-    await this.currentStorage.updateUserPreferences(userId, preferences);
+  async updateUserPreferences(userId: string, preferences: UpdateUserPreferences): Promise<UserPreferences> {
+    const updated = await this.currentStorage.updateUserPreferences(userId, preferences);
     this.queueWriteOperation('updateUserPreferences', [userId, preferences]);
+    return updated;
   }
 
-  async updateUserDemographics(userId: number, demographics: any): Promise<void> {
-    await this.currentStorage.updateUserDemographics(userId, demographics);
+  async updateUserDemographics(userId: string, demographics: UpdateUserPreferences): Promise<UserPreferences> {
+    const updated = await this.currentStorage.updateUserDemographics(userId, demographics);
     this.queueWriteOperation('updateUserDemographics', [userId, demographics]);
+    return updated;
   }
 
   async exportUserData(userId: number): Promise<any> {
@@ -1372,11 +1376,13 @@ const storageFactoryInstance = new StorageFactory();
  * define itself is forwarded to the currently active storage, so a missing
  * delegation can no longer turn into a 500 (2026-10-11: /api/recommendations).
  */
-export const storageFactory: StorageFactory = new Proxy(storageFactoryInstance, {
+// Typed as the declared storage contract: every IStorage method is forwarded to the
+// active storage by the proxy below, so callers compile against the real surface.
+export const storageFactory: StorageFactory & IStorage = new Proxy(storageFactoryInstance, {
   get(target, prop, receiver) {
     if (prop in target) return Reflect.get(target, prop, receiver);
     const current = (target as any).currentStorage;
     const value = current?.[prop as any];
     return typeof value === "function" ? value.bind(current) : value;
   },
-});
+}) as StorageFactory & IStorage;

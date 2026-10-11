@@ -319,9 +319,9 @@ router.get('/dashboard', isAuthenticated, async (req, res) => {
     const totalDrills = executions.length;
     const successfulDrills = executions.filter(e => e.status === 'completed').length;
     const failedDrills = executions.filter(e => e.status === 'failed').length;
-    const averageRto = executions
-      .filter(e => e.actualRtoMinutes)
-      .reduce((sum, e) => sum + (e.actualRtoMinutes || 0), 0) / (executions.filter(e => e.actualRtoMinutes).length || 1);
+    // drill_executions stores actual_rto_seconds; the dashboard reports minutes.
+    const withRto = executions.filter(e => typeof e.actualRtoSeconds === 'number');
+    const averageRto = withRto.reduce((sum, e) => sum + (e.actualRtoSeconds ?? 0) / 60, 0) / (withRto.length || 1);
     
     const summary = {
       totalDrills,

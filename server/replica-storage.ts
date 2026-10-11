@@ -12,7 +12,7 @@ import { drizzle } from 'drizzle-orm/neon-serverless';
 import ws from "ws";
 import * as schema from "@shared/schema";
 import type { IStorage } from "./storage";
-import { type Election, type InsertElection, type Candidate, type InsertCandidate, type ElectionFilters, type CongressMember, type InsertCongressMember, type User, type UpsertUser, type WatchlistItem, type InsertWatchlistItem, type CandidateAccount, type InsertCandidateAccount, type CandidateProfile, type InsertCandidateProfile, type CandidateDataSource, type InsertCandidateDataSource, type CandidatePosition, type InsertCandidatePosition, type CandidateQA, type InsertCandidateQA } from "@shared/schema";
+import { type Election, type InsertElection, type Candidate, type InsertCandidate, type ElectionFilters, type CongressMember, type InsertCongressMember, type User, type UpsertUser, type WatchlistItem, type InsertWatchlistItem, type CandidateAccount, type InsertCandidateAccount, type CandidateProfile, type InsertCandidateProfile, type CandidateDataSource, type InsertCandidateDataSource, type CandidatePosition, type InsertCandidatePosition, type CandidateQA, type InsertCandidateQA, type NotificationPreferences, type InsertNotificationPreferences, type NotificationSubscription, type NotificationDelivery, type InsertNotificationDelivery, type UpdateUserPreferences, type UserPreferences} from "@shared/schema";
 import { eq, and, gte, lte, ilike, or, desc, inArray, getTableColumns } from "drizzle-orm";
 
 // Configure Neon for replica connections
@@ -380,6 +380,43 @@ export class ReplicaStorage implements IStorage {
   async logInteraction(data: any): Promise<void> {}
   async authenticateCandidate(email: string, password: string): Promise<CandidateAccount | null> { return null; }
   async getCandidateAccountById(_id: number): Promise<CandidateAccount | null> { return null; }
+  // Read-only replica: reads go to the replica, writes are refused explicitly.
+  private readOnly(method: string): never {
+    throw Object.assign(new Error(`${method} is not available on the read-only replica`), { status: 503, publicCode: 'storage_read_only', publicMessage: 'This action is temporarily unavailable' });
+  }
+  async getCandidatePositions(candidateId: number, category?: string): Promise<CandidatePosition[]> {
+    return this.executeQuery(async () => {
+      const where = category ? and(eq(schema.candidatePositions.candidateId, candidateId), eq(schema.candidatePositions.category, category)) : eq(schema.candidatePositions.candidateId, candidateId);
+      return this.db.select().from(schema.candidatePositions).where(where).execute();
+    }, 'getCandidatePositions');
+  }
+  async getCandidatePositionById(positionId: number): Promise<CandidatePosition | null> {
+    return this.executeQuery(async () => {
+      const rows = await this.db.select().from(schema.candidatePositions).where(eq(schema.candidatePositions.id, positionId)).limit(1).execute();
+      return rows[0] ?? null;
+    }, 'getCandidatePositionById');
+  }
+  async getCandidateQAEntries(candidateId: number, category?: string): Promise<CandidateQA[]> {
+    return this.executeQuery(async () => {
+      const where = category ? and(eq(schema.candidateQA.candidateId, candidateId), eq(schema.candidateQA.category, category)) : eq(schema.candidateQA.candidateId, candidateId);
+      return this.db.select().from(schema.candidateQA).where(where).execute();
+    }, 'getCandidateQAEntries');
+  }
+  async updateWatchlistItem(_userId: string, _itemId: number, _updates: Record<string, unknown>): Promise<WatchlistItem> { return this.readOnly('updateWatchlistItem'); }
+  async getUserNotificationPreferences(userId: string): Promise<NotificationPreferences | null> {
+    return this.executeQuery(async () => {
+      const rows = await this.db.select().from(schema.notificationPreferences).where(eq(schema.notificationPreferences.userId, userId)).limit(1).execute();
+      return rows[0] ?? null;
+    }, 'getUserNotificationPreferences');
+  }
+  async createDefaultNotificationPreferences(_userId: string): Promise<NotificationPreferences> { return this.readOnly('createDefaultNotificationPreferences'); }
+  async updateUserNotificationPreferences(_userId: string, _updates: Partial<InsertNotificationPreferences>): Promise<NotificationPreferences> { return this.readOnly('updateUserNotificationPreferences'); }
+  async getUserNotificationSubscriptions(userId: string): Promise<NotificationSubscription[]> {
+    return this.executeQuery(async () => this.db.select().from(schema.notificationSubscriptions).where(eq(schema.notificationSubscriptions.userId, userId)).execute(), 'getUserNotificationSubscriptions');
+  }
+  async updateNotificationSubscription(_subscriptionId: number, _updates: Partial<NotificationSubscription>): Promise<NotificationSubscription> { return this.readOnly('updateNotificationSubscription'); }
+  async verifyNotificationSubscription(_token: string): Promise<NotificationSubscription | null> { return this.readOnly('verifyNotificationSubscription'); }
+  async createNotificationDelivery(_delivery: InsertNotificationDelivery): Promise<NotificationDelivery> { return this.readOnly('createNotificationDelivery'); }
   async listCandidateAccounts(_filter: { isActive?: boolean } = {}): Promise<CandidateAccount[]> { return []; }
   async setCandidateAccountActive(_id: number, _isActive: boolean, _accessLevel?: string): Promise<CandidateAccount | null> {
     throw new Error('Replica storage is read-only');
@@ -388,10 +425,14 @@ export class ReplicaStorage implements IStorage {
   async recordDataSource(source: InsertCandidateDataSource): Promise<CandidateDataSource> { throw new Error('Write operations not supported on read-only replica'); }
   async getCandidateWithRAG(candidateId: number): Promise<any> { return null; }
   async recordEngagement(data: any): Promise<void> {}
-  async updateUserPreferences(userId: number, preferences: any): Promise<void> {}
-  async updateUserDemographics(userId: number, demographics: any): Promise<void> {}
-  async exportUserData(userId: number): Promise<any> { return null; }
-  async deleteUserData(userId: number): Promise<boolean> { return false; }
+  async updateUserPreferences(_userId: string, _updates: UpdateUserPreferences): Promise<UserPreferences> { return this.readOnly('updateUserPreferences'); }
+  async updateUserDemographics(_userId: string, _demographics: UpdateUserPreferences): Promise<UserPreferences> { return this.readOnly('updateUserDemographics'); }
+  async exportUserData(_userId: number): Promise<any> { return this.readOnly('exportUserData'); }
+  async deleteUserData(_userId: number): Promise<boolean> { return this.readOnly('deleteUserData'); }
+  async createCandidateProfile(_profile: InsertCandidateProfile): Promise<CandidateProfile> { return this.readOnly('createCandidateProfile'); }
+  async createCandidatePosition(_position: InsertCandidatePosition): Promise<CandidatePosition> { return this.readOnly('createCandidatePosition'); }
+  async updateCandidatePosition(_positionId: number, _updates: Partial<CandidatePosition>): Promise<CandidatePosition> { return this.readOnly('updateCandidatePosition'); }
+  async deleteCandidatePosition(_positionId: number): Promise<void> { return this.readOnly('deleteCandidatePosition'); }
   async createCampaignAccount(data: any): Promise<any> { throw new Error('Write operations not supported on read-only replica'); }
   async validateCampaignAccess(apiKey: string): Promise<any> { return null; }
   async getCampaignAnalytics(campaignId: number, electionId: number, tier: string): Promise<any> { return null; }
@@ -430,4 +471,220 @@ export class ReplicaStorage implements IStorage {
       console.error(`❌ Error closing replica ${this.replicaId} pool:`, error);
     }
   }
+  // Contract completion (strict tranche 1): members not served by the read-only replica
+  // are refused explicitly rather than failing as `undefined is not a function`.
+  async acknowledgeBackupAlert(..._args: unknown[]): Promise<never> { return this.readOnly('acknowledgeBackupAlert'); }
+  async approveRunbook(..._args: unknown[]): Promise<never> { return this.readOnly('approveRunbook'); }
+  async authenticateUser(..._args: unknown[]): Promise<never> { return this.readOnly('authenticateUser'); }
+  async bulkUpdateWatchlistItems(..._args: unknown[]): Promise<never> { return this.readOnly('bulkUpdateWatchlistItems'); }
+  async calculateRecommendationPerformance(..._args: unknown[]): Promise<never> { return this.readOnly('calculateRecommendationPerformance'); }
+  async completeRunbookExecution(..._args: unknown[]): Promise<never> { return this.readOnly('completeRunbookExecution'); }
+  async createArtifact(..._args: unknown[]): Promise<never> { return this.readOnly('createArtifact'); }
+  async createBackupAlert(..._args: unknown[]): Promise<never> { return this.readOnly('createBackupAlert'); }
+  async createBackupHealthMetric(..._args: unknown[]): Promise<never> { return this.readOnly('createBackupHealthMetric'); }
+  async createBackupMonitoringConfiguration(..._args: unknown[]): Promise<never> { return this.readOnly('createBackupMonitoringConfiguration'); }
+  async createBackupOperation(..._args: unknown[]): Promise<never> { return this.readOnly('createBackupOperation'); }
+  async createBackupRetentionPolicy(..._args: unknown[]): Promise<never> { return this.readOnly('createBackupRetentionPolicy'); }
+  async createBackupStorageLocation(..._args: unknown[]): Promise<never> { return this.readOnly('createBackupStorageLocation'); }
+  async createContactEscalationTree(..._args: unknown[]): Promise<never> { return this.readOnly('createContactEscalationTree'); }
+  async createDefaultUserPreferences(..._args: unknown[]): Promise<never> { return this.readOnly('createDefaultUserPreferences'); }
+  async createDeploymentHistory(..._args: unknown[]): Promise<never> { return this.readOnly('createDeploymentHistory'); }
+  async createDrillExecution(..._args: unknown[]): Promise<never> { return this.readOnly('createDrillExecution'); }
+  async createDrillStep(..._args: unknown[]): Promise<never> { return this.readOnly('createDrillStep'); }
+  async createEnvironmentConfiguration(..._args: unknown[]): Promise<never> { return this.readOnly('createEnvironmentConfiguration'); }
+  async createFailoverDrillConfiguration(..._args: unknown[]): Promise<never> { return this.readOnly('createFailoverDrillConfiguration'); }
+  async createIncidentRunbook(..._args: unknown[]): Promise<never> { return this.readOnly('createIncidentRunbook'); }
+  async createNotificationCampaign(..._args: unknown[]): Promise<never> { return this.readOnly('createNotificationCampaign'); }
+  async createNotificationEvent(..._args: unknown[]): Promise<never> { return this.readOnly('createNotificationEvent'); }
+  async createNotificationSubscription(..._args: unknown[]): Promise<never> { return this.readOnly('createNotificationSubscription'); }
+  async createNotificationTemplate(..._args: unknown[]): Promise<never> { return this.readOnly('createNotificationTemplate'); }
+  async createNotificationWebhook(..._args: unknown[]): Promise<never> { return this.readOnly('createNotificationWebhook'); }
+  async createPerformanceBenchmark(..._args: unknown[]): Promise<never> { return this.readOnly('createPerformanceBenchmark'); }
+  async createPlatformContinuityEvent(..._args: unknown[]): Promise<never> { return this.readOnly('createPlatformContinuityEvent'); }
+  async createRestoreValidation(..._args: unknown[]): Promise<never> { return this.readOnly('createRestoreValidation'); }
+  async createRtoRpoMeasurement(..._args: unknown[]): Promise<never> { return this.readOnly('createRtoRpoMeasurement'); }
+  async createRtoRpoTarget(..._args: unknown[]): Promise<never> { return this.readOnly('createRtoRpoTarget'); }
+  async createRunbookContact(..._args: unknown[]): Promise<never> { return this.readOnly('createRunbookContact'); }
+  async createRunbookExecution(..._args: unknown[]): Promise<never> { return this.readOnly('createRunbookExecution'); }
+  async createRunbookStep(..._args: unknown[]): Promise<never> { return this.readOnly('createRunbookStep'); }
+  async createSchemaVersion(..._args: unknown[]): Promise<never> { return this.readOnly('createSchemaVersion'); }
+  async createSecret(..._args: unknown[]): Promise<never> { return this.readOnly('createSecret'); }
+  async createSecretRotationHistory(..._args: unknown[]): Promise<never> { return this.readOnly('createSecretRotationHistory'); }
+  async createUser(..._args: unknown[]): Promise<never> { return this.readOnly('createUser'); }
+  async createUserPreferences(..._args: unknown[]): Promise<never> { return this.readOnly('createUserPreferences'); }
+  async deleteArtifact(..._args: unknown[]): Promise<never> { return this.readOnly('deleteArtifact'); }
+  async deleteBackupMonitoringConfiguration(..._args: unknown[]): Promise<never> { return this.readOnly('deleteBackupMonitoringConfiguration'); }
+  async deleteContactEscalationTree(..._args: unknown[]): Promise<never> { return this.readOnly('deleteContactEscalationTree'); }
+  async deleteFailoverDrillConfiguration(..._args: unknown[]): Promise<never> { return this.readOnly('deleteFailoverDrillConfiguration'); }
+  async deleteIncidentRunbook(..._args: unknown[]): Promise<never> { return this.readOnly('deleteIncidentRunbook'); }
+  async deleteNotificationSubscription(..._args: unknown[]): Promise<never> { return this.readOnly('deleteNotificationSubscription'); }
+  async deleteOldRotationHistory(..._args: unknown[]): Promise<never> { return this.readOnly('deleteOldRotationHistory'); }
+  async deletePerformanceBenchmark(..._args: unknown[]): Promise<never> { return this.readOnly('deletePerformanceBenchmark'); }
+  async deleteRtoRpoTarget(..._args: unknown[]): Promise<never> { return this.readOnly('deleteRtoRpoTarget'); }
+  async deleteRunbookContact(..._args: unknown[]): Promise<never> { return this.readOnly('deleteRunbookContact'); }
+  async deleteRunbookStep(..._args: unknown[]): Promise<never> { return this.readOnly('deleteRunbookStep'); }
+  async findMissingCongressMember(..._args: unknown[]): Promise<never> { return this.readOnly('findMissingCongressMember'); }
+  async generateBackupHealthSummary(..._args: unknown[]): Promise<never> { return this.readOnly('generateBackupHealthSummary'); }
+  async generateRecommendations(..._args: unknown[]): Promise<never> { return this.readOnly('generateRecommendations'); }
+  async getActiveArtifacts(..._args: unknown[]): Promise<never> { return this.readOnly('getActiveArtifacts'); }
+  async getActiveBackupAlerts(..._args: unknown[]): Promise<never> { return this.readOnly('getActiveBackupAlerts'); }
+  async getActiveMonitoringConfigurations(..._args: unknown[]): Promise<never> { return this.readOnly('getActiveMonitoringConfigurations'); }
+  async getActiveRetentionPolicies(..._args: unknown[]): Promise<never> { return this.readOnly('getActiveRetentionPolicies'); }
+  async getActiveRtoRpoTargets(..._args: unknown[]): Promise<never> { return this.readOnly('getActiveRtoRpoTargets'); }
+  async getActiveRunbookExecutions(..._args: unknown[]): Promise<never> { return this.readOnly('getActiveRunbookExecutions'); }
+  async getAllArtifacts(..._args: unknown[]): Promise<never> { return this.readOnly('getAllArtifacts'); }
+  async getAllSecrets(..._args: unknown[]): Promise<never> { return this.readOnly('getAllSecrets'); }
+  async getArtifactByHash(..._args: unknown[]): Promise<never> { return this.readOnly('getArtifactByHash'); }
+  async getArtifactById(..._args: unknown[]): Promise<never> { return this.readOnly('getArtifactById'); }
+  async getArtifactByNameVersion(..._args: unknown[]): Promise<never> { return this.readOnly('getArtifactByNameVersion'); }
+  async getArtifactVersions(..._args: unknown[]): Promise<never> { return this.readOnly('getArtifactVersions'); }
+  async getArtifacts(..._args: unknown[]): Promise<never> { return this.readOnly('getArtifacts'); }
+  async getAvailableContacts(..._args: unknown[]): Promise<never> { return this.readOnly('getAvailableContacts'); }
+  async getBackupAlert(..._args: unknown[]): Promise<never> { return this.readOnly('getBackupAlert'); }
+  async getBackupAlerts(..._args: unknown[]): Promise<never> { return this.readOnly('getBackupAlerts'); }
+  async getBackupAlertsByConfiguration(..._args: unknown[]): Promise<never> { return this.readOnly('getBackupAlertsByConfiguration'); }
+  async getBackupHealthMetrics(..._args: unknown[]): Promise<never> { return this.readOnly('getBackupHealthMetrics'); }
+  async getBackupHealthTrends(..._args: unknown[]): Promise<never> { return this.readOnly('getBackupHealthTrends'); }
+  async getBackupMonitoringConfiguration(..._args: unknown[]): Promise<never> { return this.readOnly('getBackupMonitoringConfiguration'); }
+  async getBackupMonitoringConfigurations(..._args: unknown[]): Promise<never> { return this.readOnly('getBackupMonitoringConfigurations'); }
+  async getBackupOperation(..._args: unknown[]): Promise<never> { return this.readOnly('getBackupOperation'); }
+  async getBackupOperations(..._args: unknown[]): Promise<never> { return this.readOnly('getBackupOperations'); }
+  async getBackupRetentionPolicies(..._args: unknown[]): Promise<never> { return this.readOnly('getBackupRetentionPolicies'); }
+  async getBackupStorageLocations(..._args: unknown[]): Promise<never> { return this.readOnly('getBackupStorageLocations'); }
+  async getBackupSystemConfig(..._args: unknown[]): Promise<never> { return this.readOnly('getBackupSystemConfig'); }
+  async getCachedRecommendations(..._args: unknown[]): Promise<never> { return this.readOnly('getCachedRecommendations'); }
+  async getCampaignSubscription(..._args: unknown[]): Promise<never> { return this.readOnly('getCampaignSubscription'); }
+  async getCongressionalDistrictByCode(..._args: unknown[]): Promise<never> { return this.readOnly('getCongressionalDistrictByCode'); }
+  async getCongressionalDistricts(..._args: unknown[]): Promise<never> { return this.readOnly('getCongressionalDistricts'); }
+  async getContactEscalationTree(..._args: unknown[]): Promise<never> { return this.readOnly('getContactEscalationTree'); }
+  async getContactEscalationTrees(..._args: unknown[]): Promise<never> { return this.readOnly('getContactEscalationTrees'); }
+  async getContactsByEscalationLevel(..._args: unknown[]): Promise<never> { return this.readOnly('getContactsByEscalationLevel'); }
+  async getDeploymentById(..._args: unknown[]): Promise<never> { return this.readOnly('getDeploymentById'); }
+  async getDrillExecution(..._args: unknown[]): Promise<never> { return this.readOnly('getDrillExecution'); }
+  async getDrillExecutions(..._args: unknown[]): Promise<never> { return this.readOnly('getDrillExecutions'); }
+  async getDrillExecutionsByConfiguration(..._args: unknown[]): Promise<never> { return this.readOnly('getDrillExecutionsByConfiguration'); }
+  async getDrillExecutionsForDashboard(..._args: unknown[]): Promise<never> { return this.readOnly('getDrillExecutionsForDashboard'); }
+  async getDrillSteps(..._args: unknown[]): Promise<never> { return this.readOnly('getDrillSteps'); }
+  async getDrillStepsByExecution(..._args: unknown[]): Promise<never> { return this.readOnly('getDrillStepsByExecution'); }
+  async getEnhancedWatchlist(..._args: unknown[]): Promise<never> { return this.readOnly('getEnhancedWatchlist'); }
+  async getEnvironmentConfigurations(..._args: unknown[]): Promise<never> { return this.readOnly('getEnvironmentConfigurations'); }
+  async getEscalationTreeByIncidentType(..._args: unknown[]): Promise<never> { return this.readOnly('getEscalationTreeByIncidentType'); }
+  async getExpiredArtifacts(..._args: unknown[]): Promise<never> { return this.readOnly('getExpiredArtifacts'); }
+  async getExpiredSecrets(..._args: unknown[]): Promise<never> { return this.readOnly('getExpiredSecrets'); }
+  async getFailoverDrillConfiguration(..._args: unknown[]): Promise<never> { return this.readOnly('getFailoverDrillConfiguration'); }
+  async getFailoverDrillConfigurations(..._args: unknown[]): Promise<never> { return this.readOnly('getFailoverDrillConfigurations'); }
+  async getHealth(..._args: unknown[]): Promise<never> { return this.readOnly('getHealth'); }
+  async getIncidentRunbook(..._args: unknown[]): Promise<never> { return this.readOnly('getIncidentRunbook'); }
+  async getIncidentRunbooks(..._args: unknown[]): Promise<never> { return this.readOnly('getIncidentRunbooks'); }
+  async getIndustryBenchmarks(..._args: unknown[]): Promise<never> { return this.readOnly('getIndustryBenchmarks'); }
+  async getInterestBasedRecommendations(..._args: unknown[]): Promise<never> { return this.readOnly('getInterestBasedRecommendations'); }
+  async getLatestBackupHealthMetrics(..._args: unknown[]): Promise<never> { return this.readOnly('getLatestBackupHealthMetrics'); }
+  async getLatestSchemaVersion(..._args: unknown[]): Promise<never> { return this.readOnly('getLatestSchemaVersion'); }
+  async getLocationBasedRecommendations(..._args: unknown[]): Promise<never> { return this.readOnly('getLocationBasedRecommendations'); }
+  async getMonitoringDashboardData(..._args: unknown[]): Promise<never> { return this.readOnly('getMonitoringDashboardData'); }
+  async getNotificationCampaign(..._args: unknown[]): Promise<never> { return this.readOnly('getNotificationCampaign'); }
+  async getNotificationCampaigns(..._args: unknown[]): Promise<never> { return this.readOnly('getNotificationCampaigns'); }
+  async getNotificationDeliveries(..._args: unknown[]): Promise<never> { return this.readOnly('getNotificationDeliveries'); }
+  async getNotificationDeliveryStats(..._args: unknown[]): Promise<never> { return this.readOnly('getNotificationDeliveryStats'); }
+  async getNotificationEvents(..._args: unknown[]): Promise<never> { return this.readOnly('getNotificationEvents'); }
+  async getNotificationTemplate(..._args: unknown[]): Promise<never> { return this.readOnly('getNotificationTemplate'); }
+  async getNotificationTemplates(..._args: unknown[]): Promise<never> { return this.readOnly('getNotificationTemplates'); }
+  async getPerformanceBenchmark(..._args: unknown[]): Promise<never> { return this.readOnly('getPerformanceBenchmark'); }
+  async getPerformanceBenchmarks(..._args: unknown[]): Promise<never> { return this.readOnly('getPerformanceBenchmarks'); }
+  async getPerformanceDashboardData(..._args: unknown[]): Promise<never> { return this.readOnly('getPerformanceDashboardData'); }
+  async getPersonalizedRecommendations(..._args: unknown[]): Promise<never> { return this.readOnly('getPersonalizedRecommendations'); }
+  async getPlatformContinuityEvents(..._args: unknown[]): Promise<never> { return this.readOnly('getPlatformContinuityEvents'); }
+  async getPublishedRunbooks(..._args: unknown[]): Promise<never> { return this.readOnly('getPublishedRunbooks'); }
+  async getQueuedNotifications(..._args: unknown[]): Promise<never> { return this.readOnly('getQueuedNotifications'); }
+  async getRecentBackupOperations(..._args: unknown[]): Promise<never> { return this.readOnly('getRecentBackupOperations'); }
+  async getRecentDeployments(..._args: unknown[]): Promise<never> { return this.readOnly('getRecentDeployments'); }
+  async getRecentDrillExecutions(..._args: unknown[]): Promise<never> { return this.readOnly('getRecentDrillExecutions'); }
+  async getRecentPlatformContinuityEvents(..._args: unknown[]): Promise<never> { return this.readOnly('getRecentPlatformContinuityEvents'); }
+  async getRecentRestoreValidations(..._args: unknown[]): Promise<never> { return this.readOnly('getRecentRestoreValidations'); }
+  async getRecentRotationFailures(..._args: unknown[]): Promise<never> { return this.readOnly('getRecentRotationFailures'); }
+  async getRecentRtoRpoMeasurements(..._args: unknown[]): Promise<never> { return this.readOnly('getRecentRtoRpoMeasurements'); }
+  async getRecentRunbookExecutions(..._args: unknown[]): Promise<never> { return this.readOnly('getRecentRunbookExecutions'); }
+  async getRecommendationInsights(..._args: unknown[]): Promise<never> { return this.readOnly('getRecommendationInsights'); }
+  async getRestoreValidations(..._args: unknown[]): Promise<never> { return this.readOnly('getRestoreValidations'); }
+  async getRotationHistory(..._args: unknown[]): Promise<never> { return this.readOnly('getRotationHistory'); }
+  async getRtoRpoComplianceReport(..._args: unknown[]): Promise<never> { return this.readOnly('getRtoRpoComplianceReport'); }
+  async getRtoRpoMeasurement(..._args: unknown[]): Promise<never> { return this.readOnly('getRtoRpoMeasurement'); }
+  async getRtoRpoMeasurements(..._args: unknown[]): Promise<never> { return this.readOnly('getRtoRpoMeasurements'); }
+  async getRtoRpoMeasurementsByTarget(..._args: unknown[]): Promise<never> { return this.readOnly('getRtoRpoMeasurementsByTarget'); }
+  async getRtoRpoPerformanceTrends(..._args: unknown[]): Promise<never> { return this.readOnly('getRtoRpoPerformanceTrends'); }
+  async getRtoRpoTarget(..._args: unknown[]): Promise<never> { return this.readOnly('getRtoRpoTarget'); }
+  async getRtoRpoTargets(..._args: unknown[]): Promise<never> { return this.readOnly('getRtoRpoTargets'); }
+  async getRunbookContact(..._args: unknown[]): Promise<never> { return this.readOnly('getRunbookContact'); }
+  async getRunbookContacts(..._args: unknown[]): Promise<never> { return this.readOnly('getRunbookContacts'); }
+  async getRunbookDashboardData(..._args: unknown[]): Promise<never> { return this.readOnly('getRunbookDashboardData'); }
+  async getRunbookExecution(..._args: unknown[]): Promise<never> { return this.readOnly('getRunbookExecution'); }
+  async getRunbookExecutions(..._args: unknown[]): Promise<never> { return this.readOnly('getRunbookExecutions'); }
+  async getRunbookExecutionsByRunbook(..._args: unknown[]): Promise<never> { return this.readOnly('getRunbookExecutionsByRunbook'); }
+  async getRunbookStep(..._args: unknown[]): Promise<never> { return this.readOnly('getRunbookStep'); }
+  async getRunbookSteps(..._args: unknown[]): Promise<never> { return this.readOnly('getRunbookSteps'); }
+  async getRunbookStepsByOrder(..._args: unknown[]): Promise<never> { return this.readOnly('getRunbookStepsByOrder'); }
+  async getRunbookVersions(..._args: unknown[]): Promise<never> { return this.readOnly('getRunbookVersions'); }
+  async getRunbooksByIncidentType(..._args: unknown[]): Promise<never> { return this.readOnly('getRunbooksByIncidentType'); }
+  async getScheduledDrillConfigurations(..._args: unknown[]): Promise<never> { return this.readOnly('getScheduledDrillConfigurations'); }
+  async getSchemaVersions(..._args: unknown[]): Promise<never> { return this.readOnly('getSchemaVersions'); }
+  async getSecretById(..._args: unknown[]): Promise<never> { return this.readOnly('getSecretById'); }
+  async getSecretByName(..._args: unknown[]): Promise<never> { return this.readOnly('getSecretByName'); }
+  async getSimilarUsersRecommendations(..._args: unknown[]): Promise<never> { return this.readOnly('getSimilarUsersRecommendations'); }
+  async getTrendingRecommendations(..._args: unknown[]): Promise<never> { return this.readOnly('getTrendingRecommendations'); }
+  async getUnprocessedWebhooks(..._args: unknown[]): Promise<never> { return this.readOnly('getUnprocessedWebhooks'); }
+  async getUserNotificationConsents(..._args: unknown[]): Promise<never> { return this.readOnly('getUserNotificationConsents'); }
+  async getUserPreferences(..._args: unknown[]): Promise<never> { return this.readOnly('getUserPreferences'); }
+  async getUserRecommendationAnalytics(..._args: unknown[]): Promise<never> { return this.readOnly('getUserRecommendationAnalytics'); }
+  async getWatchlistAnalytics(..._args: unknown[]): Promise<never> { return this.readOnly('getWatchlistAnalytics'); }
+  async invalidateRecommendationCache(..._args: unknown[]): Promise<never> { return this.readOnly('invalidateRecommendationCache'); }
+  async lookupCongressionalDistrict(..._args: unknown[]): Promise<never> { return this.readOnly('lookupCongressionalDistrict'); }
+  async processNotificationWebhook(..._args: unknown[]): Promise<never> { return this.readOnly('processNotificationWebhook'); }
+  async purchaseDataExport(..._args: unknown[]): Promise<never> { return this.readOnly('purchaseDataExport'); }
+  async recordNotificationConsent(..._args: unknown[]): Promise<never> { return this.readOnly('recordNotificationConsent'); }
+  async refreshRecommendationCache(..._args: unknown[]): Promise<never> { return this.readOnly('refreshRecommendationCache'); }
+  async reorderRunbookSteps(..._args: unknown[]): Promise<never> { return this.readOnly('reorderRunbookSteps'); }
+  async resolveBackupAlert(..._args: unknown[]): Promise<never> { return this.readOnly('resolveBackupAlert'); }
+  async retryFailedNotifications(..._args: unknown[]): Promise<never> { return this.readOnly('retryFailedNotifications'); }
+  async searchCongressMembers(..._args: unknown[]): Promise<never> { return this.readOnly('searchCongressMembers'); }
+  async setBackupSystemConfig(..._args: unknown[]): Promise<never> { return this.readOnly('setBackupSystemConfig'); }
+  async setCachedRecommendations(..._args: unknown[]): Promise<never> { return this.readOnly('setCachedRecommendations'); }
+  async signoutUser(..._args: unknown[]): Promise<never> { return this.readOnly('signoutUser'); }
+  async trackRecommendationClick(..._args: unknown[]): Promise<never> { return this.readOnly('trackRecommendationClick'); }
+  async trackRecommendationDismissal(..._args: unknown[]): Promise<never> { return this.readOnly('trackRecommendationDismissal'); }
+  async trackRecommendationPresentation(..._args: unknown[]): Promise<never> { return this.readOnly('trackRecommendationPresentation'); }
+  async trackRecommendationToWatchlistConversion(..._args: unknown[]): Promise<never> { return this.readOnly('trackRecommendationToWatchlistConversion'); }
+  async trackRecommendationView(..._args: unknown[]): Promise<never> { return this.readOnly('trackRecommendationView'); }
+  async unsubscribeNotification(..._args: unknown[]): Promise<never> { return this.readOnly('unsubscribeNotification'); }
+  async updateArtifact(..._args: unknown[]): Promise<never> { return this.readOnly('updateArtifact'); }
+  async updateBackupAlert(..._args: unknown[]): Promise<never> { return this.readOnly('updateBackupAlert'); }
+  async updateBackupMonitoringConfiguration(..._args: unknown[]): Promise<never> { return this.readOnly('updateBackupMonitoringConfiguration'); }
+  async updateBackupOperation(..._args: unknown[]): Promise<never> { return this.readOnly('updateBackupOperation'); }
+  async updateBackupRetentionPolicy(..._args: unknown[]): Promise<never> { return this.readOnly('updateBackupRetentionPolicy'); }
+  async updateBackupStorageLocation(..._args: unknown[]): Promise<never> { return this.readOnly('updateBackupStorageLocation'); }
+  async updateContactEscalationTree(..._args: unknown[]): Promise<never> { return this.readOnly('updateContactEscalationTree'); }
+  async updateContactLastContacted(..._args: unknown[]): Promise<never> { return this.readOnly('updateContactLastContacted'); }
+  async updateDeploymentHistory(..._args: unknown[]): Promise<never> { return this.readOnly('updateDeploymentHistory'); }
+  async updateDrillExecution(..._args: unknown[]): Promise<never> { return this.readOnly('updateDrillExecution'); }
+  async updateDrillStep(..._args: unknown[]): Promise<never> { return this.readOnly('updateDrillStep'); }
+  async updateFailoverDrillConfiguration(..._args: unknown[]): Promise<never> { return this.readOnly('updateFailoverDrillConfiguration'); }
+  async updateIncidentRunbook(..._args: unknown[]): Promise<never> { return this.readOnly('updateIncidentRunbook'); }
+  async updateNotificationCampaign(..._args: unknown[]): Promise<never> { return this.readOnly('updateNotificationCampaign'); }
+  async updateNotificationDelivery(..._args: unknown[]): Promise<never> { return this.readOnly('updateNotificationDelivery'); }
+  async updateNotificationEvent(..._args: unknown[]): Promise<never> { return this.readOnly('updateNotificationEvent'); }
+  async updateNotificationStatus(..._args: unknown[]): Promise<never> { return this.readOnly('updateNotificationStatus'); }
+  async updateNotificationTemplate(..._args: unknown[]): Promise<never> { return this.readOnly('updateNotificationTemplate'); }
+  async updatePerformanceBenchmark(..._args: unknown[]): Promise<never> { return this.readOnly('updatePerformanceBenchmark'); }
+  async updateRestoreValidation(..._args: unknown[]): Promise<never> { return this.readOnly('updateRestoreValidation'); }
+  async updateRtoRpoMeasurement(..._args: unknown[]): Promise<never> { return this.readOnly('updateRtoRpoMeasurement'); }
+  async updateRtoRpoTarget(..._args: unknown[]): Promise<never> { return this.readOnly('updateRtoRpoTarget'); }
+  async updateRunbookContact(..._args: unknown[]): Promise<never> { return this.readOnly('updateRunbookContact'); }
+  async updateRunbookExecution(..._args: unknown[]): Promise<never> { return this.readOnly('updateRunbookExecution'); }
+  async updateRunbookStep(..._args: unknown[]): Promise<never> { return this.readOnly('updateRunbookStep'); }
+  async updateSchemaVersion(..._args: unknown[]): Promise<never> { return this.readOnly('updateSchemaVersion'); }
+  async updateSecret(..._args: unknown[]): Promise<never> { return this.readOnly('updateSecret'); }
+  async updateSecretRotationHistory(..._args: unknown[]): Promise<never> { return this.readOnly('updateSecretRotationHistory'); }
+  async updateUserRecommendationAnalytics(..._args: unknown[]): Promise<never> { return this.readOnly('updateUserRecommendationAnalytics'); }
+  async validateUserSession(..._args: unknown[]): Promise<never> { return this.readOnly('validateUserSession'); }
+  async withdrawNotificationConsent(..._args: unknown[]): Promise<never> { return this.readOnly('withdrawNotificationConsent'); }
+
 }
