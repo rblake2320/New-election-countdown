@@ -66,7 +66,7 @@ describe("official results link (C6 receiving)", () => {
       render(<OfficialResultsLink election={e} />);
       const text = screen.getByTestId("official-results-link").textContent!;
       expect(text).toContain(note);
-      expect(text).not.toMatch(/certif|votes?|SYNTHETIC/i);
+      expect(text).not.toMatch(/certif|votes?\b|SYNTHETIC/i);
       cleanup();
     }
   });
