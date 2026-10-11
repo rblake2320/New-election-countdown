@@ -93,6 +93,9 @@ export class GoogleCivicService {
         pollsOpen: null,
         pollsClose: null,
         timezone: null,
+        pollCloseKind: null,
+        pollHoursBasis: null,
+        pollHoursSource: null,
         isActive: true,
       }));
     } catch (error) {
@@ -134,6 +137,9 @@ export class GoogleCivicService {
         pollsOpen: null,
         pollsClose: null,
         timezone: null,
+        pollCloseKind: null,
+        pollHoursBasis: null,
+        pollHoursSource: null,
         isActive: true,
       };
 

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CalendarDays, MapPin, Building, Users, Filter, X } from "lucide-react";
 import { type ElectionFilters } from "@shared/schema";
+import { LEVEL_OPTIONS, PARTY_OPTIONS } from "@/lib/filter-codes";
 
 interface FilterSidebarProps {
   filters: ElectionFilters;
@@ -20,8 +21,6 @@ interface FilterSidebarProps {
 
 const FILTER_GROUPS = {
   electionType: ["General", "Primary", "Runoff", "Special"],
-  level: ["Federal", "State", "Local"],
-  party: ["Democratic", "Republican", "Independent", "Other"],
 };
 
 const states = [
@@ -179,7 +178,7 @@ export default function FilterSidebar({ filters, onFiltersChange }: FilterSideba
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {FILTER_GROUPS.level.map((level) => (
+            {LEVEL_OPTIONS.map(({ value: level, label }) => (
               <div key={level} className="flex items-center space-x-2">
                 <Checkbox 
                   id={`level-${level}`}
@@ -190,7 +189,7 @@ export default function FilterSidebar({ filters, onFiltersChange }: FilterSideba
                   htmlFor={`level-${level}`} 
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                 >
-                  {level}
+                  {label}
                 </label>
               </div>
             ))}
@@ -232,7 +231,7 @@ export default function FilterSidebar({ filters, onFiltersChange }: FilterSideba
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {FILTER_GROUPS.party.map((party) => (
+            {PARTY_OPTIONS.map(({ value: party, label }) => (
               <div key={party} className="flex items-center space-x-2">
                 <Checkbox 
                   id={`party-${party}`}
@@ -243,7 +242,7 @@ export default function FilterSidebar({ filters, onFiltersChange }: FilterSideba
                   htmlFor={`party-${party}`} 
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                 >
-                  {party}
+                  {label}
                 </label>
               </div>
             ))}

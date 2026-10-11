@@ -1,0 +1,77 @@
+{
+  "image": "electiontracker:integrated-abcd",
+  "builder": "electiontracker:et5-builder",
+  "network": "internal, no published ports",
+  "passed": true,
+  "http": [
+    {
+      "path": "/",
+      "status": 200,
+      "bytes": 1849
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "bytes": 239
+    },
+    {
+      "path": "/api/elections",
+      "status": 200,
+      "bytes": 197570
+    }
+  ],
+  "elections": {
+    "total": 537,
+    "distinct": 537
+  },
+  "boundary": "production-only paths verified",
+  "imageId": "sha256:b63d144c5e798dac4a438a94a51c4b13a7e1304d81909dc55b78c198ca3aeb33",
+  "listingContract": [
+    {
+      "query": "",
+      "status": 200,
+      "rows": 507,
+      "membershipAndCountsMatch": true
+    },
+    {
+      "query": "?timeframe=upcoming",
+      "status": 200,
+      "rows": 506,
+      "membershipAndCountsMatch": true
+    },
+    {
+      "query": "?timeframe=next-30-days",
+      "status": 200,
+      "rows": 506,
+      "membershipAndCountsMatch": true
+    },
+    {
+      "query": "?level=federal",
+      "status": 200,
+      "rows": 470,
+      "membershipAndCountsMatch": true
+    },
+    {
+      "query": "?level=Federal",
+      "status": 200,
+      "rows": 470,
+      "membershipAndCountsMatch": true
+    },
+    {
+      "query": "?party=D",
+      "status": 200,
+      "rows": 55,
+      "membershipAndCountsMatch": true
+    },
+    {
+      "query": "?party=Democratic",
+      "status": 200,
+      "rows": 55,
+      "membershipAndCountsMatch": true
+    },
+    {
+      "query": "?timeframe=typo",
+      "status": 400
+    }
+  ]
+}

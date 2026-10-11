@@ -1,12 +1,15 @@
 import { Router } from "express";
+import { authLimiter } from "../security-middleware";
 import { pool } from "../db";
 import { z } from "zod";
 import { authRequired, createSession, hashPassword, setSessionCookie, verifyPassword, verifySession, revokeSession, signSession, SESSION_COOKIE } from "../auth";
 import { storageFactory } from "../storage-factory";
 import { storage } from "../storage";
 import { dashboardResponseSchema, type DashboardResponse } from "@shared/schema";
+import { buildDashboardUser } from "../dashboard-user";
 import { sendGridNotificationService } from "../services/sendgrid-notification-service";
 import { analyticsService } from "../analytics-service";
+import { recordSecurityDecision } from "../security-events";
 import nodemailer from "nodemailer";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
@@ -53,7 +56,7 @@ function getOperatingSystem(userAgent?: string): string {
   return 'other';
 }
 
-router.post("/register", async (req, res) => {
+router.post("/register", authLimiter, async (req, res) => {
   console.log("🔵 Registration attempt started:", req.body.email);
   const parse = z.object({ email: Email, password: Password }).safeParse(req.body);
   if (!parse.success) return res.status(400).json({ error: "bad_request", details: parse.error.issues });
@@ -64,7 +67,7 @@ router.post("/register", async (req, res) => {
     // Use storage interface for memory mode compatibility
     const user = await storageFactory.createUser(email, password);
     console.log("🔵 User created successfully:", user.user?.id);
-    
+
     // Extract user data from AuthService response structure
     const userData = user.user;
     const userId = userData.id.toString();
@@ -123,7 +126,9 @@ router.post("/register", async (req, res) => {
           text: `Verify your email: ${verifyUrl}`
         });
       } else {
-        console.log("📧 Email verify token:", tok.rows[0].token);
+        // Never log the token itself: logs are shipped to aggregators. Without SMTP the
+        // verification link is unavailable; operators must configure SMTP/SendGrid.
+        console.log("📧 Email verification token created (not logged); configure SMTP to deliver it");
       }
     } catch (emailVerifyError) {
       console.log("⚠️ Email verification token creation skipped (database unavailable)");
@@ -170,18 +175,26 @@ router.post("/register", async (req, res) => {
   }
 });
 
-router.post("/login", async (req, res) => {
+router.post("/login", authLimiter, async (req, res) => {
   const parse = z.object({ email: Email, password: Password }).safeParse(req.body);
   if (!parse.success) return res.status(400).json({ error: "bad_request", details: parse.error.issues });
   const { email, password } = parse.data;
 
   const q = await pool.query(`SELECT id, password_hash, email, COALESCE(email_verified, false) as email_verified FROM users WHERE email=$1`, [email]);
-  if (!q.rowCount) return res.status(401).json({ error: "invalid_credentials" });
+  // BG-3: one structured decision per login attempt; the response never distinguishes the two deny reasons.
+  if (!q.rowCount) {
+    recordSecurityDecision(req, { action: "auth.login", result: "deny", actor: null, reason: "unknown_account" });
+    return res.status(401).json({ error: "invalid_credentials" });
+  }
   const ok = await verifyPassword(q.rows[0].password_hash, password);
-  if (!ok) return res.status(401).json({ error: "invalid_credentials" });
+  if (!ok) {
+    recordSecurityDecision(req, { action: "auth.login", result: "deny", actor: q.rows[0].id.toString(), reason: "bad_credential" });
+    return res.status(401).json({ error: "invalid_credentials" });
+  }
 
   const userId = q.rows[0].id.toString();
   const sessionId = crypto.randomUUID();
+  recordSecurityDecision(req, { action: "auth.login", result: "allow", actor: userId });
 
   // Enhanced analytics tracking for login
   try {
@@ -210,8 +223,8 @@ router.post("/login", async (req, res) => {
       pageTitle: 'User Login',
       targetType: 'user_session',
       targetId: q.rows[0].id,
-      targetMetadata: { 
-        email: email, 
+      targetMetadata: {
+        email: email,
         emailVerified: q.rows[0].email_verified,
         loginMethod: 'password',
         isReturningUser: true
@@ -228,13 +241,13 @@ router.post("/login", async (req, res) => {
 
   const token = await createSession(q.rows[0].id, req.get("user-agent") || null, req.ip || null);
   setSessionCookie(res, token);
-  res.json({ 
-    user: { 
-      id: q.rows[0].id, 
-      email: q.rows[0].email, 
-      email_verified: q.rows[0].email_verified 
-    }, 
-    sessionId: sessionId 
+  res.json({
+    user: {
+      id: q.rows[0].id,
+      email: q.rows[0].email,
+      email_verified: q.rows[0].email_verified
+    },
+    sessionId: sessionId
   });
 });
 
@@ -255,26 +268,26 @@ router.post("/logout", async (req, res) => {
 
 router.get("/me", authRequired(), async (req, res) => {
   const uid = (req as any).userId as number;
-  
+
   // Try database first if available
   if (storageFactory.isDatabaseAvailable()) {
     try {
-      const q = await pool.query(`SELECT id, email, COALESCE(email_verified, false) as email_verified FROM users WHERE id=$1`, [uid]);
+      const q = await pool.query(`SELECT id, email, COALESCE(email_verified, false) as email_verified, COALESCE(role, 'user') as role, first_name AS "firstName", last_name AS "lastName" FROM users WHERE id=$1`, [uid]);
       if (!q.rowCount) return res.status(404).json({ error: "user_not_found" });
       return res.json({ user: q.rows[0] });
     } catch (error) {
       console.log('Database query failed, falling back to memory user data');
     }
   }
-  
+
   // Fallback for memory-only mode: return basic user info from session
   try {
     const user = await storage.getUser(uid.toString());
     if (!user) {
       return res.status(404).json({ error: "user_not_found" });
     }
-    
-    res.json({ 
+
+    res.json({
       user: {
         id: user.id,
         email: user.email,
@@ -297,19 +310,19 @@ router.get("/dashboard", authRequired(), async (req, res) => {
       mode: 'degraded'
     });
   }
-  
+
   const uid = String((req as any).userId);
-  
+
   try {
     // Get user information using storage abstraction
     const user = await storage.getUser(uid);
     if (!user) {
       return res.status(404).json({ error: "user_not_found" });
     }
-    
+
     // Get user's watchlist using storage abstraction
     const watchlistItems = await storage.getUserWatchlist(uid);
-    
+
     // Transform watchlist items to include election details (already joined by storage method)
     const watchlist = watchlistItems.map(item => ({
       id: item.id,
@@ -325,12 +338,12 @@ router.get("/dashboard", authRequired(), async (req, res) => {
       description: (item as any).description,
       isActive: (item as any).isActive !== false
     }));
-    
+
     // Get upcoming elections for recommendations using storage abstraction
     const allElections = await storage.getElections({
       timeframe: 'upcoming'
     });
-    
+
     // Get candidate counts for each election
     const recommendationsWithCandidates = await Promise.all(
       allElections.slice(0, 5).map(async (election) => {
@@ -351,26 +364,14 @@ router.get("/dashboard", authRequired(), async (req, res) => {
         };
       })
     );
-    
+
     // Calculate stats using storage methods
     const electionStats = await storage.getElectionStats();
     const savedElectionsCount = watchlistItems.length;
-    
-    // Calculate days since joining
-    const joinDate = user.createdAt ? new Date(user.createdAt) : new Date();
-    const daysSinceJoining = Math.floor((Date.now() - joinDate.getTime()) / (1000 * 60 * 60 * 24));
-    
+
     // Build response using proper types
     const dashboardResponse: DashboardResponse = {
-      user: {
-        id: user.id,
-        email: user.email || '',
-        firstName: user.firstName,
-        lastName: user.lastName,
-        emailVerified: true, // Default since we don't have this field in User type
-        joinedAt: user.createdAt?.toISOString() || new Date().toISOString(),
-        daysSinceJoining
-      },
+      user: buildDashboardUser(user),
       watchlist,
       recommendations: recommendationsWithCandidates,
       stats: {
@@ -384,15 +385,15 @@ router.get("/dashboard", authRequired(), async (req, res) => {
         { id: 'manage-watchlist', label: 'Manage Watchlist', icon: 'heart', action: 'scroll-to-watchlist' }
       ]
     };
-    
+
     // Validate response against schema
     const validatedResponse = dashboardResponseSchema.parse(dashboardResponse);
-    
+
     res.json(validatedResponse);
-    
+
   } catch (error) {
     console.error('Dashboard data fetch error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to fetch dashboard data',
       message: error instanceof Error ? error.message : String(error)
     });
@@ -411,7 +412,7 @@ router.post("/verify-email", async (req, res) => {
   res.json({ ok: true });
 });
 
-router.post("/request-password-reset", async (req, res) => {
+router.post("/request-password-reset", authLimiter, async (req, res) => {
   const parse = z.object({ email: Email }).safeParse(req.body);
   if (!parse.success) return res.status(400).json({ error: "bad_request" });
   const { email } = parse.data;
@@ -420,43 +421,66 @@ router.post("/request-password-reset", async (req, res) => {
   if (!u.rowCount) return res.json({ ok: true }); // do not leak
   const expires = new Date(Date.now() + 1000 * 60 * 30);
   const tok = await pool.query(
-    `INSERT INTO password_reset_tokens(user_id, expires_at) VALUES($1,$2) RETURNING token`, 
+    `INSERT INTO password_reset_tokens(user_id, expires_at) VALUES($1,$2) RETURNING token`,
     [u.rows[0].id, expires]
   );
 
   if (transporter) {
     const url = `${process.env.APP_ORIGIN}/reset-password?token=${tok.rows[0].token}`;
-    await transporter.sendMail({ 
-      to: email, 
+    await transporter.sendMail({
+      to: email,
       from: process.env.EMAIL_FROM || "noreply@electiontracker",
-      subject: "Reset your password", 
-      text: `Reset link: ${url}` 
+      subject: "Reset your password",
+      text: `Reset link: ${url}`
     });
   } else {
-    console.log("🔐 Password reset token:", tok.rows[0].token);
+    // Never log the reset token (see register handler).
+    console.log("🔐 Password reset token created (not logged); configure SMTP to deliver it");
   }
   res.json({ ok: true });
 });
 
-router.post("/reset-password", async (req, res) => {
-  const parse = z.object({ 
-    token: z.string(), 
-    password: Password 
+router.post("/reset-password", authLimiter, async (req, res) => {
+  const parse = z.object({
+    token: z.string(),
+    password: Password
   }).safeParse(req.body);
   if (!parse.success) return res.status(400).json({ error: "bad_request" });
   const { token, password } = parse.data;
 
-  const q = await pool.query(
-    `UPDATE password_reset_tokens SET used=TRUE 
-     WHERE token=$1 AND expires_at > now() AND used=FALSE 
-     RETURNING user_id`,
-    [token]
-  );
-  if (!q.rowCount) return res.status(400).json({ error: "invalid_or_expired" });
-  
+  // OR-06: hash first (slow work outside the transaction), then consume the token,
+  // set the password and revoke every existing session atomically. Any failure rolls
+  // the token back to unused so the user can retry; nothing is left half-applied.
   const pw = await hashPassword(password);
-  await pool.query(`UPDATE users SET password_hash=$1 WHERE id=$2`, [pw, q.rows[0].user_id]);
-  res.json({ ok: true });
+  const client = await pool.connect();
+  let userId: string | null = null;
+  try {
+    await client.query("BEGIN");
+    const q = await client.query(
+      `UPDATE password_reset_tokens SET used=TRUE
+       WHERE token=$1 AND expires_at > now() AND used=FALSE
+       RETURNING user_id`,
+      [token]
+    );
+    if (!q.rowCount) {
+      await client.query("ROLLBACK");
+      recordSecurityDecision(req, { action: "auth.password_reset", result: "deny", actor: null, reason: "invalid_or_expired_token" });
+      return res.status(400).json({ error: "invalid_or_expired" });
+    }
+    userId = String(q.rows[0].user_id);
+    await client.query(`UPDATE users SET password_hash=$1, updated_at=now() WHERE id=$2`, [pw, userId]);
+    const revoked = await client.query(`UPDATE auth_sessions SET revoked=TRUE WHERE user_id=$1 AND revoked=FALSE`, [userId]);
+    await client.query("COMMIT");
+    recordSecurityDecision(req, { action: "auth.password_reset", result: "allow", actor: userId, details: { sessionsRevoked: revoked.rowCount ?? 0 } });
+    res.json({ ok: true, sessionsRevoked: revoked.rowCount ?? 0 });
+  } catch (error) {
+    await client.query("ROLLBACK").catch(() => {});
+    recordSecurityDecision(req, { action: "auth.password_reset", result: "error", actor: userId, reason: "transaction_failed" });
+    console.error("password reset failed:", error instanceof Error ? error.message : String(error));
+    res.status(500).json({ error: "reset_failed" });
+  } finally {
+    client.release();
+  }
 });
 
 export default router;

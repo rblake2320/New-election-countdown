@@ -1,0 +1,147 @@
+
+> rest-express@1.0.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.3 [39m[90m/app[39m
+
+ [32m✓[39m tests/demo.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32m✓[39m tests/fec-candidate-sync.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+[90mstdout[2m | tests/unit/health-guard.test.ts[2m > [22m[2mglobalWriteGuard Middleware[2m > [22m[2mwhen database is unhealthy[2m > [22m[2mshould return 503 for POST requests when database is unhealthy
+[22m[39m🚫 Blocked POST /test - Database unhealthy
+
+[90mstdout[2m | tests/unit/health-guard.test.ts[2m > [22m[2mglobalWriteGuard Middleware[2m > [22m[2mwhen database is unhealthy[2m > [22m[2mshould return 503 for PUT requests when database is unhealthy
+[22m[39m🚫 Blocked PUT /test - Database unhealthy
+
+[90mstdout[2m | tests/unit/health-guard.test.ts[2m > [22m[2mglobalWriteGuard Middleware[2m > [22m[2mwhen database is unhealthy[2m > [22m[2mshould return 503 for DELETE requests when database is unhealthy
+[22m[39m🚫 Blocked DELETE /test - Database unhealthy
+
+[90mstdout[2m | tests/unit/health-guard.test.ts[2m > [22m[2mglobalWriteGuard Middleware[2m > [22m[2mwhen database is unhealthy[2m > [22m[2mshould return 503 for PATCH requests when database is unhealthy
+[22m[39m🚫 Blocked PATCH /test - Database unhealthy
+
+[90mstdout[2m | tests/unit/health-guard.test.ts[2m > [22m[2mglobalWriteGuard Middleware[2m > [22m[2mspecial allowlist handling[2m > [22m[2mshould handle case insensitive methods correctly
+[22m[39m🚫 Blocked POST /test - Database unhealthy
+
+ [32m✓[39m tests/candidate-nominee-watermark.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m tests/candidate-nominee-sync.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+ [32m✓[39m tests/unit/health-guard.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m tests/unit/api-key-guard.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m tests/election-timing.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 82[2mms[22m[39m
+ [32m✓[39m tests/candidate-nominee-review.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 54[2mms[22m[39m
+[90mstdout[2m | tests/election-list-filters.test.ts[2m > [22m[2melection listing contract in failover memory[2m > [22m[2mreturns today and Nov 3 for next-30-days, excluding prior and inactive elections
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/election-list-filters.test.ts[2m > [22m[2melection listing contract in failover memory[2m > [22m[2mhonors the timeRange alias instead of returning past elections
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/election-list-filters.test.ts[2m > [22m[2melection listing contract in failover memory[2m > [22m[2mincludes the whole UTC calendar day for the legacy week filter
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/election-list-filters.test.ts[2m > [22m[2melection listing contract in failover memory[2m > [22m[2mmatches party names and codes and counts all candidates, not just the selected party
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/election-list-filters.test.ts[2m > [22m[2melection listing contract in failover memory[2m > [22m[2mrejects unknown timeframes instead of silently broadening or truncating
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/election-list-filters.test.ts[2m > [22m[2melection listing contract in failover memory[2m > [22m[2mhonors the API recent-date floor before returning rows
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/election-list-filters.test.ts[2m > [22m[2melection listing contract in failover memory[2m > [22m[2mkeeps Nov 3 races at 05:30 UTC on Nov 4 when timezone metadata is absent
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/election-list-filters.test.ts[2m > [22m[2melection listing contract in failover memory[2m > [22m[2muses each known election timezone, retaining Aleutian races after New York midnight
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/election-list-filters.test.ts[2m > [22m[2melection listing contract in failover memory[2m > [22m[2mtreats a legacy missing party as Other without crashing
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+ [32m✓[39m tests/election-list-filters.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 69[2mms[22m[39m
+ [32m✓[39m tests/unit/autofix-security.test.ts [2m([22m[2m40 tests[22m[2m)[22m[33m 365[2mms[22m[39m
+[90mstdout[2m | tests/real-general-roster-review.test.tsx[2m > [22m[2mactual GeneralRoster receiving component with retained real API payloads[2m > [22m[2mTX-32 names, write-in/incumbent counts and source URL/check date match retained payload
+[22m[39m{"payload":"TX-32","sha256":"b277b2583c11cb05eef80703fb2079c22373f293d2d5c4432cf5f6e7b59679c2","candidateCount":7,"renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Avery AyersWrite-inBradford \"Brad\" HallWrite-inJade SimmonsWrite-inJames TalaricoDemocraticKen PaxtonRepublicanTED BROWNLibertarianZul MohamedWrite-inSource: Texas Secretary of State Certified Declared Write-In Candidates (published Aug 28, 2026) · checked Oct 11, 2026Source: Texas Secretary of State Final Ballot Certification Report (published Aug 28, 2026) · checked Oct 11, 2026","links":[{"text":"Texas Secretary of State Certified Declared Write-In Candidates","href":"https://www.sos.texas.gov/elections/forms/2026-write-In-ballot-cert.pdf"},{"text":"Texas Secretary of State Final Ballot Certification Report","href":"https://www.sos.texas.gov/elections/forms/2026-ballot-cert.pdf"}]}
+
+ [32m✓[39m tests/general-roster.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 561[2mms[22m[39m
+[90mstdout[2m | tests/real-general-roster-review.test.tsx[2m > [22m[2mactual GeneralRoster receiving component with retained real API payloads[2m > [22m[2mNE-55 names, write-in/incumbent counts and source URL/check date match retained payload
+[22m[39m{"payload":"NE-55","sha256":"bec2cac3c5e3aff499f8630fe1a0deadf72f28436b9a941e3991d8211f2061fb","candidateCount":4,"renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Brett LindstromAmerica FirstJim PillenRepublicanIncumbentLynne WalzDemocraticRick BeardLegal Marijuana NOWSource: Nebraska Secretary of State Final Statewide General Candidate List (published Sep 11, 2026) · checked Oct 11, 2026","links":[{"text":"Nebraska Secretary of State Final Statewide General Candidate List","href":"https://sos.nebraska.gov/sites/default/files/doc/elections/2026/Final_Statewide_General_Candidate_Filing_List_9.11.26.pdf"}]}
+
+ [32m✓[39m tests/general-roster-real-payloads.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 740[2mms[22m[39m
+   [32m✓[39m GeneralRoster with real lane C payloads [2m(8)[22m
+     [33m[2m✓[22m[39m TX-32.json: every candidate rendered, no candidate promoted to certified, sources linked[33m 314[2mms[22m[39m
+[90mstdout[2m | tests/real-general-roster-review.test.tsx[2m > [22m[2mactual GeneralRoster receiving component with retained real API payloads[2m > [22m[2mWA-329 names, write-in/incumbent counts and source URL/check date match retained payload
+[22m[39m{"payload":"WA-329","sha256":"15af130bdde308952d81c41458dbd3c0cda1e3f6e1e1fba79b73c5714805e9a9","candidateCount":2,"renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Mary Silva(Prefers Republican Party)Suzan DelBene(Prefers Democratic Party)Source: Washington Secretary of State Certification of Candidates to General Election (published Aug 21, 2026) · checked Oct 11, 2026","links":[{"text":"Washington Secretary of State Certification of Candidates to General Election","href":"https://www.sos.wa.gov/sites/default/files/2026-08/2026%20Certification%20of%20Candidates%20to%20General%20Election.pdf"}]}
+
+[90mstdout[2m | tests/real-general-roster-review.test.tsx[2m > [22m[2mactual GeneralRoster receiving component with retained real API payloads[2m > [22m[2mNV-475 names, write-in/incumbent counts and source URL/check date match retained payload
+[22m[39m{"payload":"NV-475","sha256":"5b7cf933fa263f2c3aa733eef402f1ddb53014e2f4eda8e1ffd0da991470c0ca","candidateCount":3,"renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Jon KamerathIndependent American PartyMarty O'DonnellRepublicanSusie LeeDemocraticSource: 2026 General Election Statewide Certified List of Candidates (published Aug 25, 2026) · checked Oct 11, 2026","links":[{"text":"2026 General Election Statewide Certified List of Candidates","href":"https://www.nvsos.gov/home/showpublisheddocument/20105/639232733439300000"}]}
+
+[90mstdout[2m | tests/real-general-roster-review.test.tsx[2m > [22m[2mactual GeneralRoster receiving component with retained real API payloads[2m > [22m[2mTX write-ins with empty official party do not become Independent or Other
+[22m[39m{"payload":"TX-32","sha256":"b277b2583c11cb05eef80703fb2079c22373f293d2d5c4432cf5f6e7b59679c2","candidateCount":7,"renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Avery AyersWrite-inBradford \"Brad\" HallWrite-inJade SimmonsWrite-inJames TalaricoDemocraticKen PaxtonRepublicanTED BROWNLibertarianZul MohamedWrite-inSource: Texas Secretary of State Certified Declared Write-In Candidates (published Aug 28, 2026) · checked Oct 11, 2026Source: Texas Secretary of State Final Ballot Certification Report (published Aug 28, 2026) · checked Oct 11, 2026","links":[{"text":"Texas Secretary of State Certified Declared Write-In Candidates","href":"https://www.sos.texas.gov/elections/forms/2026-write-In-ballot-cert.pdf"},{"text":"Texas Secretary of State Final Ballot Certification Report","href":"https://www.sos.texas.gov/elections/forms/2026-ballot-cert.pdf"}]}
+
+[90mstdout[2m | tests/real-general-roster-review.test.tsx[2m > [22m[2mactual GeneralRoster receiving component with retained real API payloads[2m > [22m[2mWA official party preference remains visible rather than being asserted as party membership
+[22m[39m{"payload":"WA-329","sha256":"15af130bdde308952d81c41458dbd3c0cda1e3f6e1e1fba79b73c5714805e9a9","candidateCount":2,"renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Mary Silva(Prefers Republican Party)Suzan DelBene(Prefers Democratic Party)Source: Washington Secretary of State Certification of Candidates to General Election (published Aug 21, 2026) · checked Oct 11, 2026","links":[{"text":"Washington Secretary of State Certification of Candidates to General Election","href":"https://www.sos.wa.gov/sites/default/files/2026-08/2026%20Certification%20of%20Candidates%20to%20General%20Election.pdf"}]}
+
+[90mstdout[2m | tests/real-general-roster-review.test.tsx[2m > [22m[2mactual GeneralRoster receiving component with retained real API payloads[2m > [22m[2mfirst-load error with undefined data displays honest error rather than silently disappearing
+[22m[39m{"boundary":"undefined-data + error","renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.The official list could not be loaded right now.","rosterPresent":true}
+
+ [32m✓[39m tests/real-general-roster-review.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 872[2mms[22m[39m
+   [32m✓[39m actual GeneralRoster receiving component with retained real API payloads [2m(12)[22m
+     [33m[2m✓[22m[39m TX-32 names, write-in/incumbent counts and source URL/check date match retained payload[33m 424[2mms[22m[39m
+ [32m✓[39m tests/candidate-profile.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m tests/unit/storage-surface.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 68[2mms[22m[39m
+ [32m✓[39m tests/unit/no-secret-logging.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 87[2mms[22m[39m
+ [32m✓[39m tests/fec-source-artifacts.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 66[2mms[22m[39m
+[90mstdout[2m | tests/detail-date-gate.test.tsx[2m > [22m[2mactual election detail preserves active election-day timing[2m > [22m[2mcontrol: day before election shows real countdown to Texas poll opening
+[22m[39m{"scenario":"2026-11-02T11:30:00Z","browserZone":"UTC","localClock":"Mon Nov 02 2026 11:30:00 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Chicago","closeKind":"polls","pastBadge":false,"upcomingBadge":true,"timerCount":1,"timerLabel":"1 days, 1 hours, 30 minutes until polls open","text":"BackTexas election timing acceptance fixtureTuesday, November 3, 2026Texas, federal0 candidatesUpcomingGeneral01DAYS01HRS30MIN00SECuntil polls open · sourceOverviewPolling TrendsCandidatesCandidatesCurrent candidate standings and information"}
+
+[90mstdout[2m | tests/detail-date-gate.test.tsx[2m > [22m[2mactual election detail preserves active election-day timing[2m > [22m[2m06:30 Eastern on election day: Texas polls have not opened, so keep countdown
+[22m[39m{"scenario":"2026-11-03T11:30:00Z","browserZone":"UTC","localClock":"Tue Nov 03 2026 11:30:00 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Chicago","closeKind":"polls","pastBadge":false,"upcomingBadge":true,"timerCount":1,"timerLabel":"0 days, 1 hours, 30 minutes until polls open","text":"BackTexas election timing acceptance fixtureTuesday, November 3, 2026Texas, federal0 candidatesUpcomingGeneral00DAYS01HRS30MIN00SECuntil polls open · sourceOverviewPolling TrendsCandidatesCandidatesCurrent candidate standings and information"}
+
+[90mstdout[2m | tests/detail-date-gate.test.tsx[2m > [22m[2mactual election detail preserves active election-day timing[2m > [22m[2mduring Texas voting: retain actual countdown to poll closing
+[22m[39m{"scenario":"2026-11-03T15:00:00Z","browserZone":"UTC","localClock":"Tue Nov 03 2026 15:00:00 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Chicago","closeKind":"polls","pastBadge":false,"upcomingBadge":false,"timerCount":1,"timerLabel":"0 days, 10 hours, 0 minutes until polls close","text":"BackTexas election timing acceptance fixtureTuesday, November 3, 2026Texas, federal0 candidatesElection DayGeneralPolls open00DAYS10HRS00MIN00SECuntil polls close · sourceOverviewPolling TrendsCandidatesCandidatesCurrent candidate standings and information"}
+
+[90mstdout[2m | tests/detail-date-gate.test.tsx[2m > [22m[2mactual election detail preserves active election-day timing[2m > [22m[2mmounted detail changes Upcoming to Election Day when Texas polls open
+[22m[39m{"scenario":"2026-11-03T12:59:30Z","browserZone":"UTC","localClock":"Tue Nov 03 2026 12:59:30 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Chicago","closeKind":"polls","pastBadge":false,"upcomingBadge":true,"timerCount":1,"timerLabel":"0 days, 0 hours, 0 minutes until polls open","text":"BackTexas election timing acceptance fixtureTuesday, November 3, 2026Texas, federal0 candidatesUpcomingGeneral00DAYS00HRS00MIN30SECuntil polls open · sourceOverviewPolling TrendsCandidatesCandidatesCurrent candidate standings and information"}
+{"rollover":"Texas opening","at":"2026-11-03T13:00:30.000Z","badge":"Election Day","timer":"0 days, 11 hours, 59 minutes until polls close","sameMountedHeading":true}
+
+[90mstdout[2m | tests/detail-date-gate.test.tsx[2m > [22m[2mactual election detail preserves active election-day timing[2m > [22m[2mmounted detail changes Election Day to Polls closed after Texas closes
+[22m[39m{"scenario":"2026-11-04T00:59:30Z","browserZone":"UTC","localClock":"Wed Nov 04 2026 00:59:30 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Chicago","closeKind":"polls","pastBadge":false,"upcomingBadge":false,"timerCount":1,"timerLabel":"0 days, 0 hours, 0 minutes until polls close","text":"BackTexas election timing acceptance fixtureTuesday, November 3, 2026Texas, federal0 candidatesElection DayGeneralPolls open00DAYS00HRS00MIN30SECuntil polls close · sourceOverviewPolling TrendsCandidatesCandidatesCurrent candidate standings and information"}
+{"rollover":"Texas closing","at":"2026-11-04T01:00:30.000Z","badge":"Polls closed","status":"Polls closed · results pending","sameMountedHeading":true}
+
+ [32m✓[39m tests/auth-user-switch.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 149[2mms[22m[39m
+ [32m✓[39m tests/upcoming-rollover.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 152[2mms[22m[39m
+[90mstdout[2m | tests/detail-date-gate.test.tsx[2m > [22m[2mactual election detail preserves active election-day timing[2m > [22m[2munknown opening on a ballot-return election says deadline pending
+[22m[39m{"scenario":"2026-11-03T08:30:00Z","browserZone":"UTC","localClock":"Tue Nov 03 2026 08:30:00 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Los_Angeles","closeKind":"ballot_return","pastBadge":false,"upcomingBadge":false,"timerCount":1,"timerLabel":"0 days, 19 hours, 30 minutes until ballot drop-off deadline","text":"BackOregon ballot deadline acceptance fixtureTuesday, November 3, 2026Oregon, federal0 candidatesElection DayGeneralElection Day · ballot drop-off deadline pending00DAYS19HRS30MIN00SECuntil ballot drop-off deadline · sourceOverviewPolling TrendsCandidatesCandidatesCurrent candidate standings and information"}
+
+[90mstdout[2m | tests/detail-date-gate.test.tsx[2m > [22m[2mactual election detail preserves active election-day timing[2m > [22m[2mballot-return deadline passed must not call mail-election polls closed
+[22m[39m{"scenario":"2026-11-04T04:01:00Z","browserZone":"UTC","localClock":"Wed Nov 04 2026 04:01:00 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Los_Angeles","closeKind":"ballot_return","pastBadge":false,"upcomingBadge":false,"timerCount":0,"timerLabel":null,"text":"BackOregon ballot deadline acceptance fixtureTuesday, November 3, 2026Oregon, federal0 candidatesDrop-off closedGeneralBallot drop-off closed · results pendingOverviewPolling TrendsCandidatesCandidatesCurrent candidate standings and information"}
+
+ [32m✓[39m tests/detail-date-gate.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 817[2mms[22m[39m
+   [32m✓[39m actual election detail preserves active election-day timing [2m(7)[22m
+     [33m[2m✓[22m[39m control: day before election shows real countdown to Texas poll opening[33m 344[2mms[22m[39m
+ [32m✓[39m tests/filter-codes.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m tests/election-list-query.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 92[2mms[22m[39m
+ [32m✓[39m tests/featured-rollover.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 83[2mms[22m[39m
+ [32m✓[39m tests/unit/dashboard-user.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m tests/auth-return.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m tests/unit/session-identity.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m tests/CongressData.test.tsx [2m([22m[2m15 tests[22m[2m | [22m[33m3 skipped[39m[2m)[22m[33m 2437[2mms[22m[39m
+   [32m✓[39m CongressData Component [2m(12)[22m
+     [33m[2m✓[22m[39m renders loading state initially[33m 403[2mms[22m[39m
+   [32m✓[39m Performance [2m(1)[22m
+     [33m[2m✓[22m[39m renders large member lists efficiently[33m 619[2mms[22m[39m
+ [32m✓[39m tests/onboarding-preferences.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 1034[2mms[22m[39m
+   [32m✓[39m OnboardingPreferences step navigation [2m(2)[22m
+     [33m[2m✓[22m[39m Next on step 3 shows step 4 and saves nothing; only Complete saves[33m 668[2mms[22m[39m
+     [33m[2m✓[22m[39m a form submit on an early step (Enter in a field) never saves[33m 353[2mms[22m[39m
+ [32m✓[39m tests/onboarding-flow.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 2140[2mms[22m[39m
+   [32m✓[39m OnboardingFlow [2m(2)[22m
+     [33m[2m✓[22m[39m shows preferences after registering, then hands control back to the caller (no forced /dashboard)[33m 2069[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m29 passed[39m[22m[90m (29)[39m
+[2m      Tests [22m [1m[32m270 passed[39m[22m[2m | [22m[33m3 skipped[39m[90m (273)[39m
+[2m   Start at [22m 09:43:42
+[2m   Duration [22m 6.24s[2m (environment 43%, tests 17%, transform 17%, setup 13%, import 10%, worker 1%)[22m
+
+[2mEnvironment [22m [33mjsdom was created 29 times[39m[2m · 25.00s total, 43% of tracked time[22m
+[2m            [22m [2mcreate it once per worker with [22m[33mpool: 'vmThreads'[39m[2m (keeps per-file isolation) or [22m[33misolate: false[39m[2m (shares it across files)[22m
+[2m            [22m [2mlearn more: https://vitest.dev/guide/improving-performance#test-environments[22m
+

@@ -22,6 +22,8 @@ trackRouter.post("/", async (req: Request, res: Response) => {
   try {
     const body = req.body as TrackBody;
     if (!body?.session?.anon_id || !Array.isArray(body.events)) return res.status(400).json({ ok: false });
+    // Cap batch size: unauthenticated ingestion must not accept unbounded payloads
+    if (body.events.length > 100 || String(body.session.anon_id).length > 128) return res.status(400).json({ ok: false, error: 'batch_too_large' });
 
     // Use storage interface for analytics logging which handles health checks internally
     await storageFactory.logInteraction({

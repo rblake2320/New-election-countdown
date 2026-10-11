@@ -1,0 +1,29 @@
+{
+  "image": "electiontracker:et5",
+  "builder": "electiontracker:et5-builder",
+  "network": "internal, no published ports",
+  "passed": true,
+  "http": [
+    {
+      "path": "/",
+      "status": 200,
+      "bytes": 1306
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "bytes": 239
+    },
+    {
+      "path": "/api/elections",
+      "status": 200,
+      "bytes": 197570
+    }
+  ],
+  "elections": {
+    "total": 537,
+    "distinct": 537
+  },
+  "boundary": "production-only paths verified",
+  "imageId": "sha256:52c0bba19d4f22d1c15e74edb59e7caef2966bc223caf4bb9080da3f7e837af7"
+}

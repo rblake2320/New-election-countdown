@@ -1,0 +1,148 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.88kB 0.0s done
+#1 DONE 0.1s
+
+#2 [internal] load metadata for docker.io/library/node:24-alpine
+#2 DONE 0.4s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 745B done
+#3 DONE 0.1s
+
+#4 [internal] load build context
+#4 DONE 0.0s
+
+#5 [builder 1/6] FROM docker.io/library/node:24-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1
+#5 resolve docker.io/library/node:24-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1 0.0s done
+#5 DONE 0.1s
+
+#4 [internal] load build context
+#4 transferring context: 4.19MB 0.8s done
+#4 DONE 1.3s
+
+#6 [builder 2/6] WORKDIR /app
+#6 CACHED
+
+#7 [builder 3/6] COPY package*.json ./
+#7 DONE 0.1s
+
+#8 [builder 4/6] RUN npm ci &&     npm cache clean --force
+#8 10.92 npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+#8 13.35 npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+#8 13.35 npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+#8 36.58 
+#8 36.58 > rest-express@1.0.0 prepare
+#8 36.58 > node -e "try { require('husky').install() } catch (e) { if (e.code !== 'MODULE_NOT_FOUND') throw e }"
+#8 36.58 
+#8 36.74 
+#8 36.74 added 757 packages, and audited 758 packages in 36s
+#8 36.74 
+#8 36.74 119 packages are looking for funding
+#8 36.74   run `npm fund` for details
+#8 36.78 
+#8 36.78 5 high severity vulnerabilities
+#8 36.78 
+#8 36.78 To address all issues (including breaking changes), run:
+#8 36.78   npm audit fix --force
+#8 36.78 
+#8 36.78 Run `npm audit` for details.
+#8 36.78 npm warn install-scripts 6 packages have install scripts not yet covered by allowScripts:
+#8 36.78 npm warn install-scripts   argon2@0.44.0 (install: cross-env ZERO_AR_DATE=1 node-gyp-build)
+#8 36.78 npm warn install-scripts   bufferutil@4.0.9 (install: node-gyp-build)
+#8 36.78 npm warn install-scripts   esbuild@0.25.12 (postinstall: node install.js)
+#8 36.78 npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+#8 36.78 npm warn install-scripts   msw@2.10.4 (postinstall: node -e "import('./config/scripts/postinstall.js').catch(() => void 0)")
+#8 36.78 npm warn install-scripts   puppeteer@25.13.0 (postinstall: node install.mjs)
+#8 36.78 npm warn install-scripts
+#8 36.78 npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+#8 36.79 npm notice
+#8 36.79 npm notice New major version of npm available! 11.19.0 -> 12.2.0
+#8 36.79 npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+#8 36.79 npm notice To update run: npm install -g npm@12.2.0
+#8 36.79 npm notice
+#8 36.98 npm warn using --force Recommended protections disabled.
+#8 DONE 37.9s
+
+#9 [builder 5/6] COPY . .
+#9 DONE 0.5s
+
+#10 [builder 6/6] RUN npm run build
+#10 0.433 
+#10 0.433 > rest-express@1.0.0 build
+#10 0.433 > vite build && node scripts/build-server.mjs
+#10 0.433 
+#10 0.702 vite v8.3.4 building client environment for production...
+#10 0.723 transforming...
+#10 2.113 
+#10 2.114 warn - The class `group-focus-within:before:duration-[4000ms]` is ambiguous and matches multiple utilities.
+#10 2.114 warn - If this is content and not a class, replace it with `group-focus-within:before:duration-&lsqb;4000ms&rsqb;` to silence this warning.
+#10 2.449 ✓ 2692 modules transformed.
+#10 2.796 rendering chunks...
+#10 3.067 computing gzip size...
+#10 3.075 dist/public/index.html                                   1.83 kB │ gzip:   0.68 kB
+#10 3.075 dist/public/assets/index-DcRqXGMT.css                   99.60 kB │ gzip:  16.06 kB
+#10 3.075 dist/public/assets/skeleton-VjIMT7ul.js                  0.21 kB │ gzip:   0.18 kB
+#10 3.075 dist/public/assets/progress-cvf_G0OO.js                  0.56 kB │ gzip:   0.37 kB
+#10 3.075 dist/public/assets/rolldown-runtime-hePW80VL.js          0.71 kB │ gzip:   0.42 kB
+#10 3.075 dist/public/assets/card-DD_5iAfJ.js                      1.20 kB │ gzip:   0.48 kB
+#10 3.075 dist/public/assets/tabs-D6bDDgIl.js                      1.23 kB │ gzip:   0.52 kB
+#10 3.075 dist/public/assets/table-Xu60bRm2.js                     1.63 kB │ gzip:   0.59 kB
+#10 3.075 dist/public/assets/form-QN-LrihC.js                      1.88 kB │ gzip:   0.82 kB
+#10 3.075 dist/public/assets/not-found-BCYZymf7.js                 2.78 kB │ gzip:   0.97 kB
+#10 3.075 dist/public/assets/Compare-CI-o4hsM.js                   2.85 kB │ gzip:   1.13 kB
+#10 3.075 dist/public/assets/midterm-2026-DD9JGvR5.js              6.52 kB │ gzip:   1.61 kB
+#10 3.075 dist/public/assets/api-status-CLhOei3s.js                7.21 kB │ gzip:   2.04 kB
+#10 3.075 dist/public/assets/congress-admin-DO8U0R5T.js            7.43 kB │ gzip:   2.00 kB
+#10 3.075 dist/public/assets/happening-now-CHyvuUXO.js             7.51 kB │ gzip:   2.30 kB
+#10 3.075 dist/public/assets/admin-settings-BIzy7WAw.js            7.83 kB │ gzip:   2.19 kB
+#10 3.075 dist/public/assets/investor-dashboard-B6mC4cQe.js        8.27 kB │ gzip:   2.16 kB
+#10 3.075 dist/public/assets/monitoring-dashboard-4DgreR1_.js      9.25 kB │ gzip:   2.47 kB
+#10 3.075 dist/public/assets/admin-results-entry-CQxHJFOO.js       9.70 kB │ gzip:   3.13 kB
+#10 3.075 dist/public/assets/campaign-portal-UgsWcbsD.js          10.27 kB │ gzip:   2.76 kB
+#10 3.075 dist/public/assets/global-dashboard-gFwW33ec.js         12.12 kB │ gzip:   2.64 kB
+#10 3.075 dist/public/assets/candidate-portal-fixed-DdsqN2Hr.js   14.60 kB │ gzip:   3.76 kB
+#10 3.075 dist/public/assets/civic-dashboard-vtooNOGy.js          15.21 kB │ gzip:   4.34 kB
+#10 3.075 dist/public/assets/congress-C24NzEIw.js                 15.45 kB │ gzip:   3.92 kB
+#10 3.075 dist/public/assets/icons-2f1bqvgh.js                    16.42 kB │ gzip:   5.77 kB
+#10 3.075 dist/public/assets/preferences-ClYd3THF.js              18.62 kB │ gzip:   4.33 kB
+#10 3.075 dist/public/assets/format-rEXDVrHF.js                   19.29 kB │ gzip:   5.51 kB
+#10 3.075 dist/public/assets/react-BpqA32dN.js                    20.46 kB │ gzip:   7.06 kB
+#10 3.075 dist/public/assets/DataSteward-iB2yHC4F.js              23.38 kB │ gzip:   5.86 kB
+#10 3.075 dist/public/assets/dashboard-BgQ36C8P.js                24.37 kB │ gzip:   5.03 kB
+#10 3.075 dist/public/assets/auth-Cs_hmVf3.js                     29.16 kB │ gzip:   6.16 kB
+#10 3.075 dist/public/assets/election-details-CYgVAi4G.js         31.94 kB │ gzip:   8.76 kB
+#10 3.075 dist/public/assets/query-DasIO8rc.js                    33.51 kB │ gzip:  10.07 kB
+#10 3.075 dist/public/assets/lib-4e-YGQzi.js                      85.55 kB │ gzip:  23.48 kB
+#10 3.075 dist/public/assets/index-BeU-sB-T.js                   225.87 kB │ gzip:  61.30 kB
+#10 3.075 dist/public/assets/radix-C-mTOb-Q.js                   268.45 kB │ gzip:  84.22 kB
+#10 3.075 dist/public/assets/charts-BTQhWz69.js                  394.33 kB │ gzip: 103.55 kB
+#10 3.075 
+#10 3.092 ✓ built in 2.39s
+#10 3.378 ▲ [WARNING] Duplicate member "calculateUserEngagementScore" in class body [duplicate-class-member]
+#10 3.378 
+#10 3.378     server/analytics-service.ts:743:8:
+#10 3.378       743 │   async calculateUserEngagementScore(userId: string, period: 'dai...
+#10 3.378           ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#10 3.378 
+#10 3.378   The original member "calculateUserEngagementScore" is here:
+#10 3.378 
+#10 3.378     server/analytics-service.ts:425:8:
+#10 3.378       425 │   async calculateUserEngagementScore(userId: string, period: 'dai...
+#10 3.378           ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#10 3.378 
+#10 DONE 3.9s
+
+#11 exporting to image
+#11 exporting layers
+#11 exporting layers 13.6s done
+#11 exporting manifest sha256:b435fc5f6808d6b2df397ec3f0173b5c337f2cd3231794687b8b8a9e87588768 0.0s done
+#11 exporting config sha256:4bacbe5022f1ecad8bd9e7208c05ef246cc1c989dfecd9f7dd6f7f1a3c1eb58d 0.0s done
+#11 exporting attestation manifest sha256:7406e85bcd3f72eb37ee767ef30a0b45b9bb361b2ba84f73a227d181d09577fe 0.1s done
+#11 exporting manifest list sha256:3dbe00a3ed196a8819d9e4d5c42d99adc90d6b0aa0dde29e2ab1b83c17aa9278
+#11 exporting manifest list sha256:3dbe00a3ed196a8819d9e4d5c42d99adc90d6b0aa0dde29e2ab1b83c17aa9278 0.0s done
+#11 naming to docker.io/library/electiontracker:dependency-patches-builder done
+#11 unpacking to docker.io/library/electiontracker:dependency-patches-builder
+#11 unpacking to docker.io/library/electiontracker:dependency-patches-builder 14.2s done
+#11 DONE 27.9s

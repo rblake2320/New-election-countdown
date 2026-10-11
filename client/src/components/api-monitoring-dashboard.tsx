@@ -17,29 +17,7 @@ import {
   TrendingUp,
   Clock
 } from 'lucide-react';
-import { useServiceStatus } from '@/hooks/use-service-status';
-
-interface APIHealthMetrics {
-  service: string;
-  status: 'available' | 'degraded' | 'unavailable';
-  responseTime?: number;
-  uptime?: number;
-  lastChecked: string;
-  error?: string;
-  details?: string;
-}
-
-interface ComprehensiveHealthStatus {
-  overall: 'healthy' | 'degraded' | 'critical';
-  services: APIHealthMetrics[];
-  summary: {
-    total: number;
-    available: number;
-    degraded: number;
-    unavailable: number;
-  };
-  lastUpdated: string;
-}
+import { useServiceStatus, type ComprehensiveHealthStatus } from '@/hooks/use-service-status';
 
 export function ApiMonitoringDashboard() {
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -101,12 +79,6 @@ export function ApiMonitoringDashboard() {
     }
   };
 
-  const calculateUptimePercentage = (service: APIHealthMetrics) => {
-    // Simple calculation based on status
-    if (service.status === 'available') return 99.9;
-    if (service.status === 'degraded') return 85.0;
-    return 45.0;
-  };
 
   if (isLoadingHealth && isLoadingSummary) {
     return (
@@ -118,6 +90,8 @@ export function ApiMonitoringDashboard() {
   }
 
   const healthData = comprehensiveHealth as ComprehensiveHealthStatus | undefined;
+  // The payload has no summary.total / lastUpdated; derive them from what it does carry.
+  const totalServices = healthData?.services.length ?? 0;
 
   return (
     <div className="space-y-6" data-testid="api-monitoring-dashboard">
@@ -168,19 +142,19 @@ export function ApiMonitoringDashboard() {
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold" data-testid="text-total-services">
-                  {healthData.summary.total}
+                  {totalServices}
                 </div>
                 <div className="text-xs text-muted-foreground">Total Services</div>
               </div>
             </div>
             <div className="mt-4">
               <Progress 
-                value={(healthData.summary.available / healthData.summary.total) * 100} 
+                value={(healthData.summary.available / totalServices) * 100} 
                 className="h-2"
                 data-testid="progress-overall-health"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Overall system health: {Math.round((healthData.summary.available / healthData.summary.total) * 100)}%
+                Overall system health: {Math.round((healthData.summary.available / totalServices) * 100)}%
               </p>
             </div>
           </CardContent>
@@ -260,12 +234,8 @@ export function ApiMonitoringDashboard() {
                     </div>
                   )}
                   
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-muted-foreground">Uptime</span>
-                    <span className="text-xs font-mono" data-testid={`uptime-${service.service.toLowerCase()}`}>
-                      {calculateUptimePercentage(service).toFixed(1)}%
-                    </span>
-                  </div>
+                  {/* No uptime figure: the API reports current status only; the previous
+                      99.9 / 85 / 45 % values were invented from that status. */}
                   
                   {service.error && (
                     <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 rounded text-xs">
@@ -294,7 +264,7 @@ export function ApiMonitoringDashboard() {
       {/* Last Updated */}
       {healthData && (
         <div className="text-center text-xs text-muted-foreground">
-          Dashboard last updated: {new Date(healthData.lastUpdated).toLocaleString()}
+          Dashboard last updated: {new Date(healthData.timestamp).toLocaleString()}
         </div>
       )}
     </div>

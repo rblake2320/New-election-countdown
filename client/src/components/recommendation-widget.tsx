@@ -37,7 +37,8 @@ export function RecommendationWidget({
   className = "",
   onExpand
 }: RecommendationWidgetProps) {
-  const { user, token } = useAuth();
+  // Session is the httpOnly cookie; there is no client-side token.
+  const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -45,12 +46,10 @@ export function RecommendationWidget({
   // Fetch widget recommendations
   const { data: recommendationsData, isLoading, refetch } = useQuery({
     queryKey: ['/api/recommendations', { limit, widget: true }],
-    enabled: !!user && !!token,
+    enabled: isAuthenticated,
     refetchInterval: 5 * 60 * 1000, // Refresh every 5 minutes
     queryFn: async () => {
-      const response = await fetch(`/api/recommendations?limit=${limit}&types=location_based,trending`, {
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
+      const response = await fetch(`/api/recommendations?limit=${limit}&types=location_based,trending`, { credentials: 'include' });
       
       if (response.ok) {
         return response.json();
@@ -62,10 +61,7 @@ export function RecommendationWidget({
   // Track interaction
   const trackInteraction = async (action: string, recommendationId: number, electionId?: number) => {
     try {
-      await apiRequest('/api/recommendations/track', {
-        method: 'POST',
-        body: JSON.stringify({ action, recommendationId, electionId }),
-      });
+      await apiRequest('POST', '/api/recommendations/track', { action, recommendationId, electionId });
     } catch (error) {
       console.error('Failed to track recommendation:', error);
     }
@@ -78,10 +74,8 @@ export function RecommendationWidget({
       
       const response = await fetch('/api/watchlist', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ electionId: recommendation.election.id }),
       });
 
@@ -112,7 +106,7 @@ export function RecommendationWidget({
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
-      await apiRequest('/api/recommendations/refresh', { method: 'POST' });
+      await apiRequest('POST', '/api/recommendations/refresh');
       await refetch();
     } catch (error) {
       toast({
