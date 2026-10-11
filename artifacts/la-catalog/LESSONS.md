@@ -1,0 +1,1 @@
+LA-20261011-01 | Classify each office independently | Use current office-specific election law before labeling a statewide November date as general. | Louisiana 2026 House primary differed from Senate on the same day. | source review2026-10-11 ElectionTracker | project:ElectionTracker | blocker | seed/API/importer regression tests | active

@@ -1,0 +1,50 @@
+{
+  "manifestSha256": "edbc1deff97cba8a154f3322e305be08427be1db358761635e59153328e04c86",
+  "outcome": "Failed",
+  "nullDefaults": {
+    "sqlRecords": 537,
+    "httpRecords": 507,
+    "outcome": "Worked"
+  },
+  "dryRun": {
+    "outcome": "Worked",
+    "targetCount": 506,
+    "proposedChanges": 506,
+    "catalogUnchanged": true,
+    "auditRows": 0
+  },
+  "manifestGuard": "Manifest SHA guard rejected this apply",
+  "preimageGuard": "Catalog preimage guard rejected this apply",
+  "missingReceivingState": "No November 3 receiving elections for reviewed states: WY",
+  "unknownManifestFields": "[\n  {\n    \"code\": \"unrecognized_keys\",\n    \"keys\": [\n      \"unreviewedStatus\"\n    ],\n    \"path\": [\n      \"states\",\n      0,\n      \"source\"\n    ],\n    \"message\": \"Unrecognized key(s) in object: 'unreviewedStatus'\"\n  }\n]",
+  "interveningChange": "Catalog preimage guard rejected this apply",
+  "injectedRollback": "Injected C6 rollback acceptance failure",
+  "writerLock": "canceling statement due to lock timeout",
+  "apply": {
+    "outcome": "Worked",
+    "targetCount": 506,
+    "changedCount": 506,
+    "historicalRowsUnchanged": 31,
+    "futureColumnPreserved": true,
+    "candidateRowsUnchanged": true,
+    "nhUnknown": 4,
+    "miGateway": 15,
+    "laPrimaryUnknown": true,
+    "runId": "27263790-7881-4e6a-80ec-8f6ad2fc8544"
+  },
+  "repeat": {
+    "outcome": "Worked",
+    "changedCount": 0,
+    "rowVersionsUnchanged": true
+  },
+  "failedReceivingBody": {
+    "id": 1,
+    "title": "U.S. Senate Election - Alabama",
+    "date": "2026-11-03T00:00:00.000Z",
+    "state": "AL",
+    "level": "federal",
+    "type": "general",
+    "candidates": 0
+  },
+  "error": "Receiving detail omitted officialResultsUrl for election 1"
+}

@@ -1,0 +1,20 @@
+{
+  "state": "NV",
+  "url": "https://nv.gov/government/elections/",
+  "checkedAt": "2026-10-11T12:30:21.584393+00:00",
+  "tlsValidation": true,
+  "attempts": [
+    {
+      "method": "Python Requests default TLS",
+      "httpStatus": 404,
+      "finalUrl": "https://www.nv.gov/government/elections/",
+      "bytes": 28571,
+      "sha256": "d260c31153ed51ec7f86ae2d482d94b1b31a358aace78b3a2e6114033e1b697b"
+    },
+    {
+      "method": "Windows Invoke-WebRequest default TLS",
+      "error": "Invoke-WebRequest : The remote server returned an error: (404) Not Found.\nAt line:1 char:34\n+ ... e='Stop';$r=Invoke-WebRequest -Uri 'https://nv.gov/government/electio ...\n+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], WebExc \n   eption\n    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand\n \n"
+    }
+  ],
+  "status": "blocked_transport"
+}

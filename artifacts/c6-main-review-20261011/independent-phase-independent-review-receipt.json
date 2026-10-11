@@ -1,0 +1,230 @@
+{
+  "sourceHead": "f269b45c185d98c0924306b3161d3f10f5e0fd32",
+  "runtimeHead": "4e0a8ba4aae999eff4d4a58af101143ad75f9824",
+  "oldHead": "fb929a7488808134f8f6bfd6d68a30d2d684783c",
+  "databaseWrites": false,
+  "browserUse": false,
+  "checks": [
+    {
+      "name": "general: matching IDs, target count and skipped IDs",
+      "outcome": "Worked",
+      "details": {
+        "targetCount": 500,
+        "matched": [
+          13
+        ],
+        "skipped": [
+          429,
+          430,
+          431,
+          432,
+          433,
+          434
+        ]
+      }
+    },
+    {
+      "name": "general: old same-input negative control",
+      "outcome": "Worked",
+      "details": {
+        "oldOutcome": "Failed",
+        "error": "Specific results source cannot serve a different election phase"
+      }
+    },
+    {
+      "name": "general: no matching state refusal",
+      "outcome": "Worked"
+    },
+    {
+      "name": "general: runoff sibling remains untouched",
+      "outcome": "Worked"
+    },
+    {
+      "name": "general: trimmed case-insensitive canonical phase",
+      "outcome": "Worked"
+    },
+    {
+      "name": "general: skipped-row catalog drift changes preimage",
+      "outcome": "Worked"
+    },
+    {
+      "name": "general: excluded-date catalog drift changes preimage",
+      "outcome": "Worked"
+    },
+    {
+      "name": "primary: matching IDs, target count and skipped IDs",
+      "outcome": "Worked",
+      "details": {
+        "targetCount": 505,
+        "matched": [
+          429,
+          430,
+          431,
+          432,
+          433,
+          434
+        ],
+        "skipped": [
+          13
+        ]
+      }
+    },
+    {
+      "name": "primary: old same-input negative control",
+      "outcome": "Worked",
+      "details": {
+        "oldOutcome": "Failed",
+        "error": "Specific results source cannot serve a different election phase"
+      }
+    },
+    {
+      "name": "primary: no matching state refusal",
+      "outcome": "Worked"
+    },
+    {
+      "name": "primary: runoff sibling remains untouched",
+      "outcome": "Worked"
+    },
+    {
+      "name": "primary: trimmed case-insensitive canonical phase",
+      "outcome": "Worked"
+    },
+    {
+      "name": "primary: skipped-row catalog drift changes preimage",
+      "outcome": "Worked"
+    },
+    {
+      "name": "primary: excluded-date catalog drift changes preimage",
+      "outcome": "Worked"
+    },
+    {
+      "name": "general then primary: independently reconstruct retained apply hashes",
+      "outcome": "Worked",
+      "details": [
+        {
+          "phase": "general",
+          "changedCount": 369,
+          "targetCount": 500,
+          "preimage": "ca7a7fee959239fcf6aeb0df3a41d3db560dabc2e04cbea38f6ab27393d40b48",
+          "postimage": "255c162ad3c61faf4fd0fc56b53b7c59f47334e2aec99e2ae9ed829a432b8317"
+        },
+        {
+          "phase": "primary",
+          "changedCount": 374,
+          "targetCount": 505,
+          "preimage": "255c162ad3c61faf4fd0fc56b53b7c59f47334e2aec99e2ae9ed829a432b8317",
+          "postimage": "646ac88cf9ae23e6ef7ea94c2a0d735be9e63ad596c2c08c613064d7b50e64b0"
+        }
+      ]
+    },
+    {
+      "name": "primary then general: independently reconstruct retained apply hashes",
+      "outcome": "Worked",
+      "details": [
+        {
+          "phase": "primary",
+          "changedCount": 374,
+          "targetCount": 505,
+          "preimage": "ca7a7fee959239fcf6aeb0df3a41d3db560dabc2e04cbea38f6ab27393d40b48",
+          "postimage": "dbbd9ed1df3682fbff383955bc8f5bb57434bf9c028ecd44fb35eae72ff5447c"
+        },
+        {
+          "phase": "general",
+          "changedCount": 369,
+          "targetCount": 500,
+          "preimage": "dbbd9ed1df3682fbff383955bc8f5bb57434bf9c028ecd44fb35eae72ff5447c",
+          "postimage": "ebe2fc0e0e2fe29ad1605fa492d170b66759a5d1a1da1901778c73fc958217e0"
+        }
+      ]
+    },
+    {
+      "name": "current actual reviewed manifest unchanged / zero published / generic phases unskipped",
+      "outcome": "Worked"
+    },
+    {
+      "name": "all retained evidence index SHA256 values agree with actual bytes",
+      "outcome": "Worked",
+      "details": {
+        "files": 15
+      }
+    },
+    {
+      "name": "retained private receipt + harness + log exact same outcomes",
+      "outcome": "Worked",
+      "details": {
+        "orders": 4,
+        "source": "retained native-PG acceptance; inspected real assertions, no duplicate DB run"
+      }
+    }
+  ],
+  "privateEvidenceHashes": [
+    {
+      "file": "artifacts/c6-phase-all-unit.txt",
+      "sha256": "b71e294c4d20c09ba1ee070c0189f605f1e563a24968bd81806f0847510f36a1"
+    },
+    {
+      "file": "artifacts/c6-phase-build.txt",
+      "sha256": "148b64ad909507285037a295b60526e88af65d8426fe23727388fbdcd7da6388"
+    },
+    {
+      "file": "artifacts/c6-phase-strict.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "artifacts/c6-phase-67424-b0003c/general-context.json",
+      "sha256": "35e900c7a5e9cbbf58edf8d42631d4f00ff973423bd4b79b09ebcba2b72af535"
+    },
+    {
+      "file": "artifacts/c6-phase-67424-b0003c/general-fixture-manifest.json",
+      "sha256": "fa89011756b56d1e2f91593e7728cf7324b7a15709cc91fb06b11e7e99a825f8"
+    },
+    {
+      "file": "artifacts/c6-phase-67424-b0003c/general-primary-general-apply.json",
+      "sha256": "6424e104812a2357040f6fcb5ae4591c60715dcaa34dc225532616fe9376644b"
+    },
+    {
+      "file": "artifacts/c6-phase-67424-b0003c/general-primary-primary-apply.json",
+      "sha256": "3111753b6f46dd5f07b877313517135fb7d12001c4883ae003d0f5590f809fd8"
+    },
+    {
+      "file": "artifacts/c6-phase-67424-b0003c/general-receiving.json",
+      "sha256": "35e900c7a5e9cbbf58edf8d42631d4f00ff973423bd4b79b09ebcba2b72af535"
+    },
+    {
+      "file": "artifacts/c6-phase-67424-b0003c/harness-receipt.json",
+      "sha256": "2a9bcfd8112882fe660e9d159f8c735745c9344432b628b27d1eeb37d076d956"
+    },
+    {
+      "file": "artifacts/c6-phase-67424-b0003c/phase-routing-receipt.json",
+      "sha256": "9041e091eb6baf19072348b849e358fa221d711a9b62049da5717875f5757771"
+    },
+    {
+      "file": "artifacts/c6-phase-67424-b0003c/primary-context.json",
+      "sha256": "e0eacc4197f09f2ea1a207f28ff07f050e37da1d59f104ce8b1a3c08387608cf"
+    },
+    {
+      "file": "artifacts/c6-phase-67424-b0003c/primary-fixture-manifest.json",
+      "sha256": "6d4d1862631adbae86115face6f39ed50d9abe9f0db29f9c08988e48b7cf75d5"
+    },
+    {
+      "file": "artifacts/c6-phase-67424-b0003c/primary-general-general-apply.json",
+      "sha256": "2e68d0d763cd84b62c7a5f8aef45a2bad2722ab8e4e7bc8001bb0102242e8012"
+    },
+    {
+      "file": "artifacts/c6-phase-67424-b0003c/primary-general-primary-apply.json",
+      "sha256": "95c7e48f17a1918171a65b0afb2d93f37871ee88001b6e5495b1decd7e7aab81"
+    },
+    {
+      "file": "artifacts/c6-phase-67424-b0003c/primary-receiving.json",
+      "sha256": "e0eacc4197f09f2ea1a207f28ff07f050e37da1d59f104ce8b1a3c08387608cf"
+    }
+  ],
+  "exactRepositoryUnit": {
+    "passed": 33,
+    "failed": 0,
+    "total": 33
+  },
+  "passed": 19,
+  "failed": 0,
+  "outcome": "Worked"
+}

@@ -1,0 +1,276 @@
+{
+  "oldHead": "554ab9020a0c2937a2df5bbc56a5e963444a3be9",
+  "receivingExpression": "officialResultsFieldsSchema.parse(election) used by immutable detail handler; old listing passes stored fields through unchanged",
+  "sourcePayloadSha256": "401e79f55b0db62d3e790f694e1f2650422f3fc229d6c6f65d7377914c5d5d82",
+  "controls": [
+    {
+      "scenario": "ISO same date",
+      "expectedProjection": "preserve",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": true,
+      "oldProjectedUrl": "https://results.sos.ga.gov/",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "general"
+    },
+    {
+      "scenario": "Date-only same date",
+      "expectedProjection": "preserve",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": true,
+      "oldProjectedUrl": "https://results.sos.ga.gov/",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "general"
+    },
+    {
+      "scenario": "SQL timestamp same date",
+      "expectedProjection": "preserve",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": true,
+      "oldProjectedUrl": "https://results.sos.ga.gov/",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "general"
+    },
+    {
+      "scenario": "Outer date shifted to next day",
+      "expectedProjection": "null",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": false,
+      "oldProjectedUrl": "https://results.sos.ga.gov/",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "general"
+    },
+    {
+      "scenario": "Outer date shifted to previous day",
+      "expectedProjection": "null",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": false,
+      "oldProjectedUrl": "https://results.sos.ga.gov/",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "general"
+    },
+    {
+      "scenario": "Outer date shifted year",
+      "expectedProjection": "null",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": false,
+      "oldProjectedUrl": "https://results.sos.ga.gov/",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "general"
+    },
+    {
+      "scenario": "Outer phase changed primary",
+      "expectedProjection": "null",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": false,
+      "oldProjectedUrl": "https://results.sos.ga.gov/",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "general"
+    },
+    {
+      "scenario": "Outer phase changed runoff",
+      "expectedProjection": "null",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": false,
+      "oldProjectedUrl": "https://results.sos.ga.gov/",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "general"
+    },
+    {
+      "scenario": "Existing LA429 primary preserved",
+      "expectedProjection": "preserve",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": true,
+      "oldProjectedUrl": "https://www.sos.la.gov/elections-voting/election-results-statistics",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "primary"
+    },
+    {
+      "scenario": "Existing primary changed to general",
+      "expectedProjection": "null",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": false,
+      "oldProjectedUrl": "https://www.sos.la.gov/elections-voting/election-results-statistics",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "primary"
+    },
+    {
+      "scenario": "Synthetic published general correct state/date/phase",
+      "expectedProjection": "preserve",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": true,
+      "oldProjectedUrl": "https://results.sos.ga.gov/",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "general"
+    },
+    {
+      "scenario": "Synthetic published primary correct state/date/phase",
+      "expectedProjection": "preserve",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": true,
+      "oldProjectedUrl": "https://results.sos.ga.gov/",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "primary"
+    },
+    {
+      "scenario": "Synthetic published state changed away receipt",
+      "expectedProjection": "null",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": false,
+      "oldProjectedUrl": "https://results.sos.ga.gov/",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "general"
+    },
+    {
+      "scenario": "Synthetic published phase changed away receipt",
+      "expectedProjection": "null",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": false,
+      "oldProjectedUrl": "https://results.sos.ga.gov/",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "general"
+    },
+    {
+      "scenario": "Synthetic published outer date changed away receipt",
+      "expectedProjection": "null",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": false,
+      "oldProjectedUrl": "https://results.sos.ga.gov/",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "general"
+    },
+    {
+      "scenario": "Empty date",
+      "expectedProjection": "null",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": false,
+      "oldProjectedUrl": "https://results.sos.ga.gov/",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "general"
+    },
+    {
+      "scenario": "Null date",
+      "expectedProjection": "null",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": false,
+      "oldProjectedUrl": "https://results.sos.ga.gov/",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "general"
+    },
+    {
+      "scenario": "Nondate text",
+      "expectedProjection": "null",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": false,
+      "oldProjectedUrl": "https://results.sos.ga.gov/",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "general"
+    },
+    {
+      "scenario": "Nov3 prefix plus garbage",
+      "expectedProjection": "null",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": false,
+      "oldProjectedUrl": "https://results.sos.ga.gov/",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "general"
+    },
+    {
+      "scenario": "Impossible hour",
+      "expectedProjection": "null",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": false,
+      "oldProjectedUrl": "https://results.sos.ga.gov/",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "general"
+    },
+    {
+      "scenario": "Impossible minute",
+      "expectedProjection": "null",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": false,
+      "oldProjectedUrl": "https://results.sos.ga.gov/",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "general"
+    },
+    {
+      "scenario": "Impossible second",
+      "expectedProjection": "null",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": false,
+      "oldProjectedUrl": "https://results.sos.ga.gov/",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "general"
+    },
+    {
+      "scenario": "Impossible offset",
+      "expectedProjection": "null",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": false,
+      "oldProjectedUrl": "https://results.sos.ga.gov/",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "general"
+    },
+    {
+      "scenario": "Malformed timestamp tail",
+      "expectedProjection": "null",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": false,
+      "oldProjectedUrl": "https://results.sos.ga.gov/",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "general"
+    },
+    {
+      "scenario": "Invalid calendar day",
+      "expectedProjection": "null",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": false,
+      "oldProjectedUrl": "https://results.sos.ga.gov/",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "general"
+    },
+    {
+      "scenario": "Integer as date",
+      "expectedProjection": "null",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": false,
+      "oldProjectedUrl": "https://results.sos.ga.gov/",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "general"
+    },
+    {
+      "scenario": "Plain object as date",
+      "expectedProjection": "null",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": false,
+      "oldProjectedUrl": "https://results.sos.ga.gov/",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "general"
+    },
+    {
+      "scenario": "Ordinary null result defaults",
+      "expectedProjection": "null",
+      "oldProjectedNull": true,
+      "oldOutcomeMatchesExpected": true,
+      "oldProjectedUrl": null,
+      "oldSourceDate": null,
+      "oldSourcePhase": null
+    },
+    {
+      "scenario": "Synthetic publication receipt state mismatched to outer election",
+      "expectedProjection": "null",
+      "oldProjectedNull": false,
+      "oldOutcomeMatchesExpected": false,
+      "oldProjectedUrl": "https://results.sos.ga.gov/",
+      "oldSourceDate": "2026-11-03",
+      "oldSourcePhase": "general"
+    }
+  ],
+  "staleContextExposures": 22,
+  "correctBaselineControls": 6,
+  "throwCount": 0,
+  "scope": {
+    "offlineOnly": true,
+    "browserUsed": false,
+    "dbWrites": false
+  }
+}

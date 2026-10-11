@@ -1,3 +1,4 @@
+import { isLouisiana2026HouseOpenPrimary } from './louisiana-house-catalog';
 import type { Pool, PoolClient } from 'pg';
 
 export const FEC_MASTER_URL = 'https://www.fec.gov/files/bulk-downloads/2026/cn26.zip';
@@ -65,7 +66,8 @@ export function buildFecSyncPlan(rows: FecRow[], elections: RaceRow[], candidate
   const raceIndex = new Map<string, number[]>();
   for (const e of elections) {
     const date = typeof e.date === 'string' ? e.date.slice(0, 10) : e.date.toISOString().slice(0, 10);
-    if (date !== '2026-11-03' || e.level.toLowerCase() !== 'federal' || !['general', 'special'].includes(e.type.toLowerCase())) continue;
+    const openPrimary=e.type.toLowerCase()==='primary' && isLouisiana2026HouseOpenPrimary(e) && /\bLA-0[1-6]\b/.test(e.title);
+    if (date !== '2026-11-03' || e.level.toLowerCase() !== 'federal' || (!['general', 'special'].includes(e.type.toLowerCase()) && !openPrimary)) continue;
     let key: string | undefined;
     if (e.offices?.includes('U.S. Senate')) key = `S|${e.state}|00`;
     if (e.offices?.includes('U.S. House of Representatives')) {

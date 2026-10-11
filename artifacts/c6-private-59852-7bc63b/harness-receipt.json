@@ -1,0 +1,36 @@
+{
+  "outcome": "Failed",
+  "network": "internal, zero published ports",
+  "image": "electiontracker:c6-results",
+  "builder": "electiontracker:c6-results-builder",
+  "physicalDependencies": true,
+  "migration": {
+    "runs": 2,
+    "columns": [
+      {
+        "column_name": "official_results_source",
+        "is_nullable": "YES",
+        "data_type": "jsonb"
+      },
+      {
+        "column_name": "official_results_url",
+        "is_nullable": "YES",
+        "data_type": "text"
+      }
+    ],
+    "outcome": "Worked"
+  },
+  "runtimeImageId": "sha256:3c9ec4da87d635c25fd7af1ac4b4ec38eba1ec2b787a626b3790e619acc245c9",
+  "compiledDefaultDryRun": {
+    "mode": "dry-run",
+    "operation": "apply",
+    "runId": null,
+    "targetCount": 506,
+    "changedCount": 506,
+    "manifestSha256": "edbc1deff97cba8a154f3322e305be08427be1db358761635e59153328e04c86",
+    "preimageSha256": "719bf1b2bb690096513065091680cc8ff8c70f6de41bb1c0aa3dbc4e3f8bb12d",
+    "postimageSha256": "a051322b4b97fb6acbbe72d5441b4cfd795af98ec3c7c400ef130c440c9a577b",
+    "receipt": "/app/artifacts/c6-cli-default-dry.json"
+  },
+  "error": "docker run failed: \n  c6-acceptance.mjs  27.4kb\n\n⚡ Done in 52ms\n"
+}

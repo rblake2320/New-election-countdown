@@ -1,0 +1,164 @@
+{
+  "outcome": "Failed",
+  "network": "internal, zero published ports",
+  "image": "electiontracker:c6-results",
+  "builder": "electiontracker:c6-results-builder",
+  "physicalDependencies": true,
+  "migration": {
+    "runs": 2,
+    "columns": [
+      {
+        "column_name": "official_results_source",
+        "is_nullable": "YES",
+        "data_type": "jsonb"
+      },
+      {
+        "column_name": "official_results_url",
+        "is_nullable": "YES",
+        "data_type": "text"
+      }
+    ],
+    "outcome": "Worked"
+  },
+  "runtimeImageId": "sha256:1fd34a504d160f7d4624b7198555cf9b2aa71a9f7725532960493a242811655e",
+  "compiledDefaultDryRun": {
+    "mode": "dry-run",
+    "operation": "apply",
+    "runId": null,
+    "targetCount": 506,
+    "changedCount": 506,
+    "manifestSha256": "edbc1deff97cba8a154f3322e305be08427be1db358761635e59153328e04c86",
+    "preimageSha256": "719bf1b2bb690096513065091680cc8ff8c70f6de41bb1c0aa3dbc4e3f8bb12d",
+    "postimageSha256": "a051322b4b97fb6acbbe72d5441b4cfd795af98ec3c7c400ef130c440c9a577b",
+    "receipt": "/app/artifacts/c6-cli-default-dry.json"
+  },
+  "compiledGuard": {
+    "outcome": "Failed",
+    "receiptExport": "Failed",
+    "committed": false,
+    "runId": null,
+    "errorCode": "C6_REFUSED",
+    "reason": "Manifest SHA guard rejected this apply",
+    "temporaryReceipt": null,
+    "checkedAt": "2026-10-11T13:04:54.418Z"
+  },
+  "acceptance": {
+    "manifestSha256": "edbc1deff97cba8a154f3322e305be08427be1db358761635e59153328e04c86",
+    "outcome": "Worked",
+    "nullDefaults": {
+      "sqlRecords": 537,
+      "httpRecords": 507,
+      "outcome": "Worked"
+    },
+    "dryRun": {
+      "outcome": "Worked",
+      "targetCount": 506,
+      "proposedChanges": 506,
+      "catalogUnchanged": true,
+      "auditRows": 0
+    },
+    "manifestGuard": "Manifest SHA guard rejected this apply",
+    "preimageGuard": "Catalog preimage guard rejected this apply",
+    "missingReceivingState": "No November 3 receiving elections for reviewed states: WY",
+    "unknownManifestFields": "[\n  {\n    \"code\": \"unrecognized_keys\",\n    \"keys\": [\n      \"unreviewedStatus\"\n    ],\n    \"path\": [\n      \"states\",\n      0,\n      \"source\"\n    ],\n    \"message\": \"Unrecognized key(s) in object: 'unreviewedStatus'\"\n  }\n]",
+    "interveningChange": "Catalog preimage guard rejected this apply",
+    "injectedRollback": "Injected C6 rollback acceptance failure",
+    "writerLock": "canceling statement due to lock timeout",
+    "apply": {
+      "outcome": "Worked",
+      "targetCount": 506,
+      "changedCount": 506,
+      "historicalRowsUnchanged": 31,
+      "futureColumnPreserved": true,
+      "candidateRowsUnchanged": true,
+      "nhUnknown": 4,
+      "miGateway": 15,
+      "laPrimaryUnknown": true,
+      "runId": "3c6150f8-0a15-421d-84e0-487acdeeb47c"
+    },
+    "repeat": {
+      "outcome": "Worked",
+      "changedCount": 0,
+      "rowVersionsUnchanged": true
+    },
+    "compiledReceivingHttp": {
+      "outcome": "Worked",
+      "details": 537,
+      "listings": 506,
+      "fieldComparisons": 2086,
+      "mismatches": 0,
+      "quotaWaits": 1,
+      "durationMs": 56550
+    },
+    "staleRollback": "Rollback refused: catalog changed after this run",
+    "operatorRollback": {
+      "outcome": "Worked",
+      "changedCount": 506,
+      "restoredExactPreimage": true,
+      "runId": "61cc3f23-af4a-469c-a8ce-22716622880b"
+    },
+    "duplicateRollback": "Apply run has already been rolled back",
+    "readyForPackagedApply": {
+      "manifestSha256": "edbc1deff97cba8a154f3322e305be08427be1db358761635e59153328e04c86",
+      "preimageSha256": "661ed24e8d5e7aa462b2d96ac0b63e7329f3a5e30841561d87747ff355e19b14",
+      "postimageSha256": "d3cfc09619d0824dd4e3b94c20541ebfe978eaaf7b78a485d3f1b29cdf32100f",
+      "changedCount": 506,
+      "auditRows": 3
+    }
+  },
+  "compiledApply": {
+    "mode": "apply",
+    "operation": "apply",
+    "runId": "57928dcd-32d3-4c1e-a89a-3e367df5fdf6",
+    "targetCount": 506,
+    "changedCount": 506,
+    "manifestSha256": "edbc1deff97cba8a154f3322e305be08427be1db358761635e59153328e04c86",
+    "preimageSha256": "661ed24e8d5e7aa462b2d96ac0b63e7329f3a5e30841561d87747ff355e19b14",
+    "postimageSha256": "d3cfc09619d0824dd4e3b94c20541ebfe978eaaf7b78a485d3f1b29cdf32100f",
+    "receipt": "/app/artifacts/c6-cli-apply.json"
+  },
+  "finalCompiledRepeat": {
+    "mode": "dry-run",
+    "operation": "apply",
+    "runId": null,
+    "targetCount": 506,
+    "changedCount": 0,
+    "manifestSha256": "edbc1deff97cba8a154f3322e305be08427be1db358761635e59153328e04c86",
+    "preimageSha256": "d3cfc09619d0824dd4e3b94c20541ebfe978eaaf7b78a485d3f1b29cdf32100f",
+    "postimageSha256": "d3cfc09619d0824dd4e3b94c20541ebfe978eaaf7b78a485d3f1b29cdf32100f",
+    "receipt": "/app/artifacts/c6-cli-final-dry.json"
+  },
+  "compiledRollback": {
+    "mode": "apply",
+    "operation": "rollback",
+    "runId": "cd87cc1d-98dc-4e3e-b436-b454bcc4e1c5",
+    "targetCount": 506,
+    "changedCount": 506,
+    "manifestSha256": "edbc1deff97cba8a154f3322e305be08427be1db358761635e59153328e04c86",
+    "preimageSha256": "d3cfc09619d0824dd4e3b94c20541ebfe978eaaf7b78a485d3f1b29cdf32100f",
+    "postimageSha256": "661ed24e8d5e7aa462b2d96ac0b63e7329f3a5e30841561d87747ff355e19b14",
+    "receipt": "/app/artifacts/c6-cli-rollback-apply.json"
+  },
+  "postcommitReceiptFault": {
+    "outcome": "Worked",
+    "scenario": "actual non-root chmod denies postcommit rename",
+    "durableAuditPreserved": true,
+    "temporaryReceiptPreserved": true,
+    "operatorOutcome": "Applied",
+    "runId": "fc5629fd-30b8-444e-8e0c-15c8fdbf84d6",
+    "changedCount": 506,
+    "preflightBeforeDB": true
+  },
+  "compiledReapply": {
+    "mode": "apply",
+    "operation": "apply",
+    "runId": "84d02b83-00a7-4df2-bf97-9252a9424182",
+    "targetCount": 506,
+    "changedCount": 0,
+    "manifestSha256": "edbc1deff97cba8a154f3322e305be08427be1db358761635e59153328e04c86",
+    "preimageSha256": "d3cfc09619d0824dd4e3b94c20541ebfe978eaaf7b78a485d3f1b29cdf32100f",
+    "postimageSha256": "d3cfc09619d0824dd4e3b94c20541ebfe978eaaf7b78a485d3f1b29cdf32100f",
+    "receipt": "/app/artifacts/c6-cli-reapply.json"
+  },
+  "error": "docker run failed: 1"
+}

@@ -1,0 +1,82 @@
+{
+  "sourceHead": "fb929a7488808134f8f6bfd6d68a30d2d684783c",
+  "fixtureOnly": true,
+  "realReturnsClaim": false,
+  "runtimeOrDatabaseWrites": false,
+  "catalogFixture": {
+    "source": "retained actual SQL + owner-authorized mixed-phase fixture",
+    "LA": [
+      {
+        "id": 13,
+        "type": "general"
+      },
+      {
+        "id": 429,
+        "type": "primary"
+      },
+      {
+        "id": 430,
+        "type": "primary"
+      },
+      {
+        "id": 431,
+        "type": "primary"
+      },
+      {
+        "id": 432,
+        "type": "primary"
+      },
+      {
+        "id": 433,
+        "type": "primary"
+      },
+      {
+        "id": 434,
+        "type": "primary"
+      }
+    ]
+  },
+  "baselineManifestSha256": "edbc1deff97cba8a154f3322e305be08427be1db358761635e59153328e04c86",
+  "afterManifestSha256": "edbc1deff97cba8a154f3322e305be08427be1db358761635e59153328e04c86",
+  "baselinePublishedStates": 0,
+  "scenarios": [
+    {
+      "phase": "general",
+      "schemaValidRetainedFixtureReceipts": true,
+      "matchingLAIds": [
+        13
+      ],
+      "unmatchedLAIds": [
+        429,
+        430,
+        431,
+        432,
+        433,
+        434
+      ],
+      "result": {
+        "outcome": "Failed",
+        "error": "Specific results source cannot serve a different election phase"
+      }
+    },
+    {
+      "phase": "primary",
+      "schemaValidRetainedFixtureReceipts": true,
+      "matchingLAIds": [
+        429,
+        430,
+        431,
+        432,
+        433,
+        434
+      ],
+      "unmatchedLAIds": [
+        13
+      ],
+      "result": {
+        "outcome": "Failed",
+        "error": "Specific results source cannot serve a different election phase"
+      }
+    }
+  ]
+}

@@ -1,0 +1,252 @@
+{
+  "outcome": "Worked",
+  "network": "internal, zero published ports",
+  "image": "sha256:c7e5cf0b6387f4c603b41628acc516907fb24e1d153ae124d247878e3045efc9",
+  "builder": "sha256:b8bfe98e6eb4e046aa994261a7d1b082c39fba416155f25953b7a6a83afd0a7d",
+  "physicalDependencies": true,
+  "builderImageId": "sha256:b8bfe98e6eb4e046aa994261a7d1b082c39fba416155f25953b7a6a83afd0a7d",
+  "expectedRuntimeImageId": "sha256:c7e5cf0b6387f4c603b41628acc516907fb24e1d153ae124d247878e3045efc9",
+  "migration": {
+    "runs": 2,
+    "columns": [
+      {
+        "column_name": "official_results_source",
+        "is_nullable": "YES",
+        "data_type": "jsonb"
+      },
+      {
+        "column_name": "official_results_url",
+        "is_nullable": "YES",
+        "data_type": "text"
+      }
+    ],
+    "outcome": "Worked"
+  },
+  "runtimeImageId": "sha256:c7e5cf0b6387f4c603b41628acc516907fb24e1d153ae124d247878e3045efc9",
+  "compiledDefaultDryRun": {
+    "mode": "dry-run",
+    "operation": "apply",
+    "runId": null,
+    "targetCount": 506,
+    "changedCount": 506,
+    "phaseSkippedCount": 0,
+    "phaseSkipped": [],
+    "manifestSha256": "edbc1deff97cba8a154f3322e305be08427be1db358761635e59153328e04c86",
+    "preimageSha256": "719bf1b2bb690096513065091680cc8ff8c70f6de41bb1c0aa3dbc4e3f8bb12d",
+    "postimageSha256": "a051322b4b97fb6acbbe72d5441b4cfd795af98ec3c7c400ef130c440c9a577b",
+    "receipt": "/app/artifacts/c6-cli-default-dry.json"
+  },
+  "compiledGuard": {
+    "outcome": "Failed",
+    "receiptExport": "Failed",
+    "committed": false,
+    "runId": null,
+    "errorCode": "C6_REFUSED",
+    "reason": "Manifest SHA guard rejected this apply",
+    "temporaryReceipt": null,
+    "checkedAt": "2026-10-11T16:04:19.293Z"
+  },
+  "acceptance": {
+    "manifestSha256": "edbc1deff97cba8a154f3322e305be08427be1db358761635e59153328e04c86",
+    "outcome": "Worked",
+    "nullDefaults": {
+      "sqlRecords": 537,
+      "httpRecords": 507,
+      "outcome": "Worked"
+    },
+    "dryRun": {
+      "outcome": "Worked",
+      "targetCount": 506,
+      "proposedChanges": 506,
+      "catalogUnchanged": true,
+      "auditRows": 0
+    },
+    "manifestGuard": "Manifest SHA guard rejected this apply",
+    "preimageGuard": "Catalog preimage guard rejected this apply",
+    "missingReceivingState": "No November 3 receiving elections for reviewed states: WY",
+    "unknownManifestFields": "[\n  {\n    \"code\": \"unrecognized_keys\",\n    \"keys\": [\n      \"unreviewedStatus\"\n    ],\n    \"path\": [\n      \"states\",\n      0,\n      \"source\"\n    ],\n    \"message\": \"Unrecognized key(s) in object: 'unreviewedStatus'\"\n  }\n]",
+    "interveningChange": "Catalog preimage guard rejected this apply",
+    "injectedRollback": "Injected C6 rollback acceptance failure",
+    "writerLock": "canceling statement due to lock timeout",
+    "apply": {
+      "outcome": "Worked",
+      "targetCount": 506,
+      "changedCount": 506,
+      "historicalRowsUnchanged": 31,
+      "futureColumnPreserved": true,
+      "candidateRowsUnchanged": true,
+      "nhUnknown": 4,
+      "miGateway": 15,
+      "laPrimaryUnknown": true,
+      "runId": "0d1c68d6-d9cc-455f-88ab-4de8190660b8"
+    },
+    "dateCorrectionReceiving": {
+      "outcome": "Worked",
+      "adminStatus": 200,
+      "storedSourceUnchanged": true,
+      "detail": {
+        "id": 1,
+        "title": "U.S. Senate Election - Alabama",
+        "date": "2026-11-04T00:00:00.000Z",
+        "state": "AL",
+        "level": "federal",
+        "type": "general",
+        "officialResultsUrl": null,
+        "officialResultsSource": null,
+        "candidates": 0
+      },
+      "listing": {
+        "id": 1,
+        "title": "U.S. Senate Election - Alabama",
+        "subtitle": "Open Seat (Tuberville running for Governor)",
+        "location": "AL",
+        "state": "AL",
+        "date": "2026-11-04T00:00:00.000Z",
+        "type": "general",
+        "level": "federal",
+        "offices": [
+          "U.S. Senate"
+        ],
+        "description": "Open seat — incumbent Tommy Tuberville (R) is running for governor. Nominees decided in June 16 runoffs.",
+        "pollsOpen": null,
+        "pollsClose": null,
+        "timezone": null,
+        "pollCloseKind": null,
+        "pollHoursBasis": null,
+        "pollHoursSource": null,
+        "officialResultsUrl": null,
+        "officialResultsSource": null,
+        "isActive": true,
+        "candidateCount": 0
+      },
+      "wrapped": {
+        "id": 1,
+        "title": "U.S. Senate Election - Alabama",
+        "subtitle": "Open Seat (Tuberville running for Governor)",
+        "location": "AL",
+        "state": "AL",
+        "date": "2026-11-04T00:00:00.000Z",
+        "type": "general",
+        "level": "federal",
+        "offices": [
+          "U.S. Senate"
+        ],
+        "description": "Open seat — incumbent Tommy Tuberville (R) is running for governor. Nominees decided in June 16 runoffs.",
+        "pollsOpen": null,
+        "pollsClose": null,
+        "timezone": null,
+        "pollCloseKind": null,
+        "pollHoursBasis": null,
+        "pollHoursSource": null,
+        "officialResultsUrl": null,
+        "officialResultsSource": null,
+        "isActive": true
+      }
+    },
+    "repeat": {
+      "outcome": "Worked",
+      "changedCount": 0,
+      "rowVersionsUnchanged": true
+    },
+    "compiledReceivingHttp": {
+      "outcome": "Worked",
+      "details": 537,
+      "listings": 506,
+      "fieldComparisons": 2086,
+      "mismatches": 0,
+      "quotaWaits": 1,
+      "durationMs": 51316
+    },
+    "staleRollback": "Rollback refused: catalog changed after this run",
+    "operatorRollback": {
+      "outcome": "Worked",
+      "changedCount": 506,
+      "restoredExactPreimage": true,
+      "runId": "4dfd1b4f-f73b-4961-86d4-9809d7fafd39"
+    },
+    "duplicateRollback": "Apply run has already been rolled back",
+    "readyForPackagedApply": {
+      "manifestSha256": "edbc1deff97cba8a154f3322e305be08427be1db358761635e59153328e04c86",
+      "preimageSha256": "661ed24e8d5e7aa462b2d96ac0b63e7329f3a5e30841561d87747ff355e19b14",
+      "postimageSha256": "d3cfc09619d0824dd4e3b94c20541ebfe978eaaf7b78a485d3f1b29cdf32100f",
+      "changedCount": 506,
+      "auditRows": 3
+    }
+  },
+  "compiledApply": {
+    "mode": "apply",
+    "operation": "apply",
+    "runId": "35b5594b-2c32-4262-a518-bc10714adce5",
+    "targetCount": 506,
+    "changedCount": 506,
+    "phaseSkippedCount": 0,
+    "phaseSkipped": [],
+    "manifestSha256": "edbc1deff97cba8a154f3322e305be08427be1db358761635e59153328e04c86",
+    "preimageSha256": "661ed24e8d5e7aa462b2d96ac0b63e7329f3a5e30841561d87747ff355e19b14",
+    "postimageSha256": "d3cfc09619d0824dd4e3b94c20541ebfe978eaaf7b78a485d3f1b29cdf32100f",
+    "receipt": "/app/artifacts/c6-cli-apply.json"
+  },
+  "finalCompiledRepeat": {
+    "mode": "dry-run",
+    "operation": "apply",
+    "runId": null,
+    "targetCount": 506,
+    "changedCount": 0,
+    "phaseSkippedCount": 0,
+    "phaseSkipped": [],
+    "manifestSha256": "edbc1deff97cba8a154f3322e305be08427be1db358761635e59153328e04c86",
+    "preimageSha256": "d3cfc09619d0824dd4e3b94c20541ebfe978eaaf7b78a485d3f1b29cdf32100f",
+    "postimageSha256": "d3cfc09619d0824dd4e3b94c20541ebfe978eaaf7b78a485d3f1b29cdf32100f",
+    "receipt": "/app/artifacts/c6-cli-final-dry.json"
+  },
+  "compiledRollback": {
+    "mode": "apply",
+    "operation": "rollback",
+    "runId": "e97603ff-6cd5-4377-9b8d-0e33c5efd057",
+    "targetCount": 506,
+    "changedCount": 506,
+    "phaseSkippedCount": 0,
+    "phaseSkipped": [],
+    "manifestSha256": "edbc1deff97cba8a154f3322e305be08427be1db358761635e59153328e04c86",
+    "preimageSha256": "d3cfc09619d0824dd4e3b94c20541ebfe978eaaf7b78a485d3f1b29cdf32100f",
+    "postimageSha256": "661ed24e8d5e7aa462b2d96ac0b63e7329f3a5e30841561d87747ff355e19b14",
+    "receipt": "/app/artifacts/c6-cli-rollback-apply.json"
+  },
+  "postcommitReceiptFault": {
+    "outcome": "Worked",
+    "scenario": "actual non-root chmod denies postcommit rename",
+    "durableAuditPreserved": true,
+    "temporaryReceiptPreserved": true,
+    "operatorOutcome": "Applied",
+    "runId": "3c0bdf0a-d9dd-4e8d-82c6-6d950b4d407a",
+    "changedCount": 506,
+    "preflightBeforeDB": true
+  },
+  "compiledReapply": {
+    "mode": "apply",
+    "operation": "apply",
+    "runId": "4e89b97c-8c0e-4303-a77b-efc25ba0375f",
+    "targetCount": 506,
+    "changedCount": 0,
+    "phaseSkippedCount": 0,
+    "phaseSkipped": [],
+    "manifestSha256": "edbc1deff97cba8a154f3322e305be08427be1db358761635e59153328e04c86",
+    "preimageSha256": "d3cfc09619d0824dd4e3b94c20541ebfe978eaaf7b78a485d3f1b29cdf32100f",
+    "postimageSha256": "d3cfc09619d0824dd4e3b94c20541ebfe978eaaf7b78a485d3f1b29cdf32100f",
+    "receipt": "/app/artifacts/c6-cli-reapply.json"
+  },
+  "auditSchemaSync": {
+    "outcome": "Worked",
+    "catalogAndAuditPreserved": true,
+    "auditRows": 7
+  },
+  "operatorTimezone": {
+    "outcome": "Worked",
+    "operatorTimezone": "Asia/Tokyo",
+    "nativeUtcDay": "2026-11-02",
+    "storedDay": "2026-11-03",
+    "detailDay": "2026-11-03",
+    "listingDay": "2026-11-03",
+    "sourceRetained": true
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "scope": "dedicated disposable EC LA private database, synthetic profiles only",
+  "checks": [
+    {
+      "scenario": "Actual PostgreSQL legacy-general row guarded before correction, with stale general provenance present",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "HTTP receiver: legacy LA not_applicable, Senate/unrelated general controls, other primary, unknown404 and bad400",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "Default dryrun under database-enforced read-only has zero database effect",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "Apply refused missing atomic audit migration, unchanged database",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "Wrong reviewed preimage hash refused, unchanged database",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "Concurrent catalog activeflag drift invalidates original review hash",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "Post-update audit failure atomically rolls back all six updates and preserves profiles",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "Real concurrent post-snapshot writer causes serialization abort, no partial correction/audit",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "Actual apply corrected six types/wording, preserves dates IDs profiles Senate otherstate, creates no Dec12 contests",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "Repeated apply idempotent, no second audit or mutations",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "Corrected primary remains not_applicable in actual HTTP receiver",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "General-list importer refuses LA primary nomination claim before any insert or source update",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "FEC registration links corrected LA primary without overwriting profile/editorial source or asserting nomination/ballot certification",
+      "outcome": "Worked"
+    }
+  ],
+  "appliedAuditId": 2,
+  "planSha256": "8229e8e520bf40065104aefe5d0bf7da7040e47fb7ec97270bc887aae5bc80e3",
+  "source": {
+    "name": "Louisiana Secretary of State — DETAILS FOR U.S. HOUSE RACES IN FALL FINALIZED",
+    "url": "https://www.sos.la.gov/media/dcvl5ojl/051426-fall-house-races.pdf",
+    "sha256": "3319c7cba10c5cd5cc74f2a4cfb2d42935e998cbbfb14746ece63050ee8bedb3",
+    "publishedAt": "2026-05-14",
+    "ruleUrl": "https://www.sos.la.gov/elections-voting/types-of-elections"
+  }
+}

@@ -1,3 +1,4 @@
+import { HttpError, httpErrorFrom, isRetryable, retryDelayMs, MAX_RETRIES } from "@/lib/http-error";
 import { useQuery } from "@tanstack/react-query";
 import { type Election, type Candidate, type ElectionFilters } from "@shared/schema";
 
@@ -40,16 +41,17 @@ export function useElections(filters?: ElectionFilters) {
 }
 
 export function useElection(id: number) {
-  return useQuery({
+  return useQuery<Election, HttpError | Error>({
     queryKey: ['/api/elections', id],
     queryFn: async () => {
       const response = await fetch(`/api/elections/${id}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch election');
-      }
+      if (!response.ok) throw await httpErrorFrom(response);
       return response.json() as Promise<Election>;
     },
     enabled: !!id,
+    // Busy (429) and server/network failures are retried; a 404 is final.
+    retry: (count, err) => isRetryable(err) && count < MAX_RETRIES,
+    retryDelay: (attempt, err) => retryDelayMs(attempt, err),
   });
 }
 
@@ -61,7 +63,12 @@ export function useCandidates(electionId: number) {
       if (!response.ok) {
         throw new Error('Failed to fetch candidates');
       }
-      return response.json() as Promise<Candidate[]>;
+      const rows = (await response.json()) as Array<Candidate & { source_election_id?: number | null }>;
+      // The server falls back to a "similar" race's candidates when this race has
+      // none (same state, same day, shared first title word), which put Alaska's
+      // Senate candidates on the Alaska governor card. Only rows for this exact
+      // race are shown; an empty race stays empty (owner UX review, ET-32).
+      return rows.filter(r => r.source_election_id == null || Number(r.source_election_id) === Number(electionId));
     },
     enabled: !!electionId,
     staleTime: 60 * 60 * 1000, // 1 hour cache - candidates don't change frequently
