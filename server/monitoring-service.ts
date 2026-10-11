@@ -1,12 +1,12 @@
 import { db } from './db';
 import { cacheService } from './cache-service';
-import { db } from './db';
 import { dataArchivalService } from './data-archival-service';
 
 interface PerformanceMetrics {
   timestamp: Date;
   cacheHitRate: number;
-  avgQueryTime: number;
+  /** null when pg_stat_statements is not installed: unknown is not 0 ms. */
+  avgQueryTime: number | null;
   activeConnections: number;
   memoryUsage: number;
   diskUsage: number;
@@ -47,8 +47,8 @@ export class MonitoringService {
       const metrics: PerformanceMetrics = {
         timestamp,
         cacheHitRate,
-        avgQueryTime: dbStats.avgQueryTime || 0,
-        activeConnections: dbStats.activeConnections || 0,
+        avgQueryTime: dbStats.avgQueryTime,
+        activeConnections: dbStats.activeConnections,
         memoryUsage: memoryPercentage,
         diskUsage: 0 // Would be implemented with system monitoring
       };
@@ -68,7 +68,7 @@ export class MonitoringService {
       return {
         timestamp,
         cacheHitRate: 0,
-        avgQueryTime: 0,
+        avgQueryTime: null,
         activeConnections: 0,
         memoryUsage: 0,
         diskUsage: 0
@@ -76,20 +76,30 @@ export class MonitoringService {
     }
   }
 
-  // Get database performance statistics
-  private async getDatabaseStats(): Promise<any> {
+  // Get database performance statistics. pg_stat_statements is an optional extension; when
+  // it is absent (as on this deployment) the average query time is unknown, not zero.
+  private async getDatabaseStats(): Promise<{ activeConnections: number; avgQueryTime: number | null; bufferHitRatio: number | null }> {
     try {
-      const stats = await db.execute(`
-        SELECT 
+      const base = await db.execute<{ active_connections: string | number; buffer_hit_ratio: string | number | null; has_stat_statements: boolean }>(`
+        SELECT
           (SELECT COUNT(*) FROM pg_stat_activity WHERE state = 'active') as active_connections,
-          (SELECT AVG(mean_exec_time) FROM pg_stat_statements WHERE calls > 10) as avg_query_time,
-          (SELECT SUM(blks_hit) * 100.0 / SUM(blks_hit + blks_read) FROM pg_stat_database) as buffer_hit_ratio
+          (SELECT SUM(blks_hit) * 100.0 / NULLIF(SUM(blks_hit + blks_read), 0) FROM pg_stat_database) as buffer_hit_ratio,
+          EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_stat_statements') as has_stat_statements
       `);
-      
-      return stats.rows[0] || {};
+      const row = base.rows[0];
+      let avgQueryTime: number | null = null;
+      if (row?.has_stat_statements) {
+        const q = await db.execute<{ avg_query_time: string | number | null }>(`SELECT AVG(mean_exec_time) as avg_query_time FROM pg_stat_statements WHERE calls > 10`);
+        avgQueryTime = q.rows[0]?.avg_query_time == null ? null : Number(q.rows[0].avg_query_time);
+      }
+      return {
+        activeConnections: Number(row?.active_connections ?? 0),
+        avgQueryTime,
+        bufferHitRatio: row?.buffer_hit_ratio == null ? null : Number(row.buffer_hit_ratio),
+      };
     } catch (error) {
       console.error('Error getting database stats:', error);
-      return {};
+      return { activeConnections: 0, avgQueryTime: null, bufferHitRatio: null };
     }
   }
 
@@ -104,7 +114,7 @@ export class MonitoringService {
 
   // Check for performance alerts
   private async checkAlerts(metrics: PerformanceMetrics): Promise<void> {
-    const alerts = [];
+    const alerts: Array<{ type: string; message: string; severity: 'warning' | 'critical' }> = [];
     
     if (metrics.cacheHitRate < this.alerts.cacheHitRateThreshold) {
       alerts.push({
@@ -114,7 +124,7 @@ export class MonitoringService {
       });
     }
     
-    if (metrics.avgQueryTime > this.alerts.queryTimeThreshold) {
+    if (metrics.avgQueryTime !== null && metrics.avgQueryTime > this.alerts.queryTimeThreshold) {
       alerts.push({
         type: 'slow_queries',
         message: `Average query time is ${metrics.avgQueryTime}ms, above threshold of ${this.alerts.queryTimeThreshold}ms`,
@@ -160,79 +170,47 @@ export class MonitoringService {
     };
   }
 
-  // Election night specific monitoring
-  async getElectionNightMetrics(): Promise<any> {
+  // Election night specific monitoring, from user_events (session_id, page_path, created_at).
+  // The previous queries read user_interactions and api_requests, which do not exist.
+  async getElectionNightMetrics(): Promise<{
+    concurrentUsers: number;
+    requestsLastFiveMinutes: number;
+    requestsPerSecond: number;
+    topEndpoints: Array<{ endpoint: string; requests: number }>;
+    geographicDistribution: { available: false; reason: string };
+    cacheEfficiency: number;
+    databaseLoad: number | null;
+  }> {
     const currentLoad = await this.collectMetrics();
-    
-    // Get real user session data
-    const sessionStats = await db.execute(`
-      SELECT 
-        COUNT(DISTINCT session_id) as concurrent_users,
-        COUNT(*) as total_requests
-      FROM user_interactions 
-      WHERE timestamp > NOW() - INTERVAL '5 minutes'
-    `);
 
-    // Get actual endpoint usage stats
-    const endpointStats = await db.execute(`
-      SELECT 
-        endpoint,
-        COUNT(*) as request_count
-      FROM api_requests 
-      WHERE timestamp > NOW() - INTERVAL '1 hour'
-      GROUP BY endpoint
+    const sessionStats = await db.execute<{ concurrent_users: string | number; total_requests: string | number }>(`
+      SELECT COUNT(DISTINCT session_id) as concurrent_users, COUNT(*) as total_requests
+      FROM user_events
+      WHERE created_at > NOW() - INTERVAL '5 minutes'
+    `);
+    const endpointStats = await db.execute<{ endpoint: string; request_count: string | number }>(`
+      SELECT page_path as endpoint, COUNT(*) as request_count
+      FROM user_events
+      WHERE created_at > NOW() - INTERVAL '1 hour'
+      GROUP BY page_path
       ORDER BY request_count DESC
       LIMIT 10
     `);
-
-    // Calculate requests per second from recent activity
-    const recentRequests = await db.execute(`
-      SELECT COUNT(*) as requests
-      FROM api_requests 
-      WHERE timestamp > NOW() - INTERVAL '1 minute'
+    const recentRequests = await db.execute<{ requests: string | number }>(`
+      SELECT COUNT(*) as requests FROM user_events WHERE created_at > NOW() - INTERVAL '1 minute'
     `);
 
-    const electionNightMetrics = {
-      concurrentUsers: sessionStats.rows[0]?.concurrent_users || 0,
-      requestsPerSecond: Math.ceil((recentRequests.rows[0]?.requests || 0) / 60),
-      topEndpoints: endpointStats.rows.map(row => ({
-        endpoint: row.endpoint,
-        requests: row.request_count
-      })),
-      geographicDistribution: await this.getGeographicDistribution(),
+    return {
+      concurrentUsers: Number(sessionStats.rows[0]?.concurrent_users ?? 0),
+      requestsLastFiveMinutes: Number(sessionStats.rows[0]?.total_requests ?? 0),
+      requestsPerSecond: Math.ceil(Number(recentRequests.rows[0]?.requests ?? 0) / 60),
+      topEndpoints: endpointStats.rows.map((row) => ({ endpoint: row.endpoint, requests: Number(row.request_count) })),
+      // user_events stores an anonymised IP and no region; a made-up 100 % United States
+      // split used to be returned here.
+      geographicDistribution: { available: false, reason: 'No region is recorded on user_events' },
       cacheEfficiency: currentLoad.cacheHitRate,
       databaseLoad: currentLoad.avgQueryTime
     };
-    
-    return electionNightMetrics;
-  }
-
-  private async getGeographicDistribution(): Promise<any> {
-    try {
-      const geoStats = await db.execute(`
-        SELECT 
-          CASE 
-            WHEN location ~ '^[A-Z]{2}$' THEN 'United States'
-            ELSE 'International'
-          END as region,
-          COUNT(*) as count
-        FROM user_interactions 
-        WHERE timestamp > NOW() - INTERVAL '1 hour'
-        GROUP BY region
-      `);
-
-      const total = geoStats.rows.reduce((sum, row) => sum + (row.count || 0), 0);
-      const distribution = {};
-      
-      geoStats.rows.forEach(row => {
-        distribution[row.region] = total > 0 ? Math.round((row.count / total) * 100) : 0;
-      });
-
-      return distribution;
-    } catch (error) {
-      console.error('Error getting geographic distribution:', error);
-      return { 'United States': 100, 'International': 0 };
-    }
   }
 
   // Campaign analytics monitoring
@@ -274,13 +252,13 @@ export class MonitoringService {
     }
   }
 
-  private calculateMRR(campaignStats: any[]): number {
+  private calculateMRR(campaignStats: Array<Record<string, unknown>>): number {
     const tierPrices = { basic: 99, pro: 499, enterprise: 2499, custom: 5000 };
     let mrr = 0;
-    
+
     campaignStats.forEach(stat => {
-      const price = tierPrices[stat.subscription_tier as keyof typeof tierPrices] || 0;
-      mrr += price * stat.tier_count;
+      const price = tierPrices[String(stat.subscription_tier) as keyof typeof tierPrices] || 0;
+      mrr += price * Number(stat.tier_count ?? 0);
     });
     
     return mrr;

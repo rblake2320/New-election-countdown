@@ -1,6 +1,7 @@
 import { db } from "./db";
-import { 
-  candidates, 
+import {
+  candidates,
+  elections,
   candidateSubscriptions, 
   candidatePositions, 
   candidateQA, 
@@ -17,7 +18,20 @@ import type {
   InsertRealTimePolling
 } from "@shared/schema";
 import { civicAggregatorService } from "./civic-aggregator-service";
-import { voteSmartService } from "./services/votesmart-service";
+import { voteSmartService, type VoteSmartBio, type VoteSmartPosition, type VoteSmartVotingRecord, type VoteSmartRating } from "./services/votesmart-service";
+
+interface EnrichedCandidateData {
+  has_votesmart_data: boolean;
+  biography: VoteSmartBio | null;
+  photo_url: string | null;
+  professional_background: string | null;
+  education: string | null;
+  positions: VoteSmartPosition[];
+  voting_record: VoteSmartVotingRecord[];
+  interest_group_ratings: VoteSmartRating[];
+  data_issues: string[];
+  last_updated: string;
+}
 
 export class CandidateManagementService {
   
@@ -26,10 +40,13 @@ export class CandidateManagementService {
     const [profile] = await db
       .select({
         candidate: candidates,
-        subscription: candidateSubscriptions
+        subscription: candidateSubscriptions,
+        // race context lives on the election row; candidates carry no office/state
+        election: elections
       })
       .from(candidates)
       .leftJoin(candidateSubscriptions, eq(candidates.id, candidateSubscriptions.candidateId))
+      .leftJoin(elections, eq(candidates.electionId, elections.id))
       .where(eq(candidates.id, candidateId));
 
     if (!profile) {
@@ -37,26 +54,25 @@ export class CandidateManagementService {
     }
 
     // Base profile response
-    const baseProfile = {
-      ...profile,
-      enriched_data: {
-        has_votesmart_data: false,
-        biography: null,
-        photo_url: profile.candidate.profileImageUrl,
-        professional_background: null,
-        education: null,
-        positions: [],
-        voting_record: [],
-        interest_group_ratings: [],
-        data_issues: [],
-        last_updated: new Date().toISOString()
-      }
+    const enriched: EnrichedCandidateData = {
+      has_votesmart_data: false,
+      biography: null,
+      photo_url: profile.candidate.profileImageUrl,
+      professional_background: null,
+      education: null,
+      positions: [],
+      voting_record: [],
+      interest_group_ratings: [],
+      data_issues: [],
+      last_updated: new Date().toISOString()
     };
+    const baseProfile = { ...profile, enriched_data: enriched };
 
     // If VoteSmart enrichment is requested and available, add it
     if (includeVoteSmartData) {
       try {
-        const searchId = profile.candidate.votesmart_id || profile.candidate.name;
+        // candidates carry no VoteSmart id column; the aggregator searches by name
+        const searchId = profile.candidate.name;
         const comprehensiveData = await civicAggregatorService.getComprehensiveCandidateData([searchId], 'profile');
         
         if (comprehensiveData && comprehensiveData.length > 0) {
@@ -67,10 +83,10 @@ export class CandidateManagementService {
             
             baseProfile.enriched_data = {
               has_votesmart_data: true,
-              biography: vsData.bio || vsData.detailedBio || null,
-              photo_url: vsData.photoUrl || profile.candidate.profileImageUrl,
-              professional_background: vsData.bio?.profession || vsData.detailedBio?.profession || null,
-              education: vsData.bio?.education || vsData.detailedBio?.education || null,
+              biography: vsData.bio ?? vsData.detailedBio ?? null,
+              photo_url: vsData.photoUrl ?? profile.candidate.profileImageUrl,
+              professional_background: vsData.bio?.profession ?? vsData.detailedBio?.profession ?? null,
+              education: vsData.bio?.education ?? vsData.detailedBio?.education ?? null,
               positions: vsData.positions || [],
               voting_record: vsData.votingRecord || [],
               interest_group_ratings: vsData.ratings || [],
@@ -129,7 +145,8 @@ export class CandidateManagementService {
         id: profile.candidate.id,
         name: profile.candidate.name,
         party: profile.candidate.party,
-        office: profile.candidate.office,
+        office: profile.election?.title ?? null,
+        state: profile.election?.state ?? null,
         photo_url: profile.enriched_data.photo_url,
         has_biography: !!profile.enriched_data.biography,
         has_positions: profile.enriched_data.positions.length > 0,

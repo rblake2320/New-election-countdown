@@ -1,10 +1,30 @@
 import { Router } from 'express';
-import { neon } from '@neondatabase/serverless';
+import { rawSql as sql } from '../db';
 
 const router = Router();
-const sql = neon(process.env.DATABASE_URL!);
+
+/** The steward tables ship in no migration; a missing table is a provisioning fact, not a 500. */
+async function provisioned(table: string): Promise<boolean> {
+  const rows = await sql<{ t: string | null }>`select to_regclass(${table})::text as t`;
+  return Boolean(rows[0]?.t);
+}
+function notProvisioned(res: import('express').Response, table: string) {
+  return res.status(503).json({ error: 'steward_not_provisioned', message: `${table} is not present in this database` });
+}
 
 // Helper to parse boolean query params
+interface AuditRunRow {
+  id: number;
+  run_type: string;
+  started_at: string | Date;
+  finished_at: string | Date | null;
+  pass: boolean | null;
+  total_findings_before: number | null;
+  fixes_applied: number | null;
+  remaining_open: number | null;
+  duration_s: number | null;
+}
+
 function toBool(v: any): boolean | undefined {
   if (v === undefined) return undefined;
   if (typeof v === 'boolean') return v;
@@ -17,6 +37,7 @@ function toBool(v: any): boolean | undefined {
 // GET /api/steward/audit-runs
 router.get('/audit-runs', async (req, res) => {
   try {
+    if (!(await provisioned('steward_audit_runs'))) return notProvisioned(res, 'steward_audit_runs');
     const limit = Math.min(parseInt(String(req.query.limit ?? '25'), 10) || 25, 200);
     const offset = Math.max(parseInt(String(req.query.offset ?? '0'), 10) || 0, 0);
     const runType = req.query.run_type ? String(req.query.run_type) : undefined;
@@ -25,8 +46,8 @@ router.get('/audit-runs', async (req, res) => {
     const to = req.query.to ? new Date(String(req.query.to)) : undefined;
 
     // Build dynamic WHERE clause
-    const conditions = [];
-    const params = [];
+    const conditions: string[] = [];
+    const params: unknown[] = [];
     
     if (runType) {
       conditions.push(`run_type = $${params.length + 1}`);
@@ -90,6 +111,7 @@ router.get('/audit-runs', async (req, res) => {
 // GET /api/steward/audit-runs/:id
 router.get('/audit-runs/:id', async (req, res) => {
   try {
+    if (!(await provisioned('steward_audit_runs'))) return notProvisioned(res, 'steward_audit_runs');
     const { id } = req.params;
     
     const result = await sql`
@@ -122,14 +144,15 @@ router.get('/audit-runs/:id', async (req, res) => {
 // GET /api/steward/audit-runs.csv
 router.get('/audit-runs.csv', async (req, res) => {
   try {
+    if (!(await provisioned('steward_audit_runs'))) return notProvisioned(res, 'steward_audit_runs');
     const runType = req.query.run_type ? String(req.query.run_type) : undefined;
     const passFlag = toBool(req.query.pass);
     const from = req.query.from ? new Date(String(req.query.from)) : undefined;
     const to = req.query.to ? new Date(String(req.query.to)) : undefined;
 
     // Build WHERE clause
-    const conditions = [];
-    const params = [];
+    const conditions: string[] = [];
+    const params: unknown[] = [];
     
     if (runType) {
       conditions.push(`run_type = $${params.length + 1}`);
@@ -169,7 +192,7 @@ router.get('/audit-runs.csv', async (req, res) => {
       ORDER BY started_at DESC
     `;
     
-    const rows = await sql(query, params);
+    const rows = await sql<AuditRunRow>(query, params);
 
     // Set CSV headers
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
@@ -203,6 +226,7 @@ router.get('/audit-runs.csv', async (req, res) => {
 // POST /api/steward/audit-runs - Create a new audit run
 router.post('/audit-runs', async (req, res) => {
   try {
+    if (!(await provisioned('steward_audit_runs'))) return notProvisioned(res, 'steward_audit_runs');
     const { run_type = 'manual', notes } = req.body;
     
     const result = await sql`

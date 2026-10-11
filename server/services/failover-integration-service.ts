@@ -125,7 +125,7 @@ export class FailoverIntegrationService {
       const { failoverOrchestrationService } = await import('./failover-orchestration-service');
       
       // Register callback for failover executions
-      failoverOrchestrationService.onFailoverExecution(async (execution: FailoverExecution) => {
+      await failoverOrchestrationService.onFailoverExecution(async (execution: FailoverExecution) => {
         await this.handleOrchestrationExecution(execution);
       });
 
@@ -386,15 +386,22 @@ export class FailoverIntegrationService {
       // Send via notification queue service
       try {
         const { notificationQueueService } = await import('./notification-queue-service');
+        const recipient = process.env.ALERT_EMAIL;
+        if (!recipient) {
+          console.warn('ALERT_EMAIL is not set: failover notification not queued:', notification.title);
+          return;
+        }
         await notificationQueueService.queueNotification({
           type: 'email',
-          title: notification.title,
-          message: notification.message,
-          severity: notification.severity,
-          metadata: {
-            ...notification.metadata,
-            timestamp: new Date().toISOString()
-          }
+          priority: notification.severity === 'high' ? 'urgent' : notification.severity === 'medium' ? 'high' : 'normal',
+          recipient,
+          content: {
+            subject: `[Failover] ${notification.title}`,
+            message: `${notification.message}\n\n${JSON.stringify({ ...notification.metadata, timestamp: new Date().toISOString() }, null, 2)}`
+          },
+          metadata: {},
+          maxRetries: 3,
+          scheduledAt: new Date()
         });
       } catch (error) {
         console.log('Notification queue service not available:', error);
@@ -425,8 +432,13 @@ export class FailoverIntegrationService {
       // Import SendGrid service for email notifications
       const { sendGridNotificationService } = await import('./sendgrid-notification-service');
       
+      if (!process.env.ALERT_EMAIL) {
+        console.warn('ALERT_EMAIL is not set: failover alert email not sent:', notification.title);
+        return;
+      }
       await sendGridNotificationService.sendEmail({
-        to: process.env.ALERT_EMAIL || 'admin@example.com',
+        to: process.env.ALERT_EMAIL,
+        from: process.env.NOTIFICATION_FROM_EMAIL || 'notifications@electiontracker.app',
         subject: `[Failover Alert] ${notification.title}`,
         text: `${notification.message}\n\nDetails: ${JSON.stringify(notification.metadata, null, 2)}`,
         html: `
@@ -476,12 +488,8 @@ export class FailoverIntegrationService {
     try {
       const { disasterRecoveryCoordinator } = await import('./disaster-recovery-coordinator');
       
-      await disasterRecoveryCoordinator.initiateRecovery({
-        trigger: 'failover_failure',
-        reason: `Critical failover failure: ${event.fromMode} → ${event.toMode}`,
-        severity: 'high',
-        metadata: event
-      });
+      // initiateRecovery(reason, options): the previous object argument was read as the reason string
+      await disasterRecoveryCoordinator.initiateRecovery(`Critical failover failure: ${event.fromMode} → ${event.toMode}`);
 
       this.metrics.disasterRecoveryActivations++;
       console.log('🛡️ Disaster recovery coordination triggered');

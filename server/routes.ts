@@ -25,7 +25,6 @@ import { globalElectionService } from "./global-election-service";
 import { civicAggregatorService } from "./civic-aggregator-service";
 import { registerCandidatePortalRoutes } from "./routes-candidate-portal";
 import { positionAggregatorService } from "./position-aggregator-service";
-import { enhancedPositionService } from "./enhanced-position-service";
 import { candidatePositionAPI } from "./candidate-position-api";
 import { pollingTrendService } from "./polling-trend-service";
 import { openStatesService } from "./openstates-service";
@@ -104,12 +103,11 @@ import {
   InsertNotificationSubscription,
   NotificationDelivery,
   NotificationCampaign,
-  NotificationEvent,
-  createInsertSchema
+  NotificationEvent
 } from "@shared/schema";
 import { notificationPreferencesService } from "./services/notification-preferences-service";
 import { notificationQueueService } from "./services/notification-queue-service";
-import { RecommendationService } from "./recommendation-service";
+import { RecommendationService, type RecommendationOptions } from "./recommendation-service";
 import { z } from "zod";
 import { stripMarkup, LLM_PROVENANCE } from "./untrusted-text";
 
@@ -1476,9 +1474,16 @@ Please provide detailed, current information about this specific election.`;
         forceRefresh = false
       } = req.query;
 
-      const options = {
+      type RecommendationType = NonNullable<RecommendationOptions['types']>[number];
+      const allowedTypes: readonly RecommendationType[] = ['location_based', 'interest_based', 'trending', 'similar_users'];
+      const requestedTypes = typeof types === 'string' && types ? types.split(',') : undefined;
+      const invalidTypes = requestedTypes?.filter((t) => !(allowedTypes as readonly string[]).includes(t)) ?? [];
+      if (invalidTypes.length > 0) {
+        return res.status(400).json({ error: 'invalid_types', invalid: invalidTypes, allowed: allowedTypes });
+      }
+      const options: RecommendationOptions = {
         limit: parseInt(limit as string),
-        types: types ? (types as string).split(',') : undefined,
+        types: requestedTypes as RecommendationType[] | undefined,
         includeExpired: includeExpired === 'true',
         forceRefresh: forceRefresh === 'true'
       };
@@ -1844,7 +1849,10 @@ Please provide detailed, current information about this specific election.`;
         return res.status(401).json({ error: 'Invalid token' });
       }
 
-      const userData = await storage.exportUserData(parseInt(user.id));
+      const userData = await storage.exportUserData(user.id);
+      if (!userData) {
+        return res.status(503).json({ error: 'export_unavailable', message: 'User data could not be exported right now' });
+      }
       res.json(userData);
     } catch (error: any) {
       console.error('Error exporting user data:', error);
@@ -1859,7 +1867,7 @@ Please provide detailed, current information about this specific election.`;
         return res.status(401).json({ error: 'Invalid token' });
       }
 
-      const success = await storage.deleteUserData(parseInt(user.id));
+      const success = await storage.deleteUserData(user.id);
       if (success) {
         res.json({ message: 'All user data deleted successfully' });
       } else {
@@ -2586,7 +2594,7 @@ Please provide specific, factual information with sources where possible. Focus 
         electionType: undefined
       } as any);
 
-      let aiEnhancement = null;
+      let aiEnhancement: unknown = null;
       if (enhance === 'true') {
         try {
           aiEnhancement = await perplexityCongressService.searchWithAI(

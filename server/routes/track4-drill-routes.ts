@@ -2,8 +2,8 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { storage } from '../storage';
 import { SyntheticFailoverDrillService } from '../services/synthetic-failover-drill-service';
-import { 
-  createInsertSchema,
+import {
+  insertFailoverDrillConfigurationSchema,
   FailoverDrillConfiguration,
   DrillExecution,
   DrillStep
@@ -16,22 +16,9 @@ const router = Router();
 const drillService = new SyntheticFailoverDrillService(storage);
 
 // Validation schemas
-const createDrillConfigSchema = z.object({
-  drillName: z.string().min(1),
-  drillType: z.enum(['failover', 'recovery', 'full_dr']),
-  scenario: z.string().min(1),
-  targetEnvironment: z.string().min(1),
-  triggerType: z.enum(['manual', 'scheduled', 'automated']),
-  scheduleExpression: z.string().optional(),
-  expectedRtoMinutes: z.number().positive().optional(),
-  expectedRpoMinutes: z.number().min(0).optional(),
-  isEnabled: z.boolean().default(true),
-  description: z.string().optional(),
-  automationScript: z.string().optional(),
-  preRequisites: z.array(z.string()).optional(),
-  successCriteria: z.array(z.string()).optional(),
-  rollbackProcedure: z.string().optional()
-});
+// The shared insert schema is the table contract (the hand-written one named columns the
+// table lacks: drillName, targetEnvironment, expectedRtoMinutes, preRequisites...).
+const createDrillConfigSchema = insertFailoverDrillConfigurationSchema;
 
 const executeDrillSchema = z.object({
   triggerType: z.enum(['manual', 'scheduled', 'automated']).optional(),
@@ -272,7 +259,7 @@ router.get('/executions/:executionId', isAuthenticated, async (req, res) => {
 // GET /api/v1/track4/drills/executions/:executionId/steps - Get execution steps
 router.get('/executions/:executionId/steps', isAuthenticated, async (req, res) => {
   try {
-    const executionId = parseInt(req.params.executionId);
+    const executionId = String(req.params.executionId);
     const steps = await storage.getDrillStepsByExecution(executionId);
     
     res.json({

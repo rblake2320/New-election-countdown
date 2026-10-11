@@ -43,7 +43,8 @@ const updateConsentSchema = z.object({
 analyticsRouter.post("/events", async (req, res) => {
   try {
     const eventData = trackEventSchema.parse(req.body);
-    const sessionId = eventData.sessionId || req.sessionID || 'anonymous';
+    const headerSession = req.headers['x-session-id'];
+    const sessionId = eventData.sessionId || (typeof headerSession === 'string' && headerSession) || 'anonymous';
     const userId = (req as any).userId?.toString();
 
     await analyticsService.trackEvent({
@@ -191,7 +192,7 @@ analyticsRouter.post("/engagement/calculate", authRequired(), async (req, res) =
       return res.status(400).json({ error: 'userIds array required' });
     }
 
-    const results = [];
+    const results: Array<{ userId: string; success: boolean; score?: number; error?: string }> = [];
     for (const userId of userIds) {
       try {
         const score = await analyticsService.calculateUserEngagementScore(userId, period);

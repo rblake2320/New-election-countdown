@@ -43,14 +43,15 @@ export function addPercentageValidationEndpoint(app: Express) {
         // Include candidates with percentage data in detailed report
         if (candidate.pollingSupport || candidate.votePercentage) {
           audit.detailedReport.push({
+            ...report,
+            // the candidate row's own fields win over the report's copies
             id: candidate.id,
             name: candidate.name,
             electionId: candidate.electionId,
             pollingSupport: candidate.pollingSupport,
             votePercentage: candidate.votePercentage,
             lastPollingUpdate: candidate.lastPollingUpdate,
-            pollingSource: candidate.pollingSource,
-            ...report
+            pollingSource: candidate.pollingSource
           });
         }
       }

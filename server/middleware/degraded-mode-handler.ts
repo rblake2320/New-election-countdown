@@ -150,7 +150,7 @@ function getDegradedModeMessage(mode: string): string {
  * Get alternatives for degraded mode
  */
 function getDegradedModeAlternatives(mode: string, isWriteOperation: boolean): string[] {
-  const alternatives = [];
+  const alternatives: string[] = [];
   
   if (isWriteOperation) {
     alternatives.push('Try again later when the system is fully operational');

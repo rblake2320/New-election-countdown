@@ -41,7 +41,7 @@ mcpRouter.post('/mcps/scan', async (_req, res) => {
     );
 
     let totalInserted = 0;
-    const results = [];
+    const results: Array<{ mcp: string; detected?: number; inserted?: number; skipped?: number; error?: string }> = [];
 
     for (const mcp of mcps) {
       try {

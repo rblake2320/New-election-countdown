@@ -343,6 +343,63 @@ export class RtoRpoPerformanceDashboardService {
   }
 
   /**
+   * Compliance right now, from the stored targets and their measurements (the routes used to
+   * call a method with this name that did not exist).
+   */
+  async getRealTimeComplianceStatus(): Promise<{
+    timestamp: Date;
+    totalTargets: number;
+    compliantTargets: number;
+    unmeasuredTargets: number;
+    complianceRate: number;
+    nonCompliant: Array<{ targetId: number; targetName: string; rtoCompliant: boolean; rpoCompliant: boolean; riskLevel: string; lastMeasurement: Date | null }>;
+  }> {
+    const { storage } = await import('../storage');
+    const targets = await storage.getRtoRpoTargets({ active: true });
+    const metrics = await this.getTargetMetrics(targets);
+    const measured = metrics.filter((m) => m.totalMeasurements > 0);
+    const compliant = measured.filter((m) => m.overallCompliant);
+    return {
+      timestamp: new Date(),
+      totalTargets: targets.length,
+      compliantTargets: compliant.length,
+      unmeasuredTargets: metrics.length - measured.length,
+      complianceRate: measured.length > 0 ? (compliant.length / measured.length) * 100 : 0,
+      nonCompliant: measured.filter((m) => !m.overallCompliant).map((m) => ({
+        targetId: m.targetId, targetName: m.targetName, rtoCompliant: m.rtoCompliant, rpoCompliant: m.rpoCompliant,
+        riskLevel: m.riskLevel, lastMeasurement: m.lastMeasurement ?? null,
+      })),
+    };
+  }
+
+  /** Benchmark comparison for the active targets of a service type (optionally one criticality). */
+  async compareAgainstBenchmarks(serviceType: string, businessCriticality?: string): Promise<{
+    serviceType: string;
+    businessCriticality: string | null;
+    targetsConsidered: number;
+    comparisons: BenchmarkComparison[];
+    note?: string;
+  }> {
+    const { storage } = await import('../storage');
+    const targets = await storage.getRtoRpoTargets({ active: true, serviceType, businessCriticality });
+    const comparisons: BenchmarkComparison[] = [];
+    for (const target of targets) {
+      const measurements = await storage.getRtoRpoMeasurementsByTarget(target.id);
+      const comparison = await this.getBenchmarkComparison(target, measurements);
+      if (comparison) comparisons.push(comparison);
+    }
+    return {
+      serviceType,
+      businessCriticality: businessCriticality ?? null,
+      targetsConsidered: targets.length,
+      comparisons,
+      note: comparisons.length === 0
+        ? (targets.length === 0 ? 'No active targets match' : 'No active benchmark matches these targets\' service category, or they have no measurements yet')
+        : undefined,
+    };
+  }
+
+  /**
    * Get performance report for specific target
    */
   async getTargetPerformanceReport(

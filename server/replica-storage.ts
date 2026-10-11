@@ -427,8 +427,8 @@ export class ReplicaStorage implements IStorage {
   async recordEngagement(data: any): Promise<void> {}
   async updateUserPreferences(_userId: string, _updates: UpdateUserPreferences): Promise<UserPreferences> { return this.readOnly('updateUserPreferences'); }
   async updateUserDemographics(_userId: string, _demographics: UpdateUserPreferences): Promise<UserPreferences> { return this.readOnly('updateUserDemographics'); }
-  async exportUserData(_userId: number): Promise<any> { return this.readOnly('exportUserData'); }
-  async deleteUserData(_userId: number): Promise<boolean> { return this.readOnly('deleteUserData'); }
+  async exportUserData(_userId: string): Promise<any> { return this.readOnly('exportUserData'); }
+  async deleteUserData(_userId: string): Promise<boolean> { return this.readOnly('deleteUserData'); }
   async createCandidateProfile(_profile: InsertCandidateProfile): Promise<CandidateProfile> { return this.readOnly('createCandidateProfile'); }
   async createCandidatePosition(_position: InsertCandidatePosition): Promise<CandidatePosition> { return this.readOnly('createCandidatePosition'); }
   async updateCandidatePosition(_positionId: number, _updates: Partial<CandidatePosition>): Promise<CandidatePosition> { return this.readOnly('updateCandidatePosition'); }
@@ -685,6 +685,10 @@ export class ReplicaStorage implements IStorage {
   async updateSecretRotationHistory(..._args: unknown[]): Promise<never> { return this.readOnly('updateSecretRotationHistory'); }
   async updateUserRecommendationAnalytics(..._args: unknown[]): Promise<never> { return this.readOnly('updateUserRecommendationAnalytics'); }
   async validateUserSession(..._args: unknown[]): Promise<never> { return this.readOnly('validateUserSession'); }
+  async getNotificationConsentsBetween(..._args: unknown[]): Promise<never> { return this.readOnly('getNotificationConsentsBetween'); }
+  async getExpiredNotificationConsents(..._args: unknown[]): Promise<never> { return this.readOnly('getExpiredNotificationConsents'); }
+  async unsubscribeNotificationSubscriptionByToken(..._args: unknown[]): Promise<never> { return this.readOnly('unsubscribeNotificationSubscriptionByToken'); }
+  async getNotificationSubscriptionsVerifiedBetween(..._args: unknown[]): Promise<never> { return this.readOnly('getNotificationSubscriptionsVerifiedBetween'); }
   async withdrawNotificationConsent(..._args: unknown[]): Promise<never> { return this.readOnly('withdrawNotificationConsent'); }
 
 }

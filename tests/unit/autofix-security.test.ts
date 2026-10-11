@@ -31,16 +31,15 @@ const mockProcess = {
 
 // Mock the modules
 vi.mock('../../server/db', () => ({
-  pool: mockPool
+  pool: mockPool,
+  // the middleware now queries through the shared pool helper (was a per-file Neon client)
+  rawSql: mockSql
 }));
 
 vi.mock('../../server/storage-factory', () => ({
   storageFactory: mockStorageFactory
 }));
 
-vi.mock('@neondatabase/serverless', () => ({
-  neon: () => mockSql
-}));
 
 // Helper function to create mock request/response/next
 function createMockReqRes(method: string = 'POST', path: string = '/autofix/apply/123', body: any = {}) {

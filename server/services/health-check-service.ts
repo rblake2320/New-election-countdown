@@ -663,18 +663,19 @@ export class HealthCheckService {
     const healthStatus = await this.checkAllServices();
     
     // Add database-specific health information for failover integration
-    let databaseHealth = null;
+    let databaseHealth: { healthy: boolean; mode: string; latency?: number; errors: string[] } | null = null;
     try {
       // Try to get storage health if available
       const { storage } = await import('../storage');
       const storageHealth = storage.getHealthStatus?.();
-      
+
       if (storageHealth) {
         databaseHealth = {
           healthy: storageHealth.isDatabaseHealthy || false,
-          mode: storageHealth.mode || 'unknown',
+          mode: String(storageHealth.mode || 'unknown'),
           latency: storageHealth.connectionStats?.averageLatency,
-          errors: storageHealth.diagnostics?.errors || []
+          // diagnostics is a list of probes; the ones that failed carry the error text
+          errors: (storageHealth.diagnostics ?? []).flatMap((d) => (d.error ? [d.error] : []))
         };
       }
     } catch (error) {
@@ -683,7 +684,7 @@ export class HealthCheckService {
     
     return {
       ...healthStatus,
-      database: databaseHealth
+      database: databaseHealth ?? undefined
     };
   }
   // Event handling for failover integration

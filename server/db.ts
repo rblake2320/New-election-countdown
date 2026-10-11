@@ -43,6 +43,25 @@ pool.on('remove', () => {
 
 export const db = drizzle({ client: pool, schema });
 
+/**
+ * Raw SQL over the shared pg pool, callable as a tagged template (`rawSql\`... ${x}\``, values
+ * become $1..$n) or positionally (`rawSql(text, params)`). Replaces the per-file
+ * `neon(process.env.DATABASE_URL!)` HTTP clients, which only speak to Neon's endpoint and fail
+ * against the plain PostgreSQL this deployment runs.
+ */
+export async function rawSql<T extends object = Record<string, unknown>>(
+  strings: TemplateStringsArray | string,
+  ...values: unknown[]
+): Promise<T[]> {
+  if (typeof strings === 'string') {
+    const result = await pool.query(strings, (values[0] as unknown[] | undefined) ?? []);
+    return result.rows as T[];
+  }
+  const text = strings.reduce((acc, part, i) => acc + part + (i < values.length ? `$${i + 1}` : ''), '');
+  const result = await pool.query(text, values);
+  return result.rows as T[];
+}
+
 // Connection health check utility
 export async function testDatabaseConnection(timeoutMs: number = 5000): Promise<{
   success: boolean;

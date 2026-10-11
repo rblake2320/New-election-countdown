@@ -1,7 +1,13 @@
-import { neon } from '@neondatabase/serverless';
+import { rawSql as sql } from '../db';
+
+// Row shapes of the steward views/tables these tasks read (postgres counts arrive as strings).
+interface CongressMismatchRow { state: string; expected_total: number | string; actual_total: number | string; delta: number | string }
+interface PriorityMissingRow { election_id: number; state: string | null; title: string; election_date: string | Date | null; candidate_count: number | string; min_candidates: number | string }
+interface DateDriftRow { election_id: number; authority: string; reported_date: string | Date | null; priority: number; confidence: number | string | null; title: string; state: string; current_date: string | Date }
+interface UdelRow { election_id: number; title: string; state: string; election_date: string | Date }
+interface SuggestionRow { id: number; kind: string; status: string; payload: { title?: string; state?: string; date?: string; seed?: unknown } | null }
 import type { Request, Response } from 'express';
 
-const sql = neon(process.env.DATABASE_URL!);
 
 type TaskName =
   | 'congressCounts'
@@ -10,11 +16,11 @@ type TaskName =
   | 'udelHeuristic';
 
 async function startRun(trigger: string, tasks: TaskName[]) {
-  const result = await sql(
+  const result = await sql<{ run_id: string }>(
     `INSERT INTO bot_task_runs(trigger, tasks) VALUES ($1, $2) RETURNING run_id`,
     [trigger, JSON.stringify(tasks)]
   );
-  return result[0].run_id as string;
+  return result[0].run_id;
 }
 
 async function finishRun(runId: string) {
@@ -40,12 +46,12 @@ async function suggest(
 
 /** Task: congress counts vs expected house+2 */
 async function taskCongressCounts(runId: string) {
-  const rows = await sql(`
+  const rows = await sql<CongressMismatchRow>(`
     SELECT state, expected_total, actual_total, (actual_total-expected_total) AS delta
     FROM v_congress_mismatch
   `);
   for (const r of rows) {
-    const sev = Math.abs(r.delta) >= 2 ? 'high' : 'medium';
+    const sev = Math.abs(Number(r.delta)) >= 2 ? 'high' : 'medium';
     await suggest(
       runId, 'CONGRESS_MISMATCH', sev as any, null, r.state,
       `Congress mismatch ${r.state}: actual=${r.actual_total} expected=${r.expected_total} (Δ=${r.delta})`,
@@ -56,7 +62,7 @@ async function taskCongressCounts(runId: string) {
 
 /** Task: priority elections missing candidates */
 async function taskPriorityCoverage(runId: string) {
-  const rows = await sql(`SELECT * FROM v_priority_missing_candidates`);
+  const rows = await sql<PriorityMissingRow>(`SELECT * FROM v_priority_missing_candidates`);
   for (const r of rows) {
     await suggest(
       runId, 'MISSING_CANDIDATES', 'critical',
@@ -75,7 +81,7 @@ async function taskPriorityCoverage(runId: string) {
 
 /** Task: date drift (lowest-priority authority says the date moved) */
 async function taskDateDrift(runId: string) {
-  const rows = await sql(`
+  const rows = await sql<DateDriftRow>(`
     SELECT eda.election_id, eda.authority, eda.reported_date, eda.priority, eda.confidence,
            e.title, e.state, e.date AS current_date
     FROM election_date_authorities eda
@@ -103,7 +109,7 @@ async function taskDateDrift(runId: string) {
 
 /** Task: CA UDEL heuristic */
 async function taskUdelHeuristic(runId: string) {
-  const rows = await sql(`
+  const rows = await sql<UdelRow>(`
     SELECT id AS election_id, title, state, date as election_date
     FROM elections
     WHERE state='CA' AND level='Local' AND EXTRACT(YEAR FROM date)::int % 2 = 1
@@ -121,8 +127,8 @@ async function taskUdelHeuristic(runId: string) {
 
 /** Apply fixes */
 export async function applySuggestion(id: number) {
-  const rows = await sql(
-    `SELECT * FROM bot_suggestions WHERE id=$1 AND status='OPEN'`, 
+  const rows = await sql<SuggestionRow>(
+    `SELECT * FROM bot_suggestions WHERE id=$1 AND status='OPEN'`,
     [id]
   );
   if (!rows.length) return { ok: false, error: 'not_open' };

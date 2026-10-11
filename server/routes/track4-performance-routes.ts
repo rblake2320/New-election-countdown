@@ -2,10 +2,10 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { storage } from '../storage';
 import { RtoRpoPerformanceDashboardService } from '../services/rto-rpo-dashboard-service';
-import { 
-  RtoRpoTarget,
-  RtoRpoMeasurement,
-  PerformanceBenchmark
+import {
+  insertRtoRpoTargetSchema,
+  insertRtoRpoMeasurementSchema,
+  insertPerformanceBenchmarkSchema
 } from '@shared/schema';
 import { isAuthenticated } from '../auth';
 
@@ -14,46 +14,28 @@ const router = Router();
 // Initialize service
 const dashboardService = new RtoRpoPerformanceDashboardService();
 
-// Validation schemas
-const createTargetSchema = z.object({
-  serviceName: z.string().min(1),
-  serviceType: z.string().min(1),
-  businessCriticality: z.enum(['low', 'medium', 'high', 'critical']),
-  rtoTargetMinutes: z.number().positive(),
-  rpoTargetMinutes: z.number().min(0),
-  description: z.string().optional(),
-  ownerTeam: z.string().optional(),
-  environment: z.string().optional(),
-  serviceCategory: z.string().optional(),
-  isActive: z.boolean().default(true)
+// Validation schemas: the shared insert schemas are the table contract (the hand-written
+// ones named columns the tables lack and measured in minutes where the tables store seconds). ISO strings are coerced for timestamp columns.
+const isoDate = z.preprocess((v) => (typeof v === 'string' && v.length > 0 ? new Date(v) : v), z.date().nullable().optional());
+const createTargetSchema = insertRtoRpoTargetSchema.extend({ effectiveFrom: isoDate, effectiveTo: isoDate });
+const updateMeasurementSchema = insertRtoRpoMeasurementSchema.partial().extend({
+  outageStartTime: isoDate, recoveryStartTime: isoDate, recoveryCompleteTime: isoDate, dataLossWindowStart: isoDate, dataLossWindowEnd: isoDate,
 });
-
-const createMeasurementSchema = z.object({
-  measurementId: z.string().min(1),
-  targetId: z.number().positive(),
-  measurementType: z.enum(['drill', 'incident', 'test', 'scheduled']),
-  actualRtoMinutes: z.number().min(0),
-  actualRpoMinutes: z.number().min(0),
-  measuredAt: z.string().transform(str => new Date(str)),
-  context: z.string().optional(),
-  triggeredBy: z.string().optional(),
-  environment: z.string().optional(),
-  notes: z.string().optional(),
-  metadata: z.any().optional()
+// Recording a measurement goes through the service (variance, achievement, scores) in seconds.
+const recordMeasurementSchema = z.object({
+  targetId: z.number().int().positive(),
+  measurementType: z.enum(['drill', 'real_incident', 'automated_test']),
+  actualRtoSeconds: z.number().min(0),
+  actualRpoSeconds: z.number().min(0),
+  context: z.object({
+    drillExecutionId: z.number().int().positive().optional(),
+    backupOperationId: z.number().int().positive().optional(),
+    incidentId: z.string().optional(),
+    triggeredBy: z.string().optional(),
+    metadata: z.record(z.unknown()).optional(),
+  }).default({}),
 });
-
-const createBenchmarkSchema = z.object({
-  benchmarkName: z.string().min(1),
-  industry: z.string().min(1),
-  serviceCategory: z.string().min(1),
-  sourceType: z.enum(['industry_standard', 'regulatory', 'best_practice', 'internal']),
-  rtoMinutes: z.number().positive().optional(),
-  rpoMinutes: z.number().min(0).optional(),
-  description: z.string().optional(),
-  sourceReference: z.string().optional(),
-  applicabilityNotes: z.string().optional(),
-  isActive: z.boolean().default(true)
-});
+const createBenchmarkSchema = insertPerformanceBenchmarkSchema.extend({ publishedDate: isoDate, validFrom: isoDate, validTo: isoDate });
 
 // GET /api/v1/track4/performance/targets - Get RTO/RPO targets
 router.get('/targets', isAuthenticated, async (req, res) => {
@@ -86,7 +68,7 @@ router.post('/targets', isAuthenticated, async (req, res) => {
   try {
     const validatedData = createTargetSchema.parse(req.body);
     
-    const target = await dashboardService.createRtoRpoTarget(validatedData);
+    const target = await storage.createRtoRpoTarget(validatedData);
     
     res.status(201).json({
       success: true,
@@ -190,14 +172,17 @@ router.delete('/targets/:id', isAuthenticated, async (req, res) => {
 // GET /api/v1/track4/performance/targets/:id/trends - Get target performance trends
 router.get('/targets/:id/trends', isAuthenticated, async (req, res) => {
   try {
-    const targetId = parseInt(req.params.id);
-    const { days = '30' } = req.query;
-    
-    const trends = await dashboardService.getTargetTrends(targetId, parseInt(days as string));
-    
+    const targetId = Number(req.params.id);
+    const days = Math.max(1, Math.min(365, Number(req.query.days ?? 30) || 30));
+    if (!Number.isInteger(targetId) || targetId <= 0) {
+      return res.status(400).json({ success: false, error: 'invalid_target_id' });
+    }
+
+    const report = await dashboardService.getTargetPerformanceReport(targetId, days);
+
     res.json({
       success: true,
-      data: trends,
+      data: { trends: report.trends, metrics: report.metrics, measurements: report.measurements.length },
       period: `${days} days`
     });
   } catch (error) {
@@ -247,9 +232,9 @@ router.get('/measurements', isAuthenticated, async (req, res) => {
 // POST /api/v1/track4/performance/measurements - Record new measurement
 router.post('/measurements', isAuthenticated, async (req, res) => {
   try {
-    const validatedData = createMeasurementSchema.parse(req.body);
-    
-    const measurement = await dashboardService.recordMeasurement(validatedData);
+    const m = recordMeasurementSchema.parse(req.body);
+
+    const measurement = await dashboardService.recordMeasurement(m.targetId, m.measurementType, m.actualRtoSeconds, m.actualRpoSeconds, m.context);
     
     res.status(201).json({
       success: true,
@@ -304,7 +289,7 @@ router.get('/measurements/:measurementId', isAuthenticated, async (req, res) => 
 router.put('/measurements/:measurementId', isAuthenticated, async (req, res) => {
   try {
     const measurementId = req.params.measurementId;
-    const updates = createMeasurementSchema.partial().parse(req.body);
+    const updates = updateMeasurementSchema.parse(req.body);
     
     const measurement = await storage.updateRtoRpoMeasurement(measurementId, updates);
     
@@ -334,12 +319,13 @@ router.put('/measurements/:measurementId', isAuthenticated, async (req, res) => 
 // GET /api/v1/track4/performance/dashboard - Get comprehensive dashboard data
 router.get('/dashboard', isAuthenticated, async (req, res) => {
   try {
-    const { serviceType, days = '30' } = req.query;
-    
-    const dashboardData = await dashboardService.getDashboardData(
-      serviceType as string, 
-      parseInt(days as string)
-    );
+    const { serviceType } = req.query;
+    const days = Math.max(1, Math.min(365, Number(req.query.days ?? 30) || 30));
+
+    const dashboardData = await dashboardService.getDashboardData({
+      serviceType: typeof serviceType === 'string' && serviceType ? serviceType : undefined,
+      days
+    });
     
     res.json({
       success: true,

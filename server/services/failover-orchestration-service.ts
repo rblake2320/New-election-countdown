@@ -687,12 +687,12 @@ export class FailoverOrchestrationService {
   /**
    * Update failover rule
    */
-  updateFailoverRule(ruleId: string, updates: Partial<FailoverRule>): void {
+  updateFailoverRule(ruleId: string, updates: Partial<FailoverRule>): boolean {
     const ruleIndex = this.failoverRules.findIndex(r => r.id === ruleId);
-    if (ruleIndex >= 0) {
-      this.failoverRules[ruleIndex] = { ...this.failoverRules[ruleIndex], ...updates };
-      console.log(`🔧 Updated failover rule: ${ruleId}`);
-    }
+    if (ruleIndex < 0) return false;
+    this.failoverRules[ruleIndex] = { ...this.failoverRules[ruleIndex], ...updates };
+    console.log(`🔧 Updated failover rule: ${ruleId}`);
+    return true;
   }
 
   /**
@@ -773,5 +773,26 @@ export const failoverOrchestrationService = {
   async setEnabled(enabled: boolean) {
     const service = await getFailoverOrchestrationService();
     return service.setEnabled(enabled);
+  },
+
+  async getActiveExecutions() {
+    const service = await getFailoverOrchestrationService();
+    return service.getActiveExecutions();
+  },
+
+  /** false when no rule has that id (the route answers 404). */
+  async updateFailoverRule(ruleId: string, updates: Partial<FailoverRule>) {
+    const service = await getFailoverOrchestrationService();
+    return service.updateFailoverRule(ruleId, updates);
+  },
+
+  async triggerManualFailover(targetMode: StorageMode, reason: string) {
+    const service = await getFailoverOrchestrationService();
+    return service.triggerManualFailover(targetMode, reason);
+  },
+
+  async onFailoverExecution(callback: (execution: FailoverExecution) => Promise<void>) {
+    const service = await getFailoverOrchestrationService();
+    service.onFailoverExecution(callback);
   }
 };

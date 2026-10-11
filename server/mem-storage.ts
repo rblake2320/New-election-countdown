@@ -228,10 +228,11 @@ export class MemStorage implements IStorage {
   }
 
   async updateCandidatePolling(candidateId: number, pollingData: {
-    pollingSupport?: number;
-    pollingTrend?: string;
-    lastPollingUpdate?: Date;
-    pollingSource?: string;
+    // null clears a value (the data-audit endpoint removes static polling numbers)
+    pollingSupport?: number | null;
+    pollingTrend?: string | null;
+    lastPollingUpdate?: Date | null;
+    pollingSource?: string | null;
   }): Promise<void> {
     const candidate = this.candidates.get(candidateId);
     if (candidate) {
@@ -737,9 +738,9 @@ export class MemStorage implements IStorage {
 
   async updateUserDemographics(_userId: string, _demographics: UpdateUserPreferences): Promise<UserPreferences> { return this.degraded('updateUserDemographics'); }
 
-  async exportUserData(_userId: number): Promise<any> { return this.degraded('exportUserData'); }
+  async exportUserData(_userId: string): Promise<any> { return this.degraded('exportUserData'); }
 
-  async deleteUserData(_userId: number): Promise<boolean> {
+  async deleteUserData(_userId: string): Promise<boolean> {
     // A deletion request (GDPR) cannot be honoured without the database; refusing is the
     // only truthful answer - returning true here used to fake a completed erasure.
     return this.degraded('deleteUserData');
@@ -2373,6 +2374,10 @@ export class MemStorage implements IStorage {
   async updateRestoreValidation(..._args: unknown[]): Promise<never> { return this.degraded('updateRestoreValidation'); }
   async updateSchemaVersion(..._args: unknown[]): Promise<never> { return this.degraded('updateSchemaVersion'); }
   async updateUserRecommendationAnalytics(..._args: unknown[]): Promise<never> { return this.degraded('updateUserRecommendationAnalytics'); }
+  async getNotificationConsentsBetween(..._args: unknown[]): Promise<never> { return this.degraded('getNotificationConsentsBetween'); }
+  async getExpiredNotificationConsents(..._args: unknown[]): Promise<never> { return this.degraded('getExpiredNotificationConsents'); }
+  async unsubscribeNotificationSubscriptionByToken(..._args: unknown[]): Promise<never> { return this.degraded('unsubscribeNotificationSubscriptionByToken'); }
+  async getNotificationSubscriptionsVerifiedBetween(..._args: unknown[]): Promise<never> { return this.degraded('getNotificationSubscriptionsVerifiedBetween'); }
   async withdrawNotificationConsent(..._args: unknown[]): Promise<never> { return this.degraded('withdrawNotificationConsent'); }
 
 }

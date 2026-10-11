@@ -1,9 +1,32 @@
 import { Request, Response, NextFunction } from 'express';
-import { pool } from '../db';
+import { pool, rawSql as sql } from '../db';
 import { storageFactory } from '../storage-factory';
-import { neon } from '@neondatabase/serverless';
 
-const sql = neon(process.env.DATABASE_URL!);
+
+/**
+ * The steward / bot tables, views and functions ship in no migration (confirmed absent in
+ * every database this project has). A request that needs them gets a 503 that names what
+ * is missing, not a 500 from the first query.
+ */
+export async function missingAutofixObjects(): Promise<string[]> {
+  const relations = ['bot_suggestions', 'bot_task_runs', 'steward_autofix_log', 'steward_mcp_packs', 'v_autofix_candidates'];
+  const functions = ['apply_autofix'];
+  const rows = await sql<{ name: string; present: boolean }>`
+    SELECT name, present FROM (
+      SELECT unnest(${relations}::text[]) AS name, to_regclass(unnest(${relations}::text[])) IS NOT NULL AS present
+      UNION ALL
+      SELECT unnest(${functions}::text[]) AS name, to_regproc(unnest(${functions}::text[])) IS NOT NULL AS present
+    ) t`;
+  return rows.filter((r) => !r.present).map((r) => r.name);
+}
+export function requireAutofixProvisioned(req: import('express').Request, res: import('express').Response, next: import('express').NextFunction): void {
+  missingAutofixObjects()
+    .then((missing) => {
+      if (missing.length === 0) return next();
+      res.status(503).json({ error: 'autofix_not_provisioned', message: 'The steward/autofix schema is not present in this database', missing });
+    })
+    .catch(next);
+}
 
 // Extend Request interface for admin session data
 declare module 'express-serve-static-core' {
@@ -150,7 +173,7 @@ export async function validateAutofixPolicies(req: Request, res: Response, next:
   
   try {
     // Check if any auto-fix policies are enabled
-    const enabledPolicies = await sql`
+    const enabledPolicies = await sql<{ enabled_count: string | number; fixable_count: string | number }>`
       SELECT COUNT(*) as enabled_count,
              COUNT(CASE WHEN autofix_sql IS NOT NULL THEN 1 END) as fixable_count
       FROM steward_mcp_packs 
@@ -159,7 +182,7 @@ export async function validateAutofixPolicies(req: Request, res: Response, next:
     
     const policyStats = enabledPolicies[0];
     
-    if (parseInt(policyStats.enabled_count) === 0) {
+    if (Number(policyStats.enabled_count) === 0) {
       console.log(`🚫 No auto-fix policies enabled for ${method} ${path}`);
       return res.status(423).json({
         error: 'policies_disabled',
@@ -171,7 +194,7 @@ export async function validateAutofixPolicies(req: Request, res: Response, next:
       });
     }
     
-    if (parseInt(policyStats.fixable_count) === 0) {
+    if (Number(policyStats.fixable_count) === 0) {
       console.log(`🚫 No fixable policies available for ${method} ${path}`);
       return res.status(423).json({
         error: 'no_fixable_policies',
@@ -199,7 +222,7 @@ export async function validateAutofixPolicies(req: Request, res: Response, next:
       }
       
       // Check if any policies allow this severity level
-      const compatiblePolicies = await sql`
+      const compatiblePolicies = await sql<{ compatible_count: string | number }>`
         SELECT COUNT(*) as compatible_count
         FROM steward_mcp_packs 
         WHERE active = true 
@@ -214,7 +237,7 @@ export async function validateAutofixPolicies(req: Request, res: Response, next:
           END
       `;
       
-      if (parseInt(compatiblePolicies[0].compatible_count) === 0) {
+      if (Number(compatiblePolicies[0].compatible_count) === 0) {
         console.log(`🚫 No policies compatible with severity ${maxSeverity} for ${method} ${path}`);
         return res.status(423).json({
           error: 'severity_not_allowed',

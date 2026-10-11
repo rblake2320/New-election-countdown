@@ -212,25 +212,14 @@ export class DisasterRecoveryPlatformIntegration {
   private async setupDisasterRecoveryIntegration(): Promise<void> {
     console.log('🔗 Setting up disaster recovery coordinator integration');
 
-    // Extend disaster recovery coordinator with platform continuity capabilities
-    const originalExecuteRecovery = disasterRecoveryCoordinator.executeRecovery?.bind(disasterRecoveryCoordinator);
-    
-    if (originalExecuteRecovery) {
-      // Override recovery execution to include platform continuity
-      (disasterRecoveryCoordinator as any).executeRecovery = async (recoveryType: string, options: any) => {
-        console.log('🔄 Enhanced recovery execution with platform continuity');
-        
-        // Execute original recovery
-        const originalResult = await originalExecuteRecovery(recoveryType, options);
-        
-        // Add platform continuity recovery
-        if (this.config.enableAutomaticRecovery) {
-          await this.executePlatformRecovery(options.environment || 'production');
-        }
-        
-        return originalResult;
-      };
-    }
+    // The coordinator exposes initiateRecovery(reason, options); the earlier code tried to
+    // wrap an `executeRecovery` method that does not exist, so platform-continuity recovery
+    // was never chained. Chain it on the real event stream instead.
+    disasterRecoveryCoordinator.onFailoverEvent(async (event) => {
+      if (!this.config.enableAutomaticRecovery) return;
+      if (event?.phase !== 'completed') return;
+      await this.executePlatformRecovery(event?.targetEnvironment || 'production');
+    });
 
     console.log('✅ Disaster recovery coordinator integration setup completed');
   }

@@ -100,6 +100,19 @@ export type VoteSmartPosition = z.infer<typeof VoteSmartPositionSchema>;
 export type VoteSmartVotingRecord = z.infer<typeof VoteSmartVotingRecordSchema>;
 export type VoteSmartRating = z.infer<typeof VoteSmartRatingSchema>;
 
+// VoteSmart JSON envelopes: a list element is a single object when there is one result.
+type OneOrMany<T> = T | T[];
+interface CandidatesResponse { candidateList?: { candidate?: OneOrMany<unknown> } }
+interface BioResponse { bio?: unknown }
+interface NpatResponse { npat?: OneOrMany<unknown> }
+interface VotesResponse { votes?: { vote?: OneOrMany<unknown> } }
+interface RatingsResponse { candidateRating?: { rating?: OneOrMany<unknown> } }
+interface CategoriesResponse { categories?: { category?: OneOrMany<{ categoryId?: string; name?: string }> } }
+function many<T>(value: OneOrMany<T> | undefined | null): T[] {
+  if (value === undefined || value === null) return [];
+  return Array.isArray(value) ? value : [value];
+}
+
 export interface VoteSmartError {
   code: string;
   message: string;
@@ -220,18 +233,14 @@ export class VoteSmartService {
       if (query.state) params.state = query.state;
       if (query.electionYear) params.electionYear = query.electionYear;
 
-      const response = await this.makeRequest('Candidates.getByOfficeState', params);
+      const response = await this.makeRequest<CandidatesResponse>('Candidates.getByOfficeState', params);
 
       if (!response || !response.candidateList) {
         return [];
       }
 
-      const candidates = Array.isArray(response.candidateList.candidate)
-        ? response.candidateList.candidate
-        : [response.candidateList.candidate];
-
-      return candidates
-        .map(candidate => {
+      return many(response.candidateList.candidate)
+        .map((candidate: unknown) => {
           try {
             return VoteSmartCandidateSchema.parse(candidate);
           } catch {
@@ -251,7 +260,7 @@ export class VoteSmartService {
    */
   async getCandidateBio(candidateId: string): Promise<VoteSmartBio | null> {
     try {
-      const response = await this.makeRequest('CandidateBio.getBio', { candidateId });
+      const response = await this.makeRequest<BioResponse>('CandidateBio.getBio', { candidateId });
 
       if (!response || !response.bio) {
         return null;
@@ -270,7 +279,7 @@ export class VoteSmartService {
    */
   async getDetailedCandidateBio(candidateId: string): Promise<VoteSmartBio | null> {
     try {
-      const response = await this.makeRequest('CandidateBio.getDetailedBio', { candidateId });
+      const response = await this.makeRequest<BioResponse>('CandidateBio.getDetailedBio', { candidateId });
 
       if (!response || !response.bio) {
         return null;
@@ -292,16 +301,14 @@ export class VoteSmartService {
       const params: Record<string, string> = { candidateId };
       if (categoryId) params.categoryId = categoryId;
 
-      const response = await this.makeRequest('Npat.getNpat', params);
+      const response = await this.makeRequest<NpatResponse>('Npat.getNpat', params);
 
       if (!response || !response.npat) {
         return [];
       }
 
-      const positions = Array.isArray(response.npat) ? response.npat : [response.npat];
-
-      return positions
-        .map(position => {
+      return many(response.npat)
+        .map((position: unknown) => {
           try {
             return VoteSmartPositionSchema.parse(position);
           } catch {
@@ -325,16 +332,14 @@ export class VoteSmartService {
       if (categoryId) params.categoryId = categoryId;
       if (year) params.year = year;
 
-      const response = await this.makeRequest('Votes.getByCandidate', params);
+      const response = await this.makeRequest<VotesResponse>('Votes.getByCandidate', params);
 
       if (!response || !response.votes) {
         return [];
       }
 
-      const votes = Array.isArray(response.votes.vote) ? response.votes.vote : [response.votes.vote];
-
-      return votes
-        .map(vote => {
+      return many(response.votes.vote)
+        .map((vote: unknown) => {
           try {
             return VoteSmartVotingRecordSchema.parse(vote);
           } catch {
@@ -354,18 +359,14 @@ export class VoteSmartService {
    */
   async getCandidateRatings(candidateId: string): Promise<VoteSmartRating[]> {
     try {
-      const response = await this.makeRequest('Rating.getCandidateRating', { candidateId });
+      const response = await this.makeRequest<RatingsResponse>('Rating.getCandidateRating', { candidateId });
 
       if (!response || !response.candidateRating) {
         return [];
       }
 
-      const ratings = Array.isArray(response.candidateRating.rating)
-        ? response.candidateRating.rating
-        : [response.candidateRating.rating];
-
-      return ratings
-        .map(rating => {
+      return many(response.candidateRating.rating)
+        .map((rating: unknown) => {
           try {
             return VoteSmartRatingSchema.parse(rating);
           } catch {
@@ -433,17 +434,13 @@ export class VoteSmartService {
    */
   async getIssueCategories(): Promise<Array<{ categoryId: string; name: string }>> {
     try {
-      const response = await this.makeRequest('Npat.getCategories');
+      const response = await this.makeRequest<CategoriesResponse>('Npat.getCategories');
 
       if (!response || !response.categories) {
         return [];
       }
 
-      const categories = Array.isArray(response.categories.category)
-        ? response.categories.category
-        : [response.categories.category];
-
-      return categories.map(cat => ({
+      return many(response.categories.category).map(cat => ({
         categoryId: cat.categoryId || '',
         name: cat.name || ''
       }));
@@ -462,7 +459,7 @@ export class VoteSmartService {
 
     try {
       // Try to get categories as a simple health check
-      const response = await this.makeRequest('Npat.getCategories');
+      const response = await this.makeRequest<CategoriesResponse>('Npat.getCategories');
       const responseTime = Date.now() - startTime;
 
       if (response) {

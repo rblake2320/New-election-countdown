@@ -1,12 +1,21 @@
 import { Router } from 'express';
-import { neon } from '@neondatabase/serverless';
+import { rawSql as sql } from '../db';
 
 const router = Router();
-const sql = neon(process.env.DATABASE_URL!);
+
+/** The steward tables ship in no migration; a missing table is a provisioning fact, not a 500. */
+async function provisioned(table: string): Promise<boolean> {
+  const rows = await sql<{ t: string | null }>`select to_regclass(${table})::text as t`;
+  return Boolean(rows[0]?.t);
+}
+function notProvisioned(res: import('express').Response, table: string) {
+  return res.status(503).json({ error: 'steward_not_provisioned', message: `${table} is not present in this database` });
+}
 
 // Get all policies with their auto-fix settings
 router.get('/policies', async (_req, res) => {
   try {
+    if (!(await provisioned('steward_policies'))) return notProvisioned(res, 'steward_policies');
     const policies = await sql`
       SELECT 
         id,
@@ -35,6 +44,7 @@ router.patch('/policies/:name/auto-fix', async (req, res) => {
   const { enabled, maxSeverity } = req.body;
 
   try {
+    if (!(await provisioned('steward_policies'))) return notProvisioned(res, 'steward_policies');
     const updated = await sql`
       UPDATE steward_mcp_packs
       SET 

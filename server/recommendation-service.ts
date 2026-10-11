@@ -20,6 +20,23 @@ export interface ScoredElection {
   type: string;
 }
 
+
+/** Project a stored election into the recommendation response contract (ISO date, no nulls). */
+function toRecommendedElection(election: Election) {
+  return {
+    id: election.id,
+    title: election.title,
+    subtitle: election.subtitle ?? undefined,
+    location: election.location,
+    state: election.state,
+    date: election.date instanceof Date ? election.date.toISOString() : String(election.date),
+    type: election.type,
+    level: election.level,
+    offices: election.offices ?? undefined,
+    description: election.description ?? undefined,
+  };
+}
+
 export class RecommendationService {
   private storage: any;
 
@@ -40,7 +57,8 @@ export class RecommendationService {
     const [userPreferences, currentWatchlist, allElections] = await Promise.all([
       this.storage.getUserPreferences(userId),
       this.storage.getUserWatchlist(userId),
-      this.storage.getAllElections()
+      // IStorage has getElections (getAllElections never existed: every recommendation call was a TypeError)
+      this.storage.getElections()
     ]);
 
     if (!userPreferences) {
@@ -85,7 +103,7 @@ export class RecommendationService {
     // Format response
     const recommendations = uniqueRecommendations.map((scored, index) => ({
       id: Date.now() + index, // Temporary ID for tracking
-      election: scored.election,
+      election: toRecommendedElection(scored.election),
       score: scored.score,
       type: scored.type,
       reason: scored.reasons.join('; '),
@@ -112,7 +130,8 @@ export class RecommendationService {
     userPreferences: UserPreferences
   ): Promise<ScoredElection[]> {
     const recommendations: ScoredElection[] = [];
-    const { state, city, congressionalDistrict } = userPreferences.location || {};
+    // user_preferences stores location flat (there is no `location` object)
+    const { state, city, congressionalDistrict } = userPreferences;
 
     for (const election of elections) {
       let score = 0;
@@ -175,12 +194,20 @@ export class RecommendationService {
     userPreferences: UserPreferences
   ): Promise<ScoredElection[]> {
     const recommendations: ScoredElection[] = [];
-    const { 
-      politicalInterests = [], 
-      partyAffiliations = [], 
-      issueInterests = [],
-      electionTypes = []
-    } = userPreferences.politics || {};
+    // user_preferences stores these as flat columns (there is no `politics` object)
+    const politicalInterests: string[] = [
+      ...(userPreferences.federalElectionsInterest ? ['federal'] : []),
+      ...(userPreferences.stateElectionsInterest ? ['state'] : []),
+      ...(userPreferences.localElectionsInterest ? ['local'] : []),
+    ];
+    const partyAffiliations: string[] = userPreferences.partyAffiliations ?? [];
+    const issueInterests: string[] = userPreferences.issueInterests ?? [];
+    const electionTypes: string[] = [
+      ...(userPreferences.primaryElectionsEnabled ? ['primary'] : []),
+      ...(userPreferences.generalElectionsEnabled ? ['general'] : []),
+      ...(userPreferences.specialElectionsEnabled ? ['special'] : []),
+      ...(userPreferences.runoffElectionsEnabled ? ['runoff'] : []),
+    ];
 
     for (const election of elections) {
       let score = 0;
@@ -441,7 +468,7 @@ export class RecommendationService {
       .slice(0, limit)
       .map((election, index) => ({
         id: Date.now() + index,
-        election,
+        election: toRecommendedElection(election),
         score: 50, // Base score
         type: 'general',
         reason: 'Upcoming election',
