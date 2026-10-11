@@ -18,3 +18,7 @@ Gate commit c9e5d19, C11 4e737f3 composed with main677503c and projection9865745
 Two first-run failures are retained: the projection initially missed the Docker build context; an explicit fixture allowlist repairs packaging. The full-catalog sweep exceeded the unchanged production300/min API limiter; checks are now paced4/sec. No limiter bypass or increased production budget was added.
 
 The acceptance uses C11's reviewed manifest, not a claim that pending C6 receiving or PR16 server changes have passed. Those remain separately owned. Local raw build/unit/type logs are retained in this worktree; committed receipts contain no credentials.
+
+## Bounded manifest retest
+
+The same gate and compiled C11 server also passed against C8's reviewed259-record manifest from28c4304 (builder input replaced only with the exact committed manifest).91 races plus400/404 controls,144 inserts,2600 profiles unchanged,repeat0 and4 opposing-party refusals. See compiled-bounded-green.json. PR19 main-based GitHub run38145556331 passed verify, bundle-budget and container; main still reports absent nominee CLI until C8 lands, so use the composed receipts for actual nominee execution.
