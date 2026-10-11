@@ -77,6 +77,7 @@ import {
   additionalSecurity, 
   apiLimiter, 
   searchLimiter, 
+  authLimiter,
   validateInput,
   sanitizeInput,
   logSuspiciousActivity 
@@ -1314,7 +1315,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Perplexity AI endpoints
-  app.post('/api/search-elections', async (req, res) => {
+  app.post('/api/search-elections', isAuthenticated, searchLimiter, async (req, res) => {
     try {
       const { query } = req.body;
       if (!query) {
@@ -1530,57 +1531,6 @@ Please provide detailed, current information about this specific election.`;
     }
   });
 
-  // Authentication endpoints
-  app.post('/api/auth/signup', async (req, res) => {
-    try {
-      const { email, password } = req.body;
-      
-      if (!email || !password) {
-        return res.status(400).json({ error: 'Email and password are required' });
-      }
-
-      if (password.length < 6) {
-        return res.status(400).json({ error: 'Password must be at least 6 characters' });
-      }
-
-      const result = await storage.createUser(email, password);
-      res.json(result);
-    } catch (error: any) {
-      console.error('Error during signup:', error);
-      res.status(400).json({ error: error.message });
-    }
-  });
-
-  app.post('/api/auth/signin', async (req, res) => {
-    try {
-      const { email, password } = req.body;
-      
-      if (!email || !password) {
-        return res.status(400).json({ error: 'Email and password are required' });
-      }
-
-      const result = await storage.authenticateUser(email, password);
-      res.json(result);
-    } catch (error: any) {
-      console.error('Error during signin:', error);
-      res.status(401).json({ error: error.message });
-    }
-  });
-
-  app.post('/api/auth/signout', async (req, res) => {
-    try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (token) {
-        await storage.signoutUser(token);
-      }
-      res.json({ message: 'Signed out successfully' });
-    } catch (error: any) {
-      console.error('Error during signout:', error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-
-  // Congressional data import and analysis endpoints
   app.post('/api/congress/import', isAuthenticated, requireAdmin, async (req, res) => {
     try {
       const result = await congressImportService.importFromCompleteDataset();
@@ -1627,34 +1577,9 @@ Please provide detailed, current information about this specific election.`;
     }
   });
 
-  app.get('/api/auth/me', async (req, res) => {
+  app.get('/api/user/watchlist', isAuthenticated, async (req, res) => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'No token provided' });
-      }
-
-      const user = await storage.validateUserSession(token);
-      if (!user) {
-        return res.status(401).json({ error: 'Invalid token' });
-      }
-
-      res.json({ user });
-    } catch (error: any) {
-      console.error('Error validating user:', error);
-      res.status(401).json({ error: 'Invalid token' });
-    }
-  });
-
-  // User watchlist endpoint (with authentication)
-  app.get('/api/user/watchlist', async (req, res) => {
-    try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
+      const user = await storage.getUser(String((req as any).userId));
       if (!user) {
         return res.status(401).json({ error: 'Invalid token' });
       }
@@ -1679,14 +1604,9 @@ Please provide detailed, current information about this specific election.`;
   // ============================================================================
 
   // Get personalized recommendations for user
-  app.get('/api/recommendations', async (req, res) => {
+  app.get('/api/recommendations', isAuthenticated, async (req, res) => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
+      const user = await storage.getUser(String((req as any).userId));
       if (!user) {
         return res.status(401).json({ error: 'Invalid token' });
       }
@@ -1714,14 +1634,9 @@ Please provide detailed, current information about this specific election.`;
   });
 
   // Track recommendation interactions
-  app.post('/api/recommendations/track', async (req, res) => {
+  app.post('/api/recommendations/track', isAuthenticated, async (req, res) => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
+      const user = await storage.getUser(String((req as any).userId));
       if (!user) {
         return res.status(401).json({ error: 'Invalid token' });
       }
@@ -1761,14 +1676,9 @@ Please provide detailed, current information about this specific election.`;
   });
 
   // Get recommendation analytics for user
-  app.get('/api/recommendations/analytics', async (req, res) => {
+  app.get('/api/recommendations/analytics', isAuthenticated, async (req, res) => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
+      const user = await storage.getUser(String((req as any).userId));
       if (!user) {
         return res.status(401).json({ error: 'Invalid token' });
       }
@@ -1791,14 +1701,9 @@ Please provide detailed, current information about this specific election.`;
   });
 
   // Force refresh recommendations cache
-  app.post('/api/recommendations/refresh', async (req, res) => {
+  app.post('/api/recommendations/refresh', isAuthenticated, async (req, res) => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
+      const user = await storage.getUser(String((req as any).userId));
       if (!user) {
         return res.status(401).json({ error: 'Invalid token' });
       }
@@ -1816,14 +1721,9 @@ Please provide detailed, current information about this specific election.`;
   // ============================================================================
 
   // Get enhanced watchlist with organization features
-  app.get('/api/watchlist/enhanced', async (req, res) => {
+  app.get('/api/watchlist/enhanced', isAuthenticated, async (req, res) => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
+      const user = await storage.getUser(String((req as any).userId));
       if (!user) {
         return res.status(401).json({ error: 'Invalid token' });
       }
@@ -1861,14 +1761,9 @@ Please provide detailed, current information about this specific election.`;
   });
 
   // Update individual watchlist item with enhanced fields
-  app.patch('/api/watchlist/:itemId', async (req, res) => {
+  app.patch('/api/watchlist/:itemId', isAuthenticated, async (req, res) => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
+      const user = await storage.getUser(String((req as any).userId));
       if (!user) {
         return res.status(401).json({ error: 'Invalid token' });
       }
@@ -1902,14 +1797,9 @@ Please provide detailed, current information about this specific election.`;
   });
 
   // Bulk update multiple watchlist items
-  app.post('/api/watchlist/bulk', async (req, res) => {
+  app.post('/api/watchlist/bulk', isAuthenticated, async (req, res) => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
+      const user = await storage.getUser(String((req as any).userId));
       if (!user) {
         return res.status(401).json({ error: 'Invalid token' });
       }
@@ -1949,14 +1839,9 @@ Please provide detailed, current information about this specific election.`;
   });
 
   // Get watchlist analytics
-  app.get('/api/watchlist/analytics', async (req, res) => {
+  app.get('/api/watchlist/analytics', isAuthenticated, async (req, res) => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
+      const user = await storage.getUser(String((req as any).userId));
       if (!user) {
         return res.status(401).json({ error: 'Invalid token' });
       }
@@ -2002,19 +1887,14 @@ Please provide detailed, current information about this specific election.`;
   });
 
   // Analytics endpoints with GDPR compliance
-  app.post('/api/analytics/interaction', async (req, res) => {
+  app.post('/api/analytics/interaction', isAuthenticated, async (req, res) => {
     try {
       const { eventType, targetType, targetId, metadata } = req.body;
       const sessionId = req.headers['x-session-id'] as string;
       const ipAddress = req.ip || req.connection.remoteAddress;
       
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      let userId = null;
-      
-      if (token) {
-        const user = await storage.validateUserSession(token);
-        if (user) userId = user.id;
-      }
+      // Session user from the cookie session (route is behind isAuthenticated)
+      const userId = String((req as any).userId);
 
       await storage.logInteraction({
         userId,
@@ -2033,18 +1913,13 @@ Please provide detailed, current information about this specific election.`;
     }
   });
 
-  app.post('/api/analytics/engagement', async (req, res) => {
+  app.post('/api/analytics/engagement', isAuthenticated, async (req, res) => {
     try {
       const { timeOnPage, scrollDepth, electionCycleId } = req.body;
       const sessionId = req.headers['x-session-id'] as string;
       
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      let userId = null;
-      
-      if (token) {
-        const user = await storage.validateUserSession(token);
-        if (user) userId = user.id;
-      }
+      // Session user from the cookie session (route is behind isAuthenticated)
+      const userId = String((req as any).userId);
 
       await storage.recordEngagement({
         userId,
@@ -2062,14 +1937,9 @@ Please provide detailed, current information about this specific election.`;
   });
 
   // User preferences and demographics
-  app.put('/api/user/preferences', async (req, res) => {
+  app.put('/api/user/preferences', isAuthenticated, async (req, res) => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
+      const user = await storage.getUser(String((req as any).userId));
       if (!user) {
         return res.status(401).json({ error: 'Invalid token' });
       }
@@ -2082,14 +1952,9 @@ Please provide detailed, current information about this specific election.`;
     }
   });
 
-  app.put('/api/user/demographics', async (req, res) => {
+  app.put('/api/user/demographics', isAuthenticated, async (req, res) => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
+      const user = await storage.getUser(String((req as any).userId));
       if (!user) {
         return res.status(401).json({ error: 'Invalid token' });
       }
@@ -2103,14 +1968,9 @@ Please provide detailed, current information about this specific election.`;
   });
 
   // GDPR compliance endpoints
-  app.get('/api/user/data-export', async (req, res) => {
+  app.get('/api/user/data-export', isAuthenticated, async (req, res) => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
+      const user = await storage.getUser(String((req as any).userId));
       if (!user) {
         return res.status(401).json({ error: 'Invalid token' });
       }
@@ -2123,14 +1983,9 @@ Please provide detailed, current information about this specific election.`;
     }
   });
 
-  app.delete('/api/user/data', async (req, res) => {
+  app.delete('/api/user/data', isAuthenticated, async (req, res) => {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) {
-        return res.status(401).json({ error: 'Authentication required' });
-      }
-
-      const user = await storage.validateUserSession(token);
+      const user = await storage.getUser(String((req as any).userId));
       if (!user) {
         return res.status(401).json({ error: 'Invalid token' });
       }
@@ -2160,7 +2015,7 @@ Please provide detailed, current information about this specific election.`;
 
   // Campaign Portal API Endpoints
   // Campaign Portal Registration API
-  app.post('/api/campaign/register', async (req, res) => {
+  app.post('/api/campaign/register', authLimiter, async (req, res) => {
     try {
       const { organizationName, contactEmail, electionId, subscriptionTier = 'basic' } = req.body;
 
