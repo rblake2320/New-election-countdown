@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { storage } from "../storage";
+import { storage, type IStorage } from "../storage";
 import { civicAggregatorService } from "../civic-aggregator-service";
 import { voteSmartService } from "../services/votesmart-service";
 import { calculateAdvancedPoliticalLeaning } from "../lib/political-analysis.js";
@@ -14,28 +14,28 @@ export const electionsRouter = Router();
 electionsRouter.get("/:id/political-analysis", async (req, res) => {
   try {
     const id = Number(req.params.id);
-    if (!Number.isFinite(id)) {
+    if (!Number.isInteger(id) || id <= 0) {
       return res.status(400).json({ error: "Invalid election ID" });
     }
-    
+
     // Get election data
     const election = await storage.getElection(id);
     if (!election) {
       return res.status(404).json({ error: "Election not found" });
     }
-    
+
     // Get candidates
     const candidatesData = await storage.getCandidatesByElection(id);
-    
+
     // For now, simulate polling and momentum data since database tables aren't available yet
     // This will be replaced with real data once the database is properly configured
     let currentPolling = undefined;
     let momentum = undefined;
     let userIntentions = undefined;
-    
+
     // TODO: Replace with actual database queries once tables are created
     // In the future, this will pull from pollingData, politicalMomentum, and userVotingIntentions tables
-    
+
     // Calculate political analysis using baseline + candidate data
     const analysis = calculateAdvancedPoliticalLeaning(
       election.state,
@@ -44,7 +44,7 @@ electionsRouter.get("/:id/political-analysis", async (req, res) => {
       momentum,
       userIntentions
     );
-    
+
     res.json({
       ...analysis,
       lastUpdated: new Date(),
@@ -59,22 +59,22 @@ electionsRouter.get("/:id/political-analysis", async (req, res) => {
 electionsRouter.post("/:id/voting-intention", async (req, res) => {
   try {
     const id = Number(req.params.id);
-    if (!Number.isFinite(id)) {
+    if (!Number.isInteger(id) || id <= 0) {
       return res.status(400).json({ error: "Invalid election ID" });
     }
-    
+
     const { candidateId, partyPreference, confidence = 'medium' } = req.body;
-    
+
     // Validate election exists
     const election = await storage.getElection(id);
     if (!election) {
       return res.status(404).json({ error: "Election not found" });
     }
-    
+
     // For now, just acknowledge the intention
     // TODO: Store in userVotingIntentions table once database is configured
     console.log(`Voting intention received for election ${id}: ${partyPreference}`);
-    
+
     res.json({ success: true, message: "Voting intention recorded successfully" });
   } catch (error) {
     console.error('Voting intention error:', error);
@@ -86,13 +86,65 @@ electionsRouter.post("/:id/voting-intention", async (req, res) => {
 // EXISTING ENDPOINTS
 // =============================================================================
 
+// Candidate rows come from Drizzle (camelCase) or raw SQL (snake_case); read both so
+// FEC identity and source markers survive the enrichment projection.
+function candidateExternalIds(c: any) {
+  return {
+    votesmart_id: c?.votesmartId ?? c?.votesmart_id ?? null,
+    fec_id: c?.fecCandidateId ?? c?.fec_candidate_id ?? null,
+    bioguide_id: c?.bioguideId ?? c?.bioguide_id ?? null,
+  };
+}
+function candidateSourceMarkers(c: any) {
+  return {
+    data_source: c?.dataSource ?? c?.data_source ?? null,
+    source_status: c?.sourceStatus ?? c?.source_status ?? null,
+    ballot_status: c?.ballotStatus ?? c?.ballot_status ?? null,
+    fec_status: c?.fecStatus ?? c?.fec_status ?? null,
+  };
+}
+
+// Candidates for many races in ONE request (UX review P1: list mode fired one
+// /:id/candidates call per card -> 506 requests and 429s). Base fields only; the
+// enriched per-race route stays for the detail page. MUST BE BEFORE /:id.
+export const CANDIDATES_BATCH_MAX_IDS = 100;
+electionsRouter.get("/candidates-batch", async (req, res) => {
+  try {
+    const raw = String(req.query.ids ?? "");
+    const ids = Array.from(new Set(raw.split(",").map((v) => Number(v.trim())).filter((n) => Number.isInteger(n) && n > 0)));
+    if (!ids.length) return res.status(400).json({ error: "bad_request", message: "ids must be a comma-separated list of election ids" });
+    if (ids.length > CANDIDATES_BATCH_MAX_IDS) {
+      return res.status(400).json({ error: "bad_request", message: `at most ${CANDIDATES_BATCH_MAX_IDS} ids per request`, max: CANDIDATES_BATCH_MAX_IDS });
+    }
+    // storage is the forwarding proxy typed as the factory; the batch reader lives on IStorage.
+    const rows = await (storage as unknown as IStorage).getCandidatesByElections(ids);
+    const byElection: Record<string, unknown[]> = {};
+    for (const id of ids) byElection[String(id)] = [];
+    for (const c of rows) {
+      (byElection[String(c.electionId)] ??= []).push({
+        id: c.id, name: c.name, party: c.party, incumbent: c.isIncumbent, isIncumbent: c.isIncumbent,
+        profile_image_url: c.profileImageUrl, profileImageUrl: c.profileImageUrl, website: c.website,
+        is_verified: c.isVerified, isVerified: c.isVerified, pollingSupport: c.pollingSupport,
+        dataSource: (c as any).dataSource ?? null, sourceStatus: (c as any).sourceStatus ?? null,
+        ballotStatus: (c as any).ballotStatus ?? null, fecCandidateId: (c as any).fecCandidateId ?? null,
+      });
+    }
+    // Never substitute another race's candidates: an id with no rows stays [] (explicit).
+    res.setHeader("Cache-Control", "public, max-age=300");
+    res.json({ candidates: byElection, requested: ids.length, elections: Object.keys(byElection).length });
+  } catch (error) {
+    console.error("Error fetching candidates batch:", error);
+    res.status(500).json({ error: "server_error", message: "Failed to fetch candidates" });
+  }
+});
+
 // Get multiple candidates by IDs (for comparison) - MUST BE BEFORE /:id
 electionsRouter.get("/candidates-by-ids", async (req, res) => {
   try {
     const ids = String(req.query.ids ?? "")
       .split(",").map((s) => Number(s)).filter(Number.isFinite);
     if (!ids.length) return res.json([]);
-    
+
     const candidates = await storage.getCandidatesByIds(ids);
     // Map to match expected API format
     const formattedCandidates = candidates.map(c => ({
@@ -118,13 +170,13 @@ electionsRouter.get("/candidates-by-ids", async (req, res) => {
 electionsRouter.get("/counts", async (req, res) => {
   try {
     const stats = await storage.getElectionStats();
-    
+
     // Calculate upcoming/past from all elections
     const now = new Date();
     const allElections = await storage.getElections();
     const upcoming = allElections.filter(e => new Date(e.date) >= now).length;
     const past = allElections.filter(e => new Date(e.date) < now).length;
-    
+
     res.json({
       total: stats.total,
       upcoming: upcoming,
@@ -141,16 +193,16 @@ electionsRouter.get("/counts", async (req, res) => {
 electionsRouter.get("/:id", async (req, res) => {
   try {
     const id = Number(req.params.id);
-    if (!Number.isFinite(id)) {
+    if (!Number.isInteger(id) || id <= 0) {
       return res.status(400).json({ error: "Invalid ID" });
     }
-    
+
     const election = await storage.getElection(id);
     if (!election) return res.status(404).json({ error: "Not found" });
 
     const candidates = await storage.getCandidatesByElection(id);
-    
-    res.json({ 
+
+    res.json({
       id: election.id,
       title: election.title,
       date: election.date,
@@ -169,7 +221,8 @@ electionsRouter.get("/:id", async (req, res) => {
 electionsRouter.get("/:id/candidates", async (req, res) => {
   try {
     const id = Number(req.params.id);
-    if (!Number.isFinite(id)) return res.status(400).json({ error: 'bad id' });
+    // Integer ids only: '2.5' is finite but is not an election id (was a 500 downstream).
+    if (!Number.isInteger(id) || id <= 0) return res.status(400).json({ error: 'bad id' });
 
     // Helper function to enrich candidate data with VoteSmart information
     const enrichCandidateData = async (candidate: any) => {
@@ -205,28 +258,29 @@ electionsRouter.get("/:id/candidates", async (req, res) => {
 
       try {
         // Try to get comprehensive candidate data from CivicAggregator
-        if (candidate.votesmart_id || candidate.name) {
-          const searchId = candidate.votesmart_id || candidate.name;
+        const votesmartId = candidate.votesmartId ?? candidate.votesmart_id;
+        if (votesmartId || candidate.name) {
+          const searchId = votesmartId || candidate.name;
           const comprehensiveData = await civicAggregatorService.getComprehensiveCandidateData([searchId], id.toString());
-          
+
           if (comprehensiveData && comprehensiveData.length > 0) {
             const enrichedData = comprehensiveData[0];
-            
+
             return {
               ...baseCandidate,
               // Enhanced profile information
               biography: enrichedData.voteSmartData?.bio || enrichedData.voteSmartData?.detailedBio || null,
               photo_url: enrichedData.voteSmartData?.photoUrl || baseCandidate.profile_image_url,
-              professional_background: enrichedData.voteSmartData?.bio?.profession || 
+              professional_background: enrichedData.voteSmartData?.bio?.profession ||
                                       enrichedData.voteSmartData?.detailedBio?.profession || null,
-              education: enrichedData.voteSmartData?.bio?.education || 
+              education: enrichedData.voteSmartData?.bio?.education ||
                         enrichedData.voteSmartData?.detailedBio?.education || null,
-              
+
               // Position and voting information
               position_count: enrichedData.voteSmartData?.positions?.length || 0,
               voting_record_count: enrichedData.voteSmartData?.votingRecord?.length || 0,
               interest_group_ratings: enrichedData.voteSmartData?.ratings?.length || 0,
-              
+
               // Data availability status
               data_completeness: {
                 has_biography: !!(enrichedData.voteSmartData?.bio || enrichedData.voteSmartData?.detailedBio),
@@ -235,21 +289,18 @@ electionsRouter.get("/:id/candidates", async (req, res) => {
                 has_voting_record: (enrichedData.voteSmartData?.votingRecord?.length || 0) > 0,
                 has_ratings: (enrichedData.voteSmartData?.ratings?.length || 0) > 0
               },
-              
+
               // Issues and data source information
               data_issues: enrichedData.voteSmartData?.issues || [],
               last_data_update: enrichedData.voteSmartData?.lastUpdated || new Date().toISOString(),
-              
+
               // Additional identifiers for data linking
-              external_ids: {
-                votesmart_id: candidate.votesmart_id,
-                fec_id: candidate.fec_candidate_id,
-                bioguide_id: candidate.bioguide_id
-              }
+              external_ids: candidateExternalIds(candidate),
+              source: candidateSourceMarkers(candidate)
             };
           }
         }
-        
+
         // Fallback: return enhanced basic data with informative messaging
         return {
           ...baseCandidate,
@@ -267,20 +318,17 @@ electionsRouter.get("/:id/candidates", async (req, res) => {
             has_voting_record: false,
             has_ratings: false
           },
-          data_issues: voteSmartService ? 
+          data_issues: voteSmartService ?
             ['VoteSmart data not yet available for this candidate'] :
             ['VoteSmart API key required for comprehensive candidate data - configure VOTESMART_API_KEY to unlock detailed biographies, positions, and voting records'],
           last_data_update: new Date().toISOString(),
-          external_ids: {
-            votesmart_id: candidate.votesmart_id,
-            fec_id: candidate.fec_candidate_id,
-            bioguide_id: candidate.bioguide_id
-          }
+          external_ids: candidateExternalIds(candidate),
+              source: candidateSourceMarkers(candidate)
         };
-        
+
       } catch (enrichmentError) {
         console.warn(`Failed to enrich candidate ${candidate.name}:`, enrichmentError);
-        
+
         // Return basic data with error context
         return {
           ...baseCandidate,
@@ -300,81 +348,42 @@ electionsRouter.get("/:id/candidates", async (req, res) => {
           },
           data_issues: [`Data enrichment temporarily unavailable: ${enrichmentError instanceof Error ? enrichmentError.message : 'Unknown error'}`],
           last_data_update: new Date().toISOString(),
-          external_ids: {
-            votesmart_id: candidate.votesmart_id,
-            fec_id: candidate.fec_candidate_id,
-            bioguide_id: candidate.bioguide_id
-          }
+          external_ids: candidateExternalIds(candidate),
+              source: candidateSourceMarkers(candidate)
         };
       }
     };
 
     // Try direct election_id match first
     const directCandidates = await storage.getCandidatesByElection(id);
-    
+
     if (directCandidates.length > 0) {
       // Enrich all candidates with comprehensive data
       const enrichedCandidates = await Promise.allSettled(
         directCandidates.map(candidate => enrichCandidateData(candidate))
       );
-      
+
       const formattedCandidates = enrichedCandidates
         .filter((result): result is PromiseFulfilledResult<any> => result.status === 'fulfilled')
         .map(result => result.value)
         .sort((a, b) => a.name.localeCompare(b.name));
-      
+
       return res.json(formattedCandidates);
     }
 
-    // Fallback: get election details and find similar elections
+    // No candidates on this race. Never substitute another race's candidates
+    // (UX review P1: the Alaska governor card showed Senate bios borrowed from the
+    // same-state Senate race). 404 only when the election itself does not exist.
     const election = await storage.getElection(id);
     if (!election) return res.status(404).json({ error: 'election not found' });
-
-    // Simple fallback: get candidates from same state around the same time
-    const allElections = await storage.getElections();
-    const similarElections = allElections.filter(e => {
-      if (e.state !== election.state) return false;
-      
-      const electionDate = new Date(election.date);
-      const eDate = new Date(e.date);
-      const timeDiff = Math.abs(electionDate.getTime() - eDate.getTime());
-      const daysDiff = timeDiff / (1000 * 60 * 60 * 24);
-      
-      // Within 1 day and similar title
-      return daysDiff <= 1 && e.title.toLowerCase().includes(election.title.toLowerCase().split(' ')[0]);
-    });
-
-    for (const similarElection of similarElections) {
-      const candidates = await storage.getCandidatesByElection(similarElection.id);
-      if (candidates.length > 0) {
-        // Enrich fallback candidates as well
-        const enrichedFallbackCandidates = await Promise.allSettled(
-          candidates.map(candidate => enrichCandidateData({
-            ...candidate,
-            source_election_id: candidate.electionId
-          }))
-        );
-        
-        const formattedFallbackCandidates = enrichedFallbackCandidates
-          .filter((result): result is PromiseFulfilledResult<any> => result.status === 'fulfilled')
-          .map(result => ({
-            ...result.value,
-            source_election_id: result.value.source_election_id || candidates[0]?.electionId
-          }))
-          .sort((a, b) => a.name.localeCompare(b.name));
-          
-        return res.json(formattedFallbackCandidates);
-      }
-    }
-
-    // Return empty array with informative metadata
+    res.setHeader("X-Candidate-Provenance", "none");
     return res.json([]);
-    
+
   } catch (error) {
     console.error("Error fetching enriched candidates:", error);
-    
+
     // Return error with helpful context instead of generic failure
-    res.status(500).json({ 
+    res.status(500).json({
       error: "Failed to fetch candidates",
       message: "Unable to retrieve candidate information at this time",
       support_message: "Please try again later or contact support if the issue persists",
@@ -388,24 +397,24 @@ electionsRouter.get("/:electionId/candidates/:candidateId", async (req, res) => 
   try {
     const electionId = Number(req.params.electionId);
     const candidateId = Number(req.params.candidateId);
-    
-    if (!Number.isFinite(electionId) || !Number.isFinite(candidateId)) {
+
+    if (!Number.isInteger(electionId) || electionId <= 0 || !Number.isInteger(candidateId) || candidateId <= 0) {
       return res.status(400).json({ error: 'Invalid ID parameters' });
     }
 
     // Get candidate from storage
     const candidates = await storage.getCandidatesByIds([candidateId]);
     const candidate = candidates[0];
-    
+
     if (!candidate) {
       return res.status(404).json({ error: 'Candidate not found' });
     }
 
     try {
       // Get comprehensive candidate data using CivicAggregator
-      const searchId = candidate.votesmart_id || candidate.name;
+      const searchId = candidate.votesmartId ?? candidate.votesmart_id ?? candidate.name;
       const comprehensiveData = await civicAggregatorService.getComprehensiveCandidateData([searchId], electionId.toString());
-      
+
       const baseResponse = {
         // Basic candidate information
         id: candidate.id,
@@ -416,7 +425,7 @@ electionsRouter.get("/:electionId/candidates/:candidateId", async (req, res) => 
         district: candidate.district,
         incumbent: candidate.isIncumbent,
         is_verified: candidate.isVerified,
-        
+
         // Contact and profile information
         website: candidate.website,
         contact_email: candidate.contactEmail,
@@ -424,21 +433,18 @@ electionsRouter.get("/:electionId/candidates/:candidateId", async (req, res) => 
         social_media: candidate.socialMedia,
         description: candidate.description,
         campaign_bio: candidate.campaignBio,
-        
+
         // Profile images
         profile_image_url: candidate.profileImageUrl,
         photo_url: null,
-        
+
         // External identifiers
-        external_ids: {
-          votesmart_id: candidate.votesmart_id,
-          fec_id: candidate.fec_candidate_id,
-          bioguide_id: candidate.bioguide_id
-        },
-        
+        external_ids: candidateExternalIds(candidate),
+              source: candidateSourceMarkers(candidate),
+
         // Election context
         election_id: electionId,
-        
+
         // Data availability
         data_completeness: {
           has_biography: false,
@@ -449,7 +455,7 @@ electionsRouter.get("/:electionId/candidates/:candidateId", async (req, res) => 
           has_professional_background: false,
           has_education: false
         },
-        
+
         // Rich data fields (to be populated)
         biography: null,
         professional_background: null,
@@ -457,18 +463,18 @@ electionsRouter.get("/:electionId/candidates/:candidateId", async (req, res) => 
         birth_date: null,
         birth_place: null,
         family_info: null,
-        
+
         // Position and policy information
         positions: [],
         position_summary: null,
         voting_record: [],
         voting_summary: null,
         interest_group_ratings: [],
-        
+
         // Data quality and issues
         data_issues: [],
         last_data_update: new Date().toISOString(),
-        
+
         // Metadata
         created_at: candidate.createdAt,
         updated_at: candidate.updatedAt
@@ -477,10 +483,10 @@ electionsRouter.get("/:electionId/candidates/:candidateId", async (req, res) => 
       // If we have comprehensive data, enrich the response
       if (comprehensiveData && comprehensiveData.length > 0) {
         const enrichedData = comprehensiveData[0];
-        
+
         if (enrichedData.voteSmartData) {
           const vsData = enrichedData.voteSmartData;
-          
+
           // Enhanced biography information
           const bio = vsData.bio || vsData.detailedBio;
           if (bio) {
@@ -494,39 +500,39 @@ electionsRouter.get("/:electionId/candidates/:candidateId", async (req, res) => 
             baseResponse.data_completeness.has_professional_background = !!bio.profession;
             baseResponse.data_completeness.has_education = !!bio.education;
           }
-          
+
           // Photo URL
           if (vsData.photoUrl) {
             baseResponse.photo_url = vsData.photoUrl;
             baseResponse.data_completeness.has_photo = true;
           }
-          
+
           // Position statements
           if (vsData.positions && vsData.positions.length > 0) {
             baseResponse.positions = vsData.positions;
             baseResponse.position_summary = `${vsData.positions.length} policy position${vsData.positions.length === 1 ? '' : 's'} available`;
             baseResponse.data_completeness.has_positions = true;
           }
-          
+
           // Voting record
           if (vsData.votingRecord && vsData.votingRecord.length > 0) {
             baseResponse.voting_record = vsData.votingRecord;
             baseResponse.voting_summary = `${vsData.votingRecord.length} recorded vote${vsData.votingRecord.length === 1 ? '' : 's'} available`;
             baseResponse.data_completeness.has_voting_record = true;
           }
-          
+
           // Interest group ratings
           if (vsData.ratings && vsData.ratings.length > 0) {
             baseResponse.interest_group_ratings = vsData.ratings;
             baseResponse.data_completeness.has_ratings = true;
           }
-          
+
           // Data issues and update time
           baseResponse.data_issues = vsData.issues || [];
           baseResponse.last_data_update = vsData.lastUpdated || new Date().toISOString();
         }
       }
-      
+
       // Add helpful messaging if data is limited
       if (!baseResponse.data_completeness.has_biography && !baseResponse.data_completeness.has_positions) {
         if (!voteSmartService) {
@@ -535,22 +541,22 @@ electionsRouter.get("/:electionId/candidates/:candidateId", async (req, res) => 
           baseResponse.data_issues.push('Comprehensive candidate data is being retrieved - please check back soon for detailed information');
         }
       }
-      
+
       res.json(baseResponse);
-      
+
     } catch (enrichmentError) {
       console.warn(`Failed to enrich candidate ${candidate.name} (ID: ${candidateId}):`, enrichmentError);
-      
+
       // Return basic candidate data with error context
       res.json({
         ...baseResponse,
         data_issues: [`Data enrichment temporarily unavailable: ${enrichmentError instanceof Error ? enrichmentError.message : 'Unknown error'}`]
       });
     }
-    
+
   } catch (error) {
     console.error("Error fetching candidate details:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: "Failed to fetch candidate details",
       message: "Unable to retrieve detailed candidate information at this time",
       timestamp: new Date().toISOString()
@@ -562,18 +568,18 @@ electionsRouter.get("/:electionId/candidates/:candidateId", async (req, res) => 
 electionsRouter.get('/missing-candidates', async (req, res) => {
   try {
     const window = Math.max(1, Math.min(120, Number(req.query.window ?? 60)));
-    
+
     // Get all elections and filter by date range
     const allElections = await storage.getElections();
     const now = new Date();
     const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // 7 days ago
     const endDate = new Date(now.getTime() + window * 24 * 60 * 60 * 1000); // window days from now
-    
+
     const electionsInWindow = allElections.filter(election => {
       const electionDate = new Date(election.date);
       return electionDate >= startDate && electionDate <= endDate;
     });
-    
+
     // Check each election for candidates
     const missingCandidates = [];
     for (const election of electionsInWindow) {
@@ -588,14 +594,14 @@ electionsRouter.get('/missing-candidates', async (req, res) => {
         });
       }
     }
-    
+
     // Sort by date ASC, then state ASC
     missingCandidates.sort((a, b) => {
       const dateComparison = new Date(a.date).getTime() - new Date(b.date).getTime();
       if (dateComparison !== 0) return dateComparison;
       return a.state.localeCompare(b.state);
     });
-    
+
     res.json({ window_days: window, missing: missingCandidates });
   } catch (error) {
     console.error("Error fetching missing candidates:", error);
