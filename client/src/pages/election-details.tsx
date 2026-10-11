@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ArrowLeft, Calendar, MapPin, Users, Trophy, TrendingUp, BarChart3, Eye } from "lucide-react";
 import { format } from "date-fns";
 import { CountdownTimer } from "@/components/countdown-timer";
+import { GeneralRoster } from "@/components/general-roster";
 import { getElectionTiming, type ElectionTimingInput } from "@/lib/election-timing";
 import { useNow } from "@/hooks/use-now";
 import { CandidateComparisonWizard } from "@/components/candidate-comparison-wizard";
@@ -167,6 +168,7 @@ export default function ElectionDetails() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
+          <GeneralRoster electionId={electionId} />
           {/* Candidates Overview */}
           <Card>
             <CardHeader>
