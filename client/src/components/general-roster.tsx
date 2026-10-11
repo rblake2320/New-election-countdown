@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollText } from "lucide-react";
-import { isWriteIn, rosterCoverage, rosterParty, rosterSources, safeSourceUrl, scopeLabels, snapshotLines, type SourceLine } from "@/lib/general-roster";
+import { evidenceLines, type EvidenceLine, isWriteIn, rosterCoverage, rosterParty, rosterSources, safeSourceUrl, scopeLabels, snapshotLines, type SourceLine } from "@/lib/general-roster";
 import { useGeneralRoster } from "@/hooks/use-general-roster";
 
 const fmtDate = (iso: string | null) => {
@@ -25,6 +25,24 @@ function SourceLines({ lines }: { lines: SourceLine[] }) {
             Source: {href ? <a href={href} target="_blank" rel="noopener noreferrer" className="underline">{s.name}</a> : s.name}
             {published && <> (published {published})</>}
             {checked && <> · checked {checked}</>}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Supporting documents (party-label derivation, name identity). Not nomination or certification. */
+function EvidenceLines({ lines }: { lines: EvidenceLine[] }) {
+  if (lines.length === 0) return null;
+  return (
+    <div className="mt-1 space-y-1 text-xs text-muted-foreground" data-testid="general-roster-evidence">
+      {lines.map(e => {
+        const href = safeSourceUrl(e.url);
+        return (
+          <p key={`${e.kind}|${e.url}|${e.page ?? ""}`}>
+            {e.kind}: {href ? <a href={href} target="_blank" rel="noopener noreferrer" className="underline">{e.title}</a> : e.title}
+            {e.page ? <> (p. {e.page})</> : null}
           </p>
         );
       })}
@@ -96,6 +114,7 @@ export function GeneralRoster({ electionId }: { electionId: number }) {
               </p>
             )}
             <SourceLines lines={rosterSources(data.candidates)} />
+            <EvidenceLines lines={evidenceLines(data.candidates)} />
           </>
         )}
       </CardContent>

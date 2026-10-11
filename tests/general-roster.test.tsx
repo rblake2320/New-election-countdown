@@ -179,3 +179,44 @@ describe("multiple party lines (CT cross-endorsement, partyLabels[])", () => {
     expect(rosterParty({ party: "", generalListSource: { partyBasis: "filing_method", partyRaw: "WRI", partyLabels: ["WRI", "X"] } } as any)).toBeNull();
   });
 });
+
+describe("supporting evidence links (partyEvidence / identityEvidence)", () => {
+  afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+  const ev = (url: string, title: string, sourcePage?: number) => ({ url, sha256: "cd".repeat(32), title, ...(sourcePage ? { sourcePage } : {}) });
+  const cand = (id: number, name: string, extra: any) => ({ id, name, party: "L", isIncumbent: null, generalListSourceUrl: "https://sos.wyo.gov/list.csv", generalListCheckedAt: "2026-10-11T15:00:00Z",
+    generalListSource: { sourceName: "Wyoming SOS General Candidate List (CSV)", partyRaw: "LBR", ...extra } });
+
+  it("party label source and name identity source render as separate, labelled, deduplicated lines", async () => {
+    const party = ev("https://sos.wyo.gov/Elections/Docs/2026/Gov-companion.pdf", "2026 General Election Candidates (Governor)", 2);
+    const id = ev("https://www.sec.state.ma.us/primary-2026.pdf", "2026 State Primary Official Results");
+    mount({ status: 200, body: { status: "sourced", electionId: 505, coverage: "complete", candidates: [
+      cand(1, "A One", { partyEvidence: party }), cand(2, "B Two", { partyEvidence: party }), cand(3, "C Three", { identityEvidence: id }),
+    ] } });
+    await screen.findByText("A One");
+    const text = screen.getByTestId("general-roster-evidence").textContent!;
+    expect(text).toContain("Party label source: 2026 General Election Candidates (Governor) (p. 2)");
+    expect(text).toContain("Name identity source: 2026 State Primary Official Results");
+    expect(text.match(/Party label source/g)).toHaveLength(1); // deduplicated across candidates
+    expect(text).not.toMatch(/nominat|certif/i);
+    expect(screen.getByRole("link", { name: "2026 General Election Candidates (Governor)" }).getAttribute("href")).toBe("https://sos.wyo.gov/Elections/Docs/2026/Gov-companion.pdf");
+  });
+
+  it("non-http(s) evidence URLs are shown as text, not links; no evidence -> no section", async () => {
+    mount({ status: 200, body: { status: "sourced", electionId: 1, coverage: "complete", candidates: [cand(1, "A One", { partyEvidence: ev("file:///c:/x.pdf", "Local Copy") })] } });
+    await screen.findByText("A One");
+    expect(screen.queryByRole("link", { name: "Local Copy" })).toBeNull();
+    expect(screen.getByTestId("general-roster-evidence").textContent).toContain("Party label source: Local Copy");
+    cleanup(); vi.unstubAllGlobals();
+    mount({ status: 200, body: { status: "sourced", electionId: 1, coverage: "complete", candidates: [cand(1, "A One", {})] } });
+    await screen.findByText("A One");
+    expect(screen.queryByTestId("general-roster-evidence")).toBeNull();
+  });
+});
+
+describe("canonical codes without a display name", () => {
+  it("shows the official printed text, not the internal code or an invented name", () => {
+    expect(rosterParty({ party: "CON", generalListSource: { partyBasis: "source_label", partyRaw: "CT" } } as any)).toBe("CT");
+    expect(rosterParty({ party: "CON", generalListSource: { partyBasis: "source_label", partyRaw: null } } as any)).toBe("CON");
+    expect(rosterParty({ party: "L", generalListSource: { partyBasis: "source_label", partyRaw: "LBR" } } as any)).toBe("Libertarian");
+  });
+});
