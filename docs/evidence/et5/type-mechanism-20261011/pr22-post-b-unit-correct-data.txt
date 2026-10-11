@@ -1,0 +1,261 @@
+
+> rest-express@1.0.0 test
+> vitest run
+
+
+ RUN  v5.0.3 /app
+
+stdout | tests/unit/health-guard.test.ts > globalWriteGuard Middleware > when database is unhealthy > should return 503 for POST requests when database is unhealthy
+🚫 Blocked POST /test - Database unhealthy
+
+stdout | tests/unit/health-guard.test.ts > globalWriteGuard Middleware > when database is unhealthy > should return 503 for PUT requests when database is unhealthy
+🚫 Blocked PUT /test - Database unhealthy
+
+stdout | tests/unit/health-guard.test.ts > globalWriteGuard Middleware > when database is unhealthy > should return 503 for DELETE requests when database is unhealthy
+🚫 Blocked DELETE /test - Database unhealthy
+
+stdout | tests/unit/health-guard.test.ts > globalWriteGuard Middleware > when database is unhealthy > should return 503 for PATCH requests when database is unhealthy
+🚫 Blocked PATCH /test - Database unhealthy
+
+stdout | tests/unit/health-guard.test.ts > globalWriteGuard Middleware > special allowlist handling > should handle case insensitive methods correctly
+🚫 Blocked POST /test - Database unhealthy
+
+ ✓ tests/unit/security-events.test.ts (10 tests) 35ms
+ ✓ tests/fec-candidate-sync.test.ts (22 tests) 47ms
+ ✓ tests/unit/health-guard.test.ts (31 tests) 57ms
+ ✓ tests/fec-first-identity.test.ts (26 tests) 71ms
+ ✓ tests/demo.test.ts (11 tests) 37ms
+ ✓ tests/election-timing.test.ts (23 tests) 155ms
+ ✓ tests/candidate-nominee-review.test.ts (6 tests) 75ms
+ ✓ tests/unit/api-key-guard.test.ts (22 tests) 107ms
+ ✓ tests/unit/autofix-security.test.ts (40 tests) 391ms
+stderr | tests/unit/candidates-batch.test.ts
+VOTESMART_API_KEY not found - VoteSmart features will be unavailable
+
+stderr | tests/unit/candidates-batch.test.ts
+Missing API keys: PROPUBLICA_API_KEY, GOOGLE_CIVIC_API_KEY, OPENFEC_API_KEY, OPENSTATES_API_KEY, VOTESMART_API_KEY. Some features may be limited.
+
+stdout | tests/real-general-roster-review.test.tsx > actual GeneralRoster receiving component with retained real API payloads > TX-32 names, write-in/incumbent counts and source URL/check date match retained payload
+{"payload":"TX-32","sha256":"55e24e1fa55b9a5fdf2519f5b503c4528762d89ff27bc5f6d3ea84adda5e13f8","candidateCount":7,"renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Avery AyersWrite-inBradford \"Brad\" HallWrite-inJade SimmonsWrite-inJames TalaricoDemocraticKen PaxtonRepublicanTED BROWNLibertarianZul MohamedWrite-inCovers only: printed-ballot candidates; write-in candidates. Other candidates may appear on the ballot.Source: Texas Secretary of State Certified Declared Write-In Candidates (published Aug 28, 2026) · checked Oct 11, 2026Source: Texas Secretary of State Final Ballot Certification Report (published Aug 28, 2026) · checked Oct 11, 2026","links":[{"text":"Texas Secretary of State Certified Declared Write-In Candidates","href":"https://www.sos.texas.gov/elections/forms/2026-write-In-ballot-cert.pdf"},{"text":"Texas Secretary of State Final Ballot Certification Report","href":"https://www.sos.texas.gov/elections/forms/2026-ballot-cert.pdf"}]}
+
+stdout | tests/real-general-roster-review.test.tsx > actual GeneralRoster receiving component with retained real API payloads > NE-55 names, write-in/incumbent counts and source URL/check date match retained payload
+{"payload":"NE-55","sha256":"8907ff043abc771e25e6ee87d4ea2d5bd60bdcb19f6830e36ce0dae063a8f5a5","candidateCount":4,"renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Brett LindstromAmerica FirstJim PillenRepublicanIncumbentLynne WalzDemocraticRick BeardLegal Marijuana NOWSource: Nebraska Secretary of State Final Statewide General Candidate List (published Sep 11, 2026) · checked Oct 11, 2026","links":[{"text":"Nebraska Secretary of State Final Statewide General Candidate List","href":"https://sos.nebraska.gov/sites/default/files/doc/elections/2026/Final_Statewide_General_Candidate_Filing_List_9.11.26.pdf"}]}
+
+stdout | tests/real-general-roster-review.test.tsx > actual GeneralRoster receiving component with retained real API payloads > WA-329 names, write-in/incumbent counts and source URL/check date match retained payload
+{"payload":"WA-329","sha256":"69168224a42c7dc15aae1078ef3714e4cb3630e7ecc12068688aba450d4e82d1","candidateCount":2,"renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Mary Silva(Prefers Republican Party)Suzan DelBene(Prefers Democratic Party)Covers only: printed-ballot candidates. Other candidates may appear on the ballot.Source: Washington Secretary of State Certification of Candidates to General Election (published Aug 21, 2026) · checked Oct 11, 2026","links":[{"text":"Washington Secretary of State Certification of Candidates to General Election","href":"https://www.sos.wa.gov/sites/default/files/2026-08/2026%20Certification%20of%20Candidates%20to%20General%20Election.pdf"}]}
+
+stdout | tests/real-general-roster-review.test.tsx > actual GeneralRoster receiving component with retained real API payloads > NV-475 names, write-in/incumbent counts and source URL/check date match retained payload
+{"payload":"NV-475","sha256":"2a2515b67b1925c68960b8b5cbe61fc02c98cce84d4b80bdfddf223d65999e08","candidateCount":3,"renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Jon KamerathIndependent American PartyMarty O'DonnellRepublicanSusie LeeDemocraticSource: 2026 General Election Statewide Certified List of Candidates (published Aug 25, 2026) · checked Oct 11, 2026","links":[{"text":"2026 General Election Statewide Certified List of Candidates","href":"https://www.nvsos.gov/home/showpublisheddocument/20105/639232733439300000"}]}
+
+stdout | tests/real-general-roster-review.test.tsx > actual GeneralRoster receiving component with retained real API payloads > TX write-ins with empty official party do not become Independent or Other
+{"payload":"TX-32","sha256":"55e24e1fa55b9a5fdf2519f5b503c4528762d89ff27bc5f6d3ea84adda5e13f8","candidateCount":7,"renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Avery AyersWrite-inBradford \"Brad\" HallWrite-inJade SimmonsWrite-inJames TalaricoDemocraticKen PaxtonRepublicanTED BROWNLibertarianZul MohamedWrite-inCovers only: printed-ballot candidates; write-in candidates. Other candidates may appear on the ballot.Source: Texas Secretary of State Certified Declared Write-In Candidates (published Aug 28, 2026) · checked Oct 11, 2026Source: Texas Secretary of State Final Ballot Certification Report (published Aug 28, 2026) · checked Oct 11, 2026","links":[{"text":"Texas Secretary of State Certified Declared Write-In Candidates","href":"https://www.sos.texas.gov/elections/forms/2026-write-In-ballot-cert.pdf"},{"text":"Texas Secretary of State Final Ballot Certification Report","href":"https://www.sos.texas.gov/elections/forms/2026-ballot-cert.pdf"}]}
+
+stdout | tests/real-general-roster-review.test.tsx > actual GeneralRoster receiving component with retained real API payloads > WA official party preference remains visible rather than being asserted as party membership
+{"payload":"WA-329","sha256":"69168224a42c7dc15aae1078ef3714e4cb3630e7ecc12068688aba450d4e82d1","candidateCount":2,"renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Mary Silva(Prefers Republican Party)Suzan DelBene(Prefers Democratic Party)Covers only: printed-ballot candidates. Other candidates may appear on the ballot.Source: Washington Secretary of State Certification of Candidates to General Election (published Aug 21, 2026) · checked Oct 11, 2026","links":[{"text":"Washington Secretary of State Certification of Candidates to General Election","href":"https://www.sos.wa.gov/sites/default/files/2026-08/2026%20Certification%20of%20Candidates%20to%20General%20Election.pdf"}]}
+
+stdout | tests/real-general-roster-review.test.tsx > actual GeneralRoster receiving component with retained real API payloads > first-load error with undefined data displays honest error rather than silently disappearing
+{"boundary":"undefined-data + error","renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.The official list could not be loaded right now.","rosterPresent":true}
+
+ ✓ tests/real-general-roster-review.test.tsx (12 tests) 519ms
+   ✓ actual GeneralRoster receiving component with retained real API payloads (12)
+     ✓ TX-32 names, write-in/incumbent counts and source URL/check date match retained payload 317ms
+ ✓ tests/unit/candidates-batch.test.ts (8 tests) 294ms
+ ✓ tests/general-roster.test.tsx (22 tests) 618ms
+ ✓ tests/general-roster-real-payloads.test.tsx (12 tests) 1017ms
+   ✓ GeneralRoster with real lane C payloads (8)
+     ✓ TX-32.json: every candidate rendered, no candidate promoted to certified, sources linked 524ms
+ ✓ tests/unit/backup-process-contract.test.ts (7 tests) 68ms
+ ✓ tests/candidate-nominee-sync.test.ts (13 tests) 60ms
+stdout | tests/unit/candidate-admin-listing.test.ts > POST /api/admin/candidate-accounts/:id/approve > activates with the requested access level and omits the hash
+Candidate account 1 approved by admin admin-1 (accessLevel=limited)
+
+ ✓ tests/unit/candidate-admin-listing.test.ts (4 tests) 51ms
+ ✓ tests/unit/poll-hours-2026.test.ts (7 tests) 90ms
+stdout | tests/detail-date-gate.test.tsx > actual election detail preserves active election-day timing > control: day before election shows real countdown to Texas poll opening
+{"scenario":"2026-11-02T11:30:00Z","browserZone":"UTC","localClock":"Mon Nov 02 2026 11:30:00 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Chicago","closeKind":"polls","pastBadge":false,"upcomingBadge":true,"timerCount":1,"timerLabel":"1 days, 1 hours, 30 minutes until polls open","text":"BackTexas election timing acceptance fixtureTuesday, November 3, 2026Texas, federal0 candidatesUpcomingGeneral01DAYS01HRS30MIN00SECuntil polls open · sourceOverviewPolling TrendsCandidatesCandidatesCurrent candidate standings and information"}
+
+stdout | tests/detail-date-gate.test.tsx > actual election detail preserves active election-day timing > 06:30 Eastern on election day: Texas polls have not opened, so keep countdown
+{"scenario":"2026-11-03T11:30:00Z","browserZone":"UTC","localClock":"Tue Nov 03 2026 11:30:00 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Chicago","closeKind":"polls","pastBadge":false,"upcomingBadge":true,"timerCount":1,"timerLabel":"0 days, 1 hours, 30 minutes until polls open","text":"BackTexas election timing acceptance fixtureTuesday, November 3, 2026Texas, federal0 candidatesUpcomingGeneral00DAYS01HRS30MIN00SECuntil polls open · sourceOverviewPolling TrendsCandidatesCandidatesCurrent candidate standings and information"}
+
+stdout | tests/election-list-filters.test.ts > election listing contract in failover memory > returns today and Nov 3 for next-30-days, excluding prior and inactive elections
+MemStorage initialized empty (failover cache; database is source of truth)
+
+stdout | tests/election-list-filters.test.ts > election listing contract in failover memory > honors the timeRange alias instead of returning past elections
+MemStorage initialized empty (failover cache; database is source of truth)
+
+stdout | tests/election-list-filters.test.ts > election listing contract in failover memory > includes the whole UTC calendar day for the legacy week filter
+MemStorage initialized empty (failover cache; database is source of truth)
+
+stdout | tests/election-list-filters.test.ts > election listing contract in failover memory > matches party names and codes and counts all candidates, not just the selected party
+MemStorage initialized empty (failover cache; database is source of truth)
+
+stdout | tests/election-list-filters.test.ts > election listing contract in failover memory > rejects unknown timeframes instead of silently broadening or truncating
+MemStorage initialized empty (failover cache; database is source of truth)
+
+stdout | tests/detail-date-gate.test.tsx > actual election detail preserves active election-day timing > during Texas voting: retain actual countdown to poll closing
+{"scenario":"2026-11-03T15:00:00Z","browserZone":"UTC","localClock":"Tue Nov 03 2026 15:00:00 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Chicago","closeKind":"polls","pastBadge":false,"upcomingBadge":false,"timerCount":1,"timerLabel":"0 days, 10 hours, 0 minutes until polls close","text":"BackTexas election timing acceptance fixtureTuesday, November 3, 2026Texas, federal0 candidatesElection DayGeneralPolls open00DAYS10HRS00MIN00SECuntil polls close · sourceOverviewPolling TrendsCandidatesCandidatesCurrent candidate standings and information"}
+
+stdout | tests/election-list-filters.test.ts > election listing contract in failover memory > honors the API recent-date floor before returning rows
+MemStorage initialized empty (failover cache; database is source of truth)
+
+stdout | tests/election-list-filters.test.ts > election listing contract in failover memory > keeps Nov 3 races at 05:30 UTC on Nov 4 when timezone metadata is absent
+MemStorage initialized empty (failover cache; database is source of truth)
+
+stdout | tests/election-list-filters.test.ts > election listing contract in failover memory > uses each known election timezone, retaining Aleutian races after New York midnight
+MemStorage initialized empty (failover cache; database is source of truth)
+
+stdout | tests/unit/secrets-rotation-truth.test.ts
+stderr | tests/unit/secrets-rotation-truth.test.ts
+⚠️ Secrets vault unavailable: BACKUP_ENCRYPTION_KEY is missing or shorter than 32 bytes. Vault operations will be refused; the application keeps running.
+✅ Secrets Rotation Service initialized { enabledServices: 8, rotationFrequency: '90 days' }
+
+
+stdout | tests/unit/secrets-rotation-truth.test.ts > Y-01: vault key material > is unavailable without BACKUP_ENCRYPTION_KEY and refuses to encrypt or decrypt
+✅ Secrets Rotation Service initialized { enabledServices: 8, rotationFrequency: '90 days' }
+
+stdout | tests/election-list-filters.test.ts > election listing contract in failover memory > treats a legacy missing party as Other without crashing
+MemStorage initialized empty (failover cache; database is source of truth)
+
+ ✓ tests/election-list-filters.test.ts (9 tests) 80ms
+stdout | tests/detail-date-gate.test.tsx > actual election detail preserves active election-day timing > mounted detail changes Upcoming to Election Day when Texas polls open
+{"scenario":"2026-11-03T12:59:30Z","browserZone":"UTC","localClock":"Tue Nov 03 2026 12:59:30 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Chicago","closeKind":"polls","pastBadge":false,"upcomingBadge":true,"timerCount":1,"timerLabel":"0 days, 0 hours, 0 minutes until polls open","text":"BackTexas election timing acceptance fixtureTuesday, November 3, 2026Texas, federal0 candidatesUpcomingGeneral00DAYS00HRS00MIN30SECuntil polls open · sourceOverviewPolling TrendsCandidatesCandidatesCurrent candidate standings and information"}
+{"rollover":"Texas opening","at":"2026-11-03T13:00:30.000Z","badge":"Election Day","timer":"0 days, 11 hours, 59 minutes until polls close","sameMountedHeading":true}
+
+ ✓ tests/candidate-nominee-watermark.test.ts (1 test) 24ms
+stdout | tests/detail-date-gate.test.tsx > actual election detail preserves active election-day timing > mounted detail changes Election Day to Polls closed after Texas closes
+{"scenario":"2026-11-04T00:59:30Z","browserZone":"UTC","localClock":"Wed Nov 04 2026 00:59:30 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Chicago","closeKind":"polls","pastBadge":false,"upcomingBadge":false,"timerCount":1,"timerLabel":"0 days, 0 hours, 0 minutes until polls close","text":"BackTexas election timing acceptance fixtureTuesday, November 3, 2026Texas, federal0 candidatesElection DayGeneralPolls open00DAYS00HRS00MIN30SECuntil polls close · sourceOverviewPolling TrendsCandidatesCandidatesCurrent candidate standings and information"}
+{"rollover":"Texas closing","at":"2026-11-04T01:00:30.000Z","badge":"Polls closed","status":"Polls closed · results pending","sameMountedHeading":true}
+
+stdout | tests/unit/secrets-rotation-truth.test.ts > Y-01: vault key material > rejects short keys and round-trips with a real one
+✅ Secrets Rotation Service initialized { enabledServices: 8, rotationFrequency: '90 days' }
+✅ Secrets Rotation Service initialized { enabledServices: 8, rotationFrequency: '90 days' }
+
+stdout | tests/unit/secrets-rotation-truth.test.ts > Y-01: vault key material > initializeSecretsVault writes nothing when the vault is not ready
+✅ Secrets Rotation Service initialized { enabledServices: 8, rotationFrequency: '90 days' }
+
+stdout | tests/unit/secrets-rotation-truth.test.ts > Y-02: rotation honesty > no provider is advertised as auto-rotatable and no handler fabricates credentials
+✅ Secrets Rotation Service initialized { enabledServices: 8, rotationFrequency: '90 days' }
+
+stdout | tests/detail-date-gate.test.tsx > actual election detail preserves active election-day timing > unknown opening on a ballot-return election says deadline pending
+{"scenario":"2026-11-03T08:30:00Z","browserZone":"UTC","localClock":"Tue Nov 03 2026 08:30:00 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Los_Angeles","closeKind":"ballot_return","pastBadge":false,"upcomingBadge":false,"timerCount":1,"timerLabel":"0 days, 19 hours, 30 minutes until ballot drop-off deadline","text":"BackOregon ballot deadline acceptance fixtureTuesday, November 3, 2026Oregon, federal0 candidatesElection DayGeneralElection Day · ballot drop-off deadline pending00DAYS19HRS30MIN00SECuntil ballot drop-off deadline · sourceOverviewPolling TrendsCandidatesCandidatesCurrent candidate standings and information"}
+
+stdout | tests/unit/secrets-rotation-truth.test.ts > Y-02: rotation honesty > rotating a manual-only secret returns manual_required and changes nothing
+✅ Secrets Rotation Service initialized { enabledServices: 8, rotationFrequency: '90 days' }
+🔄 Starting secret rotation: qXVyoRZlbw1eX9-IOd1XC
+
+stdout | tests/unit/secrets-rotation-truth.test.ts > Y-02: rotation honesty > rotating a manual-only secret returns manual_required and changes nothing
+⚠️ sendgrid requires manual rotation in the provider console
+
+stdout | tests/detail-date-gate.test.tsx > actual election detail preserves active election-day timing > ballot-return deadline passed must not call mail-election polls closed
+{"scenario":"2026-11-04T04:01:00Z","browserZone":"UTC","localClock":"Wed Nov 04 2026 04:01:00 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Los_Angeles","closeKind":"ballot_return","pastBadge":false,"upcomingBadge":false,"timerCount":0,"timerLabel":null,"text":"BackOregon ballot deadline acceptance fixtureTuesday, November 3, 2026Oregon, federal0 candidatesDrop-off closedGeneralBallot drop-off closed · results pendingOverviewPolling TrendsCandidatesCandidatesCurrent candidate standings and information"}
+
+ ✓ tests/unit/secrets-rotation-truth.test.ts (8 tests) 294ms
+ ✓ tests/detail-date-gate.test.tsx (7 tests) 746ms
+ ✓ tests/unit/storage-surface.test.ts (3 tests) 23ms
+ ✓ tests/unit/route-policy.test.ts (10 tests) 18ms
+stdout | tests/unit/storage-factory-shutdown.test.ts
+ℹ️ No replica configurations found - running with primary database only
+
+stdout | tests/unit/storage-factory-shutdown.test.ts
+⏳ Primary database retry 1/15 in 3s { error: 'synthetic unavailable', consecutiveFailures: 1 }
+
+stdout | tests/unit/storage-factory-shutdown.test.ts > storage factory background shutdown > waits for async health startup and prevents its timer from appearing after shutdown
+ℹ️ No replica configurations found - running with primary database only
+
+stdout | tests/unit/storage-factory-shutdown.test.ts > storage factory background shutdown > clears health/queue timers and awaits an admitted queue operation
+ℹ️ No replica configurations found - running with primary database only
+
+ ✓ tests/unit/storage-factory-shutdown.test.ts (2 tests) 27ms
+ ✓ tests/candidate-nominee-undated.test.ts (2 tests) 13ms
+stdout | tests/unit/results-polling-shutdown.test.ts > results polling shutdown > drains initial ingestion and does not create a timer after a concurrent stop
+Starting automated results ingestion (every 1 seconds)
+
+stdout | tests/unit/results-polling-shutdown.test.ts > results polling shutdown > drains initial ingestion and does not create a timer after a concurrent stop
+Results ingestion stopped
+
+stdout | tests/unit/results-polling-shutdown.test.ts > results polling shutdown > drains an admitted recurring poll and permits an explicit later restart
+Starting automated results ingestion (every 1 seconds)
+
+stdout | tests/unit/results-polling-shutdown.test.ts > results polling shutdown > drains an admitted recurring poll and permits an explicit later restart
+Results ingestion stopped
+
+stdout | tests/unit/results-polling-shutdown.test.ts > results polling shutdown > drains an admitted recurring poll and permits an explicit later restart
+Starting automated results ingestion (every 1 seconds)
+
+stdout | tests/unit/results-polling-shutdown.test.ts > results polling shutdown > drains an admitted recurring poll and permits an explicit later restart
+Results ingestion stopped
+
+ ✓ tests/unit/results-polling-shutdown.test.ts (2 tests) 21ms
+stdout | tests/unit/candidate-portal-authz.test.ts
+MemStorage initialized empty (failover cache; database is source of truth)
+ℹ️ No replica configurations found - running with primary database only
+
+stdout | tests/unit/candidate-portal-authz.test.ts
+⏳ Primary database retry 1/15 in 3s {
+  error: 'Failed query: SELECT 1 as health_check, NOW() as server_time\nparams: ',
+  consecutiveFailures: 1
+}
+
+ ✓ tests/unit/candidate-portal-authz.test.ts (12 tests) 19ms
+ ✓ tests/CongressData.test.tsx (16 tests | 3 skipped) 3351ms
+   ✓ CongressData Component (13)
+     ✓ renders loading state initially 451ms
+   ✓ Performance (1)
+     ✓ renders large member lists efficiently 1180ms
+ ✓ tests/candidate-profile.test.ts (7 tests) 47ms
+stdout | tests/unit/monitor-catalog.test.ts
+MemStorage initialized empty (failover cache; database is source of truth)
+ℹ️ No replica configurations found - running with primary database only
+
+stderr | tests/unit/monitor-catalog.test.ts
+PERPLEXITY_API_KEY not found in environment variables
+
+stdout | tests/unit/monitor-catalog.test.ts
+⏳ Primary database retry 1/15 in 3s {
+  error: 'Failed query: SELECT 1 as health_check, NOW() as server_time\nparams: ',
+  consecutiveFailures: 1
+}
+
+ ✓ tests/unit/monitor-catalog.test.ts (7 tests) 29ms
+ ✓ tests/fec-source-artifacts.test.ts (6 tests) 94ms
+ ✓ tests/unit/rate-limit-contract.test.ts (3 tests) 19ms
+ ✓ tests/election-list-query.test.ts (6 tests) 93ms
+ ✓ tests/unit/no-secret-logging.test.ts (2 tests) 83ms
+ ✓ tests/onboarding-preferences.test.tsx (2 tests) 1619ms
+   ✓ OnboardingPreferences step navigation (2)
+     ✓ Next on step 3 shows step 4 and saves nothing; only Complete saves 1142ms
+     ✓ a form submit on an early step (Enter in a field) never saves 463ms
+ ✓ tests/upcoming-rollover.test.tsx (1 test) 229ms
+ ✓ tests/filter-codes.test.ts (5 tests) 19ms
+ ✓ tests/auth-user-switch.test.tsx (1 test) 216ms
+ ✓ tests/onboarding-flow.test.tsx (2 tests) 2570ms
+   ✓ OnboardingFlow (2)
+     ✓ shows preferences after registering, then hands control back to the caller (no forced /dashboard) 2480ms
+ ✓ tests/unit/graceful-shutdown.test.ts (4 tests) 4141ms
+   ✓ graceful shutdown (4)
+     ✓ finishes an admitted HTTP response before closing the database, once 4049ms
+ ✓ tests/unit/untrusted-text.test.ts (3 tests) 15ms
+ ✓ tests/candidate-ci-registration.test.ts (11 tests) 31ms
+ ✓ tests/unit/dashboard-user.test.ts (3 tests) 22ms
+ ✓ tests/auth-return.test.ts (4 tests) 22ms
+ ✓ tests/unit/session-identity.test.ts (1 test) 27ms
+ ✓ tests/candidate-ci-expectations.test.ts (9 tests) 43ms
+ ✓ tests/featured-rollover.test.tsx (1 test) 102ms
+stdout | tests/unit/storage-sync-shutdown.test.ts > periodic storage sync shutdown > drains both admitted periodic sync and factory cleanup before resolving
+Periodic sync with Google Civic API completed
+
+ ✓ tests/unit/storage-sync-shutdown.test.ts (1 test) 1098ms
+   ✓ periodic storage sync shutdown (1)
+     ✓ drains both admitted periodic sync and factory cleanup before resolving 1065ms
+ ✓ tests/code-toggle.test.tsx (2 tests) 184ms
+ ✓ tests/election-menominee-contract.test.ts (1 test) 20ms
+
+ Test Files  50 passed (50)
+      Tests  427 passed | 3 skipped (430)
+   Start at  14:41:35
+   Duration  9.14s (environment 46%, tests 17%, setup 13%, import 12%, transform 11%, worker 1%)
+
+Environment  jsdom was created 50 times · 52.26s total, 46% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+
