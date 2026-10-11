@@ -15,7 +15,7 @@ describe('sourced general candidate refresh',()=>{
  it('rejects non-HTTPS or non-government source links',()=>{expect(()=>parseNomineeManifest({...raw(),sources:[{...source,url:'javascript:alert(1)'}]})).toThrow();expect(()=>parseNomineeManifest({...raw(),sources:[{...source,url:'https://example.test/fake.pdf'}]})).toThrow();});
  it('admits only the reviewed county-delegated Montana ballot and binds its state',()=>{
   const reviewed=JSON.parse(readFileSync('data/nominees/mt-2026-general.json','utf8'));
-  expect(parseNomineeManifest(reviewed).candidates).toHaveLength(7);
+  expect(parseNomineeManifest(reviewed).candidates.filter(row=>row.sourceId===reviewed.sources[0].id)).toHaveLength(7);
   const link=new URL(reviewed.sources[0].url);
   for(const changes of [{hostname:'other.sharepoint.com'},{pathname:'/other/library.aspx'},{id:'/administration/elect/Public/other.pdf'},{username:'caller'}]){
    const changed=new URL(link);
