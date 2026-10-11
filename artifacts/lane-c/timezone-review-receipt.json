@@ -1,0 +1,136 @@
+{
+  "time_utc": "2026-10-11T06:59:43.795069+00:00",
+  "reviewer_finding": "UTC midnight removed western races before their election day ended",
+  "red_failed": 3,
+  "green_passed": 15,
+  "full_unit_passed": 136,
+  "full_unit_skipped": 3,
+  "database": {
+    "synthetic_private_database": true,
+    "source_database_untouched": true,
+    "postgres_actual_execution": true,
+    "outcomes": [
+      {
+        "scenario": "upcoming",
+        "time": "2026-11-04T03:30:00Z",
+        "expected": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "actual": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      {
+        "scenario": "upcoming",
+        "time": "2026-11-04T05:30:00Z",
+        "expected": [
+          2,
+          3,
+          4
+        ],
+        "actual": [
+          2,
+          3,
+          4
+        ]
+      },
+      {
+        "scenario": "upcoming",
+        "time": "2026-11-04T11:01:00Z",
+        "expected": [
+          4
+        ],
+        "actual": [
+          4
+        ]
+      },
+      {
+        "scenario": "legacy NULL party is Other",
+        "expected": [
+          1
+        ],
+        "actual": [
+          1
+        ]
+      },
+      {
+        "scenario": "calendar month clamps to February end",
+        "expected": [
+          5
+        ],
+        "actual": [
+          5
+        ]
+      }
+    ]
+  },
+  "live_data_http": {
+    "measured_at": "2026-10-11T06:49:48.012Z",
+    "database_read_only": true,
+    "http_handler": "server/election-list-handler.ts",
+    "outcomes": [
+      {
+        "query": "",
+        "status": 200,
+        "rows": 507,
+        "sql_statements": 1,
+        "duration_ms": 103.07749999999999
+      },
+      {
+        "query": "?timeframe=next-30-days",
+        "status": 200,
+        "rows": 506,
+        "sql_statements": 1,
+        "duration_ms": 55.592899999999986
+      },
+      {
+        "query": "?level=federal",
+        "status": 200,
+        "rows": 470,
+        "sql_statements": 1,
+        "duration_ms": 59.857099999999946
+      },
+      {
+        "query": "?level=Federal",
+        "status": 200,
+        "rows": 470,
+        "sql_statements": 1,
+        "duration_ms": 68.08709999999996
+      },
+      {
+        "query": "?party=D",
+        "status": 200,
+        "rows": 55,
+        "sql_statements": 1,
+        "duration_ms": 50.749000000000024
+      },
+      {
+        "query": "?party=Democratic",
+        "status": 200,
+        "rows": 55,
+        "sql_statements": 1,
+        "duration_ms": 63.72670000000005
+      },
+      {
+        "query": "?timeframe=typo",
+        "status": 400,
+        "sql_statements": 0,
+        "duration_ms": 17.267700000000104
+      }
+    ],
+    "candidate_counts_match_independent_sql": true,
+    "aliases_match": true
+  },
+  "type_delta": {
+    "baseline_errors": 1124,
+    "candidate_errors": 1114,
+    "added_diagnostic_classes": []
+  },
+  "production_build_worked": true
+}

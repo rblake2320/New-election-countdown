@@ -1,3 +1,4 @@
+import type { ElectionListing, ElectionQueryFilters } from "./election-list-filters";
 import { MemStorage } from "./mem-storage";
 import type { IStorage } from "./storage";
 import { type Election, type InsertElection, type Candidate, type InsertCandidate, type ElectionFilters, type CongressMember, type InsertCongressMember, type User, type UpsertUser, type WatchlistItem, type InsertWatchlistItem, type CandidateAccount, type InsertCandidateAccount, type CandidateProfile, type InsertCandidateProfile, type CandidateDataSource, type InsertCandidateDataSource, type CandidatePosition, type InsertCandidatePosition, type CandidateQA, type InsertCandidateQA } from "@shared/schema";
@@ -858,7 +859,7 @@ export class StorageFactory implements IStorage {
   }
 
   // IStorage interface implementation - delegate to current storage
-  async getElections(filters?: ElectionFilters): Promise<Election[]> {
+  async getElections(filters?: ElectionQueryFilters): Promise<ElectionListing[]> {
     return this.currentStorage.getElections(filters);
   }
 

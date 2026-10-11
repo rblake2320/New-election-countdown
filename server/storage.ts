@@ -1,3 +1,5 @@
+import { buildElectionListQuery } from "./election-list-query";
+import type { ElectionListing, ElectionQueryFilters } from "./election-list-filters";
 import { elections, candidates, congressMembers, congressBills, congressCommittees, users, sessions, watchlist, electionResults, electionCycles, campaignAccounts, candidateAccounts, candidateProfiles, candidateDataSources, candidatePositions, candidateQA, notificationPreferences, notificationConsents, notificationSubscriptions, notificationTemplates, notificationCampaigns, notificationDeliveries, notificationEvents, notificationWebhooks, userPreferences, congressionalDistricts, backupStorageLocations, backupRetentionPolicies, backupOperations, schemaVersions, restoreValidations, backupSystemConfig, failoverDrillConfigurations, drillExecutions, drillSteps, backupMonitoringConfigurations, backupAlerts, backupHealthMetrics, rtoRpoTargets, rtoRpoMeasurements, performanceBenchmarks, incidentRunbooks, runbookSteps, runbookContacts, contactEscalationTrees, runbookExecutions, type Election, type InsertElection, type Candidate, type InsertCandidate, type ElectionFilters, type CongressMember, type InsertCongressMember, type User, type UpsertUser, type WatchlistItem, type InsertWatchlistItem, type UserPreferences, type InsertUserPreferences, type UpdateUserPreferences, type CongressionalDistrict, type InsertCongressionalDistrict, type CandidateAccount, type InsertCandidateAccount, type CandidateProfile, type InsertCandidateProfile, type CandidateDataSource, type InsertCandidateDataSource, type CandidatePosition, type InsertCandidatePosition, type CandidateQA, type InsertCandidateQA, type NotificationPreferences, type InsertNotificationPreferences, type NotificationConsent, type InsertNotificationConsent, type NotificationSubscription, type InsertNotificationSubscription, type NotificationTemplate, type InsertNotificationTemplate, type NotificationCampaign, type InsertNotificationCampaign, type NotificationDelivery, type InsertNotificationDelivery, type NotificationEvent, type InsertNotificationEvent, type NotificationWebhook, type InsertNotificationWebhook, type BackupStorageLocation, type InsertBackupStorageLocation, type BackupRetentionPolicy, type InsertBackupRetentionPolicy, type BackupOperation, type InsertBackupOperation, type SchemaVersion, type InsertSchemaVersion, type RestoreValidation, type InsertRestoreValidation, type BackupSystemConfig, type InsertBackupSystemConfig, type FailoverDrillConfiguration, type InsertFailoverDrillConfiguration, type DrillExecution, type InsertDrillExecution, type DrillStep, type InsertDrillStep, type BackupMonitoringConfiguration, type InsertBackupMonitoringConfiguration, type BackupAlert, type InsertBackupAlert, type BackupHealthMetric, type InsertBackupHealthMetric, type RtoRpoTarget, type InsertRtoRpoTarget, type RtoRpoMeasurement, type InsertRtoRpoMeasurement, type PerformanceBenchmark, type InsertPerformanceBenchmark, type IncidentRunbook, type InsertIncidentRunbook, type RunbookStep, type InsertRunbookStep, type RunbookContact, type InsertRunbookContact, type ContactEscalationTree, type InsertContactEscalationTree, type RunbookExecution, type InsertRunbookExecution } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, ilike, or, desc, inArray, isNotNull } from "drizzle-orm";
@@ -13,7 +15,7 @@ export interface IStorage {
   isDbHealthy(): boolean;
   
   // Elections
-  getElections(filters?: ElectionFilters): Promise<Election[]>;
+  getElections(filters?: ElectionQueryFilters): Promise<ElectionListing[]>;
   getElection(id: number): Promise<Election | undefined>;
   createElection(election: InsertElection): Promise<Election>;
   deleteElection(id: number): Promise<void>;
@@ -498,206 +500,11 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async getElections(filters?: ElectionFilters): Promise<Election[]> {
-    const conditions = [];
-    let needsJoin = false;
-    let partyCondition: any = null;
-
-    if (filters) {
-      // Filter by time range - CRITICAL FIX: Allow past elections for live results tracking
-      if (filters.timeframe && filters.timeframe !== 'all') {
-        const now = new Date();
-        let endDate = new Date();
-        
-        switch (filters.timeframe) {
-          case 'week':
-            endDate.setDate(now.getDate() + 7);
-            break;
-          case 'month':
-            endDate.setMonth(now.getMonth() + 1);
-            break;
-          case 'quarter':
-            endDate.setMonth(now.getMonth() + 3);
-            break;
-          case 'year':
-            endDate.setFullYear(now.getFullYear() + 1);
-            break;
-        }
-        
-        // Only filter by end date - allow past elections for results display
-        conditions.push(lte(elections.date, endDate));
-      }
-
-      // Filter by election type (case-insensitive)
-      if (filters.type) {
-        if (Array.isArray(filters.type)) {
-          const normalizedTypes = filters.type.map(type => type.toLowerCase());
-          conditions.push(inArray(elections.type, normalizedTypes));
-        } else {
-          conditions.push(eq(elections.type, filters.type.toLowerCase()));
-        }
-      }
-
-      // Filter by election type array (from frontend, case-insensitive)
-      if (filters.electionType) {
-        if (Array.isArray(filters.electionType)) {
-          const normalizedTypes = filters.electionType.map(type => type.toLowerCase());
-          conditions.push(inArray(elections.type, normalizedTypes));
-        } else {
-          conditions.push(eq(elections.type, filters.electionType.toLowerCase()));
-        }
-      }
-
-      // Filter by level (case-insensitive) - maps to capitalized database values
-      if (filters.level) {
-        // Database stores: Federal, State, Local (capitalized)
-        const capitalizeLevel = (l: string) => l.charAt(0).toUpperCase() + l.slice(1).toLowerCase();
-        if (Array.isArray(filters.level)) {
-          const normalizedLevels = filters.level.map(capitalizeLevel);
-          conditions.push(inArray(elections.level, normalizedLevels));
-        } else {
-          conditions.push(eq(elections.level, capitalizeLevel(filters.level)));
-        }
-      }
-
-      // Filter by party (requires JOIN with candidates table)
-      // Store party condition separately as it needs to be in the JOIN clause
-      if (filters.party) {
-        needsJoin = true;
-        partyCondition = Array.isArray(filters.party)
-          ? inArray(candidates.party, filters.party)
-          : eq(candidates.party, filters.party);
-      }
-
-      // Filter by state - handle both full names and abbreviations
-      if (filters.state && filters.state !== 'all') {
-        // Map full state names to abbreviations
-        const stateAbbreviations: { [key: string]: string } = {
-          'Alabama': 'AL', 'Alaska': 'AK', 'Arizona': 'AZ', 'Arkansas': 'AR', 'California': 'CA',
-          'Colorado': 'CO', 'Connecticut': 'CT', 'Delaware': 'DE', 'Florida': 'FL', 'Georgia': 'GA',
-          'Hawaii': 'HI', 'Idaho': 'ID', 'Illinois': 'IL', 'Indiana': 'IN', 'Iowa': 'IA',
-          'Kansas': 'KS', 'Kentucky': 'KY', 'Louisiana': 'LA', 'Maine': 'ME', 'Maryland': 'MD',
-          'Massachusetts': 'MA', 'Michigan': 'MI', 'Minnesota': 'MN', 'Mississippi': 'MS', 'Missouri': 'MO',
-          'Montana': 'MT', 'Nebraska': 'NE', 'Nevada': 'NV', 'New Hampshire': 'NH', 'New Jersey': 'NJ',
-          'New Mexico': 'NM', 'New York': 'NY', 'North Carolina': 'NC', 'North Dakota': 'ND', 'Ohio': 'OH',
-          'Oklahoma': 'OK', 'Oregon': 'OR', 'Pennsylvania': 'PA', 'Rhode Island': 'RI', 'South Carolina': 'SC',
-          'South Dakota': 'SD', 'Tennessee': 'TN', 'Texas': 'TX', 'Utah': 'UT', 'Vermont': 'VT',
-          'Virginia': 'VA', 'Washington': 'WA', 'West Virginia': 'WV', 'Wisconsin': 'WI', 'Wyoming': 'WY'
-        };
-        
-        const stateValue = stateAbbreviations[filters.state] || filters.state;
-        conditions.push(eq(elections.state, stateValue));
-      }
-
-      // Filter by election cycle (year)
-      if (filters.cycle) {
-        const cycleYear = filters.cycle;
-        const startDate = new Date(cycleYear, 0, 1); // January 1st of cycle year
-        const endDate = new Date(cycleYear, 11, 31, 23, 59, 59); // December 31st of cycle year
-        conditions.push(and(gte(elections.date, startDate), lte(elections.date, endDate)));
-      }
-
-      // Filter by search with sanitization
-      if (filters.search) {
-        // Input validation and sanitization
-        if (typeof filters.search === 'string') {
-          // Sanitize search term - remove potentially dangerous characters
-          const sanitizedSearch = filters.search
-            .replace(/['"\\;]/g, '') // Remove quotes, backslashes, semicolons
-            .trim()
-            .substring(0, 200); // Limit length
-          
-          if (sanitizedSearch.length > 0) {
-            const searchPattern = `%${sanitizedSearch}%`;
-            conditions.push(
-              or(
-                ilike(elections.title, searchPattern),
-                ilike(elections.subtitle, searchPattern),
-                ilike(elections.location, searchPattern)
-              )
-            );
-          }
-        }
-      }
-    }
-
-    // Apply conditions and filter active elections
-    const allConditions = [eq(elections.isActive, true)];
-    if (conditions.length > 0) {
-      allConditions.push(...conditions.filter(c => c !== undefined));
-    }
-
-    let electionQuery;
-    
-    // Add JOIN if party filtering is needed
-    if (needsJoin) {
-      // Build JOIN condition with party filter in ON clause
-      const joinCondition = partyCondition
-        ? and(eq(elections.id, candidates.electionId), partyCondition)
-        : eq(elections.id, candidates.electionId);
-      
-      electionQuery = db
-        .select({
-          id: elections.id,
-          title: elections.title,
-          subtitle: elections.subtitle,
-          location: elections.location,
-          state: elections.state,
-          date: elections.date,
-          type: elections.type,
-          level: elections.level,
-          offices: elections.offices,
-          description: elections.description,
-          pollsOpen: elections.pollsOpen,
-          pollsClose: elections.pollsClose,
-          timezone: elections.timezone,
-          isActive: elections.isActive,
-          candidateId: candidates.id,
-        })
-        .from(elections)
-        .leftJoin(candidates, joinCondition);
-      
-      // When party filtering is active, only include elections that matched a candidate
-      if (partyCondition) {
-        allConditions.push(isNotNull(candidates.id));
-      }
-    } else {
-      electionQuery = db.select().from(elections);
-    }
-
+  async getElections(filters?: ElectionQueryFilters): Promise<ElectionListing[]> {
+    const query = buildElectionListQuery(db, filters);
     return this.handleDatabaseOperation(
-      async () => {
-        const results = await electionQuery
-          .where(and(...allConditions))
-          .orderBy(elections.date);
-
-        // Remove duplicates when joining with candidates
-        let finalResults: Election[];
-        if (needsJoin) {
-          const uniqueElections = new Map();
-          results.forEach((row: any) => {
-            // Skip null/undefined rows
-            if (!row || row.id === null || row.id === undefined) {
-              return;
-            }
-            // Extract election fields only, excluding candidateId
-            const { candidateId, ...election } = row;
-            if (!uniqueElections.has(election.id)) {
-              uniqueElections.set(election.id, election);
-            }
-          });
-          finalResults = Array.from(uniqueElections.values());
-        } else {
-          finalResults = results;
-        }
-
-        // Filter out obviously mock/test data to prevent pollution
-        return finalResults.filter(election => {
-          const mockCheck = validateNotMockData(election);
-          return mockCheck.ok;
-        });
-      },
-      [], // Empty array fallback
+      async () => (await query).filter(election => validateNotMockData(election).ok),
+      [],
       'getElections'
     );
   }
