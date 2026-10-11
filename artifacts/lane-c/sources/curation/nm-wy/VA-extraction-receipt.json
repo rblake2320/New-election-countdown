@@ -1,0 +1,33 @@
+{
+  "state": "VA",
+  "manifest": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-sdwy\\va-2026-general-draft.json",
+  "manifestSha256": "a3b1c083cf219b1db96d99ace96387838bb9f3fb486d6d377b7cd5a7814622bf",
+  "candidateRows": 38,
+  "sourceCount": 1,
+  "completeScopes": 12,
+  "publisher": "Virginia Department of Elections",
+  "status": "official_general_candidate_list_not_a_filing_or_primary_list",
+  "validation": "source row counts, per-scope counts, unique candidate/race keys conserved; contact fields excluded",
+  "notes": {
+    "conservation": {
+      "htmlTableRows": 39,
+      "headerRows": 1,
+      "candidateRows": 38,
+      "excludedRows": 0
+    },
+    "incumbency": "Every value is explicitly Yes or No in the official column, not inferred.",
+    "ballotAccessClass": "No explicit printed/write-in indicator in the fetched table; optional class omitted.",
+    "scope": "Federal only; HD20 state-delegate special election excluded, no governor race invented."
+  },
+  "outputBoundaryCorrection": {
+    "originalRootPath": "D:\\projects\\et-wt\\lane-c\\data\\nominees\\va-2026-general-draft.json",
+    "rootPathRestoredAbsent": true,
+    "draftBytesUnchanged": true,
+    "initialMoveError": {
+      "method": "Python os.replace",
+      "code": "WinError17",
+      "verifiedCause": "Source D: and destination C: are different volumes; os.replace cannot move across volumes"
+    },
+    "repair": "Native PowerShell Move-Item; source/destination guards and before/after SHA256 verified"
+  }
+}

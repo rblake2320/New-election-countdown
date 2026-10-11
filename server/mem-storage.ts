@@ -1,4 +1,4 @@
-import { canonicalParty, electionCalendarWindow, normalizeElectionFilters, type ElectionListing, type ElectionQueryFilters } from "./election-list-filters";
+import { canonicalPartyComponents, electionCalendarWindow, normalizeElectionFilters, type ElectionListing, type ElectionQueryFilters } from "./election-list-filters";
 import { type Election, type InsertElection, type Candidate, type InsertCandidate, type ElectionFilters, type CongressMember, type InsertCongressMember, type User, type UpsertUser, type WatchlistItem, type InsertWatchlistItem, type CandidateAccount, type InsertCandidateAccount, type CandidateProfile, type InsertCandidateProfile, type CandidateDataSource, type InsertCandidateDataSource, type CandidatePosition, type InsertCandidatePosition, type CandidateQA, type InsertCandidateQA } from "@shared/schema";
 import { IStorage } from "./storage";
 import { getGoogleCivicService } from "./google-civic-service";
@@ -77,7 +77,7 @@ export class MemStorage implements IStorage {
       if (candidate.electionId == null) continue;
       counts.set(candidate.electionId, (counts.get(candidate.electionId) ?? 0) + 1);
       const set = parties.get(candidate.electionId) ?? new Set<string>();
-      set.add(canonicalParty(candidate.party));
+      for(const party of canonicalPartyComponents(candidate.party))set.add(party);
       parties.set(candidate.electionId, set);
     }
     const search = f.search?.toLowerCase();

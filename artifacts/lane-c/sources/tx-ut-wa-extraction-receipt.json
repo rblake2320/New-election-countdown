@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "notes": {
+    "TX": [
+      "All 1396 physical PDF pages were parsed using word coordinates to align each name with its party. 2204 printed target candidate occurrences collapsed to 90 unique office/district/name/party rows; repeated county ballots are not separate candidates.",
+      "sourcePage is the physical, one-based PDF page, including the certification cover. The printed report page is one lower.",
+      "No incumbency column is printed: incumbent=null for every record. No contact or biography fields retained.",
+      "Separate certified write-ins now retained with partyRaw empty because certification does not print party. Completeness is qualified by printed/write_in class; no party affiliation inferred."
+    ],
+    "UT": [
+      "All 19 printed U.S. House names on physical PDF page 2 of the amended certification were visually reconciled. No U.S. Senate or Governor scopes occur in this 2026 document.",
+      "Corrected the extraction artifact ADONIS HOOSL YN to the visually printed ADONIS HOOSLYN.",
+      "Separate certified write-ins now retained with partyRaw empty because certification does not print party. Completeness is qualified by printed/write_in class; no party affiliation inferred.",
+      "No incumbency is inferred. Separate official write-in certification has no party column; the authorized empty-party representation is used."
+    ],
+    "WA": [
+      "The scanned 17-page certification was OCR-read; every relevant name and party-preference line on pages 1 and 2 was visually reconciled. Pages 3 through 17 contain no additional congressional or governor field.",
+      "partyRaw preserves the exact printed parenthesized Party Preference wording. It denotes candidate preference; do not describe it as formal party nomination, endorsement, or verified affiliation.",
+      "Complete scopes cover all printed general-ballot U.S. House names in this certification only. Separate write-in declarations are not printed nominees. There is no U.S. Senate or Governor scope in this 2026 certification.",
+      "Incumbency is not printed: incumbent=null for all 20 rows. No contact or biography fields retained."
+    ]
+  },
+  "fetches": {
+    "TX": {
+      "url": "https://www.sos.texas.gov/elections/forms/2026-write-In-ballot-cert.pdf",
+      "sha256": "eece7f9fa38c65eef150d62ba0a142672dc187b7feb2f90bc330f9c5a226aa24",
+      "http_status": 200,
+      "retrievedAt": "2026-10-11T08:27:01.093022+00:00",
+      "bytes": 1008540,
+      "tls_verification": true
+    },
+    "UT": {
+      "url": "https://vote.utah.gov/wp-content/uploads/2026/09/2026-Write-In-Certification.pdf",
+      "sha256": "3333f66076656c3a5dbf3c4be16af75f6fe3c07b285809afb6ed9ab9bcec93a5",
+      "http_status": 200,
+      "retrievedAt": "2026-10-11T08:27:01.541640+00:00",
+      "bytes": 128975,
+      "tls_verification": true
+    }
+  },
+  "extractionEvidenceDirectory": "C:\\Users\\techai\\.codex\\tmp\\sol-nominees-tx-ut-wa",
+  "outputs": [
+    {
+      "path": "D:\\projects\\et-wt\\lane-c\\data\\nominees\\tx-2026-general-draft.json",
+      "sources": 2,
+      "printedRows": 90,
+      "writeInRows": 10,
+      "sha256": "29079a681965e37ddf0caf0679a0ddbb85e10b1173cd814f58e526aebf42b2ca"
+    },
+    {
+      "path": "D:\\projects\\et-wt\\lane-c\\data\\nominees\\ut-2026-general-draft.json",
+      "sources": 2,
+      "printedRows": 19,
+      "writeInRows": 1,
+      "sha256": "ac0a988b924aebcb4d120d42c1da9c831b6a9797d0bb92727c6a55f17169db7e"
+    },
+    {
+      "path": "D:\\projects\\et-wt\\lane-c\\data\\nominees\\wa-2026-general-draft.json",
+      "sources": 1,
+      "printedRows": 20,
+      "writeInRows": 0,
+      "sha256": "79d50e89e78bb55a964b3608cbcf761e5a76d3aa1aacc5f1da42a89d1f071e2a"
+    }
+  ],
+  "validation": {
+    "strictTopLevelKeys": [
+      "version",
+      "sources",
+      "candidates"
+    ],
+    "sourceRowsAndClassScopeCounts": "worked",
+    "duplicatePersonPerRaceCheck": "worked",
+    "incumbencyAllNull": "worked",
+    "unknownWriteInPartyEmpty": "worked",
+    "WApartyPreferenceRawPreserved": "worked"
+  }
+}

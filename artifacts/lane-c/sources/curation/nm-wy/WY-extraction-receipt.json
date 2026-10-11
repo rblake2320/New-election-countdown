@@ -1,0 +1,35 @@
+{
+  "state": "WY",
+  "manifest": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-sdwy\\wy-2026-general-draft.json",
+  "manifestSha256": "761777106d901344a3bc01fa96e68e3932f4cd4174023deac97999564c7a95f5",
+  "candidateRows": 9,
+  "sourceCount": 1,
+  "completeScopes": 3,
+  "publisher": "Wyoming Secretary of State, Elections Division",
+  "status": "official_general_candidate_list_not_a_filing_or_primary_list",
+  "validation": "source row counts, per-scope counts, unique candidate/race keys conserved; contact fields excluded",
+  "notes": {
+    "conservation": {
+      "dataRows": 151,
+      "targetOfficeRows": 9,
+      "withdrawnExcluded": 0,
+      "candidateRows": 9,
+      "otherOfficeRows": 142
+    },
+    "rawParty": "Exact CSV codes preserved: REP/DEM/LBR/CT. Companion official PDF labels LBR as Libertarian and CT as Constitution; do not guess code meanings without that retained primary cross-check.",
+    "publishedAt": "CSV has no printed document date; companion PDF dated September 9 is not silently assigned to CSV.",
+    "incumbency": "No incumbent flag; all null."
+  },
+  "partyCrossDocumentProof": "WY-party-cross-document-proof.json",
+  "outputBoundaryCorrection": {
+    "originalRootPath": "D:\\projects\\et-wt\\lane-c\\data\\nominees\\wy-2026-general-draft.json",
+    "rootPathRestoredAbsent": true,
+    "draftBytesUnchanged": true,
+    "initialMoveError": {
+      "method": "Python os.replace",
+      "code": "WinError17",
+      "verifiedCause": "Source D: and destination C: are different volumes; os.replace cannot move across volumes"
+    },
+    "repair": "Native PowerShell Move-Item; source/destination guards and before/after SHA256 verified"
+  }
+}

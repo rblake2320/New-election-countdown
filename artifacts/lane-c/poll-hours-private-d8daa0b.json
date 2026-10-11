@@ -1,0 +1,204 @@
+{
+  "head": "d8daa0be45b90ec7eb489057a521a706f5311774",
+  "source": {
+    "host": "loopback",
+    "port": 5432,
+    "database": "elections",
+    "scope": "public.elections",
+    "writes": false,
+    "readOnlyConfirmed": "on",
+    "rowCount": 537,
+    "beforeDigest": "413e7aca47b72caa6a9f5e2b36d1c9cc8dc25e91c91ed2ca7ea7ef092673ff64",
+    "originalMetadataColumns": 0,
+    "afterDigest": "413e7aca47b72caa6a9f5e2b36d1c9cc8dc25e91c91ed2ca7ea7ef092673ff64"
+  },
+  "checks": [
+    {
+      "name": "approved source read-only copy",
+      "status": "worked",
+      "observed": {
+        "sourceRows": 537,
+        "electionDayRows": 506,
+        "readOnly": "on"
+      }
+    },
+    {
+      "name": "private copy public columns/data reconciled",
+      "status": "worked",
+      "observed": {
+        "rows": 537,
+        "rowDigest": "413e7aca47b72caa6a9f5e2b36d1c9cc8dc25e91c91ed2ca7ea7ef092673ff64"
+      }
+    },
+    {
+      "name": "dry-run no schema/row/version changes",
+      "status": "worked",
+      "observed": {
+        "columns": 14,
+        "metadataColumns": 0,
+        "rowDigest": "413e7aca47b72caa6a9f5e2b36d1c9cc8dc25e91c91ed2ca7ea7ef092673ff64"
+      }
+    },
+    {
+      "name": "injected failure rolls back DDL plus 100 row updates",
+      "status": "worked",
+      "observed": {
+        "exitCode": 1,
+        "metadataColumns": 0,
+        "rowDigest": "413e7aca47b72caa6a9f5e2b36d1c9cc8dc25e91c91ed2ca7ea7ef092673ff64",
+        "revisionDigest": "0a0bef040537635d053b7e1dfd5208ec6207e4eeaf43b995019a6c0174c351be"
+      }
+    },
+    {
+      "name": "unknown ZZ refuses whole transaction",
+      "status": "worked",
+      "observed": {
+        "exitCode": 1,
+        "metadataColumns": 0,
+        "rows": 538
+      }
+    },
+    {
+      "name": "zero election-day rows refuses",
+      "status": "worked",
+      "observed": {
+        "exitCode": 1,
+        "remainingOtherDateRows": 31,
+        "metadataColumns": 0
+      }
+    },
+    {
+      "name": "real apply all 506 rows matches independent reference",
+      "status": "worked",
+      "observed": {
+        "exitCode": 0,
+        "electionDayRows": 506,
+        "metadataColumns": 3,
+        "fieldComparisons": 3036,
+        "mismatches": 0,
+        "nonElectionDayRowsUnchanged": 31,
+        "unrelatedPublicColumnsDigest": "09e8b42a5d2675adea6273d82c74277c5ccc39dcbf4a64da7777a6672a3a4251"
+      }
+    },
+    {
+      "name": "second apply no row updates or tuple versions",
+      "status": "worked",
+      "observed": {
+        "exitCode": 0,
+        "rowsUpdated": 0,
+        "rowDigest": "75ac57da9582fec007a087a85107e362ad06df785aa55857acec57f29d4b0e48",
+        "revisionDigest": "2d3e19ae48991e1e3ff350b940a57108d77f83f935b11e0a2960f3dc544896ac"
+      }
+    },
+    {
+      "name": "shared source unchanged across complete acceptance",
+      "status": "worked",
+      "observed": {
+        "beforeDigest": "413e7aca47b72caa6a9f5e2b36d1c9cc8dc25e91c91ed2ca7ea7ef092673ff64",
+        "afterDigest": "413e7aca47b72caa6a9f5e2b36d1c9cc8dc25e91c91ed2ca7ea7ef092673ff64",
+        "readOnly": "on"
+      }
+    }
+  ],
+  "runs": [
+    {
+      "name": "dryrun",
+      "apply": false,
+      "injectedFailureAfter": null,
+      "exitCode": 0,
+      "elapsedMs": 867,
+      "log": "dryrun.log",
+      "summary": [
+        "2026-11-03: 506 rows; 506 need changes; states missing from table: none",
+        "dry-run only - re-run with --apply to write"
+      ]
+    },
+    {
+      "name": "injected-after-100",
+      "apply": true,
+      "injectedFailureAfter": 100,
+      "exitCode": 1,
+      "elapsedMs": 881,
+      "log": "injected-after-100.log",
+      "summary": [
+        "2026-11-03: 506 rows; 506 need changes; states missing from table: none",
+        "Error: injected failure after 100 updates (test hook)"
+      ]
+    },
+    {
+      "name": "unknown-state-ZZ",
+      "apply": true,
+      "injectedFailureAfter": null,
+      "exitCode": 1,
+      "elapsedMs": 669,
+      "log": "unknown-state-ZZ.log",
+      "summary": [
+        "2026-11-03: 507 rows; 506 need changes; states missing from table: ZZ",
+        "Error: refusing: no poll-hours entry for state(s) ZZ - partial coverage is not applied"
+      ]
+    },
+    {
+      "name": "zero-election-day-rows",
+      "apply": true,
+      "injectedFailureAfter": null,
+      "exitCode": 1,
+      "elapsedMs": 655,
+      "log": "zero-election-day-rows.log",
+      "summary": [
+        "2026-11-03: 0 rows; 0 need changes; states missing from table: none",
+        "Error: refusing: no elections found for 2026-11-03"
+      ]
+    },
+    {
+      "name": "real-506-apply",
+      "apply": true,
+      "injectedFailureAfter": null,
+      "exitCode": 0,
+      "elapsedMs": 1057,
+      "log": "real-506-apply.log",
+      "summary": [
+        "2026-11-03: 506 rows; 506 need changes; states missing from table: none",
+        "applied: 506 rows updated; after: 0 of 506 election-day rows lack timezone/basis (close may be null where basis=local_variable)"
+      ]
+    },
+    {
+      "name": "repeat-apply",
+      "apply": true,
+      "injectedFailureAfter": null,
+      "exitCode": 0,
+      "elapsedMs": 657,
+      "log": "repeat-apply.log",
+      "summary": [
+        "2026-11-03: 506 rows; 0 need changes; states missing from table: none",
+        "applied: 0 rows updated; after: 0 of 506 election-day rows lack timezone/basis (close may be null where basis=local_variable)"
+      ]
+    }
+  ],
+  "distribution": {
+    "basis": {
+      "statewide_latest": 496,
+      "local_variable": 10,
+      "district_latest": 0
+    },
+    "kinds": {
+      "polls": 413,
+      "ballot_return": 93
+    }
+  },
+  "verdict": "WORKED",
+  "immutableFilesUnchanged": {
+    "scripts/seed_poll_hours_2026.ts": true,
+    "server/db.ts": true,
+    "server/poll-hours-2026.ts": true,
+    "shared/schema.ts": true,
+    "tsconfig.json": true,
+    "package-lock.json": true
+  },
+  "dependencies": {
+    "ownNodeModules": true,
+    "nodeModulesReparsePoint": false,
+    "installedPackages": 1253,
+    "method": "npm ci --ignore-scripts --no-audit --no-fund"
+  },
+  "containerCleanupIndependentCheck": "docker ps -a exact-name filter returned zero containers"
+}
