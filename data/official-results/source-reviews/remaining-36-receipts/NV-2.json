@@ -1,0 +1,20 @@
+{
+  "state": "NV",
+  "url": "https://results.nv.gov/",
+  "checkedAt": "2026-10-11T12:29:12.660305+00:00",
+  "tlsValidation": true,
+  "attempts": [
+    {
+      "method": "Python Requests default TLS",
+      "httpStatus": 403,
+      "finalUrl": "https://silverstateelection.nv.gov/",
+      "bytes": 959,
+      "sha256": "6402d007e5c5e3c822e98bae09b77380614d72cacc78ad1d304bbe629fc658f9"
+    },
+    {
+      "method": "Windows Invoke-WebRequest default TLS",
+      "error": "Invoke-WebRequest : Request unsuccessful. Incapsula incident ID: 1813000050133169210-10901146807107939\nAt line:1 char:34\n+ ... e='Stop';$r=Invoke-WebRequest -Uri 'https://results.nv.gov/' -UseBasi ...\n+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], WebExc \n   eption\n    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand\n"
+    }
+  ],
+  "status": "blocked_transport"
+}

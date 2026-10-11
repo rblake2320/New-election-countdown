@@ -96,6 +96,8 @@ export class GoogleCivicService {
         pollCloseKind: null,
         pollHoursBasis: null,
         pollHoursSource: null,
+        officialResultsUrl: null,
+        officialResultsSource: null,
         isActive: true,
       }));
     } catch (error) {
@@ -140,6 +142,8 @@ export class GoogleCivicService {
         pollCloseKind: null,
         pollHoursBasis: null,
         pollHoursSource: null,
+        officialResultsUrl: null,
+        officialResultsSource: null,
         isActive: true,
       };
 

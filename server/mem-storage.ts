@@ -109,12 +109,23 @@ export class MemStorage implements IStorage {
     const newElection: Election = {
       id: this.nextId++,
       ...election,
+      title: election.title,
+      location: election.location,
+      state: election.state,
+      date: election.date,
+      type: election.type,
+      level: election.level,
       subtitle: election.subtitle ?? null,
       offices: election.offices ?? null,
       description: election.description ?? null,
       pollsOpen: election.pollsOpen ?? null,
       pollsClose: election.pollsClose ?? null,
       timezone: election.timezone ?? null,
+      pollCloseKind: election.pollCloseKind ?? null,
+      pollHoursBasis: election.pollHoursBasis ?? null,
+      pollHoursSource: election.pollHoursSource ?? null,
+      officialResultsUrl: null,
+      officialResultsSource: null,
       isActive: election.isActive ?? null
     };
     this.elections.set(newElection.id, newElection);

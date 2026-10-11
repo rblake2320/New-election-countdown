@@ -1,0 +1,20 @@
+{
+  "state": "MO",
+  "url": "https://enr.sos.mo.gov/",
+  "checkedAt": "2026-10-11T12:30:20.293431+00:00",
+  "tlsValidation": true,
+  "attempts": [
+    {
+      "method": "Python Requests default TLS",
+      "httpStatus": 403,
+      "finalUrl": "https://enr.sos.mo.gov/",
+      "bytes": 5487,
+      "sha256": "894c338e2a9ea9fe78c3bd9e4491e3cf5df82957cc90bc059aa0542d434f45fb"
+    },
+    {
+      "method": "Windows Invoke-WebRequest default TLS",
+      "error": "Invoke-WebRequest : The remote server returned an error: (403) Forbidden.\nAt line:1 char:34\n+ ... e='Stop';$r=Invoke-WebRequest -Uri 'https://enr.sos.mo.gov/' -UseBasi ...\n+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], WebExc \n   eption\n    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand\n \n"
+    }
+  ],
+  "status": "blocked_transport"
+}

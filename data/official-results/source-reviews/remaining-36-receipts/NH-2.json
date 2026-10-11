@@ -1,0 +1,20 @@
+{
+  "state": "NH",
+  "url": "https://www.sos.nh.gov/elections/elections/election-results",
+  "checkedAt": "2026-10-11T12:29:11.319365+00:00",
+  "tlsValidation": true,
+  "attempts": [
+    {
+      "method": "Python Requests default TLS",
+      "httpStatus": 403,
+      "finalUrl": "https://www.sos.nh.gov/elections/elections/election-results",
+      "bytes": 418,
+      "sha256": "acb85567fca77f79acae4ceae147fde1954d7efef2b40783c338ea52b3d43177"
+    },
+    {
+      "method": "Windows Invoke-WebRequest default TLS",
+      "error": "Invoke-WebRequest : \nAccess Denied\nAccess Denied\n \nYou don't have permission to access \n\"http&#58;&#47;&#47;www&#46;sos&#46;nh&#46;gov&#47;elections&#47;elections&#47;election&#45;results\" on this server.\nReference&#32;&#35;18&#46;2950db17&#46;1791721752&#46;7d6848b\nhttps&#58;&#47;&#47;errors&#46;edgesuite&#46;net&#47;18&#46;2950db17&#46;1791721752&#46;7d6848b\nAt line:1 char:34\n+ ... e='Stop';$r=Invoke-WebRequest -Uri 'https://www.sos.nh.gov/elections/ ...\n+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], WebExc \n   eption\n    + FullyQualifiedErrorId : Web"
+    }
+  ],
+  "status": "blocked_transport"
+}

@@ -1,0 +1,20 @@
+{
+  "state": "ID",
+  "url": "https://sos.idaho.gov/elections-division/election-results/",
+  "checkedAt": "2026-10-11T12:27:46.353306+00:00",
+  "tlsValidation": true,
+  "attempts": [
+    {
+      "method": "Python Requests default TLS",
+      "httpStatus": 404,
+      "finalUrl": "https://sos.idaho.gov/elections-division/election-results/",
+      "bytes": 131744,
+      "sha256": "bc723e1b60cd76369be774e3d21dd97578ad9ae1e836cec0d5f933e4939394a1"
+    },
+    {
+      "method": "Windows Invoke-WebRequest default TLS",
+      "error": "Invoke-WebRequest : The request was aborted: The connection was closed unexpectedly.\nAt line:1 char:34\n+ ... e='Stop';$r=Invoke-WebRequest -Uri 'https://sos.idaho.gov/elections-d ...\n+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], WebExc \n   eption\n    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand\n \n"
+    }
+  ],
+  "status": "blocked_transport"
+}

@@ -1,0 +1,20 @@
+{
+  "state": "MO",
+  "url": "https://www.sos.mo.gov/elections/results",
+  "checkedAt": "2026-10-11T12:27:51.228514+00:00",
+  "tlsValidation": true,
+  "attempts": [
+    {
+      "method": "Python Requests default TLS",
+      "httpStatus": 403,
+      "finalUrl": "https://www.sos.mo.gov/elections/results",
+      "bytes": 4549,
+      "sha256": "e71bc53c5dc68a95c2f626645765e1e43a38febcf6477572084f94ba332e1217"
+    },
+    {
+      "method": "Windows Invoke-WebRequest default TLS",
+      "error": "Command '['powershell', '-NoProfile', '-Command', \"$ErrorActionPreference='Stop';$r=Invoke-WebRequest -Uri 'https://www.sos.mo.gov/elections/results' -UseBasicParsing -TimeoutSec 22;[Convert]::ToBase64String($r.RawContentStream.ToArray())\"]' timed out after 30 seconds"
+    }
+  ],
+  "status": "blocked_transport"
+}
