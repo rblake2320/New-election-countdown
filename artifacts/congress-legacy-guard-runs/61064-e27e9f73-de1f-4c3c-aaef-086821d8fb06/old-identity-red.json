@@ -1,0 +1,166 @@
+{
+  "forward": {
+    "imports": [
+      "fs",
+      "./server/db.js",
+      "./shared/schema.js"
+    ],
+    "envReads": [],
+    "fileCalls": [
+      "./attached_assets/congress_members_complete.json"
+    ],
+    "dbCalls": [
+      {
+        "kind": "delete",
+        "table": "explicit_synthetic_table"
+      },
+      {
+        "kind": "insert",
+        "table": "explicit_synthetic_table"
+      },
+      {
+        "kind": "select"
+      }
+    ],
+    "rows": [
+      {
+        "bioguideId": "EXPLICIT_FIXTURE_MISSING_ID_A_0_0",
+        "name": "Explicit Fixture Missing ID A",
+        "party": "D",
+        "state": "MN",
+        "district": null,
+        "chamber": "Senate",
+        "congress": 119,
+        "createdAt": "2026-10-11T16:55:23.656Z",
+        "updatedAt": "2026-10-11T16:55:23.656Z"
+      },
+      {
+        "bioguideId": "EXPLICIT_FIXTURE_MISSING_ID_B_0_1",
+        "name": "Explicit Fixture Missing ID B",
+        "party": "R",
+        "state": "MN",
+        "district": "01",
+        "chamber": "House",
+        "congress": 119,
+        "createdAt": "2026-10-11T16:55:23.656Z",
+        "updatedAt": "2026-10-11T16:55:23.656Z"
+      }
+    ],
+    "inserted": [
+      {
+        "bioguideId": "EXPLICIT_FIXTURE_MISSING_ID_A_0_0",
+        "name": "Explicit Fixture Missing ID A",
+        "party": "D",
+        "state": "MN",
+        "district": null,
+        "chamber": "Senate",
+        "congress": 119,
+        "createdAt": "2026-10-11T16:55:23.656Z",
+        "updatedAt": "2026-10-11T16:55:23.656Z"
+      },
+      {
+        "bioguideId": "EXPLICIT_FIXTURE_MISSING_ID_B_0_1",
+        "name": "Explicit Fixture Missing ID B",
+        "party": "R",
+        "state": "MN",
+        "district": "01",
+        "chamber": "House",
+        "congress": 119,
+        "createdAt": "2026-10-11T16:55:23.656Z",
+        "updatedAt": "2026-10-11T16:55:23.656Z"
+      }
+    ],
+    "stdout": [
+      "Starting bulk restore of congressional members...",
+      "Found 2 members in dataset",
+      "Cleared existing congressional data",
+      "Batch 1/1 completed. Total: 2",
+      "\nRestore complete! Total members in database: 2",
+      "Successfully restored 2 congressional members"
+    ],
+    "stderr": [],
+    "exitCode": 0
+  },
+  "reverse": {
+    "imports": [
+      "fs",
+      "./server/db.js",
+      "./shared/schema.js"
+    ],
+    "envReads": [],
+    "fileCalls": [
+      "./attached_assets/congress_members_complete.json"
+    ],
+    "dbCalls": [
+      {
+        "kind": "delete",
+        "table": "explicit_synthetic_table"
+      },
+      {
+        "kind": "insert",
+        "table": "explicit_synthetic_table"
+      },
+      {
+        "kind": "select"
+      }
+    ],
+    "rows": [
+      {
+        "bioguideId": "EXPLICIT_FIXTURE_MISSING_ID_B_0_0",
+        "name": "Explicit Fixture Missing ID B",
+        "party": "R",
+        "state": "MN",
+        "district": "01",
+        "chamber": "House",
+        "congress": 119,
+        "createdAt": "2026-10-11T16:55:23.657Z",
+        "updatedAt": "2026-10-11T16:55:23.657Z"
+      },
+      {
+        "bioguideId": "EXPLICIT_FIXTURE_MISSING_ID_A_0_1",
+        "name": "Explicit Fixture Missing ID A",
+        "party": "D",
+        "state": "MN",
+        "district": null,
+        "chamber": "Senate",
+        "congress": 119,
+        "createdAt": "2026-10-11T16:55:23.657Z",
+        "updatedAt": "2026-10-11T16:55:23.657Z"
+      }
+    ],
+    "inserted": [
+      {
+        "bioguideId": "EXPLICIT_FIXTURE_MISSING_ID_B_0_0",
+        "name": "Explicit Fixture Missing ID B",
+        "party": "R",
+        "state": "MN",
+        "district": "01",
+        "chamber": "House",
+        "congress": 119,
+        "createdAt": "2026-10-11T16:55:23.657Z",
+        "updatedAt": "2026-10-11T16:55:23.657Z"
+      },
+      {
+        "bioguideId": "EXPLICIT_FIXTURE_MISSING_ID_A_0_1",
+        "name": "Explicit Fixture Missing ID A",
+        "party": "D",
+        "state": "MN",
+        "district": null,
+        "chamber": "Senate",
+        "congress": 119,
+        "createdAt": "2026-10-11T16:55:23.657Z",
+        "updatedAt": "2026-10-11T16:55:23.657Z"
+      }
+    ],
+    "stdout": [
+      "Starting bulk restore of congressional members...",
+      "Found 2 members in dataset",
+      "Cleared existing congressional data",
+      "Batch 1/1 completed. Total: 2",
+      "\nRestore complete! Total members in database: 2",
+      "Successfully restored 2 congressional members"
+    ],
+    "stderr": [],
+    "exitCode": 0
+  }
+}

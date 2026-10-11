@@ -21,6 +21,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+      - name: Verify legacy Congress restore entrypoints refuse
+        run: node --experimental-vm-modules --test tests/congress-legacy-guard.node.mjs
       - run: npm run check:type-mechanism
       - run: npm run test:e2e:list
       - run: npm run build
@@ -38,6 +40,7 @@ jobs:
           path: |
             typecheck.txt
             audit.json
+            artifacts/congress-legacy-guard-runs/
   bundle-budget:
     runs-on: ubuntu-latest
     env:
