@@ -4,6 +4,8 @@ Owner: Sol EC / HWND 162924912. Branch `lane-c/source-sync`, stacked on reviewed
 
 The previous importer silently reused an old ZIP, stamped every unknown source as editorially verified, chose ambiguous Senate races, matched editorial names without party, deleted duplicate candidate rows, and performed writes outside one transaction. The new importer refreshes the official source, defaults to a database-enforced read-only plan, quarantines unresolved identities, and applies one locked serializable transaction with bounded serialization retries. It never deletes candidates, certifies ballots, or overwrites editorial/ballot provenance.
 
+Independent review of the first version found changed-ID duplicate risk, existing source-hash replacement, Constitution/Conservative conflation and receipt-file failure after commit. Regression tests now cover each. FEC evidence lives in `candidate_source_records` independently from candidate/ballot source hashes. Each apply commits `candidate_ingest_runs` alongside its data writes, including zero-change runs; candidate data remains unchanged on an identical repeat. Local receipts have unique per-run filenames. An injected local disk failure reports the committed apply/audit ID instead of claiming an uncommitted failure. ZIP extraction inflates only the selected file, with a streaming limit before full accumulation.
+
 ## Source and observed dry run
 
 [FEC candidate master format](https://www.fec.gov/campaign-finance-data/candidate-master-file-description/) documents 15 fields and nullable name/district fields. [Official 2026 bulk ZIP](https://www.fec.gov/files/bulk-downloads/2026/cn26.zip) fetched on 2026-10-11 has SHA256 `6062f203fd5dd90a7e33e487088a4d496bd9634cc1e560f94b0f5e7ff8ea0126`.
@@ -17,7 +19,7 @@ The first source inspection encountered a nullable record (line 2640) and later 
 ## Worked acceptance checks
 
 - Pure regression coverage: official layout, incomplete rows, missing party, name/race/party enrichment, distinct identities, ambiguous existing records, ambiguous Senate contests, past-cycle isolation, exact repeat and editorial party conflicts.
-- Disposable PostgreSQL: dry-run writes nothing; apply is atomic; repeated identical source changes zero rows; editorial content/party/provenance/ballot state stay intact; newly imported registrations are never certified; apostrophe names use SQL parameters; an injected failure rolls back earlier updates; concurrent imports produce one identity; a refreshed source updates an imported party.
+- Disposable PostgreSQL: dry-run writes nothing; apply is atomic; repeated identical source changes zero candidate rows; editorial content/party/provenance/ballot hashes and timestamps stay intact; newly imported registrations are never certified; apostrophe names use SQL parameters; an injected failure rolls back candidates/source layers/receipts; concurrent imports produce one identity; a refreshed source updates an imported party; the source migration is idempotent and a committed DB receipt survives an injected local disk failure.
 - Full unit suite, production build and fresh non-incremental typecheck run. Fresh typecheck remains 1,114 diagnostics with none in these changed files; whole-project cleanup remains lane D's integration gate.
 
 Receipts: `artifacts/lane-c/fec-{private-postgres,live-dry-run}.json`. Raw red/green/full-unit/type/build reports remain beside them locally. The fixture wrapper starts only its labelled disposable PostgreSQL container, uses a process-only random credential, and removes that container afterward. The source ZIP and full manifest live in ignored `election-data-2026/`.
@@ -38,3 +40,5 @@ npx tsx scripts/sync_fec_candidates.ts --apply --expect-sha256=<reviewed-hash>
 ```
 
 The command refreshes the source again and refuses if its hash changed; then it replans under the database transaction. It does not reuse a stale cache. The exact JSZip 3.10.1 direct dependency is owned by lane D PR #1; this branch does not duplicate that package edit.
+
+Deployment must run additive `migrations/20261011_candidate_source_records.sql` (also represented in `shared/schema.ts`) before apply. Dry-run works without that migration; apply refuses before candidate writes when the source/audit tables are absent. The migration has only been exercised against the labelled private fixture, not applied to the shared DB.

@@ -3,7 +3,7 @@ import type { Pool, PoolClient } from 'pg';
 export const FEC_MASTER_URL = 'https://www.fec.gov/files/bulk-downloads/2026/cn26.zip';
 export const FEC_CYCLE = 2026;
 const STATES = new Set('AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY'.split(' '));
-const PARTY: Record<string, string> = { DEM: 'D', DFL: 'D', REP: 'R', IND: 'I', NPA: 'I', GRE: 'G', LIB: 'L', CON: 'C' };
+const PARTY: Record<string, string> = { DEM: 'D', DFL: 'D', REP: 'R', IND: 'I', GRE: 'G', LIB: 'L' };
 export interface FecRow {
   candId: string; displayName: string; party: string; partyRaw: string;
   state: string; office: 'H' | 'S'; district: string; status: string; incumbent: boolean;
@@ -15,7 +15,8 @@ export interface ExistingCandidate {
   data_source: string | null; source_status: string | null;
 }
 export interface FecAction { kind: 'insert' | 'enrich' | 'update'; candidateId?: number; electionId: number; record: FecRow }
-export interface FecPlan { actions: FecAction[]; unchanged: number; unmatched: Array<{ fecId: string; reason: 'missing-race' | 'ambiguous-race' | 'ambiguous-identity' | 'conflicting-party' }> }
+export interface FecSourceRecord { candidate_id: number; source_file_sha256: string; metadata: { fecStatus?: string } }
+export interface FecPlan { actions: FecAction[]; unchanged: number; unmatched: Array<{ fecId: string; reason: 'missing-race' | 'ambiguous-race' | 'ambiguous-identity' | 'conflicting-party' }>; auditId?: number }
 
 export function normalizedCandidateName(name: string): string {
   return name.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -27,7 +28,7 @@ function displayName(name: string): string {
 }
 function canonicalParty(party: string | null): string {
   const p = (party ?? '').trim().toUpperCase();
-  return ({ DEMOCRATIC: 'D', DEMOCRAT: 'D', REPUBLICAN: 'R', INDEPENDENT: 'I', GREEN: 'G', LIBERTARIAN: 'L', CONSERVATIVE: 'C', OTHER: 'O', ...PARTY } as Record<string, string>)[p] ?? (p || 'O');
+  return ({ DEMOCRATIC: 'D', DEMOCRAT: 'D', REPUBLICAN: 'R', INDEPENDENT: 'I', GREEN: 'G', LIBERTARIAN: 'L', CONSERVATIVE: 'CRV', CONSTITUTION: 'CON', OTHER: 'O', ...PARTY } as Record<string, string>)[p] ?? (p || 'O');
 }
 
 /** Only the official 15-column master layout; mailing-address fields are discarded. */
@@ -59,7 +60,7 @@ export function parseFecMaster(text: string, includePrior = false): { rows: FecR
 }
 
 /** Pure planning. No ballot certification, editorial verification, deletion or arbitrary race selection. */
-export function buildFecSyncPlan(rows: FecRow[], elections: RaceRow[], candidates: ExistingCandidate[], sha256: string): FecPlan {
+export function buildFecSyncPlan(rows: FecRow[], elections: RaceRow[], candidates: ExistingCandidate[], sha256: string, sources: FecSourceRecord[] = []): FecPlan {
   if (!/^[a-f0-9]{64}$/.test(sha256)) throw new Error('A valid source SHA256 is required');
   const raceIndex = new Map<string, number[]>();
   for (const e of elections) {
@@ -100,11 +101,14 @@ export function buildFecSyncPlan(rows: FecRow[], elections: RaceRow[], candidate
         plan.unmatched.push({ fecId: row.candId, reason: 'conflicting-party' });
         continue;
       }
-      if (known[0].source_file_sha256 === sha256 && known[0].fec_status === row.status) plan.unchanged++;
+      const sourceMatches = sources.some(s => s.candidate_id === known[0].id && s.source_file_sha256 === sha256 && s.metadata.fecStatus === row.status);
+      if (sourceMatches && known[0].fec_status === row.status) plan.unchanged++;
       else plan.actions.push({ kind: 'update', candidateId: known[0].id, electionId, record: row });
       continue;
     }
-    const matches = sameRace.filter(c => !c.fec_candidate_id && normalizedCandidateName(c.name) === name && canonicalParty(c.party) === canonicalParty(row.party));
+    const identityMatches = sameRace.filter(c => normalizedCandidateName(c.name) === name && canonicalParty(c.party) === canonicalParty(row.party));
+    if (identityMatches.some(c => c.fec_candidate_id)) { plan.unmatched.push({ fecId: row.candId, reason: 'ambiguous-identity' }); continue; }
+    const matches = identityMatches;
     if (matches.length > 1) throw new Error(`ambiguous existing name/party in election ${electionId}`);
     plan.actions.push({ kind: matches.length ? 'enrich' : 'insert', candidateId: matches[0]?.id, electionId, record: row });
   }
@@ -113,19 +117,26 @@ export function buildFecSyncPlan(rows: FecRow[], elections: RaceRow[], candidate
 
 async function applyAction(client: PoolClient, action: FecAction, hash: string, syncedAt: Date): Promise<void> {
   const r = action.record;
+  let candidateId = action.candidateId;
   if (action.kind === 'insert') {
-    await client.query(`INSERT INTO candidates (name, party, election_id, is_incumbent, description, fec_candidate_id, data_source, source_status, fec_status, normalized_name, ballot_status, source_file_sha256, source_synced_at, polling_support, polling_trend)
-      VALUES ($1,$2,$3,$4,$5,$6,'fec_bulk','fec_registered',$7,$8,'not_certified',$9,$10,NULL,NULL)`,
+    const result = await client.query<{ id: number }>(`INSERT INTO candidates (name, party, election_id, is_incumbent, description, fec_candidate_id, data_source, source_status, fec_status, normalized_name, ballot_status, source_file_sha256, source_synced_at, polling_support, polling_trend)
+      VALUES ($1,$2,$3,$4,$5,$6,'fec_bulk','fec_registered',$7,$8,'not_certified',$9,$10,NULL,NULL) RETURNING id`,
     [r.displayName, r.party, action.electionId, r.incumbent, 'FEC registration; general-election nomination and ballot access unconfirmed.', r.candId, r.status, normalizedCandidateName(r.displayName), hash, syncedAt]);
+    candidateId = result.rows[0].id;
   } else {
     // Preserve editorial/ballot provenance, profile content, party and all ballot fields.
-    const result = await client.query(`UPDATE candidates SET fec_candidate_id=$1, fec_status=$2, source_file_sha256=$3, source_synced_at=$4, updated_at=$4,
+    const result = await client.query(`UPDATE candidates SET fec_candidate_id=$1, fec_status=$2,
+      source_file_sha256=CASE WHEN data_source='fec_bulk' THEN $3 ELSE source_file_sha256 END,
+      source_synced_at=CASE WHEN data_source='fec_bulk' THEN $4 ELSE source_synced_at END, updated_at=$4,
       party=CASE WHEN data_source='fec_bulk' THEN $7 ELSE party END,
       is_incumbent=CASE WHEN data_source='fec_bulk' THEN $8 ELSE is_incumbent END
       WHERE id=$5 AND election_id=$6`,
       [r.candId, r.status, hash, syncedAt, action.candidateId, action.electionId, r.party, r.incumbent]);
     if (result.rowCount !== 1) throw new Error('Candidate changed during sync');
   }
+  await client.query(`INSERT INTO candidate_source_records(candidate_id,source_layer,source_url,source_file_sha256,source_synced_at,metadata)
+    VALUES ($1,'fec_registration',$2,$3,$4,$5::jsonb) ON CONFLICT(candidate_id,source_layer,source_url,source_file_sha256) DO NOTHING`,
+    [candidateId, FEC_MASTER_URL, hash, syncedAt, JSON.stringify({ fecCandidateId: r.candId, fecStatus: r.status, partyRaw: r.partyRaw, sourceStatus: 'fec_registered', ballotCertification: false, generalElectionNomination: false })]);
 }
 
 /** One database transaction; advisory lock serializes this importer, serializable isolation detects other writers. */
@@ -138,8 +149,16 @@ async function runFecSyncOnce(pool: Pool, rows: FecRow[], sha256: string, apply:
     if (apply) await client.query('SELECT pg_advisory_xact_lock($1)', [2026110301]);
     const elections = await client.query<RaceRow>('SELECT id,state,title,level,type,date,offices FROM elections ORDER BY id');
     const candidates = await client.query<ExistingCandidate>('SELECT id,election_id,name,party,fec_candidate_id,fec_status,source_file_sha256,data_source,source_status FROM candidates ORDER BY id');
-    const plan = buildFecSyncPlan(rows, elections.rows, candidates.rows, sha256);
+    const tables = await client.query<{ sources: string | null; audit: string | null }>("SELECT to_regclass('public.candidate_source_records')::text AS sources, to_regclass('public.candidate_ingest_runs')::text AS audit");
+    if (apply && (!tables.rows[0].sources || !tables.rows[0].audit)) throw new Error('Candidate provenance migration must run before apply');
+    const sources = tables.rows[0].sources ? (await client.query<FecSourceRecord>("SELECT candidate_id,source_file_sha256,metadata FROM candidate_source_records WHERE source_layer='fec_registration' AND source_url=$1", [FEC_MASTER_URL])).rows : [];
+    const plan = buildFecSyncPlan(rows, elections.rows, candidates.rows, sha256, sources);
     if (apply) for (const action of plan.actions) await applyAction(client, action, sha256, syncedAt);
+    if (apply) {
+      const audit = await client.query<{ id: number }>(`INSERT INTO candidate_ingest_runs(source_layer,source_url,source_file_sha256,applied_at,receipt)
+        VALUES ('fec_registration',$1,$2,$3,$4::jsonb) RETURNING id`, [FEC_MASTER_URL, sha256, syncedAt, JSON.stringify(plan)]);
+      plan.auditId = audit.rows[0].id;
+    }
     await client.query(apply ? 'COMMIT' : 'ROLLBACK');
     return plan;
   } catch (error) {

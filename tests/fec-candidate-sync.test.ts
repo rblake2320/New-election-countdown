@@ -54,7 +54,7 @@ describe('FEC sync identity, provenance and race safety', () => {
     expect(plan.unmatched[0].reason).toBe('ambiguous-race');
   });
   it('is a no-op for identical source and candidate metadata on a repeated run', () => {
-    const plan = buildFecSyncPlan(parseFecMaster(line()).rows, [house], [{ ...candidate, fec_candidate_id: 'H6TX01001', fec_status: 'C', source_file_sha256: 'a'.repeat(64) }], 'a'.repeat(64));
+    const plan = buildFecSyncPlan(parseFecMaster(line()).rows, [house], [{ ...candidate, fec_candidate_id: 'H6TX01001', fec_status: 'C', source_file_sha256: 'a'.repeat(64) }], 'a'.repeat(64), [{ candidate_id: 10, source_file_sha256: 'a'.repeat(64), metadata: { fecStatus: 'C' } }]);
     expect(plan.actions).toHaveLength(0);
     expect(plan.unchanged).toBe(1);
   });
@@ -66,5 +66,19 @@ describe('FEC sync identity, provenance and race safety', () => {
     const plan = buildFecSyncPlan(parseFecMaster(line('H6TX01001','EXAMPLE, ALEX','REP')).rows, [house], [{ ...candidate, fec_candidate_id: 'H6TX01001' }], 'a'.repeat(64));
     expect(plan.actions).toHaveLength(0);
     expect(plan.unmatched[0].reason).toBe('conflicting-party');
+  });
+  it('quarantines a changed FEC ID instead of inserting the same identity twice', () => {
+    const plan = buildFecSyncPlan(parseFecMaster(line('H6TX01002')).rows, [house], [{ ...candidate, fec_candidate_id: 'H6TX01001' }], 'a'.repeat(64));
+    expect(plan.actions).toHaveLength(0);
+    expect(plan.unmatched[0].reason).toBe('ambiguous-identity');
+  });
+  it('keeps Constitution and Conservative affiliations distinct', () => {
+    const records = parseFecMaster(line('H6TX01001','EXAMPLE, ALEX','CON')).rows;
+    expect(records[0].party).toBe('CON');
+    const plan = buildFecSyncPlan(records, [house], [{ ...candidate, party: 'Conservative' }], 'a'.repeat(64));
+    expect(plan.actions[0].kind).toBe('insert');
+  });
+  it('does not turn No Party Affiliation into an Independent registration', () => {
+    expect(parseFecMaster(line('H6TX01001','EXAMPLE, ALEX','NPA')).rows[0].party).toBe('NPA');
   });
 });
