@@ -1,0 +1,63 @@
+
+> rest-express@1.0.0 build
+> vite build && node scripts/build-server.mjs
+
+vite v8.3.4 building client environment for production...
+transforming...
+
+warn - The class `group-focus-within:before:duration-[4000ms]` is ambiguous and matches multiple utilities.
+warn - If this is content and not a class, replace it with `group-focus-within:before:duration-&lsqb;4000ms&rsqb;` to silence this warning.
+✓ 2695 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/public/index.html                                   1.83 kB │ gzip:   0.68 kB
+dist/public/assets/index-DlqpAX2q.css                   98.89 kB │ gzip:  15.95 kB
+dist/public/assets/skeleton-VjIMT7ul.js                  0.21 kB │ gzip:   0.18 kB
+dist/public/assets/progress-cvf_G0OO.js                  0.56 kB │ gzip:   0.37 kB
+dist/public/assets/rolldown-runtime-hePW80VL.js          0.71 kB │ gzip:   0.42 kB
+dist/public/assets/card-DD_5iAfJ.js                      1.20 kB │ gzip:   0.48 kB
+dist/public/assets/tabs-D6bDDgIl.js                      1.23 kB │ gzip:   0.52 kB
+dist/public/assets/table-Xu60bRm2.js                     1.63 kB │ gzip:   0.59 kB
+dist/public/assets/form-CD9cG06f.js                      1.88 kB │ gzip:   0.82 kB
+dist/public/assets/not-found-BkOGoNn8.js                 2.78 kB │ gzip:   0.97 kB
+dist/public/assets/Compare-IJoFj9mv.js                   2.85 kB │ gzip:   1.13 kB
+dist/public/assets/midterm-2026-DZ8Ky7Xc.js              6.52 kB │ gzip:   1.61 kB
+dist/public/assets/api-status-BuA8ZGqW.js                7.21 kB │ gzip:   2.04 kB
+dist/public/assets/congress-admin-AkAhwPm0.js            7.43 kB │ gzip:   2.00 kB
+dist/public/assets/happening-now-CVvUhE9o.js             7.51 kB │ gzip:   2.30 kB
+dist/public/assets/admin-settings-M6cYtf9x.js            7.83 kB │ gzip:   2.19 kB
+dist/public/assets/investor-dashboard-CwugDyqi.js        8.27 kB │ gzip:   2.15 kB
+dist/public/assets/monitoring-dashboard-CrbbDi_6.js      9.24 kB │ gzip:   2.47 kB
+dist/public/assets/admin-results-entry-CUChQyHJ.js       9.70 kB │ gzip:   3.12 kB
+dist/public/assets/campaign-portal-_OFo0NoX.js          10.27 kB │ gzip:   2.76 kB
+dist/public/assets/global-dashboard-cPWk64Kz.js         12.12 kB │ gzip:   2.64 kB
+dist/public/assets/candidate-portal-fixed-BYs-_YgZ.js   14.60 kB │ gzip:   3.76 kB
+dist/public/assets/civic-dashboard-DCpKGisD.js          15.21 kB │ gzip:   4.34 kB
+dist/public/assets/congress-4wi2CYYa.js                 15.44 kB │ gzip:   3.91 kB
+dist/public/assets/icons-2f1bqvgh.js                    16.42 kB │ gzip:   5.77 kB
+dist/public/assets/preferences-CCejwbAP.js              18.62 kB │ gzip:   4.33 kB
+dist/public/assets/format-rEXDVrHF.js                   19.29 kB │ gzip:   5.51 kB
+dist/public/assets/react-BpqA32dN.js                    20.46 kB │ gzip:   7.06 kB
+dist/public/assets/DataSteward-CgukzsSx.js              23.38 kB │ gzip:   5.86 kB
+dist/public/assets/dashboard-dyTFoqa_.js                24.37 kB │ gzip:   5.03 kB
+dist/public/assets/auth-D_HcO1gE.js                     29.16 kB │ gzip:   6.16 kB
+dist/public/assets/query-DasIO8rc.js                    33.51 kB │ gzip:  10.07 kB
+dist/public/assets/election-details-CTqHkQtU.js         34.36 kB │ gzip:   9.39 kB
+dist/public/assets/lib-4e-YGQzi.js                      85.55 kB │ gzip:  23.48 kB
+dist/public/assets/index-Cprvctus.js                   230.83 kB │ gzip:  62.89 kB
+dist/public/assets/radix-C-mTOb-Q.js                   268.45 kB │ gzip:  84.22 kB
+dist/public/assets/charts-BTQhWz69.js                  394.33 kB │ gzip: 103.55 kB
+
+✓ built in 3.09s
+▲ [WARNING] Duplicate member "calculateUserEngagementScore" in class body [duplicate-class-member]
+
+    server/analytics-service.ts:743:8:
+      743 │   async calculateUserEngagementScore(userId: string, period: 'dai...
+          ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  The original member "calculateUserEngagementScore" is here:
+
+    server/analytics-service.ts:425:8:
+      425 │   async calculateUserEngagementScore(userId: string, period: 'dai...
+          ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+

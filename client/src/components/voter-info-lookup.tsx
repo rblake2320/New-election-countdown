@@ -80,6 +80,7 @@ export function VoterInfoLookup() {
           <Button 
             onClick={handleSearch} 
             disabled={!address.trim() || voterInfoMutation.isPending}
+            aria-label="Look up voter information"
           >
             {voterInfoMutation.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />

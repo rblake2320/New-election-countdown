@@ -18,7 +18,7 @@ MODES = {
 
 }
 if len(sys.argv) != 2 or sys.argv[1] not in MODES:
-    raise SystemExit("Choose producer, acceptance or original")
+    raise SystemExit("Choose producer, acceptance, original or expanded")
 root = Path(__file__).resolve().parent.parent
 archive = Path(os.environ.get('FEC_ZIP_PATH', root / 'artifacts/fec-first/cn26.zip'))
 reviewed_archive_sha = '6062f203fd5dd90a7e33e487088a4d496bd9634cc1e560f94b0f5e7ff8ea0126'

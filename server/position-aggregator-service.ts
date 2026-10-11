@@ -22,6 +22,29 @@ interface CandidatePosition {
   confidence: number;
 }
 
+function isPositionSource(value: unknown): value is PositionSource {
+  if (typeof value !== 'object' || value === null) return false;
+  return 'source' in value && typeof value.source === 'string'
+    && 'position' in value && typeof value.position === 'string'
+    && 'confidence' in value && typeof value.confidence === 'number'
+    && Number.isFinite(value.confidence) && value.confidence >= 0 && value.confidence <= 1
+    && 'dateRecorded' in value && value.dateRecorded instanceof Date
+    && Number.isFinite(value.dateRecorded.getTime())
+    && (!('details' in value) || value.details === undefined || typeof value.details === 'string')
+    && (!('url' in value) || value.url === undefined || typeof value.url === 'string');
+}
+
+function isCandidatePosition(value: unknown): value is CandidatePosition {
+  if (typeof value !== 'object' || value === null) return false;
+  return 'candidateId' in value && typeof value.candidateId === 'number' && Number.isInteger(value.candidateId)
+    && 'candidateName' in value && typeof value.candidateName === 'string'
+    && 'category' in value && typeof value.category === 'string'
+    && 'confidence' in value && typeof value.confidence === 'number'
+    && Number.isFinite(value.confidence) && value.confidence >= 0 && value.confidence <= 1
+    && 'positions' in value && Array.isArray(value.positions) && value.positions.every(isPositionSource)
+    && (!('aggregatedPosition' in value) || value.aggregatedPosition === undefined || typeof value.aggregatedPosition === 'string');
+}
+
 export class PositionAggregatorService {
   private readonly DATA_SOURCES = {
     CONGRESS_VOTES: 'congress.gov',
@@ -53,7 +76,13 @@ export class PositionAggregatorService {
   async aggregatePositionsForCandidate(candidateId: number): Promise<CandidatePosition[]> {
     const cacheKey = `positions-${candidateId}`;
     const cached = await cacheService.get(cacheKey);
-    if (cached) return cached;
+    if (cached !== null) {
+      if (!Array.isArray(cached) || !cached.every(isCandidatePosition)
+          || !cached.every(position => position.candidateId === candidateId)) {
+        throw new TypeError('Invalid cached candidate positions');
+      }
+      return cached;
+    }
 
     const candidate = await db
       .select()
@@ -75,7 +104,7 @@ export class PositionAggregatorService {
       }
     }
 
-    await cacheService.set(cacheKey, positions, 60 * 60); // Cache for 1 hour
+    await cacheService.set(cacheKey, positions, 60 * 60); // TTL is seconds: one hour.
     return positions;
   }
 

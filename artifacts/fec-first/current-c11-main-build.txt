@@ -1,0 +1,70 @@
+
+> rest-express@1.0.0 build
+> vite build && node scripts/build-server.mjs
+
+vite v8.3.4 building client environment for production...
+transforming...
+
+warn - The class `group-focus-within:before:duration-[4000ms]` is ambiguous and matches multiple utilities.
+warn - If this is content and not a class, replace it with `group-focus-within:before:duration-&lsqb;4000ms&rsqb;` to silence this warning.
+✓ 2692 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/public/index.html                                   1.83 kB │ gzip:   0.68 kB
+dist/public/assets/index-DcRqXGMT.css                   99.60 kB │ gzip:  16.06 kB
+dist/public/assets/skeleton-VjIMT7ul.js                  0.21 kB │ gzip:   0.18 kB
+dist/public/assets/progress-cvf_G0OO.js                  0.56 kB │ gzip:   0.37 kB
+dist/public/assets/rolldown-runtime-hePW80VL.js          0.71 kB │ gzip:   0.42 kB
+dist/public/assets/card-DD_5iAfJ.js                      1.20 kB │ gzip:   0.48 kB
+dist/public/assets/tabs-D6bDDgIl.js                      1.23 kB │ gzip:   0.52 kB
+dist/public/assets/table-Xu60bRm2.js                     1.63 kB │ gzip:   0.59 kB
+dist/public/assets/form-QN-LrihC.js                      1.88 kB │ gzip:   0.82 kB
+dist/public/assets/not-found-BCYZymf7.js                 2.78 kB │ gzip:   0.97 kB
+dist/public/assets/Compare-CI-o4hsM.js                   2.85 kB │ gzip:   1.13 kB
+dist/public/assets/midterm-2026-DD9JGvR5.js              6.52 kB │ gzip:   1.61 kB
+dist/public/assets/api-status-CLhOei3s.js                7.21 kB │ gzip:   2.04 kB
+dist/public/assets/congress-admin-DO8U0R5T.js            7.43 kB │ gzip:   2.00 kB
+dist/public/assets/happening-now-CHyvuUXO.js             7.51 kB │ gzip:   2.30 kB
+dist/public/assets/admin-settings-BIzy7WAw.js            7.83 kB │ gzip:   2.19 kB
+dist/public/assets/investor-dashboard-B6mC4cQe.js        8.27 kB │ gzip:   2.16 kB
+dist/public/assets/monitoring-dashboard-4DgreR1_.js      9.25 kB │ gzip:   2.47 kB
+dist/public/assets/admin-results-entry-CQxHJFOO.js       9.70 kB │ gzip:   3.13 kB
+dist/public/assets/campaign-portal-UgsWcbsD.js          10.27 kB │ gzip:   2.76 kB
+dist/public/assets/global-dashboard-gFwW33ec.js         12.12 kB │ gzip:   2.64 kB
+dist/public/assets/candidate-portal-fixed-DdsqN2Hr.js   14.60 kB │ gzip:   3.76 kB
+dist/public/assets/civic-dashboard-vtooNOGy.js          15.21 kB │ gzip:   4.34 kB
+dist/public/assets/congress-C24NzEIw.js                 15.45 kB │ gzip:   3.92 kB
+dist/public/assets/icons-2f1bqvgh.js                    16.42 kB │ gzip:   5.77 kB
+dist/public/assets/preferences-ClYd3THF.js              18.62 kB │ gzip:   4.33 kB
+dist/public/assets/format-rEXDVrHF.js                   19.29 kB │ gzip:   5.51 kB
+dist/public/assets/react-BpqA32dN.js                    20.46 kB │ gzip:   7.06 kB
+dist/public/assets/DataSteward-iB2yHC4F.js              23.38 kB │ gzip:   5.86 kB
+dist/public/assets/dashboard-BgQ36C8P.js                24.37 kB │ gzip:   5.03 kB
+dist/public/assets/auth-Cs_hmVf3.js                     29.16 kB │ gzip:   6.16 kB
+dist/public/assets/election-details-CYgVAi4G.js         31.94 kB │ gzip:   8.76 kB
+dist/public/assets/query-DasIO8rc.js                    33.51 kB │ gzip:  10.07 kB
+dist/public/assets/lib-4e-YGQzi.js                      85.55 kB │ gzip:  23.48 kB
+dist/public/assets/index-BeU-sB-T.js                   225.87 kB │ gzip:  61.30 kB
+dist/public/assets/radix-C-mTOb-Q.js                   268.45 kB │ gzip:  84.22 kB
+dist/public/assets/charts-BTQhWz69.js                  394.33 kB │ gzip: 103.55 kB
+
+✓ built in 14.57s
+[PLUGIN_TIMINGS] JavaScript callbacks ran for 14.1s of this 14.5s build (97%).
+The slowest callbacks, timed inside each callback (the wait before a callback starts is excluded, the time it awaits is included):
+  - plugin vite:build-html transform (82%, 12.0s, 1 call)
+  - plugin vite:css transform (13%, 1.9s, 1 call)
+Additional callback time came from callbacks under 1s.
+See https://rolldown.rs/reference/InputOptions.checks#bundlertimings for more details.
+
+▲ [WARNING] Duplicate member "calculateUserEngagementScore" in class body [duplicate-class-member]
+
+    server/analytics-service.ts:743:8:
+      743 │   async calculateUserEngagementScore(userId: string, period: 'dai...
+          ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  The original member "calculateUserEngagementScore" is here:
+
+    server/analytics-service.ts:425:8:
+      425 │   async calculateUserEngagementScore(userId: string, period: 'dai...
+          ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
