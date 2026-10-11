@@ -1,6 +1,6 @@
 import { db } from './db';
 import { elections } from '@shared/schema';
-import { gte, lte, and, eq } from 'drizzle-orm';
+import { gte, lte, and, eq, type SQL } from 'drizzle-orm';
 
 // Simple in-memory cache implementation
 class MemoryCache {
@@ -84,7 +84,7 @@ export class CacheService {
     if (cached) return cached;
 
     // Build the predicate first: reassigning a Drizzle builder narrows its type.
-    const conditions = [];
+    const conditions: SQL[] = [];
     if (filters?.state) conditions.push(eq(elections.state, filters.state));
     if (filters?.type) conditions.push(eq(elections.type, filters.type));
     const result = conditions.length
