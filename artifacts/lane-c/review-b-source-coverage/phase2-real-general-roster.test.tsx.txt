@@ -1,0 +1,92 @@
+import React from 'react';
+import {readFileSync,readdirSync,appendFileSync} from 'node:fs';
+import {join} from 'node:path';
+import {createHash} from 'node:crypto';
+import {beforeEach,afterEach,describe,it,expect,vi} from 'vitest';
+import {render,screen,within,cleanup} from '@testing-library/react';
+import {GeneralRoster} from '../client/src/components/general-roster';
+
+const boundary=vi.hoisted(()=>({data:undefined as any,isLoading:false,error:null as Error|null}));
+vi.mock('../client/src/hooks/use-general-roster',()=>({useGeneralRoster:()=>boundary}));
+const directory=process.env.PHASE2_ROSTER_PAYLOAD_DIR;
+if(!directory)throw new Error('Real retained payload directory required; no synthetic candidate fallback');
+const states=['CA','AK','FL','CT','OR','WY','MA'] as const;
+const captureFiles:Record<string,string>={CA:'CA-72.json',AK:'AK-2.json',FL:'FL-43.json',CT:'CT-42.json',OR:'OR-62.json',WY:'WY-505.json',MA:'MA-52.json'};
+const payloads=Object.fromEntries(states.map(state=>{
+  const path=join(directory,captureFiles[state]),bytes=readFileSync(path),captured=JSON.parse(bytes.toString('utf8'));
+  if(captured.receipt?.httpStatus!==200||captured.body?.status!=='sourced')throw new Error(`Invalid actual HTTP sourced capture ${state}`);
+  return [state,{...captured,file:path,sha256:createHash('sha256').update(bytes).digest('hex')}];
+}));
+const deniedFetch=vi.fn(()=>{throw new Error('Network forbidden in offline receiving review');});
+beforeEach(()=>{Object.assign(boundary,{data:undefined,isLoading:false,error:null});deniedFetch.mockClear();vi.stubGlobal('fetch',deniedFetch);});
+afterEach(()=>{expect(deniedFetch).not.toHaveBeenCalled();cleanup();vi.unstubAllGlobals();});
+function mount(state:keyof typeof payloads){
+  const p=payloads[state];boundary.data=p.body;const view=render(<GeneralRoster electionId={p.body.electionId}/>);
+  const observation={state,payloadSha256:p.sha256,candidateCount:p.body.candidates.length,renderedText:view.container.textContent,sourceLinks:[...view.container.querySelectorAll('a')].map(a=>({text:a.textContent,href:a.getAttribute('href')})),componentFetchCalls:deniedFetch.mock.calls.length};
+  if(process.env.PHASE2_RECEIVING_OBSERVATION_FILE)appendFileSync(process.env.PHASE2_RECEIVING_OBSERVATION_FILE,JSON.stringify(observation)+'\n');
+  console.log(JSON.stringify(observation));
+  return {p,view,rows:within(screen.getByRole('list',{name:'Candidates on the official general-election list'})).getAllByRole('listitem')};
+}
+function rowFor(rows:HTMLElement[],name:string){const row=rows.find(r=>r.querySelector('span.font-medium')?.textContent===name);expect(row).toBeTruthy();return row!;}
+function publisherDate(raw:string){const [y,m,d]=raw.slice(0,10).split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});}
+describe('actual GeneralRoster phase2 retained real PostgreSQL/HTTP receiving cases',()=>{
+  it.each(states)('%s names, write-in/incumbent badge counts and every source snapshot reach the receiving component',state=>{
+    const {p,rows}=mount(state),candidates=p.body.candidates;
+    expect(rows.map(r=>r.querySelector('span.font-medium')?.textContent)).toEqual(candidates.map((c:any)=>c.name));
+    expect(rows.length).toBe(candidates.length);
+    expect(rows.flatMap(r=>within(r).queryAllByText('Write-in')).length).toBe(candidates.filter((c:any)=>c.generalListSource?.ballotAccessType==='write_in'||(c.generalListSource?.partyBasis==='filing_method'&&c.generalListSource?.partyRaw==='WRI')).length);
+    expect(rows.flatMap(r=>within(r).queryAllByText('Incumbent')).length).toBe(candidates.filter((c:any)=>c.isIncumbent===true).length);
+    const sourceContainer=screen.getByTestId('general-roster-sources');
+    for(const s of p.body.sources??[]){
+      const link=within(sourceContainer).getByRole('link',{name:s.name});
+      expect(link.getAttribute('href')).toBe(s.url);
+      expect(link.getAttribute('rel')).toBe('noopener noreferrer');
+      if(s.publishedAt)expect(link.parentElement?.textContent).toContain('published '+publisherDate(s.publishedAt));
+    }
+  });
+  it('CA actual party preference remains qualified for every recorded candidate',()=>{
+    const {p,rows}=mount('CA');
+    expect(p.body.candidates.length).toBeGreaterThan(0);
+    for(const c of p.body.candidates){expect(c.generalListSource.partyBasis).toBe('preference');const raw=c.generalListSource.partyRaw;const row=rowFor(rows,c.name);expect(row.textContent).toContain(raw==='No Party Preference' ? raw : 'Party preference: '+raw);}
+  });
+  it('AK registration appears verbatim without promotion to party nomination',()=>{
+    const {p,rows}=mount('AK');
+    expect(p.body.candidates.length).toBeGreaterThan(0);
+    const registered=p.body.candidates.filter((c:any)=>c.generalListSource.partyBasis==='registration');expect(registered.length).toBeGreaterThan(0);
+    for(const c of registered){const row=rowFor(rows,c.name);expect(row.textContent).toContain(c.generalListSource.partyRaw);expect(row.textContent).not.toContain('Party preference:');}
+    const undeclared=p.body.candidates.find((c:any)=>c.name==='Hill, Sidney “Sid”');expect(undeclared.generalListSource.partyRaw).toBe('(Undeclared)');expect(rowFor(rows,undeclared.name).textContent).toContain('(Undeclared)');
+  });
+  it('FL WRI filing-method rows retain blank party and a visible Write-in badge',()=>{
+    const {p,rows}=mount('FL');const writeIns=p.body.candidates.filter((c:any)=>c.generalListSource?.partyBasis==='filing_method');
+    expect(writeIns.length).toBeGreaterThan(0);
+    for(const c of writeIns){expect(c.party).toBe('');expect(c.generalListSource.partyRaw).toBe('WRI');const row=rowFor(rows,c.name);expect(within(row).getByText('Write-in')).toBeTruthy();expect(row.textContent).not.toContain('WRI');expect(row.textContent).not.toContain('Independent');expect(row.textContent).not.toContain('Other');}
+  });
+  it('CT all literal party lines reach one person row each',()=>{
+    const {p,rows}=mount('CT');const endorsed=p.body.candidates.filter((c:any)=>c.generalListSource?.partyLabels?.length>1);
+    expect(endorsed.length).toBeGreaterThan(0);
+    expect(new Set(p.body.candidates.map((c:any)=>c.name)).size).toBe(rows.length);
+    for(const c of endorsed){const labels=c.generalListSource.partyLabels;expect(c.generalListSource.partyRaw).toBe(labels[0]);expect(rowFor(rows,c.name).textContent).toContain(labels.join(' / '));}
+  });
+  it('OR raw multiple-party label reaches the actual row verbatim',()=>{
+    const {p,rows}=mount('OR');const multi=p.body.candidates.filter((c:any)=>/[\/,&]/.test(c.generalListSource?.partyRaw??''));
+    expect(multi.length).toBeGreaterThan(0);
+    for(const c of multi)expect(rowFor(rows,c.name).textContent).toContain(c.generalListSource.partyRaw);
+  });
+  it('WY cross-source party corroboration PDF is linked alongside the CSV for actual CT/CON and LBR/L candidates',()=>{
+    const {p,rows}=mount('WY');
+    const corroborated=p.body.candidates.filter((c:any)=>c.generalListSource?.partyEvidence);
+    expect(corroborated.length).toBe(2);
+    expect(corroborated.map((c:any)=>[c.name,c.generalListSource.partyRaw,c.party])).toEqual([['Jeffrey Haggit','CT','CON'],['Shawn Johnson','LBR','L']]);
+    const evidence=screen.getByTestId('general-roster-evidence');expect(evidence.textContent).toContain('Party label source:');expect(evidence.textContent).toContain('(p. 1)');
+    expect(within(evidence).getAllByRole('link').length).toBe(1);
+    for(const c of corroborated){rowFor(rows,c.name);const link=within(evidence).getByRole('link',{name:c.generalListSource.partyEvidence.title});expect(link.getAttribute('href')).toBe(c.generalListSource.partyEvidence.url);expect(link.getAttribute('rel')).toBe('noopener noreferrer');}
+    const haggit=rowFor(rows,'Jeffrey Haggit');expect(haggit.textContent).toBe('Jeffrey HaggitCT');expect(haggit.textContent).not.toContain('CON');expect(rowFor(rows,'Shawn Johnson').textContent).toBe('Shawn JohnsonLibertarian');
+  });
+  it('MA actual ticket names retain independent primary name-identity attribution without promoting ballot certification',()=>{
+    const {p,rows}=mount('MA');expect(p.body.candidates.map((c:any)=>c.name)).toEqual(['Healey and Driscoll','Minogue and Oliver']);
+    expect(p.body.candidates.map((c:any)=>c.generalListSource.legalName)).toEqual(['Maura Healey','Michael Roger Minogue']);
+    const evidence=screen.getByTestId('general-roster-evidence');expect(evidence.textContent).toContain('Name identity source:');expect(evidence.textContent).toContain('(name identity only)');expect(within(evidence).getAllByRole('link').length).toBe(1);
+    for(const c of p.body.candidates){expect(rowFor(rows,c.name).querySelector('span.font-medium')?.textContent).toBe(c.generalListSource.ballotName);expect(c.ballotStatus).toBe('not_certified');expect(c.generalListSource.ballotCertificationPromoted).toBe(false);const link=within(evidence).getByRole('link',{name:c.generalListSource.identityEvidence.title});expect(link.getAttribute('href')).toBe(c.generalListSource.identityEvidence.url);expect(link.getAttribute('rel')).toBe('noopener noreferrer');}
+    const main=screen.getByTestId('general-roster-sources');expect(within(main).getByRole('link',{name:'2026 State Election Candidates'}).getAttribute('href')).toBe(p.body.candidates[0].generalListSourceUrl);expect(main.textContent).not.toContain('primary results');
+  });
+});

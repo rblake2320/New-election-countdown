@@ -1,0 +1,237 @@
+{
+  "checkedAt": "2026-10-11T11:05:36.384113+00:00",
+  "outcome": "Worked",
+  "states": 13,
+  "candidates": 404,
+  "sources": 20,
+  "strictParserSourceSha256": "b2f9c9af649eeac1b04810755e7bd6bd8fc04c87a941ffef48a3b8812c3caf7b",
+  "strictReceiptPath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\strict-contract-readonly-receipt-2026-10-11T11-04-48-443Z.json",
+  "files": [
+    {
+      "state": "AK",
+      "rows": 15,
+      "sources": 1,
+      "draftPath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\ak-2026-general-draft.json",
+      "draftSha256": "8db31b31c08a66871a40e8838a6345330a2ac54bf6215d1a7f21f8d4bff3c5f7",
+      "receiptPath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\ak-extraction-receipt.json",
+      "receiptSha256": "9824627c73530fc86a8f2f4493e80ea02b640c03f873a793e6a5683d4f7ac6e1",
+      "coverage": "scoped_by_access",
+      "blockers": null
+    },
+    {
+      "state": "AL",
+      "rows": 14,
+      "sources": 2,
+      "draftPath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\al-2026-general-draft.json",
+      "draftSha256": "caf22d5dd10c386fce147cec2657a38adac68b7c2a3910eb486c4c1c47e65302",
+      "receiptPath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\al-extraction-receipt.json",
+      "receiptSha256": "63caab003da6208422ccffc7182c08de90a38bb460fb7ceafd02c03c92834a97",
+      "coverage": "party_scoped_printed_certifications;RepublicanH01H02H06H07gap",
+      "blockers": {
+        "partyRaw": "Republican Party",
+        "districts": [
+          "01",
+          "02",
+          "06",
+          "07"
+        ],
+        "office": "H",
+        "reason": "Later General nominee certification not established for these four districts by inspectedGeneraldocuments. The available alternate State certificate is explicitly for August11 Special PRIMARY and was rejected.",
+        "attemptedAlternateUrl": "https://www.sos.alabama.gov/sites/default/files/election-2026/StateCertificationofRepublicanCandidatesCongressionalDistricts.pdf",
+        "httpStatus": 200,
+        "sha256": "097b7ee2ca5f5d15fa907cf60da391150f16fcac6329ccdd8d534f75c5a755b1",
+        "actualAlternateElectionDate": "2026-08-11",
+        "noPrimaryCandidatesPromoted": true
+      }
+    },
+    {
+      "state": "AR",
+      "rows": 9,
+      "sources": 1,
+      "draftPath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\ar-2026-general-draft.json",
+      "draftSha256": "d643d4542d2bc35b08f1e7992b8358f1b6f1df4a556d1661171efa1fc2d54b9b",
+      "receiptPath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\ar-extraction-receipt.json",
+      "receiptSha256": "f828e0e00fe8c6e91a90032d79431ae89e2ae3e3746be85737d52c9f316b5778",
+      "coverage": "scoped",
+      "blockers": [
+        {
+          "scopes": [
+            "H01",
+            "H02",
+            "H04"
+          ],
+          "status": "Blocked",
+          "reason": "Benton county composite publishes H03 only; statewide primary filer portal cannot establish missing general nominees"
+        },
+        {
+          "scope": "write_in",
+          "status": "Blocked",
+          "reason": "No named certified write-in list in inspected ballot; no invented write-in absence claim"
+        }
+      ]
+    },
+    {
+      "state": "AZ",
+      "rows": 6,
+      "sources": 1,
+      "draftPath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\az-2026-general-draft.json",
+      "draftSha256": "f65229f0c6844d7d1141dbf7c7a8e37c791d0787e81ec00b3353198c43730534",
+      "receiptPath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\az-extraction-receipt.json",
+      "receiptSha256": "25b0a1f41c547f6d6293c2d15c6fbbeadc2ccfee65307726211dbc2c23013f1d",
+      "coverage": "scoped_write_in_H01_H03_H04_H09",
+      "blockers": [
+        {
+          "scopes": "printed H/G",
+          "status": "Blocked",
+          "reason": "SOSGeneralportal69 normalsecurityverification/no table; exactSOSPDFinboundattemptsfailed, originalreceiptsretained",
+          "receipt": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\az-sos-access-blocked-receipt.json"
+        },
+        {
+          "scopes": "G write_in",
+          "status": "Blocked",
+          "reason": "Twoindividualnames under combinedGovernor/LieutenantGovernor office cannot establishwhichisGovernor"
+        },
+        {
+          "scopes": [
+            "H02",
+            "H05",
+            "H06",
+            "H07",
+            "H08"
+          ],
+          "status": "Blocked",
+          "reason": "County write-inpublicationnotcoverageofallArizona districts; no invented emptyscopes"
+        }
+      ]
+    },
+    {
+      "state": "CA",
+      "rows": 106,
+      "sources": 1,
+      "draftPath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\ca-2026-general-draft.json",
+      "draftSha256": "34d2b1aea89390f7942d3c7f2027a2fa65cb93986ce2448667ca025f76272e24",
+      "receiptPath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\ca-extraction-receipt.json",
+      "receiptSha256": "6661d0a011cf5563869a9b1c374b2ed2ec80588d122b42b80abab5b022ad35e5",
+      "coverage": "scoped_printed_only",
+      "blockers": null
+    },
+    {
+      "state": "CO",
+      "rows": 54,
+      "sources": 1,
+      "draftPath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\co-2026-general-draft.json",
+      "draftSha256": "9e7ea39a0cb675f7043eaa3f89b622f39f15f24305fd29426632d3294f3e4db7",
+      "receiptPath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\co-extraction-receipt.json",
+      "receiptSha256": "758bc781c2bf63f27f214becfda5a1ce3bc90e8c74fe6890fa4d2292f24b65f8",
+      "coverage": "complete_current_official_list_including_certified_write_ins",
+      "blockers": null
+    },
+    {
+      "state": "CT",
+      "rows": 15,
+      "sources": 5,
+      "draftPath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\ct-2026-general-draft.json",
+      "draftSha256": "eaf07c8c2cbe3a5c04951601bef00765e89b363dc0c51e9e358369c62c714b26",
+      "receiptPath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\ct-extraction-receipt.json",
+      "receiptSha256": "efaad5e2f8bcb06f462c55979b5198915588ea4ee26b59de9427310b2347c76f",
+      "coverage": "H01..05 and Governor printed unique candidates; every actual party ballotline retained in partyLabels; write-in gap explicit",
+      "blockers": [
+        {
+          "status": "Blocked",
+          "scenario": "Named write-in nominees",
+          "reason": "Blank Write-in Votes cells are voting spaces, not a list of named qualified write-in candidates; no guessed empty snapshot"
+        }
+      ]
+    },
+    {
+      "state": "DE",
+      "rows": 8,
+      "sources": 2,
+      "draftPath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\de-2026-general-draft.json",
+      "draftSha256": "d479fcb8a4db43ef5c3318280137705340cb964b9b0cbf7e7a7e4202232c7000",
+      "receiptPath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\de-extraction-receipt.json",
+      "receiptSha256": "e9cf2abefdae3ecadd0306a9aa71accb0dc05fb77ff5d0287246e368c6507883",
+      "coverage": "scoped",
+      "blockers": null
+    },
+    {
+      "state": "FL",
+      "rows": 95,
+      "sources": 1,
+      "draftPath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\fl-2026-general-draft.json",
+      "draftSha256": "187dd1dcaec9855695fa54cee701c5ab60aa4ea8e33e962c9d4a6a88445db204",
+      "receiptPath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\fl-extraction-receipt.json",
+      "receiptSha256": "931c43c81ab70c5923577bab58201034c725029ad0ddbe4ba1a09959512695bd",
+      "coverage": "scoped_qualified_only_not_all_general_candidates",
+      "blockers": {
+        "office": "H",
+        "district": "10",
+        "name": "Frost, Maxwell Alejandro",
+        "sourceStatus": "Unopposed",
+        "primary": "Unopposed",
+        "general": "Unopposed",
+        "action": "Excluded from Qualified-only draft. No H10zero-candidate snapshot and no guessed printed-ballot claim."
+      }
+    },
+    {
+      "state": "GA",
+      "rows": 16,
+      "sources": 1,
+      "draftPath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\ga-2026-general-draft.json",
+      "draftSha256": "bc151d554691777ab85e425cb78731ca6faf86aff5a566fae4e68b4a87aa8e1e",
+      "receiptPath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\ga-extraction-receipt.json",
+      "receiptSha256": "edc6719d23ae8ab803e966832760418ebe79850bbdd045e437a9e6e93cf9b331",
+      "coverage": "write_in_only",
+      "blockers": null
+    },
+    {
+      "state": "HI",
+      "rows": 8,
+      "sources": 1,
+      "draftPath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\hi-2026-general-draft.json",
+      "draftSha256": "97b446f0502bf5e75663b68787b8d363dd79abbd0216ea4d964c499e5d8ef032",
+      "receiptPath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\hi-extraction-receipt.json",
+      "receiptSha256": "28bfe1d44666887859f565b4727ed1b46528b8c12cda13ea0fc60c5fb55047b0",
+      "coverage": "complete_for_reported_general_status",
+      "blockers": null
+    },
+    {
+      "state": "ID",
+      "rows": 19,
+      "sources": 1,
+      "draftPath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\id-2026-general-draft.json",
+      "draftSha256": "8043e49e0fad9a006526fb4e7452ef926b3f8a96c97f8c853dce5c948c0f22bf",
+      "receiptPath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\id-extraction-receipt.json",
+      "receiptSha256": "c99088042842745543694585358460aac454f286364caa96da68e48d45c7f99f",
+      "coverage": "complete",
+      "blockers": []
+    },
+    {
+      "state": "IL",
+      "rows": 39,
+      "sources": 2,
+      "draftPath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\il-2026-general-draft.json",
+      "draftSha256": "e7fc0ffe03d710cdea190458decb0348d89d91b4963639da4fc90795a1a486ef",
+      "receiptPath": "C:\\Users\\techai\\.codex\\tmp\\sol-c2-next-ncsc\\il-extraction-receipt.json",
+      "receiptSha256": "8170a07c2d2f9edd4729aeaeeb845b5a573796d57ae9e6b05e7125f9df4e7296",
+      "coverage": "complete_current_active_HS_only;Groleblocked",
+      "blockers": null
+    }
+  ],
+  "dbWrites": false,
+  "applicationWrites": false,
+  "retainedRedReceipt": "strict-contract-readonly-receipt-2026-10-11T11-01-12-854Z.json",
+  "retainedSourceAccessFailures": "az-sos-access-blocked-receipt.json",
+  "CTPartyLineIdentityProof": "ct-verified-printed-fusion-facts.json",
+  "sourceScopesAreHonest": "Partial party/write-in/printed coverage recorded in completeScopes; no invented empty scope or promoted primary filing",
+  "remainingMaterialCoverageGaps": [
+    "ALRepublicanH01/H02/H06/H07",
+    "ARprintedH01/H02/H04 and namedwrite-ins",
+    "AZprintedH/G, otherdistrictwrite-ins, combinedGovernor/LieutenantGovernor role",
+    "FLH10Unopposed omitted by Qualified-only contract",
+    "GAprinted general nominees",
+    "ILGovernor individualrole under combinedGov/LtGov list",
+    "CTnamedwrite-ins notpublished by blankvotingcells"
+  ],
+  "candidateLesson": "REGISTRY.md"
+}

@@ -1,0 +1,17 @@
+import React from 'react';
+import {beforeEach,afterEach,describe,it,expect,vi} from 'vitest';
+import {render,screen,cleanup} from '@testing-library/react';
+import {GeneralRoster} from '../client/src/components/general-roster';
+const boundary=vi.hoisted(()=>({data:undefined as any,isLoading:false,error:null as Error|null}));
+vi.mock('../client/src/hooks/use-general-roster',()=>({useGeneralRoster:()=>boundary}));
+const deniedFetch=vi.fn(()=>{throw new Error('Network forbidden in offline receiving review');});
+beforeEach(()=>{Object.assign(boundary,{data:undefined,isLoading:false,error:null});deniedFetch.mockClear();vi.stubGlobal('fetch',deniedFetch);});
+afterEach(()=>{expect(deniedFetch).not.toHaveBeenCalled();cleanup();vi.unstubAllGlobals();});
+describe('actual GeneralRoster phase2 isolated noncandidate boundaries',()=>{
+  it('initial loading stays empty',()=>{boundary.isLoading=true;expect(render(<GeneralRoster electionId={1}/>).container.textContent).toBe('');});
+  it('route404 null endpoint stays empty',()=>{boundary.data=null;expect(render(<GeneralRoster electionId={1}/>).container.textContent).toBe('');});
+  it('explicit election-not-found stays empty',()=>{boundary.data={status:'election_not_found',electionId:1,candidates:[]};expect(render(<GeneralRoster electionId={1}/>).container.textContent).toBe('');});
+  it('not-recorded states the absence of a recorded list',()=>{boundary.data={status:'not_recorded',electionId:1,candidates:[]};render(<GeneralRoster electionId={1}/>);expect(screen.getByTestId('general-roster-empty').textContent).toContain('has not been recorded yet');});
+  it('undefined data plus first-load failure visibly reports the failure',()=>{boundary.error=new Error('Retained boundary unavailable503');render(<GeneralRoster electionId={1}/>);expect(screen.getByText('The official list could not be loaded right now.')).toBeTruthy();expect(screen.queryByRole('list')).toBeNull();});
+  it('not-recorded plus failure reports error instead of claiming missing data',()=>{boundary.data={status:'not_recorded',electionId:1,candidates:[]};boundary.error=new Error('Retained boundary unavailable503');render(<GeneralRoster electionId={1}/>);expect(screen.getByText('The official list could not be loaded right now.')).toBeTruthy();expect(screen.queryByTestId('general-roster-empty')).toBeNull();});
+});
