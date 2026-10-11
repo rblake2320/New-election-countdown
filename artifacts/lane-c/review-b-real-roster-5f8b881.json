@@ -1,0 +1,371 @@
+{
+  "source_head": "5f8b88125b9c92c729e505b29356230267404f51",
+  "checked_at_utc": "2026-10-11T09:47:22.535823+00:00",
+  "review_clearance": "Final B/C receiving roster plus coverage cleared:16/16 requested cases Worked at exact latestB head; no remainingmustfix in thisscope",
+  "tests_passed": 16,
+  "tests_failed": 0,
+  "test_files": [
+    "D:\\projects\\et-wt\\nc-sc-review-b5f8\\tests\\real-general-roster-review.test.tsx",
+    "D:\\projects\\et-wt\\nc-sc-review-b5f8\\tests\\real-roster-coverage-independent.test.tsx"
+  ],
+  "scope": "12 real roster cases plus4 independent receiving coverage cases",
+  "fixture_source_head": "3df515b02fff44860e8a02ad903d28bb7144a0a8",
+  "committed_real_fixtures": [
+    {
+      "path": "D:\\projects\\et-wt\\nc-sc-review-b5f8\\tests\\fixtures\\real-roster\\TX-32.json",
+      "sha256": "55e24e1fa55b9a5fdf2519f5b503c4528762d89ff27bc5f6d3ea84adda5e13f8",
+      "immutable_c_source_head": "3df515b02fff44860e8a02ad903d28bb7144a0a8",
+      "identical_to_committed_C_source_bytes": true,
+      "receipt": {
+        "source": "actual private PostgreSQL through real Express handler",
+        "httpStatus": 200,
+        "manifestSha256": "5b29c9843b89ecee021477ec481a64057d2f3d680af7df19d0dc373e88ca1c3e",
+        "capturedAt": "2026-10-11T09:39:11.242Z",
+        "electionId": 32
+      },
+      "coverage": "scoped",
+      "sources": [
+        {
+          "url": "https://www.sos.texas.gov/elections/forms/2026-ballot-cert.pdf",
+          "checkedAt": "2026-10-11T08:21:29.262Z",
+          "snapshotSha256": "39bc71f325bcf04bfbdce063b922dfc03cbe57379f7bffe6c84ddf2ae4ba863f",
+          "name": "Texas Secretary of State Final Ballot Certification Report",
+          "publishedAt": "2026-08-28",
+          "scope": {
+            "office": "S",
+            "district": "00",
+            "expectedCount": 3,
+            "ballotAccessType": "printed"
+          }
+        },
+        {
+          "url": "https://www.sos.texas.gov/elections/forms/2026-write-In-ballot-cert.pdf",
+          "checkedAt": "2026-10-11T08:27:01.093Z",
+          "snapshotSha256": "e45f10332da308c8aa20eb96dbe300677dc05b15962df50061012236d7e03473",
+          "name": "Texas Secretary of State Certified Declared Write-In Candidates",
+          "publishedAt": "2026-08-28",
+          "scope": {
+            "office": "S",
+            "district": "00",
+            "expectedCount": 4,
+            "ballotAccessType": "write_in"
+          }
+        }
+      ],
+      "candidate_count": 7
+    },
+    {
+      "path": "D:\\projects\\et-wt\\nc-sc-review-b5f8\\tests\\fixtures\\real-roster\\NE-55.json",
+      "sha256": "8907ff043abc771e25e6ee87d4ea2d5bd60bdcb19f6830e36ce0dae063a8f5a5",
+      "immutable_c_source_head": "3df515b02fff44860e8a02ad903d28bb7144a0a8",
+      "identical_to_committed_C_source_bytes": true,
+      "receipt": {
+        "source": "actual private PostgreSQL through real Express handler",
+        "httpStatus": 200,
+        "manifestSha256": "5b29c9843b89ecee021477ec481a64057d2f3d680af7df19d0dc373e88ca1c3e",
+        "capturedAt": "2026-10-11T09:39:10.397Z",
+        "electionId": 55
+      },
+      "coverage": "complete",
+      "sources": [
+        {
+          "url": "https://sos.nebraska.gov/sites/default/files/doc/elections/2026/Final_Statewide_General_Candidate_Filing_List_9.11.26.pdf",
+          "checkedAt": "2026-10-11T08:17:41.390Z",
+          "snapshotSha256": "47937eb2d91f2797d0c929b507cb73d90609b00e0b21ca125754475435c85f31",
+          "name": "Nebraska Secretary of State Final Statewide General Candidate List",
+          "publishedAt": "2026-09-11",
+          "scope": {
+            "office": "G",
+            "district": "00",
+            "expectedCount": 4
+          }
+        }
+      ],
+      "candidate_count": 4
+    },
+    {
+      "path": "D:\\projects\\et-wt\\nc-sc-review-b5f8\\tests\\fixtures\\real-roster\\WA-329.json",
+      "sha256": "69168224a42c7dc15aae1078ef3714e4cb3630e7ecc12068688aba450d4e82d1",
+      "immutable_c_source_head": "3df515b02fff44860e8a02ad903d28bb7144a0a8",
+      "identical_to_committed_C_source_bytes": true,
+      "receipt": {
+        "source": "actual private PostgreSQL through real Express handler",
+        "httpStatus": 200,
+        "manifestSha256": "5b29c9843b89ecee021477ec481a64057d2f3d680af7df19d0dc373e88ca1c3e",
+        "capturedAt": "2026-10-11T09:39:11.319Z",
+        "electionId": 329
+      },
+      "coverage": "scoped",
+      "sources": [
+        {
+          "url": "https://www.sos.wa.gov/sites/default/files/2026-08/2026%20Certification%20of%20Candidates%20to%20General%20Election.pdf",
+          "checkedAt": "2026-10-11T08:21:29.262Z",
+          "snapshotSha256": "4d64f0705f22048767dc1f322ecf60de2ce9c6ba6ce6a13441018426d967ace2",
+          "name": "Washington Secretary of State Certification of Candidates to General Election",
+          "publishedAt": "2026-08-21",
+          "scope": {
+            "office": "H",
+            "district": "01",
+            "expectedCount": 2,
+            "ballotAccessType": "printed"
+          }
+        }
+      ],
+      "candidate_count": 2
+    },
+    {
+      "path": "D:\\projects\\et-wt\\nc-sc-review-b5f8\\tests\\fixtures\\real-roster\\NV-475.json",
+      "sha256": "2a2515b67b1925c68960b8b5cbe61fc02c98cce84d4b80bdfddf223d65999e08",
+      "immutable_c_source_head": "3df515b02fff44860e8a02ad903d28bb7144a0a8",
+      "identical_to_committed_C_source_bytes": true,
+      "receipt": {
+        "source": "actual private PostgreSQL through real Express handler",
+        "httpStatus": 200,
+        "manifestSha256": "5b29c9843b89ecee021477ec481a64057d2f3d680af7df19d0dc373e88ca1c3e",
+        "capturedAt": "2026-10-11T09:39:10.536Z",
+        "electionId": 475
+      },
+      "coverage": "complete",
+      "sources": [
+        {
+          "url": "https://www.nvsos.gov/home/showpublisheddocument/20105/639232733439300000",
+          "checkedAt": "2026-10-11T08:20:03.540Z",
+          "snapshotSha256": "aea978d5e366397de1e10439a895efe599c3ea13bbc3196f6d0bbde99951a70a",
+          "name": "2026 General Election Statewide Certified List of Candidates",
+          "publishedAt": "2026-08-25",
+          "scope": {
+            "office": "H",
+            "district": "03",
+            "expectedCount": 3
+          }
+        }
+      ],
+      "candidate_count": 3
+    }
+  ],
+  "coverage_observed": {
+    "TX": "scoped; printed-ballot candidates and write-in candidates both named; source counts3+4",
+    "WA": "scoped; printed-ballot candidates only; no write-in coverage claim",
+    "NE": "complete;4candidate rows; no scoped-only disclaimer",
+    "NV": "complete;3candidate rows; no scoped-only disclaimer",
+    "sources[]": "Every committed source name and URL represented by actual hyperlinks"
+  },
+  "environment": "Offline Vitest/jsdom; actual GeneralRoster/helper/UI. Only useGeneralRoster data boundary mocked. Zero networkfetch/browser/server/DB.",
+  "tracked_source_unchanged": true,
+  "observations": [
+    {
+      "coveragePayload": "NE-55",
+      "fixtureSha256": "8907ff043abc771e25e6ee87d4ea2d5bd60bdcb19f6830e36ce0dae063a8f5a5",
+      "coverage": "complete",
+      "candidateCount": 4,
+      "renderedScopeNote": null,
+      "sourceLinks": [
+        {
+          "name": "Nebraska Secretary of State Final Statewide General Candidate List",
+          "url": "https://sos.nebraska.gov/sites/default/files/doc/elections/2026/Final_Statewide_General_Candidate_Filing_List_9.11.26.pdf"
+        }
+      ]
+    },
+    {
+      "coveragePayload": "NV-475",
+      "fixtureSha256": "2a2515b67b1925c68960b8b5cbe61fc02c98cce84d4b80bdfddf223d65999e08",
+      "coverage": "complete",
+      "candidateCount": 3,
+      "renderedScopeNote": null,
+      "sourceLinks": [
+        {
+          "name": "2026 General Election Statewide Certified List of Candidates",
+          "url": "https://www.nvsos.gov/home/showpublisheddocument/20105/639232733439300000"
+        }
+      ]
+    },
+    {
+      "coveragePayload": "TX-32",
+      "fixtureSha256": "55e24e1fa55b9a5fdf2519f5b503c4528762d89ff27bc5f6d3ea84adda5e13f8",
+      "coverage": "scoped",
+      "candidateCount": 7,
+      "renderedScopeNote": "Covers only: printed-ballot candidates; write-in candidates. Other candidates may appear on the ballot.",
+      "sourceLinks": [
+        {
+          "name": "Texas Secretary of State Certified Declared Write-In Candidates",
+          "url": "https://www.sos.texas.gov/elections/forms/2026-write-In-ballot-cert.pdf"
+        },
+        {
+          "name": "Texas Secretary of State Final Ballot Certification Report",
+          "url": "https://www.sos.texas.gov/elections/forms/2026-ballot-cert.pdf"
+        }
+      ]
+    },
+    {
+      "payload": "TX-32",
+      "sha256": "55e24e1fa55b9a5fdf2519f5b503c4528762d89ff27bc5f6d3ea84adda5e13f8",
+      "candidateCount": 7,
+      "renderedText": "Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Avery AyersWrite-inBradford \"Brad\" HallWrite-inJade SimmonsWrite-inJames TalaricoDemocraticKen PaxtonRepublicanTED BROWNLibertarianZul MohamedWrite-inCovers only: printed-ballot candidates; write-in candidates. Other candidates may appear on the ballot.Source: Texas Secretary of State Certified Declared Write-In Candidates (published Aug 28, 2026) \u00b7 checked Oct 11, 2026Source: Texas Secretary of State Final Ballot Certification Report (published Aug 28, 2026) \u00b7 checked Oct 11, 2026",
+      "links": [
+        {
+          "text": "Texas Secretary of State Certified Declared Write-In Candidates",
+          "href": "https://www.sos.texas.gov/elections/forms/2026-write-In-ballot-cert.pdf"
+        },
+        {
+          "text": "Texas Secretary of State Final Ballot Certification Report",
+          "href": "https://www.sos.texas.gov/elections/forms/2026-ballot-cert.pdf"
+        }
+      ]
+    },
+    {
+      "coveragePayload": "WA-329",
+      "fixtureSha256": "69168224a42c7dc15aae1078ef3714e4cb3630e7ecc12068688aba450d4e82d1",
+      "coverage": "scoped",
+      "candidateCount": 2,
+      "renderedScopeNote": "Covers only: printed-ballot candidates. Other candidates may appear on the ballot.",
+      "sourceLinks": [
+        {
+          "name": "Washington Secretary of State Certification of Candidates to General Election",
+          "url": "https://www.sos.wa.gov/sites/default/files/2026-08/2026%20Certification%20of%20Candidates%20to%20General%20Election.pdf"
+        }
+      ]
+    },
+    {
+      "payload": "NE-55",
+      "sha256": "8907ff043abc771e25e6ee87d4ea2d5bd60bdcb19f6830e36ce0dae063a8f5a5",
+      "candidateCount": 4,
+      "renderedText": "Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Brett LindstromAmerica FirstJim PillenRepublicanIncumbentLynne WalzDemocraticRick BeardLegal Marijuana NOWSource: Nebraska Secretary of State Final Statewide General Candidate List (published Sep 11, 2026) \u00b7 checked Oct 11, 2026",
+      "links": [
+        {
+          "text": "Nebraska Secretary of State Final Statewide General Candidate List",
+          "href": "https://sos.nebraska.gov/sites/default/files/doc/elections/2026/Final_Statewide_General_Candidate_Filing_List_9.11.26.pdf"
+        }
+      ]
+    },
+    {
+      "payload": "WA-329",
+      "sha256": "69168224a42c7dc15aae1078ef3714e4cb3630e7ecc12068688aba450d4e82d1",
+      "candidateCount": 2,
+      "renderedText": "Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Mary Silva(Prefers Republican Party)Suzan DelBene(Prefers Democratic Party)Covers only: printed-ballot candidates. Other candidates may appear on the ballot.Source: Washington Secretary of State Certification of Candidates to General Election (published Aug 21, 2026) \u00b7 checked Oct 11, 2026",
+      "links": [
+        {
+          "text": "Washington Secretary of State Certification of Candidates to General Election",
+          "href": "https://www.sos.wa.gov/sites/default/files/2026-08/2026%20Certification%20of%20Candidates%20to%20General%20Election.pdf"
+        }
+      ]
+    },
+    {
+      "coveragePayload": "TX-32",
+      "fixtureSha256": "55e24e1fa55b9a5fdf2519f5b503c4528762d89ff27bc5f6d3ea84adda5e13f8",
+      "coverage": "scoped",
+      "candidateCount": 7,
+      "renderedScopeNote": "Covers only: printed-ballot candidates; write-in candidates. Other candidates may appear on the ballot.",
+      "sourceLinks": [
+        {
+          "name": "Texas Secretary of State Certified Declared Write-In Candidates",
+          "url": "https://www.sos.texas.gov/elections/forms/2026-write-In-ballot-cert.pdf"
+        },
+        {
+          "name": "Texas Secretary of State Final Ballot Certification Report",
+          "url": "https://www.sos.texas.gov/elections/forms/2026-ballot-cert.pdf"
+        }
+      ]
+    },
+    {
+      "coveragePayload": "NE-55",
+      "fixtureSha256": "8907ff043abc771e25e6ee87d4ea2d5bd60bdcb19f6830e36ce0dae063a8f5a5",
+      "coverage": "complete",
+      "candidateCount": 4,
+      "renderedScopeNote": null,
+      "sourceLinks": [
+        {
+          "name": "Nebraska Secretary of State Final Statewide General Candidate List",
+          "url": "https://sos.nebraska.gov/sites/default/files/doc/elections/2026/Final_Statewide_General_Candidate_Filing_List_9.11.26.pdf"
+        }
+      ]
+    },
+    {
+      "coveragePayload": "WA-329",
+      "fixtureSha256": "69168224a42c7dc15aae1078ef3714e4cb3630e7ecc12068688aba450d4e82d1",
+      "coverage": "scoped",
+      "candidateCount": 2,
+      "renderedScopeNote": "Covers only: printed-ballot candidates. Other candidates may appear on the ballot.",
+      "sourceLinks": [
+        {
+          "name": "Washington Secretary of State Certification of Candidates to General Election",
+          "url": "https://www.sos.wa.gov/sites/default/files/2026-08/2026%20Certification%20of%20Candidates%20to%20General%20Election.pdf"
+        }
+      ]
+    },
+    {
+      "coveragePayload": "NV-475",
+      "fixtureSha256": "2a2515b67b1925c68960b8b5cbe61fc02c98cce84d4b80bdfddf223d65999e08",
+      "coverage": "complete",
+      "candidateCount": 3,
+      "renderedScopeNote": null,
+      "sourceLinks": [
+        {
+          "name": "2026 General Election Statewide Certified List of Candidates",
+          "url": "https://www.nvsos.gov/home/showpublisheddocument/20105/639232733439300000"
+        }
+      ]
+    },
+    {
+      "payload": "NV-475",
+      "sha256": "2a2515b67b1925c68960b8b5cbe61fc02c98cce84d4b80bdfddf223d65999e08",
+      "candidateCount": 3,
+      "renderedText": "Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Jon KamerathIndependent American PartyMarty O'DonnellRepublicanSusie LeeDemocraticSource: 2026 General Election Statewide Certified List of Candidates (published Aug 25, 2026) \u00b7 checked Oct 11, 2026",
+      "links": [
+        {
+          "text": "2026 General Election Statewide Certified List of Candidates",
+          "href": "https://www.nvsos.gov/home/showpublisheddocument/20105/639232733439300000"
+        }
+      ]
+    },
+    {
+      "payload": "TX-32",
+      "sha256": "55e24e1fa55b9a5fdf2519f5b503c4528762d89ff27bc5f6d3ea84adda5e13f8",
+      "candidateCount": 7,
+      "renderedText": "Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Avery AyersWrite-inBradford \"Brad\" HallWrite-inJade SimmonsWrite-inJames TalaricoDemocraticKen PaxtonRepublicanTED BROWNLibertarianZul MohamedWrite-inCovers only: printed-ballot candidates; write-in candidates. Other candidates may appear on the ballot.Source: Texas Secretary of State Certified Declared Write-In Candidates (published Aug 28, 2026) \u00b7 checked Oct 11, 2026Source: Texas Secretary of State Final Ballot Certification Report (published Aug 28, 2026) \u00b7 checked Oct 11, 2026",
+      "links": [
+        {
+          "text": "Texas Secretary of State Certified Declared Write-In Candidates",
+          "href": "https://www.sos.texas.gov/elections/forms/2026-write-In-ballot-cert.pdf"
+        },
+        {
+          "text": "Texas Secretary of State Final Ballot Certification Report",
+          "href": "https://www.sos.texas.gov/elections/forms/2026-ballot-cert.pdf"
+        }
+      ]
+    },
+    {
+      "payload": "WA-329",
+      "sha256": "69168224a42c7dc15aae1078ef3714e4cb3630e7ecc12068688aba450d4e82d1",
+      "candidateCount": 2,
+      "renderedText": "Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Mary Silva(Prefers Republican Party)Suzan DelBene(Prefers Democratic Party)Covers only: printed-ballot candidates. Other candidates may appear on the ballot.Source: Washington Secretary of State Certification of Candidates to General Election (published Aug 21, 2026) \u00b7 checked Oct 11, 2026",
+      "links": [
+        {
+          "text": "Washington Secretary of State Certification of Candidates to General Election",
+          "href": "https://www.sos.wa.gov/sites/default/files/2026-08/2026%20Certification%20of%20Candidates%20to%20General%20Election.pdf"
+        }
+      ]
+    },
+    {
+      "boundary": "undefined-data + error",
+      "renderedText": "Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.The official list could not be loaded right now.",
+      "rosterPresent": true
+    }
+  ],
+  "previous_receipt_preserved": {
+    "path": "D:\\projects\\et-wt\\nc-sc-review-b23\\artifacts\\real-general-roster-review-receipt-23c66e1.json",
+    "sha256": "8baffc94c10d3e66769c80e8a3ce4ccb08de747d0149077fe2213b3078a47e0d"
+  },
+  "execution_note": {
+    "initial_command": "Blocked before execution by policy when clearing optional fixture-directory environment variable",
+    "stated_reason": "blocked by policy",
+    "safe_followup": "Selected committed fixture directory explicitly, without environment removal; same16test checks then executed successfully"
+  },
+  "sha256": {
+    "tests\\real-general-roster-review.test.tsx": "73a832945f0b3a36693ebc98ff57939beeb63e7245600d60fd464b528e609d61",
+    "tests\\real-roster-coverage-independent.test.tsx": "cdc640b72c0fc7d25c98bf62e1e597f82543ecfc26ae61aa9004f75ba2fb9f01",
+    "artifacts\\real-general-roster-review-5f8b881.json": "4a68cee3ceb47aa9ec10236315c9af8a97365efda96d36977444abbf1c9967fe",
+    "artifacts\\real-general-roster-review-5f8b881.log": "3f8bf7f19334af2596c3ba37de23330722c54bd089b30c6fb7022e872b6af411",
+    "client\\src\\components\\general-roster.tsx": "aba3a05888cebe0108645a3a4631d49132fac45f1e90d66b34b118de9ba8a26d",
+    "client\\src\\lib\\general-roster.ts": "4b066e4cee05351ec13bbb14f2e45dc4b28c47a26583966ecc8cf42ae5da7b7f"
+  }
+}

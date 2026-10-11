@@ -1,0 +1,39 @@
+
+> rest-express@1.0.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.3 [39m[90m/app[39m
+
+ [32m✓[39m tests/filter-codes.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m tests/demo.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+[90mstdout[2m | tests/unit/health-guard.test.ts[2m > [22m[2mglobalWriteGuard Middleware[2m > [22m[2mwhen database is unhealthy[2m > [22m[2mshould return 503 for POST requests when database is unhealthy
+[22m[39m🚫 Blocked POST /test - Database unhealthy
+
+[90mstdout[2m | tests/unit/health-guard.test.ts[2m > [22m[2mglobalWriteGuard Middleware[2m > [22m[2mwhen database is unhealthy[2m > [22m[2mshould return 503 for PUT requests when database is unhealthy
+[22m[39m🚫 Blocked PUT /test - Database unhealthy
+
+[90mstdout[2m | tests/unit/health-guard.test.ts[2m > [22m[2mglobalWriteGuard Middleware[2m > [22m[2mwhen database is unhealthy[2m > [22m[2mshould return 503 for DELETE requests when database is unhealthy
+[22m[39m🚫 Blocked DELETE /test - Database unhealthy
+
+[90mstdout[2m | tests/unit/health-guard.test.ts[2m > [22m[2mglobalWriteGuard Middleware[2m > [22m[2mwhen database is unhealthy[2m > [22m[2mshould return 503 for PATCH requests when database is unhealthy
+[22m[39m🚫 Blocked PATCH /test - Database unhealthy
+
+[90mstdout[2m | tests/unit/health-guard.test.ts[2m > [22m[2mglobalWriteGuard Middleware[2m > [22m[2mspecial allowlist handling[2m > [22m[2mshould handle case insensitive methods correctly
+[22m[39m🚫 Blocked POST /test - Database unhealthy
+
+ [32m✓[39m tests/unit/api-key-guard.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32m✓[39m tests/unit/health-guard.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m tests/election-timing.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 54[2mms[22m[39m
+ [32m✓[39m client/src/utils/__tests__/date.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+ [32m✓[39m client/src/components/__tests__/Countdown.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 85[2mms[22m[39m
+ [32m✓[39m tests/unit/autofix-security.test.ts [2m([22m[2m40 tests[22m[2m)[22m[33m 341[2mms[22m[39m
+ [32m✓[39m tests/CongressData.test.tsx [2m([22m[2m15 tests[22m[2m | [22m[33m3 skipped[39m[2m)[22m[33m 1092[2mms[22m[39m
+   [32m✓[39m Performance [2m(1)[22m
+     [33m[2m✓[22m[39m renders large member lists efficiently[33m 364[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m9 passed[39m[22m[90m (9)[39m
+[2m      Tests [22m [1m[32m138 passed[39m[22m[2m | [22m[33m3 skipped[39m[90m (141)[39m
+[2m   Start at [22m 06:41:53
+[2m   Duration [22m 2.61s[2m (environment 52%, tests 15%, setup 15%, transform 14%, import 5%, worker 1%)[22m
+

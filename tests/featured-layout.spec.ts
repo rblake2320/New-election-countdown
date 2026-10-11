@@ -10,7 +10,7 @@ test.describe('Featured vs Upcoming layout', () => {
 
     // Prefer stable data-testid if available; fall back to semantic selector
     const featuredCards = page.locator('[data-testid="featured-card"], section:has(h2:has-text("Featured Elections")) article, section:has-text("Featured Elections") article');
-    await expect(featuredCards).toHaveCountGreaterThan(0);
+    await expect(featuredCards.first()).toBeVisible();
 
     // Check each card has the Details button (Compare is on details page)
     const cardCount = await featuredCards.count();

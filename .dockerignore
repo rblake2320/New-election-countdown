@@ -20,7 +20,10 @@ build
 coverage
 test-results
 playwright-report
-tests
+tests/**
+!tests/fixtures/
+!tests/fixtures/fec/
+!tests/fixtures/fec/2026-reviewed-identity-projection.json
 *.test.ts
 *.test.tsx
 *.spec.ts

@@ -47,9 +47,9 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': resolve(__dirname, './client/src'),
-      '@shared': resolve(__dirname, './shared'),
-      '@assets': resolve(__dirname, './attached_assets')
+      '@': resolve(import.meta.dirname, './client/src'),
+      '@shared': resolve(import.meta.dirname, './shared'),
+      '@assets': resolve(import.meta.dirname, './attached_assets')
     }
   }
 });

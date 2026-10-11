@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar, numeric, bigint, index } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar, numeric, bigint, index, uniqueIndex } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -17,6 +17,10 @@ export const elections = pgTable("elections", {
   pollsOpen: text("polls_open"),
   pollsClose: text("polls_close"),
   timezone: text("timezone"),
+  // Poll-hours provenance (2026-10-11): see server/poll-hours-2026.ts
+  pollCloseKind: text("poll_close_kind"), // 'polls' | 'ballot_return'
+  pollHoursBasis: text("poll_hours_basis"), // 'statewide_latest' | 'district_latest' | 'local_variable'
+  pollHoursSource: text("poll_hours_source"), // primary URL
   isActive: boolean("is_active").default(true),
 });
 
@@ -65,6 +69,47 @@ export const candidates = pgTable("candidates", {
   index("idx_candidates_fec_candidate_id").on(table.fecCandidateId),
   index("idx_candidates_ballot_status").on(table.ballotStatus),
   index("idx_candidates_election_normalized").on(table.electionId, table.normalizedName),
+]);
+
+// Source layers are independent: a filing must never replace ballot/nominee provenance.
+export const candidateSourceRecords = pgTable("candidate_source_records", {
+  id: serial("id").primaryKey(),
+  candidateId: integer("candidate_id").notNull().references(() => candidates.id),
+  sourceLayer: text("source_layer").notNull(),
+  sourceUrl: text("source_url").notNull(),
+  sourceFileSha256: text("source_file_sha256").notNull(),
+  sourceSyncedAt: timestamp("source_synced_at", { withTimezone: true }).notNull(),
+  firstObservedAt: timestamp("first_observed_at", { withTimezone: true }).notNull().defaultNow(),
+  isCurrent: boolean("is_current").notNull().default(true),
+  metadata: jsonb("metadata").notNull(),
+}, table => [
+  uniqueIndex("idx_candidate_source_version").on(table.candidateId, table.sourceLayer, table.sourceUrl, table.sourceFileSha256),
+  uniqueIndex("idx_candidate_source_current").on(table.candidateId, table.sourceLayer, table.sourceUrl).where(sql`${table.isCurrent} = true`),
+]);
+
+export const candidateIngestRuns = pgTable("candidate_ingest_runs", {
+  id: serial("id").primaryKey(),
+  sourceLayer: text("source_layer").notNull(),
+  sourceUrl: text("source_url").notNull(),
+  sourceFileSha256: text("source_file_sha256").notNull(),
+  appliedAt: timestamp("applied_at", { withTimezone: true }).notNull(),
+  receipt: jsonb("receipt").notNull(),
+});
+
+// Complete official list coverage persists independently of candidate count.
+export const generalCandidateListSnapshots = pgTable("general_candidate_list_snapshots", {
+  id: serial("id").primaryKey(),
+  electionId: integer("election_id").notNull().references(() => elections.id),
+  scopeKey: text("scope_key").notNull(),
+  sourceUrl: text("source_url").notNull(),
+  sourceFileSha256: text("source_file_sha256").notNull(),
+  sourceSyncedAt: timestamp("source_synced_at", { withTimezone: true }).notNull(),
+  firstObservedAt: timestamp("first_observed_at", { withTimezone: true }).notNull().defaultNow(),
+  isCurrent: boolean("is_current").notNull().default(true),
+  metadata: jsonb("metadata").notNull(),
+}, table => [
+  uniqueIndex("idx_general_list_snapshot_version").on(table.electionId, table.scopeKey, table.sourceUrl, table.sourceFileSha256),
+  uniqueIndex("idx_general_list_snapshot_current").on(table.electionId, table.scopeKey).where(sql`${table.isCurrent} = true`),
 ]);
 
 export const electionResults = pgTable("election_results", {
@@ -2511,8 +2556,8 @@ export interface RunbookFilters {
 export const dashboardUserSchema = z.object({
   id: z.string(),
   email: z.string().email(),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
+  firstName: z.string().nullish().transform((v) => v ?? undefined),
+  lastName: z.string().nullish().transform((v) => v ?? undefined),
   emailVerified: z.boolean(),
   joinedAt: z.string().datetime(),
   daysSinceJoining: z.number().int().min(0),

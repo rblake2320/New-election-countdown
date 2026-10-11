@@ -1,0 +1,81 @@
+name: ElectionTracker CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      PUPPETEER_SKIP_DOWNLOAD: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run check:type-mechanism
+      - run: npm run test:e2e:list
+      - run: npm run build
+      - name: Runtime dependency audit
+        run: npm audit --omit=dev --audit-level=high
+      - name: Enforce client types and report full-project diagnostics
+        run: node scripts/check-client-types.mjs
+      - name: Full dependency audit report
+        if: always()
+        run: npm audit --json > audit.json || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: diagnostic-reports
+          path: |
+            typecheck.txt
+            audit.json
+  bundle-budget:
+    runs-on: ubuntu-latest
+    env:
+      PUPPETEER_SKIP_DOWNLOAD: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: node scripts/check-bundle.mjs
+  container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: docker build --tag electiontracker:ci .
+      - run: docker build --target builder --tag electiontracker:ci-builder .
+      - name: Verify production image dependency boundary
+        run: docker run --rm --entrypoint node electiontracker:ci -e "const fs=require('fs'); for (const p of ['node_modules/vite','node_modules/vitest','node_modules/@playwright/test','server','shared']) if(fs.existsSync(p)) throw Error('Unexpected runtime path '+p); if(!fs.existsSync('dist/index.js')) throw Error('Missing server bundle');"
+      - name: Boot compiled app against isolated PostgreSQL
+        env:
+          TEST_IMAGE: electiontracker:ci
+          TEST_BUILDER_IMAGE: electiontracker:ci-builder
+          TEST_USER_FLOW: '1'
+          TEST_BACKUP_RESTORE: '1'
+          TEST_SHUTDOWN: '1'
+          TEST_LISTING_CONTRACT: '1'
+          TEST_ELECTION_TIMEZONE: '1'
+          TEST_CANDIDATE_INGESTION: '1'
+          TEST_POLL_HOURS: '1'
+        run: node scripts/test-container.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: container-receipt
+          path: test-results/container

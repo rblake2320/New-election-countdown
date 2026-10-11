@@ -8,13 +8,18 @@ services:
     build: .
     restart: unless-stopped
     ports:
-      - "5000:5000"
+      - "127.0.0.1:${APP_PORT:-5000}:5000"
+    # Local persistence across app replacement; off-host backup is a separate operation.
+    volumes:
+      - backup_data:/app/backups
     environment:
       NODE_ENV: production
       PORT: "5000"
       HOST: 0.0.0.0
       DATABASE_URL: postgresql://elections:${POSTGRES_PASSWORD:?set in .env}@db:5432/elections
       JWT_SECRET: ${JWT_SECRET:?set in .env}
+      CANDIDATE_JWT_SECRET: ${CANDIDATE_JWT_SECRET:?Set CANDIDATE_JWT_SECRET in the private environment}
+      APP_ORIGIN: ${APP_ORIGIN:?Set the public HTTPS origin}
       SESSION_SECRET: ${SESSION_SECRET:?set in .env}
       COOKIE_SECURE: "true"
       # Optional data-source keys — services degrade gracefully when blank
@@ -28,6 +33,12 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   db:
     image: postgres:16-alpine
@@ -45,4 +56,6 @@ services:
       retries: 5
 
 volumes:
+  backup_data:
+    driver: local
   pgdata:

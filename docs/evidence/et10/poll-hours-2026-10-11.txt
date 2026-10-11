@@ -1,0 +1,49 @@
+ET-10 / C3 — statutory poll hours + IANA timezone for all 2026-11-03 rows — 2026-10-11 (Fable, on behalf of Lane C)
+Source of record: Ballotpedia "State Poll Opening and Closing Times (2026)" (statute-cited; retrieved 2026-10-11 via authenticated Chrome; table captured in server/poll-hours-2026.ts with footnote refs).
+Independent cross-check: 270toWin "Poll Closing Times" (Eastern). tests/unit/poll-hours-2026.test.ts converts every state's local close to Eastern and asserts equality for all 50 states (NH: statute minimum 7 p.m. stored; 270toWin lists latest town close 8 p.m. — documented).
+Pre-registered outcomes:
+  broken system: 506 Nov-3 rows with polls_close/timezone NULL (shared DB today)         -> observed 506
+  dry-run must write nothing: shared DB NULL count before/after dry-run                   -> 506 / 506
+  apply on private copy elections_fable: rows updated / NULL after                        -> 506 / 0
+  idempotency: second --apply                                                              -> 0 need changes, 0 updated
+  district overrides (minority-zone House seats)                                           -> 9 (FL-01, FL-02, ID-01, IN-01, IN-08, KY-01, KY-02, TX-16, TX-23)
+  distinct zones written                                                                   -> 11 (New_York 200, Chicago 156, Los_Angeles 77, Denver 27, Detroit 15, Phoenix 10, Indiana/Indianapolis 7, Kentucky/Louisville 5, Anchorage 3, Boise 3, Honolulu 3)
+Unit: 6/6 poll-hours tests; full suite 127 pass / 3 skip.
+Shared DB NOT written: data owner (Sol, Lane C) applies with `npx tsx scripts/seed_poll_hours_2026.ts --apply`.
+Semantics for the client (Opus B2): polls_open/polls_close are LOCAL "HH:MM" in `timezone`; use pollsCloseInstant(date, polls_close, timezone) from server/poll-hours-2026.ts (or the same Intl math client-side) to get the instant; never combine the UTC-midnight `date` with local clock arithmetic.
+
+--- v2 (2026-10-11 ~16:40) — Sol's must-fixes + Opus's provenance fields
+Model: tz = LATEST zone for multi-zone states (statewide upper bound; "polls closed" never shown while any precinct is open); close null where it varies locally (NH); open null where statute lets municipalities choose (ME, MA, MN, MT, VT, ID, OR, TN, WA, NE, ND, NH); ND = sourced actual 19:00 America/Denver (all 167 places close 7 p.m. local, vip.sos.nd.gov eid=348, Sol); KS conservative 19:00 Mountain (statute vs AP disagree); NCSL statute cite per state in `note`; `source` URL per state.
+New columns (additive, migrations/20261011_poll_hours_metadata.sql; seed script adds them only under --apply): poll_close_kind (polls|ballot_return), poll_hours_basis (statewide_latest|district_latest|local_variable), poll_hours_source (URL). API camelCase: pollCloseKind / pollHoursBasis / pollHoursSource (verified live on :5072: ND -> {"pollsOpen":null,"pollsClose":"19:00","timezone":"America/Denver","pollCloseKind":"polls","pollHoursBasis":"statewide_latest","pollHoursSource":"https://vip.sos.nd.gov/Precincts.aspx?eid=348"}).
+Pre-registered outcomes:
+  dry-run vs shared DB: schema untouched (no poll_hours_* columns), 506 NULL timezone unchanged   -> PASS
+  private copy --apply: columns added, 506 updated, 0 rows lacking timezone/basis                 -> PASS
+  idempotency: second --apply                                                                    -> 0 changes
+  basis distribution: statewide_latest 493 / district_latest 9 / local_variable 4 (NH)           -> PASS
+  kind distribution: polls 413 / ballot_return 93 (CA, CO, HI, NV, OR, UT, WA)                   -> PASS
+  cross-check: latest-zone close -> Eastern equals 270toWin for 49 states (NH skipped)           -> PASS (unit)
+Unit: 7/7 poll-hours; full suite 8 files 128 pass / 3 skip.
+Deploy ordering (Lane D): the schema change makes drizzle select() reference the new columns, so run the migration (or `seed_poll_hours_2026.ts --apply`) BEFORE deploying code that includes this PR.
+
+--- v3 (2026-10-11 ~18:35) — Sol's second review
+KS = 19:00 America/Chicago per K.S.A. 25-106 (7-7 CT / 6-6 MT, same instant) — not a "conservative" guess.
+Multi-zone statewide OPEN is null (AL AK FL IN KS KY MI SD TX + the earlier set): an earlier zone's precincts are open before the latest zone's, so no single statewide opening time exists.
+District exactness claims withdrawn: DISTRICT_TZ_OVERRIDES is empty (FL-02 / ID-01 / TX-23 span zones); every row in a multi-zone state carries the statewide latest bound (basis statewide_latest 502, local_variable 4; district_latest unused).
+ballot_return documented as the in-person / drop-box election-day deadline; mail postmark/receipt rules are state-specific and NOT represented.
+Private copy: v2 -> v3 delta 123 rows, re-run 0 changes; opens null 195, closes null 4 (NH). Unit 7/7 (KS cross-check now 20:00 ET).
+
+--- v4 (2026-10-11 ~19:30) — Sol's probe
+OR: "latest zone" means the WESTERNMOST zone (the same wall-clock close happens last there): 20:00 Pacific = 04Z, after Malheur's 20:00 Mountain = 03Z. tz -> America/Los_Angeles. Audit of the other multi-zone picks: AK Adak, FL/IN/KY/AL/TN Chicago, ID Los_Angeles, MI Menominee, ND/SD/TX Denver are already westernmost (NE/TN both zones close at the same instant).
+KS: K.S.A. 25-106 lets counties extend to 8 p.m. CT / 7 p.m. MT; no verified actual 2026 county schedule -> close null, basis local_variable (not a "legal max" presented as exact).
+Private copy delta v3 -> v4: 14 rows (KS 6, OR 8); re-run 0. Basis now statewide_latest 496 / local_variable 10 (NH 4 + KS 6). Unit 7/7 (OR cross-check 23:00 ET; KS skipped as null).
+
+--- v5 (2026-10-11 ~20:20) — Sol's implementation requests + RI finding
+Script transaction shape: one transaction per run. --apply: BEGIN ISOLATION LEVEL SERIALIZABLE; LOCK TABLE elections IN SHARE ROW EXCLUSIVE MODE; ALTER TABLE ... ADD COLUMN IF NOT EXISTS x3 (DDL is transactional in PostgreSQL); SELECT plan; UPDATEs; post-check; COMMIT. Dry-run: BEGIN READ ONLY ... ROLLBACK (schema untouched even if columns are absent). Unknown state or zero rows -> throw -> ROLLBACK (no partial success). Test hook POLL_HOURS_INJECT_FAILURE_AFTER=N aborts mid-run.
+Proof on a fresh private copy elections_fable2 (pg_dump of shared; 0 provenance columns, 0 timezones):
+  (a) injected failure after 100 updates   -> exit 1 ; columns after = 0 ; rows written = 0   (schema + data rolled back together)
+  (b) probe row with state ZZ on 2026-11-03 -> exit 1 "refusing: no poll-hours entry for state(s) ZZ" ; columns 0 ; written 0
+  (c) dry-run                               -> exit 0 ; columns still 0 ; written 0
+      --apply                               -> exit 0 ; 506 updated ; 0 missing ; columns 2* (* = LIKE 'poll_hours%' counts basis+source; kind also present)
+      --apply again                         -> 0 need changes
+Sources: OR -> https://sos.oregon.gov/elections/Pages/current-election.aspx (official 8 p.m. return deadline). RI -> open null (2026 election calendar p.4: New Shoreham opens 9 a.m., other towns 7 a.m.; all close 8 p.m.), source https://vote.sos.ri.gov/Forms/Elections/Guides/2026ElecCal.pdf (Sol's finding).
+Unit 7/7. Re-run proof: scripts/verify_poll_hours_txn.sh (copied from the review scratchpad).
