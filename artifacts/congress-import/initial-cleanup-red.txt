@@ -1,0 +1,22 @@
+
+ RUN  v5.0.3 D:/projects/et-wt/sol-congress-source-investigation
+
+ ❯ tests/congress-official-import.test.ts (19 tests | 1 failed) 164ms
+   ❯ reviewed official Congress admission (19)
+     × altered byte snapshot refuses before database connection 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/congress-official-import.test.ts > reviewed official Congress admission > altered byte snapshot refuses before database connection
+SystemError: Path is a directory: rm returned EISDIR (is a directory) C:\Users\techai\AppData\Local\Temp\et-congress-source-BmyfTf
+ ❯ tests/congress-official-import.test.ts:34:227
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 21 passed (22)
+   Start at  11:06:03
+   Duration  1.36s (environment 34%, import 33%, setup 13%, transform 10%, tests 10%, worker 1%)
+

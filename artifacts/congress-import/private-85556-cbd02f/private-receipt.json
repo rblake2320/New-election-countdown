@@ -1,0 +1,277 @@
+{
+  "outcome": "Worked",
+  "manifestSha256": "b09efc0e8a2b98ffc1e5e4740c8c0ba03a381e745cdf8d53a501e053bfa8ad56",
+  "sourceScope": "all_current_members_including_nonvoting",
+  "checks": [
+    {
+      "scenario": "additive-migration-twice",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "compiled-legacy-entrypoint-refuses-with-prior-rows-xmin-preserved",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "default-dry-run-no-member-audit-or-xmin-writes",
+      "outcome": "Worked",
+      "receipt": {
+        "version": 1,
+        "mode": "dry-run",
+        "manifestSha256": "b09efc0e8a2b98ffc1e5e4740c8c0ba03a381e745cdf8d53a501e053bfa8ad56",
+        "preimageSha256": "4be9504e8dfef293fbdc96370b235dfd6a33a01110d91c60536ccd57957f2963",
+        "postimageSha256": null,
+        "runId": null,
+        "sourceScope": "all_current_members_including_nonvoting",
+        "sourceMemberCount": 539,
+        "sourceRoleCounts": {
+          "representatives": 433,
+          "delegates": 5,
+          "residentCommissioners": 1,
+          "senators": 100
+        },
+        "vacancies": [
+          {
+            "sourceId": "house-memberdata",
+            "state": "FL",
+            "seatRaw": "FL20",
+            "district": "20",
+            "role": "representative",
+            "bioguideId": null,
+            "name": null,
+            "partyRaw": null,
+            "vacancyEvidence": "Vacancy due to the resignation of Sheila Cherfilus-McCormick, April 21, 2026.",
+            "predecessorVacateDate": "April 21, 2026"
+          },
+          {
+            "sourceId": "house-memberdata",
+            "state": "TX",
+            "seatRaw": "TX23",
+            "district": "23",
+            "role": "representative",
+            "bioguideId": null,
+            "name": null,
+            "partyRaw": null,
+            "vacancyEvidence": "Vacancy due to the resignation of Tony Gonzales, April 14, 2026.",
+            "predecessorVacateDate": "April 14, 2026"
+          }
+        ],
+        "insertedCount": 538,
+        "updatedCount": 1,
+        "removedCount": 0,
+        "changedCount": 539,
+        "unreviewedLegacyRowIds": [
+          1,
+          2
+        ],
+        "removalPlanSha256": null,
+        "sourceCoverageComplete": false,
+        "catalogComplete": false,
+        "committed": false
+      }
+    },
+    {
+      "scenario": "actual-PG-100-writes-then-error-full-rollback",
+      "outcome": "Worked",
+      "restoredRows": 4
+    },
+    {
+      "scenario": "real-PG-trigger-readback-mismatch-rolls-back-all-539-writes",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "real-official-ID-collision-with-history-refuses-no-overwrite",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "wrong-snapshot-bytes-refuse-no-DB-mutation",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "compiled-CLI-apply-539-real-IDs-with-legacy-history-fullfields-xmin-preserved",
+      "outcome": "Worked",
+      "receipt": {
+        "version": 1,
+        "mode": "apply",
+        "manifestSha256": "b09efc0e8a2b98ffc1e5e4740c8c0ba03a381e745cdf8d53a501e053bfa8ad56",
+        "preimageSha256": "4be9504e8dfef293fbdc96370b235dfd6a33a01110d91c60536ccd57957f2963",
+        "postimageSha256": "6cc5fabff3d2d9218ffddbb11e9f32fce451d1264850b615119dccb5eef73ab4",
+        "runId": "0716c3ef-cb7b-4210-a4fb-8c96ffaf26dc",
+        "sourceScope": "all_current_members_including_nonvoting",
+        "sourceMemberCount": 539,
+        "sourceRoleCounts": {
+          "representatives": 433,
+          "delegates": 5,
+          "residentCommissioners": 1,
+          "senators": 100
+        },
+        "vacancies": [
+          {
+            "sourceId": "house-memberdata",
+            "state": "FL",
+            "seatRaw": "FL20",
+            "district": "20",
+            "role": "representative",
+            "bioguideId": null,
+            "name": null,
+            "partyRaw": null,
+            "vacancyEvidence": "Vacancy due to the resignation of Sheila Cherfilus-McCormick, April 21, 2026.",
+            "predecessorVacateDate": "April 21, 2026"
+          },
+          {
+            "sourceId": "house-memberdata",
+            "state": "TX",
+            "seatRaw": "TX23",
+            "district": "23",
+            "role": "representative",
+            "bioguideId": null,
+            "name": null,
+            "partyRaw": null,
+            "vacancyEvidence": "Vacancy due to the resignation of Tony Gonzales, April 14, 2026.",
+            "predecessorVacateDate": "April 14, 2026"
+          }
+        ],
+        "insertedCount": 538,
+        "updatedCount": 1,
+        "removedCount": 0,
+        "changedCount": 539,
+        "unreviewedLegacyRowIds": [
+          1,
+          2
+        ],
+        "removalPlanSha256": null,
+        "sourceCoverageComplete": true,
+        "catalogComplete": false,
+        "committed": true
+      },
+      "cliOutput": "{\"outcome\":\"Applied\",\"runId\":\"0716c3ef-cb7b-4210-a4fb-8c96ffaf26dc\",\"changedCount\":539,\"sourceMemberCount\":539,\"catalogComplete\":false,\"unreviewedLegacyRowIds\":[1,2],\"receipt\":\"/evidence/cli-apply.json\"}\n"
+    },
+    {
+      "scenario": "repeat-zero-member-writes-full-xmin-unchanged",
+      "outcome": "Worked",
+      "auditOnlyRunId": "68d577fb-45e6-47b8-b7e0-77b6f807fae5"
+    },
+    {
+      "scenario": "stale-whole-catalog-unrelated-field-guard-refuses",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "Congress-writer-advisory-lock-really-blocks-then-releases",
+      "outcome": "Worked",
+      "waitingLocks": 1
+    },
+    {
+      "scenario": "only-exact-reviewed-plan-removes-two-private-legacy-rows-rollback-guarded",
+      "outcome": "Worked",
+      "receipt": {
+        "version": 1,
+        "mode": "apply",
+        "manifestSha256": "b09efc0e8a2b98ffc1e5e4740c8c0ba03a381e745cdf8d53a501e053bfa8ad56",
+        "preimageSha256": "c5d896a6dbedc6628a2bae8e30a503270397c02d96beaa92aa8fd6824bbad44f",
+        "postimageSha256": "7a26dd37cc2c51916c217516999bf5bcd0024949c37768da144a90423fcc27dd",
+        "runId": "63f218f9-a8e5-49c9-a607-a128951cb8c0",
+        "sourceScope": "all_current_members_including_nonvoting",
+        "sourceMemberCount": 539,
+        "sourceRoleCounts": {
+          "representatives": 433,
+          "delegates": 5,
+          "residentCommissioners": 1,
+          "senators": 100
+        },
+        "vacancies": [
+          {
+            "sourceId": "house-memberdata",
+            "state": "FL",
+            "seatRaw": "FL20",
+            "district": "20",
+            "role": "representative",
+            "bioguideId": null,
+            "name": null,
+            "partyRaw": null,
+            "vacancyEvidence": "Vacancy due to the resignation of Sheila Cherfilus-McCormick, April 21, 2026.",
+            "predecessorVacateDate": "April 21, 2026"
+          },
+          {
+            "sourceId": "house-memberdata",
+            "state": "TX",
+            "seatRaw": "TX23",
+            "district": "23",
+            "role": "representative",
+            "bioguideId": null,
+            "name": null,
+            "partyRaw": null,
+            "vacancyEvidence": "Vacancy due to the resignation of Tony Gonzales, April 14, 2026.",
+            "predecessorVacateDate": "April 14, 2026"
+          }
+        ],
+        "insertedCount": 0,
+        "updatedCount": 0,
+        "removedCount": 2,
+        "changedCount": 2,
+        "unreviewedLegacyRowIds": [],
+        "removalPlanSha256": "9a545c4e0f10aad0905cdf0fa77e275f73d1d01fb66fdf568de9a08e8e3a8c25",
+        "sourceCoverageComplete": true,
+        "catalogComplete": true,
+        "committed": true
+      }
+    },
+    {
+      "scenario": "compiled-service-counts-match-source-not535-people",
+      "outcome": "Worked",
+      "validation": {
+        "total": 540,
+        "house": 440,
+        "senate": 100,
+        "states": 56,
+        "parties": {
+          "D": 263,
+          "R": 274,
+          "I": 3
+        },
+        "unrecordedPartyCount": 0,
+        "unrecordedStateCount": 0,
+        "isComplete": true,
+        "expectedCounts": {
+          "house": 439,
+          "senate": 100,
+          "total": 539
+        },
+        "sourceScope": "all_current_members_including_nonvoting",
+        "sourceStatus": "reviewed_snapshot"
+      }
+    },
+    {
+      "scenario": "two-concurrent-repeat-applications-preserve-all-rows-and-xmin",
+      "outcome": "Worked",
+      "outcomes": [
+        {
+          "outcome": "Applied",
+          "changedCount": 0
+        },
+        {
+          "outcome": "Applied",
+          "changedCount": 0
+        }
+      ]
+    },
+    {
+      "scenario": "real-nonroot-postcommit-receipt-EACCES-reports-Applied-and-durable-audit-ID",
+      "outcome": "Worked",
+      "exportOutcome": {
+        "outcome": "Applied",
+        "committed": true,
+        "runId": "df09e795-927b-45a3-ae02-9a03611dbd7a",
+        "receiptExport": "Failed",
+        "temporaryReceipt": null,
+        "errorCode": "EACCES"
+      },
+      "stdout": ""
+    }
+  ],
+  "auditRows": 7,
+  "auditRowsSha256": "4b080ee3d46c7d6c28ec5d17e5456a5338d9bc95bf2b047adcae14d346058693",
+  "memberRows": 540,
+  "contactsRetained": false,
+  "governmentFetchCalls": 0,
+  "sharedWrites": 0,
+  "fixtureScope": "Actual pinned government member projection; labelled synthetic legacy/history/fault records exist only in dedicated disposable PG."
+}
