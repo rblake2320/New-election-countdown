@@ -10,6 +10,8 @@ import { perplexityCongressService } from "./perplexity-congress-service";
 import { congressImportService } from "./congress-import-service";
 import { setupAuth, isAuthenticated } from "./auth";
 import { requireAdmin } from "./middleware/require-admin";
+import { verifySendGridWebhook, verifyTwilioWebhook } from "./webhook-verify";
+import { deliveryTrackingService } from "./services/delivery-tracking-service";
 import { mapQuestService } from "./mapquest-service";
 import { realTimeMonitor } from "./real-time-monitor";
 import { electionScraper } from "./web-scraper";
@@ -3179,24 +3181,16 @@ function registerNotificationRoutes(app: Express) {
     }
   });
 
-  // SendGrid webhook
-  app.post("/api/notifications/webhooks/sendgrid", async (req, res) => {
+  // SendGrid Event Webhook — signature verified in verifySendGridWebhook; events
+  // are resolved to deliveries by external_id in deliveryTrackingService.
+  app.post("/api/notifications/webhooks/sendgrid", verifySendGridWebhook, async (req, res) => {
     try {
-      const events = req.body;
-      
+      const events = Array.isArray(req.body) ? req.body : [];
       for (const event of events) {
-        const { sg_message_id, event: eventType, timestamp } = event;
-        
-        if (sg_message_id) {
-          await storage.updateNotificationStatusByMessageId(sg_message_id, eventType, {
-            timestamp: new Date(timestamp * 1000),
-            provider: 'sendgrid'
-          });
-          
-          console.log(`📧 SendGrid webhook: ${eventType} for message ${sg_message_id}`);
+        if (event && typeof event === 'object' && event.event) {
+          await deliveryTrackingService.processWebhook('sendgrid', String(event.event), event);
         }
       }
-      
       res.status(200).send('OK');
     } catch (error) {
       console.error("Error processing SendGrid webhook:", error);
@@ -3204,24 +3198,13 @@ function registerNotificationRoutes(app: Express) {
     }
   });
 
-  // Twilio webhook
-  app.post("/api/notifications/webhooks/twilio", async (req, res) => {
+  // Twilio status callback — signature verified in verifyTwilioWebhook.
+  app.post("/api/notifications/webhooks/twilio", verifyTwilioWebhook, async (req, res) => {
     try {
-      const { MessageSid, MessageStatus } = req.body;
-      
-      if (MessageSid) {
-        let ourStatus = MessageStatus;
-        if (MessageStatus === 'delivered') ourStatus = 'delivered';
-        else if (MessageStatus === 'failed' || MessageStatus === 'undelivered') ourStatus = 'failed';
-        
-        await storage.updateNotificationStatusByMessageId(MessageSid, ourStatus, {
-          timestamp: new Date(),
-          provider: 'twilio'
-        });
-        
-        console.log(`📱 Twilio webhook: ${MessageStatus} for message ${MessageSid}`);
+      const { MessageSid, MessageStatus } = req.body ?? {};
+      if (MessageSid && MessageStatus) {
+        await deliveryTrackingService.processWebhook('twilio', String(MessageStatus), req.body);
       }
-      
       res.status(200).send('OK');
     } catch (error) {
       console.error("Error processing Twilio webhook:", error);

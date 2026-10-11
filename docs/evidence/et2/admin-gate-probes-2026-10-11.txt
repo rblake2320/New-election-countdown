@@ -45,3 +45,18 @@ POST /api/auth/signin (legacy)                      -> 404
 POST /api/search-elections without session          -> 401   (external AI call now needs a session + search limiter)
 DELETE /api/user/data with cookie (probe user)      -> 200
 scripts/verify-admin-gates.sh                       -> PASS
+
+--- Provider webhook authentication (commit 5, 2026-10-11 ~10:05) — dev server :5055
+Before: POST /api/notifications/webhooks/{sendgrid,twilio} accepted any body unsigned AND called storage.updateNotificationStatusByMessageId, which does not exist (every real event would have 500'd). After: server/webhook-verify.ts — Twilio HMAC (twilio.validateRequest) and SendGrid ECDSA P-256 over timestamp+rawBody (Node crypto, no new dependency); handlers route to deliveryTrackingService.processWebhook.
+Configured (TWILIO_AUTH_TOKEN + SENDGRID_WEBHOOK_PUBLIC_KEY + APP_ORIGIN set):
+  twilio valid signature          -> 200
+  twilio bad signature            -> 403
+  twilio missing signature        -> 403
+  sendgrid valid signature        -> 200
+  sendgrid tampered body          -> 403
+  sendgrid missing signature      -> 403
+Unconfigured (no provider env):
+  twilio                          -> 404
+  sendgrid                        -> 404
+scripts/verify-admin-gates.sh -> PASS ; unit suite 121 pass / 3 skip.
+Re-run: scripts/verify-webhook-signatures.sh. Deploy note: set SENDGRID_WEBHOOK_PUBLIC_KEY (SendGrid > Mail Settings > Event Webhook > Signed) and TWILIO_AUTH_TOKEN, else the endpoints are 404 by design.
