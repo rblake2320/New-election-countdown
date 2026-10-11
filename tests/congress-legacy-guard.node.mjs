@@ -11,6 +11,8 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const before = execFileSync('git', ['show', '425510af784c166fbdf761165c3f39d48ebf4130:bulk_restore_congress.js'], { cwd: root, encoding: 'utf8' });
 const after = fs.readFileSync(path.join(root, 'bulk_restore_congress.js'), 'utf8');
+const siblingBefore = execFileSync('git', ['show', '425510af784c166fbdf761165c3f39d48ebf4130:restore_congress_members.js'], { cwd: root, encoding: 'utf8' });
+const siblingAfter = fs.readFileSync(path.join(root, 'restore_congress_members.js'), 'utf8');
 const directory = path.join(root, 'artifacts/congress-legacy-guard');
 fs.mkdirSync(directory, { recursive: true });
 const control = { bioguideId:'EXPLICIT_EXISTING_CONTROL', name:'Synthetic existing local profile', description:'Must remain intact' };
@@ -20,10 +22,11 @@ const fixture = [
 ];
 
 async function simulatedEntry(source, members, rejectInsert = false) {
-  const receipt = { imports:[], fileCalls:[], dbCalls:[], rows:[structuredClone(control)], inserted:[], stdout:[], stderr:[] };
+  const receipt = { imports:[], envReads:[], fileCalls:[], dbCalls:[], rows:[structuredClone(control)], inserted:[], stdout:[], stderr:[] };
   let finish;
   const exited = new Promise(resolve => { finish = resolve; });
   const fakeProcess = { exit(code) { receipt.exitCode = code; finish(); }, get exitCode() { return receipt.exitCode; }, set exitCode(code) { receipt.exitCode=code; finish(); } };
+  fakeProcess.env = new Proxy({}, {get(_target,key){receipt.envReads.push(String(key)); return key==='DATABASE_URL' ? 'explicit-synthetic-connection-placeholder' : undefined;}});
   const context = vm.createContext({ console:{log:(...args)=>receipt.stdout.push(args.join(' ')),error:(...args)=>receipt.stderr.push(args.join(' '))}, process:fakeProcess });
   const database = {
     async delete(table) { receipt.dbCalls.push({kind:'delete',table}); receipt.rows=[]; },
@@ -43,6 +46,21 @@ async function simulatedEntry(source, members, rejectInsert = false) {
     if (specifier === 'fs') exports = { default:{readFileSync(file) { receipt.fileCalls.push(file); return JSON.stringify(members); }} };
     else if (specifier === './server/db.js') exports = { db:database };
     else if (specifier === './shared/schema.js') exports = { congressMembers:'explicit_synthetic_table' };
+    else if (specifier === '@neondatabase/serverless') exports = { Pool:class {
+      constructor(options) {receipt.dbCalls.push({kind:'pool',options});}
+      async query(sql,params) {
+        if(sql.startsWith('DELETE')) {receipt.dbCalls.push({kind:'delete'}); receipt.rows=[]; return {};}
+        if(sql.includes('INSERT INTO')) {
+          receipt.dbCalls.push({kind:'insert'});
+          const row={bioguideId:params[0],name:params[1],congress:params[6]}; receipt.inserted.push(row);
+          if(rejectInsert)throw new Error('Explicit synthetic insert failure');
+          receipt.rows.push(row); return {};
+        }
+        if(sql.startsWith('SELECT COUNT')) {receipt.dbCalls.push({kind:'select'}); return {rows:[{count:receipt.rows.length}]};}
+        throw new Error('Unexpected synthetic query');
+      }
+      async end() {receipt.dbCalls.push({kind:'end'}); receipt.exitCode??=0; finish();}
+    }};
     else throw new Error('Refused unexpected synthetic module: ' + specifier);
     return new vm.SyntheticModule(Object.keys(exports), function() { for(const [key,value] of Object.entries(exports)) this.setExport(key,value); }, {context});
   });
@@ -71,10 +89,22 @@ test('immutable old writer fabricates order-dependent ids from unverified names'
   fs.writeFileSync(path.join(directory,'old-identity-red.json'),JSON.stringify({forward,reverse},null,2)+'\n');
 });
 
+test('immutable sibling deletes before failure and swallows the failure as a normal exit', async () => {
+  const red=await simulatedEntry(siblingBefore,fixture,true);
+  assert.equal(red.exitCode,0);
+  assert.deepEqual(red.envReads,['DATABASE_URL']);
+  assert.equal(red.rows.length,0);
+  assert.equal(red.dbCalls[1].kind,'delete');
+  assert(red.stderr.some(line=>line.includes('Error restoring congressional members')));
+  assert.deepEqual(red.inserted.map(row=>row.bioguideId),fixture.map(row=>row.full_name));
+  fs.writeFileSync(path.join(directory,'sibling-old-delete-and-name-id-red.json'),JSON.stringify(red,null,2)+'\n');
+});
+
 test('guarded source emits typed refusal before any application module/file/database access', async () => {
   const green = await simulatedEntry(after, fixture, true);
   assert.equal(green.exitCode,1);
   assert.deepEqual(green.imports,[]);
+  assert.deepEqual(green.envReads,[]);
   assert.deepEqual(green.fileCalls,[]);
   assert.deepEqual(green.dbCalls,[]);
   assert.deepEqual(green.rows,[control]);
@@ -86,12 +116,24 @@ test('guarded source emits typed refusal before any application module/file/data
   fs.writeFileSync(path.join(directory,'new-mocked-access-green.json'),JSON.stringify(green,null,2)+'\n');
 });
 
-test('actual Node entrypoint refuses in an empty working directory even with --apply', () => {
+test('guarded sibling refuses before environment, file or database access', async () => {
+  const green=await simulatedEntry(siblingAfter,fixture,true);
+  assert.equal(green.exitCode,1);
+  assert.deepEqual(green.imports,[]);
+  assert.deepEqual(green.envReads,[]);
+  assert.deepEqual(green.fileCalls,[]);
+  assert.deepEqual(green.dbCalls,[]);
+  assert.deepEqual(green.rows,[control]);
+  assert.equal(JSON.parse(green.stderr.join('\n')).operation,'restore_congress_members');
+  fs.writeFileSync(path.join(directory,'sibling-new-mocked-access-green.json'),JSON.stringify(green,null,2)+'\n');
+});
+
+for(const filename of ['bulk_restore_congress.js','restore_congress_members.js'])test('actual Node '+filename+' refuses in an empty working directory even with --apply', () => {
   const temp = fs.mkdtempSync(path.join(os.tmpdir(),'congress-legacy-guard-'));
   try {
-    const loader = "export async function resolve(specifier,context,next){if(context.parentURL?.endsWith('/bulk_restore_congress.js')){console.error(JSON.stringify({applicationImportAttempt:specifier}));throw Error('Application imports forbidden by guard probe');}return next(specifier,context);}";
+    const loader = "export async function resolve(specifier,context,next){if(context.parentURL?.endsWith('/"+filename+"')){console.error(JSON.stringify({applicationImportAttempt:specifier}));throw Error('Application imports forbidden by guard probe');}return next(specifier,context);}";
     const loaderUrl = 'data:text/javascript,' + encodeURIComponent(loader);
-    const result = spawnSync(process.execPath,['--no-warnings','--experimental-loader='+loaderUrl,path.join(root,'bulk_restore_congress.js'),'--apply'],{cwd:temp,env:{},encoding:'utf8'});
+    const result = spawnSync(process.execPath,['--no-warnings','--experimental-loader='+loaderUrl,path.join(root,filename),'--apply'],{cwd:temp,env:{},encoding:'utf8'});
     assert.equal(result.status,1);
     assert.equal(result.stdout,'');
     const lines=result.stderr.trim().split('\n').map(line=>JSON.parse(line));
@@ -101,7 +143,7 @@ test('actual Node entrypoint refuses in an empty working directory even with --a
     assert.equal(message.code,'LEGACY_CONGRESS_SOURCE_UNVERIFIED');
     assert.equal(message.writes,false);
     assert.deepEqual(fs.readdirSync(temp),[]);
-    fs.writeFileSync(path.join(directory,'actual-entrypoint-green.json'),JSON.stringify({exitCode:result.status,stdout:result.stdout,message,applicationImports:imports,applicationFileCalls:0,applicationDatabaseCalls:0,callBasis:'Actual loader refuses any application import; guarded source has no file/database access, confirmed separately by identical source mock probe',emptyWorkingDirectory:true,environment:'empty; no DB/provider/secrets'},null,2)+'\n');
+    fs.writeFileSync(path.join(directory,filename==='bulk_restore_congress.js'?'actual-entrypoint-green.json':'sibling-actual-entrypoint-green.json'),JSON.stringify({exitCode:result.status,stdout:result.stdout,message,applicationImports:imports,applicationFileCalls:0,applicationDatabaseCalls:0,callBasis:'Actual loader refuses any application import; guarded source has no file/database access, confirmed separately by identical source mock probe',emptyWorkingDirectory:true,environment:'empty; no DB/provider/secrets'},null,2)+'\n');
   } finally { fs.rmdirSync(temp); }
 });
 
