@@ -9,10 +9,53 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PARTY_OPTIONS } from "@/lib/filter-codes";
+import { describeListError, fetchList } from "@/lib/fetch-list";
 import {
   composition, fetchMembers, filterMembers as applyMemberFilters, inCongress, latestCongress, memberPartyLabel,
   ordinal, partyCode, seatLabel, type CongressMemberRow,
 } from "@/lib/congress-members";
+
+interface Bill {
+  congress?: number;
+  number?: string;
+  title?: string;
+  latestAction?: { actionDate?: string; text?: string };
+}
+
+interface Committee {
+  name?: string;
+  systemCode?: string;
+  chamber?: string;
+}
+
+/** Loading, error (with retry), empty, or the list itself — never an error body as data. */
+function ListState<T>({ query, what, emptyText, children }: {
+  query: { isLoading: boolean; error: unknown; data: T[] | undefined; refetch: () => unknown };
+  what: string;
+  emptyText: string;
+  children: (rows: T[]) => React.ReactNode;
+}) {
+  if (query.isLoading) {
+    return (
+      <div className="space-y-3" aria-busy="true">
+        {[...Array(5)].map((_, i) => (
+          <Skeleton key={i} className="h-16 w-full" />
+        ))}
+      </div>
+    );
+  }
+  if (query.error) {
+    return (
+      <div role="alert" className="text-center py-8 space-y-3">
+        <p className="text-sm text-destructive">{describeListError(query.error, what)}</p>
+        <Button variant="outline" size="sm" onClick={() => query.refetch()}>Try again</Button>
+      </div>
+    );
+  }
+  const rows = query.data ?? [];
+  if (rows.length === 0) return <div className="text-center py-8 text-muted-foreground">{emptyText}</div>;
+  return <>{children(rows)}</>;
+}
 
 // Light chips with dark text pass WCAG AA contrast in both themes.
 const PARTY_CHIP: Record<string, string> = {
@@ -24,8 +67,6 @@ const PARTY_CHIP: Record<string, string> = {
 export function CongressData() {
   const [selectedCongress, setSelectedCongress] = useState("119");
   const [selectedState, setSelectedState] = useState("");
-  const [selectedChamber, setSelectedChamber] = useState("house");
-  const [selectedCommitteeCode, setSelectedCommitteeCode] = useState("");
   
   // Filtering and search states
   const [memberSearch, setMemberSearch] = useState("");
@@ -39,21 +80,18 @@ export function CongressData() {
   const [committeeSearch, setCommitteeSearch] = useState("");
   const [committeeChamberFilter, setCommitteeChamberFilter] = useState("all");
 
-  // API queries
-  const { data: bills, isLoading: billsLoading } = useQuery({
+  // Every list query goes through the typed loader: an error body (e.g. 503
+  // missing_api_key from /api/bills/:congress) is an error state, never data.
+  const billsQuery = useQuery({
     queryKey: ['/api/bills'],
-    queryFn: async () => {
-      const response = await fetch('/api/bills');
-      return response.json();
-    }
+    queryFn: ({ signal }) => fetchList<Bill>('/api/bills', signal, 'Bills'),
   });
 
-  const { data: billsByCongress, isLoading: billsByCongressLoading } = useQuery({
-    queryKey: ['/api/bills', selectedCongress],
-    queryFn: async () => {
-      const response = await fetch(`/api/bills/${selectedCongress}`);
-      return response.json();
-    }
+  const congressNumber = /^\d{1,3}$/.test(selectedCongress.trim()) ? selectedCongress.trim() : "";
+  const billsByCongressQuery = useQuery({
+    queryKey: ['/api/bills', congressNumber],
+    queryFn: ({ signal }) => fetchList<Bill>(`/api/bills/${congressNumber}`, signal, 'Bills by Congress'),
+    enabled: !!congressNumber,
   });
 
   // A failed request is an error state, never an empty roster.
@@ -74,21 +112,9 @@ export function CongressData() {
     enabled: !!stateCode
   });
 
-  const { data: committees, isLoading: committeesLoading } = useQuery({
+  const committeesQuery = useQuery({
     queryKey: ['/api/committees'],
-    queryFn: async () => {
-      const response = await fetch('/api/committees');
-      return response.json();
-    }
-  });
-
-  const { data: committeeMembers, isLoading: committeeMembersLoading } = useQuery({
-    queryKey: ['/api/committees', selectedChamber, selectedCommitteeCode, 'members'],
-    queryFn: async () => {
-      const response = await fetch(`/api/committees/${selectedChamber}/${selectedCommitteeCode}/members`);
-      return response.json();
-    },
-    enabled: !!selectedChamber && !!selectedCommitteeCode
+    queryFn: ({ signal }) => fetchList<Committee>('/api/committees', signal, 'Committees'),
   });
 
   // Filter functions
@@ -96,8 +122,8 @@ export function CongressData() {
     search: memberSearch, party: memberPartyFilter, state: memberStateFilter, chamber: memberChamberFilter,
   });
 
-  const filterBills = (billsList: any[]) => {
-    return billsList?.filter(bill => {
+  const filterBills = (billsList: Bill[]) => {
+    return billsList.filter(bill => {
       const matchesSearch = !billSearch || 
         bill.title?.toLowerCase().includes(billSearch.toLowerCase()) ||
         bill.number?.toLowerCase().includes(billSearch.toLowerCase());
@@ -106,11 +132,11 @@ export function CongressData() {
         bill.latestAction?.text?.toLowerCase().includes(billStatusFilter.toLowerCase());
       
       return matchesSearch && matchesStatus;
-    }) || [];
+    });
   };
 
-  const filterCommittees = (committeesList: any[]) => {
-    return committeesList?.filter(committee => {
+  const filterCommittees = (committeesList: Committee[]) => {
+    return committeesList.filter(committee => {
       const matchesSearch = !committeeSearch || 
         committee.name?.toLowerCase().includes(committeeSearch.toLowerCase());
       
@@ -118,7 +144,7 @@ export function CongressData() {
         committee.chamber?.toLowerCase().includes(committeeChamberFilter.toLowerCase());
       
       return matchesSearch && matchesChamber;
-    }) || [];
+    });
   };
 
   const MembersList = ({ label, members, loading, error, onRetry, emptyText }: {
@@ -353,15 +379,10 @@ export function CongressData() {
               </CardHeader>
               <CardContent>
                 <ScrollArea className="h-96">
-                  {billsLoading ? (
+                  <ListState query={billsQuery} what="Bills" emptyText="No bills are recorded yet.">
+                    {(bills) => (
                     <div className="space-y-3">
-                      {[...Array(5)].map((_, i) => (
-                        <Skeleton key={i} className="h-16 w-full" />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {filterBills(bills)?.slice(0, 20).map((bill: any, i: number) => (
+                      {filterBills(bills).slice(0, 20).map((bill, i) => (
                         <Card key={i} className="p-3">
                           <h4 className="font-semibold text-sm">{bill.title}</h4>
                           <p className="text-xs text-muted-foreground">
@@ -370,7 +391,8 @@ export function CongressData() {
                         </Card>
                       ))}
                     </div>
-                  )}
+                    )}
+                  </ListState>
                 </ScrollArea>
               </CardContent>
             </Card>
@@ -382,6 +404,8 @@ export function CongressData() {
                 <div className="flex gap-2">
                   <Input
                     placeholder="Congress number (e.g., 119, 118)"
+                    aria-label="Congress number"
+                    inputMode="numeric"
                     value={selectedCongress}
                     onChange={(e) => setSelectedCongress(e.target.value)}
                     className="w-64"
@@ -389,23 +413,21 @@ export function CongressData() {
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => setSelectedCongress("119")}
+                    onClick={() => setSelectedCongress(String(congress))}
                   >
-                    Current (119th)
+                    Current ({ordinal(congress)})
                   </Button>
                 </div>
               </CardHeader>
               <CardContent>
                 <ScrollArea className="h-96">
-                  {billsByCongressLoading ? (
-                    <div className="space-y-3">
-                      {[...Array(5)].map((_, i) => (
-                        <Skeleton key={i} className="h-16 w-full" />
-                      ))}
-                    </div>
+                  {!congressNumber ? (
+                    <div className="text-center py-8 text-muted-foreground">Enter a Congress number, such as 119.</div>
                   ) : (
+                  <ListState query={billsByCongressQuery} what="Bills by Congress" emptyText={`No bills are recorded for the ${ordinal(Number(congressNumber))} Congress.`}>
+                    {(billsByCongress) => (
                     <div className="space-y-3">
-                      {filterBills(billsByCongress)?.slice(0, 20).map((bill: any, i: number) => (
+                      {filterBills(billsByCongress).slice(0, 20).map((bill, i) => (
                         <Card key={i} className="p-3">
                           <h4 className="font-semibold text-sm">{bill.title}</h4>
                           <p className="text-xs text-muted-foreground">
@@ -414,6 +436,8 @@ export function CongressData() {
                         </Card>
                       ))}
                     </div>
+                    )}
+                  </ListState>
                   )}
                 </ScrollArea>
               </CardContent>
@@ -465,18 +489,13 @@ export function CongressData() {
             </CardHeader>
             <CardContent>
               <ScrollArea className="h-96">
-                {committeesLoading ? (
-                  <div className="space-y-3">
-                    {[...Array(5)].map((_, i) => (
-                      <Skeleton key={i} className="h-16 w-full" />
-                    ))}
-                  </div>
-                ) : (
+                <ListState query={committeesQuery} what="Committees" emptyText="No committees are recorded yet.">
+                  {(committees) => (
                   <div className="space-y-3">
                     <div className="text-sm text-muted-foreground mb-2">
-                      Showing {filterCommittees(committees).length} of {committees?.length || 0} committees
+                      Showing {filterCommittees(committees).length} of {committees.length} committees
                     </div>
-                    {filterCommittees(committees)?.map((committee: any, i: number) => (
+                    {filterCommittees(committees).map((committee, i) => (
                       <Card key={i} className="p-3">
                         <div className="flex justify-between items-start">
                           <div className="flex-1">
@@ -490,7 +509,8 @@ export function CongressData() {
                       </Card>
                     ))}
                   </div>
-                )}
+                  )}
+                </ListState>
               </ScrollArea>
             </CardContent>
           </Card>

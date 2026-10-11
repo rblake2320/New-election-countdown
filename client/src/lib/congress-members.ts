@@ -1,4 +1,5 @@
 import { PARTY_OPTIONS } from "@/lib/filter-codes";
+import { fetchList } from "@/lib/fetch-list";
 
 // Rows from /api/members are raw congress_members rows for every Congress the table
 // holds. The source-bound importer (server/congress-official-import.ts) stores the
@@ -184,12 +185,6 @@ export function filterMembers<T extends CongressMemberRow>(members: T[], f: Memb
 }
 
 /** Fetch a member list; a non-2xx response or a non-array body is an error, never an empty list. */
-export async function fetchMembers(url: string, signal?: AbortSignal): Promise<CongressMemberRow[]> {
-  const res = await fetch(url, { credentials: "include", signal });
-  if (!res.ok) throw new Error(`Member data request failed (${res.status})`);
-  const body: unknown = await res.json().catch(() => {
-    throw new Error("Member data response was not valid JSON");
-  });
-  if (!Array.isArray(body)) throw new Error("Member data response was not a list");
-  return body as CongressMemberRow[];
+export function fetchMembers(url: string, signal?: AbortSignal): Promise<CongressMemberRow[]> {
+  return fetchList<CongressMemberRow>(url, signal, "Member data");
 }
