@@ -7,8 +7,10 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
+export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+
 export async function apiRequest(
-  method: string,
+  method: HttpMethod,
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {

@@ -3,6 +3,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ExternalLink, MapPin, Calendar, Award, Briefcase, GraduationCap, Users } from 'lucide-react';
+import { profileSummary, provenanceLabel } from '@/lib/candidate-profile';
+import { partyLabel } from '@/lib/filter-codes';
 
 interface CandidatePublicViewProps {
   candidate: any;
@@ -30,10 +32,11 @@ export default function CandidatePublicView({ candidate }: CandidatePublicViewPr
       return <Badge variant="secondary" className="text-xs">AI Researched</Badge>;
     } else if (attribution.startsWith('Verified:')) {
       return <Badge variant="outline" className="text-xs">Verified</Badge>;
-    } else {
-      return <Badge variant="destructive" className="text-xs">Not Available</Badge>;
     }
+    // Unknown attribution: show nothing rather than a red "Not Available" on fields that have data.
+    return null;
   };
+  const summary = profileSummary(candidate);
 
   return (
     <div className="space-y-6">
@@ -47,7 +50,7 @@ export default function CandidatePublicView({ candidate }: CandidatePublicViewPr
                 {getAttributionBadge('fullName')}
               </CardTitle>
               <CardDescription className="text-lg">
-                {candidate.party} Candidate
+                {partyLabel(candidate.party ?? "")} candidate
               </CardDescription>
               {candidate.campaignSlogan && (
                 <p className="italic text-gray-600 dark:text-gray-400 mt-2">
@@ -99,12 +102,12 @@ export default function CandidatePublicView({ candidate }: CandidatePublicViewPr
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
               Background
-              {getAttributionBadge('politicalExperience')}
+              {summary && <Badge variant="outline" className="text-xs">{summary.source}</Badge>}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-gray-700 dark:text-gray-300">
-              {candidate.background || candidate.politicalExperience || 'Candidate has not supplied that info'}
+              {summary?.text ?? 'No background published yet.'}
             </p>
             
             {candidate.familyStatus && (
@@ -314,14 +317,9 @@ export default function CandidatePublicView({ candidate }: CandidatePublicViewPr
             <div>
               <p className="font-medium">Data Transparency</p>
               <p className="text-gray-600 dark:text-gray-400">
-                Profile Completion: {candidate.dataCompleteness || 0}% • 
-                Status: {candidate.verificationStatus || 'Pending'}
+                {provenanceLabel(candidate)}
+                {candidate.verified ? ' • Profile verified by the candidate' : ''}
               </p>
-            </div>
-            <div className="flex gap-2">
-              <Badge variant="default">Candidate Supplied</Badge>
-              <Badge variant="secondary">AI Researched</Badge>
-              <Badge variant="outline">Verified</Badge>
             </div>
           </div>
         </CardContent>

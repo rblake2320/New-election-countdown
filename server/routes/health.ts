@@ -10,8 +10,10 @@ healthRouter.get("/", async (req, res) => {
     
     // Check if system is healthy (either database connected or memory-optimized mode)
     if (!healthStatus.isDatabaseHealthy && !healthStatus.isMemoryOptimized) {
-      return res.json({
-        ok: true,
+      // Readiness: DB down and no serving fallback => 503 so Docker/nginx
+      // health checks go red instead of staying green on an empty app.
+      return res.status(503).json({
+        ok: false,
         mode: healthStatus.mode,
         dbHealthy: false,
         systemHealthy: false,
@@ -72,10 +74,9 @@ healthRouter.get("/", async (req, res) => {
     // Log error but don't expose stack trace
     console.log("Health check error:", error instanceof Error ? error.message : String(error));
     
-    // Return degraded mode status instead of 500 error
-    const healthStatus = storageFactory.getHealthStatus();
-    res.json({
-      ok: true,
+    // Health check itself failed => not ready
+    res.status(503).json({
+      ok: false,
       mode: "memory",
       dbHealthy: false,
       message: "Database health check failed - operating in memory mode",

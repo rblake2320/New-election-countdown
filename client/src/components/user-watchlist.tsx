@@ -9,18 +9,15 @@ import { useToast } from "@/hooks/use-toast";
 import { formatElectionDate, getUrgencyLevel, getUrgencyColor } from "@/lib/election-data";
 
 export function UserWatchlist() {
-  const { user, token } = useAuth();
+  // Session is the httpOnly cookie; there is no client-side token.
+  const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
 
   const { data: watchlist = [], isLoading, refetch } = useQuery({
     queryKey: ['/api/watchlist'],
-    enabled: !!user && !!token,
+    enabled: isAuthenticated,
     queryFn: async () => {
-      const response = await fetch('/api/watchlist', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const response = await fetch('/api/watchlist', { credentials: 'include' });
       
       if (!response.ok) {
         throw new Error('Failed to fetch watchlist');
@@ -34,9 +31,7 @@ export function UserWatchlist() {
     try {
       const response = await fetch(`/api/watchlist/${electionId}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -139,7 +134,7 @@ export function UserWatchlist() {
                 
                 <div className="pt-2">
                   <CountdownTimer 
-                    targetDate={election.date} 
+                    election={election} 
                     size="sm"
                     className="text-xs"
                   />
