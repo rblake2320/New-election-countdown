@@ -27,6 +27,7 @@ import { useIsAdmin } from "@/lib/useIsAdmin";
 import { type ElectionFilters } from "@shared/schema";
 import { normalizeFilters, isUpcomingTimeframe, levelLabel, partyLabel, timeframeLabel } from "@/lib/filter-codes";
 import { isUpcomingElection } from "@/lib/election-timing";
+import { useNow } from "@/hooks/use-now";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -64,12 +65,15 @@ export default function Home() {
   }), [filters, searchQuery]);
   
   const { data: fetchedElections = [], isLoading, error } = useElections(queryFilters);
+  // Re-evaluated every minute so races drop off at midnight in their own zone
+  // without waiting for a refetch or filter change.
+  const minuteClock = useNow(60_000);
   // "Next N days" must never show a race whose date has already passed.
   const elections = useMemo(() => {
     if (!isUpcomingTimeframe(filters.timeframe)) return fetchedElections;
-    const now = new Date();
+    const now = new Date(minuteClock);
     return fetchedElections.filter(e => isUpcomingElection(e, now));
-  }, [fetchedElections, filters.timeframe]);
+  }, [fetchedElections, filters.timeframe, minuteClock]);
   
   // Filter guidance system
   const { 

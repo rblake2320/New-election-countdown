@@ -48,22 +48,37 @@ export function parseClockTime(value: string | null | undefined): number | null 
   return hours * 60 + minutes;
 }
 
+const zoneValidity = new Map<string, boolean>();
+
 function isValidZone(zone: string | null | undefined): zone is string {
   if (!zone) return false;
-  try {
-    new Intl.DateTimeFormat("en-US", { timeZone: zone });
-    return true;
-  } catch {
-    return false;
+  let ok = zoneValidity.get(zone);
+  if (ok === undefined) {
+    try {
+      new Intl.DateTimeFormat("en-US", { timeZone: zone });
+      ok = true;
+    } catch {
+      ok = false;
+    }
+    zoneValidity.set(zone, ok);
   }
+  return ok;
 }
 
 /** Offset (ms) of `zone` from UTC at instant `utcMs`. */
+const dateTimeFormats = new Map<string, Intl.DateTimeFormat>();
+const dateFormats = new Map<string, Intl.DateTimeFormat>();
+
 function zoneOffsetMs(utcMs: number, zone: string): number {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: zone, hourCycle: "h23",
-    year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit",
-  }).formatToParts(new Date(utcMs));
+  let fmt = dateTimeFormats.get(zone);
+  if (!fmt) {
+    fmt = new Intl.DateTimeFormat("en-US", {
+      timeZone: zone, hourCycle: "h23",
+      year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit",
+    });
+    dateTimeFormats.set(zone, fmt);
+  }
+  const parts = fmt.formatToParts(new Date(utcMs));
   const get = (t: string) => Number(parts.find(p => p.type === t)?.value);
   const asUtc = Date.UTC(get("year"), get("month") - 1, get("day"), get("hour"), get("minute"), get("second"));
   return asUtc - Math.floor(utcMs / 1000) * 1000;
@@ -89,34 +104,60 @@ export function electionCalendarDate(date: string | Date): [number, number, numb
   return [dt.getUTCFullYear(), dt.getUTCMonth() + 1, dt.getUTCDate()];
 }
 
-export function getElectionTiming(election: ElectionTimingInput, now: Date = new Date()): ElectionTiming {
+/** The fixed instants for one election; depends only on the record, so compute once and reuse every tick. */
+export interface ElectionSchedule {
+  dayStart: Date;
+  /** Null when the opening time is not published. */
+  opens: Date | null;
+  /** Polls close, or the end of the calendar day when closing time is not published. */
+  closes: Date;
+  closeKnown: boolean;
+  approximate: boolean;
+}
+
+export function getElectionSchedule(election: ElectionTimingInput): ElectionSchedule {
   const [y, m, d] = electionCalendarDate(election.date);
   const zone = isValidZone(election.timezone) ? election.timezone : null;
   const openMin = parseClockTime(election.pollsOpen);
   const closeMin = parseClockTime(election.pollsClose);
-
   const dayStart = zonedTimeToUtc(y, m, d, 0, zone);
-  const opens = openMin != null ? zonedTimeToUtc(y, m, d, openMin, zone) : null;
-  // No poll hours: treat the whole calendar day as election day.
-  const closes = closeMin != null ? zonedTimeToUtc(y, m, d, closeMin, zone) : new Date(zonedTimeToUtc(y, m, d, 0, zone).getTime() + DAY_MS);
-  const approximate = !zone || closeMin == null;
-  const t = now.getTime();
+  return {
+    dayStart,
+    opens: openMin != null ? zonedTimeToUtc(y, m, d, openMin, zone) : null,
+    closes: closeMin != null ? zonedTimeToUtc(y, m, d, closeMin, zone) : zonedTimeToUtc(y, m, d, 24 * 60, zone),
+    closeKnown: closeMin != null,
+    approximate: !zone || closeMin == null,
+  };
+}
 
-  if (opens && t < opens.getTime()) {
-    return { phase: "upcoming", target: opens, targetLabel: "until polls open", statusLabel: "Upcoming", approximate };
+/** Phase at `now`: plain comparisons, cheap enough for every card every second. */
+export function phaseAt(s: ElectionSchedule, now: Date): ElectionTiming {
+  const t = now.getTime();
+  const approximate = s.approximate;
+  if (s.opens && t < s.opens.getTime()) {
+    return { phase: "upcoming", target: s.opens, targetLabel: "until polls open", statusLabel: "Upcoming", approximate };
   }
-  if (!opens && t < dayStart.getTime()) {
-    return { phase: "upcoming", target: dayStart, targetLabel: "until Election Day", statusLabel: "Upcoming", approximate };
+  if (!s.opens && t < s.dayStart.getTime()) {
+    return { phase: "upcoming", target: s.dayStart, targetLabel: "until Election Day", statusLabel: "Upcoming", approximate };
   }
-  if (t < closes.getTime()) {
-    return opens || closeMin != null
-      ? { phase: "polls-open", target: closes, targetLabel: "until polls close", statusLabel: "Polls open", approximate }
-      : { phase: "election-day", target: closes, targetLabel: "left on Election Day", statusLabel: "Election Day", approximate };
+  if (t < s.closes.getTime()) {
+    // "Polls open" only when both ends are published; an unknown opening time
+    // (e.g. towns that set their own hours) must not be reported as open at 00:30.
+    if (s.opens && s.closeKnown) {
+      return { phase: "polls-open", target: s.closes, targetLabel: "until polls close", statusLabel: "Polls open", approximate };
+    }
+    return s.closeKnown
+      ? { phase: "election-day", target: s.closes, targetLabel: "until polls close", statusLabel: "Election Day · opening times vary", approximate: true }
+      : { phase: "election-day", target: s.closes, targetLabel: "left on Election Day", statusLabel: "Election Day", approximate };
   }
-  if (t < closes.getTime() + POLLS_CLOSED_WINDOW_DAYS * DAY_MS) {
+  if (t < s.closes.getTime() + POLLS_CLOSED_WINDOW_DAYS * DAY_MS) {
     return { phase: "polls-closed", target: null, targetLabel: "", statusLabel: "Polls closed · results pending", approximate };
   }
   return { phase: "completed", target: null, targetLabel: "", statusLabel: "Election held", approximate };
+}
+
+export function getElectionTiming(election: ElectionTimingInput, now: Date = new Date()): ElectionTiming {
+  return phaseAt(getElectionSchedule(election), now);
 }
 
 export interface TimeParts { days: number; hours: number; minutes: number; seconds: number }
@@ -132,7 +173,12 @@ const WESTERNMOST_OFFSET_MS = 11 * 60 * 60 * 1000;
 /** Today's calendar date as yyyymmdd in `zone` (or the UTC-11 fallback). */
 function calendarKeyNow(now: Date, zone: string | null): number {
   if (zone) {
-    const parts = new Intl.DateTimeFormat("en-US", { timeZone: zone, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(now);
+    let fmt = dateFormats.get(zone);
+    if (!fmt) {
+      fmt = new Intl.DateTimeFormat("en-US", { timeZone: zone, year: "numeric", month: "2-digit", day: "2-digit" });
+      dateFormats.set(zone, fmt);
+    }
+    const parts = fmt.formatToParts(now);
     const get = (t: string) => Number(parts.find(p => p.type === t)?.value);
     return get("year") * 10000 + get("month") * 100 + get("day");
   }

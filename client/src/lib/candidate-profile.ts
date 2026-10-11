@@ -13,14 +13,22 @@ const pick = (c: AnyCandidate, ...keys: string[]): string | undefined => {
 
 export interface ProfileSummary {
   text: string;
-  /** Who wrote it: shown beside the text so readers can weigh it. */
-  source: "Candidate supplied" | "Editorial summary";
+  /** Who wrote it, shown beside the text. Only claimed when the record proves it. */
+  source: "Candidate supplied" | "Editorial summary" | "Source not recorded";
 }
 
-/** Best available background text. Candidate-supplied first, then the editorial summary shown on cards. */
+/**
+ * Best available background text with honest attribution. A field name alone
+ * does not prove authorship: text is "Candidate supplied" only when it is the
+ * campaign bio of a candidate whose portal account is verified. Imported
+ * biographies are shown but labelled "Source not recorded"; the description
+ * shown on cards is the editorial summary.
+ */
 export function profileSummary(c: AnyCandidate): ProfileSummary | null {
-  const supplied = pick(c, "biography", "campaign_bio", "campaignBio", "professional_background", "professionalBackground", "background", "politicalExperience");
-  if (supplied) return { text: supplied, source: "Candidate supplied" };
+  const campaignBio = pick(c, "campaign_bio", "campaignBio");
+  if (campaignBio && c?.verified === true) return { text: campaignBio, source: "Candidate supplied" };
+  const unattributed = pick(c, "biography", "campaign_bio", "campaignBio", "professional_background", "professionalBackground", "background", "politicalExperience");
+  if (unattributed) return { text: unattributed, source: "Source not recorded" };
   const editorial = pick(c, "description");
   if (editorial) return { text: editorial, source: "Editorial summary" };
   return null;
