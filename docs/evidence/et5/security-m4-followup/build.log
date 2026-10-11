@@ -1,0 +1,113 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.88kB done
+#1 DONE 0.0s
+
+#2 [auth] library/node:pull token for registry-1.docker.io
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/node:24-alpine
+#3 DONE 0.7s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 745B done
+#4 DONE 0.0s
+
+#5 [builder 1/6] FROM docker.io/library/node:24-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1
+#5 resolve docker.io/library/node:24-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1 0.0s done
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 transferring context: 59.84kB 0.1s done
+#6 DONE 0.1s
+
+#7 [builder 2/6] WORKDIR /app
+#7 CACHED
+
+#8 [builder 3/6] COPY package*.json ./
+#8 CACHED
+
+#9 [builder 4/6] RUN npm ci &&     npm cache clean --force
+#9 CACHED
+
+#10 [builder 5/6] COPY . .
+#10 DONE 0.1s
+
+#11 [builder 6/6] RUN npm run build
+#11 0.550 
+#11 0.550 > rest-express@1.0.0 build
+#11 0.550 > vite build && node scripts/build-server.mjs
+#11 0.550 
+#11 0.979 vite v8.3.4 building client environment for production...
+#11 0.997 transforming...
+#11 2.514 
+#11 2.514 warn - The class `group-focus-within:before:duration-[4000ms]` is ambiguous and matches multiple utilities.
+#11 2.514 warn - If this is content and not a class, replace it with `group-focus-within:before:duration-&lsqb;4000ms&rsqb;` to silence this warning.
+#11 2.663 ✓ 2692 modules transformed.
+#11 2.810 rendering chunks...
+#11 2.940 computing gzip size...
+#11 2.948 dist/public/index.html                                   1.83 kB │ gzip:   0.68 kB
+#11 2.948 dist/public/assets/index-DcRqXGMT.css                   99.60 kB │ gzip:  16.06 kB
+#11 2.948 dist/public/assets/skeleton-VjIMT7ul.js                  0.21 kB │ gzip:   0.18 kB
+#11 2.948 dist/public/assets/progress-cvf_G0OO.js                  0.56 kB │ gzip:   0.37 kB
+#11 2.948 dist/public/assets/rolldown-runtime-hePW80VL.js          0.71 kB │ gzip:   0.42 kB
+#11 2.948 dist/public/assets/card-DD_5iAfJ.js                      1.20 kB │ gzip:   0.48 kB
+#11 2.948 dist/public/assets/tabs-D6bDDgIl.js                      1.23 kB │ gzip:   0.52 kB
+#11 2.948 dist/public/assets/table-Xu60bRm2.js                     1.63 kB │ gzip:   0.59 kB
+#11 2.948 dist/public/assets/form-QN-LrihC.js                      1.88 kB │ gzip:   0.82 kB
+#11 2.948 dist/public/assets/not-found-BCYZymf7.js                 2.78 kB │ gzip:   0.97 kB
+#11 2.948 dist/public/assets/Compare-CI-o4hsM.js                   2.85 kB │ gzip:   1.13 kB
+#11 2.948 dist/public/assets/midterm-2026-DD9JGvR5.js              6.52 kB │ gzip:   1.61 kB
+#11 2.948 dist/public/assets/api-status-CLhOei3s.js                7.21 kB │ gzip:   2.04 kB
+#11 2.948 dist/public/assets/congress-admin-DO8U0R5T.js            7.43 kB │ gzip:   2.00 kB
+#11 2.948 dist/public/assets/happening-now-CHyvuUXO.js             7.51 kB │ gzip:   2.30 kB
+#11 2.948 dist/public/assets/admin-settings-BIzy7WAw.js            7.83 kB │ gzip:   2.19 kB
+#11 2.948 dist/public/assets/investor-dashboard-B6mC4cQe.js        8.27 kB │ gzip:   2.16 kB
+#11 2.948 dist/public/assets/monitoring-dashboard-4DgreR1_.js      9.25 kB │ gzip:   2.47 kB
+#11 2.948 dist/public/assets/admin-results-entry-CQxHJFOO.js       9.70 kB │ gzip:   3.13 kB
+#11 2.948 dist/public/assets/campaign-portal-UgsWcbsD.js          10.27 kB │ gzip:   2.76 kB
+#11 2.948 dist/public/assets/global-dashboard-gFwW33ec.js         12.12 kB │ gzip:   2.64 kB
+#11 2.948 dist/public/assets/candidate-portal-fixed-DdsqN2Hr.js   14.60 kB │ gzip:   3.76 kB
+#11 2.948 dist/public/assets/civic-dashboard-vtooNOGy.js          15.21 kB │ gzip:   4.34 kB
+#11 2.948 dist/public/assets/congress-C24NzEIw.js                 15.45 kB │ gzip:   3.92 kB
+#11 2.948 dist/public/assets/icons-2f1bqvgh.js                    16.42 kB │ gzip:   5.77 kB
+#11 2.948 dist/public/assets/preferences-ClYd3THF.js              18.62 kB │ gzip:   4.33 kB
+#11 2.948 dist/public/assets/format-rEXDVrHF.js                   19.29 kB │ gzip:   5.51 kB
+#11 2.948 dist/public/assets/react-BpqA32dN.js                    20.46 kB │ gzip:   7.06 kB
+#11 2.948 dist/public/assets/DataSteward-iB2yHC4F.js              23.38 kB │ gzip:   5.86 kB
+#11 2.948 dist/public/assets/dashboard-BgQ36C8P.js                24.37 kB │ gzip:   5.03 kB
+#11 2.948 dist/public/assets/auth-Cs_hmVf3.js                     29.16 kB │ gzip:   6.16 kB
+#11 2.948 dist/public/assets/election-details-CYgVAi4G.js         31.94 kB │ gzip:   8.76 kB
+#11 2.948 dist/public/assets/query-DasIO8rc.js                    33.51 kB │ gzip:  10.07 kB
+#11 2.948 dist/public/assets/lib-4e-YGQzi.js                      85.55 kB │ gzip:  23.48 kB
+#11 2.948 dist/public/assets/index-BeU-sB-T.js                   225.87 kB │ gzip:  61.30 kB
+#11 2.948 dist/public/assets/radix-C-mTOb-Q.js                   268.45 kB │ gzip:  84.22 kB
+#11 2.948 dist/public/assets/charts-BTQhWz69.js                  394.33 kB │ gzip: 103.55 kB
+#11 2.948 
+#11 2.957 ✓ built in 1.97s
+#11 3.097 ▲ [WARNING] Duplicate member "calculateUserEngagementScore" in class body [duplicate-class-member]
+#11 3.097 
+#11 3.097     server/analytics-service.ts:743:8:
+#11 3.097       743 │   async calculateUserEngagementScore(userId: string, period: 'dai...
+#11 3.097           ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#11 3.097 
+#11 3.097   The original member "calculateUserEngagementScore" is here:
+#11 3.097 
+#11 3.097     server/analytics-service.ts:425:8:
+#11 3.097       425 │   async calculateUserEngagementScore(userId: string, period: 'dai...
+#11 3.097           ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#11 3.097 
+#11 DONE 3.2s
+
+#12 exporting to image
+#12 exporting layers
+#12 exporting layers 0.3s done
+#12 exporting manifest sha256:a1ee8fe2ac17eaa77052ee70fd8e67addfb147327d49d7c384a085cbe4e1e426 0.0s done
+#12 exporting config sha256:03817e3446b5c3f0215ad1b79317f1c87ae3e9413ae4c90fd0ddf4ea19ae2497 0.0s done
+#12 exporting attestation manifest sha256:c515fb0acbb6c7b8711d6377e6096742869981fa1cd7bdbb307b281e6230e1b3 0.0s done
+#12 exporting manifest list sha256:feb9706d9615f1af4cd094a31961cce0cf86d05c27b356b91b1909e8e04af44d 0.0s done
+#12 naming to docker.io/library/electiontracker:security-m4-followup-builder done
+#12 unpacking to docker.io/library/electiontracker:security-m4-followup-builder
+#12 unpacking to docker.io/library/electiontracker:security-m4-followup-builder 0.3s done
+#12 DONE 0.8s

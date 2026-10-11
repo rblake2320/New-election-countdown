@@ -16,7 +16,12 @@ describe('M4 receiving: unavailable vault initialization', () => {
     await layer.route.stack[0].handle({}, response, vi.fn());
     expect({ status: response.statusCode, body: response.body }).toEqual({
       status: 503,
-      body: { error: 'vault_unconfigured', message: 'Secrets vault is not configured on this deployment' },
+      body: {
+        error: 'vault_unconfigured',
+        message: 'Secrets vault is not configured on this deployment',
+        reason: 'BACKUP_ENCRYPTION_KEY is missing or shorter than 32 bytes',
+        vault: { ready: false, reason: 'BACKUP_ENCRYPTION_KEY is missing or shorter than 32 bytes' },
+      },
     });
   });
 });
