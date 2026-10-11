@@ -3,6 +3,17 @@ import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '@shared/schema';
 import { elections, candidates } from '@shared/schema';
 import { normalizeElectionFilters, partyAliases, US_ELECTION_TIME_ZONES, type ElectionQueryFilters } from './election-list-filters';
+import { projectOfficialResultsForElection, type OfficialResultsElectionContext, type OfficialResultsFields } from '../shared/official-results';
+
+// Preserve the timestamp without timezone before projecting; native PG Date
+// conversion depends on operator TZ and can change the calendar day.
+export const resultsCatalogTimestamp = sql<string>`to_char(${elections.date}, 'YYYY-MM-DD"T"HH24:MI:SS.US')`;
+export function projectElectionResultsRow<T extends OfficialResultsElectionContext & { date: Date; resultsCatalogTimestamp: string }>(row: T): Omit<T, 'resultsCatalogTimestamp'> & OfficialResultsFields {
+  const { resultsCatalogTimestamp: stored, ...fields } = row;
+  const normalized = new Date(stored + 'Z');
+  const date = Number.isFinite(normalized.getTime()) ? normalized : row.date;
+  return { ...fields, date, ...projectOfficialResultsForElection({ ...fields, date }) };
+}
 
 // One SQL statement: date predicates, party membership and all-candidate count.
 // The party EXISTS filter intentionally does not restrict the count's LEFT JOIN.
@@ -43,7 +54,7 @@ export function buildElectionListQuery(database: NodePgDatabase<typeof schema>, 
       : inArray(sql`lower(trim(${candidates.party}))`, aliases);
     conditions.push(sql`exists (select 1 from ${candidates} where ${candidates.electionId} = ${elections.id} and ${partyMatch})`);
   }
-  return database.select({ ...getTableColumns(elections), candidateCount: sql<number>`count(${candidates.id})`.mapWith(Number) })
+  return database.select({ ...getTableColumns(elections), resultsCatalogTimestamp, candidateCount: sql<number>`count(${candidates.id})`.mapWith(Number) })
     .from(elections).leftJoin(candidates, eq(candidates.electionId, elections.id))
     .where(and(...conditions)).groupBy(elections.id).orderBy(elections.date, elections.id);
 }

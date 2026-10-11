@@ -130,6 +130,41 @@ try {
     candidateRowsUnchanged: true, nhUnknown: nh.length, miGateway: mi.length, laPrimaryUnknown: true, runId: applied.runId };
   await writeFile(evidence + '/apply.json', JSON.stringify(applied, null, 2));
 
+  // Real admin correction changes the outer date while leaving imported
+  // metadata in storage. Every receiving projection must mask that stale pair.
+  const contextRow = after.find(row => row.state === 'AL' && row.date.startsWith(RESULTS_DATE))!;
+  const registration = await fetch(origin + '/api/auth/register', { method: 'POST',
+    headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+      email: 'c6-context-acceptance@example.test', password: 'Disposable-C6-Context-2026!',
+    }) });
+  assert.ok(registration.ok, 'Private acceptance account registration');
+  const cookie = registration.headers.getSetCookie().map(value => value.split(';')[0]).join('; ');
+  assert.ok(cookie);
+  await pool.query("UPDATE users SET role='admin' WHERE email=$1", ['c6-context-acceptance@example.test']);
+  try {
+    const corrected = await fetch(origin + '/api/admin/fix-election', { method: 'POST',
+      headers: { Cookie: cookie, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ electionId: contextRow.id, newDate: '2026-11-04T00:00:00.000Z', reason: 'Private C6 receiving-context acceptance' }) });
+    assert.equal(corrected.status, 200, 'Actual admin date correction');
+    const sql = (await pool.query('SELECT date::text,official_results_url,official_results_source FROM elections WHERE id=$1', [contextRow.id])).rows[0];
+    assert.ok(sql.date.startsWith('2026-11-04'));
+    assert.deepEqual(sql.official_results_source, contextRow.official_results_source);
+    const detail = await readHttp('/api/elections/' + contextRow.id) as Record<string, unknown>;
+    const listing = (await readHttp('/api/elections?state=AL') as Record<string, unknown>[]).find(row => row.id === contextRow.id)!;
+    const wrapped = (await readHttp('/api/election-details/' + contextRow.id) as { election: Record<string, unknown> }).election;
+    report.dateCorrectionReceiving = { outcome: 'Failed', adminStatus: corrected.status,
+      storedSourceUnchanged: true, detail, listing, wrapped };
+    for (const body of [detail, listing, wrapped]) {
+      assert.equal(body.officialResultsUrl, null, 'Stale corrected-date URL must not be emitted');
+      assert.equal(body.officialResultsSource, null, 'Stale corrected-date source must not be emitted');
+      assert.equal(Object.hasOwn(body, 'resultsCatalogTimestamp'), false, 'Internal SQL timestamp must not leak');
+    }
+    (report.dateCorrectionReceiving as { outcome: string }).outcome = 'Worked';
+  } finally {
+    await pool.query('UPDATE elections SET date=$1::timestamp WHERE id=$2', [contextRow.date, contextRow.id]);
+  }
+  assert.equal(catalogHash(await snapshot()), applied.postimageSha256);
+
   const versionsBeforeRepeat = (await pool.query('SELECT id,xmin::text AS version FROM public.elections ORDER BY id')).rows;
   const repeat = await syncOfficialResults(pool, { ...proof, mode: 'apply', expectedManifestSha256: proof.manifestSha256,
     expectedPreimageSha256: applied.postimageSha256 });

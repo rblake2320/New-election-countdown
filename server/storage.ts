@@ -1,9 +1,9 @@
-import { buildElectionListQuery } from "./election-list-query";
+import { buildElectionListQuery, projectElectionResultsRow, resultsCatalogTimestamp } from "./election-list-query";
 import { BackgroundWork } from './background-work';
 import type { ElectionListing, ElectionQueryFilters } from "./election-list-filters";
 import { elections, candidates, congressMembers, congressBills, congressCommittees, users, sessions, watchlist, electionResults, electionCycles, campaignAccounts, candidateAccounts, candidateProfiles, candidateDataSources, candidatePositions, candidateQA, notificationPreferences, notificationConsents, notificationSubscriptions, notificationTemplates, notificationCampaigns, notificationDeliveries, notificationEvents, notificationWebhooks, userPreferences, congressionalDistricts, backupStorageLocations, backupRetentionPolicies, backupOperations, schemaVersions, restoreValidations, backupSystemConfig, failoverDrillConfigurations, drillExecutions, drillSteps, backupMonitoringConfigurations, backupAlerts, backupHealthMetrics, rtoRpoTargets, rtoRpoMeasurements, performanceBenchmarks, incidentRunbooks, runbookSteps, runbookContacts, contactEscalationTrees, runbookExecutions, type Election, type InsertElection, type Candidate, type InsertCandidate, type ElectionFilters, type CongressMember, type InsertCongressMember, type User, type UpsertUser, type WatchlistItem, type InsertWatchlistItem, type UserPreferences, type InsertUserPreferences, type UpdateUserPreferences, type CongressionalDistrict, type InsertCongressionalDistrict, type CandidateAccount, type InsertCandidateAccount, type CandidateProfile, type InsertCandidateProfile, type CandidateDataSource, type InsertCandidateDataSource, type CandidatePosition, type InsertCandidatePosition, type CandidateQA, type InsertCandidateQA, type NotificationPreferences, type InsertNotificationPreferences, type NotificationConsent, type InsertNotificationConsent, type NotificationSubscription, type InsertNotificationSubscription, type NotificationTemplate, type InsertNotificationTemplate, type NotificationCampaign, type InsertNotificationCampaign, type NotificationDelivery, type InsertNotificationDelivery, type NotificationEvent, type InsertNotificationEvent, type NotificationWebhook, type InsertNotificationWebhook, type BackupStorageLocation, type InsertBackupStorageLocation, type BackupRetentionPolicy, type InsertBackupRetentionPolicy, type BackupOperation, type InsertBackupOperation, type SchemaVersion, type InsertSchemaVersion, type RestoreValidation, type InsertRestoreValidation, type BackupSystemConfig, type InsertBackupSystemConfig, type FailoverDrillConfiguration, type InsertFailoverDrillConfiguration, type DrillExecution, type InsertDrillExecution, type DrillStep, type InsertDrillStep, type BackupMonitoringConfiguration, type InsertBackupMonitoringConfiguration, type BackupAlert, type InsertBackupAlert, type BackupHealthMetric, type InsertBackupHealthMetric, type RtoRpoTarget, type InsertRtoRpoTarget, type RtoRpoMeasurement, type InsertRtoRpoMeasurement, type PerformanceBenchmark, type InsertPerformanceBenchmark, type IncidentRunbook, type InsertIncidentRunbook, type RunbookStep, type InsertRunbookStep, type RunbookContact, type InsertRunbookContact, type ContactEscalationTree, type InsertContactEscalationTree, type RunbookExecution, type InsertRunbookExecution } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, gte, lte, ilike, or, desc, inArray, isNotNull } from "drizzle-orm";
+import { eq, and, gte, lte, ilike, or, desc, inArray, isNotNull, getTableColumns } from "drizzle-orm";
 import { getGoogleCivicService } from "./google-civic-service";
 import { getCongressBillService } from './congress-bill-service';
 import { getPerplexityService } from './perplexity-service';
@@ -508,27 +508,27 @@ export class DatabaseStorage implements IStorage {
   async getElections(filters?: ElectionQueryFilters): Promise<ElectionListing[]> {
     const query = buildElectionListQuery(db, filters);
     return this.handleDatabaseOperation(
-      async () => (await query).filter(election => validateNotMockData(election).ok),
+      async () => (await query).filter(election => validateNotMockData(election).ok).map(projectElectionResultsRow),
       [],
       'getElections'
     );
   }
 
   async getElection(id: number): Promise<Election | undefined> {
-    const [election] = await db.select().from(elections).where(eq(elections.id, id));
-    return election || undefined;
+    const [election] = await db.select({ ...getTableColumns(elections), resultsCatalogTimestamp }).from(elections).where(eq(elections.id, id));
+    return election ? projectElectionResultsRow(election) : undefined;
   }
 
   async getElectionByTitleAndDate(title: string, date: Date): Promise<Election | undefined> {
     const [election] = await db
-      .select()
+      .select({ ...getTableColumns(elections), resultsCatalogTimestamp })
       .from(elections)
       .where(and(
         eq(elections.title, title),
         eq(elections.date, date)
       ))
       .limit(1);
-    return election;
+    return election ? projectElectionResultsRow(election) : undefined;
   }
 
   async createElection(insertElection: InsertElection): Promise<Election> {

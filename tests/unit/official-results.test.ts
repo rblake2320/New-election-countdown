@@ -7,6 +7,8 @@ import { officialResultsFieldsSchema } from '../../shared/official-results';
 import { insertElectionSchema } from '../../shared/schema';
 import { publishedResultsReceiptSchema } from '../../shared/official-results';
 import { planResults } from '../../server/official-results-sync';
+import { projectOfficialResultsForElection } from '../../shared/official-results';
+import { projectElectionResultsRow } from '../../server/election-list-query';
 
 const path = 'data/official-results/2026-11-03.json';
 describe('reviewed official-results receiving contract', () => {
@@ -154,5 +156,48 @@ describe('isolated future specific-publication shape', () => {
     const { manifest, manifestSha256 } = await loadResultsManifest(path);
     expect(manifestSha256).toBe('edbc1deff97cba8a154f3322e305be08427be1db358761635e59153328e04c86');
     expect(manifest.states.every(entry => entry.source.status !== 'published' && entry.source.publicationEvidence === undefined)).toBe(true);
+  });
+});
+
+describe('outer election receiving context', () => {
+  async function baseline(state = 'AL') {
+    const { manifest } = await loadResultsManifest(path);
+    const entry = manifest.states.find(entry => entry.state === state)!;
+    return { date: '2026-11-03', type: 'general', state,
+      officialResultsUrl: entry.officialResultsUrl, officialResultsSource: entry.source };
+  }
+  it('preserves valid source metadata and blocked NH source evidence', async () => {
+    for (const state of ['AL', 'NH']) {
+      const context = await baseline(state);
+      expect(projectOfficialResultsForElection(context)).toEqual({ officialResultsUrl: context.officialResultsUrl, officialResultsSource: context.officialResultsSource });
+    }
+  });
+  it.each(['2026-11-04', '2026-11-03T24:00:00Z', '2026-11-03T00:99:00Z', '2026-11-03T00:00:99Z',
+    '2026-11-03T00:00:00+99:00', '2026-11-03T00:00:00Ztail', '2026-02-30'])('masks stale or malformed calendar context %s', async date => {
+    expect(projectOfficialResultsForElection({ ...await baseline(), date })).toEqual({ officialResultsUrl: null, officialResultsSource: null });
+  });
+  it.each(['primary', 'runoff'])('masks a later phase change to %s without modifying stored source evidence', async type => {
+    const context = await baseline();
+    expect(projectOfficialResultsForElection({ ...context, type })).toEqual({ officialResultsUrl: null, officialResultsSource: null });
+    expect(context.officialResultsSource.electionPhase).toBe('general');
+  });
+  it('requires a published source to match the outer state', async () => {
+    const fixture = await futurePublicationFixture();
+    const entry = manifestFromReviews(fixture.reviews()).states.find(state => state.state === 'LA')!;
+    const context = { date: '2026-11-03', type: 'general', state: 'LA', officialResultsUrl: entry.officialResultsUrl, officialResultsSource: entry.source };
+    expect(projectOfficialResultsForElection(context).officialResultsSource?.status).toBe('published');
+    expect(projectOfficialResultsForElection({ ...context, state: 'WV' })).toEqual({ officialResultsUrl: null, officialResultsSource: null });
+  });
+  it('uses canonical SQL timestamp even when native PG Date would represent November 2 in Tokyo', async () => {
+    const context = await baseline();
+    const projected = projectElectionResultsRow({ ...context, date: new Date('2026-11-02T15:00:00Z'), resultsCatalogTimestamp: '2026-11-03T00:00:00.000000' });
+    expect(projected.date.toISOString()).toBe('2026-11-03T00:00:00.000Z');
+    expect(projected.officialResultsSource).toEqual(context.officialResultsSource);
+    expect(Object.hasOwn(projected, 'resultsCatalogTimestamp')).toBe(false);
+  });
+  it('returns null defaults safely for absent, invalid-Date and malformed source inputs', async () => {
+    for (const context of [{}, { ...await baseline(), date: new Date(NaN) }, { ...await baseline(), officialResultsSource: {} }]) {
+      expect(projectOfficialResultsForElection(context)).toEqual({ officialResultsUrl: null, officialResultsSource: null });
+    }
   });
 });
