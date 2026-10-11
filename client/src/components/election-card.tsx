@@ -17,7 +17,6 @@ import { useCandidates, useElectionResults } from "@/hooks/use-elections";
 import { Link, useLocation } from "wouter";
 import { rememberPendingWatch, signInUrl, takePendingWatch } from "@/lib/auth-return";
 import { PoliticalLeaningBorder } from "@/components/ui/political-leaning-border";
-import { calculateAdvancedPoliticalLeaningWithMomentum } from "@/lib/political-analysis";
 
 interface ElectionDetailsResponse {
   election: Election;
@@ -206,32 +205,10 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
                       daysUntil <= 30 ? "bg-brand-accent" : 
                       "bg-brand-primary";
 
-  // Advanced political leaning calculation with state baselines and momentum
-  const getPoliticalAnalysis = () => {
-    if (candidatesLoading) {
-      return { leaning: 'neutral' as const, intensity: 'low' as const };
-    }
-    
-    if (!candidates || candidates.length === 0) {
-      return { leaning: 'neutral' as const, intensity: 'low' as const };
-    }
-    
-    // Get state from election data (AL, CA, TX, etc.)
-    const state = election.state;
-    
-    // Use enhanced version with momentum simulation
-    const analysis = calculateAdvancedPoliticalLeaningWithMomentum(
-      state,
-      candidates,
-      election.id
-    );
-    
-    const shiftingText = analysis.isShifting ? ` (SHIFTING: ${analysis.shiftDirection})` : '';
-    console.log(`Election ${election.id} (${state}): baseline=${analysis.baseline}, leaning=${analysis.leaning}, shifting=${analysis.isShifting}${shiftingText}`);
-    return analysis;
-  };
-  
-  const politicalAnalysis = getPoliticalAnalysis();
+  // Neutral frame for every race. The partisan colouring came from simulated
+  // "momentum" and simulated voter intentions keyed off the election id
+  // (lib/political-analysis), i.e. invented data presented on real races.
+  const politicalAnalysis = { leaning: 'neutral' as const, intensity: 'low' as const };
 
   return (
     <PoliticalLeaningBorder leaning={politicalAnalysis.leaning} intensity={politicalAnalysis.intensity}>
