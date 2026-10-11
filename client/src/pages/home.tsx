@@ -26,7 +26,7 @@ import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useIsAdmin } from "@/lib/useIsAdmin";
 import { type ElectionFilters } from "@shared/schema";
 import { normalizeFilters, isUpcomingTimeframe, levelLabel, partyLabel, timeframeLabel } from "@/lib/filter-codes";
-import { electionCalendarDate } from "@/lib/election-timing";
+import { isUpcomingElection } from "@/lib/election-timing";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -67,12 +67,8 @@ export default function Home() {
   // "Next N days" must never show a race whose date has already passed.
   const elections = useMemo(() => {
     if (!isUpcomingTimeframe(filters.timeframe)) return fetchedElections;
-    const t = new Date();
-    const today = t.getFullYear() * 10000 + (t.getMonth() + 1) * 100 + t.getDate();
-    return fetchedElections.filter(e => {
-      const [y, m, d] = electionCalendarDate(e.date);
-      return y * 10000 + m * 100 + d >= today;
-    });
+    const now = new Date();
+    return fetchedElections.filter(e => isUpcomingElection(e, now));
   }, [fetchedElections, filters.timeframe]);
   
   // Filter guidance system

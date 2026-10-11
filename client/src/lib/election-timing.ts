@@ -125,3 +125,28 @@ export function splitDuration(ms: number): TimeParts {
   const s = Math.max(0, Math.floor(ms / 1000));
   return { days: Math.floor(s / 86400), hours: Math.floor((s % 86400) / 3600), minutes: Math.floor((s % 3600) / 60), seconds: s % 60 };
 }
+
+/** Fallback when a race has no known zone: UTC-11 keeps a date "today" until every US poll has closed. */
+const WESTERNMOST_OFFSET_MS = 11 * 60 * 60 * 1000;
+
+/** Today's calendar date as yyyymmdd in `zone` (or the UTC-11 fallback). */
+function calendarKeyNow(now: Date, zone: string | null): number {
+  if (zone) {
+    const parts = new Intl.DateTimeFormat("en-US", { timeZone: zone, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(now);
+    const get = (t: string) => Number(parts.find(p => p.type === t)?.value);
+    return get("year") * 10000 + get("month") * 100 + get("day");
+  }
+  const shifted = new Date(now.getTime() - WESTERNMOST_OFFSET_MS);
+  return shifted.getUTCFullYear() * 10000 + (shifted.getUTCMonth() + 1) * 100 + shifted.getUTCDate();
+}
+
+/**
+ * True while the election's date has not passed in its own time zone. Same rule
+ * as the server's upcoming filter (lane C): a Nov 3 Hawaii race stays upcoming
+ * after midnight UTC and after midnight Eastern.
+ */
+export function isUpcomingElection(election: ElectionTimingInput, now: Date = new Date()): boolean {
+  const [y, m, d] = electionCalendarDate(election.date);
+  const zone = isValidZone(election.timezone) ? election.timezone : null;
+  return y * 10000 + m * 100 + d >= calendarKeyNow(now, zone);
+}
