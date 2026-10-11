@@ -11,7 +11,7 @@ import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import CongressAdminPage from '../client/src/pages/congress-admin';
 import { queryClient as appQueryClient } from '../client/src/lib/queryClient';
-import { actualMembersResponseBytes, actualReceipt } from './helpers/congress-api-rows';
+import { actualMembersResponseBytes, actualReceipt, defaultScopeMemberRows } from './helpers/congress-api-rows';
 
 const memberBytes = actualMembersResponseBytes();
 const receipt = actualReceipt() as ReturnType<typeof actualReceipt> & {
@@ -70,6 +70,18 @@ describe('Congress admin counts on the actual /api/members response', () => {
     }
     expect(screen.queryByText(/^R: /)).not.toBeInTheDocument();
     expect(screen.getByText('• 1 House record(s) with no recognized seat')).toBeInTheDocument();
+  });
+
+  it('server default scope (PR #34): no data issues and nothing excluded', async () => {
+    server.use(http.get('/api/members', () => HttpResponse.json(defaultScopeMemberRows())));
+    renderPage();
+    await screen.findByText('Party Breakdown');
+    const text = document.body.textContent!;
+    expect(text).toContain('119th Congress Member Records539');
+    expect(text).not.toContain('from other Congresses');
+    expect(text).toContain('433 of 435 voting seats');
+    expect(screen.queryByText('Data Issues Detected:')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Party not recorded/)).not.toBeInTheDocument();
   });
 
   it('a members load failure is an error, not zero counts', async () => {

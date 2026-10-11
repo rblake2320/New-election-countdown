@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { AlertCircle, Users, Search, RefreshCw } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { SEATS, composition, compositionIssues, fetchMembers } from '@/lib/congress-members';
+import { SEATS, composition, compositionIssues, fetchMembers, ordinal } from '@/lib/congress-members';
 
 /**
  * POST an admin Congress route and return its JSON only on 2xx. Refusals (422 unverified
@@ -134,7 +134,7 @@ export default function CongressAdminPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{stats.congress}th Congress Member Records</CardTitle>
+                <CardTitle className="text-sm font-medium">{ordinal(stats.congress)} Congress Member Records</CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>

@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { loadOfficialCongressSnapshot } from '../../server/congress-official-import';
+import { filterMembers as serverScope } from '../../server/congress-members-routes';
 
 // Vitest runs from the repository root (import.meta.url is not a file path under jsdom).
 const fixture = (name: string) => readFileSync(resolve(process.cwd(), 'tests/fixtures/congress-members', name));
@@ -27,6 +28,12 @@ export type ApiMemberRow = {
 };
 
 export const actualMemberRows = (): ApiMemberRow[] => JSON.parse(actualMembersResponseBytes().toString('utf8'));
+
+/**
+ * GET /api/members after PR #34: the server's own default-scope filter ('current')
+ * applied to the same actual rows, serialized as res.json does. 539 rows.
+ */
+export const defaultScopeMemberRows = (): ApiMemberRow[] => serverScope(actualMemberRows(), 'current');
 
 /** Actual admin-route responses recorded in the same run (legacy 422 refusals, 401/403). */
 export function actualReceipt(): {

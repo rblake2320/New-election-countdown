@@ -10,8 +10,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PARTY_OPTIONS } from "@/lib/filter-codes";
 import {
-  composition, currentCongress, fetchMembers, filterMembers as applyMemberFilters, inCongress, memberPartyLabel,
-  partyCode, seatLabel, type CongressMemberRow,
+  composition, fetchMembers, filterMembers as applyMemberFilters, inCongress, latestCongress, memberPartyLabel,
+  ordinal, partyCode, seatLabel, type CongressMemberRow,
 } from "@/lib/congress-members";
 
 // Light chips with dark text pass WCAG AA contrast in both themes.
@@ -61,8 +61,9 @@ export function CongressData() {
     queryKey: ['/api/members'],
     queryFn: ({ signal }) => fetchMembers('/api/members', signal),
   });
-  // /api/members returns every Congress the table holds; this page lists the sitting one.
-  const congress = currentCongress();
+  // The server's default scope is its current roster; older builds returned every
+  // Congress in the table, so the list is still limited to the roster's Congress.
+  const congress = latestCongress(membersQuery.data ?? []);
   const members = membersQuery.data ? inCongress(membersQuery.data, congress) : undefined;
 
   // The server only accepts two-letter codes; don't send partial input.
@@ -261,10 +262,10 @@ export function CongressData() {
                 <CardTitle>All Members</CardTitle>
                 <CardDescription>
                   {counts && counts.total > 0
-                    ? `${congress}th Congress: ${counts.senate} senators, ${counts.houseVoting} voting representatives, ${counts.houseNonVoting} nonvoting House members`
+                    ? `${ordinal(congress)} Congress: ${counts.senate} senators, ${counts.houseVoting} voting representatives, ${counts.houseNonVoting} nonvoting House members`
                       + (counts.total > counts.senate + counts.houseVoting + counts.houseNonVoting
                         ? `, ${counts.total - counts.senate - counts.houseVoting - counts.houseNonVoting} without a recognized seat` : "")
-                    : `${congress}th Congress House and Senate members`}
+                    : "House and Senate members"}
                 </CardDescription>
               </CardHeader>
               <CardContent>

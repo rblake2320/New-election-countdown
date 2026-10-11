@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Search, User, MapPin, Loader2 } from 'lucide-react';
-import { currentCongress, fetchMembers, inCongress, memberPartyLabel, partyCode, seatLabel } from '@/lib/congress-members';
+import { currentCongress, fetchMembers, memberPartyLabel, ordinal, partyCode, seatLabel } from '@/lib/congress-members';
 
 // Searches the member records already in the database. Adding members is done only
 // by the source-bound Congress import, so this public search offers no write.
@@ -19,7 +19,9 @@ export function CongressMemberSearch() {
     queryFn: ({ signal }) => fetchMembers(`/api/members/search?q=${encodeURIComponent(term)}`, signal),
   });
   const searchLoading = searchQuery.isFetching;
-  const searchResults = searchQuery.data ? inCongress(searchQuery.data, currentCongress()) : [];
+  const searchResults = searchQuery.data ?? [];
+  // Search covers every Congress the table holds; earlier Congresses are labelled, not hidden.
+  const sitting = currentCongress();
 
   // Results update as you type; the button and Enter re-run the current search.
   const handleSearch = () => {
@@ -87,6 +89,7 @@ export function CongressMemberSearch() {
                             <div className="flex items-center gap-2 text-sm text-gray-600">
                               <MapPin className="h-3 w-3 shrink-0" />
                               {member.state} · {seatLabel(member)}
+                              {member.congress != null && member.congress !== sitting && ` · ${ordinal(member.congress)} Congress`}
                             </div>
                           </div>
                         </div>
@@ -99,7 +102,7 @@ export function CongressMemberSearch() {
                 </div>
               ) : searchQuery.isSuccess && !searchLoading ? (
                 <p className="text-center py-6 text-gray-600">
-                  No current members match "{term}".
+                  No members match "{term}".
                 </p>
               ) : null}
             </div>

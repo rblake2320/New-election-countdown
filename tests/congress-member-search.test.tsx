@@ -63,18 +63,20 @@ describe('CongressMemberSearch on actual member rows', () => {
     expect(within(card).getByText('Democratic').className).toContain('bg-blue-100');
   });
 
-  it('does not list a preserved 118th-Congress row as a current member', async () => {
+  it('labels a 118th-Congress row with its Congress instead of presenting it as sitting', async () => {
     renderSearch();
     search('preservation fixture');
-    const current = await screen.findByText('Synthetic legacy preservation fixture');
-    expect(within(current.closest('div.p-3') as HTMLElement).getByText('ZZ · Seat not recorded')).toBeInTheDocument();
-    expect(screen.queryByText('Synthetic historical preservation fixture')).not.toBeInTheDocument();
+    const current = (await screen.findByText('Synthetic legacy preservation fixture')).closest('div.p-3') as HTMLElement;
+    expect(current.textContent).toContain('ZZ · Seat not recorded');
+    expect(current.textContent).not.toContain('Congress');
+    const history = screen.getByText('Synthetic historical preservation fixture').closest('div.p-3') as HTMLElement;
+    expect(history.textContent).toContain('ZZ · Senator · 118th Congress');
   });
 
   it('no match says so and offers no database write', async () => {
     renderSearch();
     search('Zzyzx');
-    expect(await screen.findByText('No current members match "Zzyzx".')).toBeInTheDocument();
+    expect(await screen.findByText('No members match "Zzyzx".')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Add to Database/i })).not.toBeInTheDocument();
     expect(writes).toBe(0);
   });
@@ -85,7 +87,7 @@ describe('CongressMemberSearch on actual member rows', () => {
     search('Schumer');
     const alert = await screen.findByRole('alert');
     expect(alert).toHaveTextContent('Search could not be completed, so no results are shown.');
-    expect(screen.queryByText(/No current members match/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/No members match/)).not.toBeInTheDocument();
     server.resetHandlers();
     fireEvent.click(within(alert).getByRole('button', { name: 'Try again' }));
     expect(await screen.findByText('Charles E. Schumer')).toBeInTheDocument();

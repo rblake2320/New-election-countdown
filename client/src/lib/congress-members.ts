@@ -97,11 +97,27 @@ export interface Composition {
   duplicateHouseSeats: string[];
 }
 
+/**
+ * The roster's Congress: the latest Congress number present in the rows (the server's
+ * default scope is its current roster). Falls back to the calendar when no row says,
+ * so a roster not yet re-imported after January 3 is shown as what it is, not hidden.
+ */
+export function latestCongress(rows: CongressMemberRow[], now: Date = new Date()): number {
+  const ns = rows.map(r => r.congress).filter((n): n is number => typeof n === "number" && Number.isFinite(n));
+  return ns.length ? Math.max(...ns) : currentCongress(now);
+}
+
+export function ordinal(n: number): string {
+  const teen = n % 100 >= 11 && n % 100 <= 13;
+  const suffix = teen ? "th" : ({ 1: "st", 2: "nd", 3: "rd" } as Record<number, string>)[n % 10] ?? "th";
+  return `${n}${suffix}`;
+}
+
 /** Rows that belong to the given Congress (rows with no Congress recorded are kept). */
 export const inCongress = <T extends CongressMemberRow>(members: T[], congress: number): T[] =>
   members.filter(m => m.congress == null || m.congress === congress);
 
-export function composition(rows: CongressMemberRow[], congress: number = currentCongress()): Composition {
+export function composition(rows: CongressMemberRow[], congress: number = latestCongress(rows)): Composition {
   const members = inCongress(rows, congress);
   const out: Composition = {
     congress, total: members.length, otherCongress: rows.length - members.length,

@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import {
-  SEATS, composition, compositionIssues, currentCongress, filterMembers, inCongress, memberPartyLabel, partyCode, seatLabel,
+  SEATS, composition, compositionIssues, currentCongress, filterMembers, inCongress, latestCongress, memberPartyLabel,
+  ordinal, partyCode, seatLabel,
 } from '../client/src/lib/congress-members';
-import { actualMemberRows, officialVacancies } from './helpers/congress-api-rows';
+import { actualMemberRows, defaultScopeMemberRows, officialVacancies } from './helpers/congress-api-rows';
 
 const rows = actualMemberRows();
 const current = inCongress(rows, 119);
@@ -80,6 +81,24 @@ describe('Congress member helpers on the actual GET /api/members response (541 r
     expect(composition([
       { chamber: 'House', state: 'NY', district: '3' }, { chamber: 'House', state: 'NY', district: '03' },
     ], 119).duplicateHouseSeats).toEqual(['NY-3: 2 records for one seat']);
+  });
+
+  it('server default scope (PR #34) leaves exactly the 539 official members and a clean composition', () => {
+    const scoped = defaultScopeMemberRows();
+    expect(scoped).toHaveLength(539);
+    const c = composition(scoped);
+    expect(c).toMatchObject({ congress: 119, total: 539, otherCongress: 0, senate: 100, houseVoting: 433, houseNonVoting: 6, unrecognizedHouseSeat: 0 });
+    expect(compositionIssues(c)).toEqual([]);
+    expect(c.byParty).toEqual({ Republican: 274, Democratic: 262, Independent: 3 });
+  });
+
+  it('takes the roster Congress from the rows, so an un-reimported roster is never hidden', () => {
+    expect(latestCongress(rows)).toBe(119);
+    // On Jan 3, 2027 the calendar says 120, but a 119th roster is still shown as the 119th.
+    expect(composition(rows.filter(r => r.congress === 119)).total).toBe(540);
+    expect(latestCongress([], new Date('2027-02-01T00:00:00Z'))).toBe(120);
+    expect([1, 2, 3, 4, 11, 12, 13, 21, 101, 111, 112, 118, 119, 120, 122, 123].map(ordinal)).toEqual(
+      ['1st', '2nd', '3rd', '4th', '11th', '12th', '13th', '21st', '101st', '111th', '112th', '118th', '119th', '120th', '122nd', '123rd']);
   });
 
   it('derives the sitting Congress from the date, turning over on January 3 of odd years', () => {

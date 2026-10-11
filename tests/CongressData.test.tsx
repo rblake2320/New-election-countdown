@@ -15,7 +15,7 @@ import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { CongressData } from '../client/src/components/congress-data.jsx';
 import { queryClient as appQueryClient } from '../client/src/lib/queryClient';
-import { actualMemberRows, actualMembersResponseBytes } from './helpers/congress-api-rows';
+import { actualMemberRows, actualMembersResponseBytes, defaultScopeMemberRows } from './helpers/congress-api-rows';
 
 const memberBytes = actualMembersResponseBytes();
 const members = actualMemberRows();
@@ -68,6 +68,13 @@ describe('CongressData members on the actual /api/members response', () => {
     // 540 current rows; the 118th-Congress preservation row is not listed as a sitting member.
     expect(screen.getByText('Showing 540 of 540 members')).toBeInTheDocument();
     expect(screen.queryByText('Synthetic historical preservation fixture')).not.toBeInTheDocument();
+  });
+
+  it('server default scope (PR #34): 539 official members with no unrecognized seats', async () => {
+    server.use(http.get('/api/members', () => HttpResponse.json(defaultScopeMemberRows(), { headers: { 'X-Congress-Scope': 'current' } })));
+    renderWithClient(<CongressData />, { prime: false });
+    expect(await screen.findByText('Showing 539 of 539 members')).toBeInTheDocument();
+    expect(screen.getByText('119th Congress: 100 senators, 433 voting representatives, 6 nonvoting House members')).toBeInTheDocument();
   });
 
   it('fetches the same bytes over HTTP when the cache is empty', async () => {
