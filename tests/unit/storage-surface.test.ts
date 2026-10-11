@@ -17,7 +17,6 @@ const KNOWN_GAPS = new Set([
   "updateCandidate",
   "updateElection",
   "updateCandidateResults",
-  "getUserNotificationDeliveries",
 ]);
 
 function referencedMethods(): Set<string> {
