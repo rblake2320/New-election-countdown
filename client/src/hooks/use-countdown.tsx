@@ -8,7 +8,7 @@ export function useCountdown(election: ElectionTimingInput) {
   const schedule = useMemo(
     () => getElectionSchedule(election),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [String(election.date), election.pollsOpen, election.pollsClose, election.timezone],
+    [String(election.date), election.pollsOpen, election.pollsClose, election.timezone, election.pollCloseKind, election.pollHoursBasis],
   );
   const timing = phaseAt(schedule, new Date(now));
   const remaining = splitDuration(timing.target ? timing.target.getTime() - now : 0);

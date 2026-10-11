@@ -9,6 +9,13 @@ interface CountdownTimerProps {
   className?: string;
 }
 
+const PRECISION_NOTE: Record<string, string> = {
+  exact: "",
+  unverified: " · poll hours not yet verified",
+  local_variable: " · closing times vary locally",
+  unpublished: " · poll hours not yet published",
+};
+
 const PHASE_STYLES: Record<string, string> = {
   "polls-open": "text-green-700 dark:text-green-400",
   "election-day": "text-green-700 dark:text-green-400",
@@ -47,7 +54,10 @@ export function CountdownTimer({ election, size = "md", className }: CountdownTi
         ))}
       </div>
       <div className="mt-1 text-xs font-sans text-muted-foreground">
-        {t.targetLabel}{t.approximate ? " · poll hours not yet published" : ""}
+        {t.targetLabel}{PRECISION_NOTE[t.precision]}
+        {election.pollHoursSource && (
+          <> · <a href={election.pollHoursSource} target="_blank" rel="noopener noreferrer" className="underline">source</a></>
+        )}
       </div>
     </div>
   );
