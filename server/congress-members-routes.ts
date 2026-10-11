@@ -56,6 +56,54 @@ export function isCongressJurisdiction(code: string): boolean {
   return JURISDICTION_SET.has(code);
 }
 
+/** Party is stored as a code (R / D / I); callers search by label or code. */
+export const PARTY_ALIASES: Readonly<Record<string, string>> = Object.freeze({
+  d: 'D', dem: 'D', democrat: 'D', democratic: 'D', democrats: 'D',
+  r: 'R', rep: 'R', gop: 'R', republican: 'R', republicans: 'R',
+  i: 'I', ind: 'I', independent: 'I', independents: 'I',
+});
+export const SEARCH_LIMIT = 50;
+
+function fold(s: string): string {
+  return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+}
+
+/**
+ * Search the given rows for a free-text term. Each clause is exact where the column is a
+ * code (party, state, Bioguide id) and a diacritic-insensitive substring where it is a
+ * name; the clauses are OR'd, like the search box promises.
+ */
+export function searchMembers<T extends CongressMemberRow>(rows: T[], term: string): T[] {
+  const q = fold(term);
+  if (!q) return [];
+  const party = PARTY_ALIASES[q] ?? null;
+  const upper = term.trim().toUpperCase();
+  const state = isCongressJurisdiction(upper) ? upper : null;
+  const bioguide = BIOGUIDE_RE.test(upper) ? upper : null;
+  // A one- or two-letter term is a code (party / state), not a name fragment: "d" must
+  // not return every member whose name contains a d.
+  const nameQ = q.length >= 3 ? q : null;
+  const out: T[] = [];
+  for (const r of rows) {
+    const hit =
+      (party !== null && (r.party ?? '').toUpperCase() === party) ||
+      (state !== null && (r.state ?? '').toUpperCase() === state) ||
+      (bioguide !== null && (r.bioguideId ?? '').toUpperCase() === bioguide) ||
+      (nameQ !== null && fold(r.name ?? '').includes(nameQ));
+    if (hit) {
+      out.push(r);
+      if (out.length >= SEARCH_LIMIT) break;
+    }
+  }
+  return out;
+}
+
+function unavailable(res: Response, context: string, error: unknown): void {
+  console.error(`Error ${context}:`, error instanceof Error ? error.message : String(error));
+  // 503, not 200 []: an empty list would claim the roster has nobody.
+  res.status(503).json({ error: 'members_unavailable', message: 'Congress members could not be read' });
+}
+
 function send(res: Response, scope: MemberScope, rows: CongressMemberRow[]): void {
   res.setHeader('X-Congress-Scope', scope);
   res.setHeader('X-Congress-Number', String(CURRENT_CONGRESS));
@@ -71,8 +119,21 @@ export function registerCongressMembersRoutes(app: Express, listMembers: () => P
       if (!scope) return res.status(400).json({ error: 'invalid_scope', allowed: SCOPES });
       send(res, scope, filterMembers(await listMembers(), scope));
     } catch (error) {
-      console.error('Error fetching members:', error instanceof Error ? error.message : String(error));
-      res.status(500).json({ error: 'members_unavailable', message: 'Congress members could not be read' });
+      unavailable(res, 'fetching members', error);
+    }
+  });
+
+  // Registered before /api/members/:state so "search" is never read as a jurisdiction.
+  app.get('/api/members/search', async (req: Request, res: Response) => {
+    try {
+      const raw = req.query.q ?? req.query.searchTerm;
+      const term = typeof raw === 'string' ? raw.trim() : '';
+      if (!term) return res.status(400).json({ error: 'search_term_required', message: 'Search query is required' });
+      const scope = parseScope(req.query.scope);
+      if (!scope) return res.status(400).json({ error: 'invalid_scope', allowed: SCOPES });
+      send(res, scope, searchMembers(filterMembers(await listMembers(), scope), term));
+    } catch (error) {
+      unavailable(res, 'searching members', error);
     }
   });
 
@@ -87,8 +148,7 @@ export function registerCongressMembersRoutes(app: Express, listMembers: () => P
       const rows = filterMembers(await listMembers(), scope).filter((r) => String(r.state ?? '').toUpperCase() === code);
       send(res, scope, rows);
     } catch (error) {
-      console.error('Error fetching members by jurisdiction:', error instanceof Error ? error.message : String(error));
-      res.status(500).json({ error: 'members_unavailable', message: 'Congress members could not be read' });
+      unavailable(res, 'fetching members by jurisdiction', error);
     }
   });
 }
