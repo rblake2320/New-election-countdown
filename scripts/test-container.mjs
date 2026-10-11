@@ -73,6 +73,26 @@ try {
   report.boundary = await docker('exec', app, 'node', '-e',
     `const fs=require('fs');for(const p of ['node_modules/vite','node_modules/vitest','node_modules/@playwright/test','node_modules/tailwindcss','server','shared'])if(fs.existsSync(p))throw Error('Unexpected runtime path '+p);console.log('production-only paths verified')`);
   report.imageId = await docker('inspect', '--format', '{{.Image}}', app);
+  if (process.env.TEST_USER_FLOW === '1') {
+    const userProbe = `
+      const base='http://127.0.0.1:5000';
+      const registration=await fetch(base+'/api/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:'integration-user@example.test',password:'Disposable-Fixture-2026!'})});
+      if(!registration.ok)throw Error('Registration status '+registration.status);
+      const cookie=registration.headers.getSetCookie().map(c=>c.split(';')[0]).join('; ');
+      if(!cookie)throw Error('Registration did not create a session cookie');
+      const results=[{path:'/api/auth/register',status:registration.status}];
+      for(const path of ['/api/auth/me','/api/auth/dashboard','/api/recommendations','/api/watchlist']){
+        const response=await fetch(base+path,{headers:{Cookie:cookie}});
+        if(response.status!==200)throw Error(path+' status '+response.status);
+        const body=await response.json();
+        if(path==='/api/auth/me'&&body.user.role!=='user')throw Error('Missing ordinary-user role');
+        if(path==='/api/auth/dashboard'&&body.user.emailVerified!==false)throw Error('New account email verification status is incorrect');
+        results.push({path,status:response.status});
+      }
+      console.log(JSON.stringify(results));
+    `;
+    report.userFlow = JSON.parse(await docker('exec', app, 'node', '-e', userProbe));
+  }
   if (process.env.TEST_ELECTION_TIMEZONE === '1') {
     // Fixture script refuses any database other than this dedicated name.
     // This database exists only inside this harness-owned disposable container.
