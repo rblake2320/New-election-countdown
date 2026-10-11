@@ -101,8 +101,13 @@ export function planNomineeRefresh(m:NomineeManifest,elections:RaceRow[],candida
 }
 
 /** A retrieval timestamp cannot make an older (or undated) publication newer. */
-function assertPublicationFresh(incoming:string|null,previous:unknown):void {
-  if(typeof previous==='string' && /^\d{4}-\d{2}-\d{2}$/.test(previous) && (!incoming || incoming<previous))throw new Error('Older or undated publication cannot replace a newer current general list');
+function assertPublicationFresh(incoming:string|null,previous:unknown,observed:string,previousObserved:unknown):void {
+  const previousPublication=typeof previous==='string' && /^\d{4}-\d{2}-\d{2}$/.test(previous)?previous:null;
+  if(previousPublication && (!incoming || incoming<previousPublication))throw new Error('Older or undated publication cannot replace a newer current general list');
+  // When publication dates cannot distinguish snapshots, an older observation
+  // cannot undo newer list facts. Publication precedence wins when dates differ.
+  const previousTime=previousObserved instanceof Date?previousObserved.getTime():typeof previousObserved==='string'?new Date(previousObserved).getTime():NaN;
+  if(incoming===previousPublication && Number.isFinite(previousTime) && new Date(observed).getTime()<previousTime)throw new Error('Older source observation cannot replace a newer general-list snapshot');
 }
 
 async function runNomineeRefreshOnce(pool:Pool,m:NomineeManifest,manifestSha:string,apply:boolean):Promise<NomineePlan>{
@@ -122,10 +127,10 @@ async function runNomineeRefreshOnce(pool:Pool,m:NomineeManifest,manifestSha:str
       if(apply)throw new Error('Resolve all identity/race conflicts before applying a complete nominee snapshot');
       await client.query('ROLLBACK');return plan;
     }
-    const previousByAction=new Map<NomineeAction,Array<{id:number,source_file_sha256:string,metadata:Record<string,unknown>}>>();
+    const previousByAction=new Map<NomineeAction,Array<{id:number,source_file_sha256:string,source_synced_at:Date,metadata:Record<string,unknown>}>>();
     for(const a of plan.actions){
-      const previous=a.candidateId!=null && tables.sources?(await client.query('SELECT id,source_file_sha256,metadata FROM candidate_source_records WHERE candidate_id=$1 AND source_layer=$2 AND is_current=true',[a.candidateId,'general_candidate_list'])).rows:[];
-      for(const record of previous)assertPublicationFresh(a.source.publishedAt,record.metadata?.publishedAt);
+      const previous=a.candidateId!=null && tables.sources?(await client.query('SELECT id,source_file_sha256,source_url,source_synced_at,metadata FROM candidate_source_records WHERE candidate_id=$1 AND source_layer=$2 AND is_current=true',[a.candidateId,'general_candidate_list'])).rows:[];
+      for(const record of previous)assertPublicationFresh(a.source.publishedAt,record.metadata?.publishedAt,a.source.retrievedAt,record.source_synced_at);
       previousByAction.set(a,previous);
     }
     // Preflight every receiving scope before inserting even a disjoint new identity.
@@ -134,16 +139,16 @@ async function runNomineeRefreshOnce(pool:Pool,m:NomineeManifest,manifestSha:str
       const raceIds=elections.filter(e=>raceKey(e)===`${source.state}|${scope.office}|${scope.district}|${source.electionDate}`).map(e=>e.id);
       if(raceIds.length!==1)throw new Error('Complete scope has no unique receiving race');
       const electionId=raceIds[0];
-      const current=tables.sources?(await client.query(`SELECT s.metadata FROM candidate_source_records s JOIN candidates c ON c.id=s.candidate_id WHERE c.election_id=$1 AND s.source_layer='general_candidate_list' AND s.is_current=true
+      const current=tables.sources?(await client.query(`SELECT s.metadata,s.source_synced_at FROM candidate_source_records s JOIN candidates c ON c.id=s.candidate_id WHERE c.election_id=$1 AND s.source_layer='general_candidate_list' AND s.is_current=true
         AND ($2::text IS NULL OR s.metadata->>'partyKey'=$2) AND ($3::text IS NULL OR s.metadata->>'ballotAccessType'=$3)`,[electionId,scope.partyRaw?partyKey(scope.partyRaw):null,scope.ballotAccessType??null])).rows:[];
-      for(const record of current)assertPublicationFresh(source.publishedAt,record.metadata?.publishedAt);
+      for(const record of current)assertPublicationFresh(source.publishedAt,record.metadata?.publishedAt,source.retrievedAt,record.source_synced_at);
       // Superseded broad scopes remain freshness watermarks for untouched facets.
-      const snapshots=tables.snapshots?(await client.query('SELECT id,scope_key,source_url,source_file_sha256,is_current,metadata FROM general_candidate_list_snapshots WHERE election_id=$1',[electionId])).rows:[];
+      const snapshots=tables.snapshots?(await client.query('SELECT id,scope_key,source_url,source_file_sha256,source_synced_at,is_current,metadata FROM general_candidate_list_snapshots WHERE election_id=$1',[electionId])).rows:[];
       const overlappingHistory=snapshots.filter(record=>{
         const old=record.metadata.scope;
         return old.office===scope.office && old.district===scope.district && (!old.partyRaw || !scope.partyRaw || partyKey(old.partyRaw)===partyKey(scope.partyRaw)) && (!old.ballotAccessType || !scope.ballotAccessType || old.ballotAccessType===scope.ballotAccessType);
       });
-      for(const record of overlappingHistory)assertPublicationFresh(source.publishedAt,record.metadata.publishedAt);
+      for(const record of overlappingHistory)assertPublicationFresh(source.publishedAt,record.metadata.publishedAt,source.retrievedAt,record.source_synced_at);
       const overlaps=overlappingHistory.filter(record=>record.is_current===true);
       receivingScopes.push({source,scope,electionId,overlaps});
     }
@@ -157,7 +162,12 @@ async function runNomineeRefreshOnce(pool:Pool,m:NomineeManifest,manifestSha:str
       }
       // Existing profile, FEC and ballot fields are never overwritten.
       const previous=previousByAction.get(a)??[];
-      if(previous.length===1 && previous[0].source_file_sha256===a.versionSha)continue;
+      if(previous.length===1 && previous[0].source_file_sha256===a.versionSha){
+        if(new Date(a.source.retrievedAt).getTime()>new Date(previous[0].source_synced_at).getTime()){
+          await client.query('UPDATE candidate_source_records SET source_synced_at=$2 WHERE id=$1',[previous[0].id,a.source.retrievedAt]);sourceChanges++;
+        }
+        continue;
+      }
       await client.query("UPDATE candidate_source_records SET is_current=false WHERE candidate_id=$1 AND source_layer='general_candidate_list' AND source_url=$2 AND is_current=true",[a.candidateId,a.source.url]);
       const metadata={electionId:a.electionId,state:a.record.state,office:a.record.office,district:a.record.district,electionDate:a.record.date,sourceId:a.source.id,sourceName:a.source.name,sourceKind:a.source.kind,documentSha256:a.source.sha256,publishedAt:a.source.publishedAt,partyRaw:a.record.partyRaw,partyValue:party(a.record.partyRaw)??'',partyKey:partyKey(a.record.partyRaw),partyBasis:/^\(Prefers /i.test(a.record.partyRaw)?'preference':a.record.partyRaw.toLowerCase()==='by petition'?'filing_method':'source_label',incumbent:a.record.incumbent??null,sourcePage:a.record.sourcePage??null,ticketText:a.record.ticketText??null,ballotName:a.record.ballotName??null,legalName:a.record.name,aliases:a.record.aliases??[],ballotAccessType:a.record.ballotAccessType??'not_specified',ballotCertificationPromoted:false};
       await client.query(`INSERT INTO candidate_source_records(candidate_id,source_layer,source_url,source_file_sha256,source_synced_at,metadata,is_current)
@@ -173,7 +183,10 @@ async function runNomineeRefreshOnce(pool:Pool,m:NomineeManifest,manifestSha:str
       const deactivated=await client.query(`UPDATE candidate_source_records s SET is_current=false FROM candidates c WHERE s.candidate_id=c.id AND c.election_id=$1 AND s.source_layer='general_candidate_list' AND s.is_current=true
         AND (NOT(c.id=ANY($2::int[])) OR s.source_url<>$4 OR s.source_file_sha256<>$5) AND ($3::text IS NULL OR s.metadata->>'partyKey'=$3)
         AND ($6::text IS NULL OR s.metadata->>'ballotAccessType'=$6)`,[electionId,keep,scope.partyRaw?partyKey(scope.partyRaw):null,source.url,versionSha,scope.ballotAccessType??null]);sourceChanges+=deactivated.rowCount??0;
-      if(overlaps.length===1 && overlaps[0].scope_key===scopeKey && overlaps[0].source_url===source.url && overlaps[0].source_file_sha256===versionSha)continue;
+      if(overlaps.length===1 && overlaps[0].scope_key===scopeKey && overlaps[0].source_url===source.url && overlaps[0].source_file_sha256===versionSha){
+        if(new Date(source.retrievedAt).getTime()>new Date(overlaps[0].source_synced_at).getTime())await client.query('UPDATE general_candidate_list_snapshots SET source_synced_at=$2 WHERE id=$1',[overlaps[0].id,source.retrievedAt]);
+        continue;
+      }
       if(overlaps.length)await client.query('UPDATE general_candidate_list_snapshots SET is_current=false WHERE id=ANY($1::int[])',[overlaps.map(r=>r.id)]);
       await client.query(`INSERT INTO general_candidate_list_snapshots(election_id,scope_key,source_url,source_file_sha256,source_synced_at,metadata,is_current)
         VALUES($1,$2,$3,$4,$5,$6::jsonb,true) ON CONFLICT(election_id,scope_key,source_url,source_file_sha256)

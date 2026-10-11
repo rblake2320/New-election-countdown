@@ -8,7 +8,7 @@ The refresh stores official general-election list membership separately from FEC
 
 Each source declares its extracted row count and any complete office/district/party/access scopes. A refresh refuses malformed, overlapping, duplicate or unresolved input. Sources must be HTTPS government URLs, with one explicit exception for NC's government-linked election bucket. Only reviewed aliases printed in the source may match a differently named existing record.
 
-An explicitly complete scope may supersede old list membership. Its source proof persists in `general_candidate_list_snapshots` even when zero candidates are listed, so the API distinguishes a recorded empty list from missing data. Older or undated publications cannot displace a known newer publication, including disjoint rosters and changed source URLs. The public projection selects the newest known publication before retrieval time. Two official rows cannot resolve to one existing identity.
+An explicitly complete scope may supersede old list membership. Its source proof persists in `general_candidate_list_snapshots` even when zero candidates are listed, so the API distinguishes a recorded empty list from missing data. Older or undated publications cannot displace a known newer publication, including disjoint rosters and changed source URLs. Equal or unknown publication dates use observation time to prevent an older retrieved snapshot from restoring superseded facts. Historical broad-scope watermarks remain effective after narrower updates. The public projection selects the newest known publication before retrieval time. Two official rows cannot resolve to one existing identity.
 
 The refresh does not delete candidate profiles, infer withdrawal, promote certification or overwrite another evidence layer. Both candidate writers share an advisory transaction lock. Application, scope snapshots and its audit receipt commit together in a serializable transaction; failures roll back the entire refresh.
 
@@ -22,6 +22,8 @@ npx tsx scripts/refresh_general_candidates.ts data/nominees/combined-2026-review
 ```
 
 The default mode enforces a read-only database session and transaction. Review the manifest digest, source classifications, counts and every unresolved identity before applying the exact same file:
+
+Reviewed JSON uses LF line endings through `.gitattributes`, so Windows checkout preserves the exact manifest and retained-response digests. A branch checkout initially changed the manifest's bytes through CRLF conversion; the explicit attributes restored the reviewed digest and the targeted checkout check verifies it.
 
 ```powershell
 npx tsx scripts/refresh_general_candidates.ts data/nominees/combined-2026-reviewed.json --apply --expect-sha256=<reviewed-manifest-sha256>
