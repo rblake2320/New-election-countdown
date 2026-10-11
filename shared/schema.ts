@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar, numeric, bigint, index } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar, numeric, bigint, index, uniqueIndex } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -66,6 +66,31 @@ export const candidates = pgTable("candidates", {
   index("idx_candidates_ballot_status").on(table.ballotStatus),
   index("idx_candidates_election_normalized").on(table.electionId, table.normalizedName),
 ]);
+
+// Source layers are independent: a filing must never replace ballot/nominee provenance.
+export const candidateSourceRecords = pgTable("candidate_source_records", {
+  id: serial("id").primaryKey(),
+  candidateId: integer("candidate_id").notNull().references(() => candidates.id),
+  sourceLayer: text("source_layer").notNull(),
+  sourceUrl: text("source_url").notNull(),
+  sourceFileSha256: text("source_file_sha256").notNull(),
+  sourceSyncedAt: timestamp("source_synced_at", { withTimezone: true }).notNull(),
+  firstObservedAt: timestamp("first_observed_at", { withTimezone: true }).notNull().defaultNow(),
+  isCurrent: boolean("is_current").notNull().default(true),
+  metadata: jsonb("metadata").notNull(),
+}, table => [
+  uniqueIndex("idx_candidate_source_version").on(table.candidateId, table.sourceLayer, table.sourceUrl, table.sourceFileSha256),
+  uniqueIndex("idx_candidate_source_current").on(table.candidateId, table.sourceLayer, table.sourceUrl).where(sql`${table.isCurrent} = true`),
+]);
+
+export const candidateIngestRuns = pgTable("candidate_ingest_runs", {
+  id: serial("id").primaryKey(),
+  sourceLayer: text("source_layer").notNull(),
+  sourceUrl: text("source_url").notNull(),
+  sourceFileSha256: text("source_file_sha256").notNull(),
+  appliedAt: timestamp("applied_at", { withTimezone: true }).notNull(),
+  receipt: jsonb("receipt").notNull(),
+});
 
 export const electionResults = pgTable("election_results", {
   id: serial("id").primaryKey(),
