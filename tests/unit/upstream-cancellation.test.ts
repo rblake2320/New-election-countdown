@@ -59,6 +59,42 @@ describe("signal linkage", () => {
   });
 });
 
+describe("hanging BODY after headers (Sol: 450 active / 0 aborts at all three points)", () => {
+  /** Headers arrive, the body stream never yields; honours abort like undici. */
+  function hangingBodyTransport() {
+    const calls: { url: string; init: any }[] = [];
+    const fn = (url: string, init: any) => { calls.push({ url, init }); return Promise.resolve({ ok: true, status: 200, headers: new Map(),
+      body: { [Symbol.asyncIterator]() { return { next: () => new Promise<any>((_, reject) => { const s: AbortSignal | undefined = init?.signal; const onAbort = () => reject(Object.assign(new Error("aborted"), { name: "AbortError" })); if (s?.aborted) onAbort(); else s?.addEventListener("abort", onAbort, { once: true }); }) }; } },
+      text: () => new Promise(() => {}) }); };
+    return { fn, calls };
+  }
+  it("caller abort during the body read aborts the transport and settles", async () => {
+    const t = hangingBodyTransport(); setUpstreamFetch(t.fn);
+    const ac = new AbortController();
+    const r = await boundedUpstreamFetch("https://p.invalid/body", { signal: ac.signal }, { timeoutMs: 10_000 });
+    const p = r.text(); await tick(); expect(upstreamInFlight()).toBe(1);
+    ac.abort();
+    await expect(p).rejects.toBeInstanceOf(UpstreamAbortedError);
+    expect(t.calls[0].init.signal.aborted).toBe(true);
+    await tick(); expect(upstreamInFlight()).toBe(0);
+  });
+  it("the deadline still covers the body phase", async () => {
+    const t = hangingBodyTransport(); setUpstreamFetch(t.fn);
+    const r = await boundedUpstreamFetch("https://p.invalid/body2", {}, { timeoutMs: 80 });
+    await expect(r.text()).rejects.toBeInstanceOf(UpstreamTimeoutError);
+    expect(t.calls[0].init.signal.aborted).toBe(true);
+    await tick(); expect(upstreamInFlight()).toBe(0);
+  });
+  it("aggregator under budget with hanging bodies: all transports aborted, in-flight 0", async () => {
+    const t = hangingBodyTransport(); setUpstreamFetch(t.fn);
+    const svc = new CivicAggregatorService();
+    await withBudget("enrich", 150, (signal) => (svc as any).aggregateCandidateData("Jane Doe", "37", ["propublica", "fec", "openstates"], signal), null);
+    expect(t.calls.length).toBeGreaterThan(0);
+    for (const c of t.calls) expect(c.init.signal?.aborted, c.url).toBe(true);
+    await tick(50); expect(upstreamInFlight()).toBe(0);
+  });
+});
+
 describe("single-flight dedup with refcounted cancel", () => {
   it("shares one transport call across concurrent identical GETs", async () => {
     const t = transport({ body: '{"v":1}' }); setUpstreamFetch(t.fn);
