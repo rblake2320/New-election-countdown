@@ -14,7 +14,8 @@ try {
   await pool.query(`
     create table elections (id int primary key, title text not null, subtitle text, location text not null,
       state text not null, date timestamp not null, type text not null, level text not null,
-      offices text[], description text, polls_open text, polls_close text, timezone text, is_active boolean);
+      offices text[], description text, polls_open text, polls_close text, timezone text,
+      poll_close_kind text, poll_hours_basis text, poll_hours_source text, is_active boolean);
     create table candidates (id int primary key, election_id int, party text);
     insert into elections(id,title,location,state,date,type,level,timezone,is_active) values
       (1,'Timezone fixture East','Fixture','NY','2026-11-03','general','federal','America/New_York',true),
