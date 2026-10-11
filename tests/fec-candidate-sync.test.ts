@@ -54,7 +54,7 @@ describe('FEC sync identity, provenance and race safety', () => {
     expect(plan.unmatched[0].reason).toBe('ambiguous-race');
   });
   it('is a no-op for identical source and candidate metadata on a repeated run', () => {
-    const plan = buildFecSyncPlan(parseFecMaster(line()).rows, [house], [{ ...candidate, fec_candidate_id: 'H6TX01001', fec_status: 'C', source_file_sha256: 'a'.repeat(64) }], 'a'.repeat(64), [{ candidate_id: 10, source_file_sha256: 'a'.repeat(64), metadata: { fecStatus: 'C' } }]);
+    const plan = buildFecSyncPlan(parseFecMaster(line()).rows, [house], [{ ...candidate, fec_candidate_id: 'H6TX01001', fec_status: 'C', source_file_sha256: 'a'.repeat(64) }], 'a'.repeat(64), [{ candidate_id: 10, source_file_sha256: 'a'.repeat(64), is_current: true, metadata: { fecStatus: 'C' } }]);
     expect(plan.actions).toHaveLength(0);
     expect(plan.unchanged).toBe(1);
   });

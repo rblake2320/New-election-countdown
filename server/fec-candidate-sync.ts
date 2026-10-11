@@ -15,7 +15,7 @@ export interface ExistingCandidate {
   data_source: string | null; source_status: string | null;
 }
 export interface FecAction { kind: 'insert' | 'enrich' | 'update'; candidateId?: number; electionId: number; record: FecRow }
-export interface FecSourceRecord { candidate_id: number; source_file_sha256: string; is_current?: boolean; metadata: { fecStatus?: string } }
+export interface FecSourceRecord { candidate_id: number; source_file_sha256: string; is_current: boolean; metadata: { fecStatus?: string } }
 export interface FecPlan { actions: FecAction[]; unchanged: number; unmatched: Array<{ fecId: string; reason: 'missing-race' | 'ambiguous-race' | 'ambiguous-identity' | 'conflicting-party' }>; auditId?: number }
 
 export function normalizedCandidateName(name: string): string {
@@ -101,7 +101,7 @@ export function buildFecSyncPlan(rows: FecRow[], elections: RaceRow[], candidate
         plan.unmatched.push({ fecId: row.candId, reason: 'conflicting-party' });
         continue;
       }
-      const sourceMatches = sources.some(s => s.candidate_id === known[0].id && s.is_current !== false && s.source_file_sha256 === sha256 && s.metadata.fecStatus === row.status);
+      const sourceMatches = sources.some(s => s.candidate_id === known[0].id && s.is_current === true && s.source_file_sha256 === sha256 && s.metadata.fecStatus === row.status);
       const currentFileMatches = known[0].data_source !== 'fec_bulk' || known[0].source_file_sha256 === sha256;
       if (sourceMatches && currentFileMatches && known[0].fec_status === row.status && canonicalParty(known[0].party) === canonicalParty(row.party)) plan.unchanged++;
       else plan.actions.push({ kind: 'update', candidateId: known[0].id, electionId, record: row });
