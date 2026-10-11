@@ -138,6 +138,11 @@ export interface PerformanceAlert {
   acknowledged: boolean;
 }
 
+/** created_at defaults to now() but is nullable in the type; a missing value sorts as the epoch. */
+function measuredAt(m: { createdAt: Date | null }): Date {
+  return m.createdAt ?? new Date(0);
+}
+
 export class RtoRpoPerformanceDashboardService {
   private isRunning: boolean = false;
   private performanceCache: Map<number, RtoRpoPerformanceMetrics> = new Map();
@@ -249,9 +254,10 @@ export class RtoRpoPerformanceDashboardService {
           triggeredBy: context.triggeredBy,
           metadata: context.metadata
         },
-        dataIntegrityScore: this.calculateDataIntegrityScore(context),
-        performanceScore: this.calculatePerformanceScore(rtoAchieved, rpoAchieved, rtoVariance, rpoVariance),
-        overallScore: this.calculateOverallScore(rtoAchieved, rpoAchieved, rtoVariance, rpoVariance),
+        // numeric(5,2) columns travel as strings through Drizzle
+        dataIntegrityScore: this.calculateDataIntegrityScore(context).toFixed(2),
+        performanceScore: this.calculatePerformanceScore(rtoAchieved, rpoAchieved, rtoVariance, rpoVariance).toFixed(2),
+        overallScore: this.calculateOverallScore(rtoAchieved, rpoAchieved, rtoVariance, rpoVariance).toFixed(2),
         measuredBy: context.triggeredBy || 'system',
         notes: `${measurementType} measurement - RTO: ${rtoAchieved ? 'PASS' : 'FAIL'}, RPO: ${rpoAchieved ? 'PASS' : 'FAIL'}`
       };
@@ -324,7 +330,9 @@ export class RtoRpoPerformanceDashboardService {
         targetMetrics,
         benchmarkComparisons,
         recentMeasurements,
-        alerts: this.alertsCache,
+        alerts: this.alertsCache
+          .filter((a): a is PerformanceAlert & { type: 'sla_breach' | 'performance_degradation' | 'missing_measurement' } => a.type !== 'benchmark_deviation')
+          .map((a) => ({ type: a.type, severity: a.severity, message: a.message, targetId: a.targetId, timestamp: a.createdAt })),
         trends
       };
 
@@ -359,7 +367,7 @@ export class RtoRpoPerformanceDashboardService {
       const dateFrom = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
       const measurements = await storage.getRtoRpoMeasurementsByTarget(targetId);
       const recentMeasurements = measurements.filter(m => 
-        new Date(m.createdAt) >= dateFrom
+        measuredAt(m) >= dateFrom
       );
 
       const metrics = await this.calculateTargetMetrics(target, recentMeasurements);
@@ -553,8 +561,8 @@ export class RtoRpoPerformanceDashboardService {
             backupOperationId: backupOperation.id,
             triggeredBy: 'backup_system',
             metadata: {
-              backupType: backupOperation.operationType,
-              backupSize: backupOperation.sizeBytes,
+              backupType: backupOperation.type,
+              backupSize: backupOperation.backupSize,
               backupDuration: backupOperation.completedAt && backupOperation.startedAt ?
                 new Date(backupOperation.completedAt).getTime() - new Date(backupOperation.startedAt).getTime() : null
             }
@@ -646,7 +654,7 @@ export class RtoRpoPerformanceDashboardService {
     measurements: RtoRpoMeasurement[]
   ): Promise<RtoRpoPerformanceMetrics> {
     const recent30d = measurements.filter(m => 
-      new Date(m.createdAt) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+      measuredAt(m) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
     );
 
     const recentMeasurement = measurements.length > 0 ? measurements[0] : null;
@@ -678,15 +686,15 @@ export class RtoRpoPerformanceDashboardService {
       targetId: target.id,
       targetName: target.name,
       serviceType: target.serviceType,
-      component: target.component,
+      component: target.component ?? undefined,
       businessCriticality: target.businessCriticality,
       currentRto: recentMeasurement?.actualRtoSeconds || null,
       currentRpo: recentMeasurement?.actualRpoSeconds || null,
       rtoTargetSeconds: target.rtoTargetSeconds,
       rpoTargetSeconds: target.rpoTargetSeconds,
-      rtoCompliant,
-      rpoCompliant,
-      overallCompliant,
+      rtoCompliant: rtoCompliant === true,
+      rpoCompliant: rpoCompliant === true,
+      overallCompliant: overallCompliant === true,
       complianceScore,
       avgRto30d,
       avgRpo30d,
@@ -696,7 +704,7 @@ export class RtoRpoPerformanceDashboardService {
       successfulMeasurements: successfulMeasurements.length,
       measurementSuccessRate: measurements.length > 0 ? (successfulMeasurements.length / measurements.length) * 100 : 0,
       riskLevel,
-      lastMeasurement: recentMeasurement?.createdAt,
+      lastMeasurement: recentMeasurement?.createdAt ?? undefined,
       lastIncident: undefined // This would come from incident tracking
     };
   }
@@ -965,7 +973,7 @@ export class RtoRpoPerformanceDashboardService {
     for (let i = 0; i < days; i++) {
       const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000);
       const dayMeasurements = measurements.filter(m => {
-        const measurementDate = new Date(m.createdAt);
+        const measurementDate = measuredAt(m);
         return measurementDate.toDateString() === date.toDateString();
       });
       
@@ -985,7 +993,7 @@ export class RtoRpoPerformanceDashboardService {
       'full_backup': 7200 // 2 hours
     };
     
-    return backupTypes[backupOperation.operationType] || 3600;
+    return backupTypes[backupOperation.type] || 3600;
   }
 
   private calculateBackupContributionToRto(backupOperation: BackupOperation): number {

@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, type Response } from 'express';
 import { z } from 'zod';
 import { storage } from '../storage';
 import { IncidentRunbookService } from '../services/incident-runbook-service';
@@ -16,6 +16,17 @@ import {
 import { isAuthenticated } from '../auth';
 
 const router = Router();
+
+/** Service errors carry their own status + public code; anything else is a 500 with the message. */
+function sendRouteError(res: Response, error: unknown): void {
+  const e = error as { status?: number; publicCode?: string; publicMessage?: string; message?: string } | undefined;
+  const status = typeof e?.status === 'number' && e.status >= 400 && e.status < 600 ? e.status : 500;
+  res.status(status).json({
+    success: false,
+    error: e?.publicCode ?? (error instanceof Error ? error.message : 'Unknown error'),
+    message: e?.publicMessage ?? (error instanceof Error ? error.message : 'Unknown error'),
+  });
+}
 
 // Initialize service
 const runbookService = new IncidentRunbookService(storage);
@@ -74,10 +85,7 @@ router.get('/', isAuthenticated, async (req, res) => {
     });
   } catch (error) {
     console.error('[Track4RunbookRoutes] Error getting runbooks:', error);
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    sendRouteError(res, error);
   }
 });
 
@@ -104,10 +112,7 @@ router.post('/', isAuthenticated, async (req, res) => {
       });
     }
     
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    sendRouteError(res, error);
   }
 });
 
@@ -130,10 +135,7 @@ router.get('/:runbookId', isAuthenticated, async (req, res) => {
     });
   } catch (error) {
     console.error('[Track4RunbookRoutes] Error getting runbook:', error);
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    sendRouteError(res, error);
   }
 });
 
@@ -161,10 +163,7 @@ router.put('/:runbookId', isAuthenticated, async (req, res) => {
       });
     }
     
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    sendRouteError(res, error);
   }
 });
 
@@ -180,10 +179,7 @@ router.delete('/:runbookId', isAuthenticated, async (req, res) => {
     });
   } catch (error) {
     console.error('[Track4RunbookRoutes] Error deleting runbook:', error);
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    sendRouteError(res, error);
   }
 });
 
@@ -209,10 +205,7 @@ router.post('/:runbookId/approve', isAuthenticated, async (req, res) => {
     });
   } catch (error) {
     console.error('[Track4RunbookRoutes] Error approving runbook:', error);
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    sendRouteError(res, error);
   }
 });
 
@@ -251,10 +244,7 @@ router.post('/execute', isAuthenticated, async (req, res) => {
       });
     }
     
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    sendRouteError(res, error);
   }
 });
 
@@ -272,10 +262,7 @@ router.get('/steps/:runbookId', isAuthenticated, async (req, res) => {
     });
   } catch (error) {
     console.error('[Track4RunbookRoutes] Error getting runbook steps:', error);
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    sendRouteError(res, error);
   }
 });
 
@@ -302,10 +289,7 @@ router.post('/steps', isAuthenticated, async (req, res) => {
       });
     }
     
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    sendRouteError(res, error);
   }
 });
 
@@ -333,10 +317,7 @@ router.put('/steps/:stepId', isAuthenticated, async (req, res) => {
       });
     }
     
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    sendRouteError(res, error);
   }
 });
 
@@ -352,10 +333,7 @@ router.delete('/steps/:stepId', isAuthenticated, async (req, res) => {
     });
   } catch (error) {
     console.error('[Track4RunbookRoutes] Error deleting runbook step:', error);
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    sendRouteError(res, error);
   }
 });
 
@@ -378,10 +356,7 @@ router.get('/contacts', isAuthenticated, async (req, res) => {
     });
   } catch (error) {
     console.error('[Track4RunbookRoutes] Error getting contacts:', error);
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    sendRouteError(res, error);
   }
 });
 
@@ -408,10 +383,7 @@ router.post('/contacts', isAuthenticated, async (req, res) => {
       });
     }
     
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    sendRouteError(res, error);
   }
 });
 
@@ -434,10 +406,7 @@ router.get('/contacts/:contactId', isAuthenticated, async (req, res) => {
     });
   } catch (error) {
     console.error('[Track4RunbookRoutes] Error getting contact:', error);
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    sendRouteError(res, error);
   }
 });
 
@@ -465,10 +434,7 @@ router.put('/contacts/:contactId', isAuthenticated, async (req, res) => {
       });
     }
     
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    sendRouteError(res, error);
   }
 });
 
@@ -484,10 +450,7 @@ router.delete('/contacts/:contactId', isAuthenticated, async (req, res) => {
     });
   } catch (error) {
     console.error('[Track4RunbookRoutes] Error deleting contact:', error);
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    sendRouteError(res, error);
   }
 });
 
@@ -511,10 +474,7 @@ router.get('/escalation-trees', isAuthenticated, async (req, res) => {
     });
   } catch (error) {
     console.error('[Track4RunbookRoutes] Error getting escalation trees:', error);
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    sendRouteError(res, error);
   }
 });
 
@@ -541,10 +501,7 @@ router.post('/escalation-trees', isAuthenticated, async (req, res) => {
       });
     }
     
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    sendRouteError(res, error);
   }
 });
 
@@ -581,10 +538,7 @@ router.get('/executions', isAuthenticated, async (req, res) => {
     });
   } catch (error) {
     console.error('[Track4RunbookRoutes] Error getting executions:', error);
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    sendRouteError(res, error);
   }
 });
 
@@ -607,10 +561,7 @@ router.get('/executions/:executionId', isAuthenticated, async (req, res) => {
     });
   } catch (error) {
     console.error('[Track4RunbookRoutes] Error getting execution:', error);
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    sendRouteError(res, error);
   }
 });
 
@@ -635,10 +586,7 @@ router.post('/executions/:executionId/pause', isAuthenticated, async (req, res) 
     });
   } catch (error) {
     console.error('[Track4RunbookRoutes] Error pausing execution:', error);
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    sendRouteError(res, error);
   }
 });
 
@@ -646,8 +594,10 @@ router.post('/executions/:executionId/pause', isAuthenticated, async (req, res) 
 router.post('/executions/:executionId/resume', isAuthenticated, async (req, res) => {
   try {
     const executionId = req.params.executionId;
-    
-    await runbookService.resumeExecution(executionId);
+    const confirmedBy = typeof req.body?.confirmedBy === 'string' && req.body.confirmedBy.trim() ? req.body.confirmedBy.trim() : undefined;
+
+    // The operator confirms the step that was awaiting them; execution continues.
+    await runbookService.resumeExecution(executionId, confirmedBy);
     
     res.json({
       success: true,
@@ -655,10 +605,7 @@ router.post('/executions/:executionId/resume', isAuthenticated, async (req, res)
     });
   } catch (error) {
     console.error('[Track4RunbookRoutes] Error resuming execution:', error);
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    sendRouteError(res, error);
   }
 });
 
@@ -674,10 +621,7 @@ router.get('/dashboard', isAuthenticated, async (req, res) => {
     });
   } catch (error) {
     console.error('[Track4RunbookRoutes] Error getting dashboard data:', error);
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    sendRouteError(res, error);
   }
 });
 

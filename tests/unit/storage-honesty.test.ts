@@ -103,9 +103,9 @@ describe("storage contract and real columns", () => {
     expect(storage).toContain("m.actual_rto_seconds <= t.rto_target_seconds");
   });
 
-  it("escalation-tree lookup reads the QueryResult rows instead of destructuring it as an array", () => {
-    expect(storage).not.toMatch(/const \[tree\] = await db\.execute/);
-    expect(storage).toMatch(/const result = await db\.execute\(sql`\s*SELECT \* FROM contact_escalation_trees/);
+  it("escalation-tree lookup is a typed query (a raw SELECT returned snake_case rows read as camelCase)", () => {
+    expect(storage).not.toMatch(/SELECT \* FROM contact_escalation_trees/);
+    expect(storage).toMatch(/db\.select\(\)\.from\(contactEscalationTrees\)\s*\.where\(and\(\s*eq\(contactEscalationTrees\.isActive, true\)/);
   });
 
   it("no Drizzle table is re-imported dynamically (that erased the query types)", () => {
