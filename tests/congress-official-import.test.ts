@@ -16,6 +16,11 @@ describe('reviewed official Congress admission',()=>{
   it('loads539 occupied real identities and two explicit null-person vacancies',()=>{
     const loaded=loadOfficialCongressSnapshot();expect(loaded.manifestSha256).toBe(OFFICIAL_CONGRESS_MANIFEST_SHA);expect(loaded.snapshot.members).toHaveLength(539);expect(loaded.snapshot.vacancies).toHaveLength(2);
   });
+  it('retains the source-backed Senate suffix after the surname',()=>{
+    const member=loadOfficialCongressSnapshot().snapshot.members.find(m=>m.bioguideId==='K000383');
+    expect(member?.name).toBe('Angus S. King, Jr.');
+    expect(member?.nameEvidence).toEqual({firstName:'Angus S., Jr.',lastName:'King',memberFull:'King (I-ME)'});
+  });
   it('source-tree fallback resolves the reviewed asset relative to module location',()=>{
     expect(defaultOfficialCongressManifestPath().replaceAll('\\','/')).toMatch(/\/data\/congress\/119\/official-current-members.json$/);
     expect(loadOfficialCongressSnapshot(defaultOfficialCongressManifestPath()).manifestSha256).toBe(OFFICIAL_CONGRESS_MANIFEST_SHA);
