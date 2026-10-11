@@ -9,6 +9,7 @@ import { eq } from "drizzle-orm";
 import { getCongressBillService } from "./congress-bill-service";
 import { perplexityCongressService } from "./perplexity-congress-service";
 import { registerCongressImportRoutes } from "./congress-import-routes";
+import { registerCongressMembersRoutes } from "./congress-members-routes";
 import { setupAuth, isAuthenticated } from "./auth";
 import { requireAdmin } from "./middleware/require-admin";
 import { verifySendGridWebhook, verifyTwilioWebhook } from "./webhook-verify";
@@ -1097,45 +1098,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/members', async (req, res) => {
-    try {
-      // First check database
-      const dbMembers = await db.select().from(congressMembers);
 
-      if (dbMembers.length > 0) {
-        return res.json(dbMembers);
-      }
 
-      // If empty, return empty array (user can trigger sync manually)
-      res.json([]);
-    } catch (error: any) {
-      console.error('Error fetching members:', error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-
-  app.get('/api/members/:state', async (req, res, next) => {
-    try {
-      const state = String(req.params.state || "").toUpperCase();
-      // 50 states + DC + PR if you track delegates; change as needed
-      const STATE_RE =
-        /^(AL|AK|AZ|AR|CA|CO|CT|DE|DC|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY)$/;
-      if (!STATE_RE.test(state)) {
-        return res.status(400).json({ error: "invalid_state", state });
-      }
-
-      // Query database directly for members by state - only voting members in office
-      const members = await db
-        .select()
-        .from(congressMembers)
-        .where(eq(congressMembers.state, state));
-
-      console.log(`[STATE FILTER] Found ${members.length} members for state ${state} from database`);
-      res.json(members);
-    } catch (error) {
-      next(error);
-    }
-  });
+  // Congress member reads: current official roster by default, 56 jurisdictions incl.
+  // territories, explicit ?scope=history|legacy|all (server/congress-members-routes.ts).
+  registerCongressMembersRoutes(app, () => db.select().from(congressMembers));
 
   app.get('/api/committees', async (req, res) => {
     try {
