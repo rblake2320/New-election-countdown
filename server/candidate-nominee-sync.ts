@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import type { Pool } from 'pg';
 import { z } from 'zod';
-import { normalizedCandidateName, type RaceRow, type ExistingCandidate } from './fec-candidate-sync';
+import { normalizedCandidateName, FEC_MASTER_URL, type RaceRow, type ExistingCandidate } from './fec-candidate-sync';
 
 const states = new Set('AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY'.split(' '));
 const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(value => {
@@ -51,12 +51,17 @@ const rowSchema = z.object({
   identityEvidence:z.object({url:identityEvidenceUrl,sha256:z.string().regex(/^[a-f0-9]{64}$/).nullable(),sourcePage:z.number().int().positive().optional(),title:z.string().min(1)}).strict().optional(),
   sourcePage:z.number().int().positive().optional(),ticketText:z.string().optional(),raceTitle:z.string().optional(),ballotAccessType:access.optional(),
   aliases:z.array(z.string().min(1).max(200)).optional(),ballotName:z.string().min(1).max(200).optional(),
+  identityResolution:z.object({
+    kind:z.literal('reviewed_fec_identity'),fecCandidateId:z.string().regex(/^[HS]\d[A-Z]{2}\d{5}$/),
+    expectedFecPartyRaw:z.enum(['OTH','IND','UN']),expectedStatePartyRaw:z.string().min(1),
+    fecEvidence:z.object({url:z.string().url(),sha256:z.string().regex(/^[a-f0-9]{64}$/),retrievedAt:z.string().refine(v=>Number.isFinite(new Date(v).getTime()))}).strict(),
+  }).strict().optional(),
 }).strict();
 const manifestSchema = z.object({version:z.literal(1),sources:z.array(sourceSchema).min(1),candidates:z.array(rowSchema)}).strict();
 export type NomineeManifest = z.infer<typeof manifestSchema>;
 type NomineeRow = NomineeManifest['candidates'][number];
 type NomineeSource = NomineeManifest['sources'][number];
-export interface NomineeAction { electionId:number;candidateId?:number;party:string;record:NomineeRow;source:NomineeSource;versionSha:string }
+export interface NomineeAction { electionId:number;candidateId?:number;party:string;record:NomineeRow;source:NomineeSource;versionSha:string;identityResolutionApplied?:boolean }
 export interface NomineePlan {actions:NomineeAction[];unresolved:Array<{name:string;reason:string}>;auditId?:number;candidateInserts?:number;sourceChanges?:number}
 
 export function parseNomineeManifest(raw:unknown):NomineeManifest {
@@ -83,6 +88,13 @@ export function parseNomineeManifest(raw:unknown):NomineeManifest {
     if(r.partyBasis==='filing_method' && r.partyValue)throw new Error('A filing method cannot establish party affiliation');
     if(r.partyLabels && !r.partyLabels.includes(r.partyRaw))throw new Error('Primary raw party label must be one of the actual ballot lines');
     if(r.partyBasis==='filing_method' && r.partyLabels)throw new Error('Filing-method rows cannot establish party ballot lines');
+    if(r.identityResolution){
+      const resolution=r.identityResolution;
+      if(resolution.expectedStatePartyRaw!==r.partyRaw)throw new Error('Identity resolution state party label differs from the reviewed row');
+      if(r.office==='G' || resolution.fecCandidateId[0]!==r.office)throw new Error('FEC evidence identity office differs from the reviewed row');
+      if(resolution.fecCandidateId.slice(2,4)!==r.state)throw new Error('FEC evidence identity state differs from the reviewed row');
+      if(resolution.fecEvidence.url!==`https://www.fec.gov/data/candidate/${resolution.fecCandidateId}/`)throw new Error('FEC evidence URL must identify the exact reviewed identity');
+    }
     const key=`${r.state}|${r.office}|${r.district}|${r.date}|${normalizedCandidateName(r.name)}`;
     if(identities.has(key))throw new Error('duplicate candidate input');identities.add(key);
   }
@@ -108,7 +120,14 @@ function raceKey(e:RaceRow):string|undefined {
   if(e.offices?.includes('U.S. House of Representatives')){const d=e.title.match(/\b([A-Z]{2})-(\d{2}|AL)\b/);if(d&&d[1]===e.state)return `${e.state}|H|${d[2]==='AL'?'00':d[2]}|${date}`;}
   if(e.offices?.some(o=>/^governor$/i.test(o)))return `${e.state}|G|00|${date}`;
 }
-export function planNomineeRefresh(m:NomineeManifest,elections:RaceRow[],candidates:ExistingCandidate[]):NomineePlan {
+export interface NomineeFecSourceRecord {candidate_id:number;is_current:boolean;source_url:string;source_file_sha256:string;metadata:{fecCandidateId?:string;partyRaw?:string;fecStatus?:string;electionYear?:number;state?:string;office?:string;district?:string;electionId?:number;electionDate?:string;normalizedName?:string}}
+/** An explicit reviewed ID resolves source-label granularity, never a generic party equivalence. */
+function reviewedFecIdentityMatches(row:NomineeRow,c:ExistingCandidate,sources:NomineeFecSourceRecord[]):boolean {
+  const resolution=row.identityResolution;
+  if(!resolution || c.data_source!=='fec_bulk' || c.source_status!=='fec_registered' || !['C','F'].includes(c.fec_status??'') || c.fec_candidate_id!==resolution.fecCandidateId || c.party!==party(resolution.expectedFecPartyRaw) || normalizedCandidateName(c.name)!==normalizedCandidateName(row.name))return false;
+  return sources.some(s=>s.candidate_id===c.id && s.is_current===true && s.source_url===FEC_MASTER_URL && s.source_file_sha256===c.source_file_sha256 && s.metadata.fecCandidateId===resolution.fecCandidateId && s.metadata.partyRaw===resolution.expectedFecPartyRaw && s.metadata.fecStatus===c.fec_status && s.metadata.electionYear===2026 && s.metadata.state===row.state && s.metadata.office===row.office && s.metadata.district===row.district && s.metadata.electionId===c.election_id && s.metadata.electionDate===row.date && s.metadata.normalizedName===normalizedCandidateName(row.name));
+}
+export function planNomineeRefresh(m:NomineeManifest,elections:RaceRow[],candidates:ExistingCandidate[],fecSources:NomineeFecSourceRecord[]=[]):NomineePlan {
   const plan:NomineePlan={actions:[],unresolved:[]};
   const sourceHashes=new Map(m.sources.map(s=>[s.id,snapshotVersion(m,s)]));
   for(const row of m.candidates){
@@ -118,11 +137,18 @@ export function planNomineeRefresh(m:NomineeManifest,elections:RaceRow[],candida
     const names=[row.name,row.ballotName,...(row.aliases??[])].filter((name):name is string=>typeof name==='string').map(normalizedCandidateName);
     const matches=candidates.filter(c=>c.election_id===races[0].id && names.includes(normalizedCandidateName(c.name)));
     const affiliation=rowParty(row);
-    const sameParty=matches.filter(c=>affiliation===undefined || affiliation==='' || partyComponents(c.party??'').some(value=>partyComponents(affiliation).includes(value)));
+    let sameParty=matches.filter(c=>affiliation===undefined || affiliation==='' || partyComponents(c.party??'').some(value=>partyComponents(affiliation).includes(value)));
+    let identityResolutionApplied=false;
+    if(row.identityResolution){
+      // Refuse even a declared ID if the same legal name/race is ambiguous,
+      // the trusted editorial layer owns it, or current FEC proof has changed.
+      if(matches.length!==1 || !reviewedFecIdentityMatches(row,matches[0],fecSources)){plan.unresolved.push({name:row.name,reason:'fec-identity-resolution-conflict'});continue;}
+      sameParty=matches;identityResolutionApplied=true;
+    }
     if(sameParty.length>1){plan.unresolved.push({name:row.name,reason:'ambiguous-identity'});continue;}
     if(matches.length && !sameParty.length){plan.unresolved.push({name:row.name,reason:'party-conflict'});continue;}
     const source=m.sources.find(s=>s.id===row.sourceId)!;
-    plan.actions.push({electionId:races[0].id,candidateId:sameParty[0]?.id,party:affiliation===undefined || affiliation===''?sameParty[0]?.party??'':affiliation,record:row,source,versionSha:sourceHashes.get(source.id)!});
+    plan.actions.push({electionId:races[0].id,candidateId:sameParty[0]?.id,party:affiliation===undefined || affiliation===''?sameParty[0]?.party??'':affiliation,record:row,source,versionSha:sourceHashes.get(source.id)!,...(identityResolutionApplied?{identityResolutionApplied:true}:{})});
   }
   const sharedIdentities=new Set(plan.actions.filter(a=>a.candidateId!=null && plan.actions.filter(b=>b.candidateId===a.candidateId).length>1).map(a=>a.candidateId));
   for(const a of plan.actions.filter(a=>sharedIdentities.has(a.candidateId)))plan.unresolved.push({name:a.record.name,reason:'shared-existing-identity'});
@@ -152,7 +178,8 @@ async function runNomineeRefreshOnce(pool:Pool,m:NomineeManifest,manifestSha:str
     if(apply && (!tables.sources || !tables.audit || !tables.snapshots))throw new Error('Candidate source and general-list snapshot migrations required');
     const elections=(await client.query<RaceRow>('SELECT id,state,title,level,type,date::text AS date,offices FROM elections ORDER BY id')).rows;
     const candidates=(await client.query<ExistingCandidate>('SELECT id,election_id,name,party,fec_candidate_id,fec_status,source_file_sha256,data_source,source_status FROM candidates ORDER BY id')).rows;
-    const plan=planNomineeRefresh(m,elections,candidates);
+    const fecSources=m.candidates.some(r=>r.identityResolution) && tables.sources?(await client.query<NomineeFecSourceRecord>("SELECT candidate_id,is_current,source_url,source_file_sha256,metadata FROM candidate_source_records WHERE source_layer='fec_registration' AND is_current=true AND source_url=$1",[FEC_MASTER_URL])).rows:[];
+    const plan=planNomineeRefresh(m,elections,candidates,fecSources);
     if(plan.unresolved.length){
       if(apply)throw new Error('Resolve all identity/race conflicts before applying a complete nominee snapshot');
       await client.query('ROLLBACK');return plan;
@@ -200,7 +227,7 @@ async function runNomineeRefreshOnce(pool:Pool,m:NomineeManifest,manifestSha:str
       }
       await client.query("UPDATE candidate_source_records SET is_current=false WHERE candidate_id=$1 AND source_layer='general_candidate_list' AND source_url=$2 AND is_current=true",[a.candidateId,a.source.url]);
       const metadata={electionId:a.electionId,state:a.record.state,office:a.record.office,district:a.record.district,electionDate:a.record.date,sourceId:a.source.id,sourceName:a.source.name,sourceKind:a.source.kind,documentSha256:a.source.sha256,publishedAt:a.source.publishedAt,partyRaw:a.record.partyRaw,partyValue:rowParty(a.record)??'',partyKey:partyKey(a.record.partyRaw),partyBasis:a.record.partyBasis??(/^\(Prefers /i.test(a.record.partyRaw)?'preference':/^\(Registered /i.test(a.record.partyRaw)?'registration':a.record.partyRaw.toLowerCase()==='by petition'?'filing_method':'source_label'),incumbent:a.record.incumbent??null,sourcePage:a.record.sourcePage??null,ticketText:a.record.ticketText??null,ballotName:a.record.ballotName??null,legalName:a.record.name,aliases:a.record.aliases??[],ballotAccessType:a.record.ballotAccessType??'not_specified',ballotCertificationPromoted:false};
-      const sourceMetadata={...metadata,...(a.record.partyEvidence?{partyEvidence:a.record.partyEvidence}:{}),...(a.record.identityEvidence?{identityEvidence:a.record.identityEvidence}:{}),...(a.record.partyLabels?{partyLabels:a.record.partyLabels}:{})};
+      const sourceMetadata={...metadata,...(a.record.partyEvidence?{partyEvidence:a.record.partyEvidence}:{}),...(a.record.identityEvidence?{identityEvidence:a.record.identityEvidence}:{}),...(a.record.partyLabels?{partyLabels:a.record.partyLabels}:{}),...(a.record.identityResolution?{identityResolution:a.record.identityResolution,identityResolutionApplied:a.identityResolutionApplied===true}:{})};
       await client.query(`INSERT INTO candidate_source_records(candidate_id,source_layer,source_url,source_file_sha256,source_synced_at,metadata,is_current)
         VALUES($1,'general_candidate_list',$2,$3,$4,$5::jsonb,true) ON CONFLICT(candidate_id,source_layer,source_url,source_file_sha256)
         DO UPDATE SET is_current=true,source_synced_at=EXCLUDED.source_synced_at,metadata=EXCLUDED.metadata`,[a.candidateId,a.source.url,a.versionSha,a.source.retrievedAt,JSON.stringify(sourceMetadata)]);sourceChanges++;

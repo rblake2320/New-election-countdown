@@ -4,3 +4,7 @@ artifacts/lane-c/real-roster-payloads/*.json text eol=lf
 # Immutable receiving review bundles retain their captured byte digests.
 artifacts/lane-c/real-roster-payloads-extended/** -text whitespace=cr-at-eol
 artifacts/lane-c/review-b-source-coverage/** -text whitespace=cr-at-eol
+
+# FEC review receipts and frozen source snapshots retain their reviewed bytes.
+artifacts/fec-first/*.json text eol=lf
+artifacts/fec-first/original-core/**/*.ts text eol=lf
