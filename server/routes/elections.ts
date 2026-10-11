@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { storage, type IStorage } from "../storage";
 import { civicAggregatorService } from "../civic-aggregator-service";
-import { voteSmartService } from "../services/votesmart-service";
+import { voteSmartService, type VoteSmartBio, type VoteSmartPosition, type VoteSmartVotingRecord, type VoteSmartRating } from "../services/votesmart-service";
 import { calculateAdvancedPoliticalLeaning } from "../lib/political-analysis.js";
 import { projectOfficialResultsForElection } from '../../shared/official-results';
 
@@ -226,6 +226,10 @@ electionsRouter.get("/:id/candidates", async (req, res) => {
     // Integer ids only: '2.5' is finite but is not an election id (was a 500 downstream).
     if (!Number.isInteger(id) || id <= 0) return res.status(400).json({ error: 'bad id' });
 
+    // Race context comes from the election row: candidates carry no office/state/district.
+    const election = await storage.getElection(id);
+    if (!election) return res.status(404).json({ error: 'election not found' });
+
     // Helper function to enrich candidate data with VoteSmart information
     const enrichCandidateData = async (candidate: any) => {
       const baseCandidate = {
@@ -244,9 +248,10 @@ electionsRouter.get("/:id/candidates", async (req, res) => {
         campaignBio: candidate.campaignBio,
         is_verified: candidate.isVerified,
         isVerified: candidate.isVerified,
-        office: candidate.office,
-        state: candidate.state,
-        district: candidate.district,
+        office: election.title,
+        offices: election.offices ?? [],
+        state: election.state,
+        district: election.location ?? null,
         votes_received: candidate.votesReceived,
         votesReceived: candidate.votesReceived,
         vote_percentage: candidate.votePercentage,
@@ -375,9 +380,7 @@ electionsRouter.get("/:id/candidates", async (req, res) => {
 
     // No candidates on this race. Never substitute another race's candidates
     // (UX review P1: the Alaska governor card showed Senate bios borrowed from the
-    // same-state Senate race). 404 only when the election itself does not exist.
-    const election = await storage.getElection(id);
-    if (!election) return res.status(404).json({ error: 'election not found' });
+    // same-state Senate race). The election itself was verified above.
     res.setHeader("X-Candidate-Provenance", "none");
     return res.json([]);
 
@@ -395,6 +398,54 @@ electionsRouter.get("/:id/candidates", async (req, res) => {
 });
 
 // Get individual candidate details with comprehensive VoteSmart data
+interface CandidateDetailResponse {
+  id: number;
+  name: string;
+  party: string | null;
+  /** Race context comes from the election row; candidates carry no office/state of their own. */
+  office: string;
+  offices: string[];
+  state: string;
+  location: string | null;
+  incumbent: boolean | null;
+  is_verified: boolean | null;
+  website: string | null;
+  contact_email: string | null;
+  campaign_phone: string | null;
+  social_media: unknown;
+  description: string | null;
+  campaign_bio: string | null;
+  profile_image_url: string | null;
+  photo_url: string | null;
+  external_ids: ReturnType<typeof candidateExternalIds>;
+  source: ReturnType<typeof candidateSourceMarkers>;
+  election_id: number;
+  data_completeness: {
+    has_biography: boolean;
+    has_photo: boolean;
+    has_positions: boolean;
+    has_voting_record: boolean;
+    has_ratings: boolean;
+    has_professional_background: boolean;
+    has_education: boolean;
+  };
+  biography: VoteSmartBio | null;
+  professional_background: string | null;
+  education: string | null;
+  birth_date: string | null;
+  birth_place: string | null;
+  family_info: string | null;
+  positions: VoteSmartPosition[];
+  position_summary: string | null;
+  voting_record: VoteSmartVotingRecord[];
+  voting_summary: string | null;
+  interest_group_ratings: VoteSmartRating[];
+  data_issues: string[];
+  last_data_update: string;
+  created_at: Date | null;
+  updated_at: Date | null;
+}
+
 electionsRouter.get("/:electionId/candidates/:candidateId", async (req, res) => {
   try {
     const electionId = Number(req.params.electionId);
@@ -404,158 +455,121 @@ electionsRouter.get("/:electionId/candidates/:candidateId", async (req, res) => 
       return res.status(400).json({ error: 'Invalid ID parameters' });
     }
 
-    // Get candidate from storage
-    const candidates = await storage.getCandidatesByIds([candidateId]);
+    const [election, candidates] = await Promise.all([storage.getElection(electionId), storage.getCandidatesByIds([candidateId])]);
+    if (!election) {
+      return res.status(404).json({ error: 'Election not found' });
+    }
     const candidate = candidates[0];
-
     if (!candidate) {
       return res.status(404).json({ error: 'Candidate not found' });
     }
+    if (candidate.electionId !== null && candidate.electionId !== electionId) {
+      return res.status(404).json({ error: 'Candidate is not in this election' });
+    }
+
+    // Built before enrichment so a provider failure still returns the real row.
+    const baseResponse: CandidateDetailResponse = {
+      id: candidate.id,
+      name: candidate.name,
+      party: candidate.party,
+      office: election.title,
+      offices: election.offices ?? [],
+      state: election.state,
+      location: election.location ?? null,
+      incumbent: candidate.isIncumbent,
+      is_verified: candidate.isVerified,
+      website: candidate.website,
+      contact_email: candidate.contactEmail,
+      campaign_phone: candidate.campaignPhone,
+      social_media: candidate.socialMedia,
+      description: candidate.description,
+      campaign_bio: candidate.campaignBio,
+      profile_image_url: candidate.profileImageUrl,
+      photo_url: null,
+      external_ids: candidateExternalIds(candidate),
+      source: candidateSourceMarkers(candidate),
+      election_id: electionId,
+      data_completeness: {
+        has_biography: false,
+        has_photo: !!candidate.profileImageUrl,
+        has_positions: false,
+        has_voting_record: false,
+        has_ratings: false,
+        has_professional_background: false,
+        has_education: false
+      },
+      biography: null,
+      professional_background: null,
+      education: null,
+      birth_date: null,
+      birth_place: null,
+      family_info: null,
+      positions: [],
+      position_summary: null,
+      voting_record: [],
+      voting_summary: null,
+      interest_group_ratings: [],
+      data_issues: [],
+      last_data_update: new Date().toISOString(),
+      created_at: candidate.createdAt,
+      updated_at: candidate.updatedAt
+    };
 
     try {
-      // Get comprehensive candidate data using CivicAggregator
       const searchId = (candidate as any).votesmartId ?? (candidate as any).votesmart_id ?? candidate.name;
       const comprehensiveData = await civicAggregatorService.getComprehensiveCandidateData([searchId], electionId.toString(), ['votesmart']);
 
-      const baseResponse = {
-        // Basic candidate information
-        id: candidate.id,
-        name: candidate.name,
-        party: candidate.party,
-        office: candidate.office,
-        state: candidate.state,
-        district: candidate.district,
-        incumbent: candidate.isIncumbent,
-        is_verified: candidate.isVerified,
-
-        // Contact and profile information
-        website: candidate.website,
-        contact_email: candidate.contactEmail,
-        campaign_phone: candidate.campaignPhone,
-        social_media: candidate.socialMedia,
-        description: candidate.description,
-        campaign_bio: candidate.campaignBio,
-
-        // Profile images
-        profile_image_url: candidate.profileImageUrl,
-        photo_url: null,
-
-        // External identifiers
-        external_ids: candidateExternalIds(candidate),
-              source: candidateSourceMarkers(candidate),
-
-        // Election context
-        election_id: electionId,
-
-        // Data availability
-        data_completeness: {
-          has_biography: false,
-          has_photo: !!candidate.profileImageUrl,
-          has_positions: false,
-          has_voting_record: false,
-          has_ratings: false,
-          has_professional_background: false,
-          has_education: false
-        },
-
-        // Rich data fields (to be populated)
-        biography: null,
-        professional_background: null,
-        education: null,
-        birth_date: null,
-        birth_place: null,
-        family_info: null,
-
-        // Position and policy information
-        positions: [],
-        position_summary: null,
-        voting_record: [],
-        voting_summary: null,
-        interest_group_ratings: [],
-
-        // Data quality and issues
-        data_issues: [],
-        last_data_update: new Date().toISOString(),
-
-        // Metadata
-        created_at: candidate.createdAt,
-        updated_at: candidate.updatedAt
-      };
-
-      // If we have comprehensive data, enrich the response
-      if (comprehensiveData && comprehensiveData.length > 0) {
-        const enrichedData = comprehensiveData[0];
-
-        if (enrichedData.voteSmartData) {
-          const vsData = enrichedData.voteSmartData;
-
-          // Enhanced biography information
-          const bio = vsData.bio || vsData.detailedBio;
-          if (bio) {
-            baseResponse.biography = bio;
-            baseResponse.professional_background = bio.profession;
-            baseResponse.education = bio.education;
-            baseResponse.birth_date = bio.birthDate;
-            baseResponse.birth_place = bio.birthPlace;
-            baseResponse.family_info = bio.family;
-            baseResponse.data_completeness.has_biography = true;
-            baseResponse.data_completeness.has_professional_background = !!bio.profession;
-            baseResponse.data_completeness.has_education = !!bio.education;
-          }
-
-          // Photo URL
-          if (vsData.photoUrl) {
-            baseResponse.photo_url = vsData.photoUrl;
-            baseResponse.data_completeness.has_photo = true;
-          }
-
-          // Position statements
-          if (vsData.positions && vsData.positions.length > 0) {
-            baseResponse.positions = vsData.positions;
-            baseResponse.position_summary = `${vsData.positions.length} policy position${vsData.positions.length === 1 ? '' : 's'} available`;
-            baseResponse.data_completeness.has_positions = true;
-          }
-
-          // Voting record
-          if (vsData.votingRecord && vsData.votingRecord.length > 0) {
-            baseResponse.voting_record = vsData.votingRecord;
-            baseResponse.voting_summary = `${vsData.votingRecord.length} recorded vote${vsData.votingRecord.length === 1 ? '' : 's'} available`;
-            baseResponse.data_completeness.has_voting_record = true;
-          }
-
-          // Interest group ratings
-          if (vsData.ratings && vsData.ratings.length > 0) {
-            baseResponse.interest_group_ratings = vsData.ratings;
-            baseResponse.data_completeness.has_ratings = true;
-          }
-
-          // Data issues and update time
-          baseResponse.data_issues = vsData.issues || [];
-          baseResponse.last_data_update = vsData.lastUpdated || new Date().toISOString();
+      const vsData = comprehensiveData?.[0]?.voteSmartData;
+      if (vsData) {
+        const bio = vsData.bio || vsData.detailedBio;
+        if (bio) {
+          baseResponse.biography = bio;
+          baseResponse.professional_background = bio.profession ?? null;
+          baseResponse.education = bio.education ?? null;
+          baseResponse.birth_date = bio.birthDate ?? null;
+          baseResponse.birth_place = bio.birthPlace ?? null;
+          baseResponse.family_info = bio.family ?? null;
+          baseResponse.data_completeness.has_biography = true;
+          baseResponse.data_completeness.has_professional_background = !!bio.profession;
+          baseResponse.data_completeness.has_education = !!bio.education;
         }
+        if (vsData.photoUrl) {
+          baseResponse.photo_url = vsData.photoUrl;
+          baseResponse.data_completeness.has_photo = true;
+        }
+        if (vsData.positions && vsData.positions.length > 0) {
+          baseResponse.positions = vsData.positions;
+          baseResponse.position_summary = `${vsData.positions.length} policy position${vsData.positions.length === 1 ? '' : 's'} available`;
+          baseResponse.data_completeness.has_positions = true;
+        }
+        if (vsData.votingRecord && vsData.votingRecord.length > 0) {
+          baseResponse.voting_record = vsData.votingRecord;
+          baseResponse.voting_summary = `${vsData.votingRecord.length} recorded vote${vsData.votingRecord.length === 1 ? '' : 's'} available`;
+          baseResponse.data_completeness.has_voting_record = true;
+        }
+        if (vsData.ratings && vsData.ratings.length > 0) {
+          baseResponse.interest_group_ratings = vsData.ratings;
+          baseResponse.data_completeness.has_ratings = true;
+        }
+        baseResponse.data_issues = vsData.issues ?? [];
+        baseResponse.last_data_update = vsData.lastUpdated ?? new Date().toISOString();
       }
 
-      // Add helpful messaging if data is limited
-      if (!baseResponse.data_completeness.has_biography && !baseResponse.data_completeness.has_positions) {
-        if (!voteSmartService) {
-          baseResponse.data_issues.push('VoteSmart API key required for comprehensive candidate data - configure VOTESMART_API_KEY to unlock detailed biographies, positions, and voting records');
-        } else {
-          baseResponse.data_issues.push('Comprehensive candidate data is being retrieved - please check back soon for detailed information');
-        }
+      const alreadyExplained = baseResponse.data_issues.some((issue) => /votesmart/i.test(issue));
+      if (!alreadyExplained && !baseResponse.data_completeness.has_biography && !baseResponse.data_completeness.has_positions) {
+        baseResponse.data_issues.push(voteSmartService
+          ? 'No VoteSmart biography or positions are on file for this candidate'
+          : 'VoteSmart API key required for comprehensive candidate data - configure VOTESMART_API_KEY to unlock detailed biographies, positions, and voting records');
       }
 
       res.json(baseResponse);
-
     } catch (enrichmentError) {
       console.warn(`Failed to enrich candidate ${candidate.name} (ID: ${candidateId}):`, enrichmentError);
-
-      // Return basic candidate data with error context
       res.json({
         ...baseResponse,
         data_issues: [`Data enrichment temporarily unavailable: ${enrichmentError instanceof Error ? enrichmentError.message : 'Unknown error'}`]
       });
     }
-
   } catch (error) {
     console.error("Error fetching candidate details:", error);
     res.status(500).json({
@@ -583,7 +597,7 @@ electionsRouter.get('/missing-candidates', async (req, res) => {
     });
 
     // Check each election for candidates
-    const missingCandidates = [];
+    const missingCandidates: Array<{ id: number; title: string; state: string; date: Date; candidate_count: number }> = [];
     for (const election of electionsInWindow) {
       const candidates = await storage.getCandidatesByElection(election.id);
       if (candidates.length === 0) {

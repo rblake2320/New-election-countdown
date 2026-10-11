@@ -59,6 +59,27 @@ describe("analytics service", () => {
   });
 });
 
+describe("candidate detail route (tranche 4)", () => {
+  const elections = read("routes", "elections.ts");
+  it("builds race context from the election row and refuses a candidate from another race", () => {
+    expect(elections).toContain("office: election.title,");
+    expect(elections).toContain("state: election.state,");
+    expect(elections).not.toMatch(/office: candidate\.office|state: candidate\.state|district: candidate\.district/);
+    expect(elections).toContain("error: 'Candidate is not in this election'");
+    // baseResponse exists before enrichment so a provider failure still returns the row (it used to be a ReferenceError)
+    expect(elections.indexOf("const baseResponse: CandidateDetailResponse = {")).toBeLessThan(elections.lastIndexOf("civicAggregatorService.getComprehensiveCandidateData([searchId]"));
+    // the list route also takes race context from the election row
+    expect(elections).toContain("const election = await storage.getElection(id);\r\n    if (!election) return res.status(404).json({ error: 'election not found' });\r\n\r\n    // Helper function".replace(/\r\n/g, elections.includes("\r\n") ? "\r\n" : "\n"));
+  });
+  it("VoteSmart responses are typed at the transport, not read off {}", () => {
+    const vs = read("services", "votesmart-service.ts");
+    for (const t of ["CandidatesResponse", "BioResponse", "NpatResponse", "VotesResponse", "RatingsResponse", "CategoriesResponse"]) {
+      expect(vs, t).toMatch(new RegExp(`makeRequest<${t}>`));
+    }
+    expect(vs).not.toMatch(/Array\.isArray\(response\./);
+  });
+});
+
 describe("notification queue processor", () => {
   it("drives delivery rows and never the removed in-memory maps", () => {
     const queue = read("services", "notification-queue-service.ts");
