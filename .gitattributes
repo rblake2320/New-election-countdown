@@ -19,3 +19,5 @@ artifacts/c6-*.txt -text
 tests/fixtures/official-results/*.json -text
 artifacts/la-catalog/current-independent-*.json text eol=lf
 tests/fixtures/official-results/future-positive/*.json -text
+# Packaged composition receipts preserve their captured hashes and diagnostics.
+artifacts/composition-review/** -text whitespace=cr-at-eol

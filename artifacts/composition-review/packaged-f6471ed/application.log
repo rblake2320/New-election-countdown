@@ -1,0 +1,98 @@
+MemStorage initialized empty (failover cache; database is source of truth)
+ℹ️ No replica configurations found - running with primary database only
+✅ Delivery Tracking Service initialized
+⚠️ Analytics temporarily using in-memory queue (database unavailable)
+✅ Infrastructure-as-Code Service initialized
+✅ Secrets Rotation Service initialized { enabledServices: 8, rotationFrequency: '90 days' }
+⏰ Artifact cleanup scheduler started
+✅ Artifact Retention Service initialized {
+  storageBasePath: '/app/artifacts',
+  compressionEnabled: true,
+  defaultRetentionDays: 90
+}
+✅ Environment Bootstrap Service initialized { environment: 'development', timeoutMinutes: 30 }
+[BackupAlertService] Initializing backup monitoring
+✅ RTO/RPO Performance Dashboard Service initialized
+✅ RTO/RPO Performance Dashboard Service initialized
+🔄 Storage: memory mode; DB unhealthy—writes gated
+ℹ️  Database operations will be queued until health is restored
+Initial sync with Google Civic API completed
+🔄 Storage System Initialized:
+  - Mode: memory
+  - Database Health: ❌ Unhealthy
+  - Current Storage: memory
+  - Queue Length: 0
+  - Last Health Check: 1970-01-01T00:00:00.000Z
+✅ Notification management routes registered
+Starting automated results ingestion (every 30 seconds)
+[Results Ingestion] Starting ingestion cycle...
+[Results Ingestion] Found 0 active elections
+2:12:46 PM [express] ✅ Live results ingestion service started (30s polling)
+🌱 Starting database seed (verified 2026 data)...
+✅ Database connection established
+✅ Database connection established
+✅ Primary database connection restored { latency: '42ms', attempts: 0, consecutiveFailures: 0 }
+🔄 Orchestrating failover: memory → database { trigger: 'automatic', reason: 'Primary database restored' }
+✅ Failover completed: memory → database (1ms) {
+  trigger: 'automatic',
+  reason: 'Primary database restored',
+  readOnlyMode: false
+}
+✅ Restore Validation Service initialized {
+  timeoutSeconds: 3600,
+  rtoTarget: '300s',
+  validationQueries: 3,
+  benchmarkQueries: 3
+}
+✅ Schema Drift Detection Service initialized
+✅ Disaster Recovery Coordinator initialized {
+  scheduledBackups: true,
+  automaticValidation: true,
+  schemaDriftMonitoring: true
+}
+ℹ️ Could not notify disaster recovery coordinator: disasterRecoveryCoordinator2.recordFailoverEvent is not a function
+📊 Seeding 537 elections...
+✅ Database seeding complete!
+   Elections: 537
+   Candidates: 136
+   Congress members: populated via scripts/sync_congress.ts when CONGRESS_API_KEY is set
+2:12:47 PM [express] ✅ Database seeded successfully
+2:12:47 PM [express] serving on http://0.0.0.0:5000
+2:12:47 PM [express] GET /api/health 200 in 26ms rid=198676b6-0a5e-4181-98ab-8fbb9dfbc430
+2:12:48 PM [express] GET /api/elections 200 in 39ms rid=39e3dbb1-c9c3-453b-8edf-38e64a5d2fb0
+🔵 Registration attempt started: integration-user@example.test
+🔵 Calling storageFactory.createUser for: integration-user@example.test
+🔵 User created successfully: d05ab4c8-80e3-43bb-a3b9-1f2fe7aa7dc1
+📊 Analytics tracking started for user d05ab4c8-80e3-43bb-a3b9-1f2fe7aa7dc1
+📧 Email verification token created (not logged); configure SMTP to deliver it
+✅ Welcome email sent to: integration-user@example.test
+2:12:48 PM [express] POST /api/auth/register 201 in 58ms rid=098e67bc-2261-4295-b891-76117b0a6e89
+2:12:48 PM [express] GET /api/auth/me 200 in 3ms rid=c11a35f6-4e10-4dbe-a5d0-45c4ae669ac2
+✅ Database connection established
+✅ Database connection established
+✅ Database connection established
+2:12:48 PM [express] GET /api/auth/dashboard 200 in 32ms rid=38ac8c45-80f0-4f9f-b455-9b03310dd456
+2:12:48 PM [express] GET /api/recommendations 200 in 14ms rid=c564d109-2874-456e-a31c-dae3504252e9
+2:12:48 PM [express] GET /api/watchlist 200 in 3ms rid=b42ff982-89bc-49b5-9e04-c97ac869d493
+🔵 Registration attempt started: backup-admin@example.test
+🔵 Calling storageFactory.createUser for: backup-admin@example.test
+🔵 User created successfully: cec17929-c849-40cd-a158-9539711bd050
+📊 Analytics tracking started for user cec17929-c849-40cd-a158-9539711bd050
+📧 Email verification token created (not logged); configure SMTP to deliver it
+✅ Welcome email sent to: backup-admin@example.test
+2:12:49 PM [express] POST /api/auth/register 201 in 52ms rid=511f07d2-d982-422f-8d74-064a93794265
+{"ts":"2026-10-11T14:12:49.915Z","type":"security_decision","action":"authz.admin","result":"allow","actor":"cec17929-c849-40cd-a158-9539711bd050","resource":"/api/admin/backup/full","requestId":"bc4a8255-e797-4439-bc26-3b969b2e3ee6","ip":"127.0.0.1","method":"POST","path":"/api/admin/backup/full"}
+{"ts":"2026-10-11T14:12:49.916Z","type":"security_decision","action":"authz.admin","result":"allow","actor":"cec17929-c849-40cd-a158-9539711bd050","resource":"/api/admin/backup/full","requestId":"bc4a8255-e797-4439-bc26-3b969b2e3ee6","ip":"127.0.0.1","method":"POST","path":"/api/admin/backup/full"}
+Starting full database backup...
+2:12:49 PM [express] GET /api/health 200 in 6ms rid=dae7290e-1759-4d21-a3f4-fd0a283f3e00
+Backup compressed: backups/election-tracker-backup-2026-10-11T14-12-49-917Z-be240dc2-b189-4ed7-91e7-40f85191e44f.sql.gz
+2:12:50 PM [express] POST /api/admin/backup/full 200 in 216ms rid=bc4a8255-e797-4439-bc26-3b969b2e3ee6
+2:12:57 PM [express] GET /api/elections 200 in 9ms rid=2fff4a14-5a63-4011-b72f-58cedacb5bbb
+2:12:57 PM [express] GET /api/elections 200 in 10ms rid=8201486e-7474-4cc6-a97d-dba8e8be4a9b
+2:12:57 PM [express] GET /api/elections 200 in 12ms rid=1ddc6283-6c6e-46f2-bd61-60fdb6678db3
+2:12:57 PM [express] GET /api/elections 200 in 8ms rid=e63285b4-d623-4b1a-91e6-0a3f9240672a
+2:12:57 PM [express] GET /api/elections 200 in 7ms rid=f27f4851-563c-4940-b882-6d016d50701e
+2:12:57 PM [express] GET /api/elections 200 in 4ms rid=2c0158a8-e761-4a47-a215-aa3518b3713f
+2:12:57 PM [express] GET /api/elections 200 in 2ms rid=236ec19d-e5b8-459d-8ea7-a5ee0b525f7c
+2:12:57 PM [express] GET /api/elections 400 in 1ms rid=faeccc53-204f-4a6f-b48f-1ae851080703
+2:13:04 PM [express] GET /api/elections 200 in 10ms rid=33c2fb88-73b0-4118-ace6-1dbde4b5cf0f

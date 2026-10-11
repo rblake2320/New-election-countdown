@@ -1,0 +1,89 @@
+MemStorage initialized empty (failover cache; database is source of truth)
+ℹ️ No replica configurations found - running with primary database only
+✅ Delivery Tracking Service initialized
+⚠️ Analytics temporarily using in-memory queue (database unavailable)
+✅ Infrastructure-as-Code Service initialized
+✅ Secrets Rotation Service initialized { enabledServices: 8, rotationFrequency: '90 days' }
+⏰ Artifact cleanup scheduler started
+✅ Artifact Retention Service initialized {
+  storageBasePath: '/app/artifacts',
+  compressionEnabled: true,
+  defaultRetentionDays: 90
+}
+✅ Environment Bootstrap Service initialized { environment: 'development', timeoutMinutes: 30 }
+[BackupAlertService] Initializing backup monitoring
+✅ RTO/RPO Performance Dashboard Service initialized
+✅ RTO/RPO Performance Dashboard Service initialized
+🔄 Storage: memory mode; DB unhealthy—writes gated
+ℹ️  Database operations will be queued until health is restored
+Initial sync with Google Civic API completed
+🔄 Storage System Initialized:
+  - Mode: memory
+  - Database Health: ❌ Unhealthy
+  - Current Storage: memory
+  - Queue Length: 0
+  - Last Health Check: 1970-01-01T00:00:00.000Z
+✅ Notification management routes registered
+Starting automated results ingestion (every 30 seconds)
+[Results Ingestion] Starting ingestion cycle...
+[Results Ingestion] Found 0 active elections
+2:11:46 PM [express] ✅ Live results ingestion service started (30s polling)
+🌱 Starting database seed (verified 2026 data)...
+✅ Database connection established
+✅ Database connection established
+✅ Primary database connection restored { latency: '46ms', attempts: 0, consecutiveFailures: 0 }
+🔄 Orchestrating failover: memory → database { trigger: 'automatic', reason: 'Primary database restored' }
+✅ Failover completed: memory → database (0ms) {
+  trigger: 'automatic',
+  reason: 'Primary database restored',
+  readOnlyMode: false
+}
+✅ Restore Validation Service initialized {
+  timeoutSeconds: 3600,
+  rtoTarget: '300s',
+  validationQueries: 3,
+  benchmarkQueries: 3
+}
+✅ Schema Drift Detection Service initialized
+✅ Disaster Recovery Coordinator initialized {
+  scheduledBackups: true,
+  automaticValidation: true,
+  schemaDriftMonitoring: true
+}
+ℹ️ Could not notify disaster recovery coordinator: disasterRecoveryCoordinator2.recordFailoverEvent is not a function
+📊 Seeding 537 elections...
+✅ Database seeding complete!
+   Elections: 537
+   Candidates: 136
+   Congress members: populated via scripts/sync_congress.ts when CONGRESS_API_KEY is set
+2:11:48 PM [express] ✅ Database seeded successfully
+2:11:48 PM [express] serving on http://0.0.0.0:5000
+2:11:48 PM [express] GET /api/health 200 in 30ms rid=0d9a5a73-3c68-467a-bd82-ebb4c4ea65c3
+2:11:48 PM [express] GET /api/elections 200 in 45ms rid=551bb839-65d4-4a34-b29f-656a5de59c45
+🔵 Registration attempt started: integration-user@example.test
+🔵 Calling storageFactory.createUser for: integration-user@example.test
+🔵 User created successfully: 9d28d8df-4bef-405e-95ce-493d83e71bb4
+📊 Analytics tracking started for user 9d28d8df-4bef-405e-95ce-493d83e71bb4
+📧 Email verification token created (not logged); configure SMTP to deliver it
+✅ Welcome email sent to: integration-user@example.test
+2:11:49 PM [express] POST /api/auth/register 201 in 56ms rid=6f2bf5e0-337d-4c42-98f3-b2fcd73dfbcc
+2:11:49 PM [express] GET /api/auth/me 200 in 4ms rid=4be36519-56cc-492c-b6d8-3e62941bf45b
+✅ Database connection established
+✅ Database connection established
+✅ Database connection established
+2:11:49 PM [express] GET /api/auth/dashboard 200 in 31ms rid=90f669df-b10d-4b5e-bab9-03199f70a2ce
+2:11:49 PM [express] GET /api/recommendations 200 in 13ms rid=f8d91c1b-24f8-4b08-8019-bb8cd95f9f25
+2:11:49 PM [express] GET /api/watchlist 200 in 3ms rid=6e21e191-e9c7-4ee6-b66d-cd09f3a8f50b
+🔵 Registration attempt started: backup-admin@example.test
+🔵 Calling storageFactory.createUser for: backup-admin@example.test
+🔵 User created successfully: e922e57b-c9f5-46d6-904d-c915365bc0f1
+📊 Analytics tracking started for user e922e57b-c9f5-46d6-904d-c915365bc0f1
+📧 Email verification token created (not logged); configure SMTP to deliver it
+✅ Welcome email sent to: backup-admin@example.test
+2:11:49 PM [express] POST /api/auth/register 201 in 58ms rid=029b2057-8b7a-43e4-a506-b991cc845e68
+{"ts":"2026-10-11T14:11:50.817Z","type":"security_decision","action":"authz.admin","result":"allow","actor":"e922e57b-c9f5-46d6-904d-c915365bc0f1","resource":"/api/admin/backup/full","requestId":"44040c49-757e-47fc-9438-343ff429325e","ip":"127.0.0.1","method":"POST","path":"/api/admin/backup/full"}
+{"ts":"2026-10-11T14:11:50.818Z","type":"security_decision","action":"authz.admin","result":"allow","actor":"e922e57b-c9f5-46d6-904d-c915365bc0f1","resource":"/api/admin/backup/full","requestId":"44040c49-757e-47fc-9438-343ff429325e","ip":"127.0.0.1","method":"POST","path":"/api/admin/backup/full"}
+Starting full database backup...
+2:11:50 PM [express] GET /api/health 200 in 5ms rid=60d28f35-1ce5-4926-b0b8-74655b50c007
+Backup compressed: backups/election-tracker-backup-2026-10-11T14-11-50-818Z-4876cb97-51a7-4d3e-bbb9-ed98643a4725.sql.gz
+2:11:51 PM [express] POST /api/admin/backup/full 200 in 217ms rid=44040c49-757e-47fc-9438-343ff429325e
