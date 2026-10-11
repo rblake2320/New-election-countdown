@@ -63,7 +63,12 @@ export function useCandidates(electionId: number) {
       if (!response.ok) {
         throw new Error('Failed to fetch candidates');
       }
-      return response.json() as Promise<Candidate[]>;
+      const rows = (await response.json()) as Array<Candidate & { source_election_id?: number | null }>;
+      // The server falls back to a "similar" race's candidates when this race has
+      // none (same state, same day, shared first title word), which put Alaska's
+      // Senate candidates on the Alaska governor card. Only rows for this exact
+      // race are shown; an empty race stays empty (owner UX review, ET-32).
+      return rows.filter(r => r.source_election_id == null || Number(r.source_election_id) === Number(electionId));
     },
     enabled: !!electionId,
     staleTime: 60 * 60 * 1000, // 1 hour cache - candidates don't change frequently
