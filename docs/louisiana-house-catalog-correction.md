@@ -20,3 +20,5 @@ Worked: immutable seed red6 wrong labels, three red API/importer/FEC contracts, 
 The C-only failing boot log is retained as an A composition dependency, not a Louisiana classification defect. No bootstrap or authentication repair is included in this branch.
 
 Full typecheck still fails with1114 pre-existing errors on both immutable base and this branch. File/code occurrence counts are unchanged and added files have zero errors. The team's whole-project type gate remains open.
+
+The current stacked branch applies only these Louisiana changes atop reviewed source expansion e6d74cc, preserving the latest FEC proof and all fifteen identity declarations. At 0d7e8e4, a fresh physical dependency install, 21 targeted unit checks, build, and thirteen independent private PostgreSQL/HTTP checks Worked. New receipts are prefixed current-independent; original captures remain unchanged. The final A/B/C/D compiled composition remains required before any shared application.
