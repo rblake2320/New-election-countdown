@@ -195,7 +195,7 @@ export function QuickRecommendations({
               return (
                 <div 
                   key={recommendation.id} 
-                  className="group border rounded-lg p-3 hover:shadow-sm transition-all cursor-pointer"
+                  className="group border rounded-lg p-3 hover:shadow-xs transition-all cursor-pointer"
                   onClick={() => handleViewElection(recommendation)}
                   data-testid={`quick-recommendation-${recommendation.id}`}
                 >
@@ -207,7 +207,7 @@ export function QuickRecommendations({
                           {recommendation.election.title}
                         </h4>
                         <div className="flex items-center gap-1 mt-1">
-                          <MapPin className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                          <MapPin className="h-3 w-3 text-muted-foreground shrink-0" />
                           <span className="text-xs text-muted-foreground truncate">
                             {recommendation.election.location}
                           </span>

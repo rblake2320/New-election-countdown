@@ -60,8 +60,8 @@ export function PoliticalLeaningBorder({
         "before:absolute before:content-[''] before:w-[999px] before:h-[999px]", 
         "before:bg-no-repeat before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2",
         "before:rotate-60 before:transition-all before:duration-2000 before:pointer-events-none",
-        "group-hover:before:rotate-[-120deg] group-focus-within:before:rotate-[420deg]",
-        "group-focus-within:before:duration-[4000ms]",
+        "group-hover:before:rotate-[-120deg] group-focus-within:before:rotate-420",
+        "group-focus-within:before:duration-4000",
         leaningStyles[leaning][intensity]
       )}
       style={{ zIndex: -4 }}>
@@ -72,9 +72,9 @@ export function PoliticalLeaningBorder({
         "absolute inset-0 overflow-hidden h-full w-full rounded-xl blur-[3px] pointer-events-none",
         "before:absolute before:content-[''] before:w-[600px] before:h-[600px]",
         "before:bg-no-repeat before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2",
-        "before:rotate-[82deg] before:transition-all before:duration-2000 before:pointer-events-none",
-        "group-hover:before:rotate-[-98deg] group-focus-within:before:rotate-[442deg]",
-        "group-focus-within:before:duration-[4000ms]",
+        "before:rotate-82 before:transition-all before:duration-2000 before:pointer-events-none",
+        "group-hover:before:rotate-[-98deg] group-focus-within:before:rotate-442",
+        "group-focus-within:before:duration-4000",
         secondaryGradients[leaning]
       )}
       style={{ zIndex: -3 }}>
@@ -85,9 +85,9 @@ export function PoliticalLeaningBorder({
         "absolute inset-0 overflow-hidden h-full w-full rounded-lg blur-[2px] pointer-events-none",
         "before:absolute before:content-[''] before:w-[600px] before:h-[600px]",
         "before:bg-no-repeat before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2",
-        "before:rotate-[83deg] before:brightness-140 before:transition-all before:duration-2000 before:pointer-events-none",
-        "group-hover:before:rotate-[-97deg] group-focus-within:before:rotate-[443deg]",
-        "group-focus-within:before:duration-[4000ms]",
+        "before:rotate-83 before:brightness-140 before:transition-all before:duration-2000 before:pointer-events-none",
+        "group-hover:before:rotate-[-97deg] group-focus-within:before:rotate-443",
+        "group-focus-within:before:duration-4000",
         secondaryGradients[leaning]
       )}
       style={{ zIndex: -2 }}>
@@ -99,8 +99,8 @@ export function PoliticalLeaningBorder({
         "before:absolute before:content-[''] before:w-[600px] before:h-[600px]",
         "before:bg-no-repeat before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2",
         "before:rotate-70 before:brightness-130 before:transition-all before:duration-2000 before:pointer-events-none",
-        "group-hover:before:rotate-[-110deg] group-focus-within:before:rotate-[430deg]",
-        "group-focus-within:before:duration-[4000ms]",
+        "group-hover:before:rotate-[-110deg] group-focus-within:before:rotate-430",
+        "group-focus-within:before:duration-4000",
         leaningStyles[leaning][intensity]
       )}
       style={{ zIndex: -1 }}>

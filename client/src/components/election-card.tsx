@@ -219,13 +219,13 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
   return (
     <PoliticalLeaningBorder leaning={politicalAnalysis.leaning} intensity={politicalAnalysis.intensity}>
       <div className={cn(
-        "unified-card relative border border-border/50 bg-card shadow-sm",
+        "unified-card relative border border-border/50 bg-card shadow-xs",
         viewMode === "grid" ? "p-5 gap-4" : "p-4 gap-3 flex-row lg:flex-col"
       )} data-testid="election-card" role="article">
       {/* Tag Row - Absolute positioned for grid, inline for list */}
       <div className={cn(
         "flex gap-2",
-        viewMode === "grid" ? "absolute top-3 left-3" : "flex-shrink-0"
+        viewMode === "grid" ? "absolute top-3 left-3" : "shrink-0"
       )}>
         <Badge 
           className={cn(
@@ -253,7 +253,8 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
         "space-y-2 flex-1",
         viewMode === "grid" ? "mt-8" : ""
       )}>
-        <Link href={`/elections/${election.id}`} data-testid={`link-election-${election.id}`}>
+        {/* block: Tailwind 4's space-y puts the gap as margin-bottom on this child, which an inline <a> ignores */}
+        <Link href={`/elections/${election.id}`} data-testid={`link-election-${election.id}`} className="block">
           <h2 className={cn(
             "font-semibold leading-tight text-foreground hover:text-primary transition-colors cursor-pointer",
             viewMode === "grid" ? "text-lg truncate-2" : "text-base truncate-1"
@@ -266,11 +267,11 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
             {election.subtitle || "General Election"}
           </p>
           <p className="text-sm text-muted-foreground flex items-center gap-1">
-            <Calendar className="w-3 h-3 flex-shrink-0" />
+            <Calendar className="w-3 h-3 shrink-0" />
             <span className="truncate">{formatElectionDate(election.date.toString())}</span>
           </p>
           <p className="text-sm text-muted-foreground flex items-center gap-1">
-            <MapPin className="w-3 h-3 flex-shrink-0" />
+            <MapPin className="w-3 h-3 shrink-0" />
             <span className="truncate">{election.state}</span>
           </p>
         </div>
@@ -278,7 +279,7 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
 
       {/* Countdown - Properly centered and aligned */}
       <div className="flex justify-center items-center py-3">
-        <div className="text-center bg-gradient-to-br from-background/80 to-muted/50 rounded-lg p-3 border border-border/50">
+        <div className="text-center bg-linear-to-br from-background/80 to-muted/50 rounded-lg p-3 border border-border/50">
           <CountdownTimer 
             election={election} 
             size={viewMode === "grid" ? "md" : "sm"} 
@@ -321,7 +322,7 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
           <div className="grid grid-cols-2 gap-2">
             {candidates.slice(0, 4).map((candidate: any) => (
               <div key={candidate.id} className={cn(
-                "w-full p-2.5 rounded-lg bg-gradient-to-br from-background/90 to-muted/30 border transition-all hover:shadow-sm hover:border-border/80",
+                "w-full p-2.5 rounded-lg bg-linear-to-br from-background/90 to-muted/30 border transition-all hover:shadow-xs hover:border-border/80",
                 candidate.isWinner 
                   ? "border-green-500/50 bg-green-500/10" 
                   : "border-border/50"
@@ -332,7 +333,7 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
                       {candidate.name}
                     </p>
                     {candidate.isWinner && (
-                      <Trophy className="w-3 h-3 text-green-600 flex-shrink-0" />
+                      <Trophy className="w-3 h-3 text-green-600 shrink-0" />
                     )}
                   </div>
                   <div className="flex items-center justify-between">
@@ -471,7 +472,7 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
             <Button 
               size="sm" 
               variant="outline"
-              className="h-8 px-2.5 text-xs font-medium rounded-full flex-shrink-0"
+              className="h-8 px-2.5 text-xs font-medium rounded-full shrink-0"
             >
               <TrendingUp className="h-3 w-3 mr-1" />
               View Trends
@@ -491,7 +492,7 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
             <DialogTrigger asChild>
               <Button 
                 size="sm" 
-                className="h-8 px-2.5 text-xs font-medium rounded-full bg-primary hover:bg-primary/90 text-white flex-shrink-0"
+                className="h-8 px-2.5 text-xs font-medium rounded-full bg-primary hover:bg-primary/90 text-white shrink-0"
               >
                 <Info className="h-3 w-3 mr-1" />
                 Details

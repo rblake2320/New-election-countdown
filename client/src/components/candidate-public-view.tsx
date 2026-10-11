@@ -301,7 +301,7 @@ export default function CandidatePublicView({ candidate }: CandidatePublicViewPr
             <ul className="space-y-2">
               {candidate.keyAccomplishments.map((accomplishment: string, index: number) => (
                 <li key={index} className="flex items-start gap-2">
-                  <Award className="h-4 w-4 text-yellow-500 mt-0.5 flex-shrink-0" />
+                  <Award className="h-4 w-4 text-yellow-500 mt-0.5 shrink-0" />
                   <span className="text-sm">{accomplishment}</span>
                 </li>
               ))}

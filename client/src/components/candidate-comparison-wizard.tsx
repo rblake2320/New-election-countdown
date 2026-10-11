@@ -310,7 +310,7 @@ export function CandidateComparisonWizard({ election, candidates }: CandidateCom
         <Button 
           variant="outline" 
           size="sm"
-          className="h-8 px-2.5 text-xs font-medium rounded-full border-brand-primary/30 text-brand-primary hover:bg-brand-primary/10 flex-shrink-0"
+          className="h-8 px-2.5 text-xs font-medium rounded-full border-brand-primary/30 text-brand-primary hover:bg-brand-primary/10 shrink-0"
         >
           <GitCompare className="w-3 h-3 mr-1" />
           Compare
@@ -539,7 +539,7 @@ function CandidateSelectionStep({
                     placeholder="e.g., John Smith, Michelle Obama, yourself"
                     value={customCandidateName}
                     onChange={(e) => setCustomCandidateName(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-green-500 text-sm"
                   />
                 </div>
                 <div className="space-y-2">
@@ -549,7 +549,7 @@ function CandidateSelectionStep({
                     placeholder="e.g., Former Governor, Business Owner, Citizen"
                     value={customCandidateTitle}
                     onChange={(e) => setCustomCandidateTitle(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-green-500 text-sm"
                   />
                 </div>
               </div>
@@ -719,7 +719,7 @@ function ComparisonView({
           
           <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-left">
             <div className="flex items-start gap-2">
-              <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+              <Info className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
               <div className="text-xs text-blue-800 dark:text-blue-300">
                 <p className="font-medium mb-1">What you can try:</p>
                 <ul className="list-disc pl-4 space-y-1">
