@@ -1,0 +1,18 @@
+{
+  "outcome": "worked",
+  "fixture": "isolated synthetic PostgreSQL",
+  "checks": {
+    "dry_run_no_writes": true,
+    "atomic_apply": true,
+    "exact_repeat_no_changes": true,
+    "existing_ballot_and_provenance_preserved": true,
+    "registration_never_certified": true,
+    "unknown_party_not_independent": true,
+    "parameterized_apostrophe_name": true,
+    "injected_failure_full_rollback": true,
+    "concurrent_apply_one_identity": true,
+    "imported_party_refresh": true
+  },
+  "first_actions": 3,
+  "repeated_actions": 0
+}
