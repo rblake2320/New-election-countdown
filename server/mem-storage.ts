@@ -1,12 +1,29 @@
 import { canonicalPartyComponents, electionCalendarWindow, normalizeElectionFilters, type ElectionListing, type ElectionQueryFilters } from "./election-list-filters";
 import { projectOfficialResultsForElection } from '../shared/official-results';
-import { type Election, type InsertElection, type Candidate, type InsertCandidate, type ElectionFilters, type CongressMember, type InsertCongressMember, type User, type UpsertUser, type WatchlistItem, type InsertWatchlistItem, type CandidateAccount, type InsertCandidateAccount, type CandidateProfile, type InsertCandidateProfile, type CandidateDataSource, type InsertCandidateDataSource, type CandidatePosition, type InsertCandidatePosition, type CandidateQA, type InsertCandidateQA } from "@shared/schema";
+import { type Election, type InsertElection, type Candidate, type InsertCandidate, type ElectionFilters, type CongressMember, type InsertCongressMember, type User, type UpsertUser, type WatchlistItem, type InsertWatchlistItem, type CandidateAccount, type InsertCandidateAccount, type CandidateProfile, type InsertCandidateProfile, type CandidateDataSource, type InsertCandidateDataSource, type CandidatePosition, type InsertCandidatePosition, type CandidateQA, type InsertCandidateQA, type NotificationPreferences, type InsertNotificationPreferences, type NotificationSubscription, type NotificationDelivery, type InsertNotificationDelivery, type UpdateUserPreferences, type UserPreferences } from "@shared/schema";
 import { IStorage } from "./storage";
 import { getGoogleCivicService } from "./google-civic-service";
 import { getCongressBillService } from './congress-bill-service';
 import { getPerplexityService } from './perplexity-service';
 import { censusService } from './census-service';
 import bcrypt from 'bcryptjs';
+
+function existingUserIdFor(email: string | null | undefined, users: Map<string, User>): string | undefined {
+  if (!email) return undefined;
+  for (const u of users.values()) if (u.email === email) return u.id;
+  return undefined;
+}
+
+/** A complete in-memory watchlist row with the table's defaults. */
+function memWatchlistRow(id: number, userId: string, electionId: number, createdAt: Date): WatchlistItem {
+  return {
+    id, userId, electionId,
+    priority: 'normal', category: null, status: 'active', tags: null, notes: null,
+    addedVia: 'manual', sourceRecommendationId: null, interactionCount: 0, lastInteraction: null,
+    notificationsEnabled: true, reminderDaysBefore: 7, isVisible: true, sortOrder: null,
+    createdAt, updatedAt: createdAt,
+  };
+}
 
 export class MemStorage implements IStorage {
   private elections = new Map<number, Election>();
@@ -185,6 +202,18 @@ export class MemStorage implements IStorage {
       contactEmail: candidate.contactEmail ?? null,
       campaignPhone: candidate.campaignPhone ?? null,
       socialMedia: candidate.socialMedia ?? null,
+      fecCandidateId: candidate.fecCandidateId ?? null,
+      dataSource: candidate.dataSource ?? null,
+      sourceStatus: candidate.sourceStatus ?? null,
+      fecStatus: candidate.fecStatus ?? null,
+      normalizedName: candidate.normalizedName ?? null,
+      ballotStatus: candidate.ballotStatus ?? null,
+      ballotSourceName: candidate.ballotSourceName ?? null,
+      ballotSourceUrl: candidate.ballotSourceUrl ?? null,
+      ballotVerifiedAt: candidate.ballotVerifiedAt ?? null,
+      sourceFileSha256: candidate.sourceFileSha256 ?? null,
+      sourceSyncedAt: candidate.sourceSyncedAt ?? null,
+      altFecIds: candidate.altFecIds ?? null,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -473,10 +502,16 @@ export class MemStorage implements IStorage {
   }
 
   async upsertUser(user: UpsertUser): Promise<User> {
-    const existingUser = this.users.get(user.id);
+    const id = user.id ?? existingUserIdFor(user.email, this.users) ?? crypto.randomUUID();
+    const existingUser = this.users.get(id);
     const newUser: User = {
       ...existingUser,
       ...user,
+      id,
+      role: user.role ?? existingUser?.role ?? 'user',
+      passwordHash: user.passwordHash ?? existingUser?.passwordHash ?? null,
+      emailVerified: user.emailVerified ?? existingUser?.emailVerified ?? false,
+      lastLogin: user.lastLogin ?? existingUser?.lastLogin ?? null,
       profileImageUrl: user.profileImageUrl ?? null,
       email: user.email ?? null,
       firstName: user.firstName ?? null,
@@ -484,19 +519,14 @@ export class MemStorage implements IStorage {
       updatedAt: new Date(),
       createdAt: existingUser?.createdAt || new Date()
     };
-    this.users.set(user.id, newUser);
+    this.users.set(id, newUser);
     return newUser;
   }
 
   // Watchlist methods
   async getUserWatchlist(userId: string): Promise<WatchlistItem[]> {
     const electionIds = this.watchlists.get(userId) || [];
-    return electionIds.map((electionId, index) => ({
-      id: index + 1,
-      userId,
-      electionId,
-      createdAt: new Date()
-    }));
+    return electionIds.map((electionId, index) => memWatchlistRow(index + 1, userId, electionId, new Date()));
   }
 
   async addToWatchlist(userId: string, electionId: number): Promise<WatchlistItem> {
@@ -504,12 +534,7 @@ export class MemStorage implements IStorage {
     if (!existing.includes(electionId)) {
       this.watchlists.set(userId, [...existing, electionId]);
     }
-    return {
-      id: existing.length + 1,
-      userId,
-      electionId,
-      createdAt: new Date()
-    };
+    return memWatchlistRow(existing.length + 1, userId, electionId, new Date());
   }
 
   async removeFromWatchlist(userId: string, electionId: number): Promise<void> {
@@ -577,6 +602,57 @@ export class MemStorage implements IStorage {
     this.candidateAccounts.set(id, updated);
     return updated;
   }
+
+  // --- Degraded-mode (database unavailable) behaviour for methods DatabaseStorage owns ---
+  // Reads answer from in-memory state or empty; writes refuse with a clear error instead of
+  // pretending to persist. The storage proxy forwards these when MemStorage is active.
+  private degraded(method: string): never {
+    throw Object.assign(new Error(`${method} is unavailable while the database is degraded`), { status: 503, publicCode: 'storage_degraded', publicMessage: 'This action is temporarily unavailable' });
+  }
+  async getCandidatePositions(candidateId: number, category?: string): Promise<CandidatePosition[]> {
+    const rows = this.candidatePositions.get(candidateId) ?? [];
+    return category ? rows.filter((r) => r.category === category) : rows;
+  }
+  async getCandidatePositionById(positionId: number): Promise<CandidatePosition | null> {
+    for (const rows of this.candidatePositions.values()) { const hit = rows.find((r) => r.id === positionId); if (hit) return hit; }
+    return null;
+  }
+  async getCandidateQAEntries(candidateId: number, category?: string): Promise<CandidateQA[]> {
+    const rows = this.candidateQAs.get(candidateId) ?? [];
+    return category ? rows.filter((r) => r.category === category) : rows;
+  }
+  async updateWatchlistItem(_userId: string, _itemId: number, _updates: Record<string, unknown>): Promise<WatchlistItem> { return this.degraded('updateWatchlistItem'); }
+  async createCandidateProfile(profile: InsertCandidateProfile): Promise<CandidateProfile> {
+    const row = { id: this.nextId++, createdAt: new Date(), updatedAt: new Date(), ...profile } as unknown as CandidateProfile;
+    this.candidateProfiles.set(profile.candidateId, row);
+    return row;
+  }
+  async createCandidatePosition(position: InsertCandidatePosition): Promise<CandidatePosition> {
+    const row = { id: this.nextId++, createdAt: new Date(), lastUpdated: new Date(), ...position } as unknown as CandidatePosition;
+    const rows = this.candidatePositions.get(position.candidateId) ?? [];
+    rows.push(row); this.candidatePositions.set(position.candidateId, rows);
+    return row;
+  }
+  async updateCandidatePosition(positionId: number, updates: Partial<CandidatePosition>): Promise<CandidatePosition> {
+    for (const rows of this.candidatePositions.values()) {
+      const i = rows.findIndex((r) => r.id === positionId);
+      if (i >= 0) { rows[i] = { ...rows[i], ...updates, lastUpdated: new Date() } as CandidatePosition; return rows[i]; }
+    }
+    throw Object.assign(new Error('Position not found'), { status: 404, publicCode: 'not_found', publicMessage: 'Position not found' });
+  }
+  async deleteCandidatePosition(positionId: number): Promise<void> {
+    for (const [cid, rows] of this.candidatePositions.entries()) {
+      const next = rows.filter((r) => r.id !== positionId);
+      if (next.length !== rows.length) { this.candidatePositions.set(cid, next); return; }
+    }
+  }
+  async getUserNotificationPreferences(_userId: string): Promise<NotificationPreferences | null> { return null; }
+  async createDefaultNotificationPreferences(_userId: string): Promise<NotificationPreferences> { return this.degraded('createDefaultNotificationPreferences'); }
+  async updateUserNotificationPreferences(_userId: string, _updates: Partial<InsertNotificationPreferences>): Promise<NotificationPreferences> { return this.degraded('updateUserNotificationPreferences'); }
+  async getUserNotificationSubscriptions(_userId: string): Promise<NotificationSubscription[]> { return []; }
+  async updateNotificationSubscription(_subscriptionId: number, _updates: Partial<NotificationSubscription>): Promise<NotificationSubscription> { return this.degraded('updateNotificationSubscription'); }
+  async verifyNotificationSubscription(_token: string): Promise<NotificationSubscription | null> { return null; }
+  async createNotificationDelivery(_delivery: InsertNotificationDelivery): Promise<NotificationDelivery> { return this.degraded('createNotificationDelivery'); }
 
   async getCandidateProfile(candidateId: number): Promise<CandidateProfile | null> {
     return this.candidateProfiles.get(candidateId) || null;
@@ -656,21 +732,17 @@ export class MemStorage implements IStorage {
     console.log('Engagement recorded:', data);
   }
 
-  async updateUserPreferences(userId: number, preferences: any): Promise<void> {
-    console.log('User preferences updated:', { userId, preferences });
-  }
+  // Degraded mode must never report a write as done when nothing was persisted.
+  async updateUserPreferences(_userId: string, _updates: UpdateUserPreferences): Promise<UserPreferences> { return this.degraded('updateUserPreferences'); }
 
-  async updateUserDemographics(userId: number, demographics: any): Promise<void> {
-    console.log('User demographics updated:', { userId, demographics });
-  }
+  async updateUserDemographics(_userId: string, _demographics: UpdateUserPreferences): Promise<UserPreferences> { return this.degraded('updateUserDemographics'); }
 
-  async exportUserData(userId: number): Promise<any> {
-    return { userId, message: "Data export not available in memory storage" };
-  }
+  async exportUserData(_userId: number): Promise<any> { return this.degraded('exportUserData'); }
 
-  async deleteUserData(userId: number): Promise<boolean> {
-    console.log('User data deletion requested:', userId);
-    return true;
+  async deleteUserData(_userId: number): Promise<boolean> {
+    // A deletion request (GDPR) cannot be honoured without the database; refusing is the
+    // only truthful answer - returning true here used to fake a completed erasure.
+    return this.degraded('deleteUserData');
   }
 
   async createCampaignAccount(data: any): Promise<any> {
@@ -726,6 +798,7 @@ export class MemStorage implements IStorage {
       emailVerified: false,
       createdAt: new Date(),
       lastLogin: null,
+      role: 'user',
       profileImageUrl: null,
       firstName: null,
       lastName: null,
@@ -1906,10 +1979,9 @@ export class MemStorage implements IStorage {
     if (filters?.active !== undefined) {
       trees = trees.filter(t => t.isActive === filters.active);
     }
-    if (filters?.incidentTypes && filters.incidentTypes.length > 0) {
-      trees = trees.filter(t => t.incidentTypes &&
-        filters.incidentTypes.some(type => t.incidentTypes.includes(type))
-      );
+    const incidentTypes = filters?.incidentTypes;
+    if (incidentTypes && incidentTypes.length > 0) {
+      trees = trees.filter(t => t.incidentTypes && incidentTypes.some(type => t.incidentTypes.includes(type)));
     }
 
     return trees.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -1956,10 +2028,10 @@ export class MemStorage implements IStorage {
   }
 
   // Runbook Executions
-  async getRunbookExecutions(filters?: { runbookId?: string; status?: string; executedBy?: string; page?: number; limit?: number }): Promise<any[]> {
+  async getRunbookExecutions(filters?: { runbookId?: number; status?: string; executedBy?: string; page?: number; limit?: number }): Promise<any[]> {
     let executions = Array.from(this.runbookExecutions.values());
 
-    if (filters?.runbookId) {
+    if (filters?.runbookId !== undefined) {
       executions = executions.filter(e => e.runbookId === filters.runbookId);
     }
     if (filters?.status) {
@@ -2009,7 +2081,7 @@ export class MemStorage implements IStorage {
       .slice(0, limit);
   }
 
-  async getRunbookExecutionsByRunbook(runbookId: string): Promise<any[]> {
+  async getRunbookExecutionsByRunbook(runbookId: number): Promise<any[]> {
     return Array.from(this.runbookExecutions.values())
       .filter(e => e.runbookId === runbookId)
       .sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime());
@@ -2224,4 +2296,83 @@ export class MemStorage implements IStorage {
       contactAvailability
     };
   }
+  // Contract completion (strict tranche 1): members DatabaseStorage owns are refused
+  // explicitly while the database is degraded - never faked, never `undefined()`.
+  async bulkUpdateWatchlistItems(..._args: unknown[]): Promise<never> { return this.degraded('bulkUpdateWatchlistItems'); }
+  async calculateRecommendationPerformance(..._args: unknown[]): Promise<never> { return this.degraded('calculateRecommendationPerformance'); }
+  async createBackupOperation(..._args: unknown[]): Promise<never> { return this.degraded('createBackupOperation'); }
+  async createBackupRetentionPolicy(..._args: unknown[]): Promise<never> { return this.degraded('createBackupRetentionPolicy'); }
+  async createBackupStorageLocation(..._args: unknown[]): Promise<never> { return this.degraded('createBackupStorageLocation'); }
+  async createDefaultUserPreferences(..._args: unknown[]): Promise<never> { return this.degraded('createDefaultUserPreferences'); }
+  async createNotificationCampaign(..._args: unknown[]): Promise<never> { return this.degraded('createNotificationCampaign'); }
+  async createNotificationEvent(..._args: unknown[]): Promise<never> { return this.degraded('createNotificationEvent'); }
+  async createNotificationSubscription(..._args: unknown[]): Promise<never> { return this.degraded('createNotificationSubscription'); }
+  async createNotificationTemplate(..._args: unknown[]): Promise<never> { return this.degraded('createNotificationTemplate'); }
+  async createNotificationWebhook(..._args: unknown[]): Promise<never> { return this.degraded('createNotificationWebhook'); }
+  async createRestoreValidation(..._args: unknown[]): Promise<never> { return this.degraded('createRestoreValidation'); }
+  async createSchemaVersion(..._args: unknown[]): Promise<never> { return this.degraded('createSchemaVersion'); }
+  async createUserPreferences(..._args: unknown[]): Promise<never> { return this.degraded('createUserPreferences'); }
+  async deleteNotificationSubscription(..._args: unknown[]): Promise<never> { return this.degraded('deleteNotificationSubscription'); }
+  async generateRecommendations(..._args: unknown[]): Promise<never> { return this.degraded('generateRecommendations'); }
+  async getActiveRetentionPolicies(..._args: unknown[]): Promise<never> { return this.degraded('getActiveRetentionPolicies'); }
+  async getBackupOperation(..._args: unknown[]): Promise<never> { return this.degraded('getBackupOperation'); }
+  async getBackupOperations(..._args: unknown[]): Promise<never> { return this.degraded('getBackupOperations'); }
+  async getBackupRetentionPolicies(..._args: unknown[]): Promise<never> { return this.degraded('getBackupRetentionPolicies'); }
+  async getBackupStorageLocations(..._args: unknown[]): Promise<never> { return this.degraded('getBackupStorageLocations'); }
+  async getBackupSystemConfig(..._args: unknown[]): Promise<never> { return this.degraded('getBackupSystemConfig'); }
+  async getCachedRecommendations(..._args: unknown[]): Promise<never> { return this.degraded('getCachedRecommendations'); }
+  async getCongressionalDistrictByCode(..._args: unknown[]): Promise<never> { return this.degraded('getCongressionalDistrictByCode'); }
+  async getCongressionalDistricts(..._args: unknown[]): Promise<never> { return this.degraded('getCongressionalDistricts'); }
+  async getEnhancedWatchlist(..._args: unknown[]): Promise<never> { return this.degraded('getEnhancedWatchlist'); }
+  async getInterestBasedRecommendations(..._args: unknown[]): Promise<never> { return this.degraded('getInterestBasedRecommendations'); }
+  async getLatestSchemaVersion(..._args: unknown[]): Promise<never> { return this.degraded('getLatestSchemaVersion'); }
+  async getLocationBasedRecommendations(..._args: unknown[]): Promise<never> { return this.degraded('getLocationBasedRecommendations'); }
+  async getNotificationCampaign(..._args: unknown[]): Promise<never> { return this.degraded('getNotificationCampaign'); }
+  async getNotificationCampaigns(..._args: unknown[]): Promise<never> { return this.degraded('getNotificationCampaigns'); }
+  async getNotificationDeliveries(..._args: unknown[]): Promise<never> { return this.degraded('getNotificationDeliveries'); }
+  async getNotificationDeliveryStats(..._args: unknown[]): Promise<never> { return this.degraded('getNotificationDeliveryStats'); }
+  async getNotificationEvents(..._args: unknown[]): Promise<never> { return this.degraded('getNotificationEvents'); }
+  async getNotificationTemplate(..._args: unknown[]): Promise<never> { return this.degraded('getNotificationTemplate'); }
+  async getNotificationTemplates(..._args: unknown[]): Promise<never> { return this.degraded('getNotificationTemplates'); }
+  async getPersonalizedRecommendations(..._args: unknown[]): Promise<never> { return this.degraded('getPersonalizedRecommendations'); }
+  async getQueuedNotifications(..._args: unknown[]): Promise<never> { return this.degraded('getQueuedNotifications'); }
+  async getRecentBackupOperations(..._args: unknown[]): Promise<never> { return this.degraded('getRecentBackupOperations'); }
+  async getRecentRestoreValidations(..._args: unknown[]): Promise<never> { return this.degraded('getRecentRestoreValidations'); }
+  async getRecommendationInsights(..._args: unknown[]): Promise<never> { return this.degraded('getRecommendationInsights'); }
+  async getRestoreValidations(..._args: unknown[]): Promise<never> { return this.degraded('getRestoreValidations'); }
+  async getSchemaVersions(..._args: unknown[]): Promise<never> { return this.degraded('getSchemaVersions'); }
+  async getSimilarUsersRecommendations(..._args: unknown[]): Promise<never> { return this.degraded('getSimilarUsersRecommendations'); }
+  async getTrendingRecommendations(..._args: unknown[]): Promise<never> { return this.degraded('getTrendingRecommendations'); }
+  async getUnprocessedWebhooks(..._args: unknown[]): Promise<never> { return this.degraded('getUnprocessedWebhooks'); }
+  async getUserNotificationConsents(..._args: unknown[]): Promise<never> { return this.degraded('getUserNotificationConsents'); }
+  async getUserPreferences(..._args: unknown[]): Promise<never> { return this.degraded('getUserPreferences'); }
+  async getUserRecommendationAnalytics(..._args: unknown[]): Promise<never> { return this.degraded('getUserRecommendationAnalytics'); }
+  async getWatchlistAnalytics(..._args: unknown[]): Promise<never> { return this.degraded('getWatchlistAnalytics'); }
+  async invalidateRecommendationCache(..._args: unknown[]): Promise<never> { return this.degraded('invalidateRecommendationCache'); }
+  async lookupCongressionalDistrict(..._args: unknown[]): Promise<never> { return this.degraded('lookupCongressionalDistrict'); }
+  async processNotificationWebhook(..._args: unknown[]): Promise<never> { return this.degraded('processNotificationWebhook'); }
+  async recordNotificationConsent(..._args: unknown[]): Promise<never> { return this.degraded('recordNotificationConsent'); }
+  async refreshRecommendationCache(..._args: unknown[]): Promise<never> { return this.degraded('refreshRecommendationCache'); }
+  async retryFailedNotifications(..._args: unknown[]): Promise<never> { return this.degraded('retryFailedNotifications'); }
+  async setBackupSystemConfig(..._args: unknown[]): Promise<never> { return this.degraded('setBackupSystemConfig'); }
+  async setCachedRecommendations(..._args: unknown[]): Promise<never> { return this.degraded('setCachedRecommendations'); }
+  async trackRecommendationClick(..._args: unknown[]): Promise<never> { return this.degraded('trackRecommendationClick'); }
+  async trackRecommendationDismissal(..._args: unknown[]): Promise<never> { return this.degraded('trackRecommendationDismissal'); }
+  async trackRecommendationPresentation(..._args: unknown[]): Promise<never> { return this.degraded('trackRecommendationPresentation'); }
+  async trackRecommendationToWatchlistConversion(..._args: unknown[]): Promise<never> { return this.degraded('trackRecommendationToWatchlistConversion'); }
+  async trackRecommendationView(..._args: unknown[]): Promise<never> { return this.degraded('trackRecommendationView'); }
+  async unsubscribeNotification(..._args: unknown[]): Promise<never> { return this.degraded('unsubscribeNotification'); }
+  async updateBackupOperation(..._args: unknown[]): Promise<never> { return this.degraded('updateBackupOperation'); }
+  async updateBackupRetentionPolicy(..._args: unknown[]): Promise<never> { return this.degraded('updateBackupRetentionPolicy'); }
+  async updateBackupStorageLocation(..._args: unknown[]): Promise<never> { return this.degraded('updateBackupStorageLocation'); }
+  async updateNotificationCampaign(..._args: unknown[]): Promise<never> { return this.degraded('updateNotificationCampaign'); }
+  async updateNotificationDelivery(..._args: unknown[]): Promise<never> { return this.degraded('updateNotificationDelivery'); }
+  async updateNotificationEvent(..._args: unknown[]): Promise<never> { return this.degraded('updateNotificationEvent'); }
+  async updateNotificationStatus(..._args: unknown[]): Promise<never> { return this.degraded('updateNotificationStatus'); }
+  async updateNotificationTemplate(..._args: unknown[]): Promise<never> { return this.degraded('updateNotificationTemplate'); }
+  async updateRestoreValidation(..._args: unknown[]): Promise<never> { return this.degraded('updateRestoreValidation'); }
+  async updateSchemaVersion(..._args: unknown[]): Promise<never> { return this.degraded('updateSchemaVersion'); }
+  async updateUserRecommendationAnalytics(..._args: unknown[]): Promise<never> { return this.degraded('updateUserRecommendationAnalytics'); }
+  async withdrawNotificationConsent(..._args: unknown[]): Promise<never> { return this.degraded('withdrawNotificationConsent'); }
+
 }

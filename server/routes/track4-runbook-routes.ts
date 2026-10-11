@@ -7,7 +7,11 @@ import {
   RunbookStep,
   RunbookContact,
   ContactEscalationTree,
-  RunbookExecution
+  RunbookExecution,
+  insertIncidentRunbookSchema,
+  insertRunbookStepSchema,
+  insertRunbookContactSchema,
+  insertContactEscalationTreeSchema
 } from '@shared/schema';
 import { isAuthenticated } from '../auth';
 
@@ -16,65 +20,15 @@ const router = Router();
 // Initialize service
 const runbookService = new IncidentRunbookService(storage);
 
-// Validation schemas
-const createRunbookSchema = z.object({
-  runbookId: z.string().min(1),
-  runbookTitle: z.string().min(1),
-  incidentType: z.string().min(1),
-  severity: z.enum(['low', 'medium', 'high', 'critical']),
-  description: z.string().optional(),
-  estimatedDuration: z.number().positive().optional(),
-  accessLevel: z.enum(['public', 'internal', 'restricted', 'confidential']).default('internal'),
-  ownerTeam: z.string().optional(),
-  reviewDate: z.string().transform(str => new Date(str)).optional(),
-  tags: z.array(z.string()).optional(),
-  status: z.enum(['draft', 'review', 'approved', 'active', 'archived']).default('draft')
-});
-
-const createRunbookStepSchema = z.object({
-  runbookId: z.number().positive(),
-  stepTitle: z.string().min(1),
-  stepDescription: z.string().min(1),
-  stepType: z.enum(['manual', 'automated', 'validation', 'notification', 'escalation']),
-  stepOrder: z.number().positive(),
-  isRequired: z.boolean().default(true),
-  estimatedDuration: z.number().positive().optional(),
-  stepInstructions: z.string().optional(),
-  automationScript: z.string().optional(),
-  validationCriteria: z.any().optional(),
-  escalateOnFailure: z.boolean().default(false),
-  escalateOnDelay: z.boolean().default(false),
-  prerequisites: z.array(z.string()).optional(),
-  rollbackInstructions: z.string().optional()
-});
-
-const createContactSchema = z.object({
-  contactId: z.string().min(1),
-  name: z.string().min(1),
-  role: z.string().min(1),
-  department: z.string().optional(),
-  email: z.string().email().optional(),
-  phoneNumber: z.string().optional(),
-  alternateContact: z.string().optional(),
-  escalationLevel: z.number().positive(),
-  isActive: z.boolean().default(true),
-  isAvailable24x7: z.boolean().default(false),
-  timezone: z.string().optional(),
-  skills: z.array(z.string()).optional(),
-  backupContactId: z.string().optional()
-});
-
-const createEscalationTreeSchema = z.object({
-  treeId: z.string().min(1),
-  treeName: z.string().min(1),
-  incidentTypes: z.array(z.string()).min(1),
-  severityLevels: z.array(z.string()).min(1),
-  escalationIntervalMinutes: z.number().positive().optional(),
-  maxEscalationLevel: z.number().positive().default(5),
-  isActive: z.boolean().default(true),
-  escalationRules: z.any().optional(),
-  description: z.string().optional()
-});
+// Validation schemas: the shared insert schemas ARE the table contract. The previous
+// hand-written schemas used column names the tables do not have and omitted NOT NULL
+// columns, so every create on these routes failed at the database.
+// JSON bodies carry ISO strings for timestamps; coerce them for the timestamp columns.
+const isoDate = z.preprocess((v) => (typeof v === 'string' && v.length > 0 ? new Date(v) : v), z.date().nullable().optional());
+const createRunbookSchema = insertIncidentRunbookSchema.extend({ approvedAt: isoDate, lastReviewDate: isoDate, nextReviewDate: isoDate });
+const createRunbookStepSchema = insertRunbookStepSchema;
+const createContactSchema = insertRunbookContactSchema.extend({ lastContactedAt: isoDate, lastResponseAt: isoDate });
+const createEscalationTreeSchema = insertContactEscalationTreeSchema.extend({ effectiveFrom: isoDate, effectiveTo: isoDate });
 
 const executeRunbookSchema = z.object({
   incidentContext: z.object({
@@ -307,7 +261,8 @@ router.post('/execute', isAuthenticated, async (req, res) => {
 // GET /api/v1/track4/runbooks/steps/:runbookId - Get runbook steps
 router.get('/steps/:runbookId', isAuthenticated, async (req, res) => {
   try {
-    const runbookId = parseInt(req.params.runbookId);
+    // runbook_steps.runbook_id is the runbook's string identifier (varchar FK), not the serial pk.
+    const runbookId = String(req.params.runbookId);
     const steps = await storage.getRunbookStepsByOrder(runbookId);
     
     res.json({
@@ -598,12 +553,18 @@ router.get('/executions', isAuthenticated, async (req, res) => {
   try {
     const { runbookId, status, executedBy, page = '1', limit = '20' } = req.query;
     
-    const filters: any = {
+    const filters: { runbookId?: number; status?: string; executedBy?: string; page: number; limit: number } = {
       page: parseInt(page as string),
       limit: parseInt(limit as string)
     };
     
-    if (runbookId) filters.runbookId = parseInt(runbookId as string);
+    if (runbookId !== undefined) {
+      const id = Number(runbookId);
+      if (!Number.isInteger(id) || id <= 0) {
+        return res.status(400).json({ error: 'invalid_runbook_id', message: 'runbookId must be the integer runbook id' });
+      }
+      filters.runbookId = id;
+    }
     if (status) filters.status = status as string;
     if (executedBy) filters.executedBy = executedBy as string;
     

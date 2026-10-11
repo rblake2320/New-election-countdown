@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar, numeric, bigint, index, uniqueIndex, uuid, check, foreignKey } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar, numeric, bigint, index, uniqueIndex, uuid, check, foreignKey, type AnyPgColumn } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -2247,7 +2247,7 @@ export const incidentRunbooks = pgTable("incident_runbooks", {
   
   // Version control
   version: text("version").notNull(),
-  previousVersionId: integer("previous_version_id").references(() => incidentRunbooks.id),
+  previousVersionId: integer("previous_version_id").references((): AnyPgColumn => incidentRunbooks.id),
   status: text("status").notNull(), // 'draft', 'review', 'approved', 'published', 'archived'
   
   // Approval workflow
@@ -2361,7 +2361,7 @@ export const runbookContacts = pgTable("runbook_contacts", {
   
   // Escalation
   escalationLevel: integer("escalation_level").default(1), // 1=primary, 2=secondary, etc.
-  managerContactId: varchar("manager_contact_id").references(() => runbookContacts.contactId),
+  managerContactId: varchar("manager_contact_id").references((): AnyPgColumn => runbookContacts.contactId),
   backupContactIds: text("backup_contact_ids").array(),
   
   // Specialization

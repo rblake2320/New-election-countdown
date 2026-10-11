@@ -586,6 +586,15 @@ export class DisasterRecoveryCoordinator {
   }
 
   /**
+   * Record a failover event raised by another component (the storage factory) and fan it
+   * out to this coordinator's listeners. Previously the factory called a method that did
+   * not exist, so coordinator listeners never heard about storage failovers.
+   */
+  public async recordFailoverEvent(event: Record<string, unknown>): Promise<void> {
+    await this.emitFailoverEvent({ source: 'storage_factory', ...event, timestamp: new Date() });
+  }
+
+  /**
    * Register a status change listener
    */
   public onStatusChange(listener: (status: any) => Promise<void>): void {

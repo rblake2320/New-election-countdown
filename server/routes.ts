@@ -3,7 +3,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { cacheService } from "./cache-service";
-import { filterSchema, congressMembers } from "@shared/schema";
+import { filterSchema, congressMembers, updateUserPreferencesSchema } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import { getCongressBillService } from "./congress-bill-service";
@@ -1807,8 +1807,11 @@ Please provide detailed, current information about this specific election.`;
 
   app.post('/api/analytics/engagement', isAuthenticated, async (req, res) => {
     try {
-      const { timeOnPage, scrollDepth, electionCycleId } = req.body;
-      const sessionId = req.headers['x-session-id'] as string;
+      const { timeOnPage, scrollDepth, electionCycleId, pageUrl, pagePath } = req.body ?? {};
+      const sessionId = req.headers['x-session-id'];
+      if (typeof sessionId !== 'string' || !sessionId) {
+        return res.status(400).json({ error: 'session_required', message: 'X-Session-Id header is required' });
+      }
 
       // Session user from the cookie session (route is behind isAuthenticated)
       const userId = String((req as any).userId);
@@ -1816,15 +1819,17 @@ Please provide detailed, current information about this specific election.`;
       await storage.recordEngagement({
         userId,
         sessionId,
-        timeOnPage,
-        scrollDepth,
-        electionCycleId
+        pageUrl: typeof pageUrl === 'string' ? pageUrl : req.get('referer'),
+        pagePath: typeof pagePath === 'string' ? pagePath : undefined,
+        timeOnPage: typeof timeOnPage === 'number' ? timeOnPage : undefined,
+        scrollDepth: typeof scrollDepth === 'number' ? scrollDepth : undefined,
+        electionCycleId: typeof electionCycleId === 'number' ? electionCycleId : undefined,
       });
 
       res.json({ success: true });
     } catch (error: any) {
       console.error('Error recording engagement:', error);
-      res.status(500).json({ error: error.message });
+      res.status(error?.status ?? 500).json({ error: error?.publicCode ?? 'engagement_failed', message: error?.publicMessage ?? error.message });
     }
   });
 
@@ -1836,11 +1841,16 @@ Please provide detailed, current information about this specific election.`;
         return res.status(401).json({ error: 'Invalid token' });
       }
 
-      await storage.updateUserPreferences(parseInt(user.id), req.body);
-      res.json({ message: 'Preferences updated successfully' });
+      // Validate before it reaches the row update: the body used to be spread straight into SET.
+      const parsed = updateUserPreferencesSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'invalid_preferences', issues: parsed.error.issues.map(i => ({ path: i.path.join('.'), message: i.message })) });
+      }
+      const preferences = await storage.updateUserPreferences(user.id, parsed.data);
+      res.json({ message: 'Preferences updated successfully', preferences });
     } catch (error: any) {
       console.error('Error updating preferences:', error);
-      res.status(500).json({ error: error.message });
+      res.status(error?.status ?? 500).json({ error: error?.publicCode ?? 'preferences_update_failed', message: error?.publicMessage ?? error.message });
     }
   });
 
@@ -1851,11 +1861,11 @@ Please provide detailed, current information about this specific election.`;
         return res.status(401).json({ error: 'Invalid token' });
       }
 
-      await storage.updateUserDemographics(parseInt(user.id), req.body);
-      res.json({ message: 'Demographics updated successfully' });
+      const preferences = await storage.updateUserDemographics(user.id, req.body ?? {});
+      res.json({ message: 'Demographics updated successfully', preferences });
     } catch (error: any) {
       console.error('Error updating demographics:', error);
-      res.status(500).json({ error: error.message });
+      res.status(error?.status ?? 500).json({ error: error?.publicCode ?? 'demographics_update_failed', message: error?.publicMessage ?? error.message });
     }
   });
 
