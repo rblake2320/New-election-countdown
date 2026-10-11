@@ -14,8 +14,8 @@ export interface ExistingCandidate {
   fec_candidate_id: string | null; fec_status: string | null; source_file_sha256: string | null;
   data_source: string | null; source_status: string | null;
 }
-export interface FecAction { kind: 'insert' | 'enrich' | 'update'; candidateId?: number; electionId: number; record: FecRow }
-export interface FecSourceRecord { candidate_id: number; source_file_sha256: string; is_current: boolean; metadata: { fecStatus?: string } }
+export interface FecAction { kind: 'insert' | 'enrich' | 'update' | 'source_refresh'; candidateId?: number; electionId: number; record: FecRow }
+export interface FecSourceRecord { candidate_id: number; source_file_sha256: string; is_current: boolean; metadata: { fecStatus?: string; fecCandidateId?: string; partyRaw?: string; electionYear?: number; state?: string; office?: string; district?: string; electionId?: number; electionDate?: string; normalizedName?: string } }
 export interface FecPlan { actions: FecAction[]; unchanged: number; unmatched: Array<{ fecId: string; reason: 'missing-race' | 'ambiguous-race' | 'ambiguous-identity' | 'conflicting-party' }>; auditId?: number }
 
 export function normalizedCandidateName(name: string): string {
@@ -101,10 +101,12 @@ export function buildFecSyncPlan(rows: FecRow[], elections: RaceRow[], candidate
         plan.unmatched.push({ fecId: row.candId, reason: 'conflicting-party' });
         continue;
       }
-      const sourceMatches = sources.some(s => s.candidate_id === known[0].id && s.is_current === true && s.source_file_sha256 === sha256 && s.metadata.fecStatus === row.status);
+      const sourceMatches = sources.some(s => s.candidate_id === known[0].id && s.is_current === true && s.source_file_sha256 === sha256 && s.metadata.fecStatus === row.status
+        && s.metadata.fecCandidateId===row.candId && s.metadata.partyRaw===row.partyRaw && s.metadata.electionYear===FEC_CYCLE && s.metadata.state===row.state && s.metadata.office===row.office && s.metadata.district===row.district && s.metadata.electionId===electionId && s.metadata.electionDate==='2026-11-03' && s.metadata.normalizedName===name);
       const currentFileMatches = known[0].data_source !== 'fec_bulk' || known[0].source_file_sha256 === sha256;
-      if (sourceMatches && currentFileMatches && known[0].fec_status === row.status && canonicalParty(known[0].party) === canonicalParty(row.party)) plan.unchanged++;
-      else plan.actions.push({ kind: 'update', candidateId: known[0].id, electionId, record: row });
+      const candidateMatches=currentFileMatches && known[0].fec_status===row.status && canonicalParty(known[0].party)===canonicalParty(row.party);
+      if (sourceMatches && candidateMatches) plan.unchanged++;
+      else plan.actions.push({ kind: candidateMatches?'source_refresh':'update', candidateId: known[0].id, electionId, record: row });
       continue;
     }
     const identityMatches = sameRace.filter(c => normalizedCandidateName(c.name) === name && canonicalParty(c.party) === canonicalParty(row.party));
@@ -125,7 +127,7 @@ async function applyAction(client: PoolClient, action: FecAction, hash: string, 
       VALUES ($1,$2,$3,$4,$5,$6,'fec_bulk','fec_registered',$7,$8,'not_certified',$9,$10,NULL,NULL) RETURNING id`,
     [r.displayName, r.party, action.electionId, r.incumbent, 'FEC registration; general-election nomination and ballot access unconfirmed.', r.candId, r.status, normalizedCandidateName(r.displayName), hash, syncedAtUtc]);
     candidateId = result.rows[0].id;
-  } else {
+  } else if(action.kind!=='source_refresh') {
     // Preserve editorial/ballot provenance, profile content, party and all ballot fields.
     const result = await client.query(`UPDATE candidates SET fec_candidate_id=$1, fec_status=$2,
       source_file_sha256=CASE WHEN data_source='fec_bulk' THEN $3 ELSE source_file_sha256 END,
@@ -140,7 +142,7 @@ async function applyAction(client: PoolClient, action: FecAction, hash: string, 
   await client.query(`INSERT INTO candidate_source_records(candidate_id,source_layer,source_url,source_file_sha256,source_synced_at,metadata,is_current)
     VALUES ($1,'fec_registration',$2,$3,$4,$5::jsonb,true) ON CONFLICT(candidate_id,source_layer,source_url,source_file_sha256)
     DO UPDATE SET is_current=true,source_synced_at=EXCLUDED.source_synced_at,metadata=EXCLUDED.metadata`,
-    [candidateId, FEC_MASTER_URL, hash, syncedAt, JSON.stringify({ fecCandidateId: r.candId, fecStatus: r.status, partyRaw: r.partyRaw, sourceStatus: 'fec_registered', ballotCertification: false, generalElectionNomination: false })]);
+    [candidateId, FEC_MASTER_URL, hash, syncedAt, JSON.stringify({ fecCandidateId: r.candId, fecStatus: r.status, partyRaw: r.partyRaw, electionYear:FEC_CYCLE,state:r.state,office:r.office,district:r.district,electionId:action.electionId,electionDate:'2026-11-03',name:r.displayName,normalizedName:normalizedCandidateName(r.displayName),sourceStatus: 'fec_registered', ballotCertification: false, generalElectionNomination: false })]);
 }
 
 /** One database transaction; advisory lock serializes this importer, serializable isolation detects other writers. */
