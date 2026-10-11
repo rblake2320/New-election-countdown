@@ -1,0 +1,702 @@
+{
+  "capturedAt": "2026-10-11T14:26:36.001865+00:00",
+  "fixture": "same harness-owned internal app; read-only requests after nominee/recovery, during proxy phase",
+  "app": "et-app-79740-97df50",
+  "exitCode": 0,
+  "requests": 120,
+  "concurrency": 120,
+  "elapsedMs": 15065,
+  "passed": false,
+  "outcomes": [
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 622
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 264
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 15000
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1251
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 898
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 484
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 15001
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1250
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 914
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 484
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 14999
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1239
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 763
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 269
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 14999
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1240
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 710
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 280
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 14999
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1240
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 726
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 300
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 14999
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1233
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 741
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 319
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 14999
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1237
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 854
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 326
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 14999
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1236
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 778
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 349
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 15000
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1237
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 802
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 361
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 15000
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1245
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 818
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 391
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 14999
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1243
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 833
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 410
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 15000
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1244
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 870
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 439
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 14999
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1236
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 941
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 440
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 14999
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1239
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 995
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 473
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 14999
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1238
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 920
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 506
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 14999
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1239
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 954
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 512
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 14999
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1238
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 976
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 538
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 14999
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1249
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1010
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 540
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 14999
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1248
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1030
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 584
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 14999
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1241
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1043
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 587
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 15003
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1249
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1063
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 674
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 15004
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1248
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1079
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 629
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 15004
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1246
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1094
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 674
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 15005
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1249
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1116
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 669
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 15004
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1247
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1130
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 671
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 15004
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1248
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1149
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 704
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 15003
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1247
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1165
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 705
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 15004
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1245
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1181
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 772
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 15004
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1245
+    },
+    {
+      "path": "/api/health",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1207
+    },
+    {
+      "path": "/api/elections?timeframe=upcoming",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 773
+    },
+    {
+      "path": "/api/elections/37/candidates",
+      "error": "The operation was aborted due to timeout",
+      "elapsedMs": 15003
+    },
+    {
+      "path": "/api/elections/37/general-candidates",
+      "status": 200,
+      "valid": true,
+      "elapsedMs": 1244
+    }
+  ]
+}

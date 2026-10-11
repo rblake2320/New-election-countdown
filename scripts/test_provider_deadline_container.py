@@ -30,7 +30,7 @@ def docker(*args, timeout=180):
     result = subprocess.run(["docker", *args], capture_output=True, text=True, timeout=timeout)
     if result.returncode:
         raise RuntimeError("docker " + args[0] + " failed: " + result.stderr.replace(password, "[redacted]"))
-    return result.stdout.strip()
+    return (result.stdout + result.stderr if args[0] == "logs" else result.stdout).strip()
 
 def sql(query):
     return docker("exec", database, "psql", "-U", "et_test", "-d", "et_test", "-Atc", query)
@@ -81,15 +81,25 @@ try:
                      "-e", "PROVIDER_FIXTURE_ORIGIN=http://" + provider + ":8080"]
         docker(*args, image)
         containers.append(app)
+        health = {"status": None, "body": {"ok": False}}
         for _ in range(45):
             try:
                 health = node(app, "const r=await fetch('http://127.0.0.1:5000/api/health'); console.log(JSON.stringify({status:r.status,body:await r.json()}));")
                 if health["status"] == 200 and health["body"]["ok"]:
                     break
-            except RuntimeError:
-                pass
+            except RuntimeError as error:
+                receipt["lastStartupError"] = str(error).replace(password, "[redacted]")
+            if docker("inspect", "--format", "{{.State.Running}}", app) != "true":
+                break
             time.sleep(1)
         else:
+            pass
+        if not (health["status"] == 200 and health["body"]["ok"]):
+            try:
+                (evidence / (mode + "-startup.log")).write_text(docker("logs", app).replace(password, "[redacted]"), encoding="utf-8")
+                receipt["lastStartupHealth"] = health
+            except Exception:
+                pass
             raise RuntimeError("Packaged app did not become ready in " + mode)
         if initial_digest is None:
             context = json.loads(sql("select json_agg(e) from (select id,title,state,type from elections where id in (2,37) order by id) e"))

@@ -13,5 +13,6 @@ await build({
   bundle: true,
   format: 'esm',
   outdir: 'dist',
+  entryNames: '[name]',
   define: { 'process.env.NODE_ENV': '"production"' },
 });
