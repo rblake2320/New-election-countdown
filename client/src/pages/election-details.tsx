@@ -10,7 +10,10 @@ import { ArrowLeft, Calendar, MapPin, Users, Trophy, TrendingUp, BarChart3, Eye 
 import { format } from "date-fns";
 import { CountdownTimer } from "@/components/countdown-timer";
 import { GeneralRoster } from "@/components/general-roster";
+import { OfficialResultsLink } from "@/components/official-results-link";
+import { officialResultsLink, type OfficialResultsFields } from "@/lib/official-results";
 import { getElectionTiming, type ElectionTimingInput } from "@/lib/election-timing";
+import { HttpError } from "@/lib/http-error";
 import { useNow } from "@/hooks/use-now";
 import { CandidateComparisonWizard } from "@/components/candidate-comparison-wizard";
 import { PollingTrendChart } from "@/components/polling-trend-chart";
@@ -31,14 +34,26 @@ function useCandidateDetails(candidateId: number | null) {
 export default function ElectionDetails() {
   const params = useParams<{ id: string }>();
   const electionId = parseInt(params.id || "0");
-  const [activeTab, setActiveTab] = useState("overview");
+  // Tab lives in the URL (?tab=polling) so links like "View Trends" open the
+  // right tab and Back/refresh keep it (owner UX review: Trends opened Overview).
+  const TABS = ["overview", "polling", "candidates"] as const;
+  const [activeTab, setActiveTabState] = useState<string>(() => {
+    const t = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "").get("tab");
+    return t && (TABS as readonly string[]).includes(t) ? t : "overview";
+  });
+  const setActiveTab = (t: string) => {
+    setActiveTabState(t);
+    const url = new URL(window.location.href);
+    if (t === "overview") url.searchParams.delete("tab"); else url.searchParams.set("tab", t);
+    window.history.replaceState(window.history.state, "", url.pathname + url.search);
+  };
   const [selectedCandidateId, setSelectedCandidateId] = useState<number | null>(null);
   // Shared minute clock: the page's phase badge follows the same timing rules as
   // the countdown instead of comparing the midnight-UTC date with "now".
   const minuteNow = useNow(60_000);
   const [candidateModalOpen, setCandidateModalOpen] = useState(false);
 
-  const { data: election, isLoading: electionLoading } = useElection(electionId);
+  const { data: election, isLoading: electionLoading, error: electionError, failureReason, refetch: refetchElection, isFetching: electionFetching } = useElection(electionId);
 
   const { data: candidates = [], isLoading: candidatesLoading } = useCandidates(electionId);
 
@@ -56,7 +71,44 @@ export default function ElectionDetails() {
     setSelectedCandidateId(null);
   };
 
-  if (electionLoading || candidatesLoading) {
+  // What went wrong, if anything: the final error, or the latest failure while
+  // retries are still running. Only a real 404 means "not found".
+  const problem = (electionError ?? failureReason) as (HttpError | Error | null);
+  const problemStatus = problem instanceof HttpError ? problem.status : problem ? 0 : null;
+
+  if (!election && problem && problemStatus !== 404) {
+    const busy = problemStatus === 429;
+    const retrying = !electionError; // still inside automatic retries
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center" role="status" data-testid="election-load-problem">
+          <h1 className="text-2xl font-bold text-foreground mb-4">
+            {busy ? "Election Tracker is busy right now" : "We couldn't load this election"}
+          </h1>
+          <p className="text-muted-foreground mb-6">
+            {retrying
+              ? "Trying again automatically…"
+              : busy
+                ? "Too many requests at the moment. Please try again in a few seconds."
+                : "Something went wrong on our side or with your connection."}
+          </p>
+          <div className="flex justify-center gap-2">
+            <Button onClick={() => refetchElection()} disabled={electionFetching}>
+              {electionFetching ? "Retrying…" : "Try again"}
+            </Button>
+            <Link href="/">
+              <Button variant="outline">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Elections
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if ((electionLoading && !problem) || (election && candidatesLoading)) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="animate-pulse space-y-6">
@@ -156,6 +208,11 @@ export default function ElectionDetails() {
               />
             )}
           </div>
+                  {election && officialResultsLink(election as OfficialResultsFields) && (
+            <div className="mt-4 border-t border-border pt-3">
+              <OfficialResultsLink election={election as OfficialResultsFields} />
+            </div>
+          )}
         </CardContent>
       </Card>
 

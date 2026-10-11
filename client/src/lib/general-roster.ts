@@ -17,6 +17,33 @@ export interface GeneralListSource {
   ticketText?: string | null;
   /** Every party line the official list prints for this person, verbatim (CT cross-endorsement). */
   partyLabels?: string[] | null;
+  /** Official document the party label was derived from (e.g. WY companion PDF). Not nomination proof. */
+  partyEvidence?: EvidenceRef | null;
+  /** Official document the full name was matched from (e.g. MA primary). Identity only. */
+  identityEvidence?: EvidenceRef | null;
+}
+
+export interface EvidenceRef {
+  url: string;
+  sha256?: string | null;
+  sourcePage?: number;
+  title: string;
+}
+
+export interface EvidenceLine { kind: "Party label source" | "Name identity source"; title: string; url: string | null; page?: number }
+
+/** Distinct supporting documents across the list, kept apart from the list source itself. */
+export function evidenceLines(cands: GeneralRosterCandidate[]): EvidenceLine[] {
+  const out = new Map<string, EvidenceLine>();
+  for (const c of cands) {
+    const src = c.generalListSource;
+    for (const [kind, ev] of [["Party label source", src?.partyEvidence], ["Name identity source", src?.identityEvidence]] as const) {
+      if (!ev?.title) continue;
+      const key = `${kind}|${ev.url}|${ev.sourcePage ?? ""}`;
+      if (!out.has(key)) out.set(key, { kind, title: ev.title, url: ev.url ?? null, page: ev.sourcePage });
+    }
+  }
+  return Array.from(out.values());
 }
 
 export interface GeneralRosterCandidate {
@@ -40,7 +67,9 @@ export interface RosterSnapshot {
 }
 
 export interface GeneralRosterResponse {
-  status: "sourced" | "not_recorded" | "election_not_found";
+  /** not_applicable: not a general election (primary, runoff, LA Nov 3 House open primary). */
+  status: "sourced" | "not_recorded" | "election_not_found" | "not_applicable";
+  reason?: string;
   electionId: number;
   candidates: GeneralRosterCandidate[];
   sources?: RosterSnapshot[];
@@ -116,7 +145,11 @@ export function rosterParty(c: GeneralRosterCandidate): string | null {
   if (c.party && c.party.trim()) {
     const code = c.party.trim();
     const label = partyLabel(code);
-    return label !== code ? label : code;
+    if (label !== code) return label;
+    // A canonical code with no display name here (e.g. lane C's 'CON'): show the
+    // official printed text ('CT') rather than an internal code, and never an
+    // invented party name. The party-label source link documents the mapping.
+    return raw || code;
   }
   return raw ? raw : null;
 }

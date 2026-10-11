@@ -120,6 +120,7 @@ export function AIElectionSearch() {
             onClick={handleSearch} 
             disabled={isSearching || !query.trim()}
             size="sm"
+            aria-label="Search elections"
           >
             {isSearching ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -143,6 +144,7 @@ export function AIElectionSearch() {
               disabled={isLocalSearching || !cityQuery.trim()}
               variant="outline"
               size="sm"
+              aria-label="Search local elections"
             >
               {isLocalSearching ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
