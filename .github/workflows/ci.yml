@@ -69,6 +69,7 @@ jobs:
           TEST_LISTING_CONTRACT: '1'
           TEST_ELECTION_TIMEZONE: '1'
           TEST_CANDIDATE_INGESTION: '1'
+          TEST_POLL_HOURS: '1'
         run: node scripts/test-container.mjs
       - uses: actions/upload-artifact@v4
         if: always()
