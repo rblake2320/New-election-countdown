@@ -1,9 +1,32 @@
 import { Request, Response, NextFunction } from 'express';
-import { pool } from '../db';
+import { pool, rawSql as sql } from '../db';
 import { storageFactory } from '../storage-factory';
-import { neon } from '@neondatabase/serverless';
 
-const sql = neon(process.env.DATABASE_URL!);
+
+/**
+ * The steward / bot tables, views and functions ship in no migration (confirmed absent in
+ * every database this project has). A request that needs them gets a 503 that names what
+ * is missing, not a 500 from the first query.
+ */
+export async function missingAutofixObjects(): Promise<string[]> {
+  const relations = ['bot_suggestions', 'bot_task_runs', 'steward_autofix_log', 'steward_mcp_packs', 'v_autofix_candidates'];
+  const functions = ['apply_autofix'];
+  const rows = await sql<{ name: string; present: boolean }>`
+    SELECT name, present FROM (
+      SELECT unnest(${relations}::text[]) AS name, to_regclass(unnest(${relations}::text[])) IS NOT NULL AS present
+      UNION ALL
+      SELECT unnest(${functions}::text[]) AS name, to_regproc(unnest(${functions}::text[])) IS NOT NULL AS present
+    ) t`;
+  return rows.filter((r) => !r.present).map((r) => r.name);
+}
+export function requireAutofixProvisioned(req: import('express').Request, res: import('express').Response, next: import('express').NextFunction): void {
+  missingAutofixObjects()
+    .then((missing) => {
+      if (missing.length === 0) return next();
+      res.status(503).json({ error: 'autofix_not_provisioned', message: 'The steward/autofix schema is not present in this database', missing });
+    })
+    .catch(next);
+}
 
 // Extend Request interface for admin session data
 declare module 'express-serve-static-core' {

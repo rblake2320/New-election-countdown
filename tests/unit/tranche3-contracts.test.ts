@@ -112,6 +112,22 @@ describe("track4 performance routes (tranche 4c)", () => {
   });
 });
 
+describe("no file talks to the database through the Neon HTTP client (tranche 6)", () => {
+  it("every former neon() client is the shared pg pool and the autofix/bot routers are provisioning-guarded", async () => {
+    const { readdirSync, statSync } = await import("fs");
+    const walk = (dir: string): string[] => readdirSync(dir).flatMap((n) => { const p = join(dir, n); return statSync(p).isDirectory() ? walk(p) : p.endsWith(".ts") ? [p] : []; });
+    // the per-file HTTP client `neon(process.env.DATABASE_URL!)` is gone everywhere; the replica
+    // path's Neon WebSocket Pool (replica-storage, storage-factory) is a separate, logged item
+    const offenders = walk(SERVER).filter((f) => /const \w+ = neon\(/.test(readFileSync(f, "utf8")));
+    expect(offenders).toEqual([]);
+    const mw = read("middleware", "autofix-security.ts");
+    expect(mw).toMatch(/export async function missingAutofixObjects\(\)/);
+    expect(mw).toContain("error: 'autofix_not_provisioned'");
+    expect(read("routes", "autofix.ts")).toContain("router.use(requireAutofixProvisioned);");
+    expect(read("routes", "bot.ts")).toContain("botRouter.use(requireAutofixProvisioned);");
+  });
+});
+
 describe("notification queue processor", () => {
   it("drives delivery rows and never the removed in-memory maps", () => {
     const queue = read("services", "notification-queue-service.ts");

@@ -1,16 +1,18 @@
 import { Router } from 'express';
-import { neon } from '@neondatabase/serverless';
+import { rawSql as sql } from '../db';
 import { storageFactory } from '../storage-factory';
 import { authRequired } from '../auth';
 import {
   requireAdminForAutofix,
   validateAutofixPolicies,
   requireExplicitApproval,
-  comprehensiveHealthCheck
+  comprehensiveHealthCheck,
+  requireAutofixProvisioned
 } from '../middleware/autofix-security';
 
 const router = Router();
-const sql = neon(process.env.DATABASE_URL!);
+// Every handler below reads the steward/autofix schema; refuse honestly when it is absent.
+router.use(requireAutofixProvisioned);
 
 /**
  * DETECTION-ONLY ENDPOINT: Get auto-fixable suggestions (READ-ONLY)

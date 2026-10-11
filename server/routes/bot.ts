@@ -1,10 +1,12 @@
 import { Router } from 'express';
 import { runBot, applySuggestion } from '../bot/engine.js';
-import { neon } from '@neondatabase/serverless';
+import { rawSql as sql } from '../db';
+import { requireAutofixProvisioned } from '../middleware/autofix-security';
 import { storageFactory } from '../storage-factory';
 
-const sql = neon(process.env.DATABASE_URL!);
 export const botRouter = Router();
+// The bot tables ship in no migration; refuse honestly when they are absent.
+botRouter.use(requireAutofixProvisioned);
 
 // Run bot tasks
 botRouter.post('/run', async (req, res) => {

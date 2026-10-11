@@ -1,7 +1,6 @@
-import { neon } from '@neondatabase/serverless';
+import { rawSql as sql } from '../db';
 import type { Request, Response } from 'express';
 
-const sql = neon(process.env.DATABASE_URL!);
 
 type TaskName =
   | 'congressCounts'
