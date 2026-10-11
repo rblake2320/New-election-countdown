@@ -1,9 +1,12 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, mkdtemp, writeFile, unlink, rmdir } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { describe, it, expect } from 'vitest';
 import { loadResultsManifest, manifestFromReviews, RESULTS_STATES, sha256, sourceForElection } from '../../server/official-results-manifest';
 import { officialResultsFieldsSchema } from '../../shared/official-results';
 import { insertElectionSchema } from '../../shared/schema';
 import { publishedResultsReceiptSchema } from '../../shared/official-results';
+import { planResults } from '../../server/official-results-sync';
 
 const path = 'data/official-results/2026-11-03.json';
 describe('reviewed official-results receiving contract', () => {
@@ -60,6 +63,7 @@ async function futurePublicationFixture() {
   const record = remaining.records.find((state: { state: string }) => state.state === 'LA');
   const checkedAt = '2026-11-04T06:00:00.000Z';
   const context = {
+    state: 'LA',
     outcome: 'worked', electionDate: '2026-11-03', electionPhase: 'general',
     destinationUrl: record.recommendedUrl, sourceUrl: record.officialGovernmentPage,
     contextVerified: true, resultsObserved: true,
@@ -72,6 +76,7 @@ async function futurePublicationFixture() {
   record.routeType = 'election_specific_results';
   record.generalPublicationStatus = 'published_for_target_election';
   record.publicationEvidence = {
+    state: 'LA',
     electionDate: '2026-11-03', electionPhase: 'general', destinationUrl: record.recommendedUrl,
     officialElectionLabel: context.observedElectionLabel, officialContextVerified: true,
     officialContextReceiptSha256: sha256(contextBytes), receivingOutcome: 'worked', receivingResultsObserved: true,
@@ -96,18 +101,41 @@ describe('isolated future specific-publication shape', () => {
     const fixture = await futurePublicationFixture();
     const entry = manifestFromReviews(fixture.reviews()).states.find(state => state.state === 'LA')!;
     expect(() => sourceForElection(entry, 'primary')).toThrow('different election phase');
+    const actual = JSON.parse(await readFile('data/official-results/acceptance/LA-429-context.json', 'utf8')).receipt.electionContext;
+    const manifest = manifestFromReviews(fixture.reviews());
+    expect(actual.type).toBe('primary');
+    expect(() => planResults([actual], manifest, sha256(JSON.stringify(manifest)))).toThrow('different election phase');
   });
   it('refuses a positive claim without its retained receiving proof bytes', async () => {
     const fixture = await futurePublicationFixture();
     fixture.receipts.delete('fixture-only-receiving.json');
     expect(() => manifestFromReviews(fixture.reviews())).toThrow('retained positive publication receipts');
   });
+  it('loads isolated positive files with exact digests and refuses later receiving-byte tampering', async () => {
+    const fixture = await futurePublicationFixture();
+    const directory = await mkdtemp(join(tmpdir(), 'et-c6-future-shape-'));
+    const files = ['initial-14.json', 'remaining-36.json', 'fixture-only-context.json', 'fixture-only-receiving.json', 'manifest.json'];
+    try {
+      for (const review of fixture.reviews()) await writeFile(join(directory, review.file), review.bytes);
+      for (const [file, bytes] of fixture.receipts) await writeFile(join(directory, file), bytes);
+      await writeFile(join(directory, 'manifest.json'), JSON.stringify(manifestFromReviews(fixture.reviews())));
+      const loaded = await loadResultsManifest(join(directory, 'manifest.json'));
+      expect(loaded.manifest.states.find(state => state.state === 'LA')!.source.status).toBe('published');
+      await writeFile(join(directory, 'fixture-only-receiving.json'), JSON.stringify({ ...fixture.receiving, resultsObserved: false }));
+      await expect(loadResultsManifest(join(directory, 'manifest.json'))).rejects.toThrow('changed retained positive publication receipts');
+    } finally {
+      // Only exact files in this mkdtemp-owned directory; no recursive removal.
+      for (const file of files) await unlink(join(directory, file)).catch(() => {});
+      await rmdir(directory);
+    }
+  });
   it('refuses prior-primary date, mismatched phase, and HTTP200-only contexts', () => {
     expect(publishedResultsReceiptSchema.safeParse({ outcome: 'worked', httpStatus: 200 }).success).toBe(false);
   });
-  it.each(['date', 'phase', 'destination', 'results_observed'])('refuses mismatched %s in a receiving receipt even when its digest is recomputed', async mismatch => {
+  it.each(['state', 'date', 'phase', 'destination', 'results_observed'])('refuses mismatched %s in a receiving receipt even when its digest is recomputed', async mismatch => {
     const fixture = await futurePublicationFixture();
     const changed = { ...fixture.receiving };
+    if (mismatch === 'state') changed.state = 'WV';
     if (mismatch === 'date') changed.electionDate = '2026-08-04';
     if (mismatch === 'phase') changed.electionPhase = 'primary';
     if (mismatch === 'destination') changed.destinationUrl = 'https://elections.ny.gov/election-results';

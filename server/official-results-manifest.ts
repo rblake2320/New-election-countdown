@@ -78,7 +78,7 @@ export function manifestFromReviews(reviews: ReviewedBytes[]): ResultsManifest {
         }
         const context = publishedResultsReceiptSchema.parse(JSON.parse(contextBytes.toString('utf8')));
         const receiving = publishedResultsReceiptSchema.parse(JSON.parse(receivingBytes.toString('utf8')));
-        if ([context, receiving].some(receipt => receipt.electionDate !== RESULTS_DATE ||
+        if (publicationEvidence!.state !== record.state || [context, receiving].some(receipt => receipt.state !== record.state || receipt.electionDate !== RESULTS_DATE ||
             receipt.electionPhase !== publicationEvidence!.electionPhase || receipt.destinationUrl !== destination) ||
             context.sourceUrl !== record.officialGovernmentPage || context.observedElectionLabel !== publicationEvidence!.officialElectionLabel ||
             receiving.sourceUrl !== destination || receiving.checkedAt !== publicationEvidence!.receivingCheckedAt) {

@@ -36,7 +36,7 @@ is freshly checked whenever it runs.
 
 Future reviewed publications use `routeType: "election_specific_results"`,
 `status: "published"` and `availabilityReason: "published_for_target_election"`.
-Their optional `publicationEvidence` binds the exact November 3 date, election
+Their optional `publicationEvidence` binds the state, exact November 3 date, election
 phase, destination, official contextual label, two retained proof digests and
 the receiving check timestamp. Both the government-context receipt and actual
 receiving-results receipt must declare verified context and observed results;
@@ -128,3 +128,7 @@ Louisiana catalog correction and downstream integration.
   A Drizzle schema update propagated into the listing, but the active reduced
   detail projection omitted the fields. The actual receiving HTTP test caught
   this; its failing body and corrected rerun are retained separately.
+* Raw government review bytes need a `-text` Git attribute. Otherwise Windows
+  newline normalization can change a reviewed hash when another machine checks
+  out the source. All 125 retained data files were compared with their Git blobs;
+  the initial mismatch and restored exact bytes are recorded separately.

@@ -15,6 +15,7 @@ export const httpsResultsUrl = z.string().url().max(2048).refine(value => {
 const resultPhase = z.enum(['general', 'primary', 'runoff', 'other']);
 const resultDigest = z.string().regex(/^[a-f0-9]{64}$/);
 export const publishedResultsReceiptSchema = z.object({
+  state: z.string().regex(/^[A-Z]{2}$/),
   outcome: z.literal('worked'), electionDate: z.literal('2026-11-03'),
   electionPhase: resultPhase, destinationUrl: httpsResultsUrl,
   sourceUrl: httpsResultsUrl, contextVerified: z.literal(true),
@@ -22,6 +23,7 @@ export const publishedResultsReceiptSchema = z.object({
   checkedAt: z.string().datetime({ offset: true }),
 }).strict();
 export const resultsPublicationEvidenceSchema = z.object({
+  state: z.string().regex(/^[A-Z]{2}$/),
   electionDate: z.literal('2026-11-03'), electionPhase: resultPhase,
   destinationUrl: httpsResultsUrl,
   officialElectionLabel: z.string().trim().min(5).max(1024),
