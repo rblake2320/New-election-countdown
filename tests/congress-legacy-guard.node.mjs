@@ -1,20 +1,32 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import vm from 'node:vm';
-import { execFileSync, spawnSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const before = execFileSync('git', ['show', '425510af784c166fbdf761165c3f39d48ebf4130:bulk_restore_congress.js'], { cwd: root, encoding: 'utf8' });
+// Run: node --experimental-vm-modules --test tests/congress-legacy-guard.node.mjs
+// Byte-pinned old controls also work in a shallow CI checkout without Git history.
+const fixtureRoot = path.join(root, 'tests/fixtures/congress-legacy');
+const fixtureProvenance = JSON.parse(fs.readFileSync(path.join(fixtureRoot, 'provenance.json'), 'utf8'));
+function frozenSource(name) {
+  const declared = fixtureProvenance.files[name];
+  const bytes = fs.readFileSync(path.join(fixtureRoot, declared.fixture));
+  assert.equal(createHash('sha256').update(bytes).digest('hex'), declared.sha256, 'Legacy control fixture digest changed');
+  return bytes.toString('utf8');
+}
+const before = frozenSource('bulk_restore_congress.js');
 const after = fs.readFileSync(path.join(root, 'bulk_restore_congress.js'), 'utf8');
-const siblingBefore = execFileSync('git', ['show', '425510af784c166fbdf761165c3f39d48ebf4130:restore_congress_members.js'], { cwd: root, encoding: 'utf8' });
+const siblingBefore = frozenSource('restore_congress_members.js');
 const siblingAfter = fs.readFileSync(path.join(root, 'restore_congress_members.js'), 'utf8');
-const directory = path.join(root, 'artifacts/congress-legacy-guard');
+const directory = process.env.CONGRESS_LEGACY_GUARD_EVIDENCE_DIR
+  ?? path.join(root, 'artifacts/congress-legacy-guard-runs', `${process.pid}-${randomUUID()}`);
 fs.mkdirSync(directory, { recursive: true });
+console.log(JSON.stringify({ legacyGuardEvidence: directory }));
 const control = { bioguideId:'EXPLICIT_EXISTING_CONTROL', name:'Synthetic existing local profile', description:'Must remain intact' };
 const fixture = [
   { full_name:'Explicit Fixture Missing ID A', party:'D', state:'MN', district:'Senate', chamber:'Senate' },
