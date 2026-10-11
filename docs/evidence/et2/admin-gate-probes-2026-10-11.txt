@@ -1,0 +1,25 @@
+Lane A (ET-2) outcome probes — dev server from branch lane-a/server-security on :5055, DB elections@localhost:5432, 2026-10-11
+Expected: every previously-unauthenticated write/ops route -> 401 (no session) ; deleted routes -> 404 ; public reads -> 200
+
+POST /api/elections/530/results               -> 401
+POST /api/elections/530/update-results        -> 401
+GET /api/test/run-all                         -> 404   (deleted: child_process.exec endpoint)
+POST /api/sync/elections/all                  -> 404   (deleted: inserted 2025 fixtures)
+POST /api/setup/michigan-primary              -> 404   (deleted: inserted 2025 fixture)
+POST /api/admin/data-cleanup                  -> 401
+POST /api/bot/run                             -> 401
+POST /api/secrets-rotation/rotate             -> 401
+POST /api/load-testing/start                  -> 401
+POST /api/failover/trigger                    -> 401
+POST /api/environment-bootstrap/bootstrap     -> 401
+POST /api/scrape/election                     -> 401
+GET /api/elections                            -> 200
+GET /api/health                               -> 200
+GET /api/elections/530/candidates             -> 200
+GET /api/auth/me                              -> 401
+CORS Origin https://evil.example  -> no Access-Control-Allow-Origin header
+CORS Origin http://localhost:5173 -> Access-Control-Allow-Origin: http://localhost:5173 (dev only)
+CSP header present: default-src 'self'; style-src ... https://fonts.googleapis.com; font-src ... https://fonts.gstatic.com
+SQL: select count(*) from candidates where name in ('Sarah Johnson','Robert Chen','Maria Rodriguez') -> 0
+
+Re-run: scripts/verify-admin-gates.sh (below) against any running instance.

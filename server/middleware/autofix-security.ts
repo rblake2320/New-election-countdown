@@ -82,11 +82,8 @@ export function requireAdminForAutofix(req: Request, res: Response, next: NextFu
         }
         
         const user = result.rows[0];
-        const isAdminRole = user.role?.toLowerCase() === 'admin';
-        const isAdminEmail = user.email?.endsWith('@admin.com');
-        const envAdminFlag = process.env.ADMIN_FEATURES === '1';
-        
-        const isAdmin = isAdminRole || isAdminEmail || envAdminFlag;
+        // Role is the only admin signal — no email-suffix or env bypass.
+        const isAdmin = user.role?.toLowerCase() === 'admin';
         
         if (!isAdmin) {
           console.log(`🚫 Access denied for user ${req.userId} (${user.email}) - not admin for ${method} ${path}`);
