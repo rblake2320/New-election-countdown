@@ -1,0 +1,734 @@
+MemStorage initialized empty (failover cache; database is source of truth)
+ℹ️ No replica configurations found - running with primary database only
+✅ Delivery Tracking Service initialized
+⚠️ Analytics temporarily using in-memory queue (database unavailable)
+✅ Infrastructure-as-Code Service initialized
+✅ Secrets Rotation Service initialized { enabledServices: 8, rotationFrequency: '90 days' }
+⏰ Artifact cleanup scheduler started
+✅ Artifact Retention Service initialized {
+  storageBasePath: '/app/artifacts',
+  compressionEnabled: true,
+  defaultRetentionDays: 90
+}
+✅ Environment Bootstrap Service initialized { environment: 'development', timeoutMinutes: 30 }
+[BackupAlertService] Initializing backup monitoring
+✅ RTO/RPO Performance Dashboard Service initialized
+✅ RTO/RPO Performance Dashboard Service initialized
+🔄 Storage: memory mode; DB unhealthy—writes gated
+ℹ️  Database operations will be queued until health is restored
+Initial sync with Google Civic API completed
+🔄 Storage System Initialized:
+  - Mode: memory
+  - Database Health: ❌ Unhealthy
+  - Current Storage: memory
+  - Queue Length: 0
+  - Last Health Check: 1970-01-01T00:00:00.000Z
+✅ Notification management routes registered
+Starting automated results ingestion (every 30 seconds)
+[Results Ingestion] Starting ingestion cycle...
+[Results Ingestion] Found 0 active elections
+2:23:37 PM [express] ✅ Live results ingestion service started (30s polling)
+🌱 Starting database seed (verified 2026 data)...
+✅ Database connection established
+✅ Database connection established
+✅ Primary database connection restored { latency: '40ms', attempts: 0, consecutiveFailures: 0 }
+🔄 Orchestrating failover: memory → database { trigger: 'automatic', reason: 'Primary database restored' }
+✅ Failover completed: memory → database (0ms) {
+  trigger: 'automatic',
+  reason: 'Primary database restored',
+  readOnlyMode: false
+}
+✅ Restore Validation Service initialized {
+  timeoutSeconds: 3600,
+  rtoTarget: '300s',
+  validationQueries: 3,
+  benchmarkQueries: 3
+}
+✅ Schema Drift Detection Service initialized
+✅ Disaster Recovery Coordinator initialized {
+  scheduledBackups: true,
+  automaticValidation: true,
+  schemaDriftMonitoring: true
+}
+ℹ️ Could not notify disaster recovery coordinator: disasterRecoveryCoordinator2.recordFailoverEvent is not a function
+📊 Seeding 537 elections...
+✅ Database seeding complete!
+   Elections: 537
+   Candidates: 136
+   Congress members: populated via scripts/sync_congress.ts when CONGRESS_API_KEY is set
+2:23:38 PM [express] ✅ Database seeded successfully
+2:23:38 PM [express] serving on http://0.0.0.0:5000
+2:23:39 PM [express] GET /api/health 200 in 28ms rid=3f137659-8aae-4eac-9ed4-a62afb47c72d
+2:23:39 PM [express] GET /api/elections 200 in 43ms rid=e2387cb2-f2a8-4400-ab28-8342ee27a3f8
+🔵 Registration attempt started: integration-user@example.test
+🔵 Calling storageFactory.createUser for: integration-user@example.test
+🔵 User created successfully: fc8f02ef-894b-4b1c-82f2-97ffaee463f2
+📊 Analytics tracking started for user fc8f02ef-894b-4b1c-82f2-97ffaee463f2
+📧 Email verification token created (not logged); configure SMTP to deliver it
+✅ Welcome email sent to: integration-user@example.test
+2:23:40 PM [express] POST /api/auth/register 201 in 66ms rid=19404bab-31a5-4776-87a0-6554d6c7802e
+2:23:40 PM [express] GET /api/auth/me 200 in 2ms rid=3e1521ef-1a79-4502-8ebc-9d034a07d842
+✅ Database connection established
+✅ Database connection established
+✅ Database connection established
+2:23:40 PM [express] GET /api/auth/dashboard 200 in 36ms rid=a671cc38-c323-4659-bbe6-cd975ee282ec
+2:23:40 PM [express] GET /api/recommendations 200 in 15ms rid=110448f4-caa8-4155-abdf-fd81e60e9845
+2:23:40 PM [express] GET /api/watchlist 200 in 3ms rid=3db30dbd-43bb-458c-b8ed-425c3b0dbeeb
+🔵 Registration attempt started: backup-admin@example.test
+🔵 Calling storageFactory.createUser for: backup-admin@example.test
+🔵 User created successfully: be6b7da4-61a1-48f7-a3f7-2fadae02a695
+📊 Analytics tracking started for user be6b7da4-61a1-48f7-a3f7-2fadae02a695
+📧 Email verification token created (not logged); configure SMTP to deliver it
+✅ Welcome email sent to: backup-admin@example.test
+2:23:40 PM [express] POST /api/auth/register 201 in 50ms rid=987802ef-477f-4d00-839b-3bd66d626f4e
+{"ts":"2026-10-11T14:23:41.422Z","type":"security_decision","action":"authz.admin","result":"allow","actor":"be6b7da4-61a1-48f7-a3f7-2fadae02a695","resource":"/api/admin/backup/full","requestId":"a9ec0209-4297-44d4-b63d-655375c6d475","ip":"127.0.0.1","method":"POST","path":"/api/admin/backup/full"}
+{"ts":"2026-10-11T14:23:41.424Z","type":"security_decision","action":"authz.admin","result":"allow","actor":"be6b7da4-61a1-48f7-a3f7-2fadae02a695","resource":"/api/admin/backup/full","requestId":"a9ec0209-4297-44d4-b63d-655375c6d475","ip":"127.0.0.1","method":"POST","path":"/api/admin/backup/full"}
+Starting full database backup...
+2:23:41 PM [express] GET /api/health 200 in 5ms rid=2a4b7981-61aa-4c13-8bd6-ea2ca5414e73
+Backup compressed: backups/election-tracker-backup-2026-10-11T14-23-41-424Z-04ec8736-4985-45cb-b16a-5d08d52a6e2d.sql.gz
+2:23:41 PM [express] POST /api/admin/backup/full 200 in 189ms rid=a9ec0209-4297-44d4-b63d-655375c6d475
+2:23:47 PM [express] GET /api/elections 200 in 12ms rid=2f2cbfd9-6377-43cc-aa42-d4b638236799
+2:23:47 PM [express] GET /api/elections 200 in 11ms rid=d4eec296-4e4b-413e-a93e-8b24b2b2e283
+2:23:47 PM [express] GET /api/elections 200 in 21ms rid=604075f4-dcc4-4924-9e93-e4da1b0a14fd
+2:23:47 PM [express] GET /api/elections 200 in 10ms rid=fd135223-3014-4f5a-b0a7-74179861c5e9
+2:23:47 PM [express] GET /api/elections 200 in 10ms rid=9783aa2c-b06b-4bf8-b3fe-f01b26bfea05
+2:23:47 PM [express] GET /api/elections 200 in 7ms rid=ff68934f-9160-4bc1-abdf-b7ac977daaa1
+2:23:47 PM [express] GET /api/elections 200 in 4ms rid=2fe24f0c-c25a-4b4e-b181-daaeebab5003
+2:23:47 PM [express] GET /api/elections 400 in 1ms rid=46d527d0-9256-4b5a-a3dd-d7645f7095a8
+2:23:54 PM [express] GET /api/elections 200 in 11ms rid=c780a1c8-9b78-44c6-9b11-8305e7d897dd
+✅ Analytics database connection restored
+[Results Ingestion] Starting ingestion cycle...
+[Results Ingestion] Found 0 active elections
+2:24:08 PM [express] GET /api/elections/37/general-candidates 200 in 8ms rid=febfac24-1524-435b-ac1e-af6f8715ac85
+2:24:08 PM [express] GET /api/elections/2/general-candidates 200 in 4ms rid=897e431a-658d-429f-903b-a6baa5dd8dcb
+2:24:08 PM [express] GET /api/elections/506/general-candidates 200 in 4ms rid=17c27a9d-99a3-4dab-958a-5c60ca801bb6
+2:24:09 PM [express] GET /api/elections/1/general-candidates 200 in 4ms rid=a9372f83-1e0f-45b5-81d2-4025ddd2474f
+2:24:09 PM [express] GET /api/elections/417/general-candidates 200 in 3ms rid=7df6da28-eaec-40ec-86c8-85ee64f3330a
+2:24:09 PM [express] GET /api/elections/418/general-candidates 200 in 4ms rid=c5840d12-f26e-4803-b67a-353407d70ab9
+2:24:10 PM [express] GET /api/elections/419/general-candidates 200 in 3ms rid=ca6fa495-f3d1-43f7-b5af-a2c67421e675
+2:24:10 PM [express] GET /api/elections/36/general-candidates 200 in 5ms rid=461b00e2-8dda-4141-a1b8-1d0ddf29b429
+🔌 Database connection removed from pool
+🔌 Database connection removed from pool
+🔌 Database connection removed from pool
+2:24:10 PM [express] GET /api/elections/415/general-candidates 200 in 4ms rid=88cab959-685c-4a03-ac93-2316cdaa028a
+2:24:10 PM [express] GET /api/elections/416/general-candidates 200 in 4ms rid=23ce99f1-4ca7-4549-8901-b20813460cb9
+2:24:11 PM [express] GET /api/elections/420/general-candidates 200 in 3ms rid=9f896096-e58c-4309-8d73-bac6b0b31b13
+2:24:11 PM [express] GET /api/elections/421/general-candidates 200 in 4ms rid=b08196c1-b363-45c4-b317-c799aecb6517
+2:24:11 PM [express] GET /api/elections/3/general-candidates 200 in 3ms rid=f41bb01d-47d9-493a-b4e0-a77f32eb64fd
+2:24:11 PM [express] GET /api/health 200 in 24ms rid=4a0a14f4-7432-4baf-9a44-d9415e675e82
+2:24:11 PM [express] GET /api/elections/463/general-candidates 200 in 3ms rid=b27021c1-a8ae-47bb-8541-9972d0e3d2a5
+2:24:12 PM [express] GET /api/elections/39/general-candidates 200 in 4ms rid=bbeab5fe-7d66-407f-9a2d-6e0400d56ce5
+2:24:12 PM [express] GET /api/elections/339/general-candidates 200 in 6ms rid=955ab755-8e11-46c1-bfe3-e28fdec0864d
+2:24:12 PM [express] GET /api/elections/341/general-candidates 200 in 5ms rid=f5691aa6-1c3f-41c9-9ead-68fbe68fccf3
+2:24:12 PM [express] GET /api/elections/342/general-candidates 200 in 4ms rid=44fef9b3-a788-48d2-b870-df367deb2b86
+2:24:13 PM [express] GET /api/elections/347/general-candidates 200 in 4ms rid=abd68c46-59d6-49cd-8099-c625604c665c
+2:24:13 PM [express] GET /api/elections/40/general-candidates 200 in 4ms rid=87041fd0-a93c-4abe-a44e-72cb57d5455f
+2:24:13 PM [express] GET /api/elections/72/general-candidates 200 in 4ms rid=0e9f2854-0d69-40f5-86bf-89efa8ec9ec9
+2:24:13 PM [express] GET /api/elections/73/general-candidates 200 in 4ms rid=b3072c57-8f88-488b-894c-e2dfd190a23e
+2:24:14 PM [express] GET /api/elections/74/general-candidates 200 in 4ms rid=9e9da05f-eed2-437c-806a-5f6955168f4a
+2:24:14 PM [express] GET /api/elections/75/general-candidates 200 in 3ms rid=45fc9bc3-ff1b-4d86-8248-c27107383177
+2:24:14 PM [express] GET /api/elections/76/general-candidates 200 in 3ms rid=e9afafd4-36ef-4c35-a381-be09d8a9f031
+2:24:14 PM [express] GET /api/elections/77/general-candidates 200 in 4ms rid=858831c2-57f4-45e5-ab0a-56713f8bfd50
+2:24:15 PM [express] GET /api/elections/78/general-candidates 200 in 3ms rid=96265ad6-f20b-4ff2-8bce-0fa0b0318202
+2:24:15 PM [express] GET /api/elections/79/general-candidates 200 in 3ms rid=e58d3ea9-d074-4299-b473-66a2bbd51c67
+2:24:15 PM [express] GET /api/elections/80/general-candidates 200 in 5ms rid=38a42bd3-ab7e-467d-b8f7-d5f29ecee965
+2:24:15 PM [express] GET /api/elections/81/general-candidates 200 in 5ms rid=22e385c7-7218-415a-9068-746feffdcdef
+2:24:16 PM [express] GET /api/elections/82/general-candidates 200 in 3ms rid=103ce3bb-2502-48ff-8348-15f6552a5d4b
+2:24:16 PM [express] GET /api/elections/83/general-candidates 200 in 3ms rid=a1a2bae3-fffc-4524-b864-ade21dce8f88
+2:24:16 PM [express] GET /api/elections/84/general-candidates 200 in 3ms rid=be2817b3-6c89-44a2-85ab-0a69fed283a2
+2:24:16 PM [express] GET /api/elections/85/general-candidates 200 in 3ms rid=61a6e474-1a5f-4dcc-9763-941631f18558
+2:24:17 PM [express] GET /api/elections/86/general-candidates 200 in 4ms rid=5daec3d5-8b92-4e78-ae28-0ff504394c2f
+2:24:17 PM [express] GET /api/elections/87/general-candidates 200 in 4ms rid=0013f2f3-8355-40b9-a9c8-6964e69880f1
+2:24:17 PM [express] GET /api/elections/88/general-candidates 200 in 4ms rid=f5f0d35f-2d11-4d19-8458-e4c982929fb1
+2:24:18 PM [express] GET /api/elections/89/general-candidates 200 in 4ms rid=80d37c7b-4baf-424e-adb4-b0d84044e0dc
+2:24:18 PM [express] GET /api/elections/90/general-candidates 200 in 4ms rid=d6d13fed-e9cd-4c74-a595-b50788bbad55
+2:24:18 PM [express] GET /api/elections/91/general-candidates 200 in 3ms rid=2be55099-4551-4811-8e79-eb0b1a994bfd
+2:24:18 PM [express] GET /api/elections/92/general-candidates 200 in 4ms rid=dac04611-c4bd-42d4-a088-753ccdaca077
+2:24:19 PM [express] GET /api/elections/93/general-candidates 200 in 4ms rid=98af7c8a-0435-4cd3-80c0-a1d904e74827
+2:24:19 PM [express] GET /api/elections/94/general-candidates 200 in 4ms rid=5a8ae08d-39ed-4b21-a0fb-579c7c1f4cfb
+2:24:19 PM [express] GET /api/elections/95/general-candidates 200 in 5ms rid=eff8eefd-2477-46bc-bdb6-cc1d84d56c57
+2:24:19 PM [express] GET /api/elections/96/general-candidates 200 in 5ms rid=509bf824-d112-4024-b036-922b83df6537
+2:24:20 PM [express] GET /api/elections/97/general-candidates 200 in 4ms rid=6ac37b2e-b2a6-4bb9-bc33-039a88e17bf0
+2:24:20 PM [express] GET /api/elections/98/general-candidates 200 in 5ms rid=141c4f4d-18a8-4813-8969-72adfe783f5a
+2:24:20 PM [express] GET /api/elections/99/general-candidates 200 in 4ms rid=23e29070-f517-4ddc-82bf-7a7e0fcd045d
+2:24:20 PM [express] GET /api/elections/100/general-candidates 200 in 4ms rid=ba3f95ff-1b32-4d86-b14a-f1f0b9f12ce3
+2:24:21 PM [express] GET /api/elections/101/general-candidates 200 in 4ms rid=772752d2-adf2-4eb0-b7b1-203d0e1d4697
+2:24:21 PM [express] GET /api/elections/102/general-candidates 200 in 3ms rid=34def4be-6d1c-4dec-94e2-9d0845e9d3ff
+2:24:21 PM [express] GET /api/elections/103/general-candidates 200 in 3ms rid=0c118735-2c9c-4848-8bad-148d1ba3d55d
+2:24:21 PM [express] GET /api/elections/104/general-candidates 200 in 3ms rid=cf6c6eb5-3735-4457-b429-9f8f6006a7be
+2:24:22 PM [express] GET /api/elections/105/general-candidates 200 in 4ms rid=7f83bb41-c8fd-4f6e-9b74-593356aaba6c
+2:24:22 PM [express] GET /api/elections/106/general-candidates 200 in 4ms rid=7df0386d-90f7-4e5e-a136-375178d0c23b
+2:24:22 PM [express] GET /api/elections/107/general-candidates 200 in 4ms rid=1ea614ef-57e4-4ea5-b117-803964b915d3
+2:24:22 PM [express] GET /api/elections/108/general-candidates 200 in 4ms rid=703243d6-a071-47f4-8cf5-64248c8f071a
+2:24:23 PM [express] GET /api/elections/109/general-candidates 200 in 4ms rid=914e2590-b296-4d2a-9512-4a7d894adfb3
+2:24:23 PM [express] GET /api/elections/110/general-candidates 200 in 4ms rid=486a126d-f206-4194-a3c7-3477bff0b11f
+2:24:23 PM [express] GET /api/elections/111/general-candidates 200 in 4ms rid=aad04a70-3610-4d88-abd4-1961a31baa15
+2:24:23 PM [express] GET /api/elections/112/general-candidates 200 in 3ms rid=9f29164f-2ffa-45e6-8e7c-3e8b72ac7e21
+2:24:24 PM [express] GET /api/elections/113/general-candidates 200 in 4ms rid=ec6be73b-d132-4653-b93e-50f05f175c88
+2:24:24 PM [express] GET /api/elections/114/general-candidates 200 in 3ms rid=80af6e05-228b-42ec-8ef7-618677c7f382
+2:24:24 PM [express] GET /api/elections/115/general-candidates 200 in 3ms rid=b7db2999-5d2a-4da1-bbd8-d47da127ae10
+2:24:24 PM [express] GET /api/elections/116/general-candidates 200 in 3ms rid=f5752ede-e271-476f-930e-d7007db0e4d4
+2:24:25 PM [express] GET /api/elections/117/general-candidates 200 in 4ms rid=20de36e6-c63a-4d35-8ecc-752a05c78ea2
+2:24:25 PM [express] GET /api/elections/118/general-candidates 200 in 4ms rid=fbd0ec28-7f40-483b-a799-9584fd33b828
+2:24:25 PM [express] GET /api/elections/119/general-candidates 200 in 4ms rid=e62a7bbd-bc87-4935-8036-0224075312d2
+2:24:26 PM [express] GET /api/elections/120/general-candidates 200 in 3ms rid=e3b22940-3f4b-4f6c-bf13-9ab966454d23
+2:24:26 PM [express] GET /api/elections/121/general-candidates 200 in 3ms rid=898a0ca9-cb0b-42b7-a679-08e8abdac92c
+2:24:26 PM [express] GET /api/elections/122/general-candidates 200 in 3ms rid=21af682a-80c0-4dc7-b45f-a58efac2c1ca
+2:24:26 PM [express] GET /api/elections/123/general-candidates 200 in 4ms rid=bb7c80fc-6038-4726-a247-12451fe8f6ed
+2:24:27 PM [express] GET /api/elections/4/general-candidates 200 in 4ms rid=1e257898-6bac-49e4-9f8d-17f8d09f3068
+2:24:27 PM [express] GET /api/elections/407/general-candidates 200 in 4ms rid=67d642ab-6f0e-45ff-ba04-168492a37c72
+2:24:27 PM [express] GET /api/elections/408/general-candidates 200 in 3ms rid=0db09f33-14bc-4b97-8cb8-74a70db70bac
+2:24:27 PM [express] GET /api/elections/409/general-candidates 200 in 3ms rid=b8d520b1-2590-4c78-9f29-ca787ad77ff8
+2:24:28 PM [express] GET /api/elections/410/general-candidates 200 in 3ms rid=2d225ff0-6beb-4ace-bd13-f2c3ddf489ce
+2:24:28 PM [express] GET /api/elections/411/general-candidates 200 in 4ms rid=0a9fd39a-7a6f-4f91-ade2-15f7af56c371
+2:24:28 PM [express] GET /api/elections/412/general-candidates 200 in 4ms rid=7581edd8-ec26-4fa4-a993-4a93ec51e259
+2:24:28 PM [express] GET /api/elections/413/general-candidates 200 in 4ms rid=3d4bb5f2-5af8-460f-806e-029027e01959
+2:24:29 PM [express] GET /api/elections/414/general-candidates 200 in 4ms rid=7030a428-0cff-4fdb-a3b7-8ba0750ecceb
+2:24:29 PM [express] GET /api/elections/41/general-candidates 200 in 4ms rid=b1010c47-8128-4f13-93bc-88fe5c3a60a4
+2:24:29 PM [express] GET /api/elections/452/general-candidates 200 in 4ms rid=7ca9fce4-5d50-4b01-bcac-86fb3274b7f0
+2:24:29 PM [express] GET /api/elections/453/general-candidates 200 in 3ms rid=6116fbbc-850a-4e0c-b921-d69fb937f8f4
+2:24:30 PM [express] GET /api/elections/454/general-candidates 200 in 3ms rid=951a6a28-32f5-4716-8e22-99c124a64053
+2:24:30 PM [express] GET /api/elections/455/general-candidates 200 in 3ms rid=6925feec-48ef-4510-b67c-5185472e21f4
+2:24:30 PM [express] GET /api/elections/456/general-candidates 200 in 4ms rid=6556c5e1-50e9-4e40-abf1-59911b9c5126
+2:24:30 PM [express] GET /api/elections/42/general-candidates 200 in 4ms rid=e885df9d-0d6e-495f-be49-6c27e26720ff
+2:24:31 PM [express] GET /api/elections/5/general-candidates 200 in 3ms rid=173cb299-5502-4e5c-b169-bf456d06ed21
+2:24:31 PM [express] GET /api/elections/503/general-candidates 200 in 3ms rid=112b2928-6613-492d-b974-f0d83b14b778
+2:24:31 PM [express] GET /api/elections/6/general-candidates 200 in 4ms rid=7fbb0158-c70d-4177-b301-db0c7ba59a9c
+2:24:31 PM [express] GET /api/elections/162/general-candidates 200 in 4ms rid=88b9a068-45ef-4935-b787-b7fce0c0dafc
+2:24:32 PM [express] GET /api/elections/163/general-candidates 200 in 3ms rid=efff12b3-cd25-4417-8783-0d00e6ae136e
+2:24:32 PM [express] GET /api/elections/164/general-candidates 200 in 3ms rid=7e72749e-203a-4a94-bab8-43dbf5ee444c
+2:24:32 PM [express] GET /api/elections/165/general-candidates 200 in 4ms rid=c53385bf-01b7-45b4-bec0-4ea856b4e8f8
+2:24:33 PM [express] GET /api/elections/166/general-candidates 200 in 3ms rid=35eede07-a54b-4ecc-af05-2ef1c838763c
+2:24:33 PM [express] GET /api/elections/167/general-candidates 200 in 3ms rid=4bdce203-66f6-4757-bd79-9e38abd15882
+2:24:33 PM [express] GET /api/elections/168/general-candidates 200 in 4ms rid=74007194-0ccd-4818-b87b-8e928cc0786a
+2:24:33 PM [express] GET /api/elections/169/general-candidates 200 in 3ms rid=80dc7e43-69ca-473b-9091-0e41fd3d4aa5
+2:24:34 PM [express] GET /api/elections/170/general-candidates 200 in 4ms rid=bcd08f32-d6a6-498b-8fbb-eaf33240e8ea
+2:24:34 PM [express] GET /api/elections/172/general-candidates 200 in 3ms rid=39a7db50-3c4b-4e76-8dfb-02cfa0dffd11
+2:24:34 PM [express] GET /api/elections/173/general-candidates 200 in 4ms rid=da88ac90-0702-4fd3-bd7c-ada3bfc6611b
+2:24:34 PM [express] GET /api/elections/174/general-candidates 200 in 3ms rid=18d5524f-cdc5-49d9-8688-b5c14819443e
+2:24:35 PM [express] GET /api/elections/175/general-candidates 200 in 4ms rid=37824912-9988-48e3-9b2c-1bdaaeade7a8
+2:24:35 PM [express] GET /api/elections/176/general-candidates 200 in 3ms rid=7a510b75-2ad5-4d1d-a69c-720f93da1cce
+2:24:35 PM [express] GET /api/elections/177/general-candidates 200 in 4ms rid=fff49fa8-20f6-4bcc-84d4-d8bc2c320ca7
+2:24:35 PM [express] GET /api/elections/178/general-candidates 200 in 5ms rid=6223e7d5-205c-4785-acfc-98ecc9887173
+2:24:36 PM [express] GET /api/elections/179/general-candidates 200 in 3ms rid=aa5447a5-fd25-4d60-bd95-d5f9a5d95edb
+2:24:36 PM [express] GET /api/elections/180/general-candidates 200 in 3ms rid=46fefe95-d676-4f53-8831-9b757c8468cf
+2:24:36 PM [express] GET /api/elections/181/general-candidates 200 in 4ms rid=7719efe5-37e8-4ac6-bdfd-58ab0475b0b0
+2:24:36 PM [express] GET /api/elections/182/general-candidates 200 in 3ms rid=a521efbe-4db6-4eb5-93bc-1676fcf3a4a5
+2:24:37 PM [express] GET /api/elections/183/general-candidates 200 in 3ms rid=65635e71-1fcc-4a0a-a748-3f16b67ef31c
+2:24:37 PM [express] GET /api/elections/184/general-candidates 200 in 3ms rid=0bd27b79-1b0c-4f46-808b-b82f9f388db2
+[Results Ingestion] Starting ingestion cycle...
+[Results Ingestion] Found 0 active elections
+2:24:37 PM [express] GET /api/elections/185/general-candidates 200 in 4ms rid=54a8e3b4-4233-4f88-b938-a20ad839dfca
+2:24:37 PM [express] GET /api/elections/186/general-candidates 200 in 4ms rid=cffe5551-f95b-42a3-a727-70685a71a760
+2:24:38 PM [express] GET /api/elections/187/general-candidates 200 in 3ms rid=e0d3c070-904e-4c1b-8c2d-139869e486fa
+2:24:38 PM [express] GET /api/elections/188/general-candidates 200 in 4ms rid=13b40368-fc70-42ec-8cb1-973f98c9f9a3
+2:24:38 PM [express] GET /api/elections/189/general-candidates 200 in 3ms rid=3c4bb0f4-6ad6-4c8e-a0ee-90ead3f970e8
+2:24:38 PM [express] GET /api/elections/43/general-candidates 200 in 4ms rid=8c5d3b54-935d-468d-9bbb-b6cf5c64ea30
+2:24:39 PM [express] GET /api/elections/7/general-candidates 200 in 4ms rid=e58b7f22-5614-4183-918a-d7fd658d844a
+2:24:39 PM [express] GET /api/elections/44/general-candidates 200 in 3ms rid=ce4058e0-1507-4392-b876-83f7f40ae643
+2:24:39 PM [express] GET /api/elections/274/general-candidates 200 in 4ms rid=f5996760-cd80-4507-9be3-ffde30b86dcd
+2:24:39 PM [express] GET /api/elections/275/general-candidates 200 in 3ms rid=cdc31d05-33f4-470e-ba5d-7f4e021ce12f
+2:24:40 PM [express] GET /api/elections/277/general-candidates 200 in 3ms rid=716a622a-b8d4-435d-b9fd-8e21d59d9a32
+2:24:40 PM [express] GET /api/elections/278/general-candidates 200 in 3ms rid=59dcebc3-900a-455b-ac4f-64b429f0dcab
+2:24:40 PM [express] GET /api/elections/491/general-candidates 200 in 4ms rid=7fedbe6c-ff2f-4f33-b297-e4ccb390bbf2
+2:24:41 PM [express] GET /api/elections/492/general-candidates 200 in 4ms rid=49df971e-f43c-4617-9da5-940719cc86f8
+2:24:41 PM [express] GET /api/elections/45/general-candidates 200 in 3ms rid=14f09608-f9be-4299-915f-9f716eafdf58
+2:24:41 PM [express] GET /api/elections/10/general-candidates 200 in 4ms rid=9cd6f89f-572d-4898-9407-7aa232da6f96
+2:24:41 PM [express] GET /api/health 200 in 22ms rid=4688b2e1-f963-4fed-a006-51cbca03d0e9
+2:24:41 PM [express] GET /api/elections/457/general-candidates 200 in 4ms rid=3cbe4f7a-a308-4232-8ba7-56e8336c970d
+2:24:42 PM [express] GET /api/elections/458/general-candidates 200 in 3ms rid=165b35c5-d256-4c4c-a69a-3c8b305a6bc3
+2:24:42 PM [express] GET /api/elections/459/general-candidates 200 in 3ms rid=2531a02b-2d60-4acb-8798-aeec28bbc07f
+2:24:42 PM [express] GET /api/elections/460/general-candidates 200 in 3ms rid=cfb167d9-4d9c-45aa-a126-91f27804daf1
+2:24:42 PM [express] GET /api/elections/48/general-candidates 200 in 3ms rid=b706d836-0345-4e79-8a7b-f5a7bedba92e
+2:24:43 PM [express] GET /api/elections/8/general-candidates 200 in 3ms rid=686d576e-c780-4c6c-a618-6b56c6a7abbc
+2:24:43 PM [express] GET /api/elections/489/general-candidates 200 in 4ms rid=ac966258-c8ad-4e28-ae04-f117fa9c6df5
+2:24:43 PM [express] GET /api/elections/490/general-candidates 200 in 4ms rid=7ef5be1e-3813-4b44-8489-fbc4fbecd28b
+2:24:43 PM [express] GET /api/elections/46/general-candidates 200 in 4ms rid=29b9a748-904a-40f6-8f39-c6045a8645fa
+2:24:44 PM [express] GET /api/elections/9/general-candidates 200 in 4ms rid=9a6914cf-d7e3-4db9-a89d-ecdef30a0d39
+2:24:44 PM [express] GET /api/elections/233/general-candidates 200 in 3ms rid=8bf6770a-c655-4e8a-91b9-a91e2e6370da
+2:24:44 PM [express] GET /api/elections/234/general-candidates 200 in 4ms rid=8c205d5a-f8e7-4e70-8458-d7a23d3689d8
+2:24:44 PM [express] GET /api/elections/235/general-candidates 200 in 4ms rid=171e05bd-4268-49ed-8356-97019ca3f351
+2:24:45 PM [express] GET /api/elections/236/general-candidates 200 in 4ms rid=0ab9cdf9-158f-4d67-9607-eab6fe56aaef
+2:24:45 PM [express] GET /api/elections/237/general-candidates 200 in 3ms rid=964cec1f-4c88-4e62-94ad-c0b18e13cd14
+2:24:45 PM [express] GET /api/elections/238/general-candidates 200 in 5ms rid=61082418-6d19-43c5-8894-b05d03a3cceb
+2:24:45 PM [express] GET /api/elections/239/general-candidates 200 in 4ms rid=09aeee8c-cd26-4019-89c3-b6a0c0ebbc26
+2:24:46 PM [express] GET /api/elections/240/general-candidates 200 in 3ms rid=340e3be8-c358-42e4-b408-d6350e8a5a1d
+2:24:46 PM [express] GET /api/elections/241/general-candidates 200 in 4ms rid=7011807a-b2f4-4298-93cf-193cf9e2097b
+2:24:46 PM [express] GET /api/elections/242/general-candidates 200 in 4ms rid=49bda19c-1379-4920-b6fd-85e7a3e482dc
+2:24:46 PM [express] GET /api/elections/243/general-candidates 200 in 5ms rid=c9e624a0-8c12-41cf-bfb2-841fc3055b1a
+2:24:47 PM [express] GET /api/elections/244/general-candidates 200 in 4ms rid=7fbcd1bf-8dc1-47c3-bdfc-a66ef58bed38
+2:24:47 PM [express] GET /api/elections/245/general-candidates 200 in 4ms rid=823c0536-0d99-47c7-8a92-ff86a251e910
+2:24:47 PM [express] GET /api/elections/246/general-candidates 200 in 3ms rid=a1d79d94-de31-46bc-b7f2-3d2efc688700
+2:24:47 PM [express] GET /api/elections/247/general-candidates 200 in 3ms rid=9e7295b1-f28f-483b-9a2f-384ef36e7a63
+2:24:48 PM [express] GET /api/elections/248/general-candidates 200 in 3ms rid=617db66a-abdb-4388-94ae-4109497940c9
+2:24:48 PM [express] GET /api/elections/249/general-candidates 200 in 4ms rid=f7af4b8a-cb5f-4ecc-b519-3d35bd58f16c
+2:24:48 PM [express] GET /api/elections/355/general-candidates 200 in 3ms rid=bd105ecc-bae3-41db-af63-9b9e46b77396
+2:24:49 PM [express] GET /api/elections/352/general-candidates 200 in 4ms rid=64f44bf2-a786-46af-b342-d2ca352e1c43
+2:24:49 PM [express] GET /api/elections/348/general-candidates 200 in 4ms rid=2c1b6ea1-9e3d-4da8-b407-deac60e9ccd4
+2:24:49 PM [express] GET /api/elections/351/general-candidates 200 in 3ms rid=8ad3156d-a18e-4c4e-9a0c-4a0f9dbe0b40
+2:24:49 PM [express] GET /api/elections/356/general-candidates 200 in 4ms rid=f6016ad9-377e-4d9c-b515-57832caa6763
+2:24:50 PM [express] GET /api/elections/349/general-candidates 200 in 3ms rid=5aba86d6-4b3a-4157-9de9-db327b41e579
+2:24:50 PM [express] GET /api/elections/354/general-candidates 200 in 4ms rid=73947e9d-3628-4bfa-b573-34f6b35c93d0
+2:24:50 PM [express] GET /api/elections/353/general-candidates 200 in 3ms rid=36c8b949-ce1e-42b0-b19e-cad0701bba12
+2:24:50 PM [express] GET /api/elections/350/general-candidates 200 in 4ms rid=5e30ec65-e6b1-4d6f-926d-45e498ead2a7
+2:24:51 PM [express] GET /api/elections/11/general-candidates 200 in 4ms rid=0561720d-d30c-4d18-8827-8f458b776062
+2:24:51 PM [express] GET /api/elections/465/general-candidates 200 in 3ms rid=77d1a90d-cee3-423a-aad4-970564d453a2
+2:24:51 PM [express] GET /api/elections/466/general-candidates 200 in 4ms rid=86b74eea-5ba9-4c13-864d-7df9ba2f819c
+2:24:51 PM [express] GET /api/elections/467/general-candidates 200 in 3ms rid=78bf0c60-dad4-4eca-82ee-4d89f391e907
+2:24:52 PM [express] GET /api/elections/468/general-candidates 200 in 4ms rid=bb530595-3c3f-4825-aa44-f2f6ff126caf
+2:24:52 PM [express] GET /api/elections/49/general-candidates 200 in 3ms rid=8105d7d6-58b6-4d04-b50c-e1dda4708cc2
+2:24:52 PM [express] GET /api/elections/12/general-candidates 200 in 3ms rid=159fd686-07b2-4fa5-ba6e-c7f2d702365a
+2:24:52 PM [express] GET /api/elections/440/general-candidates 200 in 3ms rid=b7139e9a-cda4-4a15-8ca8-b21133914980
+2:24:53 PM [express] GET /api/elections/436/general-candidates 200 in 3ms rid=fc93f4fc-789a-4eeb-89db-6e3b2ac3995b
+2:24:53 PM [express] GET /api/elections/439/general-candidates 200 in 4ms rid=bbc11b12-3872-4d6a-b21f-b800e5b2c98c
+2:24:53 PM [express] GET /api/elections/435/general-candidates 200 in 3ms rid=9bfb5279-991c-449b-a2c1-4e021d860730
+2:24:53 PM [express] GET /api/elections/438/general-candidates 200 in 3ms rid=faf33408-9367-4d4e-abb1-ac92f5d7d27a
+2:24:54 PM [express] GET /api/elections/13/general-candidates 200 in 4ms rid=ce3d90db-5b34-4d3e-b57a-df1d392e0680
+2:24:54 PM [express] GET /api/elections/15/general-candidates 200 in 4ms rid=c3c09475-66a4-4fa2-b89b-dde266dff84d
+2:24:54 PM [express] GET /api/elections/357/general-candidates 200 in 4ms rid=2e28d166-3322-4870-add8-63db4fd3630d
+2:24:54 PM [express] GET /api/elections/358/general-candidates 200 in 3ms rid=5ea1a60d-6e78-464b-9785-ba41a3cb25f9
+2:24:55 PM [express] GET /api/elections/359/general-candidates 200 in 4ms rid=7f943153-e944-40ce-82a3-8a327515acf8
+2:24:55 PM [express] GET /api/elections/360/general-candidates 200 in 3ms rid=3e1c6f67-e8a9-4e79-af9c-8672652116c8
+2:24:55 PM [express] GET /api/elections/361/general-candidates 200 in 4ms rid=021b878c-2f40-424f-84d2-cc9b310f6402
+2:24:55 PM [express] GET /api/elections/362/general-candidates 200 in 5ms rid=6035a1ae-095c-4bb9-bca6-5d750f7d52ed
+2:24:56 PM [express] GET /api/elections/363/general-candidates 200 in 3ms rid=4aad948f-87c1-42af-8525-cfbacc04e469
+2:24:56 PM [express] GET /api/elections/364/general-candidates 200 in 3ms rid=988d9499-9ca7-4ab9-8d42-6c020299d88f
+2:24:56 PM [express] GET /api/elections/365/general-candidates 200 in 3ms rid=afba1469-0a8e-4ea0-a25b-f7bcf26f6276
+2:24:57 PM [express] GET /api/elections/52/general-candidates 200 in 3ms rid=85bc1f57-f816-418b-b63b-73ffb87e957b
+2:24:57 PM [express] GET /api/elections/51/general-candidates 200 in 4ms rid=ed1c62da-dd1d-4976-92e7-07b8c0b8478b
+2:24:57 PM [express] GET /api/elections/375/general-candidates 200 in 4ms rid=9f3d2f34-7528-4b18-87f3-9b077b32e352
+2:24:57 PM [express] GET /api/elections/376/general-candidates 200 in 3ms rid=58e64f44-679d-40a1-8c1a-c8933d5c3c3a
+2:24:58 PM [express] GET /api/elections/377/general-candidates 200 in 4ms rid=569dfdc6-c87f-492a-aa72-fbe30cc76c5e
+2:24:58 PM [express] GET /api/elections/378/general-candidates 200 in 4ms rid=33810248-e7b9-48e6-836a-561b7a5332e2
+2:24:58 PM [express] GET /api/elections/379/general-candidates 200 in 3ms rid=05270818-64b7-45bb-95e0-5f61cb760671
+2:24:58 PM [express] GET /api/elections/380/general-candidates 200 in 3ms rid=6e89670a-0eec-4f29-897f-ea338bcb2296
+2:24:59 PM [express] GET /api/elections/381/general-candidates 200 in 3ms rid=319b26e7-3ce4-4c8c-8711-8c75cd8088ad
+2:24:59 PM [express] GET /api/elections/382/general-candidates 200 in 3ms rid=3a768a7e-14c5-4f2d-9d50-263ab57ce715
+2:24:59 PM [express] GET /api/elections/14/general-candidates 200 in 4ms rid=8a570fc7-1156-4483-ade5-8b6e77a9bd6b
+2:24:59 PM [express] GET /api/elections/493/general-candidates 200 in 5ms rid=a41df064-b49f-4619-9cc0-82ee7814d6a1
+2:25:00 PM [express] GET /api/elections/494/general-candidates 200 in 4ms rid=0d6599a5-8db7-4ae9-823b-ebabef6824d9
+2:25:00 PM [express] GET /api/elections/50/general-candidates 200 in 5ms rid=200174d5-4a9c-4c63-9685-b8874f63a8fc
+2:25:00 PM [express] GET /api/elections/53/general-candidates 200 in 4ms rid=f127227d-17d5-45a2-baf5-4120babb8ac8
+2:25:00 PM [express] GET /api/elections/16/general-candidates 200 in 4ms rid=84af83dc-06a4-435b-a32d-fbcab04fca44
+2:25:01 PM [express] GET /api/elections/293/general-candidates 200 in 3ms rid=cb31f0d8-58ab-4918-a068-60066e4bcb19
+2:25:01 PM [express] GET /api/elections/294/general-candidates 200 in 3ms rid=3d4aaacc-989b-424f-b4c3-dd66409b57f5
+2:25:01 PM [express] GET /api/elections/295/general-candidates 200 in 3ms rid=cbb1bbc0-2b1c-4773-9a26-44925285c851
+2:25:01 PM [express] GET /api/elections/296/general-candidates 200 in 3ms rid=a05eee8f-09fe-4ae4-ab74-08f405747228
+2:25:02 PM [express] GET /api/elections/297/general-candidates 200 in 4ms rid=d6cc933e-061a-4f88-b3bb-e8d2c4c85ad3
+2:25:02 PM [express] GET /api/elections/298/general-candidates 200 in 4ms rid=10e209ee-758a-4d34-8a17-078a3b5502a4
+2:25:02 PM [express] GET /api/elections/299/general-candidates 200 in 4ms rid=119e6e78-ec3e-4e21-9cf8-3afcafbb9c58
+2:25:02 PM [express] GET /api/elections/300/general-candidates 200 in 4ms rid=c139333d-3b50-4fe4-86a8-0d309aa068f5
+2:25:03 PM [express] GET /api/elections/301/general-candidates 200 in 4ms rid=f3ea041d-f79e-435c-a692-375c4497bfb4
+2:25:03 PM [express] GET /api/elections/302/general-candidates 200 in 4ms rid=07dc22af-48ab-4f09-a9a0-20336d4b6bfa
+2:25:03 PM [express] GET /api/elections/303/general-candidates 200 in 4ms rid=fa2de0f6-4da6-42b1-88d0-7e3d519c6b77
+2:25:03 PM [express] GET /api/elections/304/general-candidates 200 in 3ms rid=cac92c51-29f6-41be-a568-cfd4b2566fd2
+2:25:04 PM [express] GET /api/elections/305/general-candidates 200 in 4ms rid=77bfd3e5-6250-4e84-9970-a72358a95344
+2:25:04 PM [express] GET /api/elections/17/general-candidates 200 in 4ms rid=0354e259-dc7e-48cc-85a0-6ffcc726a017
+2:25:04 PM [express] GET /api/elections/385/general-candidates 200 in 4ms rid=6013d4c0-f7b4-40d1-8d73-e91d21a42cc0
+2:25:05 PM [express] GET /api/elections/54/general-candidates 200 in 4ms rid=bb2c6f89-2ae7-4fe7-9029-5900cd703895
+2:25:05 PM [express] GET /api/elections/391/general-candidates 200 in 3ms rid=ade4cd31-9c8b-421b-a66c-a891bb8c6f2c
+2:25:05 PM [express] GET /api/elections/392/general-candidates 200 in 3ms rid=fc52b234-c558-449f-b966-6bcb52db30c7
+2:25:05 PM [express] GET /api/elections/393/general-candidates 200 in 6ms rid=b7be132d-fd22-4123-ba3c-25c5cf49af77
+2:25:06 PM [express] GET /api/elections/394/general-candidates 200 in 3ms rid=03908ead-b6ba-4b81-abc2-2a0fce346b9d
+2:25:06 PM [express] GET /api/elections/395/general-candidates 200 in 3ms rid=4ae66133-18c6-423f-865b-4ec3beff833f
+2:25:06 PM [express] GET /api/elections/396/general-candidates 200 in 3ms rid=33b7c397-0719-47d6-82a7-2e022bf56ee6
+2:25:06 PM [express] GET /api/elections/397/general-candidates 200 in 4ms rid=e5602787-fd87-4adf-89ff-d454a3d59dbd
+2:25:07 PM [express] GET /api/elections/398/general-candidates 200 in 3ms rid=05472842-1ea7-4716-ba02-aa0351d54e20
+2:25:07 PM [express] GET /api/elections/18/general-candidates 200 in 4ms rid=7e7be833-25b2-48a4-bd62-92437c5518db
+[Results Ingestion] Starting ingestion cycle...
+[Results Ingestion] Found 0 active elections
+2:25:07 PM [express] GET /api/elections/469/general-candidates 200 in 3ms rid=eadbc12b-ead4-447c-9c27-ef4770c69d75
+2:25:07 PM [express] GET /api/elections/470/general-candidates 200 in 4ms rid=b36ad336-2a7f-4f3c-bcf7-bbfac4040b1b
+2:25:08 PM [express] GET /api/elections/471/general-candidates 200 in 4ms rid=e946eebb-a9b3-4fcd-bf3f-8d0544da9ba2
+2:25:08 PM [express] GET /api/elections/472/general-candidates 200 in 4ms rid=f974954e-1fb2-4cf9-9b29-a82bc8d7b98c
+2:25:08 PM [express] GET /api/elections/19/general-candidates 200 in 3ms rid=7f1ba25a-bbec-4b24-b519-44bd45d083bc
+2:25:08 PM [express] GET /api/elections/499/general-candidates 200 in 4ms rid=a0684498-1c77-43c3-ae96-8fe99baa7455
+2:25:09 PM [express] GET /api/elections/500/general-candidates 200 in 4ms rid=098b84e7-c62a-4cab-bcd5-5400b0c17002
+2:25:09 PM [express] GET /api/elections/279/general-candidates 200 in 4ms rid=266a96e6-725c-47c2-990d-6248f46c1d7a
+2:25:09 PM [express] GET /api/elections/280/general-candidates 200 in 4ms rid=c289816c-5f68-4040-981f-dfa50826d928
+2:25:09 PM [express] GET /api/elections/281/general-candidates 200 in 4ms rid=b8846c5c-c787-4315-a451-72bdd22141cd
+2:25:10 PM [express] GET /api/elections/282/general-candidates 200 in 4ms rid=c2f85994-4eb1-4381-bc63-928f41c568aa
+2:25:10 PM [express] GET /api/elections/283/general-candidates 200 in 3ms rid=5e3db76f-2482-41d0-bbde-7ea3b3e4f2d2
+2:25:10 PM [express] GET /api/elections/284/general-candidates 200 in 3ms rid=28bea368-becf-4c22-a459-68d26cdca6d7
+2:25:10 PM [express] GET /api/elections/285/general-candidates 200 in 3ms rid=9d4d9a18-189d-4ea4-9adf-a24c98baacf1
+2:25:11 PM [express] GET /api/elections/286/general-candidates 200 in 4ms rid=20ea0682-bfd3-4f84-b417-90e51d007c72
+2:25:11 PM [express] GET /api/elections/287/general-candidates 200 in 3ms rid=c3dea01d-49fe-4b7e-9f02-ac650334af7c
+2:25:11 PM [express] GET /api/elections/288/general-candidates 200 in 3ms rid=2627f1fa-0174-4645-8044-2692dde7b811
+2:25:11 PM [express] GET /api/health 200 in 23ms rid=b18722ba-86b3-46df-84e5-ead1e319d665
+2:25:11 PM [express] GET /api/elections/289/general-candidates 200 in 3ms rid=72e5107a-a534-4d85-8508-1ba91ed5fcfd
+2:25:12 PM [express] GET /api/elections/290/general-candidates 200 in 4ms rid=7a7bcd30-6fee-4557-a030-d75287ed321e
+2:25:12 PM [express] GET /api/elections/291/general-candidates 200 in 3ms rid=35b5a383-fdde-4226-88c5-8f56694e0c4d
+2:25:12 PM [express] GET /api/elections/292/general-candidates 200 in 4ms rid=dc6e8062-7dbb-41ac-8eac-837f70a46f87
+2:25:13 PM [express] GET /api/elections/24/general-candidates 200 in 4ms rid=7594b8db-120e-435c-b489-65b2ef0eb1c9
+2:25:13 PM [express] GET /api/elections/501/general-candidates 200 in 3ms rid=febf3240-132b-4090-9b9d-256050a6deee
+2:25:13 PM [express] GET /api/elections/20/general-candidates 200 in 4ms rid=9b9058cf-a395-48c9-8061-bde3f5513f70
+2:25:13 PM [express] GET /api/elections/484/general-candidates 200 in 3ms rid=1f84ead0-2bd0-42f2-98a6-33878ef2a986
+2:25:14 PM [express] GET /api/elections/485/general-candidates 200 in 4ms rid=8c39763b-445b-4fee-b2ac-e4fcd0cdf44f
+2:25:14 PM [express] GET /api/elections/486/general-candidates 200 in 4ms rid=67fb515a-1b38-46c1-90a8-008107ff325a
+2:25:14 PM [express] GET /api/elections/55/general-candidates 200 in 3ms rid=2695ae79-99eb-478b-8084-70f4f05c7cd4
+2:25:14 PM [express] GET /api/elections/57/general-candidates 200 in 4ms rid=50d7f6e6-0a13-4c4f-893f-0aa8912e67e6
+2:25:15 PM [express] GET /api/elections/21/general-candidates 200 in 4ms rid=b7919786-fd1d-473f-8312-632c17181d20
+2:25:15 PM [express] GET /api/elections/495/general-candidates 200 in 4ms rid=eaccc3a9-d9b2-480e-b2db-80b1349e264c
+2:25:15 PM [express] GET /api/elections/496/general-candidates 200 in 4ms rid=c81970c3-ab48-45f4-917e-8f1fd8d160dd
+2:25:15 PM [express] GET /api/elections/22/general-candidates 200 in 6ms rid=78a1959e-27f4-4ae6-89ce-b4a2f6a2800f
+2:25:16 PM [express] GET /api/elections/306/general-candidates 200 in 3ms rid=dddf069c-bf31-4804-a1e3-50dda8398705
+2:25:16 PM [express] GET /api/elections/307/general-candidates 200 in 3ms rid=9b5a6d87-dd9f-4699-8e09-64283508ad8f
+2:25:16 PM [express] GET /api/elections/308/general-candidates 200 in 3ms rid=3a920455-7df5-4b7d-ac98-570c81876934
+2:25:16 PM [express] GET /api/elections/309/general-candidates 200 in 4ms rid=4dfb9d12-db10-4672-a1bd-08ca5373c160
+2:25:17 PM [express] GET /api/elections/310/general-candidates 200 in 5ms rid=79d3342b-bd63-44b4-8b69-e225edf48079
+2:25:17 PM [express] GET /api/elections/311/general-candidates 200 in 4ms rid=9de9dee9-3a95-494a-a45b-2652cedaafeb
+2:25:17 PM [express] GET /api/elections/312/general-candidates 200 in 3ms rid=bbc08a02-2251-4032-8a1e-1f3ead25c1a8
+2:25:17 PM [express] GET /api/elections/313/general-candidates 200 in 3ms rid=a7733aeb-3f59-4384-a064-008216dcaabd
+2:25:18 PM [express] GET /api/elections/314/general-candidates 200 in 3ms rid=6646db1f-c207-4a76-9456-487e8849a52e
+2:25:18 PM [express] GET /api/elections/315/general-candidates 200 in 3ms rid=5c7c94cf-e45f-43e2-871f-c645d630b8e8
+2:25:18 PM [express] GET /api/elections/316/general-candidates 200 in 3ms rid=0ca44228-20a0-4dbe-a4fe-5306cf90998c
+2:25:18 PM [express] GET /api/elections/317/general-candidates 200 in 3ms rid=3cb7a4db-ff01-46b4-8e2c-a16519bab4d9
+2:25:19 PM [express] GET /api/elections/23/general-candidates 200 in 4ms rid=2d143f05-15aa-4180-b0cc-52dd3dfad690
+2:25:19 PM [express] GET /api/elections/481/general-candidates 200 in 3ms rid=c092f3e1-810f-489d-a0a8-1cabe3f4fb29
+2:25:19 PM [express] GET /api/elections/482/general-candidates 200 in 4ms rid=6893a52a-e92c-4ce5-ac58-39299dc0bff9
+2:25:19 PM [express] GET /api/elections/483/general-candidates 200 in 3ms rid=4b904398-aa77-488c-a780-6863b7793022
+2:25:20 PM [express] GET /api/elections/58/general-candidates 200 in 3ms rid=39c642c8-e656-49e0-84e3-c3072e9179dd
+2:25:20 PM [express] GET /api/elections/474/general-candidates 200 in 4ms rid=8a4844e1-a215-4d9c-8c2b-4173c318f3c2
+2:25:20 PM [express] GET /api/elections/476/general-candidates 200 in 3ms rid=d16316bc-b937-4986-a492-8c29d6b16c9a
+2:25:21 PM [express] GET /api/elections/56/general-candidates 200 in 3ms rid=28a0efdb-707e-48a1-9145-b9421ec55089
+2:25:21 PM [express] GET /api/elections/473/general-candidates 200 in 3ms rid=110d78cd-feae-47f4-bd76-3ea677b61498
+2:25:21 PM [express] GET /api/elections/475/general-candidates 200 in 4ms rid=90074872-3e6c-4fff-9cba-b85ce39e2218
+2:25:21 PM [express] GET /api/elections/190/general-candidates 200 in 3ms rid=594f293a-192c-4861-b2cc-1814d5638e4b
+2:25:22 PM [express] GET /api/elections/191/general-candidates 200 in 3ms rid=76602000-316a-46a2-9363-6ce0e3928b85
+2:25:22 PM [express] GET /api/elections/192/general-candidates 200 in 3ms rid=9b51e657-9fd3-4baf-9db9-06d0609fd663
+2:25:22 PM [express] GET /api/elections/193/general-candidates 200 in 3ms rid=547c9737-5537-4bf2-b18f-ae3fe0724536
+2:25:22 PM [express] GET /api/elections/194/general-candidates 200 in 4ms rid=ec091be2-827e-4720-98c0-c81a60064d24
+2:25:23 PM [express] GET /api/elections/195/general-candidates 200 in 4ms rid=85edcbcb-37c7-41f5-ae5a-e633be128f55
+2:25:23 PM [express] GET /api/elections/196/general-candidates 200 in 3ms rid=95c58bda-0388-4336-a46d-7167ab8a96c6
+2:25:23 PM [express] GET /api/elections/197/general-candidates 200 in 3ms rid=2388e972-a334-436b-9769-8e46e0ef621e
+2:25:23 PM [express] GET /api/elections/198/general-candidates 200 in 2ms rid=e90cf8ed-2f57-4ae2-ad9d-99e503d45c0a
+2:25:24 PM [express] GET /api/elections/199/general-candidates 200 in 3ms rid=8e4cd104-1808-4f17-823e-80c775594293
+2:25:24 PM [express] GET /api/elections/200/general-candidates 200 in 3ms rid=8cf833dc-2fb4-4682-ba36-c8fb6c6cfafd
+2:25:24 PM [express] GET /api/elections/201/general-candidates 200 in 3ms rid=a307989c-e124-4b95-bb47-1a3161f730a7
+2:25:24 PM [express] GET /api/elections/202/general-candidates 200 in 4ms rid=30fcca6b-2bb7-47ff-8311-b83e85628bef
+2:25:25 PM [express] GET /api/elections/203/general-candidates 200 in 4ms rid=0cdf6d4e-634c-4b84-aa23-3b25b1bca49c
+2:25:25 PM [express] GET /api/elections/204/general-candidates 200 in 3ms rid=3460e2b6-abf5-4653-82ac-4f0187b71237
+2:25:25 PM [express] GET /api/elections/205/general-candidates 200 in 3ms rid=b5dc6f4e-9cc5-4664-8777-dc78125fbdef
+2:25:25 PM [express] GET /api/elections/206/general-candidates 200 in 5ms rid=1102535e-87c0-424e-8a91-6c21be9ad519
+2:25:26 PM [express] GET /api/elections/207/general-candidates 200 in 3ms rid=41124a1d-bb7f-4b7e-b985-674f1892410c
+2:25:26 PM [express] GET /api/elections/208/general-candidates 200 in 4ms rid=6b8fc00c-30b9-42af-a81c-0decf13a5bb9
+2:25:26 PM [express] GET /api/elections/209/general-candidates 200 in 3ms rid=70ce67a0-dccb-45b7-817b-95a753d85743
+2:25:26 PM [express] GET /api/elections/210/general-candidates 200 in 4ms rid=d5ffad38-f3ac-458e-976f-df024da0f77a
+2:25:27 PM [express] GET /api/elections/211/general-candidates 200 in 4ms rid=f81bfa95-182f-43f1-b6a4-47f0932d4752
+2:25:27 PM [express] GET /api/elections/212/general-candidates 200 in 3ms rid=8a8e5e08-06fd-42a1-9b02-8b2157d6523b
+2:25:27 PM [express] GET /api/elections/213/general-candidates 200 in 4ms rid=40f85ae1-b496-4b0d-a3b3-a985d4828c17
+2:25:27 PM [express] GET /api/elections/214/general-candidates 200 in 3ms rid=ade9ab49-28ce-41c6-aed2-c45d9ed06c3d
+2:25:28 PM [express] GET /api/elections/215/general-candidates 200 in 3ms rid=f74c766a-d712-4de6-bbff-e3813c83e584
+2:25:28 PM [express] GET /api/elections/59/general-candidates 200 in 3ms rid=fa84e25d-df10-408f-a7a2-2d07aa2af27d
+2:25:28 PM [express] GET /api/elections/60/general-candidates 200 in 3ms rid=267b8bb8-785f-4b86-b69a-3c5b096b84af
+2:25:28 PM [express] GET /api/elections/25/general-candidates 200 in 4ms rid=58c644f4-8cce-43f4-a140-6e926e8e7fae
+2:25:29 PM [express] GET /api/elections/263/general-candidates 200 in 3ms rid=fb169deb-3293-4d35-85b2-4d21099e739f
+2:25:29 PM [express] GET /api/elections/251/general-candidates 200 in 3ms rid=f0388755-8d98-4715-b0a5-d723f03ad305
+2:25:29 PM [express] GET /api/elections/253/general-candidates 200 in 3ms rid=a280c438-b26d-434c-9ab5-698ccb28f93f
+2:25:30 PM [express] GET /api/elections/254/general-candidates 200 in 3ms rid=37eba97f-5705-4884-a14b-95981e1a62de
+2:25:30 PM [express] GET /api/elections/252/general-candidates 200 in 4ms rid=6ddfdc42-8ca0-4fea-b1b2-f82918d8065e
+2:25:30 PM [express] GET /api/elections/264/general-candidates 200 in 4ms rid=6a719dc3-f00a-4f3c-a791-a109c67b4171
+2:25:30 PM [express] GET /api/elections/256/general-candidates 200 in 3ms rid=66321c46-d1ac-446c-ae00-035d831a1a9a
+2:25:31 PM [express] GET /api/elections/260/general-candidates 200 in 4ms rid=012c4b5b-ad03-4660-9957-4c063a6b9315
+2:25:31 PM [express] GET /api/elections/250/general-candidates 200 in 3ms rid=ff4cb3ce-4da7-43e4-a35f-af3f914faa93
+2:25:31 PM [express] GET /api/elections/257/general-candidates 200 in 3ms rid=d74961e7-0ab7-432b-81da-0ea5f0438ffb
+2:25:31 PM [express] GET /api/elections/255/general-candidates 200 in 3ms rid=0d66918b-ed19-4db9-ab39-555cbc46d725
+2:25:32 PM [express] GET /api/elections/258/general-candidates 200 in 3ms rid=9a620a22-ebd1-4391-b696-b21d3d16cddb
+2:25:32 PM [express] GET /api/elections/259/general-candidates 200 in 4ms rid=c7404520-3d81-4a5a-b346-0b37710b0683
+2:25:32 PM [express] GET /api/elections/261/general-candidates 200 in 3ms rid=3cd8c7b1-cc1e-4a81-8a04-b1483256cb25
+2:25:32 PM [express] GET /api/elections/262/general-candidates 200 in 3ms rid=54b55778-11a3-4121-9dd3-abe0ead84982
+2:25:33 PM [express] GET /api/elections/61/general-candidates 200 in 3ms rid=c170d330-2a81-4c70-a941-02f206104721
+2:25:33 PM [express] GET /api/elections/447/general-candidates 200 in 3ms rid=03a44db7-8eb8-4415-8455-fd3243b1e395
+2:25:33 PM [express] GET /api/elections/448/general-candidates 200 in 3ms rid=7cc75bf7-e9ef-47a0-b8b8-04bf88acc641
+2:25:33 PM [express] GET /api/elections/449/general-candidates 200 in 3ms rid=ee6e3bca-84d2-4473-b018-0d01f71a1ef9
+2:25:34 PM [express] GET /api/elections/450/general-candidates 200 in 3ms rid=f3d33066-7310-4838-8332-26f62840ffe5
+2:25:34 PM [express] GET /api/elections/451/general-candidates 200 in 3ms rid=7a1ed487-b2ec-4c5a-936c-ee87f5269bdc
+2:25:34 PM [express] GET /api/elections/26/general-candidates 200 in 3ms rid=68304bfb-633c-4153-889c-b66f354aeff1
+2:25:34 PM [express] GET /api/elections/27/general-candidates 200 in 4ms rid=f2226e05-f4c9-48fe-b449-d4ca593829b1
+2:25:35 PM [express] GET /api/elections/441/general-candidates 200 in 4ms rid=151214ee-2550-4dad-b8b2-bb33ab97f7de
+2:25:35 PM [express] GET /api/elections/442/general-candidates 200 in 3ms rid=c716b369-02cb-4016-a654-134c53fbe1de
+2:25:35 PM [express] GET /api/elections/443/general-candidates 200 in 3ms rid=55f449de-9c30-4c50-ac6b-8ea5b06e0971
+2:25:35 PM [express] GET /api/elections/444/general-candidates 200 in 4ms rid=d1d8c56a-f8be-4453-a71f-c07fa6700543
+2:25:36 PM [express] GET /api/elections/445/general-candidates 200 in 3ms rid=7aa805fe-bf11-4055-9d43-e4c27ed504c6
+2:25:36 PM [express] GET /api/elections/446/general-candidates 200 in 3ms rid=b7d0206b-b3be-446e-9181-83de37bc3d76
+2:25:36 PM [express] GET /api/elections/62/general-candidates 200 in 3ms rid=aa4394cd-2a01-4b33-9569-ca3b73c5bfe1
+2:25:36 PM [express] GET /api/elections/216/general-candidates 200 in 3ms rid=c07be811-8665-4698-8697-1be88c44af5a
+2:25:37 PM [express] GET /api/elections/217/general-candidates 200 in 3ms rid=22f64001-08c9-4bd5-b368-9569b16f292b
+2:25:37 PM [express] GET /api/elections/218/general-candidates 200 in 3ms rid=b8666916-39d6-4a1e-a963-aeec9c1fa46d
+[Results Ingestion] Starting ingestion cycle...
+[Results Ingestion] Found 0 active elections
+2:25:37 PM [express] GET /api/elections/219/general-candidates 200 in 3ms rid=3c061d4c-364d-4718-bd7b-0506dbd507e2
+2:25:37 PM [express] GET /api/elections/220/general-candidates 200 in 4ms rid=611b9bab-b1dc-4bc3-866e-9bef938294ea
+2:25:38 PM [express] GET /api/elections/221/general-candidates 200 in 4ms rid=6fbbf7f7-02c1-4c7c-a0d7-73ea48757769
+2:25:38 PM [express] GET /api/elections/222/general-candidates 200 in 3ms rid=843cca23-d376-4328-be1c-34c21976d78b
+2:25:38 PM [express] GET /api/elections/223/general-candidates 200 in 3ms rid=7fb59bcb-000f-4c50-a3fa-8f60cf8b4aff
+2:25:39 PM [express] GET /api/elections/224/general-candidates 200 in 3ms rid=56ac2720-db13-49c1-81d5-714dabda69bc
+2:25:39 PM [express] GET /api/elections/225/general-candidates 200 in 3ms rid=5dd9c4d1-47f8-4572-881a-ee1635cda8d7
+2:25:39 PM [express] GET /api/elections/226/general-candidates 200 in 3ms rid=dde21e08-e5c6-4a5d-8034-5fef8828374d
+2:25:39 PM [express] GET /api/elections/227/general-candidates 200 in 3ms rid=8b576118-a287-4117-951a-f4d488aac125
+2:25:40 PM [express] GET /api/elections/228/general-candidates 200 in 4ms rid=4cbfc40a-0c9c-4753-a711-8e300330a075
+2:25:40 PM [express] GET /api/elections/229/general-candidates 200 in 3ms rid=c9995cd8-058f-4394-8e97-743c760ed10f
+2:25:40 PM [express] GET /api/elections/230/general-candidates 200 in 3ms rid=acf8659f-f701-4f06-9f6e-f0822d527e3f
+2:25:40 PM [express] GET /api/elections/231/general-candidates 200 in 3ms rid=86d21707-ed7e-432d-b3cd-1470ff32a1ca
+2:25:41 PM [express] GET /api/elections/232/general-candidates 200 in 3ms rid=8d92a44f-1e45-4508-9b39-10a43b97886c
+2:25:41 PM [express] GET /api/elections/63/general-candidates 200 in 4ms rid=ec411fcb-8c02-467d-927f-fe715768fbcb
+2:25:41 PM [express] GET /api/elections/64/general-candidates 200 in 4ms rid=9435936d-3675-4dac-a228-25f49b4f1a7c
+2:25:41 PM [express] GET /api/elections/497/general-candidates 200 in 4ms rid=93ec687b-4d29-41dd-a7b4-e3680c00d30d
+2:25:42 PM [express] GET /api/health 200 in 26ms rid=efc59a40-2205-4974-b1e1-d19f3f31313a
+2:25:42 PM [express] GET /api/elections/498/general-candidates 200 in 4ms rid=47cc9280-67ec-4833-b211-3ead3a52a3fa
+2:25:42 PM [express] GET /api/elections/28/general-candidates 200 in 4ms rid=bc67e1a7-71b5-4c1c-abfb-85925f7ea7c7
+2:25:42 PM [express] GET /api/elections/65/general-candidates 200 in 3ms rid=c382a969-513b-4a74-bded-f9eedc3dd523
+2:25:42 PM [express] GET /api/elections/29/general-candidates 200 in 4ms rid=53fddfa9-9cec-46aa-a1d5-154730b692bc
+2:25:43 PM [express] GET /api/elections/422/general-candidates 200 in 4ms rid=2c24d8f5-bc35-4380-93c7-1c719fa55c3b
+2:25:43 PM [express] GET /api/elections/427/general-candidates 200 in 4ms rid=37476ce7-8bfd-4366-8c18-04fbe28e785b
+2:25:43 PM [express] GET /api/elections/428/general-candidates 200 in 3ms rid=bec5ca2a-3b49-42b4-97f3-19add0a8f224
+2:25:43 PM [express] GET /api/elections/30/general-candidates 200 in 3ms rid=f8ce329f-cb0b-448b-a140-40446d37ebeb
+2:25:44 PM [express] GET /api/elections/502/general-candidates 200 in 3ms rid=6a779dd3-5381-4122-8aa5-5997e0daf50c
+2:25:44 PM [express] GET /api/elections/66/general-candidates 200 in 3ms rid=7e965edb-2741-4085-8fa5-2eb4b6642212
+2:25:44 PM [express] GET /api/elections/67/general-candidates 200 in 3ms rid=01ddd175-9482-422b-94da-aa4adda8ba26
+2:25:44 PM [express] GET /api/elections/31/general-candidates 200 in 3ms rid=ae5c1835-b37f-40c6-9ff1-d7429195f82a
+2:25:45 PM [express] GET /api/elections/366/general-candidates 200 in 4ms rid=455a0593-f2b1-4dfc-a93e-a3983c9c7670
+2:25:45 PM [express] GET /api/elections/367/general-candidates 200 in 3ms rid=afe093b8-4cc8-4042-a01a-2fe2e8b1bf23
+2:25:45 PM [express] GET /api/elections/368/general-candidates 200 in 4ms rid=80456cf6-6f67-47d3-8d6e-693502e2414e
+2:25:45 PM [express] GET /api/elections/369/general-candidates 200 in 4ms rid=db7db202-cb51-4999-8e4f-a41e67e8c1d2
+2:25:46 PM [express] GET /api/elections/370/general-candidates 200 in 4ms rid=9ce7958b-05c0-4e6f-8e52-6f6dcf679fe8
+2:25:46 PM [express] GET /api/elections/371/general-candidates 200 in 3ms rid=a87f7bf0-1b15-40f8-b267-eb1623d38be3
+2:25:46 PM [express] GET /api/elections/372/general-candidates 200 in 3ms rid=753c29cb-2eff-4938-a64c-3b2a967b554e
+2:25:47 PM [express] GET /api/elections/373/general-candidates 200 in 4ms rid=7daa1ef9-59a6-4d4f-a7ba-47a55f18d6cf
+2:25:47 PM [express] GET /api/elections/374/general-candidates 200 in 4ms rid=99bcd46b-327e-4333-9b45-76e6b46f291c
+2:25:47 PM [express] GET /api/elections/68/general-candidates 200 in 3ms rid=f3e32bc7-8976-4736-999e-bcce7e8dd4b7
+2:25:47 PM [express] GET /api/elections/124/general-candidates 200 in 3ms rid=20dc08bb-57c5-4b61-b16b-8a929a43e3d7
+2:25:48 PM [express] GET /api/elections/125/general-candidates 200 in 4ms rid=6c8991b0-ab4c-4e6d-8b31-557c8994e475
+2:25:48 PM [express] GET /api/elections/126/general-candidates 200 in 3ms rid=926438e7-5b90-4f13-8662-75be19ec9d4c
+2:25:48 PM [express] GET /api/elections/127/general-candidates 200 in 3ms rid=9b8a3c28-99c3-4227-a7cb-75cf6954d0a8
+2:25:48 PM [express] GET /api/elections/128/general-candidates 200 in 3ms rid=33074561-c067-4781-affc-d8d04cc4b43d
+2:25:49 PM [express] GET /api/elections/129/general-candidates 200 in 3ms rid=465beb28-27a3-4a7f-8fe8-391bd167a7ce
+2:25:49 PM [express] GET /api/elections/130/general-candidates 200 in 4ms rid=7fdcdf2d-a0e2-4a13-8ba1-644b13eba30f
+2:25:49 PM [express] GET /api/elections/131/general-candidates 200 in 4ms rid=219012ac-6d64-4f59-9815-e20d561a7826
+2:25:49 PM [express] GET /api/elections/132/general-candidates 200 in 3ms rid=10dde6c0-f632-4ebc-9b9e-9d21b287ca3b
+2:25:50 PM [express] GET /api/elections/133/general-candidates 200 in 3ms rid=4ecd4dcc-e916-4205-a314-cf68543a019e
+2:25:50 PM [express] GET /api/elections/134/general-candidates 200 in 3ms rid=725e0060-178c-47ff-89c0-fb6fdc8dc377
+2:25:50 PM [express] GET /api/elections/135/general-candidates 200 in 3ms rid=75c2da92-a5b3-43df-a39f-2aa773f59914
+2:25:50 PM [express] GET /api/elections/136/general-candidates 200 in 5ms rid=78d0f67f-1217-4868-959b-d95eaf026911
+2:25:51 PM [express] GET /api/elections/137/general-candidates 200 in 3ms rid=0962eee0-4649-44be-a31b-2be522797629
+2:25:51 PM [express] GET /api/elections/138/general-candidates 200 in 3ms rid=e5a42415-09f7-4e8c-9a4e-1b5435967162
+2:25:51 PM [express] GET /api/elections/139/general-candidates 200 in 3ms rid=7349345f-a243-4329-946f-03970922a850
+2:25:51 PM [express] GET /api/elections/140/general-candidates 200 in 3ms rid=57ca82ac-8632-43cf-8438-acf4d68c2a2b
+2:25:52 PM [express] GET /api/elections/141/general-candidates 200 in 3ms rid=7cadfe64-b95f-4622-9daa-598e7dfb2e53
+2:25:52 PM [express] GET /api/elections/142/general-candidates 200 in 3ms rid=fd05ab2e-79ff-44f7-bcdd-3fbcf43b9c4d
+2:25:52 PM [express] GET /api/elections/143/general-candidates 200 in 4ms rid=1145f8e4-ed0a-47b7-9158-4d5f5c946a72
+2:25:52 PM [express] GET /api/elections/144/general-candidates 200 in 4ms rid=38a4d36d-d950-403d-9784-569ed445c407
+2:25:53 PM [express] GET /api/elections/145/general-candidates 200 in 3ms rid=1b8b29e0-bd2f-4fd0-9b99-e597c3930d7a
+2:25:53 PM [express] GET /api/elections/146/general-candidates 200 in 3ms rid=b7f542d0-6c4b-404a-8f05-6aef4b495fcd
+2:25:53 PM [express] GET /api/elections/147/general-candidates 200 in 3ms rid=cda5ecf5-52cd-4f00-96f9-33d6bcd059fd
+2:25:53 PM [express] GET /api/elections/148/general-candidates 200 in 3ms rid=e77ca3b0-f282-428b-8052-be6441c04a38
+2:25:54 PM [express] GET /api/elections/149/general-candidates 200 in 4ms rid=1c88f5fa-d006-4ce6-bee9-11b5f898539e
+2:25:54 PM [express] GET /api/elections/150/general-candidates 200 in 3ms rid=e9e48a23-7910-44f1-a976-6d28d9c09e6b
+2:25:54 PM [express] GET /api/elections/151/general-candidates 200 in 3ms rid=ce45fddf-8ed8-47da-8537-61c61df09be6
+2:25:54 PM [express] GET /api/elections/152/general-candidates 200 in 3ms rid=36fe608d-913e-4461-b025-f18990d7eb50
+2:25:55 PM [express] GET /api/elections/153/general-candidates 200 in 3ms rid=4c8581f9-abbd-46ce-8d7e-7bcdbf3104c5
+2:25:55 PM [express] GET /api/elections/154/general-candidates 200 in 3ms rid=8fe7ddc6-1fb2-41dd-96bc-3ff318aa7632
+2:25:55 PM [express] GET /api/elections/155/general-candidates 200 in 4ms rid=272512b3-fe68-440b-94a5-21d35d036730
+2:25:56 PM [express] GET /api/elections/156/general-candidates 200 in 3ms rid=2a9e67d7-0df9-44f9-b105-258e8d756dd1
+2:25:56 PM [express] GET /api/elections/157/general-candidates 200 in 3ms rid=a57adbf1-b4aa-4407-93b3-0682946cadb5
+2:25:56 PM [express] GET /api/elections/158/general-candidates 200 in 3ms rid=60e97f2a-0f25-4377-a4e5-4017fd0658b9
+2:25:56 PM [express] GET /api/elections/159/general-candidates 200 in 3ms rid=9139c0df-b69e-45e4-a7bd-02a3499b207a
+2:25:57 PM [express] GET /api/elections/160/general-candidates 200 in 4ms rid=2fe0fe41-014f-484a-944e-fd688878b679
+2:25:57 PM [express] GET /api/elections/161/general-candidates 200 in 3ms rid=3dc648b5-8593-429d-9287-3fc190e7eb2f
+2:25:57 PM [express] GET /api/elections/32/general-candidates 200 in 3ms rid=d2fd89a5-1dae-4e8e-9b16-9430c14e7eb0
+2:25:57 PM [express] GET /api/elections/477/general-candidates 200 in 3ms rid=683bb973-ae5c-4c4a-bac6-ada05a00c7c8
+2:25:58 PM [express] GET /api/elections/478/general-candidates 200 in 3ms rid=96f546be-8e24-4cc6-bde5-91a5a084f36d
+2:25:58 PM [express] GET /api/elections/479/general-candidates 200 in 4ms rid=929f23e3-8120-447b-a58e-393db3303cef
+2:25:58 PM [express] GET /api/elections/480/general-candidates 200 in 7ms rid=a95f66c0-4d52-4d35-828f-7902485feb8c
+2:25:58 PM [express] GET /api/elections/33/general-candidates 200 in 3ms rid=91ca96c9-dc82-4015-95a2-15cd14cf0f23
+2:25:59 PM [express] GET /api/elections/318/general-candidates 200 in 4ms rid=6b63be62-ba9f-4e3e-a87a-451ebad026c1
+2:25:59 PM [express] GET /api/elections/319/general-candidates 200 in 3ms rid=02bdcc8f-e06a-4a0f-b1bf-cdf7ce8de51e
+2:25:59 PM [express] GET /api/elections/320/general-candidates 200 in 3ms rid=33fd2b16-df84-4f03-a480-4ccca2ce2cd4
+2:25:59 PM [express] GET /api/elections/321/general-candidates 200 in 3ms rid=aaa81bac-85c4-4073-b6a5-96c976fd9473
+2:26:00 PM [express] GET /api/elections/322/general-candidates 200 in 5ms rid=d667f565-6f1c-443f-a09d-c6eba1043112
+2:26:00 PM [express] GET /api/elections/323/general-candidates 200 in 4ms rid=3aa38caa-0b6b-42ae-8423-ef0798b3d387
+2:26:00 PM [express] GET /api/elections/324/general-candidates 200 in 3ms rid=68dbccf0-3a19-4074-af41-acf2d07dbc4c
+2:26:00 PM [express] GET /api/elections/325/general-candidates 200 in 3ms rid=a80a1345-037d-4bea-950e-0ed36777d3cd
+2:26:01 PM [express] GET /api/elections/326/general-candidates 200 in 3ms rid=98373a3b-11b2-4178-876a-a4276696cac6
+2:26:01 PM [express] GET /api/elections/327/general-candidates 200 in 3ms rid=1c4f83b7-0e10-44a2-8a45-f081ec7a2f4f
+2:26:01 PM [express] GET /api/elections/328/general-candidates 200 in 3ms rid=afd93f2f-9687-4df5-8f97-4cd19fb4a87b
+2:26:01 PM [express] GET /api/elections/504/general-candidates 200 in 3ms rid=d1da7eba-9f74-4348-881b-5e8c086974cf
+2:26:02 PM [express] GET /api/elections/69/general-candidates 200 in 3ms rid=2daf40ed-3414-4c2f-9673-cc810501add8
+2:26:02 PM [express] GET /api/elections/329/general-candidates 200 in 3ms rid=e931ea16-ebe4-4c0f-bfb1-4d05182498a4
+2:26:02 PM [express] GET /api/elections/330/general-candidates 200 in 3ms rid=64921b53-6478-4665-831a-84c5278ddaec
+2:26:02 PM [express] GET /api/elections/331/general-candidates 200 in 3ms rid=30cf940b-8da4-4cb6-b744-037482dad0f3
+2:26:03 PM [express] GET /api/elections/332/general-candidates 200 in 5ms rid=b92559cc-760c-42ea-a558-b99da80b6d6e
+2:26:03 PM [express] GET /api/elections/333/general-candidates 200 in 4ms rid=4d023071-1812-4e26-adae-427fb9d01a5c
+2:26:03 PM [express] GET /api/elections/334/general-candidates 200 in 3ms rid=78fd815c-18f6-4f8d-8cd3-c42613a59bf1
+2:26:04 PM [express] GET /api/elections/335/general-candidates 200 in 4ms rid=aba8c935-182d-4969-aedd-7ef89bc9ad69
+2:26:04 PM [express] GET /api/elections/336/general-candidates 200 in 4ms rid=2ada9861-74f3-4803-87f9-74b1669815d8
+2:26:04 PM [express] GET /api/elections/337/general-candidates 200 in 3ms rid=579aa40f-d35f-46fa-9f74-50ba345e0b73
+2:26:04 PM [express] GET /api/elections/338/general-candidates 200 in 4ms rid=0c1b065d-e0a4-40dc-906a-c568aa5d4fa9
+2:26:05 PM [express] GET /api/elections/70/general-candidates 200 in 4ms rid=9673bf1b-85ec-4334-9dc6-34885ff0a02b
+2:26:05 PM [express] GET /api/elections/399/general-candidates 200 in 3ms rid=94aaf6bf-e2fd-42b7-b9dc-9338431efb78
+2:26:05 PM [express] GET /api/elections/400/general-candidates 200 in 3ms rid=b360e092-04a6-474e-8023-63da567a1f42
+2:26:05 PM [express] GET /api/elections/401/general-candidates 200 in 5ms rid=611601d2-41ee-4d5c-8d8c-f229d8d7dae9
+2:26:06 PM [express] GET /api/elections/402/general-candidates 200 in 3ms rid=54a6d51f-e8af-4243-aa75-7f10f2172fdb
+2:26:06 PM [express] GET /api/elections/403/general-candidates 200 in 2ms rid=1a67198e-5bb1-44f9-9372-d1c4d88fd4bd
+2:26:06 PM [express] GET /api/elections/404/general-candidates 200 in 4ms rid=9bbc8f8e-4828-405d-890b-c884e65715f4
+2:26:06 PM [express] GET /api/elections/405/general-candidates 200 in 3ms rid=a65e9155-802c-44f9-baae-28be40e3f176
+2:26:07 PM [express] GET /api/elections/406/general-candidates 200 in 3ms rid=83e3840e-34e7-4de5-b730-04647bdb1731
+2:26:07 PM [express] GET /api/elections/34/general-candidates 200 in 3ms rid=e98186df-088c-4d32-b48d-f056c7de4784
+[Results Ingestion] Starting ingestion cycle...
+[Results Ingestion] Found 0 active elections
+2:26:07 PM [express] GET /api/elections/487/general-candidates 200 in 4ms rid=fe6ca104-6670-4a7d-a903-65cf283b6bc3
+2:26:07 PM [express] GET /api/elections/488/general-candidates 200 in 5ms rid=ce61d891-bde2-46b4-bd50-8fa8d6c90686
+2:26:08 PM [express] GET /api/elections/35/general-candidates 200 in 4ms rid=55d56cb7-cb68-4d02-877d-99f16702fd44
+2:26:08 PM [express] GET /api/elections/505/general-candidates 200 in 4ms rid=16460d05-4d89-4979-a612-3824ac8f7b06
+2:26:08 PM [express] GET /api/elections/71/general-candidates 200 in 3ms rid=ea8f1b54-280a-429b-b687-516f914320ff
+2:26:08 PM [express] GET /api/elections/nope/general-candidates 400 in 1ms rid=a9f64042-36d5-44f0-80ab-b51541b393f3
+2:26:08 PM [express] GET /api/elections/999999999/general-candidates 404 in 1ms rid=11d2ab13-53b4-43f2-8848-4ae4f20d6b18
+2:26:12 PM [express] GET /api/health 200 in 29ms rid=22186a0c-6fca-4281-9240-d8a73f046ad2
+🔌 Database connection removed from pool
+🔌 Database connection removed from pool
+getElectionStats error: DrizzleQueryError: Failed query: select "id", "title", "subtitle", "location", "state", "date", "type", "level", "offices", "description", "polls_open", "polls_close", "timezone", "poll_close_kind", "poll_hours_basis", "poll_hours_source", "official_results_url", "official_results_source", "is_active" from "elections" where "elections"."is_active" = $1
+params: true
+    at NodePgPreparedQuery.queryWithCache (file:///app/node_modules/drizzle-orm/pg-core/session.js:41:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:117:22
+    ... 2 lines matching cause stack trace ...
+    at async file:///app/dist/index.js:24690:19 {
+  query: 'select "id", "title", "subtitle", "location", "state", "date", "type", "level", "offices", "description", "polls_open", "polls_close", "timezone", "poll_close_kind", "poll_hours_basis", "poll_hours_source", "official_results_url", "official_results_source", "is_active" from "elections" where "elections"."is_active" = $1',
+  params: [ true ],
+  cause: Error: getaddrinfo EAI_AGAIN et-db-79740-97df50
+      at /app/node_modules/pg-pool/index.js:45:11
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:124:18
+      at async NodePgPreparedQuery.queryWithCache (file:///app/node_modules/drizzle-orm/pg-core/session.js:39:16)
+      at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:117:22
+      at async handleDatabaseOperation.total (file:///app/dist/index.js:11992:34)
+      at async DatabaseStorage.handleDatabaseOperation (file:///app/dist/index.js:11851:18)
+      at async file:///app/dist/index.js:24690:19 {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'et-db-79740-97df50'
+  }
+}
+Health check error: Failed query: select "id", "title", "subtitle", "location", "state", "date", "type", "level", "offices", "description", "polls_open", "polls_close", "timezone", "poll_close_kind", "poll_hours_basis", "poll_hours_source", "official_results_url", "official_results_source", "is_active" from "elections" where "elections"."is_active" = $1
+params: true
+2:26:18 PM [express] GET /api/health 503 in 5008ms rid=af0140a7-ecc2-4bf0-9735-e23bd76e6b01
+✅ Database connection established
+2:26:19 PM [express] GET /api/health 200 in 41ms rid=570ef4ca-a1c4-4968-bcd7-1619b40d02cc
+2:26:19 PM [express] GET /api/health 200 in 36ms rid=fff5f3ce-fdfd-446e-a71c-5f91091a5940
+✅ Database connection established
+2:26:19 PM [express] GET /api/elections 200 in 52ms rid=2602c676-000c-418a-b18a-076969263ca2
+✅ Database connection established
+2:26:21 PM [express] GET /api/elections 200 in 101ms rid=4d45cecf-761d-497f-abd8-4197355b91e1
+2:26:21 PM [express] GET /api/elections 200 in 108ms rid=b85b44fe-d282-4526-b2e5-c2b10c54833b
+2:26:21 PM [express] GET /api/elections 200 in 110ms rid=925b9bcd-00bf-44e0-b116-bf2164864d20
+2:26:21 PM [express] GET /api/elections 200 in 129ms rid=ad06389e-6895-474b-a79f-bcd8e82dd716
+2:26:21 PM [express] GET /api/elections 200 in 144ms rid=875f7029-b67b-410e-9e7b-0febc8b866f5
+2:26:21 PM [express] GET /api/elections 200 in 154ms rid=80cd103d-0d6a-4f73-800a-556735a9d4b7
+✅ Database connection established
+✅ Database connection established
+2:26:21 PM [express] GET /api/elections 200 in 175ms rid=854912e0-1039-4332-aaf7-5cea3aca2970
+✅ Database connection established
+✅ Database connection established
+✅ Database connection established
+✅ Database connection established
+✅ Database connection established
+2:26:21 PM [express] GET /api/elections 200 in 185ms rid=82a71f50-8c10-49e5-b7b0-95676eadd65e
+2:26:21 PM [express] GET /api/elections 200 in 215ms rid=8264b97c-ac86-4c86-9e51-fb3dbb9d0ac0
+2:26:21 PM [express] GET /api/elections 200 in 233ms rid=2f39607c-c51b-467a-b453-0f4fcbaa6f3c
+2:26:21 PM [express] GET /api/elections 200 in 261ms rid=633d3405-3316-4798-a280-82efa3ef8047
+2:26:21 PM [express] GET /api/elections 200 in 260ms rid=2b112d37-c511-4059-b8d3-739eec9c27ab
+2:26:21 PM [express] GET /api/elections 200 in 291ms rid=37466257-2264-4a56-b065-bb8374c353ca
+2:26:21 PM [express] GET /api/elections 200 in 320ms rid=93c38c22-2bbb-42f3-9b2e-77d208536ecd
+2:26:21 PM [express] GET /api/elections 200 in 317ms rid=8b581d14-a975-48d5-9867-c1eac424e868
+2:26:21 PM [express] GET /api/elections 200 in 329ms rid=fa30f5f2-10cd-42ad-9f19-23ee8b15eb72
+2:26:21 PM [express] GET /api/elections 200 in 329ms rid=e00a34db-f483-425d-b36c-7851de3111cb
+2:26:21 PM [express] GET /api/elections 200 in 359ms rid=99ac767e-f1d4-4a31-a963-3559c5683651
+2:26:21 PM [express] GET /api/elections 200 in 359ms rid=590a93af-80bf-409a-8b19-3016b81f93dd
+2:26:21 PM [express] GET /api/health 200 in 427ms rid=271cd960-b0e1-4125-8807-875676a3b880
+2:26:21 PM [express] GET /api/elections 200 in 403ms rid=b5f57a42-ff41-44b0-9ccb-c2a079f745be
+2:26:21 PM [express] GET /api/elections 200 in 404ms rid=1d529811-62d0-4950-a2ae-39c5b8c5f16e
+2:26:21 PM [express] GET /api/elections 200 in 438ms rid=eb6e6b4b-e5cf-4294-8d26-f5098f7a1b09
+2:26:21 PM [express] GET /api/elections 200 in 471ms rid=709737da-4675-4a7a-b2dd-2ca994de6a45
+2:26:21 PM [express] GET /api/elections 200 in 463ms rid=d3b97847-9f03-4ad8-b05a-24f913c28968
+2:26:21 PM [express] GET /api/elections 200 in 483ms rid=fe005ad9-ed52-4a59-b908-7a19d693f9ce
+2:26:21 PM [express] GET /api/elections 200 in 475ms rid=403cb877-f2aa-4f25-9447-17ba6f6a5cdf
+2:26:21 PM [express] GET /api/health 200 in 542ms rid=83a2db64-2ddf-469e-bdf5-d14798467953
+2:26:21 PM [express] GET /api/elections 200 in 501ms rid=6fccb904-bfc8-4c61-97c3-510f77a52d2b
+2:26:21 PM [express] GET /api/elections 200 in 500ms rid=1a6233c1-a6da-49b5-af90-084d88b93ce0
+2:26:21 PM [express] GET /api/health 200 in 559ms rid=bedbe18c-500b-4a19-a69c-280294138997
+2:26:21 PM [express] GET /api/health 200 in 573ms rid=10973330-dae6-4f1e-b67c-1e531becf444
+2:26:21 PM [express] GET /api/health 200 in 607ms rid=aa949a36-5a98-4f08-b7d2-9883c348e0de
+2:26:21 PM [express] GET /api/health 200 in 609ms rid=eff76ea3-6912-47d9-85c6-73c93adb00cd
+2:26:21 PM [express] GET /api/elections 200 in 567ms rid=4edebbd8-42f9-4f4f-ad56-2b04120c14fe
+2:26:21 PM [express] GET /api/elections 200 in 566ms rid=e0bad2f5-75e2-4d27-85ab-0adf837f4965
+2:26:21 PM [express] GET /api/health 200 in 631ms rid=0dac2ece-6177-423a-acab-b1c4b97891e9
+2:26:21 PM [express] GET /api/health 200 in 646ms rid=16c2d177-d276-4042-bd58-400fad8a198c
+2:26:21 PM [express] GET /api/health 200 in 660ms rid=6754f72b-9f8e-42ba-90b4-349c53ab20d1
+2:26:21 PM [express] GET /api/health 200 in 685ms rid=2792c197-5d78-4bcf-8c15-9b1f48ccc9e1
+2:26:21 PM [express] GET /api/health 200 in 697ms rid=2504c998-857d-4822-a0d6-09c2dcb48d37
+2:26:21 PM [express] GET /api/health 200 in 747ms rid=55140fc9-73d7-49b6-ad6e-93c5ad5300c9
+2:26:21 PM [express] GET /api/health 200 in 758ms rid=4513ba6e-3398-4de7-85e4-0c3f72d7fc4e
+2:26:21 PM [express] GET /api/health 200 in 746ms rid=c3041e80-8b52-49e4-bb28-fc5d20655077
+2:26:21 PM [express] GET /api/health 200 in 768ms rid=081c91ab-e4df-4fb9-8797-c187569b7d6d
+2:26:21 PM [express] GET /api/health 200 in 780ms rid=fea26dec-92f2-4f9f-b0f7-7e3264694896
+2:26:21 PM [express] GET /api/health 200 in 800ms rid=faaa827d-cadb-47e0-a2dd-88de5af35e02
+2:26:21 PM [express] GET /api/health 200 in 822ms rid=9b8dc8d1-14ff-4601-b288-b92f01b6d7ac
+2:26:21 PM [express] GET /api/health 200 in 833ms rid=77761582-95f3-4b4c-998d-e2ff9637f26f
+2:26:21 PM [express] GET /api/health 200 in 852ms rid=eeb6fd11-82c9-4377-927e-6bc2337b876e
+2:26:21 PM [express] GET /api/health 200 in 865ms rid=a48f7ae7-4907-434b-beac-1558a89bfbb8
+2:26:22 PM [express] GET /api/health 200 in 884ms rid=cb9fa196-885e-45c9-93b9-7cdc837e0453
+2:26:22 PM [express] GET /api/health 200 in 893ms rid=59e88ce3-7900-4ae2-a101-6609e9deb674
+2:26:22 PM [express] GET /api/health 200 in 907ms rid=9837e4b8-abe1-442a-97ed-a4dc902f1a46
+2:26:22 PM [express] GET /api/health 200 in 928ms rid=bcb3a16f-4711-4bf1-883f-be1fbe16f979
+2:26:22 PM [express] GET /api/health 200 in 941ms rid=4bd44762-76d4-4dc4-8f6e-f9250f96088b
+2:26:22 PM [express] GET /api/health 200 in 952ms rid=4e88e4db-d387-4584-9692-578f5fb87a12
+2:26:22 PM [express] GET /api/health 200 in 967ms rid=3857f7be-d31b-4e27-b48f-fdf961e38c07
+2:26:22 PM [express] GET /api/health 200 in 982ms rid=b59ffd5d-4110-4c6b-9dce-cecaf5d368ca
+2:26:22 PM [express] GET /api/health 200 in 1005ms rid=7fce3771-17e5-44dc-83fb-69683d3f0d45
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1064ms rid=0929ee64-6312-4ea9-b0b3-c22cc746a955
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1067ms rid=69f5e2e2-773f-40d8-b01c-6347aff64cd1
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1067ms rid=ebc54ce6-c2bd-48a2-9791-ea2c9811b717
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1065ms rid=97b337b2-3768-4c12-9484-1c07c12eca3d
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1082ms rid=cfa751cd-5409-433e-9fc6-8148ad862b9b
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1071ms rid=85b93e09-dddf-4d2b-ac2a-081b370963d4
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1071ms rid=c7cf7f76-6298-4d44-9743-a9ce0f57c769
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1061ms rid=f65c0f51-b6f7-49d8-9679-331d1546e4f8
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1064ms rid=ef3f8f5e-f0e7-4d0c-b700-e687ec4227fc
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1063ms rid=25d6440b-390b-4e57-825f-3b6c6453267f
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1062ms rid=ff97f394-eaa3-442b-9b6f-1e96b3c1a3c3
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1062ms rid=1dff8fb9-87de-4c9a-b206-82bb19dacbb0
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1069ms rid=b72b3ba2-1809-49ab-bb55-a3dcd5a98c73
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1097ms rid=7d8c7b2e-140e-4380-a463-4db21508b9d3
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1071ms rid=d2ae97f2-fae6-42b6-99ac-61c3bb5cb380
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1093ms rid=dec57c4a-c96d-49fe-bddd-8666c29a3794
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1069ms rid=28b41ca2-ec02-4cda-8e93-3e8a351a3226
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1059ms rid=093894bf-9c49-4354-b3c3-70bdd489fcb6
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1060ms rid=0c2352e1-5926-46bf-825b-e22b86b250a8
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1060ms rid=28e22903-3898-46f8-8902-a44ecea0da1f
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1053ms rid=c47aaeb5-65aa-4233-aa74-3608711df9d3
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1067ms rid=3c7ed06d-f060-4d9f-a65e-c744e57ac6db
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1063ms rid=c36fafb3-c948-4d69-a44a-ab1f55bf4537
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1039ms rid=f96a36d4-4e6f-4d37-9e89-0d9c2e91c112
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1037ms rid=214d882e-19ea-4f16-955f-c9793fd9dae0
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1034ms rid=8f0d7573-7db5-49c3-953f-7a413420e08c
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1052ms rid=dc04e492-bfab-4fdf-9cd0-1d2a02a14568
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1042ms rid=1a1da2ab-5095-476d-b1c5-36d7529d085c
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1042ms rid=01e4dc21-e06d-4abe-80c2-9ceb700a094b
+2:26:22 PM [express] GET /api/elections/37/general-candidates 200 in 1054ms rid=6d79040a-08f3-49a1-9eb2-319d6da3f63c
+[Results Ingestion] Starting ingestion cycle...
+[Results Ingestion] Found 0 active elections
+2:26:42 PM [express] GET /api/health 200 in 23ms rid=6f0ca4a0-b7c1-45a9-9377-ac1411c2a953
+🔌 Database connection removed from pool
+🔌 Database connection removed from pool
+🔌 Database connection removed from pool
+🔌 Database connection removed from pool
+🔌 Database connection removed from pool
+🔌 Database connection removed from pool
+🔌 Database connection removed from pool
+🔌 Database connection removed from pool
+[Results Ingestion] Starting ingestion cycle...
+[Results Ingestion] Found 0 active elections
+2:27:12 PM [express] GET /api/health 200 in 25ms rid=9a38e1fa-c564-415c-a3da-0854e3ef48bd
+Results ingestion stopped
+2:27:22 PM [express] Shutdown complete
