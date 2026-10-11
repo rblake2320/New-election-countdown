@@ -10,6 +10,8 @@ import uuid
 
 MODES = {
     "producer": "scripts/verify_fec_source_proof_private.ts",
+    "acceptance": "scripts/verify_fec_first_acceptance.ts",
+    "original": "scripts/reproduce_fec_first.ts",
     
 }
 if len(sys.argv) != 2 or sys.argv[1] not in MODES:
@@ -24,13 +26,14 @@ password = secrets.token_urlsafe(32)
 container_env = {**os.environ, "POSTGRES_PASSWORD": password}
 try:
     created = subprocess.run([
-        "docker", "run", "--detach", "--name", label, "--label", "owner="+label,
+        "docker", "create", "--name", label, "--label", "owner="+label,
         "--publish", "127.0.0.1:5571:5432", "--env", "POSTGRES_PASSWORD",
         "--env", "POSTGRES_USER=etfixture", "--env", "POSTGRES_DB=et_sol_fec_first", "postgres:16",
     ], env=container_env, capture_output=True, text=True, check=True)
     fixture_id = created.stdout.strip()
     if len(fixture_id) != 64 or not all(c in "0123456789abcdef" for c in fixture_id):
         raise RuntimeError("Unexpected fixture container identity")
+    subprocess.run(["docker", "start", fixture_id], capture_output=True, check=True)
     for attempt in range(30):
         ready = subprocess.run(["docker", "exec", fixture_id, "pg_isready", "--username", "etfixture", "--dbname", "et_sol_fec_first"], capture_output=True)
         if ready.returncode == 0:
