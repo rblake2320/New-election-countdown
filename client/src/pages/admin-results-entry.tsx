@@ -30,7 +30,7 @@ import { LiveResultView } from "@/components/live-result-view";
 interface Election { id: number; title: string; location: string; state: string; date: string; type: string; level: string }
 interface Candidate { id: number; name: string; party: string | null }
 /** One entry of GET /api/results/sources: a registered source an admin may cite. */
-interface ResultSource { id: string; kind: string; name: string; url: string; state?: string }
+interface ResultSource { id: string; kind: string; name: string; url: string | null; state?: string }
 
 // Evidence types the server accepts (POST /api/admin/results-evidence).
 const EVIDENCE_TYPES = ["text/html", "application/json", "text/csv", "application/pdf", "image/png", "image/jpeg"];
@@ -91,6 +91,21 @@ export function draftFromServer(electionId: number, current: LiveElectionResults
 }
 
 const num = (v: string) => (v.trim() === "" ? null : Number(v));
+
+/** Names the exact URL field that is not a full address (the shared URL check throws on non-URLs). */
+export function urlProblems(d: Draft): string[] {
+  const check = (label: string, value: string, required: boolean) => {
+    const v = value.trim();
+    if (v === "") return required ? [`${label} is required.`] : [];
+    try { return new URL(v).protocol === "https:" ? [] : [`${label} must start with https://`]; } catch { return [`${label} must be a full https:// address.`]; }
+  };
+  const winners = d.lines.some(l => l.isWinner);
+  return [
+    ...check("Official results URL", d.sourceUrl, true),
+    ...check("Declaration URL", d.winnerUrl, winners),
+    ...(d.status === "certified" ? check("Certification document URL", d.certificationUrl, true) : []),
+  ];
+}
 
 /** The POST body exactly as the contract defines it (validated before sending). */
 export function draftToInput(d: Draft) {
@@ -206,10 +221,12 @@ export default function AdminResultsEntry() {
     if (!draft) return;
     let parsed: ReturnType<typeof liveResultReportInputSchema.safeParse>;
     try {
+      const urlIssues = urlProblems(draft);
+      if (urlIssues.length) { setIssues(urlIssues); return; }
       parsed = liveResultReportInputSchema.safeParse(draftToInput(draft));
     } catch {
-      // The shared URL check throws on text that is not a URL at all.
-      setIssues(["Every URL field (source, winner declaration, certification) must be a full https:// address."]);
+      // Never fail silently: anything unexpected while preparing the body is shown.
+      setIssues(["The report could not be prepared. Check every field and try again."]);
       return;
     }
     if (!parsed.success) {
@@ -352,7 +369,7 @@ export default function AdminResultsEntry() {
                     onChange={e => {
                       const picked = sources.find(x => x.id === e.target.value);
                       edit(picked
-                        ? { sourceId: picked.id, sourceKind: picked.kind, sourceName: picked.name, sourceUrl: picked.url }
+                        ? { sourceId: picked.id, sourceKind: picked.kind, sourceName: picked.name, sourceUrl: picked.url ?? "" }
                         : { sourceId: "", sourceKind: "admin_manual", sourceName: "", sourceUrl: "" });
                     }}>
                     <option value="">{sourcesQuery.isLoading ? "Loading sources..." : "Choose the source you are citing..."}</option>

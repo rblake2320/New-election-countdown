@@ -45,7 +45,8 @@ let posted: unknown[] = [];
 let uploads: { type: string | null; filename: string | null; size: number }[] = [];
 const sourceList = { sources: [
   { id: 'ak-doe-enr', kind: 'official_state_enr', name: 'Alaska Division of Elections', url: 'https://www.elections.alaska.gov/results/26GENR/', state: 'AK' },
-  { id: 'admin_manual:AK', kind: 'admin_manual', name: 'Manual entry from an official Alaska page', url: '', state: 'AK' },
+  // A's real list returns url: null for the manual entry (the admin supplies the page).
+  { id: 'admin_manual:AK', kind: 'admin_manual', name: 'Manual entry from an official Alaska page', url: null, state: 'AK' },
 ] };
 const digestOf = async (buf: ArrayBuffer) => [...new Uint8Array(await crypto.subtle.digest('SHA-256', buf))].map(b => b.toString(16).padStart(2, '0')).join('');
 const server = setupServer(
@@ -124,7 +125,8 @@ describe('admin results entry (ET-6 v1.2)', () => {
     fireEvent.click(within(line).getByRole('checkbox', { name: 'Officially declared winner' }));
     fireEvent.click(screen.getByTestId('button-post-report'));
     const alert = await screen.findByText('The report was not posted.');
-    expect(alert.closest('[role=alert]')).toHaveTextContent(/winnerCalledBy|https:\/\//);
+    // The form names the exact missing fields: the source page and the official declaration.
+    expect(alert.closest('[role=alert]')).toHaveTextContent('Declaration URL is required.');
     expect(posted).toEqual([]);
   });
 
@@ -194,6 +196,17 @@ describe('admin results entry (ET-6 v1.2)', () => {
     renderForm();
     await chooseRace(/U\.S\. Senate Election - Alaska/);
     expect(await screen.findByText(/The list of registered sources could not be loaded \(503\)/)).toBeInTheDocument();
+  });
+
+  it('a manual source (url: null from the real list) with no URL typed shows an error instead of doing nothing', async () => {
+    renderForm();
+    await chooseRace(/U\.S\. Senate Election - Alaska/);
+    await screen.findByTestId('line-0');
+    await waitFor(() => expect(screen.getByRole('option', { name: /Manual entry/ })).toBeInTheDocument());
+    fireEvent.change(screen.getByLabelText('Registered source'), { target: { value: 'admin_manual:AK' } });
+    fireEvent.click(screen.getByTestId('button-post-report'));
+    expect((await screen.findByText('The report was not posted.')).closest('[role=alert]')).toHaveTextContent('Official results URL is required.');
+    expect(posted).toEqual([]);
   });
 
   it('renders access denied, then the form, as the admin check resolves (no hook-order crash)', async () => {
