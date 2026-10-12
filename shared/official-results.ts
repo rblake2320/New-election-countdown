@@ -1,5 +1,10 @@
 import { z } from 'zod';
 
+// datetime validates syntax but accepts impossible numeric offsets. A timestamp
+// must also identify a finite instant before any chronology comparison uses it.
+export const resultsTimestamp = z.string().datetime({ offset: true })
+  .refine(value => Number.isFinite(Date.parse(value)), 'A parseable timestamp with a valid timezone offset is required');
+
 // Navigation verification is not publication or certification of returns.
 export const officialResultsRouteTypes = [
   'generic_results_portal', 'government_elections_fallback',
@@ -26,7 +31,7 @@ export const publishedResultsReceiptSchema = z.object({
   electionPhase: resultPhase, destinationUrl: httpsResultsUrl,
   sourceUrl: httpsResultsUrl, contextVerified: z.literal(true),
   resultsObserved: z.literal(true), observedElectionLabel: z.string().trim().min(5).max(1024),
-  checkedAt: z.string().datetime({ offset: true }),
+  checkedAt: resultsTimestamp,
 }).strict();
 export const resultsPublicationEvidenceSchema = z.object({
   state: z.string().regex(/^[A-Z]{2}$/),
@@ -35,14 +40,14 @@ export const resultsPublicationEvidenceSchema = z.object({
   officialElectionLabel: z.string().trim().min(5).max(1024),
   officialContextVerified: z.literal(true), officialContextReceiptSha256: resultDigest,
   receivingOutcome: z.literal('worked'), receivingResultsObserved: z.literal(true),
-  receivingReceiptSha256: resultDigest, receivingCheckedAt: z.string().datetime({ offset: true }),
+  receivingReceiptSha256: resultDigest, receivingCheckedAt: resultsTimestamp,
 }).strict();
 export const officialResultsSourceSchema = z.object({
   targetElectionDate: z.literal('2026-11-03'),
   electionPhase: resultPhase,
   routeType: z.enum(officialResultsRouteTypes),
   publisher: z.string().min(1).max(512),
-  checkedAt: z.string().datetime({ offset: true }),
+  checkedAt: resultsTimestamp,
   routeVerification: z.enum(['worked', 'blocked']),
   status: z.enum(['not_linked', 'unknown', 'published']),
   availabilityReason: z.enum([

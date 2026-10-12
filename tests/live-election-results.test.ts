@@ -10,9 +10,10 @@ const recorded = () => ({
   reporting: { percent: null, basis: 'source_unspecified' as const, precinctsReporting: null, precinctsTotal: null },
   candidates: [{ candidateId: null, sourceCandidateId: 'test-only-option', name: 'Test-only ballot option', party: null, votes: 0, percent: null, isWinner: false }],
   winnerCalledBy: null, certification: null, supersedesReportId: null, history: [], stale: false, staleSince: null,
+  electionContext: { state: 'AK', electionDate: '2024-11-05', type: 'general', level: 'federal', office: 'Test-only Senate race' },
 });
 const posting = () => {
-  const { reportId: _reportId, revision: _revision, history: _history, stale: _stale, staleSince: _staleSince, ...fields } = recorded();
+  const { reportId: _reportId, revision: _revision, history: _history, stale: _stale, staleSince: _staleSince, electionContext: _context, ...fields } = recorded();
   return { ...fields, expectedRevision: null, idempotencyKey: 'test-only-source-snapshot', note: null };
 };
 
@@ -87,5 +88,39 @@ describe('ET-6 observed-result transport contract', () => {
     expect(liveResultsBatchSchema.safeParse({ ...batch, results: [noLiveElectionResults(1), noLiveElectionResults(1)] }).success).toBe(false);
     expect(liveResultsBatchSchema.safeParse({ ...batch, reset: false }).success).toBe(false);
     expect(liveResultsBatchSchema.safeParse({ ...batch, date: '2026-02-30' }).success).toBe(false);
+  });
+  it.each(['+99:99', '+24:00', '+00:99'])('refuses unparseable timezone offset %s at every response timestamp', offset => {
+    const bad = `2024-11-06T02:00:00${offset}`;
+    const row = recorded();
+    const variants = [
+      { ...row, asOf: bad }, { ...row, retrievedAt: bad },
+      { ...row, stale: true, staleSince: bad },
+      { ...row, status: 'certified', certification: { url: row.source.url, certifiedAt: bad } },
+      { ...row, candidates: [{ ...row.candidates[0], isWinner: true }], winnerCalledBy: { source: row.source.name, url: row.source.url, at: bad } },
+      { ...row, history: [{ reportId: 2, revision: 'boundary-only-history', asOf: bad, status: 'unofficial', percent: null, sourceId: row.source.id, sourceUrl: row.source.url, contextMatch: true }] },
+    ];
+    for (const variant of variants) expect(liveElectionResultsSchema.safeParse(variant).success).toBe(false);
+    expect(liveResultReportInputSchema.safeParse({ ...posting(), retrievedAt: bad }).success).toBe(false);
+  });
+  it('preserves valid offset timestamps and compares their actual instants', () => {
+    expect(liveElectionResultsSchema.parse({ ...recorded(), asOf: '2024-11-05T21:00:00-05:00' }).asOf).toBe('2024-11-05T21:00:00-05:00');
+    expect(liveElectionResultsSchema.safeParse({ ...recorded(), asOf: '2024-11-06T03:00:00+00:30' }).success).toBe(false);
+  });
+  it('accepts the server context-bound response and only mismatched history on none', () => {
+    const row = recorded();
+    const entry = { reportId: 2, revision: 'boundary-only-history', asOf: row.asOf, status: 'unofficial', percent: null, sourceId: row.source.id, sourceUrl: row.source.url, contextMatch: false };
+    expect(liveElectionResultsSchema.parse(row).electionContext).toEqual(row.electionContext);
+    const none = { ...noLiveElectionResults(1), history: [entry] };
+    expect(liveElectionResultsSchema.parse(none).history[0].contextMatch).toBe(false);
+    expect(liveElectionResultsSchema.safeParse({ ...none, history: [{ ...entry, contextMatch: true }] }).success).toBe(false);
+    expect(liveElectionResultsSchema.safeParse({ ...row, electionContext: null }).success).toBe(false);
+    expect(liveElectionResultsSchema.safeParse({ ...row, electionContext: { ...row.electionContext, electionDate: '2024-02-30' } }).success).toBe(false);
+    expect(liveResultReportInputSchema.safeParse({ ...posting(), electionContext: row.electionContext }).success).toBe(false);
+  });
+  it('accepts ids batches with null date and rejects a recorded race from another requested date', () => {
+    const batch = { schemaVersion: 1, date: null, results: [recorded()], cursor: 'boundary-only-snapshot', reset: true };
+    expect(liveResultsBatchSchema.parse(batch).date).toBeNull();
+    expect(liveResultsBatchSchema.parse({ ...batch, date: '2024-11-05' }).date).toBe('2024-11-05');
+    expect(liveResultsBatchSchema.safeParse({ ...batch, date: '2026-11-03' }).success).toBe(false);
   });
 });
