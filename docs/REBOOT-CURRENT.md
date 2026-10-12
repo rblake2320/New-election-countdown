@@ -1,0 +1,39 @@
+# Sol EC urgent reboot checkpoint — 2026-10-12
+
+Owner restarting to investigate monitor blinking/blackouts. Screen-capture, OCR, SelfConnect seat_send and browser actions are held. Do not resume them automatically after reboot. No display settings/driver changes or GPU-reset shortcuts were performed by this lane. Cause remains unresolved.
+
+## Immediate monitor findings
+
+- Read-only System event check over the preceding12 hours found no Display/nvlddmkm/amdkmd/igfx/DxgKrnl/WHEA failure; only two informational Kernel-Power566 session transitions at18:44/18:53 local. Reliability check found no matching LiveKernelEvent/hardware/display crash.
+- NVIDIA sample2026-10-12 00:01:23: RTX5090 driver595.79,47C,13%GPU,2%memory-engine,5793/32607MiB VRAM,65.88W. These are instantaneous values, not a cause exclusion.
+- Active display:5120x2160 at165Hz; AMD adapter also present. DWM/GPU engine telemetry had4%3D at one sample. A cable/link/refresh transition may leave no event; no such cause is diagnosed here.
+- My activity included SelfConnect message delivery with OCR/window capture, Jira DOM automation, earlier static screenshots, hidden Excel COM registry saves, Node/Vite/tsc/Vitest and source HTTP/file research. No deliberate capture-trigger reproduction was attempted. No matching active root seat_send/registry helper was found at the last process check.
+- Research children report HTTP/file/CLI-only work recently; static PDF-to-PNG rendering/viewing occurred, not desktop capture. Continue monitor diagnosis with CLI-only telemetry and user blackout timestamps after reboot; do not claim that absence of TDR proves innocence.
+
+## Resume identity and current work
+
+Session01a1297a-a112-7613-a5fb-c312bf7a2c28, Sol EC laneC. Registry existing67/Teams17. Freshly rediscover/guard handles after reboot; do not trust remembered HWNDs.
+
+OWNER CANONICAL RECONNECT RULE: read `C:/Users/techai/PKA testing/Team/workmap/ET-SEATS.md`. Rename this terminal/tab exactly `ET-C Sol`. Peers are `ET-A Fabel`, `ET-B Opus`, `ET-D Astra`. Enumerate the four titles and verify each is unique; PID/exe/class/title guard the freshly discovered target. Send via `scripts/seat_send.py --to "ET-A Fabel" --from "ET-C Sol"` (or corresponding peer title). Never use old HWNDs or ambiguous `Sol EC`; another unrelated seat is Sol EC2. All handshake/readback outcomes must be checked, not inferred. Current monitor capture/OCR/browser hold remains recorded; diagnose before deliberate screen-trigger reproduction.
+
+`codex resume 01a1297a-a112-7613-a5fb-c312bf7a2c28 -C "D:/projects/et-wt/sol-live-official-results"`
+
+Branch `lane-c/live-official-results`, core3e16fa091b2d2eae42ebb1e6675e0a9451233afb and malformed-URL fix6515fe1 are pushed. `shared/live-election-results.ts` is tracked (B briefly excluded it repo-wide, removed before commit). A/C agreedv1.2 in `C:/Users/techai/PKA testing/Team/workmap/msg/20261011-et6-results-contract-A-confirmed.md`; B PR49 head465c8ed stacks on6515, no copied DTO. A owns schema/storage/admin/events and retiring determineWinner; C owns sharedDTO/source inventory/adapters/dryrun; D production replay/load; B UI.
+
+## Critical pending fix
+
+Independent SD review found Zod datetime permits unparseable offsets +99:99/+24:00/+00:99.18 accepted-invalid cases across asOf/retrievedAt/staleSince/certification.certifiedAt/winnerCalledBy.at/history.asOf; Date.parse becomesNaN and chronology silently skips. Evidence `C:/Users/techai/.codex/tmp/sol-live-dto-review/timestamp-probe-receipt.json`. Add a finite Date.parse refinement to the common timestamp, retain red and targeted/full retest, push owningCbranch and notifyA/B/D. Do not call currentDTO fully cleared. URLguardfix old2red/new56green is already committed; prior full742/build pass, fulltypes187/owned0. More recent afterURL full-suite log is in artifacts/et6-contract; verify count before claiming.
+
+## Source research / dry-run continuation
+
+- Three groups covered50 states. Group3 completed16-state packet1b57577b999f02265ba893cec1ff474ab97d1813 on `lane-c/live-results-sdwy-source`, WT `D:/projects/et-wt/sol-c6-live-sdwy`. Inventory SHA6e85652c26925df7d6dad8654310b96a3a65d96628949914671a3e7d60b9ca4d;93 artifact hashes verified.3 usable primary/historical feeds,10 manual routes,3 blocked. WA trueAug6/2024 certified/recount paired full8options and12-option Senate recordings+XLSX/PDF/certificate/independent county sums retained; no made-up corrections or2026 relabel. Updated before07cb989...,afterb8799e...,Senatef066275... reference distinct original/amended certificate evidence. VT real2026primary sourceIDs and statewide-row doublecount exclusion are retained.
+- Group1 WT `D:/projects/et-wt/sol-et6-results-sources-g1`, branchlane-c/et6-official-feed-g1.17-state inventory finishing. RealCA certifiedJun2/2026primary XLSX/PDF; DE actualSep15primary CSV and separateHTML count expectations. ActualCA Nov3-labelled pre-election nonzero feed hasOct9 header: REFUSED staging, never livevotes. Group1 is saving its finalhead on reboot instruction; inspect its handoff before adopting.
+- Group1 final restart packet is now pushed d3f00a8c93e97e53afd2178a6ec2c56319cd4060.17 states:6historical/primary downloads,8manualpages,3transportblocks; zero2026generalvotesadmitted. ManifestSHAbc7e0958c396b65e8401499e2113581a9ac2cf591734c0b9369e7281a46a32a6, indexSHA9c6e14093fbff8d4a51364596e4e80021b7aa69b7e0f0887f2c75c404f30bb30,124 source/proof files plusindex. Read artifacts/et6-g1/RESTART_HANDOFF.md. Two huge IL fullCSVs andpycache retainedlocally; minimalrecordings/fullhashes pushed.
+- Group2 WT `C:/Users/techai/.codex/tmp/sol-results-sources-group2`; files `research/results-group2/`. Final restart-safe immutable head1a76a1f0d4f37db2b8e737eebf3912e6e39ee899 onlane-c/results-sources-group2,183 hash/count checks;17states6parseable/6manual/5blocked. InventorySHAfde5cc173f69ab4ff45b93fd31e1809aa3b366d95a0b9ba3fd41568bdb7a9a22. NC20260303 primary JSON/ZIP: gid2147 sharedDEM/REP, exactparty scope required. LA Jun27 primary_runoff JSON+64-parishCSV sumsDEM196212/REP316593;1900sentinel ->asOfnull, ResultsOfficial notcertification. NC noisyPRECINCT-SORT excluded; certifiedGov PDF vsENR differs3/1votes, no invented correction ordering. NJ sameversionCSV/JSON reporting145vs143 disagrees. LA/ND formatting/hash bug is now REPAIRED: nine original response bodies restored and fresh *.raw.json proofs match originalSHA, earlier424a41e formatting red retained. Metadata sanitizer caused it and is now limited to metadata. ReadHANDOFF.md, raw and derived bytes remain distinct.
+- Sourcekind/AP default off. No projections/computedwinner. Null unknownreporting/asOf. Exactstate/date/phase/office/district/party context mustbind both write AND read; rawproviderIDs alone are not enough. Certified requires retained official proof, not a checkbox/title/final/100%.
+- Batchv1 date-only /api/results, onepoll/date/30s, ETag304 or full/resettrue; no unsafe report-ID delta. Bmanualquestions pendingA: boundedserver evidence upload+rehash retention, registered sourcepicker, sourceoptionID/explicitcrosswalk (never profileID/fuzzy guess).
+- Parser dependency pendingD: saxes repo archivedDec2025 so promotion was HELD; actively maintained fast-xml-parser npm5.11.2 researched/requested directproductionpin+audit. Do not silentlyaddduplicatepackagechanges. JSONNC/LA adapters can proceed without it; actualrawXLSX requires boundedXML/ZIP handling and source-label/count proof, no formulaeval.
+
+## Holds / safety
+
+No shared source/poll/Congress/results data application or deploy. PrivatePG only when coordinated withD; no duplicate fullC15/harness. Saved election-app preview and KY county site blocks retained. No secrets incheckpoint. Allrawresearch files remain on disk; inspect gitstatus/child heads before resuming. Root did not launch an appserver/container thisET6turn. Finish saving first; investigate monitor before GUIresumption.

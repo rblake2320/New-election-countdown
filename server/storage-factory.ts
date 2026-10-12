@@ -1,4 +1,5 @@
 import type { ElectionListing, ElectionQueryFilters } from "./election-list-filters";
+import type { NewCampaignAccountInput, CreatedCampaignAccount } from './campaign-portal-service';
 import { MemStorage } from "./mem-storage";
 import { BackgroundWork } from './background-work';
 import type { IStorage, EngagementRecord } from "./storage";
@@ -1123,13 +1124,13 @@ export class StorageFactory {
   }
 
   // Campaign Portal methods
-  async createCampaignAccount(data: any): Promise<any> {
+  async createCampaignAccount(data: NewCampaignAccountInput): Promise<CreatedCampaignAccount> {
     const result = await this.currentStorage.createCampaignAccount(data);
     this.queueWriteOperation('createCampaignAccount', [data]);
     return result;
   }
 
-  async validateCampaignAccess(apiKey: string): Promise<any> {
+  async validateCampaignAccess(apiKey: string) {
     return this.currentStorage.validateCampaignAccess(apiKey);
   }
 

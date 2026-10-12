@@ -64,18 +64,15 @@ describe('ET-38 campaign export contract', () => {
     }
   });
 
-  it('no subscription tier advertises exports as available', () => {
+  it('no subscription tier advertises exports as available (single source: SUBSCRIPTION_TIERS)', () => {
+    // ET-40 removed the duplicate feature list from routes.ts; the service table is the only one.
+    expect(routesSource).not.toMatch(/function getSubscriptionFeatures/);
+    let exportMentions = 0;
     for (const tier of Object.values(SUBSCRIPTION_TIERS)) {
       for (const feature of tier.features) {
-        if (/export/i.test(feature)) expect(feature).toMatch(/\(coming soon\)/);
+        if (/export/i.test(feature)) { exportMentions++; expect(feature).toMatch(/\(coming soon\)/); }
       }
     }
-    const routeFeatures = routesSource.slice(
-      routesSource.indexOf('function getSubscriptionFeatures'),
-      routesSource.indexOf('return features[tier'),
-    );
-    const exportMentions = routeFeatures.match(/'[^']*export[^']*'/gi) ?? [];
-    expect(exportMentions.length).toBeGreaterThan(0);
-    for (const m of exportMentions) expect(m).toMatch(/\(coming soon\)/);
+    expect(exportMentions).toBeGreaterThan(0);
   });
 });

@@ -10,6 +10,7 @@ import { getCongressBillService } from "./congress-bill-service";
 import { perplexityCongressService } from "./perplexity-congress-service";
 import { registerCongressImportRoutes } from "./congress-import-routes";
 import { registerCongressMembersRoutes } from "./congress-members-routes";
+import { registerCampaignRegisterRoutes } from "./campaign-register-routes";
 import { setupAuth, isAuthenticated } from "./auth";
 import { requireAdmin } from "./middleware/require-admin";
 import { verifySendGridWebhook, verifyTwilioWebhook } from "./webhook-verify";
@@ -21,7 +22,7 @@ import { aiValidationService } from "./ai-validation-service";
 import { resultsIngestionService } from "./results-ingestion-service";
 import { complianceService } from "./compliance-service";
 import { eventProcessingService } from "./event-processing-service";
-import { globalElectionService } from "./global-election-service";
+import { globalElectionService, UpstreamError } from "./global-election-service";
 import { civicAggregatorService } from "./civic-aggregator-service";
 import { registerCandidatePortalRoutes } from "./routes-candidate-portal";
 import { positionAggregatorService } from "./position-aggregator-service";
@@ -1892,120 +1893,9 @@ Please provide detailed, current information about this specific election.`;
 
   // Campaign Portal API Endpoints
   // Campaign Portal Registration API
-  app.post('/api/campaign/register', authLimiter, async (req, res) => {
-    try {
-      const { organizationName, contactEmail, electionId, subscriptionTier = 'basic' } = req.body;
-
-      // Validation
-      if (!organizationName || !contactEmail || !electionId) {
-        return res.status(400).json({
-          success: false,
-          error: 'Missing required fields: organizationName, contactEmail, electionId'
-        });
-      }
-
-      // Email validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(contactEmail)) {
-        return res.status(400).json({
-          success: false,
-          error: 'Invalid email format'
-        });
-      }
-
-      // Election ID validation
-      const electionIdNum = parseInt(electionId);
-      if (isNaN(electionIdNum) || electionIdNum <= 0) {
-        return res.status(400).json({
-          success: false,
-          error: 'Invalid election ID - must be a positive number'
-        });
-      }
-
-      // Check if election exists
-      const election = await storage.getElection(electionIdNum);
-      if (!election) {
-        return res.status(404).json({
-          success: false,
-          error: `Election with ID ${electionIdNum} not found`
-        });
-      }
-
-      // Generate API key
-      const apiKey = `camp_${Date.now()}_${Math.random().toString(36).substr(2, 12)}`;
-
-      // Create campaign account (simplified for now)
-      const campaignAccount = {
-        id: Date.now(), // Would use proper DB auto-increment
-        apiKey,
-        organizationName,
-        contactEmail,
-        electionId: electionIdNum,
-        subscriptionTier,
-        isActive: true,
-        createdAt: new Date(),
-        monthlyApiLimit: subscriptionTier === 'basic' ? 1000 :
-                          subscriptionTier === 'pro' ? 5000 :
-                          subscriptionTier === 'enterprise' ? 50000 : 100000
-      };
-
-      // Success response
-      res.json({
-        success: true,
-        message: 'Campaign registered successfully',
-        data: {
-          apiKey: campaignAccount.apiKey,
-          campaignId: campaignAccount.id,
-          subscription: {
-            tier: campaignAccount.subscriptionTier,
-            features: getSubscriptionFeatures(campaignAccount.subscriptionTier),
-            isActive: true,
-            monthlyLimit: campaignAccount.monthlyApiLimit
-          },
-          electionInfo: {
-            id: election.id,
-            title: election.title,
-            location: election.location,
-            date: election.date
-          }
-        },
-        nextSteps: [
-          'Save your API key securely - it cannot be recovered',
-          'Use the API key in request headers as "X-API-Key"',
-          'Review available analytics endpoints in your dashboard',
-          `Your ${campaignAccount.subscriptionTier} plan includes ${campaignAccount.monthlyApiLimit} API calls per month`
-        ]
-      });
-
-    } catch (error) {
-      console.error('Campaign registration error:', error);
-      res.status(500).json({
-        success: false,
-        error: 'Internal server error during registration'
-      });
-    }
-  });
-
-  function getSubscriptionFeatures(tier: string): string[] {
-    const features = {
-      basic: ['Aggregated state data', 'Basic analytics', 'Weekly reports'],
-      pro: ['District-level analytics', 'Demographic breakdowns', 'Daily reports', 'Email alerts'],
-      enterprise: ['Real-time analytics', 'Individual user insights', 'Custom reports', 'API access', 'Phone support'],
-      custom: ['Full data exports (coming soon)', 'Custom integrations', 'Dedicated support', 'White-label options']
-    };
-    return features[tier as keyof typeof features] || features.basic;
-  }
-
-  app.post('/api/campaign/register_old', async (req, res) => {
-    try {
-      const campaignData = req.body;
-      const result = await storage.createCampaignAccount(campaignData);
-      res.json(result);
-    } catch (error: any) {
-      console.error('Error registering campaign:', error);
-      res.status(400).json({ error: error.message });
-    }
-  });
+  // ET-40: persisted registration, key hashed at rest, honest activation policy
+  // (server/campaign-register-routes.ts).
+  registerCampaignRegisterRoutes(app, { storage, limiter: authLimiter });
 
   app.get('/api/campaign/analytics/:electionId', async (req, res) => {
     try {
@@ -2631,13 +2521,21 @@ Please provide specific, factual information with sources where possible. Focus 
   });
 
   // Global election data endpoints
+  // ET-41: upstream not configured / not answering -> 503 with a code, never an empty 200.
+  const sendUpstreamError = (res: any, error: unknown, fallback: string) => {
+    if (error instanceof UpstreamError) {
+      return res.status(503).json({ error: error.message, code: error.publicCode, provider: error.provider, upstreamStatus: error.upstreamStatus });
+    }
+    console.error(fallback, error);
+    return res.status(500).json({ error: fallback, code: 'internal_error' });
+  };
   app.get("/api/global/elections", async (req, res) => {
     try {
-      const { country } = req.query;
-      const elections = await globalElectionService.fetchIDEAElections(country as string);
+      const country = typeof req.query.country === 'string' && req.query.country.trim() ? req.query.country.trim().slice(0, 64) : undefined;
+      const elections = await globalElectionService.fetchIDEAElections(country);
       res.json(elections);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch global elections" });
+      sendUpstreamError(res, error, 'Failed to fetch global elections');
     }
   });
 
@@ -2647,7 +2545,7 @@ Please provide specific, factual information with sources where possible. Focus 
       const events = await globalElectionService.fetchOpenStatesEvents(state);
       res.json(events);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch legislative events" });
+      sendUpstreamError(res, error, 'Failed to fetch legislative events');
     }
   });
 

@@ -30,35 +30,55 @@ interface OpenStatesEvent {
   data: any;
 }
 
+/**
+ * ET-41: an upstream that is not configured or does not answer is a 503 with a code at the route,
+ * never an empty 200 that reads as "no elections anywhere".
+ */
+export class UpstreamError extends Error {
+  readonly status = 503;
+  constructor(public readonly publicCode: 'provider_not_configured' | 'upstream_unavailable', message: string, public readonly provider: string, public readonly upstreamStatus: number | null = null) {
+    super(message);
+  }
+}
+type FetchLike = typeof fetch;
+
 export class GlobalElectionService {
   private ideaApiKey: string;
   private openStatesKey: string;
   private aceNetworkEndpoint: string;
   private ballotpediaKey: string;
+  private readonly fetchImpl: FetchLike;
 
-  constructor() {
-    this.ideaApiKey = process.env.IDEA_API_KEY || '';
-    this.openStatesKey = process.env.OPEN_STATES_KEY || '';
-    this.aceNetworkEndpoint = process.env.ACE_NETWORK_API || 'https://aceproject.org/api/v1';
-    this.ballotpediaKey = process.env.BALLOTPEDIA_KEY || '';
+  constructor(options: { fetchImpl?: FetchLike; env?: NodeJS.ProcessEnv } = {}) {
+    const env = options.env ?? process.env;
+    this.fetchImpl = options.fetchImpl ?? fetch;
+    this.ideaApiKey = env.IDEA_API_KEY || '';
+    this.openStatesKey = env.OPEN_STATES_KEY || '';
+    this.aceNetworkEndpoint = env.ACE_NETWORK_API || 'https://aceproject.org/api/v1';
+    this.ballotpediaKey = env.BALLOTPEDIA_KEY || '';
   }
 
   // International IDEA API Integration
   async fetchIDEAElections(country?: string): Promise<GlobalElectionData[]> {
+    if (!this.ideaApiKey) {
+      throw new UpstreamError('provider_not_configured', 'International IDEA is not configured (IDEA_API_KEY missing)', 'International IDEA');
+    }
+    const url = `https://www.idea.int/data-tools/data/electoral-management/api/elections${country ? `?country=${encodeURIComponent(country)}` : ''}`;
+    let response: Awaited<ReturnType<FetchLike>>;
     try {
-      const url = `https://www.idea.int/data-tools/data/electoral-management/api/elections${country ? `?country=${country}` : ''}`;
-      
-      const response = await fetch(url, {
+      response = await this.fetchImpl(url, {
         headers: {
           'Authorization': `Bearer ${this.ideaApiKey}`,
           'Accept': 'application/json'
         }
       });
-
-      if (!response.ok) {
-        throw new Error(`IDEA API error: ${response.status}`);
-      }
-
+    } catch (error) {
+      throw new UpstreamError('upstream_unavailable', `International IDEA did not answer: ${error instanceof Error ? error.message : String(error)}`, 'International IDEA');
+    }
+    if (!response.ok) {
+      throw new UpstreamError('upstream_unavailable', `International IDEA answered ${response.status}`, 'International IDEA', response.status);
+    }
+    try {
       const data: IDEAData = await response.json() as IDEAData;
       
       return data.elections?.map(election => ({
@@ -75,8 +95,7 @@ export class GlobalElectionService {
         lastUpdated: new Date()
       })) || [];
     } catch (error) {
-      console.error('IDEA API fetch failed:', error);
-      return [];
+      throw new UpstreamError('upstream_unavailable', `International IDEA returned an unreadable body: ${error instanceof Error ? error.message : String(error)}`, 'International IDEA', response.status);
     }
   }
 
@@ -102,6 +121,9 @@ export class GlobalElectionService {
 
   // Open States API Integration for Legislative Activity
   async fetchOpenStatesEvents(state?: string): Promise<OpenStatesEvent[]> {
+    if (!this.openStatesKey) {
+      throw new UpstreamError('provider_not_configured', 'Open States is not configured (OPEN_STATES_KEY missing)', 'Open States');
+    }
     try {
       const baseUrl = 'https://v3.openstates.org/events';
       const params = new URLSearchParams({

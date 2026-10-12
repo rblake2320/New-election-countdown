@@ -665,6 +665,8 @@ export const campaignAccounts = pgTable("campaign_accounts", {
   isActive: boolean("is_active").default(true),
   monthlyApiLimit: integer("monthly_api_limit").default(1000),
   apiCallsUsed: integer("api_calls_used").default(0),
+  subscriptionEnd: timestamp("subscription_end"),
+  keyLast4: text("key_last4"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
