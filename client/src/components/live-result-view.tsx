@@ -28,6 +28,8 @@ export function LiveResultView({ result, showHistory = false }: { result: LiveEl
     );
   }
   const candidates = [...result.candidates].sort((a, b) => b.votes - a.votes);
+  // The server's history may include the report being shown; "earlier" never does.
+  const earlier = result.history.filter(h => h.reportId !== result.reportId);
   const reportedPct = result.reporting?.percent ?? null;
   const asOf = asOfLabel(result);
 
@@ -106,11 +108,11 @@ export function LiveResultView({ result, showHistory = false }: { result: LiveEl
         <p className="text-xs text-muted-foreground">Unofficial counts can change as more ballots are counted. No winner has been declared by an official source.</p>
       )}
 
-      {showHistory && result.history.length > 0 && (
+      {showHistory && earlier.length > 0 && (
         <details className="text-sm">
-          <summary className="cursor-pointer text-muted-foreground">Earlier reports ({result.history.length})</summary>
+          <summary className="cursor-pointer text-muted-foreground">Earlier reports ({earlier.length})</summary>
           <ul className="mt-2 space-y-1">
-            {result.history.map(h => (
+            {earlier.map(h => (
               <li key={h.reportId} className="text-muted-foreground">
                 {h.asOf ? formatTime(h.asOf) : "Time not stated"} · {h.status === "certified" ? "Certified" : "Unofficial"}
                 {h.percent !== null ? ` · ${h.percent.toFixed(1)}% reporting` : ""}

@@ -167,6 +167,20 @@ describe('election detail results (v1.2 detail read)', () => {
     expect(calls).toContain('/api/elections/2/results');
   });
 
+  it('a history that lists the report being shown does not count it as an earlier report', async () => {
+    const current = { reportId: 118, revision: 'r118-abcdef12', asOf: null, status: 'unofficial', percent: null, sourceId: 'ak-doe-enr', sourceUrl: source.url, contextMatch: true };
+    const earlier = { ...current, reportId: 117, revision: 'r117-0badf00d' };
+    const detail = unofficial({ history: [current, earlier] }); // real server lists every report, the current one first
+    server.use(
+      http.get('/api/elections/2', () => HttpResponse.json(election2)),
+      http.get('/api/elections/2/results', () => HttpResponse.json(detail)),
+      http.get('/api/elections/2/candidates', () => HttpResponse.json([])),
+    );
+    const { hook } = memoryLocation({ path: '/elections/2' });
+    render(<QueryClientProvider client={client()}><Router hook={hook}><Route path="/elections/:id"><ElectionDetails /></Route></Router></QueryClientProvider>);
+    expect(await screen.findByText('Earlier reports (1)')).toBeInTheDocument();
+  });
+
   const mismatched = { reportId: 90, revision: 'r90-0badf00d', asOf: '2026-11-04T01:00:00Z', status: 'unofficial', percent: 12, sourceId: 'ak-doe-enr', sourceUrl: source.url, contextMatch: false };
 
   it('a race whose only reports were recorded under a different setup reads as none, with that said', async () => {
