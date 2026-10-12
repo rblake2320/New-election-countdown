@@ -4,7 +4,7 @@
 // {reason:"missing_api_key"} when no congressional data key is configured).
 
 export class ListLoadError extends Error {
-  constructor(message: string, readonly status: number | null, readonly reason: string | null) {
+  constructor(message: string, readonly status: number | null, readonly reason: string | null, readonly code: string | null = null) {
     super(message);
     this.name = "ListLoadError";
   }
@@ -16,7 +16,9 @@ export async function fetchList<T = unknown>(url: string, signal?: AbortSignal, 
   if (!res.ok) {
     const reason = body && typeof body === "object" && typeof (body as { reason?: unknown }).reason === "string"
       ? (body as { reason: string }).reason : null;
-    throw new ListLoadError(`${label} request failed (${res.status})`, res.status, reason);
+    const code = body && typeof body === "object" && typeof (body as { code?: unknown }).code === "string"
+      ? (body as { code: string }).code : null;
+    throw new ListLoadError(`${label} request failed (${res.status})`, res.status, reason, code);
   }
   if (body === undefined) throw new ListLoadError(`${label} response was not valid JSON`, res.status, null);
   if (!Array.isArray(body)) throw new ListLoadError(`${label} response was not a list`, res.status, null);
@@ -27,6 +29,8 @@ export async function fetchList<T = unknown>(url: string, signal?: AbortSignal, 
 export function describeListError(error: unknown, what: string): string {
   if (error instanceof ListLoadError) {
     if (error.reason === "missing_api_key") return `${what} are unavailable: no congressional data source is configured.`;
+    if (error.code === "provider_not_configured") return `${what} are unavailable: the data provider is not configured.`;
+    if (error.code === "upstream_unavailable") return `${what} are unavailable: the data provider is not answering.`;
     if (error.status) return `${what} could not be loaded (${error.status}).`;
   }
   return `${what} could not be loaded.`;
