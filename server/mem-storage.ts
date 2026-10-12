@@ -1,4 +1,7 @@
 import { canonicalPartyComponents, electionCalendarWindow, normalizeElectionFilters, type ElectionListing, type ElectionQueryFilters } from "./election-list-filters";
+import { SUBSCRIPTION_TIERS, generateCampaignApiKey, hashApiKey, type NewCampaignAccountInput, type CreatedCampaignAccount } from './campaign-portal-service';
+import type { campaignAccounts as _campaignAccountsTable } from '@shared/schema';
+type CampaignAccount = typeof _campaignAccountsTable.$inferSelect;
 import { projectOfficialResultsForElection } from '../shared/official-results';
 import { type Election, type InsertElection, type Candidate, type InsertCandidate, type ElectionFilters, type CongressMember, type InsertCongressMember, type User, type UpsertUser, type WatchlistItem, type InsertWatchlistItem, type CandidateAccount, type InsertCandidateAccount, type CandidateProfile, type InsertCandidateProfile, type CandidateDataSource, type InsertCandidateDataSource, type CandidatePosition, type InsertCandidatePosition, type CandidateQA, type InsertCandidateQA, type NotificationPreferences, type InsertNotificationPreferences, type NotificationSubscription, type NotificationDelivery, type InsertNotificationDelivery, type UpdateUserPreferences, type UserPreferences } from "@shared/schema";
 import { IStorage } from "./storage";
@@ -746,12 +749,35 @@ export class MemStorage implements IStorage {
     return this.degraded('deleteUserData');
   }
 
-  async createCampaignAccount(data: any): Promise<any> {
-    return { id: this.nextId++, ...data, createdAt: new Date() };
+  private campaignAccounts = new Map<string, CampaignAccount>(); // keyed by SHA-256 of the key
+
+  async createCampaignAccount(data: NewCampaignAccountInput): Promise<CreatedCampaignAccount> {
+    const apiKey = generateCampaignApiKey();
+    const now = new Date();
+    const account: CampaignAccount = {
+      id: this.nextId++,
+      apiKey: hashApiKey(apiKey),
+      organizationName: data.organizationName,
+      contactEmail: data.contactEmail,
+      electionId: data.electionId,
+      subscriptionTier: data.subscriptionTier,
+      isActive: data.isActive,
+      monthlyApiLimit: SUBSCRIPTION_TIERS[data.subscriptionTier].monthlyApiLimit,
+      apiCallsUsed: 0,
+      subscriptionEnd: null,
+      keyLast4: data.isActive ? apiKey.slice(-4) : null,
+      createdAt: now,
+      updatedAt: now,
+    };
+    this.campaignAccounts.set(account.apiKey, account);
+    return { account, apiKey: data.isActive ? apiKey : null };
   }
 
-  async validateCampaignAccess(apiKey: string): Promise<any> {
-    return { valid: true, tier: 'basic' };
+  async validateCampaignAccess(apiKey: string): Promise<CampaignAccount> {
+    // Used to return { valid: true } for ANY key - every caller treated that as a real account.
+    const account = this.campaignAccounts.get(hashApiKey(apiKey));
+    if (!account || !account.isActive) throw new Error('Invalid API key or inactive account');
+    return account;
   }
 
   async getCampaignAnalytics(campaignId: number, electionId: number, tier: string): Promise<any> {

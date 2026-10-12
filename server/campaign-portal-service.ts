@@ -8,50 +8,86 @@ import {
   pollingResults,
   elections,
   voterInteractions,
-  type InsertCampaignAccount,
   type InsertCampaignAccessLog,
   type InsertDataPurchase
 } from '@shared/schema';
 import { eq, and, gte, lte, count, avg, sum, sql } from 'drizzle-orm';
 import crypto from 'crypto';
 
-// Subscription tier pricing (in cents)
-export const SUBSCRIPTION_TIERS = {
-  basic: { price: 9900, name: 'Basic', features: ['Aggregated state data', 'Basic analytics'] },
-  pro: { price: 49900, name: 'Pro', features: ['District-level analytics', 'Demographic breakdowns', 'Trend analysis'] },
-  enterprise: { price: 249900, name: 'Enterprise', features: ['Individual user insights (anonymized)', 'Real-time analytics', 'API access'] },
-  custom: { price: 0, name: 'Custom', features: ['Raw data exports (coming soon)', 'Custom integrations', 'Dedicated support'] }
+export type CampaignTier = 'basic' | 'pro' | 'enterprise' | 'custom';
+
+// Subscription tier pricing (in cents). Single source of truth for advertised features.
+export const SUBSCRIPTION_TIERS: Record<CampaignTier, { price: number; name: string; monthlyApiLimit: number; features: string[] }> = {
+  basic: { price: 9900, name: 'Basic', monthlyApiLimit: 1000, features: ['Aggregated state data', 'Basic analytics', 'Weekly reports'] },
+  pro: { price: 49900, name: 'Pro', monthlyApiLimit: 5000, features: ['District-level analytics', 'Demographic breakdowns', 'Trend analysis', 'Daily reports', 'Email alerts'] },
+  enterprise: { price: 249900, name: 'Enterprise', monthlyApiLimit: 50000, features: ['Individual user insights (anonymized)', 'Real-time analytics', 'Custom reports', 'API access', 'Phone support'] },
+  custom: { price: 0, name: 'Custom', monthlyApiLimit: 100000, features: ['Raw data exports (coming soon)', 'Custom integrations', 'Dedicated support', 'White-label options'] }
 };
+
+// ET-40 activation policy. No payment path exists today, so no paid tier may be activated
+// on registration (the old route activated every tier for free). A tier marked 'free'
+// activates immediately and issues a key; 'payment_required' persists the request inactive
+// with no key. Owner/B decide which tiers (if any) are free at launch - change it HERE only.
+export const TIER_ACTIVATION: Record<CampaignTier, 'free' | 'payment_required'> = {
+  basic: 'payment_required',
+  pro: 'payment_required',
+  enterprise: 'payment_required',
+  custom: 'payment_required',
+};
+
+export interface NewCampaignAccountInput {
+  organizationName: string;
+  contactEmail: string;
+  electionId: number;
+  subscriptionTier: CampaignTier;
+  /** true = issue a key now; false = persisted as a pending request, no key */
+  isActive: boolean;
+}
+
+export interface CreatedCampaignAccount {
+  account: typeof campaignAccounts.$inferSelect;
+  /** plaintext key, present only when the account was activated; shown once, never stored */
+  apiKey: string | null;
+}
+
+/** Keys are stored as SHA-256 hex; the plaintext never reaches the database. */
+export function hashApiKey(apiKey: string): string {
+  return crypto.createHash('sha256').update(apiKey, 'utf8').digest('hex');
+}
+
+export function generateCampaignApiKey(): string {
+  return 'camp_' + crypto.randomBytes(32).toString('hex');
+}
 
 export class CampaignPortalService {
   // Campaign account management
-  async createCampaignAccount(data: InsertCampaignAccount): Promise<any> {
-    try {
-      const apiKey = this.generateApiKey();
-      
-      const [campaign] = await db
-        .insert(campaignAccounts)
-        .values({
-          ...data,
-          apiKey,
-          subscriptionTier: 'basic' // Default to basic tier
-        })
-        .returning();
-
-      return { ...campaign, apiKey };
-    } catch (error) {
-      console.error('Error creating campaign account:', error);
-      throw error;
-    }
+  async createCampaignAccount(data: NewCampaignAccountInput): Promise<CreatedCampaignAccount> {
+    // A key is generated for every row (api_key is NOT NULL UNIQUE) but only returned when
+    // the account is active; a pending account gets a fresh key when it is activated.
+    const apiKey = generateCampaignApiKey();
+    const [account] = await db
+      .insert(campaignAccounts)
+      .values({
+        organizationName: data.organizationName,
+        contactEmail: data.contactEmail,
+        electionId: data.electionId,
+        subscriptionTier: data.subscriptionTier,
+        isActive: data.isActive,
+        monthlyApiLimit: SUBSCRIPTION_TIERS[data.subscriptionTier].monthlyApiLimit,
+        apiKey: hashApiKey(apiKey),
+        keyLast4: data.isActive ? apiKey.slice(-4) : null,
+      })
+      .returning();
+    return { account, apiKey: data.isActive ? apiKey : null };
   }
 
-  async validateCampaignAccess(apiKey: string): Promise<any> {
+  async validateCampaignAccess(apiKey: string): Promise<typeof campaignAccounts.$inferSelect> {
     try {
       const [campaign] = await db
         .select()
         .from(campaignAccounts)
         .where(and(
-          eq(campaignAccounts.apiKey, apiKey),
+          eq(campaignAccounts.apiKey, hashApiKey(apiKey)),
           eq(campaignAccounts.isActive, true)
         ));
 
@@ -208,10 +244,6 @@ export class CampaignPortalService {
   }
 
   // Private helper methods
-  private generateApiKey(): string {
-    return 'camp_' + crypto.randomBytes(32).toString('hex');
-  }
-
   private async logAccess(campaignId: number, endpoint: string, datasetType: string): Promise<void> {
     try {
       await db
