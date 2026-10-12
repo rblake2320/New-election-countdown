@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { httpsResultsUrl } from './official-results';
+import { httpsResultsUrl, resultsTimestamp } from './official-results';
 
 // ET-6 A/C contract v1.2: these are observed returns, never projections.
 export const liveResultSourceKinds = ['official_state_enr', 'official_state_page', 'official_county', 'ap', 'admin_manual'] as const;
@@ -8,10 +8,21 @@ export const liveResultAsOfBases = ['source_timestamp', 'source_publication_time
 const count = z.number().int().nonnegative().safe();
 const id = count.refine(value => value > 0, 'A positive identifier is required');
 const percent = z.number().finite().min(0).max(100);
-const timestamp = z.string().datetime({ offset: true });
+const timestamp = resultsTimestamp;
 const digest = z.string().regex(/^[a-f0-9]{64}$/);
 const token = z.string().trim().min(1).max(256);
 const shortText = z.string().trim().min(1).max(512);
+const calendarDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(value => {
+  const parsed = new Date(value + 'T00:00:00Z');
+  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+}, 'An actual calendar date is required');
+
+// Read-only context copied by the server when recording a snapshot. Posting
+// callers cannot choose it or move existing votes to an edited election date.
+export const liveResultElectionContextSchema = z.object({
+  state: z.string().regex(/^[A-Z]{2}$/), electionDate: calendarDate,
+  type: token, level: token, office: shortText,
+}).strict();
 
 export const liveResultSourceSchema = z.object({
   id: token,
@@ -48,6 +59,7 @@ export const liveResultHistorySchema = z.object({
   reportId: id, revision: token, asOf: timestamp.nullable(),
   status: z.enum(['unofficial', 'certified']), percent: percent.nullable(),
   sourceId: token, sourceUrl: httpsResultsUrl,
+  contextMatch: z.boolean(),
 }).strict();
 
 const resultFields = {
@@ -97,17 +109,22 @@ function validateRecorded(value: ResultFields, ctx: z.RefinementCtx): void {
 
 export const liveElectionResultsSchema = resultObject.extend({
   reportId: id.nullable(), revision: token.nullable(),
+  electionContext: liveResultElectionContextSchema.nullable(),
   history: z.array(liveResultHistorySchema).max(10000),
   stale: z.boolean().default(false), staleSince: timestamp.nullable().default(null),
 }).strict().superRefine((value, ctx) => {
   validateRecorded(value, ctx);
   if (value.status === 'none') {
-    for (const field of ['reportId', 'revision', 'reporting', 'source', 'sourcePayloadSha256', 'asOf', 'asOfBasis', 'retrievedAt', 'totalVotes', 'winnerCalledBy', 'certification', 'supersedesReportId', 'staleSince'] as const) {
+    for (const field of ['reportId', 'revision', 'reporting', 'source', 'sourcePayloadSha256', 'asOf', 'asOfBasis', 'retrievedAt', 'totalVotes', 'winnerCalledBy', 'certification', 'supersedesReportId', 'staleSince', 'electionContext'] as const) {
       if (value[field] !== null) ctx.addIssue({ code: z.ZodIssueCode.custom, path: [field], message: 'No ingested result requires null metadata' });
     }
-    if (value.candidates.length || value.history.length || value.stale) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'No ingested result cannot contain counts/history or a stale snapshot' });
+    if (value.candidates.length || value.stale) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'No ingested result cannot contain counts or a stale snapshot' });
+    value.history.forEach((entry, index) => {
+      if (entry.contextMatch) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['history', index, 'contextMatch'], message: 'A matching recorded snapshot cannot be represented as none' });
+    });
   } else {
     if (value.reportId === null || value.revision === null) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Recorded results require a persisted report and revision' });
+    if (value.electionContext === null) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['electionContext'], message: 'Recorded results require their immutable race context' });
     if (value.stale !== (value.staleSince !== null)) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['staleSince'], message: 'Stale snapshots require the actual failure time' });
   }
 });
@@ -122,10 +139,7 @@ export const liveResultReportInputSchema = resultObject.extend({
 
 export const liveResultsBatchSchema = z.object({
   schemaVersion: z.literal(1),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(value => {
-    const parsed = new Date(value + 'T00:00:00Z');
-    return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
-  }, 'An actual calendar date is required'),
+  date: calendarDate.nullable(),
   results: z.array(liveElectionResultsSchema).max(2000),
   cursor: token,
   reset: z.literal(true),
@@ -135,10 +149,12 @@ export const liveResultsBatchSchema = z.object({
     if (ids.has(row.electionId)) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['results', index, 'electionId'], message: 'Duplicate contest in batch' });
     ids.add(row.electionId);
     if (row.history.length) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['results', index, 'history'], message: 'Batch contains current snapshots only; history belongs to the detail read' });
+    if (value.date !== null && row.electionContext !== null && row.electionContext.electionDate !== value.date) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['results', index, 'electionContext', 'electionDate'], message: 'Recorded contest does not belong to the requested date' });
   });
 });
 
 export type LiveResultSource = z.infer<typeof liveResultSourceSchema>;
+export type LiveResultElectionContext = z.infer<typeof liveResultElectionContextSchema>;
 export type LiveResultCandidateLine = z.infer<typeof liveResultCandidateSchema>;
 export type LiveElectionResultsResponse = z.infer<typeof liveElectionResultsSchema>;
 export type LiveResultReportInput = z.infer<typeof liveResultReportInputSchema>;
@@ -151,5 +167,6 @@ export function noLiveElectionResults(electionId: number): LiveElectionResultsRe
     asOfBasis: null, retrievedAt: null, totalVotes: null, candidates: [],
     winnerCalledBy: null, certification: null, supersedesReportId: null,
     history: [], stale: false, staleSince: null,
+    electionContext: null,
   });
 }

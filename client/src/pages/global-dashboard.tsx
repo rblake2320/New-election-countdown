@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { getJson } from "@/lib/queryClient";
 import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { describeListError, fetchList } from "@/lib/fetch-list";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHead, pageMetadata } from "@/components/page-head";
 import { Badge } from "@/components/ui/badge";
@@ -65,23 +66,25 @@ export default function GlobalDashboard() {
   const [selectedCountry, setSelectedCountry] = useState<string>("all");
 
   // Global system status
-  const { data: globalStatus, isLoading: statusLoading } = useQuery<GlobalStatus>({
+  const { data: globalStatus, error: statusError, refetch: refetchStatus } = useQuery<GlobalStatus>({
     queryKey: ["/api/global/status"],
     refetchInterval: 30000,
   });
 
-  // Global elections data
-  const { data: globalElections, isLoading: electionsLoading } = useQuery<GlobalElection[]>({
-    queryKey: ["/api/global/elections", selectedCountry],
-    queryFn: ({ signal }) => getJson<GlobalElection[]>(
-      selectedCountry === "all" ? "/api/global/elections" : `/api/global/elections?country=${encodeURIComponent(selectedCountry)}`, signal),
-    enabled: true,
+  // The whole list is fetched once and filtered here, so the country choices stay
+  // available after one is picked. A provider failure is an error (503 with a code
+  // since ET-41), never "no elections".
+  const electionsQuery = useQuery<GlobalElection[]>({
+    queryKey: ["/api/global/elections"],
+    queryFn: ({ signal }) => fetchList<GlobalElection>("/api/global/elections", signal, "Global elections"),
   });
+  const { data: allGlobalElections, isLoading: electionsLoading } = electionsQuery;
 
-  // Legislative events
-  const { data: legislativeEvents } = useQuery<LegislativeEvent[]>({
+  const legislativeQuery = useQuery<LegislativeEvent[]>({
     queryKey: ["/api/global/legislative/all"],
+    queryFn: ({ signal }) => fetchList<LegislativeEvent>("/api/global/legislative/all", signal, "Legislative activity"),
   });
+  const legislativeEvents = legislativeQuery.data;
 
   const getStatusColor = (connected: boolean) => 
     connected ? "text-green-600" : "text-red-600";
@@ -98,7 +101,8 @@ export default function GlobalDashboard() {
     return variants[status as keyof typeof variants] || variants.upcoming;
   };
 
-  const countries = Array.from(new Set(globalElections?.map(e => e.country) || []));
+  const countries = Array.from(new Set(allGlobalElections?.map(e => e.country) || [])).sort();
+  const globalElections = selectedCountry === "all" ? allGlobalElections : allGlobalElections?.filter(e => e.country === selectedCountry);
 
   return (
     <div className="p-6 space-y-6">
@@ -110,16 +114,27 @@ export default function GlobalDashboard() {
             Real-time monitoring of elections and democratic processes worldwide
           </p>
         </div>
-        <div className="flex items-center space-x-2">
-          <Badge variant="outline" className="flex items-center space-x-1">
-            <Globe className="h-3 w-3" />
-            <span>{countries.length} Countries</span>
-          </Badge>
-        </div>
+        {allGlobalElections && (
+          <div className="flex items-center space-x-2">
+            <Badge variant="outline" className="flex items-center space-x-1">
+              <Globe className="h-3 w-3" />
+              <span>{countries.length} {countries.length === 1 ? "Country" : "Countries"}</span>
+            </Badge>
+          </div>
+        )}
       </div>
 
       {/* System Status Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {statusError && (
+        <Alert variant="destructive" role="alert">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription className="flex flex-wrap items-center gap-3">
+            System status could not be loaded ({statusError.message.split(":")[0]}). The figures below are hidden rather than shown as zero.
+            <Button variant="outline" size="sm" onClick={() => refetchStatus()}>Try again</Button>
+          </AlertDescription>
+        </Alert>
+      )}
+      {globalStatus && <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center space-x-2">
@@ -190,7 +205,7 @@ export default function GlobalDashboard() {
             </p>
           </CardContent>
         </Card>
-      </div>
+      </div>}
 
       <Tabs defaultValue="global-elections" className="space-y-4">
         <TabsList className="grid w-full grid-cols-4">
@@ -231,6 +246,13 @@ export default function GlobalDashboard() {
                   <Clock className="h-6 w-6 animate-spin mr-2" />
                   <span>Loading global elections...</span>
                 </div>
+              ) : electionsQuery.error ? (
+                <div role="alert" className="text-center py-8 space-y-3">
+                  <Globe className="h-12 w-12 mx-auto opacity-50" aria-hidden="true" />
+                  <p className="text-sm text-destructive">{describeListError(electionsQuery.error, "Global elections")}</p>
+                  <p className="text-sm text-muted-foreground">This does not mean there are no elections.</p>
+                  <Button variant="outline" size="sm" onClick={() => electionsQuery.refetch()}>Try again</Button>
+                </div>
               ) : (
                 <div className="space-y-3">
                   {globalElections && globalElections.length > 0 ? (
@@ -264,8 +286,7 @@ export default function GlobalDashboard() {
                   ) : (
                     <div className="text-center py-8 text-muted-foreground">
                       <Globe className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>No global elections data available</p>
-                      <p className="text-sm">Check data source connections</p>
+                      <p>{selectedCountry === "all" ? "The data provider reports no elections." : `No elections are listed for ${selectedCountry}.`}</p>
                     </div>
                   )}
                 </div>
@@ -275,6 +296,9 @@ export default function GlobalDashboard() {
         </TabsContent>
 
         <TabsContent value="services" className="space-y-4">
+          {!globalStatus ? (
+            <p className="text-sm text-muted-foreground">{statusError ? "Data source status could not be loaded (see above)." : "Loading data source status..."}</p>
+          ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
@@ -333,25 +357,10 @@ export default function GlobalDashboard() {
                     </span>
                   </div>
                 </div>
-                
-                <div className="flex items-center justify-between">
-                  <span>ProPublica Congress</span>
-                  <div className="flex items-center space-x-2">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span className="text-green-600">Connected</span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <span>VoteSmart</span>
-                  <div className="flex items-center space-x-2">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span className="text-green-600">Connected</span>
-                  </div>
-                </div>
               </CardContent>
             </Card>
           </div>
+          )}
         </TabsContent>
 
         <TabsContent value="legislative" className="space-y-4">
@@ -363,7 +372,13 @@ export default function GlobalDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {legislativeEvents && legislativeEvents.length > 0 ? (
+              {legislativeQuery.error ? (
+                <div role="alert" className="text-center py-8 space-y-3">
+                  <Activity className="h-12 w-12 mx-auto opacity-50" aria-hidden="true" />
+                  <p className="text-sm text-destructive">{describeListError(legislativeQuery.error, "Legislative activity")}</p>
+                  <Button variant="outline" size="sm" onClick={() => legislativeQuery.refetch()}>Try again</Button>
+                </div>
+              ) : legislativeEvents && legislativeEvents.length > 0 ? (
                 <div className="space-y-3">
                   {legislativeEvents.slice(0, 10).map((event) => (
                     <div key={event.id} className="border rounded-lg p-3">
@@ -393,6 +408,9 @@ export default function GlobalDashboard() {
         </TabsContent>
 
         <TabsContent value="compliance" className="space-y-4">
+          {!globalStatus ? (
+            <p className="text-sm text-muted-foreground">{statusError ? "Compliance figures could not be loaded (see above)." : "Loading compliance figures..."}</p>
+          ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
@@ -447,14 +465,7 @@ export default function GlobalDashboard() {
               </CardContent>
             </Card>
           </div>
-
-          <Alert>
-            <Shield className="h-4 w-4" />
-            <AlertDescription>
-              All election data is processed in compliance with GDPR, CCPA, PIPEDA, LGPD, and international election monitoring standards. 
-              Automated compliance checks run continuously to ensure data protection requirements are met.
-            </AlertDescription>
-          </Alert>
+          )}
         </TabsContent>
       </Tabs>
     </div>
