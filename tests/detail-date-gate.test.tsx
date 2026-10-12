@@ -32,6 +32,17 @@ vi.mock("../client/src/hooks/use-elections", () => ({
 vi.mock("../client/src/hooks/use-general-roster", () => ({
   useGeneralRoster: () => ({ data: null, isLoading: false, error: null }),
 }));
+// Added by lane B with the ET-6 results card: same data-boundary rule; no result
+// has been ingested, which is what the timing scenarios assume.
+vi.mock("../client/src/lib/live-results", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../client/src/lib/live-results")>()),
+  useLiveElectionResults: (electionId: number) => ({
+    data: { etag: null, data: { schemaVersion: 1, electionId, reportId: null, revision: null, status: "none", reporting: null, source: null,
+      sourcePayloadSha256: null, asOf: null, asOfBasis: null, retrievedAt: null, totalVotes: null, candidates: [], winnerCalledBy: null,
+      certification: null, supersedesReportId: null, history: [], stale: false, staleSince: null } },
+    isLoading: false, error: null, refetch: () => {},
+  }),
+}));
 vi.mock("../client/src/hooks/use-polling-trends", () => ({
   usePollingTrends: () => ({ data: { pollingData: [] }, isLoading: false }),
 }));

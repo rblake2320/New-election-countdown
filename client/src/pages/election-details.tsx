@@ -21,6 +21,8 @@ import CandidatePublicView from "@/components/candidate-public-view";
 import { CandidateCard } from "@/components/candidate-card";
 import { usePollingTrends } from "@/hooks/use-polling-trends";
 import { useCandidates, useElection } from "@/hooks/use-elections";
+import { useLiveElectionResults } from "@/lib/live-results";
+import { LiveResultView } from "@/components/live-result-view";
 import type { Election, Candidate } from "@shared/schema";
 
 // Hook to fetch individual candidate details
@@ -58,6 +60,10 @@ export default function ElectionDetails() {
   const { data: candidates = [], isLoading: candidatesLoading } = useCandidates(electionId);
 
   const { data: pollingData, isLoading: pollingLoading } = usePollingTrends(electionId, "90");
+
+  // ET-6 v1.2 results (detail read with history). Polled from election day on.
+  const resultsPhase = election ? getElectionTiming(election, new Date(minuteNow)).phase : "upcoming";
+  const liveResults = useLiveElectionResults(election ? electionId : 0, resultsPhase !== "upcoming" && resultsPhase !== "completed");
 
   const { data: selectedCandidateDetails, isLoading: candidateDetailsLoading } = useCandidateDetails(selectedCandidateId);
 
@@ -147,14 +153,16 @@ export default function ElectionDetails() {
   const electionDate = election
     ? new Date(rawDate.getUTCFullYear(), rawDate.getUTCMonth(), rawDate.getUTCDate())
     : rawDate;
-  const hasResults = candidates.some(c => c.votePercentage !== null);
+  const resultStatus = liveResults.data?.data.status ?? "none";
+  const hasResults = resultStatus !== "none";
   // `date > now` called a race past from midnight UTC on election day, before
   // polls even opened in Texas (lane C review of 63da481).
   const phase = election ? getElectionTiming(election, new Date(minuteNow)).phase : "upcoming";
   const isUpcoming = phase === "upcoming";
   const isLive = phase === "election-day" || phase === "polls-open";
   const badgeText = isUpcoming ? "Upcoming" : isLive ? "Election Day"
-    : hasResults ? "Results Available"
+    : resultStatus === "certified" ? "Certified results"
+    : resultStatus === "unofficial" ? "Unofficial results"
     : phase === "polls-closed" ? ((election as ElectionTimingInput | undefined)?.pollCloseKind === "ballot_return" ? "Drop-off closed" : "Polls closed")
     : "Past Election";
 
@@ -226,6 +234,29 @@ export default function ElectionDetails() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
+          {!isUpcoming && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5" />
+                  Results
+                </CardTitle>
+                <CardDescription>As recorded from official sources. No projections.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {liveResults.isLoading ? (
+                  <p className="text-sm text-muted-foreground">Loading results...</p>
+                ) : liveResults.error ? (
+                  <div role="alert" className="flex flex-wrap items-center gap-3 text-sm text-destructive">
+                    {liveResults.error.message} This does not mean no results were reported.
+                    <Button variant="outline" size="sm" onClick={() => liveResults.refetch()}>Try again</Button>
+                  </div>
+                ) : liveResults.data ? (
+                  <LiveResultView result={liveResults.data.data} showHistory />
+                ) : null}
+              </CardContent>
+            </Card>
+          )}
           <GeneralRoster electionId={electionId} />
           {/* Candidates Overview */}
           <Card>
