@@ -41,6 +41,12 @@ const recorded2 = liveElectionResultsSchema.parse({
 });
 
 let posted: unknown[] = [];
+let uploads: { type: string | null; filename: string | null; size: number }[] = [];
+const sourceList = { sources: [
+  { id: 'ak-doe-enr', kind: 'official_state_enr', name: 'Alaska Division of Elections', url: 'https://www.elections.alaska.gov/results/26GENR/', state: 'AK' },
+  { id: 'admin_manual:AK', kind: 'admin_manual', name: 'Manual entry from an official Alaska page', url: '', state: 'AK' },
+] };
+const digestOf = async (buf: ArrayBuffer) => [...new Uint8Array(await crypto.subtle.digest('SHA-256', buf))].map(b => b.toString(16).padStart(2, '0')).join('');
 const server = setupServer(
   http.get('/api/auth/me', () => HttpResponse.json({ user: { id: 'admin-1', email: 'ops@example.org', role: 'admin' } })),
   http.get('/api/elections', () => HttpResponse.json(alaska)),
@@ -48,6 +54,13 @@ const server = setupServer(
   http.get('/api/elections/:id/candidates', () => HttpResponse.json([])),
   http.get('/api/elections/2/results', () => HttpResponse.json(recorded2, { headers: { ETag: 'W/"2-r7"' } })),
   http.get('/api/elections/:id/results', ({ params }) => HttpResponse.json(noLiveElectionResults(Number(params.id)))),
+  http.get('/api/results/sources', () => HttpResponse.json(sourceList)),
+  // The server rehashes what it stores (A: POST /api/admin/results-evidence, raw body).
+  http.post('/api/admin/results-evidence', async ({ request }) => {
+    const buf = await request.arrayBuffer();
+    uploads.push({ type: request.headers.get('content-type'), filename: request.headers.get('x-evidence-filename'), size: buf.byteLength });
+    return HttpResponse.json({ sha256: await digestOf(buf), size: buf.byteLength, contentType: request.headers.get('content-type') }, { status: 201 });
+  }),
   http.post('/api/elections/:id/results', async ({ request }) => { posted.push(await request.json()); return HttpResponse.json({ error: 'stale', code: 'stale_revision' }, { status: 409 }); }),
 );
 beforeAll(() => {
@@ -55,7 +68,7 @@ beforeAll(() => {
   vi.useFakeTimers({ toFake: ['Date'] });
   vi.setSystemTime(new Date('2026-11-04T05:20:00Z'));
 });
-afterEach(() => { server.resetHandlers(); posted = []; });
+afterEach(() => { server.resetHandlers(); posted = []; uploads = []; });
 afterAll(() => { server.close(); vi.useRealTimers(); });
 
 const renderForm = () => render(<QueryClientProvider client={new QueryClient({ defaultOptions: appQueryClient.getDefaultOptions() })}><AdminResultsEntry /></QueryClientProvider>);
@@ -120,9 +133,13 @@ describe('admin results entry (ET-6 v1.2)', () => {
     const line = await screen.findByTestId('line-0');
     fireEvent.change(within(line).getByLabelText('Votes'), { target: { value: '15' } });
     fireEvent.change(screen.getByLabelText('Total votes (as published)'), { target: { value: '15' } });
+    fireEvent.change(screen.getByLabelText('Registered source'), { target: { value: 'ak-doe-enr' } });
+    expect(screen.getByLabelText('Official results URL (https)')).toHaveAttribute('readonly');
+    fireEvent.change(screen.getByLabelText('Source contest ID'), { target: { value: 'US-SEN' } });
     const file = new File(['<html>official results</html>'], 'ak-results.html', { type: 'text/html' });
     fireEvent.change(screen.getByLabelText('Official results file or page snapshot'), { target: { files: [file] } });
-    await screen.findByText(/ak-results\.html: SHA-256 [0-9a-f]{64}/);
+    await screen.findByText(/Stored: ak-results\.html \(SHA-256 [0-9a-f]{64}\)/);
+    expect(uploads).toEqual([{ type: 'text/html', filename: 'ak-results.html', size: file.size }]);
     fireEvent.click(screen.getByTestId('button-post-report'));
     expect(await screen.findByText(/Someone recorded a newer report for this race since you loaded it/)).toBeInTheDocument();
     expect(posted).toHaveLength(1);
@@ -130,9 +147,52 @@ describe('admin results entry (ET-6 v1.2)', () => {
     expect(body.expectedRevision).toBe('r7-1a2b3c4d');
     expect(body.idempotencyKey.length).toBeGreaterThan(8);
     expect(body.candidates[0]).toMatchObject({ sourceCandidateId: 'sullivan', votes: 15, percent: null, isWinner: false });
+    expect(body.source).toMatchObject({ id: 'ak-doe-enr', kind: 'official_state_enr', sourceContestId: 'US-SEN' });
+    expect(body.sourcePayloadSha256).toMatch(/^[0-9a-f]{64}$/);
     expect(body.asOf).toBeNull();
     expect(body.asOfBasis).toBe('not_provided');
     expect(JSON.stringify(posted[0])).not.toMatch(/Projected/i);
+  });
+
+  it('A\'s writer refusals (evidence_missing, unknown_source, contest_key_conflict) are explained', async () => {
+    for (const [code, text] of [
+      ['evidence_missing', /no stored copy of the official file/],
+      ['unknown_source', /That source is not registered/],
+      ['contest_key_conflict', /already recorded for a different race/],
+    ] as const) {
+      server.use(http.post('/api/elections/:id/results', () => HttpResponse.json({ error: code, code }, { status: 422 })));
+      const { unmount } = renderForm();
+      await chooseRace(/U\.S\. Senate Election - Alaska/);
+      await screen.findByTestId('line-0');
+      fireEvent.change(screen.getByLabelText('Registered source'), { target: { value: 'ak-doe-enr' } });
+      fireEvent.change(screen.getByLabelText('Source contest ID'), { target: { value: 'US-SEN' } });
+      fireEvent.change(screen.getByLabelText('Official results file or page snapshot'), { target: { files: [new File(['x'], 'r.html', { type: 'text/html' })] } });
+      await screen.findByText(/Stored: r\.html/);
+      fireEvent.click(screen.getByTestId('button-post-report'));
+      expect(await screen.findByText(text)).toBeInTheDocument();
+      unmount();
+    }
+  });
+
+  it('refuses unsupported or failed evidence uploads and never posts without a stored file', async () => {
+    renderForm();
+    await chooseRace(/U\.S\. Senate Election - Alaska/);
+    await screen.findByTestId('line-0');
+    const input = screen.getByLabelText('Official results file or page snapshot');
+    fireEvent.change(input, { target: { files: [new File(['MZ'], 'tool.exe', { type: 'application/x-msdownload' })] } });
+    expect(await screen.findByText(/files of type application\/x-msdownload are not accepted/)).toBeInTheDocument();
+    expect(uploads).toEqual([]);
+    server.use(http.post('/api/admin/results-evidence', () => HttpResponse.json({ error: 'Evidence exceeds 10 MB', code: 'evidence_too_large' }, { status: 413 })));
+    fireEvent.change(input, { target: { files: [new File(['x'], 'big.pdf', { type: 'application/pdf' })] } });
+    expect(await screen.findByText(/The file was not stored \(413: Evidence exceeds 10 MB\)/)).toBeInTheDocument();
+    expect(screen.queryByText(/Stored:/)).toBeNull();
+  });
+
+  it('a failed source list is stated and leaves the picker unusable', async () => {
+    server.use(http.get('/api/results/sources', () => HttpResponse.json({ error: 'boom' }, { status: 503 })));
+    renderForm();
+    await chooseRace(/U\.S\. Senate Election - Alaska/);
+    expect(await screen.findByText(/The list of registered sources could not be loaded \(503\)/)).toBeInTheDocument();
   });
 
   it('renders access denied, then the form, as the admin check resolves (no hook-order crash)', async () => {

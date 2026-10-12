@@ -29,6 +29,12 @@ import { LiveResultView } from "@/components/live-result-view";
 
 interface Election { id: number; title: string; location: string; state: string; date: string; type: string; level: string }
 interface Candidate { id: number; name: string; party: string | null }
+/** One entry of GET /api/results/sources: a registered source an admin may cite. */
+interface ResultSource { id: string; kind: string; name: string; url: string; state?: string }
+
+// Evidence types the server accepts (POST /api/admin/results-evidence).
+const EVIDENCE_TYPES = ["text/html", "application/json", "text/csv", "application/pdf", "image/png", "image/jpeg"];
+const EVIDENCE_MAX_BYTES = 10 * 1024 * 1024;
 
 interface Line { candidateId: number | null; sourceCandidateId: string; name: string; party: string; votes: string; percent: string; isWinner: boolean }
 interface Draft {
@@ -116,6 +122,10 @@ async function sha256Hex(file: File): Promise<string> {
 }
 
 const POST_ERRORS: Record<string, string> = {
+  evidence_missing: "The server has no stored copy of the official file for this report. Upload the file again and post.",
+  unknown_source: "That source is not registered. Choose one from the list.",
+  contest_key_conflict: "That source contest ID is already recorded for a different race. Check the contest ID.",
+  pre_election_snapshot: "This race has not been held yet, so results cannot be recorded for it.",
   stale_revision: "Someone recorded a newer report for this race since you loaded it. Reload the latest report before posting.",
   idempotency_conflict: "This submission key was already used for different values. Reload and post again.",
   older_than_latest: "These counts are older than the latest report from the same source. Name the report you are correcting to post an official correction.",
@@ -153,6 +163,16 @@ export default function AdminResultsEntry() {
   });
   const current = useLiveElectionResults(isAdmin && selectedElectionId ? selectedElectionId : 0, false);
   const currentResult = current.data?.data;
+  const raceState = elections.find(e => e.id === selectedElectionId)?.state;
+  const stateCode = raceState && /^[A-Z]{2}$/.test(raceState) ? raceState : null;
+  const sourcesQuery = useQuery<{ sources: ResultSource[] }>({
+    queryKey: ["/api/results/sources", stateCode],
+    queryFn: ({ signal }) => getJson(`/api/results/sources${stateCode ? `?state=${stateCode}` : ""}`, signal),
+    enabled: isAdmin && !!selectedElectionId,
+  });
+  const sources = sourcesQuery.data?.sources ?? [];
+  const pickedSource = sources.find(x => x.id === draft?.sourceId);
+  const [uploading, setUploading] = useState(false);
 
   // Load the race's latest report into the form once both reads have arrived, and
   // whenever the race changes. Unsaved edits are never replaced by a refetch.
@@ -326,24 +346,61 @@ export default function AdminResultsEntry() {
             <CardContent className="space-y-6">
               <fieldset className="grid gap-4 sm:grid-cols-2">
                 <legend className="mb-2 font-semibold">Source</legend>
-                <div><Label htmlFor="src-id">Registered source ID</Label><Input id="src-id" value={draft.sourceId} onChange={e => edit({ sourceId: e.target.value })} /></div>
-                <div>
-                  <Label htmlFor="src-kind">Source type</Label>
-                  <select id="src-kind" className={selectClass} value={draft.sourceKind} onChange={e => edit({ sourceKind: e.target.value })}>
-                    {liveResultSourceKinds.map(k => <option key={k} value={k}>{k.replace(/_/g, " ")}</option>)}
+                <div className="sm:col-span-2">
+                  <Label htmlFor="src-pick">Registered source</Label>
+                  <select id="src-pick" className={selectClass} value={draft.sourceId} disabled={sourcesQuery.isLoading}
+                    onChange={e => {
+                      const picked = sources.find(x => x.id === e.target.value);
+                      edit(picked
+                        ? { sourceId: picked.id, sourceKind: picked.kind, sourceName: picked.name, sourceUrl: picked.url }
+                        : { sourceId: "", sourceKind: "admin_manual", sourceName: "", sourceUrl: "" });
+                    }}>
+                    <option value="">{sourcesQuery.isLoading ? "Loading sources..." : "Choose the source you are citing..."}</option>
+                    {sources.map(x => <option key={x.id} value={x.id}>{x.name} ({x.kind.replace(/_/g, " ")})</option>)}
                   </select>
+                  {sourcesQuery.error && (
+                    <p role="alert" className="mt-1 text-sm text-destructive">
+                      The list of registered sources could not be loaded ({sourcesQuery.error.message.split(":")[0]}). Posting is not possible without one.
+                    </p>
+                  )}
                 </div>
-                <div><Label htmlFor="src-name">Source name</Label><Input id="src-name" value={draft.sourceName} onChange={e => edit({ sourceName: e.target.value })} /></div>
-                <div><Label htmlFor="src-url">Official results URL (https)</Label><Input id="src-url" type="url" value={draft.sourceUrl} onChange={e => edit({ sourceUrl: e.target.value })} /></div>
-                <div><Label htmlFor="src-contest">Source contest ID</Label><Input id="src-contest" value={draft.sourceContestId} onChange={e => edit({ sourceContestId: e.target.value })} /></div>
                 <div>
+                  <Label htmlFor="src-url">Official results URL (https)</Label>
+                  <Input id="src-url" type="url" value={draft.sourceUrl} readOnly={!!pickedSource && pickedSource.kind !== "admin_manual"}
+                    onChange={e => edit({ sourceUrl: e.target.value })} />
+                  {pickedSource?.kind === "admin_manual" && <p className="mt-1 text-xs text-muted-foreground">Enter the page the counts came from. It must be on the state's official government site.</p>}
+                </div>
+                <div><Label htmlFor="src-contest">Source contest ID</Label><Input id="src-contest" value={draft.sourceContestId} onChange={e => edit({ sourceContestId: e.target.value })} /></div>
+                <div className="sm:col-span-2">
                   <Label htmlFor="src-file">Official results file or page snapshot</Label>
-                  <Input id="src-file" type="file" onChange={async e => {
+                  <Input id="src-file" type="file" accept={EVIDENCE_TYPES.join(",")} disabled={uploading} onChange={async e => {
                     const f = e.target.files?.[0];
                     if (!f) return;
-                    edit({ payloadSha256: await sha256Hex(f), payloadName: f.name, retrievedAt: new Date().toISOString() });
+                    if (!EVIDENCE_TYPES.includes(f.type)) { setIssues([`${f.name}: files of type ${f.type || "unknown"} are not accepted. Use HTML, JSON, CSV, PDF, PNG or JPEG.`]); return; }
+                    if (f.size > EVIDENCE_MAX_BYTES) { setIssues([`${f.name} is larger than 10 MB.`]); return; }
+                    setUploading(true); setIssues([]);
+                    try {
+                      const local = await sha256Hex(f);
+                      const res = await fetch("/api/admin/results-evidence", {
+                        method: "POST", credentials: "include", body: f,
+                        headers: { "Content-Type": f.type, "X-Evidence-Filename": f.name },
+                      });
+                      const stored = await res.json().catch(() => null) as { sha256?: string; code?: string; error?: string } | null;
+                      if (res.status !== 201 && res.status !== 200) {
+                        setIssues([`The file was not stored (${res.status}${stored?.error ? `: ${stored.error}` : ""}). Nothing can be posted until it is.`]);
+                      } else if (stored?.sha256 !== local) {
+                        setIssues(["The server stored different bytes than the file you chose. Try the upload again."]);
+                      } else {
+                        edit({ payloadSha256: stored.sha256!, payloadName: f.name, retrievedAt: new Date().toISOString() });
+                      }
+                    } catch {
+                      setIssues(["The file was not stored: the server could not be reached."]);
+                    } finally {
+                      setUploading(false);
+                    }
                   }} />
-                  {draft.payloadSha256 && <p className="mt-1 break-all text-xs text-muted-foreground">{draft.payloadName}: SHA-256 {draft.payloadSha256}</p>}
+                  {uploading && <p className="mt-1 text-xs text-muted-foreground">Uploading...</p>}
+                  {draft.payloadSha256 && <p className="mt-1 break-all text-xs text-muted-foreground">Stored: {draft.payloadName} (SHA-256 {draft.payloadSha256})</p>}
                 </div>
                 <div><Label htmlFor="as-of">Time the source gives for these counts</Label><Input id="as-of" type="datetime-local" value={draft.asOf} onChange={e => edit({ asOf: e.target.value, asOfBasis: e.target.value ? (draft.asOfBasis === "not_provided" ? "source_timestamp" : draft.asOfBasis) : "not_provided" })} /></div>
                 <div>
@@ -373,7 +430,7 @@ export default function AdminResultsEntry() {
                 {draft.lines.map((l, i) => (
                   <div key={i} className="grid gap-3 rounded-md border p-3 sm:grid-cols-6" data-testid={`line-${i}`}>
                     <div className="sm:col-span-2"><Label htmlFor={`name-${i}`}>Name as published</Label><Input id={`name-${i}`} value={l.name} onChange={e => editLine(i, { name: e.target.value })} /></div>
-                    <div><Label htmlFor={`sid-${i}`}>Source option ID</Label><Input id={`sid-${i}`} value={l.sourceCandidateId} onChange={e => editLine(i, { sourceCandidateId: e.target.value })} /></div>
+                    <div><Label htmlFor={`sid-${i}`}>Option label as printed</Label><Input id={`sid-${i}`} value={l.sourceCandidateId} onChange={e => editLine(i, { sourceCandidateId: e.target.value })} /></div>
                     <div><Label htmlFor={`votes-${i}`}>Votes</Label><Input id={`votes-${i}`} inputMode="numeric" value={l.votes} onChange={e => editLine(i, { votes: e.target.value })} /></div>
                     <div><Label htmlFor={`pct-${i}`}>Percent (as published)</Label><Input id={`pct-${i}`} inputMode="decimal" value={l.percent} onChange={e => editLine(i, { percent: e.target.value })} /></div>
                     <label className="flex items-end gap-2 pb-2 text-sm"><input type="checkbox" checked={l.isWinner} onChange={e => editLine(i, { isWinner: e.target.checked })} />Officially declared winner</label>
@@ -423,7 +480,7 @@ export default function AdminResultsEntry() {
               )}
 
               <div className="flex flex-wrap gap-3">
-                <Button onClick={submit} disabled={posting || newerOnServer} data-testid="button-post-report">
+                <Button onClick={submit} disabled={posting || uploading || newerOnServer} data-testid="button-post-report">
                   <Save className="w-4 h-4 mr-2" />{posting ? "Posting..." : "Post report"}
                 </Button>
                 {dirty && <Button variant="outline" onClick={reloadLatest} disabled={posting}>Discard changes</Button>}
