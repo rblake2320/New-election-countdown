@@ -1,0 +1,566 @@
+{
+  "version": 1,
+  "kind": "read_only_official_results_source_research",
+  "baseHead": "eb60469721e9e450ec82ca20ad4a28bc777e956a",
+  "checkedAt": "2026-10-12T04:45:12.470423+00:00",
+  "scopeStates": 16,
+  "targetElectionDate": "2026-11-03",
+  "liveGeneralResultRecordsAdmitted": 0,
+  "records": [
+    {
+      "state": "OH",
+      "coverageStatus": "blocked",
+      "targetElectionDate": "2026-11-03",
+      "targetResultAvailability": "unknown_access_blocked",
+      "governmentLanding": {
+        "requestedUrl": "https://www.ohiosos.gov/elections/election-results-and-data/",
+        "status": 403,
+        "outcome": "Blocked",
+        "checkedAt": "2026-10-12T04:21:08.637282+00:00",
+        "error": "HTTP Error 403: Forbidden"
+      },
+      "publicResultsRoutes": [
+        "https://data.ohiosos.gov/portal/past-election-results",
+        "https://liveresults.ohiosos.gov/"
+      ],
+      "formats": [
+        "official data portal; payload format unverified"
+      ],
+      "sourceAsOf": null,
+      "mappingIdentifiers": {
+        "election": null,
+        "contest": null,
+        "candidate": null,
+        "note": "Blocked before actual vote payload. County election office paths need separate verified delegation."
+      },
+      "reportingMetrics": [],
+      "certification": "No certification is inferred for Nov3 or from HTTP200. Historical examples retain their own declarations.",
+      "actionableNotes": [
+        "Gov landing and Gov data portal normalTLS fetch403; web fetch403 too. Gov certification press release identifies past-results portal; no bypass or votes accepted."
+      ]
+    },
+    {
+      "state": "OK",
+      "coverageStatus": "official_page_manual",
+      "targetElectionDate": "2026-11-03",
+      "targetResultAvailability": "not_published_in_checked_sources",
+      "governmentLanding": {
+        "requestedUrl": "https://oklahoma.gov/elections/elections-results/election-results/2026-election-results.html",
+        "finalUrl": "https://oklahoma.gov/elections/elections-results/election-results/2026-election-results.html",
+        "status": 200,
+        "outcome": "Worked",
+        "checkedAt": "2026-10-12T04:21:08.641239+00:00",
+        "sha256": "5c39c462e2c1fa38424481628fa836744f4019773b60c4c42c7df4e099529568",
+        "title": "2026 Election Results"
+      },
+      "publicResultsRoutes": [
+        "https://results.okelections.us/OKER/?elecDate=20260616"
+      ],
+      "formats": [
+        "HTML landing; delegated ENR format pending fetch"
+      ],
+      "sourceAsOf": null,
+      "mappingIdentifiers": {
+        "election": "elecDate=20260616 (Gov-linked primary route)",
+        "contest": null,
+        "candidate": null
+      },
+      "reportingMetrics": [],
+      "certification": "No certification is inferred for Nov3 or from HTTP200. Historical examples retain their own declarations.",
+      "actionableNotes": [
+        "Gov2026 index only links completed June16/Aug25 elections. JunePrimary child directly delegates okelections.us. No Nov3 link/data is admitted."
+      ]
+    },
+    {
+      "state": "OR",
+      "coverageStatus": "official_page_manual",
+      "targetElectionDate": "2026-11-03",
+      "targetResultAvailability": "not_published_in_checked_sources",
+      "governmentLanding": {
+        "requestedUrl": "https://sos.oregon.gov/elections/Pages/historical-data.aspx",
+        "finalUrl": "https://sos.oregon.gov/elections/Pages/historical-data.aspx",
+        "status": 200,
+        "outcome": "Worked",
+        "checkedAt": "2026-10-12T04:21:08.722956+00:00",
+        "sha256": "e108ce0db8977082bb981e34841bbee3497248d3e7fe01164f3405682de9574c",
+        "title": "Oregon Secretary of State : Election Results & History : State of Oregon"
+      },
+      "publicResultsRoutes": [
+        "https://sos.oregon.gov/elections/Pages/current-election.aspx",
+        "https://results.oregonvotes.gov/"
+      ],
+      "formats": [
+        "HTML; official precinct archive search"
+      ],
+      "sourceAsOf": null,
+      "mappingIdentifiers": {
+        "election": null,
+        "contest": null,
+        "candidate": null,
+        "note": "Exact vendor payload identifiers not captured; a reviewed mapping is required before ingestion."
+      },
+      "reportingMetrics": [],
+      "certification": "No certification is inferred for Nov3 or from HTTP200. Historical examples retain their own declarations.",
+      "actionableNotes": [
+        "Official upcoming page explicitly names Nov3,2026; no candidate vote result there. Old ENR root redirects to general SOS welcome page, not an election return. Historical precinct search is available; registration PDFs are not results."
+      ]
+    },
+    {
+      "state": "PA",
+      "coverageStatus": "official_page_manual",
+      "targetElectionDate": "2026-11-03",
+      "targetResultAvailability": "unknown_enr_access_blocked",
+      "governmentLanding": {
+        "requestedUrl": "https://www.pa.gov/agencies/vote/elections/election-results",
+        "finalUrl": "https://www.pa.gov/agencies/vote/elections/election-results",
+        "status": 200,
+        "outcome": "Worked",
+        "checkedAt": "2026-10-12T04:21:08.831727+00:00",
+        "sha256": "9d0a5688a3259148c452ed670da04abd2c005d2886a47b9a66fdc7bd222e2cfa",
+        "title": "Election Results | Voting & Election Information | Commonwealth of Pennsylvania"
+      },
+      "publicResultsRoutes": [
+        "https://www.electionreturns.pa.gov/"
+      ],
+      "formats": [
+        "HTML government delegation; ENR payload blocked"
+      ],
+      "sourceAsOf": null,
+      "mappingIdentifiers": {
+        "election": null,
+        "contest": null,
+        "candidate": null,
+        "note": "Exact vendor payload identifiers not captured; a reviewed mapping is required before ingestion."
+      },
+      "reportingMetrics": [],
+      "certification": "No certification is inferred for Nov3 or from HTTP200. Historical examples retain their own declarations.",
+      "actionableNotes": [
+        "Gov election-results page directly links electionreturns.pa.gov. Native ENR HTTP200 is an Incapsula challenge/denial document, not a valid results page. No challenge execution/bypass."
+      ]
+    },
+    {
+      "state": "RI",
+      "coverageStatus": "official_page_manual",
+      "targetElectionDate": "2026-11-03",
+      "targetResultAvailability": "not_published_in_checked_sources",
+      "governmentLanding": {
+        "requestedUrl": "https://elections.ri.gov/elections/previous-election-results",
+        "finalUrl": "https://elections.ri.gov/elections/previous-election-results",
+        "status": 200,
+        "outcome": "Worked",
+        "checkedAt": "2026-10-12T04:21:08.864625+00:00",
+        "sha256": "163dd46fa78d592d1623eb76772395a5dd65f15c76e4c04e8860596951229850",
+        "title": "Previous Election Results | Board of Elections"
+      },
+      "publicResultsRoutes": [
+        "https://electionresults.ri.gov/results/public/RhodeIsland/elections/RI2026StatewidePrimary",
+        "https://elections.ri.gov/sites/g/files/xkgbur756/files/2026-09/Prim26_Summary.pdf"
+      ],
+      "formats": [
+        "Civix HTML/JS portal; Gov-linked PDF summaries"
+      ],
+      "sourceAsOf": null,
+      "mappingIdentifiers": {
+        "election": "RI2026StatewidePrimary (public route slug)",
+        "contest": null,
+        "candidate": null
+      },
+      "reportingMetrics": [],
+      "certification": "No certification is inferred for Nov3 or from HTTP200. Historical examples retain their own declarations.",
+      "actionableNotes": [
+        "Primary portal fetch200 and government delegation verified. Landing label says September9,2026; do not assume the portal election date without receiving actual metadata. No target Nov3 vote data found."
+      ]
+    },
+    {
+      "state": "SC",
+      "coverageStatus": "official_page_manual",
+      "targetElectionDate": "2026-11-03",
+      "targetResultAvailability": "not_published_in_checked_sources",
+      "governmentLanding": {
+        "requestedUrl": "https://scvotes.gov/elections-statistics/election-results/",
+        "finalUrl": "https://scvotes.gov/elections-statistics/election-results/",
+        "status": 200,
+        "outcome": "Worked",
+        "checkedAt": "2026-10-12T04:21:08.865651+00:00",
+        "sha256": "9640696b09385736b36383cebcca0bf9d8ec73405b2f4370abb5f7501d12e748",
+        "title": "Election Results - SC Votes - South Carolina Election Commission"
+      },
+      "publicResultsRoutes": [
+        "https://www.enr-scvotes.org/SC/126294/"
+      ],
+      "formats": [
+        "Gov-linked Clarity ENR; gzip HTML redirect"
+      ],
+      "sourceAsOf": null,
+      "mappingIdentifiers": {
+        "election": "126294 (Gov-linked statewide primary resource)",
+        "contest": null,
+        "candidate": null
+      },
+      "reportingMetrics": [],
+      "certification": "No certification is inferred for Nov3 or from HTTP200. Historical examples retain their own declarations.",
+      "actionableNotes": [
+        "Gov2026 links primary/runoff/special elections. Public126294 index uses standard gzip; decoded title Redirecting. Exact vote payload not retained yet; no Nov3 votes admitted."
+      ]
+    },
+    {
+      "state": "SD",
+      "coverageStatus": "blocked",
+      "targetElectionDate": "2026-11-03",
+      "targetResultAvailability": "unknown_enr_tls_blocked",
+      "governmentLanding": {
+        "requestedUrl": "https://sdsos.gov/elections-voting/default.aspx",
+        "finalUrl": "https://sdsos.gov/elections-voting/default.aspx",
+        "status": 200,
+        "outcome": "Worked",
+        "checkedAt": "2026-10-12T04:39:07.217494+00:00",
+        "sha256": "9ef12074307601ce7a13c65384678b50ddaa924a56e3abe74ca00728f68d2233",
+        "decodedDocumentSha256": "9ef12074307601ce7a13c65384678b50ddaa924a56e3abe74ca00728f68d2233",
+        "title": "Elections & Voting: South Dakota Secretary of State South Dakota Legislative District Map South Dakota Legislative District Map"
+      },
+      "publicResultsRoutes": [
+        "https://electionresults.sd.gov/Default.aspx"
+      ],
+      "formats": [
+        "Gov-linked ENR; format unavailable"
+      ],
+      "sourceAsOf": null,
+      "mappingIdentifiers": {
+        "election": null,
+        "contest": null,
+        "candidate": null,
+        "note": "Exact vendor payload identifiers not captured; a reviewed mapping is required before ingestion."
+      },
+      "reportingMetrics": [],
+      "certification": "No certification is inferred for Nov3 or from HTTP200. Historical examples retain their own declarations.",
+      "actionableNotes": [
+        "Correct Gov elections home explicitly delegates ENR. ENR normalTLS failed CERTIFICATE_VERIFY_FAILED: certificate expired. Earlier guessed archive path returned a404document with HTTP200; it is excluded as evidence of results. No TLS override."
+      ]
+    },
+    {
+      "state": "TN",
+      "coverageStatus": "blocked",
+      "targetElectionDate": "2026-11-03",
+      "targetResultAvailability": "unknown_access_blocked",
+      "governmentLanding": {
+        "requestedUrl": "https://sos.tn.gov/elections/results",
+        "status": 403,
+        "outcome": "Blocked",
+        "checkedAt": "2026-10-12T04:21:09.199879+00:00",
+        "error": "HTTP Error 403: Forbidden"
+      },
+      "publicResultsRoutes": [
+        "https://sos.tn.gov/elections/results",
+        "https://sos.tn.gov/elections/services/election-results"
+      ],
+      "formats": [
+        "format unverified"
+      ],
+      "sourceAsOf": null,
+      "mappingIdentifiers": {
+        "election": null,
+        "contest": null,
+        "candidate": null,
+        "note": "Exact vendor payload identifiers not captured; a reviewed mapping is required before ingestion."
+      },
+      "reportingMetrics": [],
+      "certification": "No certification is inferred for Nov3 or from HTTP200. Historical examples retain their own declarations.",
+      "actionableNotes": [
+        "Canonical and alternate official results paths native403; web403 too. No source publication, vote totals or identifiers claimed."
+      ]
+    },
+    {
+      "state": "TX",
+      "coverageStatus": "usable_feed/download",
+      "targetElectionDate": "2026-11-03",
+      "targetResultAvailability": "not_published_in_checked_sources",
+      "governmentLanding": {
+        "requestedUrl": "https://www.sos.texas.gov/elections/historical/elections-results-archive.shtml",
+        "finalUrl": "https://www.sos.texas.gov/elections/historical/elections-results-archive.shtml",
+        "status": 200,
+        "outcome": "Worked",
+        "checkedAt": "2026-10-12T04:21:09.367695+00:00",
+        "sha256": "789b82e748cf48636e559e9e78345cb03883c4e879e51ecd963220e65493936d",
+        "title": "Election Results Archive"
+      },
+      "publicResultsRoutes": [
+        "https://goelect.txelections.civixapps.com/ivis-enr-ui/races",
+        "https://electionresults.sos.state.tx.us/results.html"
+      ],
+      "formats": [
+        "Gov-linked Civix SPA; state-hosted parseable HTML vote tables"
+      ],
+      "sourceAsOf": null,
+      "mappingIdentifiers": {
+        "election": "HTML collapse58315 primary-party group (DOM identifier, not global ID)",
+        "contest": "U. S. SENATOR label; no stable numerical race ID recorded",
+        "candidate": null
+      },
+      "reportingMetrics": [
+        {
+          "kind": "polling_locations_reporting",
+          "publisherValue": "100%",
+          "numerator": null,
+          "denominator": null,
+          "notVotesCountedPercent": true
+        }
+      ],
+      "certification": "No certification is inferred for Nov3 or from HTTP200. Historical examples retain their own declarations.",
+      "actionableNotes": [
+        "Current archive directly delegates2025-current Civix. State-hosted results.html actually displays May26,2026 primary runoff and updated05/27/2026 09:20AM. The clock lacks timezone and certification is not inferred. Republican Senate table has two publisher-listed candidates/ballots cast; not Nov3 results."
+      ]
+    },
+    {
+      "state": "UT",
+      "coverageStatus": "official_page_manual",
+      "targetElectionDate": "2026-11-03",
+      "targetResultAvailability": "not_published_in_checked_sources",
+      "governmentLanding": {
+        "requestedUrl": "https://vote.utah.gov/election-results-data-historical-information/",
+        "finalUrl": "https://vote.utah.gov/election-results-data-historical-information/",
+        "status": 200,
+        "outcome": "Worked",
+        "checkedAt": "2026-10-12T04:21:09.475231+00:00",
+        "sha256": "0f98f6d4c2923cc25e2ffafaeafaa68a9b816059ba00b1e81a786e4d8e7f62d6",
+        "title": "Election Results, Data & Historical Information - Utah Voter Information"
+      },
+      "publicResultsRoutes": [
+        "https://electionresults.utah.gov/results/public/Utah",
+        "https://vote.utah.gov/historical-election-results/"
+      ],
+      "formats": [
+        "Civix HTML/JS portal; historical signed canvass PDF/XLSX links"
+      ],
+      "sourceAsOf": null,
+      "mappingIdentifiers": {
+        "election": null,
+        "contest": null,
+        "candidate": null,
+        "note": "Exact vendor payload identifiers not captured; a reviewed mapping is required before ingestion."
+      },
+      "reportingMetrics": [],
+      "certification": "No certification is inferred for Nov3 or from HTTP200. Historical examples retain their own declarations.",
+      "actionableNotes": [
+        "Healthy public portal redirects to /results/public/Utah. Official historical page links2024general signed PDF and older Excel returns. Exact current public vote payload not captured; no target results accepted."
+      ]
+    },
+    {
+      "state": "VT",
+      "coverageStatus": "usable_feed/download",
+      "targetElectionDate": "2026-11-03",
+      "targetResultAvailability": "not_published_in_checked_sources",
+      "governmentLanding": {
+        "requestedUrl": "https://sos.vermont.gov/elections/election-info-resources/elections-results-data/",
+        "finalUrl": "https://sos.vermont.gov/elections/election-info-resources/elections-results-data",
+        "status": 200,
+        "outcome": "Worked",
+        "checkedAt": "2026-10-12T04:21:09.607887+00:00",
+        "sha256": "7570272ff7ddc437af86e63e04bf02aab0413abe387d42c8d2faf2fd54d9df42",
+        "title": "Election Results | Secretary of State"
+      },
+      "publicResultsRoutes": [
+        "https://electionresults.vermont.gov/",
+        "https://static.electionresults.vermont.gov/elections/elections.json",
+        "https://static.electionresults.vermont.gov/elections/a18f77e0-89f8-4a01-8d97-61a7c75ba200.json",
+        "https://static.electionresults.vermont.gov/elections/a18f77e0-89f8-4a01-8d97-61a7c75ba200-f-20261009195709.json"
+      ],
+      "formats": [
+        "public JSON directory, metadata and per-office category vote data; Gov-linked canvass PDF/XLSX"
+      ],
+      "sourceAsOf": null,
+      "mappingIdentifiers": {
+        "election": {
+          "id": 7514,
+          "guid": "a18f77e0-89f8-4a01-8d97-61a7c75ba200"
+        },
+        "contest": "electionGuid + party.pid + office.oid (oid4 Representative to Congress)",
+        "candidate": "rc/wc cid with primary-party/office namespace; cid0 is aggregate",
+        "townDistrict": "tid + repd; tid0 STATE WIDE is summary"
+      },
+      "reportingMetrics": [
+        {
+          "kind": "towns_reporting",
+          "reported": 247,
+          "total": 247,
+          "percent": 100,
+          "notVotesCountedPercent": true
+        }
+      ],
+      "certification": "No certification is inferred for Nov3 or from HTTP200. Historical examples retain their own declarations.",
+      "actionableNotes": [
+        "Gov landing delegates portal; public client declares staticGov endpoint. Actual2026Aug11 primary metadata says isOfficial=true, exact IDs and vote bytes captured. Nov3 directory entry has isOfficial=false and isDefault=false; directory entry alone is not publication. STATE WIDE tid0 summary and cd display tables must not be added to town tallies."
+      ]
+    },
+    {
+      "state": "VA",
+      "coverageStatus": "official_page_manual",
+      "targetElectionDate": "2026-11-03",
+      "targetResultAvailability": "not_published_in_checked_sources",
+      "governmentLanding": {
+        "requestedUrl": "https://www.elections.virginia.gov/resultsreports/election-results/",
+        "finalUrl": "https://www.elections.virginia.gov/resultsreports/election-results/",
+        "status": 200,
+        "outcome": "Worked",
+        "checkedAt": "2026-10-12T04:21:09.664864+00:00",
+        "sha256": "f02dc9d8da75dff184dfabb7eda7e5397b75edd552f74e1e8d9bdd811a988ae1",
+        "title": "Virginia Dept. of Elections: Election Results"
+      },
+      "publicResultsRoutes": [
+        "https://enr.elections.virginia.gov/results/public/virginia/elections/2026-August-Democratic-Primary",
+        "https://enr.elections.virginia.gov/results/public/virginia/2025-November-General"
+      ],
+      "formats": [
+        "Gov-owned Civix HTML/JS; public API /results/public/api; exact vote payload unverified"
+      ],
+      "sourceAsOf": null,
+      "mappingIdentifiers": {
+        "election": "2026-August-Democratic-Primary / 2025-November-General source route slugs",
+        "contest": null,
+        "candidate": null
+      },
+      "reportingMetrics": [],
+      "certification": "No certification is inferred for Nov3 or from HTTP200. Historical examples retain their own declarations.",
+      "actionableNotes": [
+        "Gov page declares JSON downloads and labels completed primary elections Official. It explicitly distinguishes local certification from State Board certification. Public API/CDN base strings are observed in official client; no admin API queried. No target Nov3 data found."
+      ]
+    },
+    {
+      "state": "WA",
+      "coverageStatus": "usable_feed/download",
+      "targetElectionDate": "2026-11-03",
+      "targetResultAvailability": "not_published_in_checked_sources",
+      "governmentLanding": {
+        "requestedUrl": "https://www.sos.wa.gov/elections/data-research/election-data-and-maps/election-results-and-voters-pamphlets",
+        "finalUrl": "https://www.sos.wa.gov/elections/data-research/election-data-and-maps/election-results-and-voters-pamphlets",
+        "status": 200,
+        "outcome": "Worked",
+        "checkedAt": "2026-10-12T04:21:09.718492+00:00",
+        "sha256": "5c4469bc2861a37922e57e886f025a1ef030ea683f3ae79f2aa019013059cef8",
+        "title": "Election Results and Voters' Pamphlets | WA Secretary of State"
+      },
+      "publicResultsRoutes": [
+        "https://results.votewa.gov/results/public/washington/elections/20260804",
+        "https://www.sos.wa.gov/elections/data-research/election-data-and-maps/election-results-and-voters-pamphlets/2024-primary-election"
+      ],
+      "formats": [
+        "Civix HTML/JS; actually downloaded official XLSX and signed PDF"
+      ],
+      "sourceAsOf": null,
+      "mappingIdentifiers": {
+        "election": "20260804 public primary route; historical example2024-08-06",
+        "contest": "XLSX RAW source SeqNo2005 = U.S.Senator, per historical source; Lands label",
+        "candidate": "XLSX BallotOrder/sourceOptionLabel are per-contest keys, not global person IDs"
+      },
+      "reportingMetrics": [],
+      "certification": "No certification is inferred for Nov3 or from HTTP200. Historical examples retain their own declarations.",
+      "actionableNotes": [
+        "Gov2026 row has Nov3 date but no Results link; Aug4 primary portal/data links exist. Full actual2024primary Senate and all-option PublicLands initial/recount recordings retained, all independent sums/certificate values checked. Do not use two-row recount table as whole contest, nor over/under-inclusive Totals as candidate-vote denominator."
+      ]
+    },
+    {
+      "state": "WV",
+      "coverageStatus": "official_page_manual",
+      "targetElectionDate": "2026-11-03",
+      "targetResultAvailability": "not_published_in_checked_sources",
+      "governmentLanding": {
+        "requestedUrl": "https://sos.wv.gov/elections/election-data/historical-election-results-and-turnout",
+        "finalUrl": "https://sos.wv.gov/elections/election-data/historical-election-results-and-turnout",
+        "status": 200,
+        "outcome": "Worked",
+        "checkedAt": "2026-10-12T04:21:09.828771+00:00",
+        "sha256": "e098508bed3ea281f039f8ecec601c0285d5d6469ff5a749cb5ace36fb5897fb",
+        "title": "Historical Election Results and Turnout | WV Secretary of State"
+      },
+      "publicResultsRoutes": [
+        "https://results.enr.clarityelections.com/WV/126209/web.345435/#/summary"
+      ],
+      "formats": [
+        "Gov-linked Clarity HTML/JS; advertised JSON and detailxml.zip reports"
+      ],
+      "sourceAsOf": null,
+      "mappingIdentifiers": {
+        "election": "126209 (Gov-linked2026primary)",
+        "contest": "client field contestId observed; value not captured",
+        "candidate": null
+      },
+      "reportingMetrics": [],
+      "certification": "No certification is inferred for Nov3 or from HTTP200. Historical examples retain their own declarations.",
+      "actionableNotes": [
+        "Gov2026 primary delegation verified; HTML200 and public client report filenames observed. config.json on web version returned404; report base URI/data endpoint unresolved, no automatic vote acceptance. No Nov3 link found."
+      ]
+    },
+    {
+      "state": "WI",
+      "coverageStatus": "official_page_manual",
+      "targetElectionDate": "2026-11-03",
+      "targetResultAvailability": "not_published_in_checked_sources",
+      "governmentLanding": {
+        "requestedUrl": "https://myvote.wi.gov/en-us/Election-Results",
+        "finalUrl": "https://myvote.wi.gov/en-us/Election-Results",
+        "status": 200,
+        "outcome": "Worked",
+        "checkedAt": "2026-10-12T04:39:09.709745+00:00",
+        "sha256": "b9890765562241aa3fef647db233b033970a82930ddf83bd50b00cc825fa0432",
+        "decodedDocumentSha256": "b9890765562241aa3fef647db233b033970a82930ddf83bd50b00cc825fa0432",
+        "title": "Election Results"
+      },
+      "publicResultsRoutes": [
+        "https://myvote.wi.gov/en-us/Election-Results",
+        "https://elections.wi.gov/elections/election-results"
+      ],
+      "formats": [
+        "official guidance; county election-night pages, statewide canvass files after certification"
+      ],
+      "sourceAsOf": null,
+      "mappingIdentifiers": {
+        "election": null,
+        "contest": null,
+        "candidate": null,
+        "note": "Exact vendor payload identifiers not captured; a reviewed mapping is required before ingestion."
+      },
+      "reportingMetrics": [],
+      "certification": "No certification is inferred for Nov3 or from HTTP200. Historical examples retain their own declarations.",
+      "actionableNotes": [
+        "MyVote normal fetch200 explicitly states no statewide unofficial election-night system/central official website; county clerks publish local unofficial returns. WEC statewide results page native403. A county aggregation would need verified complete county coverage; no statewide percent derived."
+      ]
+    },
+    {
+      "state": "WY",
+      "coverageStatus": "official_page_manual",
+      "targetElectionDate": "2026-11-03",
+      "targetResultAvailability": "not_published_in_checked_sources",
+      "governmentLanding": {
+        "requestedUrl": "https://sos.wyo.gov/Elections/ElectionResults.aspx",
+        "finalUrl": "https://sos.wyo.gov/Elections/ElectionResults.aspx",
+        "status": 200,
+        "outcome": "Worked",
+        "checkedAt": "2026-10-12T04:21:10.021245+00:00",
+        "sha256": "c260e706b04f5421fc0baf4a764a9ee946bef078461ec09a2f0f08f1729c2b16",
+        "title": "Wyoming Secretary of State"
+      },
+      "publicResultsRoutes": [
+        "https://sos.wyo.gov/Elections/Docs/2026/2026PrimaryResults.aspx"
+      ],
+      "formats": [
+        "Gov-linked statewide/precinct PDF summaries and ballot-cast PDFs"
+      ],
+      "sourceAsOf": null,
+      "mappingIdentifiers": {
+        "election": null,
+        "contest": null,
+        "candidate": null,
+        "note": "Exact vendor payload identifiers not captured; a reviewed mapping is required before ingestion."
+      },
+      "reportingMetrics": [],
+      "certification": "No certification is inferred for Nov3 or from HTTP200. Historical examples retain their own declarations.",
+      "actionableNotes": [
+        "Gov2026 index currently links only primary. Actual primary page links statewide and county documents. Initial guessed summary filename404 is retained as a failed discovery and not promoted to a source. No Nov3 document found."
+      ]
+    }
+  ],
+  "primaryHistoricalRecordingsOnly": true,
+  "contactsRetained": false,
+  "noWinnerOrProjectionAdded": true,
+  "appParserOrDTOChanged": false,
+  "databaseWrites": 0
+}

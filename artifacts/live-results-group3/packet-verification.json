@@ -1,0 +1,477 @@
+{
+  "outcome": "Worked",
+  "states": 16,
+  "coverageCounts": {
+    "usable_feed/download": 3,
+    "official_page_manual": 10,
+    "blocked": 3
+  },
+  "general2026ResultRecordsAdmitted": 0,
+  "sourceAsOfInvented": 0,
+  "contactsRetained": 0,
+  "actualDownloadHashesVerified": [
+    "wa-2024-recount-all-candidates.xlsx",
+    "wa-2024-recount-certification.pdf",
+    "wa-2024-original-certification.pdf",
+    "wa-2024-congressional-results.xlsx",
+    "vt-election-directory.json"
+  ],
+  "correctionCandidateVoteTotals": [
+    1903073,
+    1903115
+  ],
+  "certifiedSenateCandidateVoteTotal": 1948716,
+  "vtSummaryExclusionConservation": true,
+  "files": [
+    {
+      "file": ".gitattributes",
+      "bytes": 63,
+      "sha256": "b402664914073d0dee21a32e6395f653d3b74370d21349a7a4b3c7de1b061b27"
+    },
+    {
+      "file": ".gitignore",
+      "bytes": 13,
+      "sha256": "32dae3052f331ee34d628ef535709b301259a45df7c7522c4d35dcf49873f00b"
+    },
+    {
+      "file": "derive-tx-recording.py",
+      "bytes": 1941,
+      "sha256": "9fc52b86c4fac8e7a6b843a80316e8ca1847be046ae88fc6e33c951fb6c3c75c"
+    },
+    {
+      "file": "derive-vt-identifiers.py",
+      "bytes": 2989,
+      "sha256": "2c8af382dd0950e0de691a0bfd159855099a5684650d71e28cfc958cd1699d2a"
+    },
+    {
+      "file": "derive-wa-recordings.py",
+      "bytes": 6370,
+      "sha256": "d7c6997db7471b12641d633f74b3c878308f01433da34f87fec720f25ee7b8e2"
+    },
+    {
+      "file": "discover-assets.py",
+      "bytes": 1910,
+      "sha256": "e0147897883ee5e296ab23f5b729218e62cef540d2415f8f5599392fe054412b"
+    },
+    {
+      "file": "download-examples.py",
+      "bytes": 1654,
+      "sha256": "04f718586e6954742b3b29c6bc2a2a2c6e18508a5b379f016f734997131e0079"
+    },
+    {
+      "file": "fetch-followups.py",
+      "bytes": 1584,
+      "sha256": "e09711fcc678e55226aa08f82d8041e8b2c8c26b4842136aedf2d0741d34d3d8"
+    },
+    {
+      "file": "fetch-pages.py",
+      "bytes": 4422,
+      "sha256": "c50ebf2bc75dd23d537f89e1c6ac2e4e7e0f038bb0cda746ded080020527674c"
+    },
+    {
+      "file": "fetch-public-data.py",
+      "bytes": 1479,
+      "sha256": "57a56c25f8a881bb578ea84b9336d4d0b03df3a8d92d5781dea3a151ddfefff7"
+    },
+    {
+      "file": "fetch-remaining-context.py",
+      "bytes": 1165,
+      "sha256": "dfd63a5462fff7121b2d05954bb9fdeba7d5123f99d3df54b05717f39aa7a425"
+    },
+    {
+      "file": "fetch-vt-federal.py",
+      "bytes": 1326,
+      "sha256": "2b99efc3c5343fd8332fc6001f05de7e7cbbb0e92bdb9d760b51fd2c3290fe9a"
+    },
+    {
+      "file": "finalize-inventory.py",
+      "bytes": 12845,
+      "sha256": "f85a15c97793c787c599e5ed284100dbcdd6a02ee6caf418a6a522d3f18993d1"
+    },
+    {
+      "file": "inspect-public-scripts.py",
+      "bytes": 1886,
+      "sha256": "bbfac83378c46c4ca3da722a82efa9e1f5220fc88bc6695096cfe0ad5cba5ef5"
+    },
+    {
+      "file": "public-route-context.py",
+      "bytes": 815,
+      "sha256": "4c228b2c13368d8a6660666526a6643b121c25b182dfe3fdbd77a579d676862a"
+    },
+    {
+      "file": "receipts/civix-election-route-context.json",
+      "bytes": 314,
+      "sha256": "453596112f1c909a4236a9c6528d38d6e825dc4187d86026de5e332fbdf9a2bd"
+    },
+    {
+      "file": "receipts/Civix-public-script.json",
+      "bytes": 847,
+      "sha256": "b8e67ecfccacd49c68d007931edf83601743d19b1db02367b09f0339ab3519dd"
+    },
+    {
+      "file": "receipts/example-downloads.json",
+      "bytes": 3178,
+      "sha256": "29bfff72856d6dc0df98c1107479dcaab897182a40027b1e651abede63f96890"
+    },
+    {
+      "file": "receipts/OH-landing.json",
+      "bytes": 358,
+      "sha256": "0793f61db4d2cb0bd91494b24e2701fa6ccb33cf314bfbaee6fc5dda7740a020"
+    },
+    {
+      "file": "receipts/OK-landing.json",
+      "bytes": 5616,
+      "sha256": "06b89c4cb7546167160a9cdff7ddfe14337bf25d6ee24be5227b1b911c49a2df"
+    },
+    {
+      "file": "receipts/OK-primary-landing.json",
+      "bytes": 4850,
+      "sha256": "a2ebbde7cbfb3f8c2276fdea6183bbdc880ae724eea49812d8fbccedfdcc0d91"
+    },
+    {
+      "file": "receipts/OR-current-landing.json",
+      "bytes": 3142,
+      "sha256": "f44d2b96ba4ac3d6aa68211bc5f772ea8b57159c882ba453bdc4e1d4cded25b0"
+    },
+    {
+      "file": "receipts/OR-enr-landing.json",
+      "bytes": 3069,
+      "sha256": "9dd7cb27da8cddd5cf3593ee7ada695b8f38bab1b781802de8f367407a4934b9"
+    },
+    {
+      "file": "receipts/OR-landing.json",
+      "bytes": 6365,
+      "sha256": "dbf99e6247e7b141f6424fcc4f2736fe3e0278434ab3eb396986fe97b262a9a1"
+    },
+    {
+      "file": "receipts/PA-enr-landing.json",
+      "bytes": 730,
+      "sha256": "4d5b8777231b18539b829e73713c9bc05ce5be02bae287c47d416b6480ab33a5"
+    },
+    {
+      "file": "receipts/PA-landing.json",
+      "bytes": 4843,
+      "sha256": "a26ede730a3d1843bfb6a7385e60f0716ed5311b12042b7b3a04effc1530810e"
+    },
+    {
+      "file": "receipts/public-data-fetches.json",
+      "bytes": 1918,
+      "sha256": "fa67faad80f8d093fce7e6a74236289068e565c86c20e5d4cf8306bd4485f17b"
+    },
+    {
+      "file": "receipts/RI-asset-discovery.json",
+      "bytes": 547,
+      "sha256": "7f6a2ddaa6cff393a57000a6a8cbc77b2bd74ed11cbb4565f53d654d05e5bf3e"
+    },
+    {
+      "file": "receipts/RI-enr-landing.json",
+      "bytes": 946,
+      "sha256": "161b3412c61ecad35f4ef2289cd532b554be14b1f27756048c6f500cf6205b4a"
+    },
+    {
+      "file": "receipts/RI-landing.json",
+      "bytes": 12872,
+      "sha256": "22bb11da638238b59eb68d187d245a1aa3baaefa5e43647500a485f85a53eb05"
+    },
+    {
+      "file": "receipts/SC-asset-discovery.json",
+      "bytes": 524,
+      "sha256": "59671e207982b9b7e6e6ce3c9a2f51bdb1283e97e96d2bec11c28b6e5b6e376a"
+    },
+    {
+      "file": "receipts/SC-enr-landing.json",
+      "bytes": 593,
+      "sha256": "83e4edcdace35ccffc9c8563103cd452751e55d4d4c4d8c90f38cb4df0749cb6"
+    },
+    {
+      "file": "receipts/SC-gzip-decoded-landing.json",
+      "bytes": 742,
+      "sha256": "025f9d2c6b36e69811de310bc82458322e7a45c4e52133441ae873415ea06e5d"
+    },
+    {
+      "file": "receipts/SC-landing.json",
+      "bytes": 19829,
+      "sha256": "d00bfeab13c4edfe189d54c721d98fa6807b1044e2255d36a4cc30746436731d"
+    },
+    {
+      "file": "receipts/SD-enr-landing.json",
+      "bytes": 405,
+      "sha256": "9226d7cec69d6dab57116a085876c5906b1380c8c5bfdd0b8948b2c020cab8fa"
+    },
+    {
+      "file": "receipts/SD-home-landing.json",
+      "bytes": 16632,
+      "sha256": "9b2e749770a503466be1e1480ce0119cb9464f30f63a848628173cfc09353a2e"
+    },
+    {
+      "file": "receipts/SD-landing.json",
+      "bytes": 10438,
+      "sha256": "a4f0c90482eff05c10cfebd878ab4776dbcfdf3c26eb6777453cfa3c19ebe078"
+    },
+    {
+      "file": "receipts/TN-landing.json",
+      "bytes": 334,
+      "sha256": "7936a846f91f862fde982fade4548b77da60b14bc0ca2dc1923089f4dc774c4f"
+    },
+    {
+      "file": "receipts/TN-results-alt-landing.json",
+      "bytes": 348,
+      "sha256": "2068961d90d70b798c149af816253d156d1a0d6a101819b68560f41a608b1841"
+    },
+    {
+      "file": "receipts/TX-asset-discovery.json",
+      "bytes": 4143,
+      "sha256": "34727576e5f0274df223ad54fabb1dbe7bf2f8784402e3a7e89bf1f6dacd8918"
+    },
+    {
+      "file": "receipts/TX-enr-landing.json",
+      "bytes": 1080,
+      "sha256": "06f02c436c6487dc4f15e3e2d23ba6223598e0f02dedd4dd29d07e8348c03b59"
+    },
+    {
+      "file": "receipts/TX-landing.json",
+      "bytes": 1588,
+      "sha256": "4f964dc14053d503cc97142bed1971e27d2b0f3eb16e2b1345a2a78bd11bdc97"
+    },
+    {
+      "file": "receipts/TX-legacy-current-landing.json",
+      "bytes": 1330,
+      "sha256": "3bd1c17e29601976b6da33917cec832dcb850a2032a673a616d8776e2f95f419"
+    },
+    {
+      "file": "receipts/UT-asset-discovery.json",
+      "bytes": 456,
+      "sha256": "0488e16d527f25b6df59b3c9a731d5b53729c6656a5458e789f11979ef6771f1"
+    },
+    {
+      "file": "receipts/UT-enr-landing.json",
+      "bytes": 791,
+      "sha256": "68a106918b2225ce50b6837740d11bc1003906be66e5f8878c7df8722bfe8c4c"
+    },
+    {
+      "file": "receipts/UT-historical-landing.json",
+      "bytes": 5674,
+      "sha256": "1680882e45ce843acaad220e8d8667f094d0d08da695ba213586c35c10530006"
+    },
+    {
+      "file": "receipts/UT-landing.json",
+      "bytes": 2482,
+      "sha256": "a9bf61df8f3c017e2467a0459ebcbec7346523d2ef157b8401480617d68e9073"
+    },
+    {
+      "file": "receipts/VA-asset-discovery.json",
+      "bytes": 624,
+      "sha256": "b158e4a845db241a91ea16fda39d3a50c52680747069c6b4b1f1d6c145b2f572"
+    },
+    {
+      "file": "receipts/VA-enr-landing.json",
+      "bytes": 968,
+      "sha256": "5c7c71a7e0de6ee61ff4da3311b4a10e32acd1708c9b3bcd7d71125c8cef720f"
+    },
+    {
+      "file": "receipts/VA-landing.json",
+      "bytes": 9026,
+      "sha256": "21794aff5263396fe99388499d37d2921d042f734f8782686fdc31b2412abfab"
+    },
+    {
+      "file": "receipts/VT-asset-discovery.json",
+      "bytes": 439,
+      "sha256": "8d32161fe83b67b010303df2b3298fa0edb46250e8955cbdee81659f26fc04e7"
+    },
+    {
+      "file": "receipts/VT-enr-landing.json",
+      "bytes": 757,
+      "sha256": "9bd1a95b6e52ef7fd66d8b54c2ff9ca382c95637e3ada3ae32d52a1c3aada179"
+    },
+    {
+      "file": "receipts/vt-federal-fetch.json",
+      "bytes": 659,
+      "sha256": "5560e7f7968d94d9473bb66ddeae75d958a498586f154efb779e915a844a2c5f"
+    },
+    {
+      "file": "receipts/vt-identifier-conservation.json",
+      "bytes": 5643,
+      "sha256": "b262a40397728527fc917e3850aa2e014fef0e1e6092ed6ba0cc6f68256bd18a"
+    },
+    {
+      "file": "receipts/VT-landing.json",
+      "bytes": 20832,
+      "sha256": "af4f1f2cea9ec9ac13bd6009937727cbc473c97ff371c3310e7890382f09a3fa"
+    },
+    {
+      "file": "receipts/VT-public-script.json",
+      "bytes": 737,
+      "sha256": "f998f2b099803439e2c7518c573fed0f6719edfb8fcf93c26cd4a53268c72e64"
+    },
+    {
+      "file": "receipts/WA-asset-discovery.json",
+      "bytes": 501,
+      "sha256": "dd542a7c5e495b63db5c009e7529a38aad3dee2bc6f64ad1a04eab4721169faf"
+    },
+    {
+      "file": "receipts/wa-certified-senate-conservation.json",
+      "bytes": 1075,
+      "sha256": "80b86635e1cfc0a5cb3ebc2bd6c30fff9d9d69e3193e96517b96748544513a2a"
+    },
+    {
+      "file": "receipts/wa-correction-conservation.json",
+      "bytes": 2157,
+      "sha256": "e65854182103fc3cfdab595d3eeb66dae2e94524d1bf35a9c2d5332beb1269ff"
+    },
+    {
+      "file": "receipts/WA-correction-landing.json",
+      "bytes": 10885,
+      "sha256": "d15049b2f51d1292d21dc648c98b5599952c51cdf8888d31982261b2cbdbed32"
+    },
+    {
+      "file": "receipts/WA-enr-landing.json",
+      "bytes": 893,
+      "sha256": "99a29bbc68e4b41ed4623aeaaaa7b936ab2e5ba0e92f51f5a4ef5c33fd2d104d"
+    },
+    {
+      "file": "receipts/WA-landing.json",
+      "bytes": 26153,
+      "sha256": "c64053eb2f51c1a1f7ba90e86ffaa0d7431fb4b23c4d258fd48e55dcb8557601"
+    },
+    {
+      "file": "receipts/WI-guidance-landing.json",
+      "bytes": 3539,
+      "sha256": "b3f154eccf3ab246c8ef0cf638916d2e86239200e732cf7014b749d73c2bad24"
+    },
+    {
+      "file": "receipts/WI-landing.json",
+      "bytes": 349,
+      "sha256": "40b8245c58b08751408063b3acd319c6416956f5eba7fd9ab4f2039241fd374a"
+    },
+    {
+      "file": "receipts/WV-asset-discovery.json",
+      "bytes": 549,
+      "sha256": "d1ca446f4471fc976b4c8bb3f9e59fd0a3223ae5d3fd78d13b146f738b663042"
+    },
+    {
+      "file": "receipts/WV-enr-landing.json",
+      "bytes": 1132,
+      "sha256": "d22de1cd385fd7e297a1f48f95c657a172f34fa62739ad86288501e94ebde591"
+    },
+    {
+      "file": "receipts/WV-landing.json",
+      "bytes": 9445,
+      "sha256": "78d822e57ea851d8ec699624d8e13b7c1d2361c711b92dd700efc9d6d6ce5b10"
+    },
+    {
+      "file": "receipts/WV-public-script.json",
+      "bytes": 1771,
+      "sha256": "f9c4704f000ae5ca75d6dd06d3ac3cd9921cc68f9130dc9b5e40fa2de48905c2"
+    },
+    {
+      "file": "receipts/WY-2026-landing.json",
+      "bytes": 388,
+      "sha256": "bfcb998f0c1a7ec8c2cdc0e693b3c226efae49357fdca72210663ff1c04066a6"
+    },
+    {
+      "file": "receipts/WY-landing.json",
+      "bytes": 6611,
+      "sha256": "545f40c5359b04ac8048b612cf9239d273d79ba0631fdd8311fb8f8116ede37c"
+    },
+    {
+      "file": "receipts/WY-primary-landing.json",
+      "bytes": 11757,
+      "sha256": "0da70ccc4dd21da35da6231f72016e675a82dd5e74f4ce83f0d8e74a5b771f71"
+    },
+    {
+      "file": "recordings/tx-2026-runoff-senate-fragment.html",
+      "bytes": 400,
+      "sha256": "37f9fd76a5824c3ecda8929ca87e600f64e3a401720aa7922bba9c19319ff310"
+    },
+    {
+      "file": "recordings/tx-2026-runoff-senate.json",
+      "bytes": 1260,
+      "sha256": "b7befd1098afe6009089f3006c344b060f2405838d0c0ccafc24877e7f5d3b50"
+    },
+    {
+      "file": "recordings/vt-2026-primary-federal.json",
+      "bytes": 525432,
+      "sha256": "6b35d122db96c4eb15240d131467e3e90c25057b202f33c1fb84128a273f51a2"
+    },
+    {
+      "file": "recordings/vt-2026-primary.json",
+      "bytes": 120125,
+      "sha256": "4b21d95d833da4525984f84bfde1429b83ab43ff5053f8bc67516df50129b3ec"
+    },
+    {
+      "file": "recordings/vt-election-directory.json",
+      "bytes": 70195,
+      "sha256": "aca4acd1fff0a075742dbab4c8b9b918e04ba3717355449c15522e13da02fe04"
+    },
+    {
+      "file": "recordings/wa-2024-certified-senate.json",
+      "bytes": 161245,
+      "sha256": "f5f276d82301b6230525b2c5e364c1ed4e99fa976878ef2b0b46d9690c348d74"
+    },
+    {
+      "file": "recordings/wa-2024-congressional-results.xlsx",
+      "bytes": 306125,
+      "sha256": "380e54147db4068f16d1f1339ae274c680bfbb8bc2699b77d27d12386ddd8a5b"
+    },
+    {
+      "file": "recordings/wa-2024-lands-after.json",
+      "bytes": 3859,
+      "sha256": "a34ba13a2ac8d2ad2eb8795f284995482695e36d59cbb2fa09971c9e818ef9b3"
+    },
+    {
+      "file": "recordings/wa-2024-lands-before.json",
+      "bytes": 3850,
+      "sha256": "1d0a84cf4727c544ae260952ad7fb40bab33187b6c7c6a5f082dff45c399a206"
+    },
+    {
+      "file": "recordings/wa-2024-original-certification.pdf",
+      "bytes": 1376836,
+      "sha256": "f75e558434a6633786614cc3b2696916bf81d651c79d4a0868104ca8546849ac"
+    },
+    {
+      "file": "recordings/wa-2024-recount-all-candidates.xlsx",
+      "bytes": 28776,
+      "sha256": "1d11cc471c4e6bfb62f690cbfd8a248cd649989acc3d479273809316d8f3d466"
+    },
+    {
+      "file": "recordings/wa-2024-recount-certification.pdf",
+      "bytes": 168277,
+      "sha256": "f9b03babc54a1f108c13bab5a02a565d5bac7fa6a7a11a4f43cd7f0ec02d7949"
+    },
+    {
+      "file": "recordings/wa-original-certification-page0.png",
+      "bytes": 200728,
+      "sha256": "35a88cb92b2e97d5948e3a3c3149d9bb418994eb9eca5d105906e60687193fa3"
+    },
+    {
+      "file": "recordings/wa-recount-certification-page0.png",
+      "bytes": 254012,
+      "sha256": "a28db3179115d957ba15ac5fa6c094e80f587251ac711d8f9e88dd9efab5686e"
+    },
+    {
+      "file": "RECORDINGS.md",
+      "bytes": 3366,
+      "sha256": "95a68076d300f2fe7c65b56b1a3e894d3c9237d48af4045cac3fd1ae4d8bd436"
+    },
+    {
+      "file": "REGISTRY.md",
+      "bytes": 1127,
+      "sha256": "30ffab07e131e0806e838b1cde70e2f7213f9a1c1cc92c0b2639bebd7c734fdd"
+    },
+    {
+      "file": "REPORT.md",
+      "bytes": 6389,
+      "sha256": "d37e705e875b80eb3f80ca8c4d42741142cda0be8062016f67fcfeb2d8935ff3"
+    },
+    {
+      "file": "source-inventory.json",
+      "bytes": 27448,
+      "sha256": "6e85652c26925df7d6dad8654310b96a3a65d96628949914671a3e7d60b9ca4d"
+    },
+    {
+      "file": "verify-packet.py",
+      "bytes": 2937,
+      "sha256": "809854cb170e643f6e6ba9068372ea0fb87aff82204b6e188c1ff82495f8125a"
+    }
+  ]
+}
