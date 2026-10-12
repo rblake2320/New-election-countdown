@@ -35,7 +35,7 @@ export function CandidateCard({ candidate, onClick, className }: CandidateCardPr
     >
       <CardContent className="p-0 flex flex-col h-full">
         {/* Photo Placeholder */}
-        <div className="relative h-32 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 flex items-center justify-center rounded-t-lg overflow-hidden">
+        <div className="relative h-32 bg-linear-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 flex items-center justify-center rounded-t-lg overflow-hidden">
           <User className="h-16 w-16 text-gray-400 dark:text-gray-600" />
           
           {/* Winner Badge */}
@@ -53,7 +53,7 @@ export function CandidateCard({ candidate, onClick, className }: CandidateCardPr
         <div className="p-4 flex flex-col justify-between flex-1">
           <div className="space-y-2">
             {/* Name - Always 2 lines max */}
-            <h3 className="font-semibold text-base leading-tight line-clamp-2 min-h-[2.5rem] text-gray-900 dark:text-white">
+            <h3 className="font-semibold text-base leading-tight line-clamp-2 min-h-10 text-gray-900 dark:text-white">
               {candidate.name}
             </h3>
             

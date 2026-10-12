@@ -205,12 +205,12 @@ export function NavigationSidebar() {
                             "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200",
                             "hover:bg-accent hover:text-accent-foreground",
                             isActive 
-                              ? "bg-primary text-primary-foreground shadow-sm" 
+                              ? "bg-primary text-primary-foreground shadow-xs" 
                               : "text-muted-foreground hover:text-foreground"
                           )}
                           data-testid={`nav-link-${item.path.replace('/', 'home')}`}
                         >
-                          <Icon className="h-4 w-4 flex-shrink-0" />
+                          <Icon className="h-4 w-4 shrink-0" />
                           <span className="truncate">{item.label}</span>
                         </Link>
                       </TooltipTrigger>
@@ -245,12 +245,12 @@ export function NavigationSidebar() {
                           "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200",
                           "hover:bg-accent hover:text-accent-foreground",
                           isActive 
-                            ? "bg-primary text-primary-foreground shadow-sm" 
+                            ? "bg-primary text-primary-foreground shadow-xs" 
                             : "text-muted-foreground hover:text-foreground"
                         )}
                         data-testid={`nav-secondary-link-${item.path.replace('/', 'home')}`}
                       >
-                        <Icon className="h-4 w-4 flex-shrink-0" />
+                        <Icon className="h-4 w-4 shrink-0" />
                         <span className="truncate">{item.label}</span>
                       </Link>
                     </TooltipTrigger>

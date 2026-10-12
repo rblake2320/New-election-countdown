@@ -150,7 +150,7 @@ export function RecommendationWidget({
       <div className={`bg-blue-50 border border-blue-200 rounded-lg p-3 ${className}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Sparkles className="h-4 w-4 text-blue-500 flex-shrink-0" />
+            <Sparkles className="h-4 w-4 text-blue-500 shrink-0" />
             <div className="min-w-0">
               <p className="text-sm font-medium text-blue-900 truncate">
                 New recommendation: {topRecommendation.election.title}
@@ -160,7 +160,7 @@ export function RecommendationWidget({
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             <Button 
               size="sm" 
               variant="outline" 
@@ -328,13 +328,13 @@ export function RecommendationWidget({
                         {rec.election.title}
                       </h4>
                       <div className="flex items-center gap-1 mt-1">
-                        <MapPin className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                        <MapPin className="h-3 w-3 text-muted-foreground shrink-0" />
                         <span className="text-xs text-muted-foreground truncate">
                           {rec.election.location}
                         </span>
                       </div>
                     </div>
-                    <Badge variant="secondary" className="text-xs ml-2 flex-shrink-0">
+                    <Badge variant="secondary" className="text-xs ml-2 shrink-0">
                       {Math.round(rec.score)}%
                     </Badge>
                   </div>

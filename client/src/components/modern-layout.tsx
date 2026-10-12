@@ -26,10 +26,10 @@ export function ModernLayout({ children, sidebar, className }: ModernLayoutProps
       {/* Sidebar */}
       {sidebar && (
         <>
-          <div className="lg:hidden sticky top-0 z-40 flex items-center gap-3 border-b border-border bg-background/95 backdrop-blur px-4 h-14">
+          <div className="lg:hidden sticky top-0 z-40 flex items-center gap-3 border-b border-border bg-background/95 backdrop-blur-sm px-4 h-14">
             <Sheet open={navOpen} onOpenChange={setNavOpen}>
               <SheetTrigger
-                className="inline-flex h-10 w-10 items-center justify-center rounded-md hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-md hover:bg-accent focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
                 aria-label="Open navigation"
               >
                 <Menu className="h-5 w-5" />

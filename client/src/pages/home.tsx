@@ -187,15 +187,15 @@ export default function Home() {
             <h3 className="font-semibold text-foreground">What you can try:</h3>
             <div className="space-y-2 text-sm text-muted-foreground text-left">
               <div className="flex items-start gap-2">
-                <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+                <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 shrink-0"></span>
                 <span>Check your internet connection and try refreshing the page</span>
               </div>
               <div className="flex items-start gap-2">
-                <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
+                <span className="w-2 h-2 bg-green-500 rounded-full mt-2 shrink-0"></span>
                 <span>Visit our Congress tracker or other features while we restore election data</span>
               </div>
               <div className="flex items-start gap-2">
-                <span className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></span>
+                <span className="w-2 h-2 bg-purple-500 rounded-full mt-2 shrink-0"></span>
                 <span>Our system typically recovers within a few minutes</span>
               </div>
             </div>
@@ -222,7 +222,7 @@ export default function Home() {
       <PageHead {...pageMetadata.home} />
       <MobileContainer className="min-h-screen bg-background">
         {/* Header */}
-        <header className="bg-card border-b border-border sticky top-0 z-50 shadow-sm">
+        <header className="bg-card border-b border-border sticky top-0 z-50 shadow-xs">
           <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="hidden lg:flex items-center space-x-4">
@@ -289,7 +289,7 @@ export default function Home() {
         <div className="flex flex-col lg:flex-row gap-6 w-full">
           
           {/* Filter Sidebar */}
-          <aside className="order-2 lg:order-1 w-full lg:w-72 xl:w-80 space-y-6 flex-shrink-0">
+          <aside className="order-2 lg:order-1 w-full lg:w-72 xl:w-80 space-y-6 shrink-0">
             <VersionSwitcher compact={false} />
             {isAdmin && <DataStewardStatusCard />}
             <div className="hidden lg:block">

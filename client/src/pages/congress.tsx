@@ -8,7 +8,7 @@ export default function Congress() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-border sticky top-0 z-50">
+      <header className="bg-white shadow-xs border-b border-border sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Wraps on phones so the admin link is never pushed off-screen. */}
           <div className="flex flex-wrap items-center justify-between gap-2 min-h-16 py-2">

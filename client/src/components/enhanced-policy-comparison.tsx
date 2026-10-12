@@ -200,8 +200,8 @@ export function EnhancedPolicyComparison({ candidateDetails, selectedCategories 
         </div>
         
         {selectedCategories.map((category) => (
-          <Card key={category} className="overflow-hidden shadow-sm border-2">
-            <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100">
+          <Card key={category} className="overflow-hidden shadow-xs border-2">
+            <CardHeader className="bg-linear-to-r from-gray-50 to-gray-100">
               <CardTitle className="text-lg font-semibold text-gray-800">{category}</CardTitle>
               <CardDescription>
                 Comparative analysis from official voting records and verified sources
@@ -268,7 +268,7 @@ export function EnhancedPolicyComparison({ candidateDetails, selectedCategories 
       </div>
 
       {/* Summary Statistics */}
-      <Card className="bg-gradient-to-br from-gray-50 to-gray-100">
+      <Card className="bg-linear-to-br from-gray-50 to-gray-100">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="w-5 h-5" />
