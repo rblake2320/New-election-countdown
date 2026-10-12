@@ -1,0 +1,111 @@
+- region "Notifications (F8)":
+  - list
+- complementary:
+  - heading "Navigation" [level=2]
+  - generic: congress-receiving@example.test
+  - button "Sign Out":
+    - text: Sign Out
+  - navigation:
+    - button "🏛️ Explore" [expanded]:
+      - generic: 🏛️ Explore
+    - link "Elections":
+      - /url: /
+      - generic: Elections
+    - link "Results":
+      - /url: /happening-now
+      - generic: Results
+    - link "Congress":
+      - /url: /congress
+      - generic: Congress
+    - button "🚪 Portals":
+      - generic: 🚪 Portals
+    - button "📊 Data Tools" [expanded]:
+      - generic: 📊 Data Tools
+    - link "Real-Time Monitor":
+      - /url: /monitoring
+      - generic: Real-Time Monitor
+    - link "Data Steward":
+      - /url: /data-steward
+      - generic: Data Steward
+    - link "Civic Data APIs":
+      - /url: /civic
+      - generic: Civic Data APIs
+    - button "⚙️ Admin" [expanded]:
+      - generic: ⚙️ Admin
+    - link "Congress Admin":
+      - /url: /congress-admin
+      - generic: Congress Admin
+    - link "Global Observatory":
+      - /url: /global
+      - generic: Global Observatory
+    - generic: Quick Access
+    - link "2026 Midterms":
+      - /url: /2026
+      - generic: 2026 Midterms
+- main:
+  - heading "Live Results Entry" [level=1]
+  - paragraph: Manual entry system for election results
+  - link "Back to Home":
+    - /url: /
+    - button "Back to Home":
+      - text: Back to Home
+  - generic: Select Election
+  - generic: Showing elections from 7 days ago to 7 days from now
+  - combobox [active]:
+    - generic: U.S. Senate Election - Alaska - AK - 10/12/2026
+  - alert:
+    - strong: U.S. Senate Election - Alaska
+    - text: "- AK"
+    - text: "Date: 10/12/2026 | Type: general | Level: federal"
+  - generic: Overall Results
+  - generic: Total Votes Cast
+  - spinbutton "Total Votes Cast": "0"
+  - generic: Reporting Precincts
+  - spinbutton "Reporting Precincts": "0"
+  - generic: Total Precincts
+  - spinbutton "Total Precincts": "0"
+  - generic: Results Source
+  - textbox "Results Source":
+    - /placeholder: e.g., Secretary of State, Associated Press
+    - text: Manual Entry
+  - generic: Reporting
+  - generic: 0%
+  - button "Calc Total Votes":
+    - text: Calc Total Votes
+  - button "Calc Percentages":
+    - text: Calc Percentages
+  - generic: Candidate Results
+  - generic: Enter vote counts for each candidate
+  - table:
+    - rowgroup:
+      - row "Candidate Party Votes Received Vote % Actions":
+        - columnheader "Candidate"
+        - columnheader "Party"
+        - columnheader "Votes Received"
+        - columnheader "Vote %"
+        - columnheader "Actions"
+    - rowgroup:
+      - row "Dan Sullivan R 0 0 Mark Winner":
+        - cell "Dan Sullivan"
+        - cell "R":
+          - generic: R
+        - cell "0":
+          - spinbutton: "0"
+        - cell "0":
+          - spinbutton: "0"
+        - cell "Mark Winner":
+          - button "Mark Winner":
+            - text: Mark Winner
+      - row "Mary Peltola D 0 0 Mark Winner":
+        - cell "Mary Peltola"
+        - cell "D":
+          - generic: D
+        - cell "0":
+          - spinbutton: "0"
+        - cell "0":
+          - spinbutton: "0"
+        - cell "Mark Winner":
+          - button "Mark Winner":
+            - text: Mark Winner
+  - button "Save Results":
+    - text: Save Results

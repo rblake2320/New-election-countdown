@@ -1,0 +1,65 @@
+- region "Notifications (F8)":
+  - list
+- complementary:
+  - heading "Navigation" [level=2]
+  - link "Sign In / Sign Up":
+    - /url: /auth
+    - button "Sign In / Sign Up"
+  - navigation:
+    - button "🏛️ Explore" [expanded]:
+      - generic: 🏛️ Explore
+    - link "Elections":
+      - /url: /
+      - generic: Elections
+    - link "Results":
+      - /url: /happening-now
+      - generic: Results
+    - link "Congress":
+      - /url: /congress
+      - generic: Congress
+    - button "🚪 Portals":
+      - generic: 🚪 Portals
+    - generic: Quick Access
+    - link "2026 Midterms":
+      - /url: /2026
+      - generic: 2026 Midterms
+- main:
+  - heading "Happening Now" [level=1]
+  - paragraph: Results as official sources report them
+  - generic: Checked at 11:32:33 PM
+  - button "Refresh":
+    - text: Refresh
+  - button "Auto-Refresh ON":
+    - text: Auto-Refresh ON
+  - alert:
+    - generic: "Auto-refresh is on: this page checks for new results every 30 seconds"
+  - link "Delaware Primary Election":
+    - /url: /elections/530
+    - generic: Delaware Primary Election
+  - text: DE
+  - text: 9/15/2026
+  - generic: primary
+  - generic: state
+  - alert:
+    - generic: No results reported yet. They appear here as official sources publish them.
+  - link "U.S. Senate Election - Alaska":
+    - /url: /elections/2
+    - generic: U.S. Senate Election - Alaska
+  - text: AK
+  - text: 10/12/2026
+  - generic: general
+  - generic: federal
+  - generic: "Reporting: not yet stated by the source"
+  - heading "Dan Sullivan" [level=3]
+  - generic: R
+  - generic: Leading in reported votes
+  - generic: 0.0%
+  - generic: 10 votes
+  - progressbar
+  - heading "Mary Peltola" [level=3]
+  - generic: D
+  - generic: 0.0%
+  - generic: 0 votes
+  - progressbar
+  - text: Total Votes Cast
+  - generic: "10"

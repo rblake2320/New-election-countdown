@@ -1,0 +1,69 @@
+- list
+- complementary:
+  - heading [level=2]: Navigation
+  - link:
+    - /url: /auth
+    - button: Sign In / Sign Up
+  - navigation:
+    - button [expanded]:
+      - generic: 🏛️ Explore
+    - link:
+      - /url: /
+      - generic: Elections
+    - link:
+      - /url: /happening-now
+      - generic: Results
+    - link:
+      - /url: /congress
+      - generic: Congress
+    - button:
+      - generic: 🚪 Portals
+    - generic: Quick Access
+    - link:
+      - /url: /2026
+      - generic: 2026 Midterms
+- main:
+  - heading [level=1]: Global Election Observatory
+  - paragraph: Real-time monitoring of elections and democratic processes worldwide
+  - generic: 0 Countries
+  - generic: Real-Time Monitor
+  - generic: Stopped
+  - paragraph: 5/5 targets
+  - generic: Event Processing
+  - generic: "0"
+  - paragraph: 0 in queue
+  - generic: Compliance
+  - generic: "5"
+  - paragraph: Active regulations
+  - generic: District Calls
+  - generic: "0"
+  - paragraph: 0 precincts
+  - tablist:
+    - tab [selected]: Global Elections
+    - tab: Data Sources
+    - tab: Legislative Activity
+    - tab: Compliance
+  - tabpanel:
+    - generic: International Elections
+    - generic: Elections monitored through International IDEA and partner organizations
+    - text: Filter by Country
+    - combobox [expanded]:
+      - generic: All Countries
+    - paragraph: No global elections data available
+    - paragraph: Check data source connections
+- dialog:
+  - heading [level=2]: Welcome to ElectionTracker
+  - paragraph: Your comprehensive platform for election information and civic engagement
+  - paragraph: "Every 2026 race in one place: when it is, who is running, and where that information came from."
+  - generic: Countdowns to every race
+  - paragraph: Each race counts down to when polls open and close in that state, in local time where hours are published.
+  - generic: Sources you can check
+  - paragraph: Candidate profiles say where each detail came from. FEC registration is shown as registration, never as a place on the ballot.
+  - button: Skip Tour
+  - button:
+    - text: Next
+  - button:
+    - generic: Close
+- listbox:
+  - option "All Countries" [active] [selected]:
+    - generic: All Countries
