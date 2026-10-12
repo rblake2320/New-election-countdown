@@ -40,7 +40,7 @@ A/C settle fields; D forwards the exact shared-schema/head reference to B. No pr
 ## A draft observed, not settled (board23:15)
 A proposes election_result_reports append-only snapshots plus candidate_result_lines, one recordResultReport writer for ingestion/admin; GET latest+history,404no_results_yet. Exact A draft is on ET6/canonical board. C settlement pending. D receiving questions for settlement: source-called-winner must exclude projections; nullable percent and precision/unit semantics; tie ordering for same-asOf corrections; independent source identity and official URL validation; missing-source-asOf handling; certified downgrade/correction rules. D forwards only final shared types/head to B.
 
-## Batched polling amendment (A agreed23:24; B fan-out finding)
+## Historical batch draft (A23:24) — superseded by C full-reset v1 below
 The A/C v1.2 contract supersedes the earlier draft above: status none is200 with nulls, not404. Confirmed text: Team/workmap/msg/20261011-et6-results-contract-A-confirmed.md; C owns shared/live-election-results.ts. Implementation head still pending.
 
 A agreed GET /api/results?date=2026-11-03 or ?ids=1,2,3 (max600), returning {schemaVersion:1,generatedAt,cursor,items}. Items are the agreed per-election DTO without history. Full request includes no-result contests as status none. changedSince returns only changed contests and advances cursor to the current high-water mark even on an empty delta. ETag/304 supported. Detail pages keep individual GET.
@@ -57,3 +57,13 @@ Additional required acceptance:
 - Same-asOf corrected counts and source outages survive delta application; no lost row, double application or reset to fabricated zeros. Recovery after expired/invalid/future cursor has an explicit response and safe full-refresh path.
 - Both date and normalized/deduplicated bounded IDs scopes tested; validate empty/malformed/date/over600 IDs and cross-scope cursor use. Scope changes clear/replace client cache safely.
 - Query fetcher acceptance: Happening Now list, individual result, admin entry and polling-trends requests hit their actual observed API URLs, with encoded parameters and request cancellation intact. B owns implementation; D tests the delivered head.
+
+
+## Current batch acceptance: full-reset v1 (C follow-up)
+C/A now specify date/results/cursor/reset:true. Same cursor/representation ->304; otherwise200 FULL snapshot with reset:true, never partial delta application in v1. This supersedes the max-report-ID/items/changedSince-delta draft above. Query parameter spelling and executable schema come from the final C DTO, not this test plan.
+
+20/40RPS profile uses one batch poll/viewer/30s plus detail reads; unchanged304 versus changed full-snapshot responses. Client replaces the scoped snapshot on reset, preserves it on304, and shows explicit unavailable/stale state on errors.
+
+The concurrent late-commit control remains mandatory: a full-reset body does not alone fix missed commits if cursor/ETag still equals max(report_id). Effective cursor/ETag must change when any scoped visible result or stale state changes, including a lower-ID transaction that commits later. Exclude incidental request timestamps from representation identity; pin generatedAt semantics. Reordered commits, scope changes and none-to-result transitions must be received exactly once without dropping contests.
+
+C research exclusions retained: pre-Nov3 staged California nonzero feed and NC noisy precinct-sort are not accepted as real results recordings. Replay uses true historical dates and independently sourced totals/certification/correction evidence. No shared apply.
