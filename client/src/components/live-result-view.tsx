@@ -14,9 +14,17 @@ const PARTY_DOT: Record<string, string> = { D: "bg-blue-600", R: "bg-red-600", I
 export function LiveResultView({ result, showHistory = false }: { result: LiveElectionResultsResponse; showHistory?: boolean }) {
   if (result.status === "none") {
     return (
-      <p className="text-sm text-muted-foreground">
-        No results reported yet. They appear here once an official source publishes them and they are recorded.
-      </p>
+      <div className="space-y-2">
+        <p className="text-sm text-muted-foreground">
+          No results reported yet. They appear here once an official source publishes them and they are recorded.
+        </p>
+        {result.history.length > 0 && (
+          <p className="text-sm text-muted-foreground" data-testid="mismatched-history-note">
+            {result.history.length === 1 ? "An earlier report was" : `${result.history.length} earlier reports were`} recorded
+            for this race under a different setup (state, date or office), so {result.history.length === 1 ? "it is" : "they are"} not shown as results.
+          </p>
+        )}
+      </div>
     );
   }
   const candidates = [...result.candidates].sort((a, b) => b.votes - a.votes);
@@ -41,6 +49,12 @@ export function LiveResultView({ result, showHistory = false }: { result: LiveEl
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
           The source has not answered since {formatTime(result.staleSince)}. These are the last counts we received.
         </div>
+      )}
+
+      {result.electionContext && (
+        <p className="text-xs text-muted-foreground">
+          Recorded for {result.electionContext.office}, {result.electionContext.state}, election of {result.electionContext.electionDate}
+        </p>
       )}
 
       <div className="space-y-1">
@@ -99,7 +113,8 @@ export function LiveResultView({ result, showHistory = false }: { result: LiveEl
             {result.history.map(h => (
               <li key={h.reportId} className="text-muted-foreground">
                 {h.asOf ? formatTime(h.asOf) : "Time not stated"} · {h.status === "certified" ? "Certified" : "Unofficial"}
-                {h.percent !== null ? ` · ${h.percent.toFixed(1)}% reporting` : ""} ·{" "}
+                {h.percent !== null ? ` · ${h.percent.toFixed(1)}% reporting` : ""}
+                {!h.contextMatch ? " · recorded under a different race setup, not counted" : ""} ·{" "}
                 <a href={h.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-primary underline-offset-2 hover:underline">source</a>
               </li>
             ))}

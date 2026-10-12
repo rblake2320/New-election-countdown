@@ -28,8 +28,9 @@ const election2 = alaska.find((e: { id: number }) => e.id === 2);
 const SHA = 'a'.repeat(64);
 const source = { id: 'ak-doe-enr', kind: 'official_state_enr', name: 'Alaska Division of Elections', url: 'https://www.elections.alaska.gov/results/26GENR/', sourceContestId: 'US-SEN' };
 
+const context = { state: 'AK', electionDate: '2026-11-03', type: 'general', level: 'federal', office: 'U.S. Senate' };
 const unofficial = (over: Record<string, unknown> = {}) => liveElectionResultsSchema.parse({
-  ...noLiveElectionResults(2), reportId: 118, revision: 'r118-abcdef12', status: 'unofficial',
+  ...noLiveElectionResults(2), reportId: 118, revision: 'r118-abcdef12', status: 'unofficial', electionContext: context,
   reporting: { percent: null, basis: 'source_unspecified', precinctsReporting: null, precinctsTotal: null },
   source, sourcePayloadSha256: SHA, asOf: null, asOfBasis: 'not_provided', retrievedAt: '2026-11-04T05:13:10Z', totalVotes: 119140,
   candidates: [
@@ -151,7 +152,7 @@ describe('Happening Now on the v1.2 batch read', () => {
 
 describe('election detail results (v1.2 detail read)', () => {
   it('shows status, counts and earlier reports for the race', async () => {
-    const detail = unofficial({ history: [{ reportId: 117, revision: 'r117-0badf00d', asOf: '2026-11-04T04:40:00Z', status: 'unofficial', percent: 61, sourceId: 'ak-doe-enr', sourceUrl: source.url }] });
+    const detail = unofficial({ history: [{ reportId: 117, revision: 'r117-0badf00d', asOf: '2026-11-04T04:40:00Z', status: 'unofficial', percent: 61, sourceId: 'ak-doe-enr', sourceUrl: source.url, contextMatch: true }] });
     server.use(
       http.get('/api/elections/2', () => HttpResponse.json(election2)),
       http.get('/api/elections/2/results', () => HttpResponse.json(detail)),
@@ -162,6 +163,49 @@ describe('election detail results (v1.2 detail read)', () => {
     expect(await screen.findByText('61,000 votes')).toBeInTheDocument();
     expect(screen.getAllByText('Unofficial results').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('Earlier reports (1)')).toBeInTheDocument();
+    expect(screen.getByText('Recorded for U.S. Senate, AK, election of 2026-11-03')).toBeInTheDocument();
     expect(calls).toContain('/api/elections/2/results');
+  });
+
+  const mismatched = { reportId: 90, revision: 'r90-0badf00d', asOf: '2026-11-04T01:00:00Z', status: 'unofficial', percent: 12, sourceId: 'ak-doe-enr', sourceUrl: source.url, contextMatch: false };
+
+  it('a race whose only reports were recorded under a different setup reads as none, with that said', async () => {
+    server.use(
+      http.get('/api/elections/2', () => HttpResponse.json(election2)),
+      http.get('/api/elections/2/results', () => HttpResponse.json(liveElectionResultsSchema.parse({ ...noLiveElectionResults(2), history: [mismatched] }))),
+      http.get('/api/elections/2/candidates', () => HttpResponse.json([])),
+    );
+    const { hook } = memoryLocation({ path: '/elections/2' });
+    render(<QueryClientProvider client={client()}><Router hook={hook}><Route path="/elections/:id"><ElectionDetails /></Route></Router></QueryClientProvider>);
+    expect(await screen.findByTestId('mismatched-history-note')).toHaveTextContent('An earlier report was recorded for this race under a different setup (state, date or office), so it is not shown as results.');
+    expect(screen.getByText(/No results reported yet/)).toBeInTheDocument();
+    expect(screen.queryByText(/votes/)).toBeNull();
+  });
+
+  it('earlier reports from another setup are labelled as not counted', async () => {
+    const detail = unofficial({ history: [{ reportId: 117, revision: 'r117-0badf00d', asOf: '2026-11-04T04:40:00Z', status: 'unofficial', percent: 61, sourceId: 'ak-doe-enr', sourceUrl: source.url, contextMatch: true }, mismatched] });
+    server.use(
+      http.get('/api/elections/2', () => HttpResponse.json(election2)),
+      http.get('/api/elections/2/results', () => HttpResponse.json(detail)),
+      http.get('/api/elections/2/candidates', () => HttpResponse.json([])),
+    );
+    const { hook } = memoryLocation({ path: '/elections/2' });
+    render(<QueryClientProvider client={client()}><Router hook={hook}><Route path="/elections/:id"><ElectionDetails /></Route></Router></QueryClientProvider>);
+    fireEvent.click(await screen.findByText('Earlier reports (2)'));
+    const items = screen.getAllByRole('listitem').filter(li => /reporting/.test(li.textContent ?? ''));
+    expect(items.filter(li => /different race setup, not counted/.test(li.textContent ?? ''))).toHaveLength(1);
+  });
+
+  it('a none body whose history claims a matching record fails the contract and is not shown', async () => {
+    const bad = { ...noLiveElectionResults(2), history: [{ ...mismatched, contextMatch: true }] };
+    server.use(
+      http.get('/api/elections/2', () => HttpResponse.json(election2)),
+      http.get('/api/elections/2/results', () => HttpResponse.json(bad)),
+      http.get('/api/elections/2/candidates', () => HttpResponse.json([])),
+    );
+    const { hook } = memoryLocation({ path: '/elections/2' });
+    render(<QueryClientProvider client={client()}><Router hook={hook}><Route path="/elections/:id"><ElectionDetails /></Route></Router></QueryClientProvider>);
+    expect(await screen.findByText(/Results could not be shown: the response failed validation/)).toBeInTheDocument();
+    expect(screen.queryByTestId('mismatched-history-note')).toBeNull();
   });
 });

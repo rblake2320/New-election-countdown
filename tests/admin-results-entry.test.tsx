@@ -32,6 +32,7 @@ const candidates2 = readFileSync(resolve(process.cwd(), 'tests/fixtures/election
 const source = { id: 'ak-doe-enr', kind: 'official_state_enr', name: 'Alaska Division of Elections', url: 'https://www.elections.alaska.gov/results/26GENR/', sourceContestId: 'US-SEN' };
 const recorded2 = liveElectionResultsSchema.parse({
   ...noLiveElectionResults(2), reportId: 7, revision: 'r7-1a2b3c4d', status: 'unofficial',
+  electionContext: { state: 'AK', electionDate: '2026-11-03', type: 'general', level: 'federal', office: 'U.S. Senate' },
   reporting: { percent: null, basis: 'source_unspecified', precinctsReporting: null, precinctsTotal: null },
   source, sourcePayloadSha256: 'b'.repeat(64), asOf: null, asOfBasis: 'not_provided', retrievedAt: '2026-11-04T05:00:00Z', totalVotes: 10,
   candidates: [
