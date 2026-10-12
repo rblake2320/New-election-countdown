@@ -1,64 +1,251 @@
 import { useAuth } from "@/hooks/use-auth";
-import { useState } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useToast } from '@/hooks/use-toast';
-import { apiRequest, queryClient, getJson } from '@/lib/queryClient';
-import { useIsAdmin } from '@/lib/useIsAdmin';
-import { ChevronLeft, Save, Trophy, AlertTriangle, CheckCircle, RefreshCw, Shield } from 'lucide-react';
-import { Link } from 'wouter';
+import { useEffect, useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useToast } from "@/hooks/use-toast";
+import { getJson } from "@/lib/queryClient";
+import { useIsAdmin } from "@/lib/useIsAdmin";
+import { ChevronLeft, Save, AlertTriangle, Shield } from "lucide-react";
+import { Link } from "wouter";
+import {
+  liveResultAsOfBases,
+  liveResultReportInputSchema,
+  liveResultReportingBases,
+  liveResultSourceKinds,
+  type LiveElectionResultsResponse,
+} from "@shared/live-election-results";
+import { useLiveElectionResults } from "@/lib/live-results";
+import { LiveResultView } from "@/components/live-result-view";
 
-interface Election {
-  id: number;
-  title: string;
-  location: string;
-  state: string;
-  date: string;
-  type: string;
-  level: string;
-  isActive?: boolean;
+// ET-6 v1.2 admin posting (POST /api/elections/:id/results). The form records what
+// an official source published: no computed percentages, no projections, and a
+// winner only with the official declaration. It loads the latest recorded report
+// (or the race's candidates when none exists) and never overwrites a newer one.
+
+interface Election { id: number; title: string; location: string; state: string; date: string; type: string; level: string }
+interface Candidate { id: number; name: string; party: string | null }
+/** One entry of GET /api/results/sources: a registered source an admin may cite. */
+interface ResultSource { id: string; kind: string; name: string; url: string; state?: string }
+
+// Evidence types the server accepts (POST /api/admin/results-evidence).
+const EVIDENCE_TYPES = ["text/html", "application/json", "text/csv", "application/pdf", "image/png", "image/jpeg"];
+const EVIDENCE_MAX_BYTES = 10 * 1024 * 1024;
+
+interface Line { candidateId: number | null; sourceCandidateId: string; name: string; party: string; votes: string; percent: string; isWinner: boolean }
+interface Draft {
+  electionId: number;
+  baseRevision: string | null;
+  status: "unofficial" | "certified";
+  sourceId: string; sourceKind: string; sourceName: string; sourceUrl: string; sourceContestId: string;
+  payloadSha256: string; payloadName: string;
+  asOf: string; asOfBasis: string; retrievedAt: string;
+  reportingPercent: string; reportingBasis: string; precinctsReporting: string; precinctsTotal: string;
+  totalVotes: string;
+  lines: Line[];
+  winnerSource: string; winnerUrl: string; winnerAt: string;
+  certificationUrl: string; certifiedAt: string;
+  supersedesReportId: string;
+  note: string;
+  idempotencyKey: string;
 }
 
-interface Candidate {
-  id: number;
-  name: string;
-  party: string;
-  votesReceived?: number;
-  votePercentage?: number;
-  isWinner?: boolean;
-  isProjectedWinner?: boolean;
+const str = (v: number | null | undefined) => (v === null || v === undefined ? "" : String(v));
+const toLocalInput = (iso: string | null) => {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+const fromLocalInput = (v: string) => (v ? new Date(v).toISOString() : null);
+const newKey = () => (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`);
+
+/** A draft that starts from the latest recorded report, or from the race's candidates. */
+export function draftFromServer(electionId: number, current: LiveElectionResultsResponse | undefined, candidates: Candidate[]): Draft {
+  const r = current && current.status !== "none" ? current : null;
+  return {
+    electionId,
+    baseRevision: current?.revision ?? null,
+    status: r?.status === "certified" ? "certified" : "unofficial",
+    sourceId: r?.source?.id ?? "", sourceKind: r?.source?.kind ?? "admin_manual", sourceName: r?.source?.name ?? "",
+    sourceUrl: r?.source?.url ?? "", sourceContestId: r?.source?.sourceContestId ?? "",
+    // A new report needs its own source snapshot; the previous hash is not reused.
+    payloadSha256: "", payloadName: "",
+    asOf: "", asOfBasis: "not_provided", retrievedAt: "",
+    reportingPercent: str(r?.reporting?.percent), reportingBasis: r?.reporting?.basis ?? "source_unspecified",
+    precinctsReporting: str(r?.reporting?.precinctsReporting), precinctsTotal: str(r?.reporting?.precinctsTotal),
+    totalVotes: str(r?.totalVotes),
+    lines: r
+      ? r.candidates.map(c => ({ candidateId: c.candidateId, sourceCandidateId: c.sourceCandidateId, name: c.name, party: c.party ?? "", votes: String(c.votes), percent: str(c.percent), isWinner: c.isWinner }))
+      : candidates.map(c => ({ candidateId: c.id, sourceCandidateId: "", name: c.name, party: c.party ?? "", votes: "", percent: "", isWinner: false })),
+    winnerSource: r?.winnerCalledBy?.source ?? "", winnerUrl: r?.winnerCalledBy?.url ?? "", winnerAt: toLocalInput(r?.winnerCalledBy?.at ?? null),
+    certificationUrl: r?.certification?.url ?? "", certifiedAt: toLocalInput(r?.certification?.certifiedAt ?? null),
+    supersedesReportId: "",
+    note: "",
+    idempotencyKey: newKey(),
+  };
 }
 
-interface CandidateInput {
-  candidateId: number;
-  votesReceived: number;
-  votePercentage: number;
-  isWinner: boolean;
-  isProjectedWinner: boolean;
+const num = (v: string) => (v.trim() === "" ? null : Number(v));
+
+/** The POST body exactly as the contract defines it (validated before sending). */
+export function draftToInput(d: Draft) {
+  const winners = d.lines.some(l => l.isWinner);
+  return {
+    schemaVersion: 1 as const,
+    electionId: d.electionId,
+    status: d.status,
+    reporting: { percent: num(d.reportingPercent), basis: d.reportingBasis, precinctsReporting: num(d.precinctsReporting), precinctsTotal: num(d.precinctsTotal) },
+    source: { id: d.sourceId.trim(), kind: d.sourceKind, name: d.sourceName.trim(), url: d.sourceUrl.trim(), sourceContestId: d.sourceContestId.trim() },
+    sourcePayloadSha256: d.payloadSha256 || null,
+    asOf: fromLocalInput(d.asOf),
+    asOfBasis: d.asOf ? d.asOfBasis : "not_provided",
+    retrievedAt: d.retrievedAt || null,
+    totalVotes: num(d.totalVotes),
+    candidates: d.lines.map(l => ({ candidateId: l.candidateId, sourceCandidateId: l.sourceCandidateId.trim(), name: l.name.trim(), party: l.party.trim() || null, votes: l.votes.trim() === "" ? NaN : Number(l.votes), percent: num(l.percent), isWinner: l.isWinner })),
+    winnerCalledBy: winners || d.winnerSource || d.winnerUrl ? { source: d.winnerSource.trim(), url: d.winnerUrl.trim(), at: fromLocalInput(d.winnerAt) } : null,
+    certification: d.status === "certified" ? { url: d.certificationUrl.trim(), certifiedAt: fromLocalInput(d.certifiedAt) } : null,
+    supersedesReportId: num(d.supersedesReportId),
+    expectedRevision: d.baseRevision,
+    idempotencyKey: d.idempotencyKey,
+    note: d.note.trim() || null,
+  };
 }
+
+async function sha256Hex(file: File): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", await file.arrayBuffer());
+  return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+const POST_ERRORS: Record<string, string> = {
+  evidence_missing: "The server has no stored copy of the official file for this report. Upload the file again and post.",
+  unknown_source: "That source is not registered. Choose one from the list.",
+  contest_key_conflict: "That source contest ID is already recorded for a different race. Check the contest ID.",
+  pre_election_snapshot: "This race has not been held yet, so results cannot be recorded for it.",
+  stale_revision: "Someone recorded a newer report for this race since you loaded it. Reload the latest report before posting.",
+  idempotency_conflict: "This submission key was already used for different values. Reload and post again.",
+  older_than_latest: "These counts are older than the latest report from the same source. Name the report you are correcting to post an official correction.",
+  invalid_report: "The server refused the report:",
+};
+
+const selectClass = "h-10 w-full rounded-md border border-input bg-background px-3 text-sm";
 
 export default function AdminResultsEntry() {
   const { toast } = useToast();
+  const qc = useQueryClient();
   const { user } = useAuth();
   const isAdmin = useIsAdmin(user || undefined);
   const [selectedElectionId, setSelectedElectionId] = useState<number | null>(null);
-  const [totalVotes, setTotalVotes] = useState<number>(0);
-  const [reportingPrecincts, setReportingPrecincts] = useState<number>(0);
-  const [totalPrecincts, setTotalPrecincts] = useState<number>(0);
-  const [candidateInputs, setCandidateInputs] = useState<Record<number, CandidateInput>>({});
-  const [resultsSource, setResultsSource] = useState<string>('Manual Entry');
+  const [pendingSwitch, setPendingSwitch] = useState<number | null>(null);
+  const [draft, setDraft] = useState<Draft | null>(null);
+  const [dirty, setDirty] = useState(false);
+  const [issues, setIssues] = useState<string[]>([]);
+  const [posting, setPosting] = useState(false);
 
-  // Admin access control
+  // Hooks run on every render; the access check below only changes what renders.
+  const { data: elections = [], isLoading: electionsLoading } = useQuery<Election[]>({
+    queryKey: ["/api/elections"],
+    enabled: isAdmin,
+    select: data => {
+      const now = Date.now(), week = 7 * 24 * 60 * 60 * 1000;
+      return data.filter(e => Math.abs(new Date(e.date).getTime() - now) <= week)
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    },
+  });
+  const { data: candidates, isLoading: candidatesLoading } = useQuery<Candidate[]>({
+    queryKey: ["/api/elections", selectedElectionId, "candidates"],
+    queryFn: ({ signal }) => getJson<Candidate[]>(`/api/elections/${selectedElectionId}/candidates`, signal),
+    enabled: isAdmin && !!selectedElectionId,
+  });
+  const current = useLiveElectionResults(isAdmin && selectedElectionId ? selectedElectionId : 0, false);
+  const currentResult = current.data?.data;
+  const raceState = elections.find(e => e.id === selectedElectionId)?.state;
+  const stateCode = raceState && /^[A-Z]{2}$/.test(raceState) ? raceState : null;
+  const sourcesQuery = useQuery<{ sources: ResultSource[] }>({
+    queryKey: ["/api/results/sources", stateCode],
+    queryFn: ({ signal }) => getJson(`/api/results/sources${stateCode ? `?state=${stateCode}` : ""}`, signal),
+    enabled: isAdmin && !!selectedElectionId,
+  });
+  const sources = sourcesQuery.data?.sources ?? [];
+  const pickedSource = sources.find(x => x.id === draft?.sourceId);
+  const [uploading, setUploading] = useState(false);
+
+  // Load the race's latest report into the form once both reads have arrived, and
+  // whenever the race changes. Unsaved edits are never replaced by a refetch.
+  useEffect(() => {
+    if (!selectedElectionId || !candidates || !currentResult || currentResult.electionId !== selectedElectionId) return;
+    if (draft && draft.electionId === selectedElectionId && (dirty || draft.baseRevision === currentResult.revision)) return;
+    setDraft(draftFromServer(selectedElectionId, currentResult, candidates));
+    setDirty(false);
+    setIssues([]);
+  }, [selectedElectionId, candidates, currentResult, dirty, draft]);
+
+  const newerOnServer = !!(draft && dirty && currentResult && currentResult.electionId === draft.electionId && currentResult.revision !== draft.baseRevision);
+  const lineTotal = useMemo(() => draft?.lines.reduce((s, l) => s + (Number(l.votes) || 0), 0) ?? 0, [draft]);
+
+  const edit = (patch: Partial<Draft>) => { setDraft(d => (d ? { ...d, ...patch } : d)); setDirty(true); };
+  const editLine = (i: number, patch: Partial<Line>) => {
+    setDraft(d => (d ? { ...d, lines: d.lines.map((l, j) => (j === i ? { ...l, ...patch } : l)) } : d));
+    setDirty(true);
+  };
+  const openRace = (id: number | null) => { setSelectedElectionId(id); setDraft(null); setDirty(false); setIssues([]); };
+  const switchTo = (id: number) => {
+    if (dirty && draft && id !== draft.electionId) { setPendingSwitch(id); return; }
+    openRace(id);
+  };
+  const reloadLatest = async () => {
+    setDirty(false); setDraft(null); setIssues([]);
+    await current.refetch();
+  };
+
+  const submit = async () => {
+    if (!draft) return;
+    let parsed: ReturnType<typeof liveResultReportInputSchema.safeParse>;
+    try {
+      parsed = liveResultReportInputSchema.safeParse(draftToInput(draft));
+    } catch {
+      // The shared URL check throws on text that is not a URL at all.
+      setIssues(["Every URL field (source, winner declaration, certification) must be a full https:// address."]);
+      return;
+    }
+    if (!parsed.success) {
+      setIssues(parsed.error.issues.map(i => `${i.path.join(".") || "report"}: ${i.message}`));
+      return;
+    }
+    setIssues([]);
+    setPosting(true);
+    try {
+      const res = await fetch(`/api/elections/${draft.electionId}/results`, {
+        method: "POST", credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(parsed.data),
+      });
+      const payload = await res.json().catch(() => null) as { code?: string; error?: string; details?: { path: string; message: string }[] } | null;
+      if (res.status === 201 || res.status === 200) {
+        toast({ title: res.status === 201 ? "Report recorded" : "Already recorded", description: "The public results now show this report." });
+        setDirty(false); setDraft(null);
+        qc.invalidateQueries({ queryKey: ["/api/results"] });
+        await current.refetch();
+        return;
+      }
+      const code = payload?.code ?? "";
+      setIssues(code === "invalid_report" && payload?.details?.length
+        ? [POST_ERRORS.invalid_report, ...payload.details.map(d => `${d.path}: ${d.message}`)]
+        : [POST_ERRORS[code] ?? `The report was not recorded (${res.status}${payload?.error ? `: ${payload.error}` : ""}).`]);
+    } catch {
+      setIssues(["The report was not recorded: the server could not be reached."]);
+    } finally {
+      setPosting(false);
+    }
+  };
+
   if (!isAdmin) {
     return (
-      <div className="container mx-auto py-8 max-w-2xl">
+      <div className="container mx-auto py-8 px-4 max-w-2xl">
         <Card>
           <CardHeader>
             <div className="flex items-center gap-3">
@@ -72,462 +259,235 @@ export default function AdminResultsEntry() {
           <CardContent>
             <Alert variant="destructive">
               <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>
-                You do not have permission to access the election results entry system. 
-                This area is restricted to authorized administrators only.
-              </AlertDescription>
+              <AlertDescription>Recording election results is restricted to administrators.</AlertDescription>
             </Alert>
-            <div className="mt-6">
-              <Link href="/">
-                <Button variant="outline">
-                  <ChevronLeft className="w-4 h-4 mr-2" />
-                  Return to Home
-                </Button>
-              </Link>
-            </div>
+            <Button variant="outline" asChild className="mt-6">
+              <Link href="/"><ChevronLeft className="w-4 h-4 mr-2" />Return to Home</Link>
+            </Button>
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  // Fetch elections happening today/soon
-  const { data: elections = [], isLoading: electionsLoading } = useQuery<Election[]>({
-    queryKey: ['/api/elections'],
-    select: (data) => {
-      const now = new Date();
-      const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-      
-      return data
-        .filter(e => {
-          const electionDate = new Date(e.date);
-          return electionDate >= sevenDaysAgo && electionDate <= sevenDaysFromNow;
-        })
-        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    }
-  });
-
-  // Fetch candidates for selected election
-  const { data: candidates = [], isLoading: candidatesLoading } = useQuery<Candidate[]>({
-    queryKey: ['/api/elections', selectedElectionId, 'candidates'],
-    queryFn: ({ signal }) => getJson<Candidate[]>(`/api/elections/${selectedElectionId}/candidates`, signal),
-    enabled: !!selectedElectionId
-  });
-
-  // Fetch current results
-  const { data: currentResults, refetch: refetchResults } = useQuery({
-    queryKey: ['/api/elections', selectedElectionId, 'results'],
-    queryFn: ({ signal }) => getJson(`/api/elections/${selectedElectionId}/results`, signal),
-    enabled: !!selectedElectionId
-  });
-
-  // Update results mutation
-  const updateResultsMutation = useMutation({
-    mutationFn: async (resultsData: any) => {
-      return apiRequest('POST', `/api/elections/${selectedElectionId}/results`, resultsData);
-    },
-    onSuccess: () => {
-      toast({
-        title: 'Results Updated',
-        description: 'Election results have been saved successfully.',
-      });
-      queryClient.invalidateQueries({ queryKey: ['/api/elections', selectedElectionId, 'results'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/elections', selectedElectionId, 'candidates'] });
-    },
-    onError: (error: any) => {
-      toast({
-        title: 'Update Failed',
-        description: error.message || 'Failed to update election results.',
-        variant: 'destructive',
-      });
-    }
-  });
-
-  // Initialize candidate inputs when candidates are loaded
-  useState(() => {
-    if (candidates.length > 0 && Object.keys(candidateInputs).length === 0) {
-      const initialInputs: Record<number, CandidateInput> = {};
-      candidates.forEach(candidate => {
-        initialInputs[candidate.id] = {
-          candidateId: candidate.id,
-          votesReceived: candidate.votesReceived || 0,
-          votePercentage: parseFloat(candidate.votePercentage?.toString() || '0'),
-          isWinner: candidate.isWinner || false,
-          isProjectedWinner: candidate.isProjectedWinner || false,
-        };
-      });
-      setCandidateInputs(initialInputs);
-    }
-  });
-
-  // Handle election selection
-  const handleElectionSelect = (electionId: string) => {
-    const id = parseInt(electionId);
-    setSelectedElectionId(id);
-    setCandidateInputs({});
-    setTotalVotes(0);
-    setReportingPrecincts(0);
-    setTotalPrecincts(0);
-  };
-
-  // Update candidate input
-  const updateCandidateInput = (candidateId: number, field: keyof CandidateInput, value: any) => {
-    setCandidateInputs(prev => ({
-      ...prev,
-      [candidateId]: {
-        ...prev[candidateId],
-        [field]: value
-      }
-    }));
-  };
-
-  // Auto-calculate percentages
-  const calculatePercentages = () => {
-    if (totalVotes === 0) return;
-
-    const updated = { ...candidateInputs };
-    Object.keys(updated).forEach(id => {
-      const candidateId = parseInt(id);
-      const votes = updated[candidateId].votesReceived;
-      updated[candidateId].votePercentage = parseFloat(((votes / totalVotes) * 100).toFixed(2));
-    });
-    setCandidateInputs(updated);
-
-    toast({
-      title: 'Percentages Calculated',
-      description: 'Vote percentages have been automatically calculated.',
-    });
-  };
-
-  // Auto-calculate total votes
-  const calculateTotalVotes = () => {
-    const total = Object.values(candidateInputs).reduce((sum, input) => sum + input.votesReceived, 0);
-    setTotalVotes(total);
-
-    toast({
-      title: 'Total Votes Calculated',
-      description: `Total votes: ${total.toLocaleString()}`,
-    });
-  };
-
-  // Mark winner
-  const markWinner = (candidateId: number) => {
-    const updated = { ...candidateInputs };
-    
-    // Clear all winners first
-    Object.keys(updated).forEach(id => {
-      const cId = parseInt(id);
-      updated[cId].isWinner = false;
-      updated[cId].isProjectedWinner = false;
-    });
-    
-    // Set the selected candidate as winner
-    updated[candidateId].isWinner = true;
-    setCandidateInputs(updated);
-
-    toast({
-      title: 'Winner Marked',
-      description: 'Candidate has been marked as the winner.',
-    });
-  };
-
-  // Submit results
-  const handleSubmit = () => {
-    if (!selectedElectionId) {
-      toast({
-        title: 'No Election Selected',
-        description: 'Please select an election first.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    const percentReporting = totalPrecincts > 0 
-      ? parseFloat(((reportingPrecincts / totalPrecincts) * 100).toFixed(2))
-      : 0;
-
-    const resultsData = {
-      totalVotes,
-      reportingPrecincts,
-      totalPrecincts,
-      percentReporting,
-      isComplete: reportingPrecincts === totalPrecincts && totalPrecincts > 0,
-      resultsSource,
-      candidateResults: Object.values(candidateInputs)
-    };
-
-    updateResultsMutation.mutate(resultsData);
-  };
-
-  const selectedElection = elections.find(e => e.id === selectedElectionId);
-  const percentReporting = totalPrecincts > 0 
-    ? ((reportingPrecincts / totalPrecincts) * 100).toFixed(1)
-    : '0';
-
   return (
-    <div className="container mx-auto py-8 max-w-6xl">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="container mx-auto py-8 px-4 max-w-5xl space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-            Live Results Entry
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Manual entry system for election results
-          </p>
+          <h1 className="text-2xl sm:text-3xl font-bold">Record Official Results</h1>
+          <p className="text-muted-foreground mt-1">Enter counts exactly as an official source published them. Nothing here is estimated or projected.</p>
         </div>
-        <Link href="/">
-          <Button variant="outline" data-testid="button-back-home">
-            <ChevronLeft className="w-4 h-4 mr-2" />
-            Back to Home
-          </Button>
-        </Link>
+        <Button variant="outline" asChild>
+          <Link href="/"><ChevronLeft className="w-4 h-4 mr-2" />Back to Home</Link>
+        </Button>
       </div>
 
-      {/* Election Selector */}
-      <Card className="mb-6" data-testid="card-election-selector">
+      <Card>
         <CardHeader>
-          <CardTitle>Select Election</CardTitle>
-          <CardDescription>
-            Showing elections from 7 days ago to 7 days from now
-          </CardDescription>
+          <CardTitle>Race</CardTitle>
+          <CardDescription>Elections from 7 days ago to 7 days ahead</CardDescription>
         </CardHeader>
-        <CardContent>
-          <Select onValueChange={handleElectionSelect} value={selectedElectionId?.toString()}>
-            <SelectTrigger data-testid="select-election">
-              <SelectValue placeholder="Choose an election..." />
-            </SelectTrigger>
+        <CardContent className="space-y-3">
+          <Select onValueChange={v => switchTo(Number(v))} value={selectedElectionId?.toString()} disabled={electionsLoading}>
+            <SelectTrigger aria-label="Race" data-testid="select-election"><SelectValue placeholder={electionsLoading ? "Loading races..." : "Choose a race..."} /></SelectTrigger>
             <SelectContent>
-              {elections.map(election => (
-                <SelectItem key={election.id} value={election.id.toString()}>
-                  {election.title} - {election.location} - {new Date(election.date).toLocaleDateString(undefined, { timeZone: 'UTC' })}
-                </SelectItem>
-              ))}
+              {elections.map(e => <SelectItem key={e.id} value={e.id.toString()}>{e.title} ({e.state})</SelectItem>)}
             </SelectContent>
           </Select>
+          {!electionsLoading && elections.length === 0 && <p className="text-sm text-muted-foreground">No elections from 7 days ago to 7 days ahead.</p>}
+          {pendingSwitch !== null && (
+            <Alert role="alert">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription className="flex flex-wrap items-center gap-3">
+                You have unsaved changes for this race.
+                <Button size="sm" variant="destructive" onClick={() => { const id = pendingSwitch; setPendingSwitch(null); openRace(id); }}>Discard and switch</Button>
+                <Button size="sm" variant="outline" onClick={() => setPendingSwitch(null)}>Keep editing</Button>
+              </AlertDescription>
+            </Alert>
+          )}
         </CardContent>
       </Card>
 
-      {/* Results Entry Form */}
-      {selectedElection && (
+      {selectedElectionId && !current.error && (current.isLoading || candidatesLoading) && <p className="text-muted-foreground">Loading the latest recorded report...</p>}
+      {selectedElectionId && current.error && (
+        <Alert variant="destructive" role="alert">
+          <AlertDescription className="flex flex-wrap items-center gap-3">
+            {current.error.message} The form stays closed so nothing is posted over an unknown report.
+            <Button size="sm" variant="outline" onClick={() => current.refetch()}>Try again</Button>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {draft && currentResult && draft.electionId === selectedElectionId && (
         <>
-          <Alert className="mb-6" data-testid="alert-election-info">
-            <CheckCircle className="h-4 w-4" />
-            <AlertDescription>
-              <strong>{selectedElection.title}</strong> - {selectedElection.location}
-              <br />
-              Date: {new Date(selectedElection.date).toLocaleDateString(undefined, { timeZone: 'UTC' })} | 
-              Type: {selectedElection.type} | 
-              Level: {selectedElection.level}
-            </AlertDescription>
-          </Alert>
-
-          {/* Overall Results */}
-          <Card className="mb-6" data-testid="card-overall-results">
+          <Card>
             <CardHeader>
-              <CardTitle>Overall Results</CardTitle>
+              <CardTitle>Currently published</CardTitle>
+              <CardDescription>{currentResult.revision ? `Revision ${currentResult.revision}` : "No report recorded yet"}</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="totalVotes">Total Votes Cast</Label>
-                  <Input
-                    id="totalVotes"
-                    type="number"
-                    value={totalVotes}
-                    onChange={(e) => setTotalVotes(parseInt(e.target.value) || 0)}
-                    data-testid="input-total-votes"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="reportingPrecincts">Reporting Precincts</Label>
-                  <Input
-                    id="reportingPrecincts"
-                    type="number"
-                    value={reportingPrecincts}
-                    onChange={(e) => setReportingPrecincts(parseInt(e.target.value) || 0)}
-                    data-testid="input-reporting-precincts"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="totalPrecincts">Total Precincts</Label>
-                  <Input
-                    id="totalPrecincts"
-                    type="number"
-                    value={totalPrecincts}
-                    onChange={(e) => setTotalPrecincts(parseInt(e.target.value) || 0)}
-                    data-testid="input-total-precincts"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="resultsSource">Results Source</Label>
-                <Input
-                  id="resultsSource"
-                  value={resultsSource}
-                  onChange={(e) => setResultsSource(e.target.value)}
-                  placeholder="e.g., Secretary of State, Associated Press"
-                  data-testid="input-results-source"
-                />
-              </div>
-
-              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Reporting</div>
-                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    {percentReporting}%
-                  </div>
-                </div>
-                <div className="space-x-2">
-                  <Button 
-                    onClick={calculateTotalVotes}
-                    variant="outline"
-                    size="sm"
-                    data-testid="button-calc-total-votes"
-                  >
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Calc Total Votes
-                  </Button>
-                  <Button 
-                    onClick={calculatePercentages}
-                    variant="outline"
-                    size="sm"
-                    data-testid="button-calc-percentages"
-                  >
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Calc Percentages
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
+            <CardContent><LiveResultView result={currentResult} /></CardContent>
           </Card>
 
-          {/* Candidate Results */}
-          <Card data-testid="card-candidate-results">
-            <CardHeader>
-              <CardTitle>Candidate Results</CardTitle>
-              <CardDescription>
-                Enter vote counts for each candidate
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {candidatesLoading ? (
-                <div className="text-center py-8">Loading candidates...</div>
-              ) : candidates.length === 0 ? (
-                <Alert>
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertDescription>
-                    No candidates found for this election. Please add candidates first.
-                  </AlertDescription>
-                </Alert>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Candidate</TableHead>
-                      <TableHead>Party</TableHead>
-                      <TableHead>Votes Received</TableHead>
-                      <TableHead>Vote %</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {candidates.map(candidate => {
-                      const input = candidateInputs[candidate.id] || {
-                        candidateId: candidate.id,
-                        votesReceived: 0,
-                        votePercentage: 0,
-                        isWinner: false,
-                        isProjectedWinner: false
-                      };
+          {newerOnServer && (
+            <Alert role="alert">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription className="flex flex-wrap items-center gap-3">
+                A newer report ({currentResult.revision ?? "none"}) was recorded after you started editing. Your changes are kept, but posting is blocked until you reload.
+                <Button size="sm" variant="outline" onClick={reloadLatest}>Reload latest (discards your changes)</Button>
+              </AlertDescription>
+            </Alert>
+          )}
 
-                      return (
-                        <TableRow key={candidate.id}>
-                          <TableCell className="font-medium">
-                            {candidate.name}
-                            {input.isWinner && (
-                              <Badge className="ml-2 bg-green-600">
-                                <Trophy className="w-3 h-3 mr-1" />
-                                Winner
-                              </Badge>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="outline">{candidate.party}</Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Input
-                              type="number"
-                              value={input.votesReceived}
-                              onChange={(e) => 
-                                updateCandidateInput(
-                                  candidate.id, 
-                                  'votesReceived', 
-                                  parseInt(e.target.value) || 0
-                                )
-                              }
-                              className="w-32"
-                              data-testid={`input-votes-${candidate.id}`}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              value={input.votePercentage}
-                              onChange={(e) => 
-                                updateCandidateInput(
-                                  candidate.id, 
-                                  'votePercentage', 
-                                  parseFloat(e.target.value) || 0
-                                )
-                              }
-                              className="w-24"
-                              data-testid={`input-percentage-${candidate.id}`}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              size="sm"
-                              variant={input.isWinner ? 'default' : 'outline'}
-                              onClick={() => markWinner(candidate.id)}
-                              data-testid={`button-mark-winner-${candidate.id}`}
-                            >
-                              <Trophy className="w-4 h-4 mr-2" />
-                              {input.isWinner ? 'Winner' : 'Mark Winner'}
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
+          <Card>
+            <CardHeader>
+              <CardTitle>New report</CardTitle>
+              <CardDescription>Fields left blank are posted as "not stated by the source".</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <fieldset className="grid gap-4 sm:grid-cols-2">
+                <legend className="mb-2 font-semibold">Source</legend>
+                <div className="sm:col-span-2">
+                  <Label htmlFor="src-pick">Registered source</Label>
+                  <select id="src-pick" className={selectClass} value={draft.sourceId} disabled={sourcesQuery.isLoading}
+                    onChange={e => {
+                      const picked = sources.find(x => x.id === e.target.value);
+                      edit(picked
+                        ? { sourceId: picked.id, sourceKind: picked.kind, sourceName: picked.name, sourceUrl: picked.url }
+                        : { sourceId: "", sourceKind: "admin_manual", sourceName: "", sourceUrl: "" });
+                    }}>
+                    <option value="">{sourcesQuery.isLoading ? "Loading sources..." : "Choose the source you are citing..."}</option>
+                    {sources.map(x => <option key={x.id} value={x.id}>{x.name} ({x.kind.replace(/_/g, " ")})</option>)}
+                  </select>
+                  {sourcesQuery.error && (
+                    <p role="alert" className="mt-1 text-sm text-destructive">
+                      The list of registered sources could not be loaded ({sourcesQuery.error.message.split(":")[0]}). Posting is not possible without one.
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <Label htmlFor="src-url">Official results URL (https)</Label>
+                  <Input id="src-url" type="url" value={draft.sourceUrl} readOnly={!!pickedSource && pickedSource.kind !== "admin_manual"}
+                    onChange={e => edit({ sourceUrl: e.target.value })} />
+                  {pickedSource?.kind === "admin_manual" && <p className="mt-1 text-xs text-muted-foreground">Enter the page the counts came from. It must be on the state's official government site.</p>}
+                </div>
+                <div><Label htmlFor="src-contest">Source contest ID</Label><Input id="src-contest" value={draft.sourceContestId} onChange={e => edit({ sourceContestId: e.target.value })} /></div>
+                <div className="sm:col-span-2">
+                  <Label htmlFor="src-file">Official results file or page snapshot</Label>
+                  <Input id="src-file" type="file" accept={EVIDENCE_TYPES.join(",")} disabled={uploading} onChange={async e => {
+                    const f = e.target.files?.[0];
+                    if (!f) return;
+                    if (!EVIDENCE_TYPES.includes(f.type)) { setIssues([`${f.name}: files of type ${f.type || "unknown"} are not accepted. Use HTML, JSON, CSV, PDF, PNG or JPEG.`]); return; }
+                    if (f.size > EVIDENCE_MAX_BYTES) { setIssues([`${f.name} is larger than 10 MB.`]); return; }
+                    setUploading(true); setIssues([]);
+                    try {
+                      const local = await sha256Hex(f);
+                      const res = await fetch("/api/admin/results-evidence", {
+                        method: "POST", credentials: "include", body: f,
+                        headers: { "Content-Type": f.type, "X-Evidence-Filename": f.name },
+                      });
+                      const stored = await res.json().catch(() => null) as { sha256?: string; code?: string; error?: string } | null;
+                      if (res.status !== 201 && res.status !== 200) {
+                        setIssues([`The file was not stored (${res.status}${stored?.error ? `: ${stored.error}` : ""}). Nothing can be posted until it is.`]);
+                      } else if (stored?.sha256 !== local) {
+                        setIssues(["The server stored different bytes than the file you chose. Try the upload again."]);
+                      } else {
+                        edit({ payloadSha256: stored.sha256!, payloadName: f.name, retrievedAt: new Date().toISOString() });
+                      }
+                    } catch {
+                      setIssues(["The file was not stored: the server could not be reached."]);
+                    } finally {
+                      setUploading(false);
+                    }
+                  }} />
+                  {uploading && <p className="mt-1 text-xs text-muted-foreground">Uploading...</p>}
+                  {draft.payloadSha256 && <p className="mt-1 break-all text-xs text-muted-foreground">Stored: {draft.payloadName} (SHA-256 {draft.payloadSha256})</p>}
+                </div>
+                <div><Label htmlFor="as-of">Time the source gives for these counts</Label><Input id="as-of" type="datetime-local" value={draft.asOf} onChange={e => edit({ asOf: e.target.value, asOfBasis: e.target.value ? (draft.asOfBasis === "not_provided" ? "source_timestamp" : draft.asOfBasis) : "not_provided" })} /></div>
+                <div>
+                  <Label htmlFor="as-of-basis">What that time is</Label>
+                  <select id="as-of-basis" className={selectClass} value={draft.asOf ? draft.asOfBasis : "not_provided"} disabled={!draft.asOf} onChange={e => edit({ asOfBasis: e.target.value })}>
+                    {liveResultAsOfBases.filter(b => (draft.asOf ? b !== "not_provided" : b === "not_provided")).map(b => <option key={b} value={b}>{b.replace(/_/g, " ")}</option>)}
+                  </select>
+                </div>
+              </fieldset>
+
+              <fieldset className="grid gap-4 sm:grid-cols-4">
+                <legend className="mb-2 font-semibold">Reporting</legend>
+                <div><Label htmlFor="rep-pct">Percent reporting</Label><Input id="rep-pct" inputMode="decimal" value={draft.reportingPercent} onChange={e => edit({ reportingPercent: e.target.value })} /></div>
+                <div>
+                  <Label htmlFor="rep-basis">Measured by</Label>
+                  <select id="rep-basis" className={selectClass} value={draft.reportingBasis} onChange={e => edit({ reportingBasis: e.target.value })}>
+                    {liveResultReportingBases.map(b => <option key={b} value={b}>{b.replace(/_/g, " ")}</option>)}
+                  </select>
+                </div>
+                <div><Label htmlFor="rep-in">Precincts reporting</Label><Input id="rep-in" inputMode="numeric" value={draft.precinctsReporting} onChange={e => edit({ precinctsReporting: e.target.value })} /></div>
+                <div><Label htmlFor="rep-total">Precincts total</Label><Input id="rep-total" inputMode="numeric" value={draft.precinctsTotal} onChange={e => edit({ precinctsTotal: e.target.value })} /></div>
+              </fieldset>
+
+              <fieldset className="space-y-3">
+                <legend className="mb-2 font-semibold">Ballot options</legend>
+                {draft.lines.length === 0 && <p className="text-sm text-muted-foreground">This race has no candidates recorded yet.</p>}
+                {draft.lines.map((l, i) => (
+                  <div key={i} className="grid gap-3 rounded-md border p-3 sm:grid-cols-6" data-testid={`line-${i}`}>
+                    <div className="sm:col-span-2"><Label htmlFor={`name-${i}`}>Name as published</Label><Input id={`name-${i}`} value={l.name} onChange={e => editLine(i, { name: e.target.value })} /></div>
+                    <div><Label htmlFor={`sid-${i}`}>Option label as printed</Label><Input id={`sid-${i}`} value={l.sourceCandidateId} onChange={e => editLine(i, { sourceCandidateId: e.target.value })} /></div>
+                    <div><Label htmlFor={`votes-${i}`}>Votes</Label><Input id={`votes-${i}`} inputMode="numeric" value={l.votes} onChange={e => editLine(i, { votes: e.target.value })} /></div>
+                    <div><Label htmlFor={`pct-${i}`}>Percent (as published)</Label><Input id={`pct-${i}`} inputMode="decimal" value={l.percent} onChange={e => editLine(i, { percent: e.target.value })} /></div>
+                    <label className="flex items-end gap-2 pb-2 text-sm"><input type="checkbox" checked={l.isWinner} onChange={e => editLine(i, { isWinner: e.target.checked })} />Officially declared winner</label>
+                  </div>
+                ))}
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div><Label htmlFor="total">Total votes (as published)</Label><Input id="total" inputMode="numeric" value={draft.totalVotes} onChange={e => edit({ totalVotes: e.target.value })} /></div>
+                  <p className="self-end text-sm text-muted-foreground">Sum of the lines above: {lineTotal.toLocaleString()} (for checking; not posted)</p>
+                </div>
+              </fieldset>
+
+              {draft.lines.some(l => l.isWinner) && (
+                <fieldset className="grid gap-4 sm:grid-cols-3">
+                  <legend className="mb-2 font-semibold">Official winner declaration</legend>
+                  <div><Label htmlFor="win-src">Declared by</Label><Input id="win-src" value={draft.winnerSource} onChange={e => edit({ winnerSource: e.target.value })} /></div>
+                  <div><Label htmlFor="win-url">Declaration URL (https)</Label><Input id="win-url" type="url" value={draft.winnerUrl} onChange={e => edit({ winnerUrl: e.target.value })} /></div>
+                  <div><Label htmlFor="win-at">Declared at</Label><Input id="win-at" type="datetime-local" value={draft.winnerAt} onChange={e => edit({ winnerAt: e.target.value })} /></div>
+                </fieldset>
               )}
 
-              <div className="mt-6 flex justify-end">
-                <Button
-                  onClick={handleSubmit}
-                  disabled={updateResultsMutation.isPending || candidates.length === 0}
-                  size="lg"
-                  data-testid="button-submit-results"
-                >
-                  <Save className="w-4 h-4 mr-2" />
-                  {updateResultsMutation.isPending ? 'Saving...' : 'Save Results'}
+              <fieldset className="grid gap-4 sm:grid-cols-3">
+                <legend className="mb-2 font-semibold">Status</legend>
+                <div>
+                  <Label htmlFor="status">Status</Label>
+                  <select id="status" className={selectClass} value={draft.status} onChange={e => edit({ status: e.target.value as Draft["status"] })}>
+                    <option value="unofficial">Unofficial</option>
+                    <option value="certified">Certified</option>
+                  </select>
+                </div>
+                {draft.status === "certified" && (
+                  <>
+                    <div><Label htmlFor="cert-url">Certification document URL (https)</Label><Input id="cert-url" type="url" value={draft.certificationUrl} onChange={e => edit({ certificationUrl: e.target.value })} /></div>
+                    <div><Label htmlFor="cert-at">Certified at</Label><Input id="cert-at" type="datetime-local" value={draft.certifiedAt} onChange={e => edit({ certifiedAt: e.target.value })} /></div>
+                  </>
+                )}
+                <div><Label htmlFor="supersedes">Correcting report # (official corrections only)</Label><Input id="supersedes" inputMode="numeric" value={draft.supersedesReportId} onChange={e => edit({ supersedesReportId: e.target.value })} /></div>
+                <div className="sm:col-span-2"><Label htmlFor="note">Note</Label><Input id="note" value={draft.note} onChange={e => edit({ note: e.target.value })} /></div>
+              </fieldset>
+
+              {issues.length > 0 && (
+                <Alert variant="destructive" role="alert">
+                  <AlertDescription>
+                    <p className="font-medium">The report was not posted.</p>
+                    <ul className="mt-1 list-disc pl-5">{issues.map((m, i) => <li key={i}>{m}</li>)}</ul>
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <div className="flex flex-wrap gap-3">
+                <Button onClick={submit} disabled={posting || uploading || newerOnServer} data-testid="button-post-report">
+                  <Save className="w-4 h-4 mr-2" />{posting ? "Posting..." : "Post report"}
                 </Button>
+                {dirty && <Button variant="outline" onClick={reloadLatest} disabled={posting}>Discard changes</Button>}
               </div>
             </CardContent>
           </Card>
         </>
-      )}
-
-      {!selectedElection && !electionsLoading && elections.length === 0 && (
-        <Alert>
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            No elections found within the next 7 days. Please check back later or adjust the date range.
-          </AlertDescription>
-        </Alert>
       )}
     </div>
   );
