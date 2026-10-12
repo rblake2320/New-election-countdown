@@ -5,7 +5,7 @@ Saved 2026-10-11 America/Chicago. Owner requested reboot-safe checkpoint after m
 - ElectionTracker repo D:/projects/New-election-countdown. D lane owns infra/CI/production receiving. Shared DB source apply and deployment HOLD remain.
 - Receiving worktree D:/projects/et-wt/astra-b35-receiving branch astra/b35-receiving HEAD c077eda281efa975e0be23f211e85b5308153d20, equals origin; clean tracked/untracked status.
 - CI worktree D:/projects/et-wt/astra-congress-name-ci branch astra/congress-name-ci HEAD9253133df602c3003a577c0317881268145bf172 equals origin. Only generated Python __pycache__ directories untracked; no source changes unsaved.
-- PR36 exact9620129 merged; PR37 exact327262a merged (live GitHub checked this turn). PR38 adds only six Python source-name tests to CI; all3 hosted gates run38162769299 GREEN (verify1m24s, bundle24s, container3m38s). PR38 was stacked on lane-c/congress-official-name; next reconcile base to main and hand to Fabel for merge.
+- PR36 exact9620129 merged; PR37 exact327262a merged (live GitHub checked this turn). PR38 adds only six Python source-name tests to CI; all3 hosted gates run38162769299 GREEN (verify1m24s, bundle24s, container3m38s). PR38 now targets main; diff independently verified as exactly5 CI lines. Fabel notified through guarded seat_send with delivered readback at2026-10-11T22:22:42. GitHub handoff comment6117157540.
 - No et-congress-prod containers running. Every D receiving private app/DB/network was disposed. Port5087 is not a persistent preview.
 
 ## Retained outcomes/evidence
@@ -17,7 +17,7 @@ Saved 2026-10-11 America/Chicago. Owner requested reboot-safe checkpoint after m
 - Runtime tags electiontracker:congress-name-receiving + electiontracker:congress-name-receiving-builder. Prior tag electiontracker:congress-production-main7ca exactsha63f8d82d83453393f9595f34fb8f02868ecaa40c48928329c20f41345a2e3406. Existing image cache may survive reboot; verify before reuse.
 
 ## Open work
-1. Reconcile PR38 base main now that C37 merged; preserve workflow-only delta. Notify Fabel merge owner of allgreen status.
+1. PR38 retarget and Fabel handoff complete; awaiting merge-owner disposition. All3 checks green. Current main observed b14f323 includes later A type tranches; do not treat old902 count as current.
 2. Provider actual data/config separate OPEN GitHub issue39. Missing-provider503 UI pass is NOT live bills/committees availability. A contracts/config, D runtime, B receiving. No owner credentials requested/printed/stored.
 3. D receiving harness/evidence integration branch is pushed but not claimed merged. Reconcile narrow harness followup separately; do not merge wholesale without checking main diff.
 4. Global full type gate remains a separate release blocker; last team count902, no current all-types-green claim.
@@ -25,3 +25,6 @@ Saved 2026-10-11 America/Chicago. Owner requested reboot-safe checkpoint after m
 ## Team/Jira
 Jira ET37 and PR36/37 updated with actual outcomes; ET39 B receiving. Current handoff path C:/Users/techai/PKA testing/Team/handoffs/Astra-EC-current.md. HWNDs historically Astra65408858, Opus131796196, Sol162924912, Fabel3999840; rediscover PID/title/exe before contact after reboot. Use guarded scripts/seat_send.py with readback, not raw send. Some prior readbacks missing; GitHub/Jira published records are authoritative delivery.
 No secrets in this handoff. No shared source apply or deployment permitted by checkpoint.
+
+Checkpoint follow-through: primary checkpoint commit4d02c41 pushed; continuation appends this current status. Optional generated Python cache cleanup was blocked by automatic policy; caches retained, no source/evidence loss. Atlassian connector enumerates a different site1749157987337, so it was not used to update ElectionTracker site1791122756383. Browser Jira had been updated earlier; latest allgreen/base status is durable in PR38 and this handoff.
+
