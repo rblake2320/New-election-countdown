@@ -36,3 +36,6 @@ Extend existing owned-container nginx/proxy load harness rather than target a pu
 
 ## Coordination and handoff
 A/C settle fields; D forwards the exact shared-schema/head reference to B. No projection, winner inference, source freshness or availability claim from a UI fallback. Separate refused/unavailable functionality stays open. Original failing receipts retained. Shared source apply/deploy hold unchanged. Current worktree D:/projects/et-wt/astra-election-night-drill, branch astra/election-night-drill.
+
+## A draft observed, not settled (board23:15)
+A proposes election_result_reports append-only snapshots plus candidate_result_lines, one recordResultReport writer for ingestion/admin; GET latest+history,404no_results_yet. Exact A draft is on ET6/canonical board. C settlement pending. D receiving questions for settlement: source-called-winner must exclude projections; nullable percent and precision/unit semantics; tie ordering for same-asOf corrections; independent source identity and official URL validation; missing-source-asOf handling; certified downgrade/correction rules. D forwards only final shared types/head to B.
