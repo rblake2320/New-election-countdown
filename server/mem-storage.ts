@@ -2,6 +2,8 @@ import { canonicalPartyComponents, electionCalendarWindow, normalizeElectionFilt
 import { SUBSCRIPTION_TIERS, generateCampaignApiKey, hashApiKey, type NewCampaignAccountInput, type CreatedCampaignAccount } from './campaign-portal-service';
 import type { campaignAccounts as _campaignAccountsTable } from '@shared/schema';
 type CampaignAccount = typeof _campaignAccountsTable.$inferSelect;
+import { MemResultReportStore, type RecordContext, type ResultsListQuery } from './results-store';
+import { electionContextOf, type ResultReportInput } from './results-reports';
 import { projectOfficialResultsForElection } from '../shared/official-results';
 import { type Election, type InsertElection, type Candidate, type InsertCandidate, type ElectionFilters, type CongressMember, type InsertCongressMember, type User, type UpsertUser, type WatchlistItem, type InsertWatchlistItem, type CandidateAccount, type InsertCandidateAccount, type CandidateProfile, type InsertCandidateProfile, type CandidateDataSource, type InsertCandidateDataSource, type CandidatePosition, type InsertCandidatePosition, type CandidateQA, type InsertCandidateQA, type NotificationPreferences, type InsertNotificationPreferences, type NotificationSubscription, type NotificationDelivery, type InsertNotificationDelivery, type UpdateUserPreferences, type UserPreferences } from "@shared/schema";
 import { IStorage } from "./storage";
@@ -146,8 +148,8 @@ export class MemStorage implements IStorage {
       pollCloseKind: election.pollCloseKind ?? null,
       pollHoursBasis: election.pollHoursBasis ?? null,
       pollHoursSource: election.pollHoursSource ?? null,
-      officialResultsUrl: null,
-      officialResultsSource: null,
+      officialResultsUrl: (election as any).officialResultsUrl ?? null,
+      officialResultsSource: (election as any).officialResultsSource ?? null, // was hard-coded null: the manifest never reached memory mode
       isActive: election.isActive ?? null
     };
     this.elections.set(newElection.id, newElection);
@@ -246,18 +248,26 @@ export class MemStorage implements IStorage {
 
   // Election Results methods
   async getElectionResults(electionId: number): Promise<any> {
-    // Return mock results structure
-    return {
-      electionId,
-      totalVotes: 0,
-      reportingPrecincts: 0,
-      totalPrecincts: 100,
-      percentReporting: 0,
-      isComplete: false,
-      isCertified: false,
-      lastUpdated: new Date()
-    };
+    // Used to return a mock row with 0 % reporting of 100 precincts — a fabricated result.
+    const payload = await this.getResultsPayload(electionId);
+    return payload ?? { electionId, status: 'none', candidates: [] };
   }
+
+  private readonly resultReports = new MemResultReportStore(
+    (id) => this.elections.has(id),
+    (candidateId, electionId) => this.candidates.get(candidateId)?.electionId === electionId,
+    (date) => Array.from(this.elections.values()).filter((e) => new Date(e.date).toISOString().slice(0, 10) === date).map((e) => e.id),
+    (id) => this.elections.get(id)?.date ?? null,
+    (id) => { const e = this.elections.get(id); return e ? electionContextOf(e) : null; },
+    () => Array.from(this.elections.values())
+      .filter((e) => (e.officialResultsSource as any)?.routeVerification === 'worked')
+      .map((e) => ({ election_id: e.id, state: e.state, publisher: (e.officialResultsSource as any).publisher, route_type: (e.officialResultsSource as any).routeType, government_url: (e.officialResultsSource as any).governmentUrl })),
+  );
+  recordResultReport(electionId: number, input: ResultReportInput, ctx: RecordContext) { return this.resultReports.recordResultReport(electionId, input, ctx); }
+  getResultsPayload(electionId: number) { return this.resultReports.getResultsPayload(electionId); }
+  listResultsPayloads(query: ResultsListQuery) { return this.resultReports.listResultsPayloads(query); }
+  storeResultEvidence(bytes: Buffer, contentType: string, filename: string | null, uploadedBy: string) { return this.resultReports.storeResultEvidence(bytes, contentType, filename, uploadedBy); }
+  listResultSources(state?: string) { return this.resultReports.listResultSources(state); }
 
   async updateElectionResults(electionId: number, resultsData: any): Promise<any> {
     // In memory storage, just return the data

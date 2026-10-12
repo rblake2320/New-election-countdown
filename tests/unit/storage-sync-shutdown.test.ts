@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 const state = vi.hoisted(() => ({ sync: vi.fn(), destroy: vi.fn() }));
-vi.mock('../../server/db', () => ({ db: {} }));
+vi.mock('../../server/db', () => ({ db: {}, pool: {} })); // storage.ts now also builds the results store on the shared pool
 vi.mock('../../server/google-civic-service', () => ({ getGoogleCivicService: vi.fn() }));
 vi.mock('../../server/congress-bill-service', () => ({ getCongressBillService: vi.fn() }));
 vi.mock('../../server/perplexity-service', () => ({ getPerplexityService: vi.fn() }));

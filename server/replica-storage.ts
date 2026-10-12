@@ -234,6 +234,11 @@ export class ReplicaStorage implements IStorage {
     }, 'getCandidatesByIds');
   }
 
+  async recordResultReport(..._args: unknown[]): Promise<never> { return this.readOnly('recordResultReport'); }
+  async getResultsPayload(..._args: unknown[]): Promise<never> { return this.readOnly('getResultsPayload'); }
+  async listResultsPayloads(..._args: unknown[]): Promise<never> { return this.readOnly('listResultsPayloads'); }
+  async storeResultEvidence(..._args: unknown[]): Promise<never> { return this.readOnly('storeResultEvidence'); }
+  async listResultSources(..._args: unknown[]): Promise<never> { return this.readOnly('listResultSources'); }
   async getElectionResults(electionId: number): Promise<any> {
     return this.executeQuery(async () => {
       return this.db.select()

@@ -1,23 +1,17 @@
 import { EventEmitter } from 'events';
 import { storage } from './storage';
 
+import { resultReportInputSchema } from './results-reports';
+
 /**
- * Results ingestion storage is not implemented yet (ET-6: owner decision on live results).
- * These optional members make that explicit: when absent, the event is refused with a
- * clear error instead of a TypeError half-way through processing.
+ * ET-6 (owner decision 2026-10-11): results reach the database only as a full v1.2 snapshot from a
+ * registered official source, through storage.recordResultReport. An event that carries anything
+ * less (AI-derived claims, partial candidate counts, a "district call", a recount flag) is refused
+ * here - it is not an official result and must never become one.
  */
-interface ResultsIngestStorage {
-  updateCandidateResults?(candidateId: number, results: Record<string, unknown>): Promise<unknown>;
-  updateElection?(electionId: number, updates: Record<string, unknown>): Promise<unknown>;
-  updateCandidate?(candidateId: number, updates: Record<string, unknown>): Promise<unknown>;
-}
-const ingest = storage as unknown as ResultsIngestStorage;
-function requireIngest<K extends keyof ResultsIngestStorage>(method: K): NonNullable<ResultsIngestStorage[K]> {
-  const fn = ingest[method];
-  if (typeof fn !== 'function') {
-    throw Object.assign(new Error(`${String(method)} is not implemented: results ingestion is pending the ET-6 live-results decision`), { status: 501, publicCode: 'not_implemented', publicMessage: 'Results ingestion is not enabled' });
-  }
-  return fn.bind(storage) as NonNullable<ResultsIngestStorage[K]>;
+class UnsupportedEventError extends Error {
+  status = 422; publicCode = 'unsupported_result_event';
+  constructor(message: string) { super(message); }
 }
 import { aiValidationService } from './ai-validation-service';
 
@@ -178,36 +172,21 @@ export class EventProcessingService extends EventEmitter {
   // Specific event processors
   private async processResultUpdate(event: ElectionEvent): Promise<void> {
     const { electionId, data } = event;
-    
-    // Update candidate results
-    if (data.candidates) {
-      for (const candidate of data.candidates) {
-        await requireIngest('updateCandidateResults')(candidate.id, {
-          votes: candidate.votes,
-          percentage: candidate.percentage,
-          lastUpdated: event.timestamp
-        });
-      }
+    const parsed = resultReportInputSchema.safeParse(data?.report);
+    if (!parsed.success) {
+      throw new UnsupportedEventError('result_update events must carry a full v1.2 snapshot in data.report from a registered official source');
     }
-
-    // Trigger real-time notifications
-    this.emit('results_updated', {
-      electionId,
-      timestamp: event.timestamp,
-      candidates: data.candidates
-    });
+    const outcome = await storage.recordResultReport(electionId, parsed.data, { postedBy: `event:${event.source}`, idempotencyKey: null });
+    this.emit('results_updated', { electionId, timestamp: event.timestamp, reportId: outcome.payload.reportId, revision: outcome.payload.revision, created: outcome.created });
   }
 
   private async processCandidateChange(event: ElectionEvent): Promise<void> {
     const { electionId, data } = event;
     
-    // Validate candidate change
+    // Candidate records change only through the source-bound candidate pipeline, never from an
+    // event (there is no storage member for it and there must not be one here).
     if (event.validated && event.confidence > 0.7) {
-      await requireIngest('updateCandidate')(data.candidateId, {
-        name: data.name,
-        party: data.party,
-        lastUpdated: event.timestamp
-      });
+      throw new UnsupportedEventError(`candidate_change for candidate ${data.candidateId} is not applied from events`);
 
       this.emit('candidate_updated', {
         electionId,
@@ -249,24 +228,18 @@ export class EventProcessingService extends EventEmitter {
     this.districtCalls.set(event.data.districtId, districtCall);
 
     // Update election with district winner
-    await storage.updateElectionResults(event.electionId, {
-      districtWinners: Array.from(this.districtCalls.values())
-        .filter(call => call.electionId === event.electionId)
-    });
-
-    this.emit('district_called', districtCall);
+    // A "district call" is a projection. Under the owner's no-projections decision it is kept as an
+    // in-memory note for operators and NEVER written to results.
+    this.emit('district_call_noted', districtCall);
+    throw new UnsupportedEventError(`district_call for election ${event.electionId} is a projection and is not recorded as a result`);
   }
 
   private async processRecountDeclaration(event: ElectionEvent): Promise<void> {
     const { electionId, data } = event;
     
-    // Flag election for recount
-    await requireIngest('updateElection')(electionId, {
-      status: 'recount_declared',
-      recountReason: data.reason,
-      recountDeadline: data.deadline,
-      lastUpdated: event.timestamp
-    });
+    // There is no election status column for recounts; an official recount arrives as a new
+    // snapshot (supersedesReportId) from the official source, not as an event flag.
+    throw new UnsupportedEventError(`recount_declared for election ${electionId} is not applied from events (reason: ${String(data?.reason ?? 'unspecified')})`);
 
     this.emit('recount_declared', {
       electionId,

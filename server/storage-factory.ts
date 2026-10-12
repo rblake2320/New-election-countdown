@@ -1,5 +1,7 @@
 import type { ElectionListing, ElectionQueryFilters } from "./election-list-filters";
 import type { NewCampaignAccountInput, CreatedCampaignAccount } from './campaign-portal-service';
+import type { RecordContext, ResultsListQuery } from './results-store';
+import type { ResultReportInput } from './results-reports';
 import { MemStorage } from "./mem-storage";
 import { BackgroundWork } from './background-work';
 import type { IStorage, EngagementRecord } from "./storage";
@@ -923,6 +925,11 @@ export class StorageFactory {
     this.queueWriteOperation('updateCandidatePolling', [candidateId, pollingData]);
   }
 
+  recordResultReport(electionId: number, input: ResultReportInput, ctx: RecordContext) { return this.currentStorage.recordResultReport(electionId, input, ctx); }
+  getResultsPayload(electionId: number) { return this.currentStorage.getResultsPayload(electionId); }
+  listResultsPayloads(query: ResultsListQuery) { return this.currentStorage.listResultsPayloads(query); }
+  storeResultEvidence(bytes: Buffer, contentType: string, filename: string | null, uploadedBy: string) { return this.currentStorage.storeResultEvidence(bytes, contentType, filename, uploadedBy); }
+  listResultSources(state?: string) { return this.currentStorage.listResultSources(state); }
   async getElectionResults(electionId: number): Promise<any> {
     return this.currentStorage.getElectionResults(electionId);
   }

@@ -11,6 +11,7 @@ import { perplexityCongressService } from "./perplexity-congress-service";
 import { registerCongressImportRoutes } from "./congress-import-routes";
 import { registerCongressMembersRoutes } from "./congress-members-routes";
 import { registerCampaignRegisterRoutes } from "./campaign-register-routes";
+import { registerResultsRoutes } from "./results-routes";
 import { setupAuth, isAuthenticated } from "./auth";
 import { requireAdmin } from "./middleware/require-admin";
 import { verifySendGridWebhook, verifyTwilioWebhook } from "./webhook-verify";
@@ -1153,31 +1154,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // injected so Lane C's source-bound importer can replace the legacy one here only.
   registerCongressImportRoutes(app, async () => (await import('./congress-import-service')).congressImportService);
 
-  // Election results endpoint
-  app.get('/api/elections/:id/results', async (req, res) => {
-    try {
-      const electionId = parseInt(req.params.id);
-      const results = await storage.getElectionResults(electionId);
-      res.json(results);
-    } catch (error: any) {
-      console.error('Error fetching election results:', error);
-      res.status(500).json({ message: 'Failed to fetch election results' });
-    }
+  // ET-6 live official results (contract v1.2): GET /api/elections/:id/results (+ /live-results alias),
+  // GET /api/results?date=|ids= batched read, POST /api/elections/:id/results (admin) — server/results-routes.ts
+  registerResultsRoutes(app, {
+    store: storage,
+    isAuthenticated,
+    requireAdmin,
+    adminIdentity: (req: any) => (req.userId ?? req.user?.claims?.sub) ? String(req.userId ?? req.user?.claims?.sub) : null,
   });
 
   // Update election results endpoint
-  app.post('/api/elections/:id/results', isAuthenticated, requireAdmin, async (req, res) => {
-    try {
-      const electionId = parseInt(req.params.id);
-      const resultsData = req.body;
-      const results = await storage.updateElectionResults(electionId, resultsData);
-      res.json(results);
-    } catch (error: any) {
-      console.error('Error updating election results:', error);
-      res.status(500).json({ message: 'Failed to update election results' });
-    }
-  });
-
   // Perplexity AI endpoints
   app.post('/api/search-elections', isAuthenticated, searchLimiter, async (req, res) => {
     try {
@@ -1328,26 +1314,6 @@ Please provide detailed, current information about this specific election.`;
   });
 
   // Get live election results with real-time updates
-  app.get('/api/elections/:id/live-results', async (req, res) => {
-    try {
-      const electionId = parseInt(req.params.id);
-      const results = await storage.getElectionResults(electionId);
-
-      // Add real-time metrics
-      const liveResults = {
-        ...results,
-        isLive: new Date() <= new Date(results.election?.date || ''),
-        lastUpdated: new Date(),
-        refreshInterval: 30000 // 30 seconds for live elections
-      };
-
-      res.json(liveResults);
-    } catch (error) {
-      console.error('Error fetching live results:', error);
-      res.status(500).json({ message: 'Failed to fetch live results' });
-    }
-  });
-
   // Results Ingestion Service Control Endpoints (Admin Only - Protected)
   app.post('/api/admin/results-ingestion/start', isAuthenticated, requireAdmin, async (req: any, res) => {
     try {

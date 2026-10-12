@@ -1,47 +1,51 @@
+/**
+ * ET-6 live official results — ingestion integration (contract v1.2 §3).
+ *
+ * Elections whose official_results_source (lane C's manifest) is `published` are polled through a
+ * registered per-source ADAPTER that returns a v1.2 snapshot; the snapshot goes through the same
+ * writer as admin posting (storage.recordResultReport). No adapter → the election is reported as
+ * `no_adapter` and nothing is written. Nothing here fetches a URL that is not in the manifest, and
+ * nothing here ever decides a winner (the old determineWinner heuristic is gone).
+ */
 import { storage } from './storage';
-import fetch from 'node-fetch';
 import { BackgroundWork } from './background-work';
+import { resultReportInputSchema, ResultReportError, type ResultReportInput } from './results-reports';
+import type { OfficialResultsSource } from '@shared/official-results';
 
-interface ElectionResult {
-  electionId: number;
-  totalVotes: number;
-  reportingPrecincts: number;
-  totalPrecincts: number;
-  percentReporting: number;
-  isComplete: boolean;
-  resultsSource: string;
-  candidateResults: CandidateResult[];
+export interface AdapterElection {
+  id: number;
+  state: string | null;
+  date: Date | string;
+  officialResultsUrl: string | null;
+  officialResultsSource: OfficialResultsSource;
 }
 
-interface CandidateResult {
-  candidateId: number;
-  votesReceived: number;
-  votePercentage: number;
-  isWinner: boolean;
-  isProjectedWinner: boolean;
-}
+/** A per-source adapter (lane C): fetch the admitted official source and parse it to a snapshot, or
+ *  return `null` when the source has not published a parseable feed for this race yet. */
+export type ResultsAdapter = (election: AdapterElection) => Promise<ResultReportInput | null>;
+
+export type IngestOutcome =
+  | { electionId: number; outcome: 'recorded'; reportId: number; revision: string }
+  | { electionId: number; outcome: 'unchanged' }
+  | { electionId: number; outcome: 'not_published' }
+  | { electionId: number; outcome: 'no_adapter'; sourceId: string | null }
+  | { electionId: number; outcome: 'refused'; code: string; message: string }
+  | { electionId: number; outcome: 'failed'; message: string };
 
 export class ResultsIngestionService {
   private pollingWork = new BackgroundWork();
   private isRunning = false;
-  private googleCivicApiKey: string | null = null;
+  private readonly adapters = new Map<string, ResultsAdapter>();
+  private lastCycle: { at: string; outcomes: IngestOutcome[] } | null = null;
 
-  constructor() {
-    this.googleCivicApiKey = process.env.GOOGLE_CIVIC_API_KEY || null;
+  /** Lane C registers adapters by the manifest's publisher id (`officialResultsSource.publisher`). */
+  registerAdapter(sourceId: string, adapter: ResultsAdapter): void {
+    this.adapters.set(sourceId, adapter);
   }
 
-  /**
-   * Start the automated results ingestion polling
-   */
   async startPolling(intervalSeconds: number = 30): Promise<void> {
-    if (this.isRunning) {
-      console.log('Results ingestion already running');
-      return;
-    }
-
-    console.log(`Starting automated results ingestion (every ${intervalSeconds} seconds)`);
+    if (this.isRunning) return;
     this.isRunning = true;
-
     const previous = this.pollingWork;
     if (previous.isStopped) {
       await previous.stop();
@@ -49,284 +53,71 @@ export class ResultsIngestionService {
       this.pollingWork = new BackgroundWork();
     }
     const work = this.pollingWork;
-
-    // Initial run
-    await work.run(() => this.ingestResults());
-
-    // Schedule recurring polls
-    work.every(intervalSeconds * 1000, () => this.ingestResults(),
-      () => console.error('Scheduled results ingestion failed'));
+    await work.run(async () => { await this.ingestResults(); });
+    work.every(intervalSeconds * 1000, async () => { await this.ingestResults(); }, () => console.error('[results ingestion] scheduled cycle failed'));
   }
 
-  /**
-   * Stop the automated polling
-   */
   async stopPolling(): Promise<void> {
     this.isRunning = false;
     await this.pollingWork.stop();
-    console.log('Results ingestion stopped');
   }
 
-  /**
-   * Main ingestion method - checks all sources
-   */
-  async ingestResults(): Promise<void> {
-    console.log('[Results Ingestion] Starting ingestion cycle...');
-
+  /** One cycle over every election with a published official source. Returns per-election outcomes. */
+  async ingestResults(): Promise<IngestOutcome[]> {
+    const outcomes: IngestOutcome[] = [];
+    let elections: AdapterElection[];
     try {
-      // Get elections happening today or recently (within 1 day)
-      const activeElections = await this.getActiveElections();
-      console.log(`[Results Ingestion] Found ${activeElections.length} active elections`);
-
-      if (activeElections.length === 0) {
-        return;
-      }
-
-      // Try multiple sources in parallel
-      await Promise.allSettled([
-        this.ingestFromGoogleCivic(activeElections),
-        this.ingestFromStateSources(activeElections),
-        // Future: Add AP Elections API here when available
-        // this.ingestFromAPElections(activeElections),
-      ]);
-
-      console.log('[Results Ingestion] Ingestion cycle complete');
+      elections = await this.publishedElections();
     } catch (error) {
-      console.error('[Results Ingestion] Error during ingestion:', error);
+      console.error('[results ingestion] could not list elections:', error);
+      this.lastCycle = { at: new Date().toISOString(), outcomes };
+      return outcomes;
     }
-  }
-
-  /**
-   * Get elections that are happening now or recently
-   */
-  private async getActiveElections(): Promise<any[]> {
-    const elections = await storage.getElections({});
-    const now = new Date();
-    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-    const twoDaysFromNow = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
-
-    return elections.filter(e => {
-      const electionDate = new Date(e.date);
-      return electionDate >= oneDayAgo && electionDate <= twoDaysFromNow && e.isActive;
-    });
-  }
-
-  /**
-   * Ingest results from Google Civic Information API
-   */
-  private async ingestFromGoogleCivic(elections: any[]): Promise<void> {
-    if (!this.googleCivicApiKey) {
-      console.log('[Google Civic] API key not configured, skipping');
-      return;
-    }
-
-    console.log(`[Google Civic] Checking ${elections.length} elections...`);
-
     for (const election of elections) {
-      try {
-        // Note: Google Civic API doesn't provide real-time vote counts
-        // It's mainly for voter information, but we check for available data
-        const url = `https://www.googleapis.com/civicinfo/v2/elections?key=${this.googleCivicApiKey}`;
-        const response = await fetch(url);
-        
-        if (!response.ok) {
-          console.log(`[Google Civic] API returned ${response.status} for election ${election.id}`);
-          continue;
-        }
-
-        const data: any = await response.json();
-        
-        // Google Civic API primarily provides election dates and polling places
-        // Not comprehensive vote counts, but we log availability
-        console.log(`[Google Civic] Found ${data.elections?.length || 0} elections in API`);
-        
-      } catch (error) {
-        console.error(`[Google Civic] Error for election ${election.id}:`, error);
-      }
+      outcomes.push(await this.ingestOne(election));
     }
+    this.lastCycle = { at: new Date().toISOString(), outcomes };
+    return outcomes;
   }
 
-  /**
-   * Ingest results from state-level sources
-   * This would integrate with existing web scrapers
-   */
-  private async ingestFromStateSources(elections: any[]): Promise<void> {
-    console.log(`[State Sources] Checking ${elections.length} elections...`);
-
-    // Group elections by state
-    const electionsByState = new Map<string, any[]>();
-    for (const election of elections) {
-      if (!electionsByState.has(election.state)) {
-        electionsByState.set(election.state, []);
-      }
-      electionsByState.get(election.state)!.push(election);
-    }
-
-    // Check each state
-    for (const [state, stateElections] of electionsByState) {
-      try {
-        await this.checkStateSource(state, stateElections);
-      } catch (error) {
-        console.error(`[State Sources] Error for state ${state}:`, error);
-      }
-    }
-  }
-
-  /**
-   * Check state-specific election results source
-   */
-  private async checkStateSource(state: string, elections: any[]): Promise<void> {
-    // State-specific result URLs (these would need actual scraping logic)
-    const stateUrls: Record<string, string> = {
-      'VA': 'https://results.elections.virginia.gov',
-      'WI': 'https://elections.wi.gov/elections-voting/results',
-      'GA': 'https://results.enr.clarityelections.com/GA',
-      'AL': 'https://www.sos.alabama.gov/alabama-votes/voter/election-information',
-      'TX': 'https://results.sos.state.tx.us',
-      'PA': 'https://www.electionreturns.pa.gov',
-      'FL': 'https://results.elections.myflorida.com',
-      'OH': 'https://www.ohiosos.gov/elections/election-results-and-data',
-      'NC': 'https://er.ncsbe.gov',
-      'MI': 'https://mielections.us/election/results',
-    };
-
-    const stateUrl = stateUrls[state];
-    if (!stateUrl) {
-      console.log(`[State Sources] No URL configured for state ${state}`);
-      return;
-    }
-
-    console.log(`[State Sources] Checking ${state} (${elections.length} elections)`);
-
-    // In a production system, you would:
-    // 1. Fetch the state's election results page
-    // 2. Parse the HTML/JSON for vote counts
-    // 3. Match results to your database elections
-    // 4. Update the database with new results
-
-    // For now, we log the intent
-    // The actual scraping would use the existing electionScraper
-    console.log(`[State Sources] Would check ${stateUrl} for ${state} elections`);
-  }
-
-  /**
-   * Determine race winner based on results
-   * Auto-call races when conditions are met
-   */
-  async determineWinner(electionId: number): Promise<void> {
+  async ingestOne(election: AdapterElection): Promise<IngestOutcome> {
+    const sourceId = election.officialResultsSource?.publisher ?? null;
+    const adapter = sourceId ? this.adapters.get(sourceId) : undefined;
+    if (!adapter) return { electionId: election.id, outcome: 'no_adapter', sourceId };
     try {
-      const results = await storage.getElectionResults(electionId);
-      
-      if (!results || !results.candidates || results.candidates.length === 0) {
-        return;
+      const raw = await adapter(election);
+      if (raw === null) return { electionId: election.id, outcome: 'not_published' };
+      // The election being ingested is authoritative for schemaVersion/electionId; adapters supply the rest.
+      const input = resultReportInputSchema.parse({ ...(raw as object), schemaVersion: 1, electionId: election.id });
+      if (input.source.kind === 'ap' && process.env.RESULTS_ALLOW_AP !== 'true') {
+        return { electionId: election.id, outcome: 'refused', code: 'ap_disabled', message: 'AP results are disabled by the owner' };
       }
-
-      // Get reporting percentage
-      const percentReporting = parseFloat(results.percentReporting?.toString() || '0');
-      
-      // Sort candidates by votes
-      const sortedCandidates = [...results.candidates].sort((a, b) => 
-        (b.votesReceived || 0) - (a.votesReceived || 0)
-      );
-
-      const leader = sortedCandidates[0];
-      const runnerUp = sortedCandidates[1];
-
-      if (!leader || !runnerUp) {
-        return;
-      }
-
-      const leaderVotes = leader.votesReceived || 0;
-      const runnerUpVotes = runnerUp.votesReceived || 0;
-      const totalVotes = results.totalVotes || 0;
-
-      if (totalVotes === 0) {
-        return;
-      }
-
-      // Calculate vote margin
-      const voteMargin = leaderVotes - runnerUpVotes;
-      const marginPercentage = (voteMargin / totalVotes) * 100;
-
-      // Race calling logic
-      let shouldCallWinner = false;
-      let shouldProjectWinner = false;
-
-      // Call winner if:
-      // 1. 100% reporting and leader has most votes
-      if (percentReporting >= 100) {
-        shouldCallWinner = true;
-      }
-      // 2. >95% reporting and margin > 5%
-      else if (percentReporting >= 95 && marginPercentage > 5) {
-        shouldCallWinner = true;
-      }
-      // 3. >80% reporting and margin > 10%
-      else if (percentReporting >= 80 && marginPercentage > 10) {
-        shouldCallWinner = true;
-      }
-      // 4. Project winner if >50% reporting and margin > 15%
-      else if (percentReporting >= 50 && marginPercentage > 15) {
-        shouldProjectWinner = true;
-      }
-
-      // Update winner status
-      if (shouldCallWinner || shouldProjectWinner) {
-        const candidateResults = results.candidates.map(c => ({
-          candidateId: c.id,
-          votesReceived: c.votesReceived || 0,
-          votePercentage: parseFloat(c.votePercentage?.toString() || '0'),
-          isWinner: shouldCallWinner && c.id === leader.id,
-          isProjectedWinner: shouldProjectWinner && c.id === leader.id,
-        }));
-
-        await storage.updateElectionResults(electionId, {
-          totalVotes,
-          reportingPrecincts: results.reportingPrecincts,
-          totalPrecincts: results.totalPrecincts,
-          percentReporting,
-          isComplete: percentReporting >= 100,
-          candidateResults,
-        });
-
-        const status = shouldCallWinner ? 'WINNER CALLED' : 'PROJECTED WINNER';
-        console.log(`[Race Calling] ${status} for election ${electionId}: ${leader.name} (${marginPercentage.toFixed(2)}% margin, ${percentReporting}% reporting)`);
-      }
+      const result = await storage.recordResultReport(election.id, input, { postedBy: `ingest:${sourceId}`, idempotencyKey: null });
+      if (!result.created) return { electionId: election.id, outcome: 'unchanged' };
+      return { electionId: election.id, outcome: 'recorded', reportId: result.payload.reportId!, revision: result.payload.revision! };
     } catch (error) {
-      console.error(`[Race Calling] Error determining winner for election ${electionId}:`, error);
+      if (error instanceof ResultReportError) return { electionId: election.id, outcome: 'refused', code: error.publicCode, message: error.message };
+      if (error && typeof error === 'object' && 'issues' in error) return { electionId: election.id, outcome: 'refused', code: 'invalid_report', message: 'adapter output failed contract validation' };
+      return { electionId: election.id, outcome: 'failed', message: error instanceof Error ? error.message : String(error) };
     }
   }
 
-  /**
-   * Manual result update (called from API)
-   */
-  async updateElectionResults(electionId: number, resultsData: ElectionResult): Promise<any> {
-    try {
-      console.log(`[Manual Update] Updating results for election ${electionId}`);
-      
-      const updatedResults = await storage.updateElectionResults(electionId, resultsData);
-      
-      // Auto-determine winner if conditions met
-      await this.determineWinner(electionId);
-      
-      return updatedResults;
-    } catch (error) {
-      console.error(`[Manual Update] Error updating election ${electionId}:`, error);
-      throw error;
-    }
+  private async publishedElections(): Promise<AdapterElection[]> {
+    const all = await storage.getElections({});
+    return all
+      .filter((e) => e.officialResultsSource && e.officialResultsSource.status === 'published')
+      .map((e) => ({ id: e.id, state: e.state ?? null, date: e.date, officialResultsUrl: e.officialResultsUrl ?? null, officialResultsSource: e.officialResultsSource! }));
   }
 
-  /**
-   * Get service status
-   */
   getStatus() {
     return {
       isRunning: this.isRunning,
-      hasGoogleCivicKey: !!this.googleCivicApiKey,
       pollingActive: this.pollingWork.hasTimers,
+      adapters: [...this.adapters.keys()],
+      apEnabled: process.env.RESULTS_ALLOW_AP === 'true',
+      lastCycle: this.lastCycle,
     };
   }
 }
 
-// Singleton instance
 export const resultsIngestionService = new ResultsIngestionService();
