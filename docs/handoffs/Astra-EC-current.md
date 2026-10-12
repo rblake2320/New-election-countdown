@@ -28,3 +28,6 @@ No secrets in this handoff. No shared source apply or deployment permitted by ch
 
 Checkpoint follow-through: primary checkpoint commit4d02c41 pushed; continuation appends this current status. Optional generated Python cache cleanup was blocked by automatic policy; caches retained, no source/evidence loss. Atlassian connector enumerates a different site1749157987337, so it was not used to update ElectionTracker site1791122756383. Browser Jira had been updated earlier; latest allgreen/base status is durable in PR38 and this handoff.
 
+
+## Latest continuation: PR44 receiving
+Exact B1f7072e received independently in worktree D:/projects/et-wt/astra-b44-receiving branch astra/b44-receiving, evidence commit1a03c45 pushed. Real production image2f8a680746b29d295758c27d0bb497745e25ca855f3f99fd1aa516241b3c3ed2, private PG real HTTP. Elections2/26 x320/360/390:6/6 Back above title, wrapped stats, no header clipping/horizontal overflow/nested interactive nodes. Actual Back returns home. Focused2/2 and build pass. PR44 comment6117279858, JiraET36 updated. Evidence docs/evidence/et36/pr44 includes6screenshots+geometry. Independent D Chrome only; B owns Firefox/WebKit runs. Temporary et-congress-prod-70948-e519d09f app/db/both networks removed; viewport reset. No shared mutations.
