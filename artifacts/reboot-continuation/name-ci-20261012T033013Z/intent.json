@@ -1,0 +1,13 @@
+{
+  "status": "running",
+  "scenario": "post-merge source-name gate in actual depth-one clone",
+  "head": "f0fe3ab9c300db7993df1748d7f016ddc6fde146",
+  "baseline": "c343237594bde7a2e3bd837fceaaae6abad9a072",
+  "scratch": "C:\\Users\\techai\\.codex\\tmp\\sol-ci-name-shallow-20261012T033013Z",
+  "noServerOrDB": true,
+  "controls": [
+    "without immutable old commit: source comparison must refuse",
+    "after workflow fetch: all six source-field tests pass"
+  ],
+  "canResume": "No DB or app side effects; rerun script in a new unique scratch directory."
+}
