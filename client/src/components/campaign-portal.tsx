@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { Building2, TrendingUp, Users, MapPin, Download, DollarSign } from "lucide-react";
+import { Building2, TrendingUp, Users, MapPin, DollarSign } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
 interface CampaignData {
@@ -60,7 +60,7 @@ export function CampaignPortal() {
   });
 
   // Analytics query
-  const { data: analytics, isLoading: analyticsLoading } = useQuery({
+  const { data: analytics, isLoading: analyticsLoading, error: analyticsError, refetch: refetchAnalytics } = useQuery({
     queryKey: ['/api/campaign/analytics', selectedElection, apiKey],
     enabled: !!apiKey,
     queryFn: async () => {
@@ -69,7 +69,12 @@ export function CampaignPortal() {
           'X-API-Key': apiKey,
         },
       });
-      if (!response.ok) throw new Error('Failed to fetch analytics');
+      if (!response.ok) {
+        // A rejected request is an error state, never "no data" (ET-40: keys from
+        // registration are currently refused by every portal endpoint).
+        const body = await response.json().catch(() => null);
+        throw new Error(`Analytics could not be loaded (${response.status})${body?.error ? `: ${body.error}` : ''}.`);
+      }
       return response.json();
     },
   });
@@ -182,11 +187,16 @@ export function CampaignPortal() {
       <Separator />
 
       <Tabs defaultValue="analytics" className="space-y-4">
-        <TabsList>
+        <TabsList className="h-auto flex-wrap justify-start">
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="demographics">Demographics</TabsTrigger>
           <TabsTrigger value="polling">Polling Data</TabsTrigger>
-          <TabsTrigger value="exports">Data Exports</TabsTrigger>
+          {/* Owner decision (ET-38): exports are not built yet, so the tab is shown
+              but disabled and nothing on this page offers them for sale. */}
+          <TabsTrigger value="exports" disabled className="gap-1.5">
+            Data Exports{" "}
+            <span className="rounded bg-background px-1.5 py-0.5 text-xs font-normal text-foreground">Coming soon</span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="analytics" className="space-y-4">
@@ -203,6 +213,13 @@ export function CampaignPortal() {
                 </Card>
               ))}
             </div>
+          ) : analyticsError ? (
+            <Card>
+              <CardContent role="alert" className="p-6 text-center space-y-3">
+                <p className="text-sm text-destructive">{analyticsError.message}</p>
+                <Button variant="outline" size="sm" onClick={() => refetchAnalytics()}>Try again</Button>
+              </CardContent>
+            </Card>
           ) : analytics ? (
             <div className="space-y-6">
               {/* Key Metrics */}
@@ -326,39 +343,6 @@ export function CampaignPortal() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="exports">
-          <Card>
-            <CardHeader>
-              <CardTitle>Data Exports</CardTitle>
-              <CardDescription>Purchase and download detailed analytics</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[
-                  { name: 'Basic Analytics', price: 25, type: 'basic_analytics' },
-                  { name: 'Demographic Data', price: 50, type: 'demographic_data' },
-                  { name: 'Engagement Metrics', price: 75, type: 'engagement_metrics' },
-                  { name: 'Geographic Clusters', price: 100, type: 'geographic_clusters' },
-                ].map((exportType) => (
-                  <Card key={exportType.type} className="border-2">
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <h4 className="font-semibold">{exportType.name}</h4>
-                          <p className="text-sm text-muted-foreground">${exportType.price}</p>
-                        </div>
-                        <Button size="sm">
-                          <Download className="w-4 h-4 mr-2" />
-                          Purchase
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
 
       {/* Subscription Features */}
