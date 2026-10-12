@@ -9,8 +9,14 @@ export const officialResultsRouteTypes = [
   'election_specific_results',
 ] as const;
 export const httpsResultsUrl = z.string().url().max(2048).refine(value => {
-  const url = new URL(value);
-  return url.protocol === 'https:' && !url.username && !url.password && !url.port;
+  // Zod also runs refinements after a nonfatal url() validation issue. Invalid
+  // strings must become a field error rather than escape safeParse as TypeError.
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && !url.username && !url.password && !url.port;
+  } catch {
+    return false;
+  }
 }, 'An HTTPS URL without credentials or a custom port is required');
 const resultPhase = z.enum(['general', 'primary', 'runoff', 'other']);
 const resultDigest = z.string().regex(/^[a-f0-9]{64}$/);

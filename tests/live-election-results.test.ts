@@ -40,6 +40,17 @@ describe('ET-6 observed-result transport contract', () => {
     expect(liveElectionResultsSchema.parse(certified).candidates[0].isWinner).toBe(false);
     expect(liveElectionResultsSchema.safeParse({ ...certified, candidates: [{ ...base.candidates[0], isWinner: true }] }).success).toBe(false);
   });
+  it.each(['', 'not a url'])('returns validation failures rather than throwing for malformed URL %j', url => {
+    const source = { ...posting(), source: { ...posting().source, url } };
+    expect(() => liveResultReportInputSchema.safeParse(source)).not.toThrow();
+    expect(liveResultReportInputSchema.safeParse(source).success).toBe(false);
+    const declaration = { ...posting(), winnerCalledBy: { source: 'Test-only official decision', url, at: recorded().asOf }, candidates: [{ ...posting().candidates[0], isWinner: true }] };
+    expect(() => liveResultReportInputSchema.safeParse(declaration)).not.toThrow();
+    expect(liveResultReportInputSchema.safeParse(declaration).success).toBe(false);
+    const certified = { ...posting(), status: 'certified', certification: { url, certifiedAt: null } };
+    expect(() => liveResultReportInputSchema.safeParse(certified)).not.toThrow();
+    expect(liveResultReportInputSchema.safeParse(certified).success).toBe(false);
+  });
   it('rejects certification without evidence and AP certification', () => {
     expect(liveElectionResultsSchema.safeParse({ ...recorded(), status: 'certified' }).success).toBe(false);
     expect(liveElectionResultsSchema.safeParse({ ...recorded(), status: 'certified', source: { ...recorded().source, kind: 'ap' }, certification: { url: 'https://example.gov/test-only', certifiedAt: null } }).success).toBe(false);
