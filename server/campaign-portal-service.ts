@@ -20,7 +20,7 @@ export const SUBSCRIPTION_TIERS = {
   basic: { price: 9900, name: 'Basic', features: ['Aggregated state data', 'Basic analytics'] },
   pro: { price: 49900, name: 'Pro', features: ['District-level analytics', 'Demographic breakdowns', 'Trend analysis'] },
   enterprise: { price: 249900, name: 'Enterprise', features: ['Individual user insights (anonymized)', 'Real-time analytics', 'API access'] },
-  custom: { price: 0, name: 'Custom', features: ['Raw data exports', 'Custom integrations', 'Dedicated support'] }
+  custom: { price: 0, name: 'Custom', features: ['Raw data exports (coming soon)', 'Custom integrations', 'Dedicated support'] }
 };
 
 export class CampaignPortalService {

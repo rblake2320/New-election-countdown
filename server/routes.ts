@@ -1991,7 +1991,7 @@ Please provide detailed, current information about this specific election.`;
       basic: ['Aggregated state data', 'Basic analytics', 'Weekly reports'],
       pro: ['District-level analytics', 'Demographic breakdowns', 'Daily reports', 'Email alerts'],
       enterprise: ['Real-time analytics', 'Individual user insights', 'Custom reports', 'API access', 'Phone support'],
-      custom: ['Full data exports', 'Custom integrations', 'Dedicated support', 'White-label options']
+      custom: ['Full data exports (coming soon)', 'Custom integrations', 'Dedicated support', 'White-label options']
     };
     return features[tier as keyof typeof features] || features.basic;
   }
@@ -2062,22 +2062,14 @@ Please provide detailed, current information about this specific election.`;
     }
   });
 
-  app.post('/api/campaign/export', async (req, res) => {
-    try {
-      const apiKey = req.headers['x-api-key'] as string;
-      if (!apiKey) {
-        return res.status(401).json({ error: 'API key required' });
-      }
-
-      const campaign = await storage.validateCampaignAccess(apiKey);
-      const { datasetType, format } = req.body;
-
-      const exportData = await storage.purchaseDataExport(campaign.id, datasetType, format);
-      res.json(exportData);
-    } catch (error: any) {
-      console.error('Error creating data export:', error);
-      res.status(400).json({ error: error.message });
-    }
+  // ET-38 (owner decision 2026-10-11): data exports are "coming soon" with NO purchase path.
+  // Refuse before touching storage so no priced export record is ever created.
+  app.post('/api/campaign/export', (_req, res) => {
+    res.status(503).json({
+      error: 'exports_unavailable',
+      code: 'EXPORTS_NOT_AVAILABLE',
+      message: 'Data exports are not available yet',
+    });
   });
 
   // Subscription management
