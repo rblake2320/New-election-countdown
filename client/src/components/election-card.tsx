@@ -9,7 +9,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { CountdownTimer } from "@/components/countdown-timer";
 import { CandidateComparisonWizard } from "@/components/candidate-comparison-wizard";
-import { LiveResultsTracker } from "@/components/live-results-tracker";
 import { apiRequest } from "@/lib/queryClient";
 import { cn } from "@/lib/utils";
 import type { Election, Candidate } from "@shared/schema";

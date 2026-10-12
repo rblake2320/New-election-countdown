@@ -25,6 +25,17 @@ export async function apiRequest(
   return res;
 }
 
+/**
+ * GET a JSON body from an explicit URL, with the same error format as the default
+ * query function. The default fetches only queryKey[0], so any query whose key has
+ * more segments (an id, a filter) must pass its URL through this instead.
+ */
+export async function getJson<T>(url: string, signal?: AbortSignal): Promise<T> {
+  const res = await fetch(url, { credentials: "include", signal });
+  await throwIfResNotOk(res);
+  return (await res.json()) as T;
+}
+
 type UnauthorizedBehavior = "returnNull" | "throw";
 export const getQueryFn: <T>(options: {
   on401: UnauthorizedBehavior;

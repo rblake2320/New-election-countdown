@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { apiRequest, queryClient } from '@/lib/queryClient';
+import { apiRequest, queryClient, getJson } from '@/lib/queryClient';
 import { useIsAdmin } from '@/lib/useIsAdmin';
 import { ChevronLeft, Save, Trophy, AlertTriangle, CheckCircle, RefreshCw, Shield } from 'lucide-react';
 import { Link } from 'wouter';
@@ -111,12 +111,14 @@ export default function AdminResultsEntry() {
   // Fetch candidates for selected election
   const { data: candidates = [], isLoading: candidatesLoading } = useQuery<Candidate[]>({
     queryKey: ['/api/elections', selectedElectionId, 'candidates'],
+    queryFn: ({ signal }) => getJson<Candidate[]>(`/api/elections/${selectedElectionId}/candidates`, signal),
     enabled: !!selectedElectionId
   });
 
   // Fetch current results
   const { data: currentResults, refetch: refetchResults } = useQuery({
     queryKey: ['/api/elections', selectedElectionId, 'results'],
+    queryFn: ({ signal }) => getJson(`/api/elections/${selectedElectionId}/results`, signal),
     enabled: !!selectedElectionId
   });
 
