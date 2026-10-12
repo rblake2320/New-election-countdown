@@ -161,18 +161,19 @@ export default function ElectionDetails() {
   return (
     <div className="container mx-auto px-4 py-8 space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
-        <Link href="/">
-          <Button variant="outline" size="sm">
+      {/* Phones: Back sits above the title and the stats wrap (ET-36). */}
+      <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-4 mb-6">
+        <Button variant="outline" size="sm" asChild className="shrink-0">
+          <Link href="/">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          </Link>
+        </Button>
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white break-words">
             {election?.title}
           </h1>
-          <div className="flex items-center gap-4 mt-2 text-sm text-gray-600 dark:text-gray-300">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-sm text-gray-600 dark:text-gray-300">
             <div className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
               {format(electionDate, "EEEE, MMMM d, yyyy")}
@@ -183,7 +184,7 @@ export default function ElectionDetails() {
             </div>
             <div className="flex items-center gap-1">
               <Users className="h-4 w-4" />
-              {candidates.length} candidates
+              {candidates.length} {candidates.length === 1 ? "candidate" : "candidates"}
             </div>
           </div>
         </div>
