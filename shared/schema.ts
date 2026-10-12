@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar, numeric, bigint, index, uniqueIndex, uuid, check, foreignKey, type AnyPgColumn } from "drizzle-orm/pg-core";
+import { date, pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar, numeric, bigint, index, uniqueIndex, uuid, check, foreignKey, type AnyPgColumn } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -161,6 +161,57 @@ export const electionResults = pgTable("election_results", {
   isCertified: boolean("is_certified").default(false),
   lastUpdated: timestamp("last_updated").defaultNow(),
   resultsSource: text("results_source"), // 'Associated Press', 'Secretary of State', etc.
+});
+
+// ET-6 live official results: append-only snapshots (migrations/20261011_live_results_reports.sql)
+export const electionResultReports = pgTable("election_result_reports", {
+  id: serial("id").primaryKey(),
+  electionId: integer("election_id").notNull().references(() => elections.id),
+  revision: text("revision").notNull().unique(),
+  status: text("status").notNull(), // 'unofficial' | 'certified' — never 'projected'
+  sourceId: text("source_id").notNull(),
+  sourceKind: text("source_kind").notNull(), // official_state_enr | official_state_page | official_county | ap | admin_manual
+  sourceName: text("source_name").notNull(),
+  sourceUrl: text("source_url").notNull(),
+  sourceContestId: text("source_contest_id").notNull(),
+  sourcePayloadSha256: text("source_payload_sha256").notNull(),
+  inputSha256: text("input_sha256").notNull(),
+  asOf: timestamp("as_of", { withTimezone: true }),
+  asOfBasis: text("as_of_basis").notNull(), // source_timestamp | source_publication_time | not_provided
+  retrievedAt: timestamp("retrieved_at", { withTimezone: true }).notNull(),
+  reportingPercent: numeric("reporting_percent", { precision: 5, scale: 2 }),
+  reportingBasis: text("reporting_basis"), // precincts | ballots | votes | source_unspecified
+  precinctsReporting: integer("precincts_reporting"),
+  precinctsTotal: integer("precincts_total"),
+  totalVotes: bigint("total_votes", { mode: "number" }),
+  winnerCalledSource: text("winner_called_source"),
+  winnerCalledUrl: text("winner_called_url"),
+  winnerCalledAt: timestamp("winner_called_at", { withTimezone: true }),
+  certificationUrl: text("certification_url"),
+  certifiedAt: timestamp("certified_at", { withTimezone: true }),
+  // race context the snapshot was recorded under (immutable; reads require it to equal the live row)
+  contextState: text("context_state").notNull(),
+  contextElectionDate: date("context_election_date").notNull(),
+  contextType: text("context_type").notNull(),
+  contextLevel: text("context_level").notNull(),
+  contextOffice: text("context_office").notNull(),
+  postedBy: text("posted_by").notNull(),
+  idempotencyKey: text("idempotency_key").unique(),
+  note: text("note"),
+  supersedesReportId: integer("supersedes_report_id").references((): AnyPgColumn => electionResultReports.id),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const candidateResultLines = pgTable("candidate_result_lines", {
+  id: serial("id").primaryKey(),
+  reportId: integer("report_id").notNull().references(() => electionResultReports.id, { onDelete: "cascade" }),
+  candidateId: integer("candidate_id").references(() => candidates.id),
+  sourceCandidateId: text("source_candidate_id").notNull(),
+  name: text("name").notNull(),
+  party: text("party"),
+  votes: bigint("votes", { mode: "number" }).notNull(),
+  percent: numeric("percent", { precision: 5, scale: 2 }),
+  isWinnerDeclared: boolean("is_winner_declared").notNull().default(false),
 });
 
 // Session storage table for auth

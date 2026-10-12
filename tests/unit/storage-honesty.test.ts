@@ -124,11 +124,14 @@ describe("storage contract and real columns", () => {
     expect(eps).not.toContain("connectToRealTimeMonitor");
   });
 
-  it("results ingestion fails closed until ET-6 instead of calling missing methods", () => {
-    expect(eps).toContain("requireIngest('updateCandidateResults')");
-    expect(eps).toContain("requireIngest('updateElection')");
-    expect(eps).toContain("requireIngest('updateCandidate')");
-    expect(eps).not.toMatch(/storage\.(updateCandidateResults|updateElection|updateCandidate)\(/);
-    expect(eps).toMatch(/publicCode: 'not_implemented'/);
+  it("results events reach the database only as full official snapshots (ET-6 owner decision)", () => {
+    // The pre-decision 501 gate is gone; the only write path is the shared snapshot writer.
+    expect(eps).not.toContain("requireIngest(");
+    expect(eps).not.toMatch(/publicCode: 'not_implemented'/);
+    expect(eps).toMatch(/storage\.recordResultReport\(/);
+    expect(eps).not.toMatch(/storage\.(updateCandidateResults|updateElection|updateCandidate|updateElectionResults)\(/);
+    // district calls and recount flags are projections / phantom writes: refused, never recorded
+    expect(eps).toMatch(/publicCode = 'unsupported_result_event'/);
+    expect(eps).toMatch(/district_call for election .* is a projection/);
   });
 });
