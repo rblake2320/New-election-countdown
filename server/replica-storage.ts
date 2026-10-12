@@ -433,8 +433,8 @@ export class ReplicaStorage implements IStorage {
   async createCandidatePosition(_position: InsertCandidatePosition): Promise<CandidatePosition> { return this.readOnly('createCandidatePosition'); }
   async updateCandidatePosition(_positionId: number, _updates: Partial<CandidatePosition>): Promise<CandidatePosition> { return this.readOnly('updateCandidatePosition'); }
   async deleteCandidatePosition(_positionId: number): Promise<void> { return this.readOnly('deleteCandidatePosition'); }
-  async createCampaignAccount(data: any): Promise<any> { throw new Error('Write operations not supported on read-only replica'); }
-  async validateCampaignAccess(apiKey: string): Promise<any> { return null; }
+  async createCampaignAccount(..._args: unknown[]): Promise<never> { return this.readOnly('createCampaignAccount'); }
+  async validateCampaignAccess(..._args: unknown[]): Promise<never> { return this.readOnly('validateCampaignAccess'); }
   async getCampaignAnalytics(campaignId: number, electionId: number, tier: string): Promise<any> { return null; }
   async getCampaignGeographics(campaignId: number, region: string, tier: string): Promise<any> { return null; }
   async getCampaignPolling(campaignId: number, electionId: number, dateRange: string): Promise<any> { return null; }
