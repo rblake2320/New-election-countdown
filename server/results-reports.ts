@@ -111,10 +111,14 @@ export function emptyResultsPayload(electionId: number): ResultsPayload {
 
 /**
  * `latest` must already be the newest report whose context equals `current` (the caller selects it);
- * `history` is every report for the id and is annotated against `current`.
+ * `history` = EARLIER reports for the id (every report except the current one), newest first, each
+ * annotated against `current`. The current report is never repeated in its own history (B found the
+ * off-by-one in "Earlier reports (N)"); when status is none, history holds the mismatched-context
+ * reports that are not current. `electionContext.office` is the election title (races have no
+ * separate office column; the title names the race).
  */
 export function buildResultsPayload(electionId: number, latest: ResultReportRow | null, lines: ResultLineRow[], history: ResultReportRow[], current: ElectionContext): ResultsPayload {
-  const annotated = history.map((h) => ({
+  const annotated = history.filter((h) => latest === null || h.id !== latest.id).map((h) => ({
     reportId: h.id, revision: h.revision, asOf: iso(h.as_of), status: h.status, percent: num(h.reporting_percent), sourceId: h.source_id, sourceUrl: h.source_url,
     contextMatch: contextMatches(reportContextOf(h), current),
   }));

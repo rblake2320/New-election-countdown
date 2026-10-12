@@ -131,8 +131,7 @@ describe('ET-6 results contract (v1.2)', () => {
       expect(p.candidates.map((c: any) => c.votes)).toEqual([80000, 70000]);
       expect(p.candidates.every((c: any) => c.isWinner === false)).toBe(true);
       expect(p.electionContext).toEqual({ state: 'AK', electionDate: ELECTION_DAY, type: 'general', level: 'federal', office: 'U.S. Senate - Alaska' });
-      expect(p.history).toHaveLength(1);
-      expect(p.history[0].contextMatch).toBe(true);
+      expect(p.history).toEqual([]); // the current report is not repeated in its own history
 
       const replay = await h.post(h.e.id, body);
       expect(replay.status).toBe(200);
@@ -296,7 +295,9 @@ describe('ET-6 results contract (v1.2)', () => {
       const after = await h.post(h.e.id, { ...snapshot({ asOf: '2026-10-02T09:00:00Z', retrievedAt: '2026-10-02T09:01:00Z', totalVotes: 150010, candidates: [{ ...snapshot().candidates[0], votes: 80010 }, snapshot().candidates[1]] }), idempotencyKey: 'post-wa-after', expectedRevision: null });
       expect(after.status, JSON.stringify(await after.clone().json())).toBe(201); // same sourcePayloadSha256, different content -> a second report
       const p = await after.json();
-      expect(p.history).toHaveLength(2);
+      expect(p.history).toHaveLength(1); // earlier reports only: the first snapshot
+      expect(p.history[0].reportId).toBe((await first.json()).reportId);
+      expect(p.history[0].contextMatch).toBe(true);
       expect(p.totalVotes).toBe(150010);
     } finally { await h.close(); }
   });
