@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getJson } from "@/lib/queryClient";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHead, pageMetadata } from "@/components/page-head";
@@ -72,6 +73,8 @@ export default function GlobalDashboard() {
   // Global elections data
   const { data: globalElections, isLoading: electionsLoading } = useQuery<GlobalElection[]>({
     queryKey: ["/api/global/elections", selectedCountry],
+    queryFn: ({ signal }) => getJson<GlobalElection[]>(
+      selectedCountry === "all" ? "/api/global/elections" : `/api/global/elections?country=${encodeURIComponent(selectedCountry)}`, signal),
     enabled: true,
   });
 
