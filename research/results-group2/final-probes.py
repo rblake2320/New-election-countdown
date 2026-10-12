@@ -1,0 +1,25 @@
+import pathlib,json,urllib.request,datetime,hashlib,re,html,gzip
+out=pathlib.Path(__file__).parent
+def save(name,obj): (out/name).write_text(json.dumps(obj,indent=2)+'\n',encoding='utf-8')
+def fetch(u):
+ with urllib.request.urlopen(urllib.request.Request(u,headers={'User-Agent':'ElectionTracker official public results research/1.0'}),timeout=35) as r:
+  b=r.read(8*1024*1024); rawsha=hashlib.sha256(b).hexdigest(); b=gzip.decompress(b) if r.headers.get('Content-Encoding')=='gzip' else b
+  return b,{'url':u,'status':r.status,'contentType':r.headers.get('Content-Type'),'sha256':hashlib.sha256(b).hexdigest(),'wireSha256':rawsha,'retrievedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),'bytes':len(b)}
+u='https://www.nvsos.gov/sos/elections/election-information/election-results'
+try:
+ b,p=fetch(u);s=b.decode('utf-8',errors='replace');p['interfaceClassification']='challenge/interstitial' if any(k in s.lower() for k in ['incapsula','incident id','request unsuccessful','iframe','captcha']) else 'unclassified empty landing';p['detectedMarkers']=[k for k in ['incapsula','incident id','request unsuccessful','iframe','captcha'] if k in s.lower()];save('NV-landing-inspection.json',p);print('NV',p['interfaceClassification'],p['detectedMarkers'])
+except Exception as e:save('NV-landing-inspection.json',{'url':u,'error':str(e)})
+# PDF literal Governor columns, whose per-method totals are independently checked.
+cert=[('Mark Robinson','REP',2241310,[9003,73135,1685342,473830]),('Mike Ross','LIB',176392,[1118,7795,116556,50923]),('Vinny Smith','CST',54738,[398,2724,36562,15054]),('Josh Stein','DEM',3069499,[13513,201007,2264536,590443]),('Wayne Turner','GRE',49612,[498,2720,30049,16345])]
+for name,party,total,methods in cert:assert sum(methods)==total
+u='https://er.ncsbe.gov/enr/20241105/data/results_0.txt'
+try:
+ b,p=fetch(u); rows=json.loads(b); gov=[r for r in rows if r['cnm'].startswith('NC GOVERNOR')]; expected={n:t for n,party,t,m in cert}; actual={r['bnm']:int(r['vct']) for r in gov};assert set(actual)==set(expected);cross=actual==expected;(out/'NC-20241105-Governor-ENR-recording.json').write_text(json.dumps(gov,indent=2)+'\n',encoding='utf-8');p['recordingTransform']='Governor rows selected from statewide JSON; source SHA covers full response, recording SHA separate';p['recordingSha256']=hashlib.sha256((out/'NC-20241105-Governor-ENR-recording.json').read_bytes()).hexdigest();p['certifiedPDFMatches']=cross;p['ENRminusCertifiedPDF']={n:actual[n]-expected[n] for n in expected};p['orderingNotInferred']=True;save('NC-20241105-Governor-ENR-proof.json',p)
+except Exception as e:save('NC-20241105-Governor-ENR-proof.json',{'url':u,'error':str(e)});cross=False
+save('NC-certified-independent-expectations.json',{'state':'NC','trueElectionDate':'2024-11-05','phase':'general','office':'G','district':'00','certificationDeclaration':'State Board unanimously certified federal/statewide contests Nov26,2024; Governor is not among excluded recount contests','certificationSource':'https://www.ncsbe.gov/news/press-releases/2024/11/26/state-board-unanimously-certifies-2024-general-election','sourcePDF':'NC-20241105-certified.pdf','originalSourcePage':3,'candidateExternalIds':None,'sourceAsOf':None,'sourceAsOfRaw':'Tuesday, November 26, 2024','reportingPercentage':None,'perCandidateVoteMethodSumVerified':True,'separateENRMatchesPDF':cross,'totalContestVotes':sum(t for n,p,t,m in cert),'candidates':[{'name':n,'partyRaw':p,'votes':t,'literalPDFNumericColumns':m} for n,p,t,m in cert]});print('NC certified independent',cross,sum(t for n,p,t,m in cert))
+u='https://elections.maryland.gov/elections/2026/primary_results/gen_results_2026_1.html'
+try:
+ b,p=fetch(u);s=b.decode('utf-8',errors='replace');tables=re.findall(r'<table\b.*?</table>',s,re.S|re.I);selected=next(t for t in tables if '558,768' in t or '558768' in t);assert '74,312' in selected or '74312' in selected; (out/'MD-Governor-primary-table.html').write_text(selected+'\n',encoding='utf-8');p['recordingTransform']='Only Governor/LtGovernor Democratic vote table retained; no contacts';p['recordingSha256']=hashlib.sha256((out/'MD-Governor-primary-table.html').read_bytes()).hexdigest();p['trueElectionDate']='2026-06-23';p['phase']='primary';p['expectedCandidateVotes']=[74312,558768];p['totalContestVotes']=633080;p['certificationProof']='MD-certification-context.json';save('MD-Governor-table-proof.json',p);print('MD literal table',len(selected))
+except Exception as e:save('MD-Governor-table-proof.json',{'url':u,'error':str(e)});print('MD',e)
+# Minimal source-owned election context, without irrelevant portal settings.
+nj=json.loads((out/'NJ-context.json').read_text(encoding='utf-8'));d=nj['settingsContext']['electiondetails'];nj['settingsContext']={'electiondetails':{k:d[k] for k in ['internalname','electiondate','istestmode','chkisfinalupload','chkiscanvasupload'] if k in d}};nj['topContext']={k:v for k,v in nj['topContext'].items() if k in ['websiteupdatedat','entityname','parententityname']};save('NJ-context.json',nj)
