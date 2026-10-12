@@ -1,0 +1,1176 @@
+{
+  "version": 1,
+  "base": "eb60469721e9e450ec82ca20ad4a28bc777e956a",
+  "scope": "ET6group1 source-only17states",
+  "targetElectionDate": "2026-11-03",
+  "generatedAt": "2026-10-12T05:01:28.404896+00:00",
+  "accepted2026GeneralVoteRecords": 0,
+  "parserOrDtoImplementation": false,
+  "sharedWrites": 0,
+  "browserPreview": false,
+  "paidKeys": false,
+  "states": [
+    {
+      "state": "AL",
+      "targetElectionDate": "2026-11-03",
+      "targetElectionPhase": "general",
+      "coverage": "usable_feed_download",
+      "targetPublication": "not_published_in_checked_sources",
+      "officialLanding": {
+        "receipt": "AL-initial-receipt.json",
+        "url": "https://www.sos.alabama.gov/alabama-votes/voter/election-information/2026",
+        "httpStatus": 200,
+        "sha256": "f94828acf6ca776a3914836df614f7fe1cc719f4f4024228669633f32b08e8c4",
+        "checkedAt": "2026-10-12T04:19:23.244844+00:00",
+        "error": null
+      },
+      "publisher": "2026 Election Information | Alabama Secretary of State",
+      "validated2026GeneralVotes": false,
+      "navigationIsVoteFeedProof": false,
+      "dataEndpoints": [
+        {
+          "receipt": "AL-primary-gop-receipt.json",
+          "url": "https://www.sos.alabama.gov/sites/default/files/05-29-2026/GOP%20Results.xlsx",
+          "httpStatus": 200,
+          "sha256": "a15e7c055a7a6b812ca98301e9a715a60724d76c16c86fd0f9d764a6ac073ff9",
+          "checkedAt": "2026-10-12T04:42:15.297866+00:00",
+          "error": null
+        },
+        {
+          "receipt": "AL-primary-enr-receipt.json",
+          "url": "https://www2.alabamavotes.gov/electionNight/statewideResultsByContest.aspx?ecode=1001290",
+          "httpStatus": 200,
+          "sha256": "8d71dbedd38d4bcd4f135a3df38eeae29c09ac1348a653cb420aa01d11d39db7",
+          "checkedAt": "2026-10-12T04:39:24.078790+00:00",
+          "error": null
+        }
+      ],
+      "sampleElection": {
+        "date": "2026-05-19",
+        "phase": "primary",
+        "partyScope": "Republican",
+        "proof": "official Alabama SOS year page +newsroom May19primary ENR link ecode1001290"
+      },
+      "sourceAsOf": null,
+      "reportingMetric": null,
+      "certification": {
+        "status": "unknown",
+        "reason": "No2026general certified-results record observed"
+      },
+      "sourceNativeIds": {
+        "electionCode": "1001290",
+        "candidateIds": null,
+        "contestIds": null
+      },
+      "schema": {
+        "format": "XLSX +ASP.NET HTML",
+        "sheets": "Summary +county sheets",
+        "fields": [
+          "office-heading",
+          "candidate name",
+          "Votes",
+          "Percentage"
+        ],
+        "percentageUnit": "fraction in XLSX; not precinct reporting",
+        "actualFirstOfficeHeading": "Govenor"
+      },
+      "mappingRequirements": [
+        "Bind state + exact election date + phase + office/district + primary party when applicable before any candidate mapping.",
+        "Use observed source IDs only; candidate/race IDs absent in source remain null and need reviewed identity mapping.",
+        "No source maximum-vote calculation is an official winner declaration. Do not publish projections.",
+        "HTTP200/title/navigation/nonzero values do not establish results publication. Source election context and as-of must agree.",
+        "Summary already aggregates counties; do not add Summary and counties together.",
+        "Worksheet formatting includes blank1000-row extents, not1000 vote records.",
+        "Misspelled raw officeGovenor requires explicit reviewed office mapping, not blind correction.",
+        "2026May19 district context cannot be reused forAug11special congressional primaries orNov3general."
+      ],
+      "blockers": [
+        "NoNov3ecode/posted vote record verified. XLSX source-asOf/certification not declared."
+      ]
+    },
+    {
+      "state": "AK",
+      "targetElectionDate": "2026-11-03",
+      "targetElectionPhase": "general",
+      "coverage": "official_page_manual",
+      "targetPublication": "not_published_in_checked_sources",
+      "officialLanding": {
+        "receipt": "AK-initial-receipt.json",
+        "url": "https://www.elections.alaska.gov/election-results/",
+        "httpStatus": 200,
+        "sha256": "e2e7f8fde79d4df6f3edbb2100cd4e630d31410bdd174a5ce3796746b01bc6ab",
+        "checkedAt": "2026-10-12T04:19:23.244341+00:00",
+        "error": null
+      },
+      "publisher": "Election Results - Division of Elections",
+      "validated2026GeneralVotes": false,
+      "navigationIsVoteFeedProof": false,
+      "dataEndpoints": [
+        {
+          "receipt": "AK-primary-receipt.json",
+          "url": "https://www.elections.alaska.gov/election-results/e/?id=26prim",
+          "httpStatus": 200,
+          "sha256": "bde61b0230bda887a794b29415660858eb2765ddcbff4fcb4db35543aa748e4f",
+          "checkedAt": "2026-10-12T04:20:36.052489+00:00",
+          "error": null
+        },
+        {
+          "receipt": "AK-primary-html-receipt.json",
+          "url": "https://www.elections.alaska.gov/wp-content/uploads/2026/08/ComboReportRAll-1.html",
+          "httpStatus": 405,
+          "sha256": null,
+          "checkedAt": "2026-10-12T04:48:09.390346+00:00",
+          "error": "HTTP Error 405: Not Allowed"
+        }
+      ],
+      "sampleElection": {
+        "date": "2026-08-18",
+        "phase": "primary",
+        "sourceId": "26prim"
+      },
+      "sourceAsOf": null,
+      "reportingMetric": {
+        "meaning": "Election-night summaries separate from certified historical search; no machine reporting metric verified"
+      },
+      "certification": {
+        "status": "unknown",
+        "reason": "No2026general certified-results record observed"
+      },
+      "sourceNativeIds": {
+        "electionId": "26prim"
+      },
+      "schema": {
+        "format": "official HTML/PDF reports; combined HTM fetch405",
+        "fields": null
+      },
+      "mappingRequirements": [
+        "Bind state + exact election date + phase + office/district + primary party when applicable before any candidate mapping.",
+        "Use observed source IDs only; candidate/race IDs absent in source remain null and need reviewed identity mapping.",
+        "No source maximum-vote calculation is an official winner declaration. Do not publish projections.",
+        "HTTP200/title/navigation/nonzero values do not establish results publication. Source election context and as-of must agree.",
+        "General uses ranked-choice voting, while primary is pick-one. Preserve source round/context; never substitute first-round for final-round counts."
+      ],
+      "blockers": [
+        "Advertised combined primary HTML returned405; PDF summaries linked; no automatic feed schema orNov3source verified."
+      ]
+    },
+    {
+      "state": "AZ",
+      "targetElectionDate": "2026-11-03",
+      "targetElectionPhase": "general",
+      "coverage": "transport_blocked",
+      "targetPublication": "not_published_in_checked_sources",
+      "officialLanding": {
+        "receipt": "AZ-initial-receipt.json",
+        "url": "https://azsos.gov/elections/election-information/2026-election-info",
+        "httpStatus": 403,
+        "sha256": null,
+        "checkedAt": "2026-10-12T04:19:23.245847+00:00",
+        "error": "HTTP Error 403: Forbidden"
+      },
+      "publisher": null,
+      "validated2026GeneralVotes": false,
+      "navigationIsVoteFeedProof": false,
+      "dataEndpoints": [
+        {
+          "receipt": "AZ-primary-summary-fetch.json",
+          "url": "https://apps.azsos.gov/ElectionResults/2026/State/2026%20Primary%20Election/Results.Summary.xml",
+          "httpStatus": 403,
+          "sha256": null,
+          "checkedAt": "2026-10-12T04:23:25.989316+00:00",
+          "error": "HTTP Error 403: Forbidden"
+        }
+      ],
+      "sampleElection": {
+        "date": "2026-07-21",
+        "phase": "primary",
+        "proof": "AZ-press source labels PrimaryJuly21"
+      },
+      "sourceAsOf": null,
+      "reportingMetric": {
+        "meaning": "Summary county+state; detail precinct counts",
+        "minimumPollingSeconds": 120,
+        "proofUrl": "https://azsos.gov/press"
+      },
+      "certification": {
+        "status": "unknown",
+        "reason": "No2026general certified-results record observed"
+      },
+      "sourceNativeIds": {
+        "electionPath": "2026/State/2026 Primary Election"
+      },
+      "schema": {
+        "format": "publisher-advertised Results.Summary.xml /Results.Detail.xml",
+        "fields": null
+      },
+      "mappingRequirements": [
+        "Bind state + exact election date + phase + office/district + primary party when applicable before any candidate mapping.",
+        "Use observed source IDs only; candidate/race IDs absent in source remain null and need reviewed identity mapping.",
+        "No source maximum-vote calculation is an official winner declaration. Do not publish projections.",
+        "HTTP200/title/navigation/nonzero values do not establish results publication. Source election context and as-of must agree."
+      ],
+      "blockers": [
+        "Actual normal HTTPS summary fetch403; web reader reported404. No bypass/auth/FTP alternative attempted.",
+        "NoNov3election-specific data path advertised in fetched press scope."
+      ]
+    },
+    {
+      "state": "AR",
+      "targetElectionDate": "2026-11-03",
+      "targetElectionPhase": "general",
+      "coverage": "official_page_manual",
+      "targetPublication": "not_published_in_checked_sources",
+      "officialLanding": {
+        "receipt": "AR-initial-receipt.json",
+        "url": "https://www.sos.arkansas.gov/elections/research/election-results",
+        "httpStatus": 200,
+        "sha256": "7bf6ab0673247a0544419f10e054214bc66fb00184ef0072f2f520b84b1e354b",
+        "checkedAt": "2026-10-12T04:19:23.244844+00:00",
+        "error": null
+      },
+      "publisher": "Arkansas Secretary of State",
+      "validated2026GeneralVotes": false,
+      "navigationIsVoteFeedProof": false,
+      "dataEndpoints": [
+        {
+          "receipt": "AR-tally-receipt.json",
+          "url": "https://arkansas.tally-enr.com/",
+          "httpStatus": 200,
+          "sha256": "58474b77e66b3aa5e55f3b5f6c5570db2c302ed0b55c3c304f15d70c4d204e27",
+          "checkedAt": "2026-10-12T04:27:54.990691+00:00",
+          "error": null
+        }
+      ],
+      "sampleElection": {
+        "date": "2026-03-03",
+        "phase": "primary",
+        "label": "2026PreferentialPrimary",
+        "sourceId": "7f77a178-af02-40ec-92db-c5cc50882c68"
+      },
+      "sourceAsOf": null,
+      "reportingMetric": null,
+      "certification": {
+        "status": "unknown",
+        "reason": "No2026general certified-results record observed"
+      },
+      "sourceNativeIds": {
+        "electionUUID": "7f77a178-af02-40ec-92db-c5cc50882c68",
+        "authority": "actual SOS archive href points to tally-enr provider and this UUID"
+      },
+      "schema": {
+        "format": "Tally SPA; data schema not observed"
+      },
+      "mappingRequirements": [
+        "Bind state + exact election date + phase + office/district + primary party when applicable before any candidate mapping.",
+        "Use observed source IDs only; candidate/race IDs absent in source remain null and need reviewed identity mapping.",
+        "No source maximum-vote calculation is an official winner declaration. Do not publish projections.",
+        "HTTP200/title/navigation/nonzero values do not establish results publication. Source election context and as-of must agree.",
+        "Arkansas election groups may combine partisan primaries and nonpartisan judicial general contests; phase must be office-specific."
+      ],
+      "blockers": [
+        "Provider/page and public asset200; no verified public vote-data endpoint/schema extracted. NoNov3UUIDrecord observed."
+      ]
+    },
+    {
+      "state": "CA",
+      "targetElectionDate": "2026-11-03",
+      "targetElectionPhase": "general",
+      "coverage": "usable_feed_download",
+      "targetPublication": "not_published_in_checked_sources",
+      "officialLanding": {
+        "receipt": "CA-initial-receipt.json",
+        "url": "https://www.sos.ca.gov/elections/prior-elections/statewide-election-results",
+        "httpStatus": 200,
+        "sha256": "8ae2c514ea9c42337dabe66ea378643488aaf38bf4eb49ce9c129f946cbea7d4",
+        "checkedAt": "2026-10-12T04:19:23.276238+00:00",
+        "error": null
+      },
+      "publisher": "Statewide Election Results :: California Secretary of State",
+      "validated2026GeneralVotes": false,
+      "navigationIsVoteFeedProof": false,
+      "dataEndpoints": [
+        {
+          "receipt": "CA-primary-gov-receipt.json",
+          "url": "https://elections.cdn.sos.ca.gov/sov/2026-primary/sov/19-gov.xlsx",
+          "httpStatus": 200,
+          "sha256": "2c3f509d9b144dff74d2d68ae7be124e697cf6e6bd7e50291cbd1393532980d1",
+          "checkedAt": "2026-10-12T04:27:51.602265+00:00",
+          "error": null
+        },
+        {
+          "receipt": "CA-primary-certificate-receipt.json",
+          "url": "https://elections.cdn.sos.ca.gov/sov/2026-primary/sov/18-sov-certificate.pdf",
+          "httpStatus": 200,
+          "sha256": "3ffb90f022e448d84ea77cfccc2baa54ad87669a0aaa0575c7a08df66c460d77",
+          "checkedAt": "2026-10-12T04:27:51.812100+00:00",
+          "error": null
+        },
+        {
+          "receipt": "CA-json-index-fetch.json",
+          "url": "https://media.sos.ca.gov/media/json-endpoints.csv",
+          "httpStatus": 200,
+          "sha256": "0ee593e797cb8e2cc76bed50f5a8de2928c2742d1a8caf89e59efb3a59c35c34",
+          "checkedAt": "2026-10-12T04:23:25.855597+00:00",
+          "error": null
+        },
+        {
+          "receipt": "CA-api-index-fetch.json",
+          "url": "https://media.sos.ca.gov/media/api-endpoints.csv",
+          "httpStatus": 200,
+          "sha256": "cf69d9ad8e88955a95d3b6b53e26fb435860682919417222cadcdee9db5783e8",
+          "checkedAt": "2026-10-12T04:23:25.856114+00:00",
+          "error": null
+        }
+      ],
+      "sampleElection": {
+        "date": "2026-06-02",
+        "phase": "primary",
+        "office": "Governor",
+        "positiveAcceptance": "CA-certified-primary-acceptance.json"
+      },
+      "sourceAsOf": {
+        "certifiedDate": "2026-07-10",
+        "time": null
+      },
+      "reportingMetric": null,
+      "certification": {
+        "status": "certified_for_primary_only",
+        "evidence": {
+          "url": "https://elections.cdn.sos.ca.gov/sov/2026-primary/sov/18-sov-certificate.pdf",
+          "sha256": "3ffb90f022e448d84ea77cfccc2baa54ad87669a0aaa0575c7a08df66c460d77",
+          "observedPage": 1,
+          "certifiedAt": "2026-07-10",
+          "electionDate": "2026-06-02",
+          "phase": "primary",
+          "exactCertificationExcerpt": "result of the official canvass of the returns of the June 2, 2026, Primary Election.",
+          "readMethod": "Visual inspection of actual publisher PDF; no text layer"
+        }
+      },
+      "sourceNativeIds": {
+        "rawPrimaryChoiceIds": null,
+        "rawMediaElectionSuffix": "26GG"
+      },
+      "schema": {
+        "format": "XLSX officialSOV; Nov3-advertisedJSON/TXTcurrentlypre-election inputs",
+        "candidateCount": 68,
+        "countyCount": 58,
+        "keys": [
+          "county-row",
+          "candidate-column-header",
+          "raw-party-preference",
+          "vote-integer"
+        ],
+        "candidateId": null
+      },
+      "mappingRequirements": [
+        "Bind state + exact election date + phase + office/district + primary party when applicable before any candidate mapping.",
+        "Use observed source IDs only; candidate/race IDs absent in source remain null and need reviewed identity mapping.",
+        "No source maximum-vote calculation is an official winner declaration. Do not publish projections.",
+        "HTTP200/title/navigation/nonzero values do not establish results publication. Source election context and as-of must agree.",
+        "Party labels are voter-nominated party preference; DEM/REP/NPP and(W/I) retained exactly.",
+        "No stable candidate ID in XLSX; bind office/date/district and exact source header plus reviewed candidate identity. Do not infer from FEC.",
+        "County totals must not be added to State Totals a second time. Percentage rows/blank lines are not votes.",
+        "This certified2026Jun2primary recording must never be published as2026Nov3general."
+      ],
+      "blockers": [
+        "CAmediaNov3governor HTTP200nonzero withOct9ReportingTime is retained REFUSED pre-election input, neverlivevotes.",
+        "Actualpublication rule: results beginafter8pmNov3, certificationbyDec11.",
+        "A workbook header hasU+FFFD in source name; preserve raw and require reviewed identity proof, never guess-correct."
+      ],
+      "negativeScenario": "CA-pre-election-refusal-context.json"
+    },
+    {
+      "state": "CO",
+      "targetElectionDate": "2026-11-03",
+      "targetElectionPhase": "general",
+      "coverage": "official_page_manual",
+      "targetPublication": "not_published_in_checked_sources",
+      "officialLanding": {
+        "receipt": "CO-initial-receipt.json",
+        "url": "https://www.coloradosos.gov/pubs/elections/Results/Archives.html",
+        "httpStatus": 200,
+        "sha256": "b5fd531a49200e23d1d6b5bae94abe3a1e9c902d2334330b568d9deaf9f40237",
+        "checkedAt": "2026-10-12T04:19:23.411598+00:00",
+        "error": null
+      },
+      "publisher": "Election Results Archives",
+      "validated2026GeneralVotes": false,
+      "navigationIsVoteFeedProof": false,
+      "dataEndpoints": [
+        {
+          "receipt": "CO-delegation-receipt.json",
+          "url": "https://www.montrosecounty.net/73/Elections",
+          "httpStatus": 200,
+          "sha256": "1799a8ce4fdb84b533afdd9c51a1ea1a319e474427bc27f7d986c2d55300161a",
+          "checkedAt": "2026-10-12T04:39:24.080792+00:00",
+          "error": null
+        },
+        {
+          "receipt": "CO-enr-receipt.json",
+          "url": "https://results.enr.clarityelections.com/CO/126592/web.345435/",
+          "httpStatus": 200,
+          "sha256": "9e757284203a59d43f9798cfff3f37da79a3026c9e8e28367442cb13b51c1ab4",
+          "checkedAt": "2026-10-12T04:27:54.890731+00:00",
+          "error": null
+        }
+      ],
+      "sampleElection": {
+        "date": "2026-06-30",
+        "phase": "primary",
+        "sourceId": "126592"
+      },
+      "sourceAsOf": null,
+      "reportingMetric": null,
+      "certification": {
+        "status": "unknown",
+        "reason": "Precinct completion and portal status are not state canvass certification"
+      },
+      "sourceNativeIds": {
+        "clarityStateElectionId": "126592",
+        "webVersion": "345435"
+      },
+      "schema": {
+        "format": "Clarity SPA; official SOS statewide abstractPDF listed, raw machine schema unverified"
+      },
+      "mappingRequirements": [
+        "Bind state + exact election date + phase + office/district + primary party when applicable before any candidate mapping.",
+        "Use observed source IDs only; candidate/race IDs absent in source remain null and need reviewed identity mapping.",
+        "No source maximum-vote calculation is an official winner declaration. Do not publish projections.",
+        "HTTP200/title/navigation/nonzero values do not establish results publication. Source election context and as-of must agree."
+      ],
+      "blockers": [
+        "County official Montrose public page links statewideClarity126592; directSOSarchive hasfinalprimaryPDF. NoNov3id/schema verified."
+      ]
+    },
+    {
+      "state": "CT",
+      "targetElectionDate": "2026-11-03",
+      "targetElectionPhase": "general",
+      "coverage": "official_page_manual",
+      "targetPublication": "not_published_in_checked_sources",
+      "officialLanding": {
+        "receipt": "CT-initial-receipt.json",
+        "url": "https://portal.ct.gov/sots/election-services/election-results/election-results",
+        "httpStatus": 200,
+        "sha256": "370bcad5dacfa972113983361fd90c0f3b9ba57bf11e0658b397216c3c4161cf",
+        "checkedAt": "2026-10-12T04:19:23.628266+00:00",
+        "error": null
+      },
+      "publisher": "Election Results",
+      "validated2026GeneralVotes": false,
+      "navigationIsVoteFeedProof": false,
+      "dataEndpoints": [
+        {
+          "receipt": "CT-actual-linked-ems-receipt.json",
+          "url": "https://ctemspublic.pcctg.net/#/selectTown",
+          "httpStatus": 200,
+          "sha256": "fb072ac34f101948a81ad213be47b71bee16bb6d25129f0bbaf753332c4339fb",
+          "checkedAt": "2026-10-12T04:40:39.834413+00:00",
+          "error": null
+        }
+      ],
+      "sampleElection": null,
+      "sourceAsOf": null,
+      "reportingMetric": null,
+      "certification": {
+        "status": "unknown",
+        "reason": "No2026general certified-results record observed"
+      },
+      "sourceNativeIds": {
+        "portal": "actual SOS href ctemspublic.pcctg.net/#/selectTown redirects ctemspublic.tgstg.net"
+      },
+      "schema": {
+        "format": "Electronic EMS SPA; no feed schema observed"
+      },
+      "mappingRequirements": [
+        "Bind state + exact election date + phase + office/district + primary party when applicable before any candidate mapping.",
+        "Use observed source IDs only; candidate/race IDs absent in source remain null and need reviewed identity mapping.",
+        "No source maximum-vote calculation is an official winner declaration. Do not publish projections.",
+        "HTTP200/title/navigation/nonzero values do not establish results publication. Source election context and as-of must agree.",
+        "Town aggregation requires nonoverlapping scope. Fusion party lines may represent the same person; preserve source candidate/party-line identities and avoid double counting."
+      ],
+      "blockers": [
+        "Portal200; automatic raw data route/electionid/town scope not verified. Earlier tgstg exploratory fetch not used asauthority without later actualSOSredirect proof."
+      ]
+    },
+    {
+      "state": "DE",
+      "targetElectionDate": "2026-11-03",
+      "targetElectionPhase": "general",
+      "coverage": "usable_feed_download",
+      "targetPublication": "not_published_in_checked_sources",
+      "officialLanding": {
+        "receipt": "DE-initial-receipt.json",
+        "url": "https://elections.delaware.gov/results/index.shtml",
+        "httpStatus": 200,
+        "sha256": "a06555946430a84270b76b3da5b073561939173e98da93f17d5baa8f503b1eae",
+        "checkedAt": "2026-10-12T04:19:23.676239+00:00",
+        "error": null
+      },
+      "publisher": "Election Results - Department of Elections - State of Delaware",
+      "validated2026GeneralVotes": false,
+      "navigationIsVoteFeedProof": false,
+      "dataEndpoints": [
+        {
+          "receipt": "DE-primary-csv-fetch.json",
+          "url": "https://data.delaware.gov/resource/4hbv-7brf.csv",
+          "httpStatus": 200,
+          "sha256": "2873d3381dc2fc2736e119fe6db07fa186324dd47f908e3af0bd986741387998",
+          "checkedAt": "2026-10-12T04:23:25.857204+00:00",
+          "error": null
+        },
+        {
+          "receipt": "DE-primary-metadata-fetch.json",
+          "url": "https://data.delaware.gov/api/views/4hbv-7brf.json",
+          "httpStatus": 200,
+          "sha256": "57c4331850de0f6a6c3c25d1b991f908e01c9245712201952418f8c42713a3de",
+          "checkedAt": "2026-10-12T04:23:25.857722+00:00",
+          "error": null
+        }
+      ],
+      "sampleElection": {
+        "date": "2026-09-15",
+        "phase": "primary",
+        "positiveAcceptance": "DE-primary-acceptance.json",
+        "rows": 80
+      },
+      "sourceAsOf": {
+        "field": "xmlreporttime",
+        "sampleRaw": "2026-09-18T14:47:00.000",
+        "timezone": "not declared"
+      },
+      "reportingMetric": {
+        "meaning": "CSV has vote-method totals, not reporting percentage. ENR district reporting excludes absentee completeness and doesnotmean certified.",
+        "proof": "DE-primary-receipt.json"
+      },
+      "certification": {
+        "status": "unknown_conflicting_labels",
+        "reason": "Dataset titleOfficialElectionResultsbyOffice, exactprimaryENRpage saysUnofficial; no dated certificate retained."
+      },
+      "sourceNativeIds": {
+        "socrataDataset": "4hbv-7brf",
+        "candidateId": null,
+        "contestId": null
+      },
+      "schema": {
+        "format": "SocrataCSV/JSON",
+        "fields": [
+          "office",
+          "candidatename",
+          "partyname",
+          "electiondate",
+          "machinevotessum",
+          "absenteevotessum",
+          "earlyvotessum",
+          "totalvotessum",
+          "totalvotespercentage",
+          "xmlreporttime",
+          "electionname"
+        ],
+        "allResponseRows": 829,
+        "independentApiCount": 829
+      },
+      "mappingRequirements": [
+        "Bind state + exact election date + phase + office/district + primary party when applicable before any candidate mapping.",
+        "Use observed source IDs only; candidate/race IDs absent in source remain null and need reviewed identity mapping.",
+        "No source maximum-vote calculation is an official winner declaration. Do not publish projections.",
+        "HTTP200/title/navigation/nonzero values do not establish results publication. Source election context and as-of must agree.",
+        "Filter exact electiondate + electionname before office/candidate matching; resource has many election years and school races.",
+        "Primary party is part of race identity, not only candidate affiliation.",
+        "No stable candidate/race ID in CSV: reviewed source tupleoffice+party+date+exact candidate name needed.",
+        "xmlreporttime is source as-of, HTTP fetch time is not as-of. Precinct reporting/absentee status not in CSV."
+      ],
+      "blockers": [
+        "Dataset mixes many election years and school races; no2026Nov3rows. Default resource limit must be checked with independentcount before claiming complete response."
+      ]
+    },
+    {
+      "state": "FL",
+      "targetElectionDate": "2026-11-03",
+      "targetElectionPhase": "general",
+      "coverage": "official_page_manual",
+      "targetPublication": "not_published_in_checked_sources",
+      "officialLanding": {
+        "receipt": "FL-initial-receipt.json",
+        "url": "https://dos.fl.gov/elections/data-statistics/elections-data/election-results-archive/",
+        "httpStatus": 200,
+        "sha256": "cc2415d940e3ec35e9faa47cc348b79c019623c97345ceb0e7845112ef55efea",
+        "checkedAt": "2026-10-12T04:19:24.020881+00:00",
+        "error": null
+      },
+      "publisher": "Election Results Archive - Division of Elections - Florida Department of State",
+      "validated2026GeneralVotes": false,
+      "navigationIsVoteFeedProof": false,
+      "dataEndpoints": [
+        {
+          "receipt": "FL-enr-receipt.json",
+          "url": "https://floridaelectionwatch.gov/",
+          "httpStatus": 200,
+          "sha256": "b16aa9372ed80cad5577e7d960ebb3cd64264e95faeee9b423891b11076403eb",
+          "checkedAt": "2026-10-12T04:25:23.331604+00:00",
+          "error": null
+        },
+        {
+          "receipt": "FL-archive-portal-receipt.json",
+          "url": "https://results.elections.myflorida.com/",
+          "httpStatus": 200,
+          "sha256": "d99f120d3eb0e5073701f78c16c20c4caa97685e5bdb44c4635543bb9d4e8eaa",
+          "checkedAt": "2026-10-12T04:25:23.330603+00:00",
+          "error": null
+        }
+      ],
+      "sampleElection": null,
+      "sourceAsOf": null,
+      "reportingMetric": {
+        "meaning": "Election-night/unofficial versus county/state canvass milestones separate",
+        "policyProof": "FL-reporting-policy-receipt.json"
+      },
+      "certification": {
+        "status": "unknown",
+        "reason": "No2026general certified-results record observed"
+      },
+      "sourceNativeIds": null,
+      "schema": {
+        "format": "public ENR HTML and results.elections.myflorida.com archive; machine-feed schema unverified"
+      },
+      "mappingRequirements": [
+        "Bind state + exact election date + phase + office/district + primary party when applicable before any candidate mapping.",
+        "Use observed source IDs only; candidate/race IDs absent in source remain null and need reviewed identity mapping.",
+        "No source maximum-vote calculation is an official winner declaration. Do not publish projections.",
+        "HTTP200/title/navigation/nonzero values do not establish results publication. Source election context and as-of must agree."
+      ],
+      "blockers": [
+        "PublicGovpages200 but later normal read403; no forcing/bypass. No actual vote-data endpoint/Nov3publication verified."
+      ]
+    },
+    {
+      "state": "GA",
+      "targetElectionDate": "2026-11-03",
+      "targetElectionPhase": "general",
+      "coverage": "transport_blocked",
+      "targetPublication": "not_published_in_checked_sources",
+      "officialLanding": {
+        "receipt": "GA-initial-receipt.json",
+        "url": "https://results.sos.ga.gov/",
+        "httpStatus": 200,
+        "sha256": "1a75dc6d17b4eb7e2f6339253c58cb69bd7e44b7f4b21e0cc8f9adc10b62cf19",
+        "checkedAt": "2026-10-12T04:19:24.043605+00:00",
+        "error": null
+      },
+      "publisher": "Election Results",
+      "validated2026GeneralVotes": false,
+      "navigationIsVoteFeedProof": false,
+      "dataEndpoints": [
+        {
+          "receipt": "GA-primary-receipt.json",
+          "url": "https://results.sos.ga.gov/results/public/Georgia/elections/GeneralPrimary51926",
+          "httpStatus": 200,
+          "sha256": "b639e57aa37757d847a823b59239ce0356e09fdf8e9f0e30230c1ecee5d407e7",
+          "checkedAt": "2026-10-12T04:20:36.186245+00:00",
+          "error": null
+        },
+        {
+          "receipt": "GA-public-assets.json",
+          "url": "https://results.sos.ga.gov/results/public/Georgia/elections/GeneralPrimary51926",
+          "httpStatus": 403,
+          "sha256": null,
+          "checkedAt": null,
+          "error": "HTTP Error 403: Forbidden"
+        }
+      ],
+      "sampleElection": {
+        "date": "2026-05-19",
+        "phase": "primary",
+        "sourceId": "GeneralPrimary51926"
+      },
+      "sourceAsOf": null,
+      "reportingMetric": null,
+      "certification": {
+        "status": "unknown",
+        "reason": "No2026general certified-results record observed"
+      },
+      "sourceNativeIds": {
+        "publicJurisdiction": "Georgia",
+        "electionAlias": "GeneralPrimary51926"
+      },
+      "schema": {
+        "format": "EnhancedVoting public HTML SPA",
+        "fields": null
+      },
+      "mappingRequirements": [
+        "Bind state + exact election date + phase + office/district + primary party when applicable before any candidate mapping.",
+        "Use observed source IDs only; candidate/race IDs absent in source remain null and need reviewed identity mapping.",
+        "No source maximum-vote calculation is an official winner declaration. Do not publish projections.",
+        "HTTP200/title/navigation/nonzero values do not establish results publication. Source election context and as-of must agree."
+      ],
+      "blockers": [
+        "Publicelectionpage200 ininitial normal collector; later bootstrap observation403. Error receipt haspageURL, not verified assetURL; no asset/API403 claim is inferred. Underlying rawvote API/schema unverified; no auth/mapbox/localhost/private endpoints called.",
+        "Priorprimary alias is notNov3."
+      ]
+    },
+    {
+      "state": "HI",
+      "targetElectionDate": "2026-11-03",
+      "targetElectionPhase": "general",
+      "coverage": "usable_feed_download",
+      "targetPublication": "not_published_in_checked_sources",
+      "officialLanding": {
+        "receipt": "HI-initial-receipt.json",
+        "url": "https://elections.hawaii.gov/election-results/",
+        "httpStatus": 200,
+        "sha256": "5139f49f5384779868613a3b60916a58d4707bf868f8303ec5a6660af700a1ad",
+        "checkedAt": "2026-10-12T04:19:24.134634+00:00",
+        "error": null
+      },
+      "publisher": "Office of Elections  |  Results",
+      "validated2026GeneralVotes": false,
+      "navigationIsVoteFeedProof": false,
+      "dataEndpoints": [
+        {
+          "receipt": "HI-primary-summary-receipt.json",
+          "url": "https://elections.hawaii.gov/wp-content/results/2026%20Primary/histatewide.pdf",
+          "httpStatus": 200,
+          "sha256": "d3b3d4f8c377d5e1870c96e99fe2949a1b0309403ed9f2636246a587466eb977",
+          "checkedAt": "2026-10-12T04:42:14.984165+00:00",
+          "error": null
+        }
+      ],
+      "sampleElection": {
+        "date": "2026-08-08",
+        "phase": "primary",
+        "sourceId": "2026 Primary"
+      },
+      "sourceAsOf": {
+        "raw": "08/14/2026 at06:33:41pm",
+        "meaning": "report printed time, underlying vote-update time not separately declared",
+        "publisherZoneRaw": "Hawaii"
+      },
+      "reportingMetric": {
+        "meaning": "Registration/turnout plusvote totals; not precinct reporting"
+      },
+      "certification": {
+        "status": "final_report_only",
+        "reason": "PDF saysFINAL; final is not itself an observed certification document."
+      },
+      "sourceNativeIds": {
+        "contestLabels": "U.S.Representative,DistI/II - partyletter",
+        "candidateIds": null
+      },
+      "schema": {
+        "format": "text-layerPDF",
+        "fields": [
+          "office/district/primary-party-heading",
+          "candidate-name",
+          "vote-integer",
+          "vote-percentage",
+          "blank/overvote-statistics"
+        ]
+      },
+      "mappingRequirements": [
+        "Bind state + exact election date + phase + office/district + primary party when applicable before any candidate mapping.",
+        "Use observed source IDs only; candidate/race IDs absent in source remain null and need reviewed identity mapping.",
+        "No source maximum-vote calculation is an official winner declaration. Do not publish projections.",
+        "HTTP200/title/navigation/nonzero values do not establish results publication. Source election context and as-of must agree.",
+        "Roman district labelsI/II map onlywith explicit office context. Blank/overvotes are statistics, notpeople. PreserveN/G/R/D party ballot codes."
+      ],
+      "blockers": [
+        "NoNov3general recording available; automatic PDFparser not implemented in this source-only lane."
+      ]
+    },
+    {
+      "state": "ID",
+      "targetElectionDate": "2026-11-03",
+      "targetElectionPhase": "general",
+      "coverage": "transport_blocked",
+      "targetPublication": "not_published_in_checked_sources",
+      "officialLanding": {
+        "receipt": "ID-initial-receipt.json",
+        "url": "https://voteidaho.gov/election-results/",
+        "httpStatus": 200,
+        "sha256": "8156ed39f27dc29ff99662f07b95296a149006c31f6c3748231d1d050a31fd34",
+        "checkedAt": "2026-10-12T04:19:24.311642+00:00",
+        "error": null
+      },
+      "publisher": "Election Results | VoteIdaho.Gov",
+      "validated2026GeneralVotes": false,
+      "navigationIsVoteFeedProof": false,
+      "dataEndpoints": [
+        {
+          "receipt": "ID-public-assets.json",
+          "url": "https://results.voteidaho.gov/results/public/id/elections/may2026",
+          "httpStatus": 403,
+          "sha256": null,
+          "checkedAt": null,
+          "error": "HTTP Error 403: Forbidden"
+        }
+      ],
+      "sampleElection": {
+        "date": "2026-05-19",
+        "phase": "primary",
+        "sourceId": "may2026"
+      },
+      "sourceAsOf": null,
+      "reportingMetric": null,
+      "certification": {
+        "status": "unknown",
+        "reason": "No2026general certified-results record observed"
+      },
+      "sourceNativeIds": {
+        "publicJurisdiction": "id",
+        "electionAlias": "may2026"
+      },
+      "schema": {
+        "format": "EnhancedVoting portal",
+        "fields": null
+      },
+      "mappingRequirements": [
+        "Bind state + exact election date + phase + office/district + primary party when applicable before any candidate mapping.",
+        "Use observed source IDs only; candidate/race IDs absent in source remain null and need reviewed identity mapping.",
+        "No source maximum-vote calculation is an official winner declaration. Do not publish projections.",
+        "HTTP200/title/navigation/nonzero values do not establish results publication. Source election context and as-of must agree."
+      ],
+      "blockers": [
+        "Official VoteIdaho page links statewide+countypublicmay2026 routes; initial page200, later bootstrap observation403 before a verified assetURL was retained. No rawvote API/schema orNov3alias verified."
+      ]
+    },
+    {
+      "state": "IL",
+      "targetElectionDate": "2026-11-03",
+      "targetElectionPhase": "general",
+      "coverage": "usable_feed_download",
+      "targetPublication": "not_published_in_checked_sources",
+      "officialLanding": {
+        "receipt": "IL-initial-receipt.json",
+        "url": "https://www.elections.il.gov/ElectionOperations/ElectionVoteTotals.aspx",
+        "httpStatus": 200,
+        "sha256": "1ed5ccf218c0d680bd6ac513ee27a8222d8a62a273a5f6462d2d8e0e19689a57",
+        "checkedAt": "2026-10-12T04:19:24.338508+00:00",
+        "error": null
+      },
+      "publisher": "Election Vote Totals Results",
+      "validated2026GeneralVotes": false,
+      "navigationIsVoteFeedProof": false,
+      "dataEndpoints": [
+        {
+          "receipt": "IL-primary-senate-receipt.json",
+          "url": "https://www.elections.il.gov/Downloads/ElectionOperations/ElectionResults/ByOffice/69/69-150-UNITED%20STATES%20SENATOR-2026GP.csv",
+          "httpStatus": 200,
+          "sha256": "10f43e187f186491fafaf3115f5088ad09cd3e741e45bc0e07f43d789e3d3bfd",
+          "checkedAt": "2026-10-12T04:44:02.810024+00:00",
+          "error": null
+        },
+        {
+          "receipt": "IL-primary-governor-receipt.json",
+          "url": "https://www.elections.il.gov/Downloads/ElectionOperations/ElectionResults/ByOffice/69/69-180-GOVERNOR%20AND%20LIEUTENANT%20GOVERNOR-2026GP.csv",
+          "httpStatus": 200,
+          "sha256": "0b8fed52afe56a4101b0bc60bd11edf93970a14e7533190dc8877158ac7e72f4",
+          "checkedAt": "2026-10-12T04:43:05.618954+00:00",
+          "error": null
+        }
+      ],
+      "sampleElection": {
+        "date": null,
+        "phase": "primary",
+        "electionLabelRaw": "2026GP",
+        "exactDateRequiresAgencyContext": true
+      },
+      "sourceAsOf": null,
+      "reportingMetric": null,
+      "certification": {
+        "status": "unknown",
+        "reason": "No2026general certified-results record observed"
+      },
+      "sourceNativeIds": {
+        "electionId": "69",
+        "senateContestId": "150",
+        "jointGovernorContestId": "180",
+        "candidateField": "EISCandidateID",
+        "primaryPartyField": "EISPartyID"
+      },
+      "schema": {
+        "format": "publicCSV",
+        "fields": [
+          "JurisdictionID",
+          "JurisContainerID",
+          "JurisName",
+          "EISCandidateID",
+          "CandidateName",
+          "EISContestID",
+          "ContestName",
+          "PrecinctName",
+          "Registration",
+          "EISPartyID",
+          "PartyName",
+          "VoteCount"
+        ],
+        "fullSenateDataRows": 196140,
+        "retainedCandidateRows": 20
+      },
+      "mappingRequirements": [
+        "Bind state + exact election date + phase + office/district + primary party when applicable before any candidate mapping.",
+        "Use observed source IDs only; candidate/race IDs absent in source remain null and need reviewed identity mapping.",
+        "No source maximum-vote calculation is an official winner declaration. Do not publish projections.",
+        "HTTP200/title/navigation/nonzero values do not establish results publication. Source election context and as-of must agree.",
+        "EISCandidateID/EISContestID/EISPartyID are source identifiers, not internal DB IDs.",
+        "Primary party+office+election69 is separate race context; do not merge parties.",
+        "CandidateID0 Under Votes/Over Votes/Blank Ballots are statistical buckets, not people.",
+        "County and city jurisdiction hierarchy requires declared nonoverlapping coverage. Registration repeats by row and must not be summed across candidates.",
+        "Current CSV file2026GP is primary only; must verify exact publisher election date before use.",
+        "Governor/LtGovernor is a joint ticket; do not invent a Governor identity from the combined candidate string."
+      ],
+      "blockers": [
+        "Actualhref usesWindowsbackslashes; documentedbrowser-style slash/root resolution used, exactrawhref retained in authority receipt.",
+        "PrimaryCSV lacks election date/asOf/status fields; exactdate/certification must be reviewed before production use. Minimal recordings are NOT complete office datasets."
+      ]
+    },
+    {
+      "state": "IN",
+      "targetElectionDate": "2026-11-03",
+      "targetElectionPhase": "general",
+      "coverage": "official_page_manual",
+      "targetPublication": "not_published_in_checked_sources",
+      "officialLanding": {
+        "receipt": "IN-initial-receipt.json",
+        "url": "https://www.in.gov/sos/elections/",
+        "httpStatus": 200,
+        "sha256": "557ba6f28f602f1d6a6e860a41e112c7ae56271546a25e5cf7d5d74a3594b498",
+        "checkedAt": "2026-10-12T04:19:24.582320+00:00",
+        "error": null
+      },
+      "publisher": "Election Division: Home IN.gov",
+      "validated2026GeneralVotes": false,
+      "navigationIsVoteFeedProof": false,
+      "dataEndpoints": [
+        {
+          "receipt": "IN-enr-receipt.json",
+          "url": "https://enr.indianavoters.in.gov/site/index.html",
+          "httpStatus": 200,
+          "sha256": "7f8b6b4ac4746a3da723c803afd1cc914a62c820c8ab7cbecab0316dd5dc4b82",
+          "checkedAt": "2026-10-12T04:25:23.739292+00:00",
+          "error": null
+        }
+      ],
+      "sampleElection": {
+        "date": "2026-05-05",
+        "phase": "primary",
+        "dateProof": "officialIndiana2026electioncalendar"
+      },
+      "sourceAsOf": null,
+      "reportingMetric": null,
+      "certification": {
+        "status": "unknown",
+        "reason": "No2026general certified-results record observed"
+      },
+      "sourceNativeIds": null,
+      "schema": {
+        "format": "Angular ENRHTML; links toCEB11 report",
+        "fields": null
+      },
+      "mappingRequirements": [
+        "Bind state + exact election date + phase + office/district + primary party when applicable before any candidate mapping.",
+        "Use observed source IDs only; candidate/race IDs absent in source remain null and need reviewed identity mapping.",
+        "No source maximum-vote calculation is an official winner declaration. Do not publish projections.",
+        "HTTP200/title/navigation/nonzero values do not establish results publication. Source election context and as-of must agree."
+      ],
+      "blockers": [
+        "GovENRpage200; electionResultsDocument variable unresolved in staticHTML, no verified rawvote API/schema. NoNov3currentreturn recording."
+      ]
+    },
+    {
+      "state": "IA",
+      "targetElectionDate": "2026-11-03",
+      "targetElectionPhase": "general",
+      "coverage": "official_page_manual",
+      "targetPublication": "not_published_in_checked_sources",
+      "officialLanding": {
+        "receipt": "IA-initial-receipt.json",
+        "url": "https://sos.iowa.gov/iowans/election-results-statistics",
+        "httpStatus": 200,
+        "sha256": "43409fd9fe3e3068ffefa6a593eac69a7750bf445d5603257510c1cf2e3d81df",
+        "checkedAt": "2026-10-12T04:19:24.208408+00:00",
+        "error": null
+      },
+      "publisher": "Election Results & Statistics | Iowa Secretary of State - Paul D. Pate Lock",
+      "validated2026GeneralVotes": false,
+      "navigationIsVoteFeedProof": false,
+      "dataEndpoints": [
+        {
+          "receipt": "IA-enr-receipt.json",
+          "url": "https://electionresults.iowa.gov/IA/126082/web.345435/",
+          "httpStatus": 200,
+          "sha256": "7eaa96f8db4b5bb5501feae8f4e00daeb5f1529c23c53b944a0103bf29a1da7a",
+          "checkedAt": "2026-10-12T04:27:54.634450+00:00",
+          "error": null
+        }
+      ],
+      "sampleElection": {
+        "date": "2026-06-02",
+        "phase": "primary",
+        "sourceId": "126082"
+      },
+      "sourceAsOf": null,
+      "reportingMetric": null,
+      "certification": {
+        "status": "unknown",
+        "reason": "No2026general certified-results record observed"
+      },
+      "sourceNativeIds": {
+        "clarityElectionId": "126082",
+        "webVersion": "345435"
+      },
+      "schema": {
+        "format": "Clarity public reports/SPA; SOS officialcanvassPDF available",
+        "fields": null
+      },
+      "mappingRequirements": [
+        "Bind state + exact election date + phase + office/district + primary party when applicable before any candidate mapping.",
+        "Use observed source IDs only; candidate/race IDs absent in source remain null and need reviewed identity mapping.",
+        "No source maximum-vote calculation is an official winner declaration. Do not publish projections.",
+        "HTTP200/title/navigation/nonzero values do not establish results publication. Source election context and as-of must agree."
+      ],
+      "blockers": [
+        "ActualSOSarchive links electionresults.iowa.gov/IA/126082/#reporting as2026primary export. Portal/mainasset200; rawdownloadschema not verified. NoNov3idrecorded."
+      ]
+    },
+    {
+      "state": "KS",
+      "targetElectionDate": "2026-11-03",
+      "targetElectionPhase": "general",
+      "coverage": "usable_feed_download",
+      "targetPublication": "not_published_in_checked_sources",
+      "officialLanding": {
+        "receipt": "KS-initial-receipt.json",
+        "url": "https://sos.ks.gov/elections/election-results.html",
+        "httpStatus": 200,
+        "sha256": "d78ab5aedede7d41c53af7991c186ce1f921cdbdad1be381faf2cdf7c08257fe",
+        "checkedAt": "2026-10-12T04:19:24.601721+00:00",
+        "error": null
+      },
+      "publisher": "Kansas Secretary of State | Elections | Election Results",
+      "validated2026GeneralVotes": false,
+      "navigationIsVoteFeedProof": false,
+      "dataEndpoints": [
+        {
+          "receipt": "KS-primary-senate-receipt.json",
+          "url": "https://sos.ks.gov/elections/26elec/2026-Primary-Election-United-States-Senate-Precinct-Level-Results.xlsx",
+          "httpStatus": 200,
+          "sha256": "cf17e7bfa7d7f7e4c823080dd01e84b2a97b5d696c92a871497ba8822ba5d2fc",
+          "checkedAt": "2026-10-12T04:27:51.572628+00:00",
+          "error": null
+        },
+        {
+          "receipt": "KS-primary-certified-receipt.json",
+          "url": "https://sos.ks.gov/media/press-releases/2026/09-01-26-state-board-of-canvassers-certify-2026-primary-election-results.html",
+          "httpStatus": 200,
+          "sha256": "10eb60dc9413a562619d07f7b68b2ff06f53635040811c2215951a0aa1c87d18",
+          "checkedAt": "2026-10-12T04:48:08.795274+00:00",
+          "error": null
+        }
+      ],
+      "sampleElection": {
+        "date": "2026-08-04",
+        "phase": "primary",
+        "office": "U.S.Senate"
+      },
+      "sourceAsOf": null,
+      "reportingMetric": null,
+      "certification": {
+        "status": "certified_primary",
+        "certifiedAt": "2026-09-01",
+        "proof": "KS-primary-certified-receipt.json; actualagency press release"
+      },
+      "sourceNativeIds": {
+        "precinctField": "VTD",
+        "candidateId": null,
+        "contestId": null
+      },
+      "schema": {
+        "format": "XLSX",
+        "masterSheet": "U.S. Senate",
+        "masterRowsIncludingHeader": 39275,
+        "fields": [
+          "County",
+          "Precinct",
+          "Race",
+          "Candidate",
+          "Party",
+          "Votes",
+          "VTD"
+        ],
+        "otherSheet": "Johnsonwideparty/candidatecolumns"
+      },
+      "mappingRequirements": [
+        "Bind state + exact election date + phase + office/district + primary party when applicable before any candidate mapping.",
+        "Use observed source IDs only; candidate/race IDs absent in source remain null and need reviewed identity mapping.",
+        "No source maximum-vote calculation is an official winner declaration. Do not publish projections.",
+        "HTTP200/title/navigation/nonzero values do not establish results publication. Source election context and as-of must agree.",
+        "Master sheet andJohnson supplement overlap; neverappend them as independent statewide votes.",
+        "VTD is geography, notcandidate ID; raw Candidate useslast,first source convention."
+      ],
+      "blockers": [
+        "Source asOf timestamp unavailable in workbooks; certified date isnot per-county update time. NoNov3results source currentlypublished."
+      ]
+    },
+    {
+      "state": "KY",
+      "targetElectionDate": "2026-11-03",
+      "targetElectionPhase": "general",
+      "coverage": "official_page_manual",
+      "targetPublication": "not_published_in_checked_sources",
+      "officialLanding": {
+        "receipt": "KY-initial-receipt.json",
+        "url": "https://elect.ky.gov/results/2020-2029/Pages/default.aspx",
+        "httpStatus": 200,
+        "sha256": "44bcd838b5b452c162c045f9d4a5d3617a7397dce83aea952fbca95ddb4d3e23",
+        "checkedAt": "2026-10-12T04:19:24.769036+00:00",
+        "error": null
+      },
+      "publisher": "Kentucky Elections Results 2020-2029 - \r\n        \r\n    State Board of Elections",
+      "validated2026GeneralVotes": false,
+      "navigationIsVoteFeedProof": false,
+      "dataEndpoints": [
+        {
+          "receipt": "KY-year-receipt.json",
+          "url": "https://elect.ky.gov/results/2020-2029/Pages/2026.aspx",
+          "httpStatus": 200,
+          "sha256": "e450bbb72fc3d6b42f5db287d6011de6f4cab19618bec4f38894492cdb22e179",
+          "checkedAt": "2026-10-12T04:20:36.476146+00:00",
+          "error": null
+        },
+        {
+          "receipt": "KY-primary-recaps-receipt.json",
+          "url": "https://elect.ky.gov/results/2020-2029/Pages/2026Primary-Recap-Sheets.aspx",
+          "httpStatus": 200,
+          "sha256": "48ffef32830c6032a1194e98e1522d58bcc8374bd336409b116ef37dfe638eb7",
+          "checkedAt": "2026-10-12T04:25:23.873848+00:00",
+          "error": null
+        }
+      ],
+      "sampleElection": {
+        "date": "2026-05-19",
+        "phase": "primary",
+        "context": "official statearchive only"
+      },
+      "sourceAsOf": null,
+      "reportingMetric": null,
+      "certification": {
+        "status": "unknown",
+        "reason": "No2026general certified-results record observed"
+      },
+      "sourceNativeIds": null,
+      "schema": {
+        "format": "statearchive/recap PDFlinks; no rawvote schema verified"
+      },
+      "mappingRequirements": [
+        "Bind state + exact election date + phase + office/district + primary party when applicable before any candidate mapping.",
+        "Use observed source IDs only; candidate/race IDs absent in source remain null and need reviewed identity mapping.",
+        "No source maximum-vote calculation is an official winner declaration. Do not publish projections.",
+        "HTTP200/title/navigation/nonzero values do not establish results publication. Source election context and as-of must agree."
+      ],
+      "blockers": [
+        "SavedJeffersoncounty browser/identity lookup block remains; noalternatecounty/proxy/CAPTCHA route used. Only distinct already-authorizedC6StateBoard archive/year/recap index fetched.",
+        "No2026Nov3vote recording orautomatic feed verified."
+      ]
+    }
+  ]
+}

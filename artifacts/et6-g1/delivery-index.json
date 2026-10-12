@@ -1,0 +1,634 @@
+{
+  "version": 1,
+  "base": "eb60469721e9e450ec82ca20ad4a28bc777e956a",
+  "branch": "lane-c/et6-official-feed-g1",
+  "checkpoint": "owner_restart_hold",
+  "generatedAt": "2026-10-12T05:09:13.669617+00:00",
+  "scope": "source-only research; zero current-general admissions",
+  "excludedLocalFiles": [
+    "IL-primary-governor.csv",
+    "IL-primary-senate.csv"
+  ],
+  "files": [
+    {
+      "path": "artifacts/et6-g1/.gitattributes",
+      "bytes": 20,
+      "sha256": "e97602ab9cac70102245345c5ab0fc9830df8b17f1072b188265a662a3a547ae"
+    },
+    {
+      "path": "artifacts/et6-g1/AK-initial-receipt.json",
+      "bytes": 5025,
+      "sha256": "61fcf1708fc4f30f9411951834b182e62d76a67199ecfa069846e683db181e0e"
+    },
+    {
+      "path": "artifacts/et6-g1/AK-primary-html-receipt.json",
+      "bytes": 300,
+      "sha256": "2af51955e80d81f15d45706c3355f3b10f08102515f8ad3b4207171a269d9140"
+    },
+    {
+      "path": "artifacts/et6-g1/AK-primary-receipt.json",
+      "bytes": 6251,
+      "sha256": "b0c3eb51c76492d07e5b8da589055af36a6c9e61241ec087aa4e786b42f544e6"
+    },
+    {
+      "path": "artifacts/et6-g1/AL-client-observation.json",
+      "bytes": 1609,
+      "sha256": "9a68a4200a19d51e2444d8c7c003951d678d8a49d442bd7319af266c50d6b8db"
+    },
+    {
+      "path": "artifacts/et6-g1/AL-initial-receipt.json",
+      "bytes": 13789,
+      "sha256": "29e39ea119f66c1aaf624839a4fd9de891fe8fbec53a6ed29b9ca47014ff68c3"
+    },
+    {
+      "path": "artifacts/et6-g1/AL-primary-enr-receipt.json",
+      "bytes": 1611,
+      "sha256": "3c14d1f680f065e7430bf0adbe67b179d8ef9c750fe672044ba60bda3c649991"
+    },
+    {
+      "path": "artifacts/et6-g1/AL-primary-gop-receipt.json",
+      "bytes": 47269,
+      "sha256": "73f141fbb2b6d69fb5780c7a659a18e3496618fb41efb24c7af663f9153e0e85"
+    },
+    {
+      "path": "artifacts/et6-g1/AL-primary-gop.xlsx",
+      "bytes": 1259840,
+      "sha256": "a15e7c055a7a6b812ca98301e9a715a60724d76c16c86fd0f9d764a6ac073ff9"
+    },
+    {
+      "path": "artifacts/et6-g1/AR-client-observation.json",
+      "bytes": 440,
+      "sha256": "66159ccfe1529cacbe5467bc761e0e8d077950659edb7e945bc54756934a4903"
+    },
+    {
+      "path": "artifacts/et6-g1/AR-initial-receipt.json",
+      "bytes": 14037,
+      "sha256": "8f8f5d5248fb586933dd333018d0395b537108b069bd7b89cebb5a4152013b25"
+    },
+    {
+      "path": "artifacts/et6-g1/AR-public-assets.json",
+      "bytes": 564,
+      "sha256": "218c4c0a4235c7071bcc167e87769bb22ef6ed1f96655633468a7724f1e53efd"
+    },
+    {
+      "path": "artifacts/et6-g1/AR-tally-receipt.json",
+      "bytes": 480,
+      "sha256": "1302fcf6d27c0e5b0048ca8e6a0c082c545149c816c41936d35a55b2dd2789d0"
+    },
+    {
+      "path": "artifacts/et6-g1/assets-fetch.txt",
+      "bytes": 1469,
+      "sha256": "c204a2157ec730778a066b439a65a7b9e443785d661dd3983940e3dc6fbdfefe"
+    },
+    {
+      "path": "artifacts/et6-g1/AZ-initial-receipt.json",
+      "bytes": 283,
+      "sha256": "09950fe2cae72ee82cd30f579077cf41b546939477a9e1cd79a1486945ba2d71"
+    },
+    {
+      "path": "artifacts/et6-g1/AZ-press-receipt.json",
+      "bytes": 239,
+      "sha256": "454d5bbfd447fe2265a13db3ce81c50a1d396e3014fe4f81a7512044abf60a50"
+    },
+    {
+      "path": "artifacts/et6-g1/AZ-primary-summary-fetch.json",
+      "bytes": 297,
+      "sha256": "ed8962adb2cfe735f1c4fef96ebad0df9c42c77cf58238045df6c7eed4dcbe74"
+    },
+    {
+      "path": "artifacts/et6-g1/build_manifest.py",
+      "bytes": 15783,
+      "sha256": "aedd0537848ed8435853a6167e13a381de3bfce8efd170a83d9033fba8d56085"
+    },
+    {
+      "path": "artifacts/et6-g1/CA-api-index-fetch.json",
+      "bytes": 1277,
+      "sha256": "2ce8bf6b7263dbb3e36bb9dcc03f6eb96031e7cc71f1f893bc04e99839898cdf"
+    },
+    {
+      "path": "artifacts/et6-g1/CA-certified-primary-acceptance.json",
+      "bytes": 1531,
+      "sha256": "243db86ca98e1059c29fd79c47b0142e05dc1d773b057cfb7182466bcf2b582f"
+    },
+    {
+      "path": "artifacts/et6-g1/CA-initial-receipt.json",
+      "bytes": 10345,
+      "sha256": "e8c17f586d2f3c8f612f6e39b12d3ee9dc238a11089576a16c04bbd3a6162ddd"
+    },
+    {
+      "path": "artifacts/et6-g1/CA-json-index-fetch.json",
+      "bytes": 1815,
+      "sha256": "764a634a99205345a23828d809e66e10039f094e2d5da074ce9f2ab8c41c9956"
+    },
+    {
+      "path": "artifacts/et6-g1/CA-media-receipt.json",
+      "bytes": 2536,
+      "sha256": "69a75deacc611bf8ed214ae19ed26bf42f6c989c0ff64d33b7a7a7a47c364088"
+    },
+    {
+      "path": "artifacts/et6-g1/CA-pre-election-governor-receipt.json",
+      "bytes": 1584,
+      "sha256": "f0aa52d18caea06cfc15bb837927a45992e682e27655c37cd535f53f3f2e217f"
+    },
+    {
+      "path": "artifacts/et6-g1/CA-pre-election-governor.json",
+      "bytes": 36657,
+      "sha256": "686ae42988ca22ab71ac430bf8b7097d2fc467c4f7171fc699c7a6d860a5900e"
+    },
+    {
+      "path": "artifacts/et6-g1/CA-pre-election-refusal-context.json",
+      "bytes": 1434,
+      "sha256": "ad2a67d4b0ff970c959f74ae5f22a3048e7907acef75673fb08c25415edef650"
+    },
+    {
+      "path": "artifacts/et6-g1/CA-pre-election-statewide-raw.json",
+      "bytes": 630,
+      "sha256": "02f688a0946bc4bdc9d8ebdf0d380f3a046329a26f573605377a49194f189bb3"
+    },
+    {
+      "path": "artifacts/et6-g1/CA-primary-certificate-receipt.json",
+      "bytes": 557,
+      "sha256": "e99e55e2f175963aa5179d160a0e3eb4727c99c4ba3bc5dd89bf8b6569017e82"
+    },
+    {
+      "path": "artifacts/et6-g1/CA-primary-certificate-text.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/et6-g1/CA-primary-certificate.pdf",
+      "bytes": 842458,
+      "sha256": "3ffb90f022e448d84ea77cfccc2baa54ad87669a0aaa0575c7a08df66c460d77"
+    },
+    {
+      "path": "artifacts/et6-g1/CA-primary-certificate.png",
+      "bytes": 201515,
+      "sha256": "e362ec0eaf028e8acce8f11872aaee37e1794d8057607d8b7138f8f64c7fde39"
+    },
+    {
+      "path": "artifacts/et6-g1/CA-primary-gov-pdf-receipt.json",
+      "bytes": 1564,
+      "sha256": "2463580a550c062d84cc1282e0d6c6c87f49653e7212fb8a9be86591c9079694"
+    },
+    {
+      "path": "artifacts/et6-g1/CA-primary-gov-pdf-text.txt",
+      "bytes": 53247,
+      "sha256": "b1aa6c127e025128333e575a0cfe9b363e57ffa164503f079dc412adaa1e52f9"
+    },
+    {
+      "path": "artifacts/et6-g1/CA-primary-gov-pdf.pdf",
+      "bytes": 1486815,
+      "sha256": "5722d7e4042a00bc894775f3ea022e734eb9a3b0382c522eae50318e024bbaa0"
+    },
+    {
+      "path": "artifacts/et6-g1/CA-primary-gov-receipt.json",
+      "bytes": 9618,
+      "sha256": "68163e1eaaaa26aaa0c6cd8e3c271b267ed8ed8e69c9d9d4609b1ec767021e4a"
+    },
+    {
+      "path": "artifacts/et6-g1/CA-primary-gov-values.json",
+      "bytes": 64278,
+      "sha256": "dcc1a64837e57e3f9b4cf39de8240f93e02232f428e2f1d21fb89fb51986b258"
+    },
+    {
+      "path": "artifacts/et6-g1/CA-primary-gov.xlsx",
+      "bytes": 59839,
+      "sha256": "2c3f509d9b144dff74d2d68ae7be124e697cf6e6bd7e50291cbd1393532980d1"
+    },
+    {
+      "path": "artifacts/et6-g1/CA-primary-receipt.json",
+      "bytes": 6949,
+      "sha256": "30f7a76fe74b579471b2c4f1fa4eba44bdb86c4bad0dcf3dcc3ae8a4184d9b68"
+    },
+    {
+      "path": "artifacts/et6-g1/CA-publication-rule-receipt.json",
+      "bytes": 1005,
+      "sha256": "0b93784bb3a7e8f004eaf7e707c44e1203c9a6ef220f4ecc7133ef8577e35c3c"
+    },
+    {
+      "path": "artifacts/et6-g1/CA-sov-receipt.json",
+      "bytes": 6315,
+      "sha256": "7c4059522d1f9f9aad09e77e1a2c9b932840655dedadd21157aadb1d7cebfddd"
+    },
+    {
+      "path": "artifacts/et6-g1/CA-vote-pre-election-fetch.json",
+      "bytes": 655,
+      "sha256": "eef38bbf034a5466fec0446113b4bdd675dc2008f79cb1f2aec231d4961ec932"
+    },
+    {
+      "path": "artifacts/et6-g1/client-observation.txt",
+      "bytes": 14700,
+      "sha256": "dedebd62a9cb123c737be6aa6b6ebfb17e60777173e0f613713f6c1c0e7eb63d"
+    },
+    {
+      "path": "artifacts/et6-g1/CO-delegation-receipt.json",
+      "bytes": 1118,
+      "sha256": "eb32c627694ebfdf841763ee2ecbacc560e9dc2e4c87537866f9202bfb2673dc"
+    },
+    {
+      "path": "artifacts/et6-g1/CO-enr-receipt.json",
+      "bytes": 559,
+      "sha256": "92fda17fa032aedee337043e80e1a280ed99c7fdf541f085b1df8fe7eb58951f"
+    },
+    {
+      "path": "artifacts/et6-g1/CO-initial-receipt.json",
+      "bytes": 2224,
+      "sha256": "9ce85b77e4fa01a827add724d79d9dd73312c46baf727d4045231368de7cd9b2"
+    },
+    {
+      "path": "artifacts/et6-g1/CO-year-receipt.json",
+      "bytes": 276,
+      "sha256": "1a5e70f5350f479a01f0a37641d74ac4dbf0ef1155aab69b79afd069a1f0450b"
+    },
+    {
+      "path": "artifacts/et6-g1/CT-actual-linked-ems-receipt.json",
+      "bytes": 484,
+      "sha256": "9a9d1a592a079e88b13be6c00967a0ba74130415695450d3d9f721880d11dbb6"
+    },
+    {
+      "path": "artifacts/et6-g1/CT-client-observation.json",
+      "bytes": 2843,
+      "sha256": "e1c4682ccd83d155b7987bdb6753deab54167db721857fb829f7da6f1e382384"
+    },
+    {
+      "path": "artifacts/et6-g1/CT-ems-receipt.json",
+      "bytes": 472,
+      "sha256": "866f656874d6ed1a9e10482f73f8cdd531fe95c01d9c11d96f45afef866ead0c"
+    },
+    {
+      "path": "artifacts/et6-g1/CT-gateway-receipt.json",
+      "bytes": 5811,
+      "sha256": "b74db75274c8ebd9cafd31233568231f20fa37c04c2f1d6cb07cf87aaa65939f"
+    },
+    {
+      "path": "artifacts/et6-g1/CT-initial-receipt.json",
+      "bytes": 5811,
+      "sha256": "a3e4a5bda9f2756385d38679aceae6c8aafaa13c203ee389af43ec4ff18ef7c0"
+    },
+    {
+      "path": "artifacts/et6-g1/CT-published-ems-receipt.json",
+      "bytes": 472,
+      "sha256": "efad57c94511fff1175b4d7c61e29a1d7c96b72016510bb9ca223b9a90d5926d"
+    },
+    {
+      "path": "artifacts/et6-g1/DE-independent-count-receipt.json",
+      "bytes": 527,
+      "sha256": "a53bba7a8eeb22d5db0ff7d4248aa133b179d32bc88e93b03af82c5d138d1f9e"
+    },
+    {
+      "path": "artifacts/et6-g1/DE-initial-receipt.json",
+      "bytes": 1280,
+      "sha256": "a340dece4c1fe312df753396c4470691780095ed4c61e2962b97f2cec1a00626"
+    },
+    {
+      "path": "artifacts/et6-g1/DE-primary-acceptance.json",
+      "bytes": 1191,
+      "sha256": "0edb17fc788e92272bf2062bebe26cb0d1deec329645c7833f2c4d0647eb5aeb"
+    },
+    {
+      "path": "artifacts/et6-g1/DE-primary-csv-fetch.json",
+      "bytes": 1703,
+      "sha256": "363c302c8c2fe42da2d961c753b1fce91a3fc0cd90d7215ef464647d61fe07f4"
+    },
+    {
+      "path": "artifacts/et6-g1/DE-primary-csv.csv",
+      "bytes": 148767,
+      "sha256": "2873d3381dc2fc2736e119fe6db07fa186324dd47f908e3af0bd986741387998"
+    },
+    {
+      "path": "artifacts/et6-g1/DE-primary-metadata-fetch.json",
+      "bytes": 1968,
+      "sha256": "368cb00da30c74632edc802fdd75c47e8b0b99dd6a1195f91d64820e1ff721c9"
+    },
+    {
+      "path": "artifacts/et6-g1/DE-primary-receipt.json",
+      "bytes": 813,
+      "sha256": "408325b0b0a35a67ce4c16b52206648cc7f4413546fff23a215d0750d7a625ba"
+    },
+    {
+      "path": "artifacts/et6-g1/extra-recordings-fetch.txt",
+      "bytes": 24442,
+      "sha256": "396585ebb7e95a4706a348586eb77bfcf11ed78773351cacba5ad9a4e371c794"
+    },
+    {
+      "path": "artifacts/et6-g1/extra_recordings.py",
+      "bytes": 2715,
+      "sha256": "ef241bf82ec9d8875d49ac11bee52c92809dfb834cd6cd0b6ce04739e79547af"
+    },
+    {
+      "path": "artifacts/et6-g1/fetch_index.py",
+      "bytes": 2891,
+      "sha256": "7dd520b26b6d45cb67d727c383e73a61c6e7673fceb731c8487fb6c50b7568d3"
+    },
+    {
+      "path": "artifacts/et6-g1/FL-archive-client-observation.json",
+      "bytes": 501,
+      "sha256": "513ed7081eac15b7ae0fe801537ef2f0d88306eb04985f613b09eaefc51584a6"
+    },
+    {
+      "path": "artifacts/et6-g1/FL-archive-portal-receipt.json",
+      "bytes": 494,
+      "sha256": "def1dd1b80d5e0d847ba9b94e783182b4b6b6a1d874398bdd8753bf906da9a76"
+    },
+    {
+      "path": "artifacts/et6-g1/FL-authority-receipt.json",
+      "bytes": 879,
+      "sha256": "8590cff522a103faeba52a2533eea5f9b0c5735506c2fa937a79d4d3d6c72fc7"
+    },
+    {
+      "path": "artifacts/et6-g1/FL-client-observation.json",
+      "bytes": 693,
+      "sha256": "2a3af56310b1713b31f5f28d5d1bed89c95fab3dfde397d5448128614830710a"
+    },
+    {
+      "path": "artifacts/et6-g1/FL-enr-receipt.json",
+      "bytes": 589,
+      "sha256": "3bcfaf0263bb558553e7cd04963eb67450acf95851a3897229ee6008707db882"
+    },
+    {
+      "path": "artifacts/et6-g1/FL-initial-receipt.json",
+      "bytes": 1262,
+      "sha256": "4563233e63ca659c55daed53913da16f99242b842a6c81ab14eae0f28d55b760"
+    },
+    {
+      "path": "artifacts/et6-g1/FL-reporting-policy-receipt.json",
+      "bytes": 603,
+      "sha256": "b3b2a81b767f556200289c11c8e9dff2ab1183cf1a1ee3a6bdd1edd71f3d5e65"
+    },
+    {
+      "path": "artifacts/et6-g1/follow-fetch.txt",
+      "bytes": 3855,
+      "sha256": "cd6116345a85b32c5b98485c4fb9ffe2834c75bbfea42f8be66723e035e6e736"
+    },
+    {
+      "path": "artifacts/et6-g1/follow_sources.py",
+      "bytes": 942,
+      "sha256": "51238c4bae74edb6ab8cda7c577f6f628cd5342a1b0eb9b2896afad3fc3f77d0"
+    },
+    {
+      "path": "artifacts/et6-g1/GA-client-observation.json",
+      "bytes": 756,
+      "sha256": "25f619b08113602225da5e82e1e793950c89ad28f2dfeed532757e6b1933d8ee"
+    },
+    {
+      "path": "artifacts/et6-g1/GA-initial-receipt.json",
+      "bytes": 461,
+      "sha256": "9ffdd35d2465382b3a7c2fb6e52ec01808979c302441f17b69bebfb2600a508f"
+    },
+    {
+      "path": "artifacts/et6-g1/GA-primary-receipt.json",
+      "bytes": 543,
+      "sha256": "67800923d13025e7ca491447e6f34999ace836a11f9b21d8c4c05811bd6fa3ea"
+    },
+    {
+      "path": "artifacts/et6-g1/GA-public-assets.json",
+      "bytes": 180,
+      "sha256": "cfcc96cf354ddc8e11c057c416ce2a0a3b4ca35a1a54faac84501e254c516da8"
+    },
+    {
+      "path": "artifacts/et6-g1/GA-public-page-fetch.json",
+      "bytes": 877,
+      "sha256": "84eebb44ccc8cffb3a3b033b95e854e62c942b67a42ac7648593869ba63725e6"
+    },
+    {
+      "path": "artifacts/et6-g1/HI-initial-receipt.json",
+      "bytes": 51182,
+      "sha256": "e9121eb0d87d1da35cfc0c8f80e6933937f604dad5917675de0093ccdbe6bd20"
+    },
+    {
+      "path": "artifacts/et6-g1/HI-primary-summary-receipt.json",
+      "bytes": 1283,
+      "sha256": "ea433882f6d456d29256d49b0260e7c0a914d4f939a64c37a596f8b00236b59f"
+    },
+    {
+      "path": "artifacts/et6-g1/HI-primary-summary-text.txt",
+      "bytes": 22898,
+      "sha256": "6979f707291620dee9595422bed6b99a42c48215a8a8df7fbfc0ed6923527c54"
+    },
+    {
+      "path": "artifacts/et6-g1/HI-primary-summary.pdf",
+      "bytes": 59496,
+      "sha256": "d3b3d4f8c377d5e1870c96e99fe2949a1b0309403ed9f2636246a587466eb977"
+    },
+    {
+      "path": "artifacts/et6-g1/IA-client-observation.json",
+      "bytes": 772,
+      "sha256": "7019eac29ea167e29722be1e6f7c2207ea0edec83f057054188e96eaabce9d99"
+    },
+    {
+      "path": "artifacts/et6-g1/IA-enr-receipt.json",
+      "bytes": 543,
+      "sha256": "2febf7682c085a8dde51d5c7f6d2d02152c73b92c8e78429ef2cb790a8c1a734"
+    },
+    {
+      "path": "artifacts/et6-g1/IA-initial-receipt.json",
+      "bytes": 20994,
+      "sha256": "eec28432748177c789845c2775fc9bec0db85061ca915790deea46e69f66d6da"
+    },
+    {
+      "path": "artifacts/et6-g1/IA-public-assets.json",
+      "bytes": 655,
+      "sha256": "f8b6788e708c87f60f20d8ef20a47880d1e7bdfef147eb92dd9a51c0a2089b3c"
+    },
+    {
+      "path": "artifacts/et6-g1/ID-client-observation.json",
+      "bytes": 829,
+      "sha256": "a7b61dfed595e57155bdbada165ce5b9d6e55e339bb0e606a5137a7bcf872004"
+    },
+    {
+      "path": "artifacts/et6-g1/ID-initial-receipt.json",
+      "bytes": 128894,
+      "sha256": "ad5262036fb88b3ea771c8a645b0b74f398deae4b908b466afa4758dce13d5b2"
+    },
+    {
+      "path": "artifacts/et6-g1/ID-public-assets.json",
+      "bytes": 166,
+      "sha256": "59a8fb82a5b0080f52db8bba86c045e0f610427f1aeb0ec9ccb2f771049341bf"
+    },
+    {
+      "path": "artifacts/et6-g1/IL-calendar-receipt.json",
+      "bytes": 556,
+      "sha256": "33cd3684f7188c51c36509d29dae592888904e4a5fbe2c74b76346bbeac05617"
+    },
+    {
+      "path": "artifacts/et6-g1/IL-download-authority-receipt.json",
+      "bytes": 5709,
+      "sha256": "21ddebcb9428409c08ae1b0f41565cfb21a50d68adf55c000e38bc2bca418d60"
+    },
+    {
+      "path": "artifacts/et6-g1/IL-election-context-receipt.json",
+      "bytes": 5709,
+      "sha256": "c8ac31ac5750470fc7959d7375e6a8e656733db484fe591c8d974b2965c1340c"
+    },
+    {
+      "path": "artifacts/et6-g1/IL-initial-receipt.json",
+      "bytes": 5709,
+      "sha256": "3504fbee603c2258aba8c3b9eeedc6dc679d0377a99bb823e34fe7e5e3749bd3"
+    },
+    {
+      "path": "artifacts/et6-g1/IL-primary-governor-minimal-receipt.json",
+      "bytes": 1409,
+      "sha256": "ae53a878914374ea8d69a6ddfb8cd3888c00cc49262560729f13c6a60a82173a"
+    },
+    {
+      "path": "artifacts/et6-g1/IL-primary-governor-minimal.csv",
+      "bytes": 2048,
+      "sha256": "84ffd43b0e404c28d2feba2645821e0f25ddf2c8a793aaba2377949db4806be1"
+    },
+    {
+      "path": "artifacts/et6-g1/IL-primary-governor-receipt.json",
+      "bytes": 1456,
+      "sha256": "416e7fb2883183e3a96b8126ddbd16fcf8589a18a56d336786b16ebafde79c95"
+    },
+    {
+      "path": "artifacts/et6-g1/IL-primary-senate-minimal-receipt.json",
+      "bytes": 1408,
+      "sha256": "5271760c944f848919940f97ad7f4605e48af375afad585e912936b6fc5cb38a"
+    },
+    {
+      "path": "artifacts/et6-g1/IL-primary-senate-minimal.csv",
+      "bytes": 1879,
+      "sha256": "298c172f31b7677e3cb728bf2cf6736e5937d8ef3947be899ca60be0c4ad4784"
+    },
+    {
+      "path": "artifacts/et6-g1/IL-primary-senate-receipt.json",
+      "bytes": 1426,
+      "sha256": "60d5dfedaebf07e001ec3da1a9570af8f3299b77f3626f821d471c163b1dc61f"
+    },
+    {
+      "path": "artifacts/et6-g1/IN-client-observation.json",
+      "bytes": 7411,
+      "sha256": "b3b4cb6872b46c89affe78a63b6adac07a591357bc4408809c78fd79d1f10459"
+    },
+    {
+      "path": "artifacts/et6-g1/IN-enr-receipt.json",
+      "bytes": 1076,
+      "sha256": "8e5f2c698c879a3dba754735b284264a29ff088571795fb4ebfcf748408e18ef"
+    },
+    {
+      "path": "artifacts/et6-g1/IN-initial-receipt.json",
+      "bytes": 1533,
+      "sha256": "d1b529617abc4d6c54b01c54d16f4cb88cc1a9bc05dc49106570946c0cfdafab"
+    },
+    {
+      "path": "artifacts/et6-g1/index-fetch.txt",
+      "bytes": 8080,
+      "sha256": "4fe3145cb209bedda98656f6090ac7de85e9b08adcd905a3b5ea0b0aadfb7eb2"
+    },
+    {
+      "path": "artifacts/et6-g1/inspect-public.txt",
+      "bytes": 7155,
+      "sha256": "4c312f0961552d13d686630a72cef6bce9cf898b1e1167f07522fc4eacf0e342"
+    },
+    {
+      "path": "artifacts/et6-g1/inspect_assets.py",
+      "bytes": 2036,
+      "sha256": "b293c725e978d24661214ae4aa5f25d392fe4b927a04fb8f28f6d33dc6b0cc26"
+    },
+    {
+      "path": "artifacts/et6-g1/inspect_public.py",
+      "bytes": 3191,
+      "sha256": "3ab5c025946ea362c8fff77ce02e909fdb4681262f6c8bea58e284d893686547"
+    },
+    {
+      "path": "artifacts/et6-g1/KS-archive-receipt.json",
+      "bytes": 23259,
+      "sha256": "1e963f9bdeac64c76e278a781e1eec16b8534292551c844513b4a4701f0749a6"
+    },
+    {
+      "path": "artifacts/et6-g1/KS-certification-receipt.json",
+      "bytes": 19344,
+      "sha256": "844a8efc2fb6031e1c21b4a04ed229c5d1f7603849cfac86436351c069339090"
+    },
+    {
+      "path": "artifacts/et6-g1/KS-initial-receipt.json",
+      "bytes": 23259,
+      "sha256": "63019f9e1a615dce402e98f7bad9665e25213bede0675ef13c8105530b6fca5f"
+    },
+    {
+      "path": "artifacts/et6-g1/KS-primary-certified-receipt.json",
+      "bytes": 990,
+      "sha256": "31502649d23560a9980614484c834a9f04d4732630d82db5428c84714e1dc86a"
+    },
+    {
+      "path": "artifacts/et6-g1/KS-primary-senate-receipt.json",
+      "bytes": 11253,
+      "sha256": "199b6d66e1cb3e9e66ce0e87e6a22cea781a1b8baf899e607c93bf92a9dd4cd2"
+    },
+    {
+      "path": "artifacts/et6-g1/KS-primary-senate-values.json",
+      "bytes": 4293019,
+      "sha256": "b6a6c0636532e6d0e8c1a0f380a8f03732d17ce43b4587ae64e71260b1668dc6"
+    },
+    {
+      "path": "artifacts/et6-g1/KS-primary-senate.xlsx",
+      "bytes": 1314696,
+      "sha256": "cf17e7bfa7d7f7e4c823080dd01e84b2a97b5d696c92a871497ba8822ba5d2fc"
+    },
+    {
+      "path": "artifacts/et6-g1/KY-initial-receipt.json",
+      "bytes": 22175,
+      "sha256": "ceb82295dece483fa4e1d919450f3fec0e982f9a027750324e95fb237211777e"
+    },
+    {
+      "path": "artifacts/et6-g1/KY-primary-recaps-receipt.json",
+      "bytes": 39014,
+      "sha256": "cc60293861b0d1601e378c02e2777eb225b2f2c2928d8ab88cb72eed2245ebd4"
+    },
+    {
+      "path": "artifacts/et6-g1/KY-year-receipt.json",
+      "bytes": 22357,
+      "sha256": "3e51f1052cb141a94ff2949439bc5cbdbbf985c1a8145fd7d9b4bb4e4b76cdea"
+    },
+    {
+      "path": "artifacts/et6-g1/minimize_recordings.py",
+      "bytes": 3411,
+      "sha256": "f19b49656ee71b60f4f539498a292d2ed4c983a1a6e09b36b6bc6ac7a760ff15"
+    },
+    {
+      "path": "artifacts/et6-g1/observe_clients.py",
+      "bytes": 3158,
+      "sha256": "f672457cdece40736edd66b2e34d791b11818cfbdde76e49b2d8b7cdf78673a1"
+    },
+    {
+      "path": "artifacts/et6-g1/recording-acceptance-final.txt",
+      "bytes": 2512,
+      "sha256": "78510e4aba5b96fc434cb6166d6bc2bc2007224a17da2cddec32470e2f6411f6"
+    },
+    {
+      "path": "artifacts/et6-g1/recording-acceptance.txt",
+      "bytes": 2512,
+      "sha256": "78510e4aba5b96fc434cb6166d6bc2bc2007224a17da2cddec32470e2f6411f6"
+    },
+    {
+      "path": "artifacts/et6-g1/recordings-fetch.txt",
+      "bytes": 3053,
+      "sha256": "de6eadfb4e925fedc935d08c19b2954156a535f475d173b93adf4905808c8667"
+    },
+    {
+      "path": "artifacts/et6-g1/recordings.py",
+      "bytes": 3397,
+      "sha256": "b485398adc6c391fdf380289b04c0e9bade353047d6d96e0683e437d0ec3f8b8"
+    },
+    {
+      "path": "artifacts/et6-g1/REPORT.md",
+      "bytes": 7037,
+      "sha256": "0629a0e9c9c5d2b66b8da9fac837e11dff12465a1fa55e99bfc6108c1a6349bd"
+    },
+    {
+      "path": "artifacts/et6-g1/RESTART_HANDOFF.md",
+      "bytes": 1934,
+      "sha256": "a423d6ffde0b3024fbfab11bf230d69729730b1e2a62706a3f02528e0914be08"
+    },
+    {
+      "path": "artifacts/et6-g1/source-manifest.json",
+      "bytes": 53053,
+      "sha256": "bc7e0958c396b65e8401499e2113581a9ac2cf591734c0b9369e7281a46a32a6"
+    },
+    {
+      "path": "artifacts/et6-g1/verify_recordings.py",
+      "bytes": 4080,
+      "sha256": "1edf43eeae79ebd74f06d16ddc66ab9ba8e0fb6e3d6381ccefc4316143cb6ea2"
+    }
+  ]
+}

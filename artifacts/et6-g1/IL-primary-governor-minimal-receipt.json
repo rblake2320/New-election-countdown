@@ -1,0 +1,31 @@
+{
+  "sourceDocumentSha256": "0b8fed52afe56a4101b0bc60bd11edf93970a14e7533190dc8877158ac7e72f4",
+  "sourceDocumentBytes": 8952787,
+  "minimalRecording": "IL-primary-governor-minimal.csv",
+  "minimalRecordingSha256": "84ffd43b0e404c28d2feba2645821e0f25ddf2c8a793aaba2377949db4806be1",
+  "candidateRows": 20,
+  "completeOfficeRecording": false,
+  "normalization": "BOM omitted; original selected complete CSV lines retained. No values changed.",
+  "schema": [
+    "JurisdictionID",
+    "JurisContainerID",
+    "JurisName",
+    "EISCandidateID",
+    "CandidateName",
+    "EISContestID",
+    "ContestName",
+    "PrecinctName",
+    "Registration",
+    "EISPartyID",
+    "PartyName",
+    "VoteCount"
+  ],
+  "mappingRequirements": [
+    "EISCandidateID/EISContestID/EISPartyID are source identifiers, not internal DB IDs.",
+    "Primary party+office+election69 is separate race context; do not merge parties.",
+    "CandidateID0 Under Votes/Over Votes/Blank Ballots are statistical buckets, not people.",
+    "County and city jurisdiction hierarchy requires declared nonoverlapping coverage. Registration repeats by row and must not be summed across candidates.",
+    "Current CSV file2026GP is primary only; must verify exact publisher election date before use.",
+    "Governor/LtGovernor is a joint ticket; do not invent a Governor identity from the combined candidate string."
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "outcome": "Worked",
+  "state": "DE",
+  "dataset": "4hbv-7brf",
+  "allResponseRows": 829,
+  "independentApiCount": 829,
+  "primaryDate": "2026-09-15",
+  "primaryRows": 80,
+  "sourceAsOfRaw": [
+    "2026-09-18T14:47:00.000"
+  ],
+  "independentOfficialHtmlRep33": {
+    "MORGAN HUDSON": 1017,
+    "MATT BUCHER": 1010
+  },
+  "htmlProof": "https://elections.delaware.gov/results/enr/PR2026.html; static recount table independently lists1017/1010",
+  "certification": "unknown for selected primary rows: dataset title saysOfficial but linked ENR page itself saysUnofficial; certification must not be inferred",
+  "mappingRequirements": [
+    "Filter exact electiondate + electionname before office/candidate matching; resource has many election years and school races.",
+    "Primary party is part of race identity, not only candidate affiliation.",
+    "No stable candidate/race ID in CSV: reviewed source tupleoffice+party+date+exact candidate name needed.",
+    "xmlreporttime is source as-of, HTTP fetch time is not as-of. Precinct reporting/absentee status not in CSV."
+  ],
+  "rawCsvSha256": "2873d3381dc2fc2736e119fe6db07fa186324dd47f908e3af0bd986741387998"
+}
