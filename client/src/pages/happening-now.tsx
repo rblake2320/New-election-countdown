@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { getJson } from "@/lib/queryClient";
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,7 +9,6 @@ import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { 
   Trophy, 
-  TrendingUp, 
   Calendar, 
   MapPin, 
   Users, 
@@ -38,7 +38,6 @@ interface Candidate {
   votesReceived?: number;
   votePercentage?: number;
   isWinner?: boolean;
-  isProjectedWinner?: boolean;
 }
 
 interface ElectionResults {
@@ -47,19 +46,18 @@ interface ElectionResults {
   hasResults: boolean;
   winner: Candidate | null;
   totalVotes: number;
-  reportingPrecincts?: number;
-  totalPrecincts?: number;
-  percentReporting?: number;
+  reportingPrecincts?: number | null;
+  totalPrecincts?: number | null;
+  percentReporting?: number | string | null;
   isComplete?: boolean;
   lastUpdated?: string;
 }
 
 export default function HappeningNow() {
   const [autoRefresh, setAutoRefresh] = useState(true);
-  const [lastRefresh, setLastRefresh] = useState(new Date());
 
   // Fetch elections happening today/recently (past 30 days for live results)
-  const { data: elections = [], isLoading, refetch } = useQuery<Election[]>({
+  const { data: elections = [], isLoading, error, refetch, dataUpdatedAt } = useQuery<Election[]>({
     queryKey: ['/api/elections'],
     select: (data) => {
       const now = new Date();
@@ -76,19 +74,8 @@ export default function HappeningNow() {
     refetchInterval: autoRefresh ? 30000 : false, // Refresh every 30 seconds
   });
 
-  // Auto-refresh notification
-  useEffect(() => {
-    if (autoRefresh) {
-      const interval = setInterval(() => {
-        setLastRefresh(new Date());
-      }, 30000);
-      return () => clearInterval(interval);
-    }
-  }, [autoRefresh]);
-
   const handleManualRefresh = () => {
     refetch();
-    setLastRefresh(new Date());
   };
 
   const isToday = (dateString: string) => {
@@ -115,24 +102,27 @@ export default function HappeningNow() {
     <div className="container mx-auto py-8 max-w-7xl">
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
           <div className="flex items-center gap-3">
             <div className="p-3 bg-red-100 dark:bg-red-900/20 rounded-lg">
               <Zap className="w-8 h-8 text-red-600 dark:text-red-400" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
+              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">
                 Happening Now
               </h1>
               <p className="text-gray-600 dark:text-gray-400 mt-1">
-                Live election results as they come in
+                Results as official sources report them
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              Last updated: {lastRefresh.toLocaleTimeString()}
-            </div>
+          <div className="flex flex-wrap items-center gap-3">
+            {/* When this page last fetched, not when a source reported. */}
+            {dataUpdatedAt > 0 && (
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                Checked at {new Date(dataUpdatedAt).toLocaleTimeString()}
+              </div>
+            )}
             <Button
               variant="outline"
               size="sm"
@@ -158,7 +148,7 @@ export default function HappeningNow() {
           <Alert className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
             <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
             <AlertDescription className="text-green-800 dark:text-green-200">
-              Live updates enabled - Results refresh automatically every 30 seconds
+              Auto-refresh is on: this page checks for new results every 30 seconds
             </AlertDescription>
           </Alert>
         )}
@@ -168,16 +158,26 @@ export default function HappeningNow() {
       {isLoading && (
         <div className="text-center py-12">
           <RefreshCw className="w-12 h-12 mx-auto mb-4 animate-spin text-gray-400" />
-          <p className="text-gray-600 dark:text-gray-400">Loading live results...</p>
+          <p className="text-gray-600 dark:text-gray-400">Loading elections...</p>
         </div>
       )}
 
+      {!isLoading && error && (
+        <Alert variant="destructive" role="alert">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription className="flex flex-wrap items-center gap-3">
+            Elections could not be loaded ({error.message.split(':')[0]}).
+            <Button variant="outline" size="sm" onClick={() => refetch()}>Try again</Button>
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* No Elections */}
-      {!isLoading && elections.length === 0 && (
+      {!isLoading && !error && elections.length === 0 && (
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            No elections happening today. Check back on election day for live results.
+            No elections from the past 30 days through tomorrow. Results appear here on election day.
           </AlertDescription>
         </Alert>
       )}
@@ -193,8 +193,9 @@ export default function HappeningNow() {
 }
 
 function ElectionResultCard({ election }: { election: Election }) {
-  const { data: results, isLoading } = useQuery<ElectionResults>({
+  const { data: results, isLoading, error, refetch } = useQuery<ElectionResults>({
     queryKey: ['/api/elections', election.id, 'results'],
+    queryFn: ({ signal }) => getJson<ElectionResults>(`/api/elections/${election.id}/results`, signal),
     refetchInterval: 30000, // Refresh every 30 seconds
   });
 
@@ -212,9 +213,12 @@ function ElectionResultCard({ election }: { election: Election }) {
     return 'bg-gray-600 dark:bg-gray-500';
   };
 
-  const percentReporting = results?.percentReporting 
-    ? parseFloat(results.percentReporting.toString())
-    : 0;
+  // Unknown reporting stays unknown: never shown as 0%.
+  const reportedPct = results?.percentReporting != null && results.percentReporting !== ''
+    ? Number(results.percentReporting)
+    : NaN;
+  const percentReporting = Number.isFinite(reportedPct) ? reportedPct : null;
+  const hasPrecincts = results?.reportingPrecincts != null && results?.totalPrecincts != null;
 
   const sortedCandidates = results?.candidates?.length 
     ? [...results.candidates].sort((a, b) => (b.votesReceived || 0) - (a.votesReceived || 0))
@@ -223,14 +227,14 @@ function ElectionResultCard({ election }: { election: Election }) {
   return (
     <Card className="border-2 border-gray-200 dark:border-gray-700" data-testid={`card-election-${election.id}`}>
       <CardHeader className="bg-gray-50 dark:bg-gray-800/50">
-        <div className="flex items-start justify-between">
+        <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex-1">
             <Link href={`/elections/${election.id}`}>
-              <CardTitle className="text-2xl hover:text-primary cursor-pointer transition-colors">
+              <CardTitle className="text-xl sm:text-2xl hover:text-primary cursor-pointer transition-colors break-words">
                 {election.title}
               </CardTitle>
             </Link>
-            <CardDescription className="flex items-center gap-4 mt-2">
+            <CardDescription className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2">
               <span className="flex items-center gap-1">
                 <MapPin className="w-4 h-4" />
                 {election.location}
@@ -247,24 +251,30 @@ function ElectionResultCard({ election }: { election: Election }) {
             <div className="text-right">
               <Badge className="bg-green-600 text-white text-lg px-4 py-2">
                 <Trophy className="w-5 h-5 mr-2" />
-                Winner Called
+                Winner declared
               </Badge>
             </div>
           )}
         </div>
 
         {/* Reporting Progress */}
-        {results && results.hasResults && (
+        {results?.hasResults && (
           <div className="mt-4">
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Reporting: {percentReporting.toFixed(1)}%
+                {percentReporting != null
+                  ? `Reporting: ${percentReporting.toFixed(1)}%`
+                  : 'Reporting: not yet stated by the source'}
               </span>
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                {results.reportingPrecincts || 0} / {results.totalPrecincts || 0} precincts
-              </span>
+              {hasPrecincts && (
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {results.reportingPrecincts!.toLocaleString()} / {results.totalPrecincts!.toLocaleString()} precincts
+                </span>
+              )}
             </div>
-            <Progress value={percentReporting} className="h-2" />
+            {percentReporting != null && (
+              <Progress value={percentReporting} className="h-2" aria-label="Percent reporting" />
+            )}
           </div>
         )}
       </CardHeader>
@@ -275,11 +285,19 @@ function ElectionResultCard({ election }: { election: Election }) {
             <RefreshCw className="w-8 h-8 mx-auto mb-2 animate-spin" />
             Loading results...
           </div>
+        ) : error ? (
+          <Alert variant="destructive" role="alert">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="flex flex-wrap items-center gap-3">
+              Results could not be loaded ({error.message.split(':')[0]}). This does not mean no results were reported.
+              <Button variant="outline" size="sm" onClick={() => refetch()}>Try again</Button>
+            </AlertDescription>
+          </Alert>
         ) : !results || !results.hasResults ? (
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              No results available yet. Check back when polls close.
+              No results reported yet. They appear here as official sources publish them.
             </AlertDescription>
           </Alert>
         ) : (
@@ -300,8 +318,8 @@ function ElectionResultCard({ election }: { election: Election }) {
                   }`}
                   data-testid={`candidate-${candidate.id}`}
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 min-w-0">
                       <div className={`w-3 h-3 rounded-full ${getPartyColor(candidate.party)}`} />
                       <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                         {candidate.name}
@@ -313,14 +331,9 @@ function ElectionResultCard({ election }: { election: Election }) {
                           Winner
                         </Badge>
                       )}
-                      {candidate.isProjectedWinner && !candidate.isWinner && (
-                        <Badge className="bg-yellow-600 text-white">
-                          <TrendingUp className="w-3 h-3 mr-1" />
-                          Projected
-                        </Badge>
-                      )}
-                      {isLeading && !candidate.isWinner && !candidate.isProjectedWinner && (
-                        <Badge className="bg-blue-600 text-white">Leading</Badge>
+                      {/* No projections (ET-6): only a source-declared winner is shown as one. */}
+                      {isLeading && !candidate.isWinner && (
+                        <Badge className="bg-blue-600 text-white">Leading in reported votes</Badge>
                       )}
                     </div>
                     <div className="text-right">

@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { getJson } from "@/lib/queryClient";
 
 interface PollingDataPoint {
   date: string;
@@ -24,6 +25,7 @@ interface TrendAnalysis {
 export function usePollingTrends(electionId: number, timeRange: string = "30") {
   return useQuery({
     queryKey: ["/api/elections", electionId, "polling-trends", { timeRange }],
+    queryFn: ({ signal }) => getJson(`/api/elections/${electionId}/polling-trends?timeRange=${encodeURIComponent(timeRange)}`, signal),
     enabled: !!electionId,
     staleTime: 1000 * 60 * 30, // 30 minutes
   });
@@ -32,6 +34,7 @@ export function usePollingTrends(electionId: number, timeRange: string = "30") {
 export function useTrendAnalysis(electionId: number) {
   return useQuery({
     queryKey: ["/api/elections", electionId, "trend-analysis"],
+    queryFn: ({ signal }) => getJson(`/api/elections/${electionId}/trend-analysis`, signal),
     enabled: !!electionId,
     staleTime: 1000 * 60 * 60, // 1 hour
   });

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { Home, Users, Building2, BarChart3, Radio, Globe, Database, Calendar, Shield, Package, User, LogOut, ChevronDown, ChevronRight, Building, Settings, BarChart2, Archive, HelpCircle } from "lucide-react";
+import { Home, Users, Building2, BarChart3, Radio, Globe, Database, Calendar, Shield, Package, User, LogOut, ChevronDown, ChevronRight, Building, Settings, BarChart2, Archive, HelpCircle, Zap } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useIsAdmin } from "@/lib/useIsAdmin";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,13 @@ const navigationSections = [
         icon: Home, 
         tooltip: "Browse federal, state, and local elections with countdown timers and candidate information"
       },
-      { 
+      {
+        label: "Results",
+        path: "/happening-now",
+        icon: Zap,
+        tooltip: "Election results as official sources report them, with percent reporting"
+      },
+      {
         label: "Congress", 
         path: "/congress", 
         icon: Users, 
