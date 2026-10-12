@@ -141,6 +141,10 @@ describe('ET-6 results contract (v1.2)', () => {
       const conflict = await h.post(h.e.id, { ...body, totalVotes: 150001 });
       expect(conflict.status).toBe(409);
       expect((await conflict.json()).code).toBe('idempotency_conflict');
+      // same key, only a NESTED candidate count differs (lane C's case) -> still a conflict, never a silent replay
+      const nested = await h.post(h.e.id, { ...body, candidates: [{ ...body.candidates[0], votes: body.candidates[0].votes + 1 }, body.candidates[1]] });
+      expect(nested.status).toBe(409);
+      expect((await nested.json()).code).toBe('idempotency_conflict');
 
       const stale = await h.post(h.e.id, { ...snapshot({ asOf: '2026-10-02T06:00:00Z', retrievedAt: '2026-10-02T06:01:00Z', sourcePayloadSha256: 'b'.repeat(64) }), idempotencyKey: 'post-0002', expectedRevision: 'r0-deadbeef' });
       expect(stale.status).toBe(409);
