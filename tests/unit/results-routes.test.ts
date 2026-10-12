@@ -65,6 +65,31 @@ async function harness(admin = true) {
   return { mem, e, e2, post, get, upload, close: () => new Promise<void>((r) => server.close(() => r())) };
 }
 
+describe('canonical input hash (lane C finding on #50)', () => {
+  it('changes when any nested field changes and ignores key order', async () => {
+    const { canonicalInputHash, stableStringify } = await import('../../server/results-reports');
+    const base = { ...snapshot(), electionId: 1 };
+    const h0 = canonicalInputHash(base);
+    const variants: Array<[string, any]> = [
+      ['candidate votes', { ...base, candidates: [{ ...base.candidates[0], votes: base.candidates[0].votes + 1 }, base.candidates[1]] }],
+      ['candidate order', { ...base, candidates: [base.candidates[1], base.candidates[0]] }],
+      ['source.id', { ...base, source: { ...base.source, id: 'other-source' } }],
+      ['source.url', { ...base, source: { ...base.source, url: 'https://www.elections.alaska.gov/results/26GENR/other' } }],
+      ['reporting.percent', { ...base, reporting: { ...base.reporting!, percent: 99 } }],
+      ['asOf', { ...base, asOf: '2026-10-02T05:13:00Z' }],
+      ['isWinner flag', { ...base, candidates: [{ ...base.candidates[0], isWinner: true }, base.candidates[1]] }],
+      ['sourcePayloadSha256', { ...base, sourcePayloadSha256: 'b'.repeat(64) }],
+    ];
+    for (const [label, v] of variants) expect(canonicalInputHash(v), label).not.toBe(h0);
+    // same content, different key order at nested levels -> same hash
+    const reordered = { ...base, source: Object.fromEntries(Object.entries(base.source).reverse()), candidates: base.candidates.map((c) => Object.fromEntries(Object.entries(c).reverse())) } as any;
+    expect(canonicalInputHash(reordered)).toBe(h0);
+    // note / supersedesReportId are not part of the content identity
+    expect(canonicalInputHash({ ...base, note: 'x', supersedesReportId: 7 })).toBe(h0);
+    expect(stableStringify({ b: [3, { z: 1, y: 2 }], a: null })).toBe('{"a":null,"b":[3,{"y":2,"z":1}]}');
+  });
+});
+
 describe('ET-6 results contract (v1.2)', () => {
   let h: Awaited<ReturnType<typeof harness>>;
   beforeEach(async () => { h = await harness(); });

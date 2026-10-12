@@ -159,10 +159,22 @@ export function toSharedResponse(p: ResultsPayload): LiveElectionResultsResponse
 export function revisionFor(reportId: number, input: ResultReportInput): string {
   return `r${reportId}-${canonicalInputHash(input).slice(0, 8)}`;
 }
+/**
+ * Stable serialisation: object keys sorted at EVERY level, array order preserved, no key dropped.
+ * (The earlier `JSON.stringify(value, sortedTopLevelKeys)` was wrong: a replacer ARRAY filters keys
+ * at every nesting level, so nested candidate/source/reporting fields vanished and two different
+ * snapshots could hash the same — found by lane C on PR #50.)
+ */
+export function stableStringify(value: unknown): string {
+  if (value === null || typeof value !== 'object') return JSON.stringify(value) ?? 'null';
+  if (Array.isArray(value)) return '[' + value.map(stableStringify).join(',') + ']';
+  const obj = value as Record<string, unknown>;
+  const keys = Object.keys(obj).filter((k) => obj[k] !== undefined).sort();
+  return '{' + keys.map((k) => JSON.stringify(k) + ':' + stableStringify(obj[k])).join(',') + '}';
+}
 export function canonicalInputHash(input: ResultReportInput): string {
   const { note: _n, supersedesReportId: _s, ...rest } = input;
-  const canon = JSON.stringify(rest, Object.keys(rest).sort());
-  return createHash('sha256').update(canon).digest('hex');
+  return createHash('sha256').update(stableStringify(rest)).digest('hex');
 }
 export function etagFor(payload: ResultsPayload): string {
   return `W/"${payload.electionId}-${payload.revision ?? 'none'}"`;
