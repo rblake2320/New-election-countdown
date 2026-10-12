@@ -5,7 +5,7 @@ def save(n,o):(p/n).write_text(json.dumps(o,indent=2,ensure_ascii=False)+'\n',en
 # Keep public election interface evidence; drop irrelevant contact/menu/antibot context.
 for f in p.glob('*.json'):
  obj=load(f.name)
- if not isinstance(obj,dict):continue
+ if not isinstance(obj,dict) or not any(k in obj for k in ['url','governmentLanding']):continue
  if 'finalUrl' in obj and 'validate.perfdrive.com' in obj['finalUrl']:obj['finalUrl']='https://validate.perfdrive.com/';obj['interstitial']=True;obj['challengeParametersDiscarded']=True
  if 'links' in obj:obj['links']=[v for v in obj['links'] if not re.search(r'contact|mailto:|tel:|notary|facebook|twitter|linkedin',v.get('url','')+' '+v.get('text',''),re.I)]
  if 'scripts' in obj:obj['scripts']=[v for v in obj['scripts'] if not re.search(r'analytics|translate|email-decode',v,re.I)]

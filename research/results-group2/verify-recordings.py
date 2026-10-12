@@ -6,6 +6,8 @@ manifest=j('SHA256SUMS.json')
 for row in manifest['files']:
  b=(p/row['path']).read_bytes();assert len(b)==row['bytes'],row['path'];assert hashlib.sha256(b).hexdigest()==row['sha256'],row['path']
 inventory=j('INVENTORY-17-states.json');assert len(inventory['items'])==len({s['state'] for s in inventory['items']})==17
+for name in ['LA-Jun27-races','LA-Jun27-votes','LA-Nov3-races','LA-Nov3-votes','ND-results346','ND-results348','ND-contests346','ND-election346','ND-election348']:
+ proof=j(name+'-raw-proof.json');assert hashlib.sha256((p/(name+'.raw.json')).read_bytes()).hexdigest()==proof['sha256'];assert proof['sameRawHashAsEarlierSource'] and proof['sameParsedObjectAsEarlierRecording'];assert (p/(name+'.raw.json')).read_bytes()==(p/(name+'.json')).read_bytes()
 for s in inventory['items']:
  for f in s['evidenceFiles']:assert (p/f).is_file(),f
  assert s['certificationDeclaration'] is None or isinstance(s['certificationDeclaration'],str)
