@@ -9,7 +9,7 @@
 import { z } from 'zod';
 import { createHash } from 'node:crypto';
 import {
-  liveElectionResultsSchema, liveResultReportInputSchema, liveResultSourceKinds, liveResultReportingBases, liveResultAsOfBases,
+  liveResultReportInputSchema, liveResultSourceKinds, liveResultReportingBases, liveResultAsOfBases,
   type LiveElectionResultsResponse, type LiveResultReportInput,
 } from '@shared/live-election-results';
 
@@ -149,11 +149,6 @@ export function buildResultsPayload(electionId: number, latest: ResultReportRow 
   };
 }
 
-/** Strip the two A-side extensions so a payload can be checked against C's strict response DTO. */
-export function toSharedResponse(p: ResultsPayload): LiveElectionResultsResponse {
-  const { electionContext: _c, history, ...rest } = p;
-  return liveElectionResultsSchema.parse({ ...rest, history: history.map(({ contextMatch: _m, ...h }) => h) } as unknown);
-}
 
 /** Revision = report id + first 8 hex of the hash of the normalised input (stable across replays). */
 export function revisionFor(reportId: number, input: ResultReportInput): string {

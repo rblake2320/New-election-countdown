@@ -211,7 +211,7 @@ describe('ET-6 results contract (v1.2)', () => {
       const b = await batch.json();
       expect(b).toMatchObject({ schemaVersion: 1, date: ELECTION_DAY, reset: true });
       expect(b.results.map((r: any) => [r.electionId, r.status])).toEqual([[h.e.id, 'unofficial'], [h.e2.id, 'none']]);
-      expect(b.results[0].history).toBeUndefined();
+      expect(b.results[0].history).toEqual([]); // batch rows carry the key, empty (shared batch schema)
       expect(typeof b.cursor).toBe('string');
       expect((await h.get(`/api/results?date=${ELECTION_DAY}&cursor=${b.cursor}`)).status).toBe(304);
       expect((await h.get(`/api/results?date=${ELECTION_DAY}`, { 'if-none-match': batch.headers.get('etag')! })).status).toBe(304);

@@ -53,7 +53,8 @@ export interface ResultsListPayload {
   date: string | null;
   cursor: string;
   reset: true;
-  results: Array<Omit<ResultsPayload, 'history'>>;
+  /** current snapshots only: every row carries `history: []` (the shared batch schema requires the key, empty) */
+  results: ResultsPayload[];
 }
 
 export interface EvidenceRecord { sha256: string; size: number; contentType: string; created: boolean }
@@ -126,9 +127,8 @@ function assertSourceRegistered(input: ResultReportInput, state: string, manifes
   }
 }
 
-function stripHistory(p: ResultsPayload): Omit<ResultsPayload, 'history'> {
-  const { history: _h, ...rest } = p;
-  return rest;
+function stripHistory(p: ResultsPayload): ResultsPayload {
+  return { ...p, history: [] };
 }
 
 export function snapshotCursor(results: Array<{ electionId: number; revision: string | null }>): string {
@@ -404,7 +404,7 @@ export class MemResultReportStore implements ResultReportStore {
     let ids: number[] = [];
     if (query.date) ids = this.electionIdsOn(query.date);
     if (query.ids) ids = query.ids.slice(0, LIST_MAX_IDS).filter((id) => this.electionExists(id));
-    const results: Array<Omit<ResultsPayload, 'history'>> = [];
+    const results: ResultsPayload[] = [];
     for (const id of [...new Set(ids)].sort((a, b) => a - b)) {
       const p = await this.getResultsPayload(id);
       if (p) results.push(stripHistory(p));
