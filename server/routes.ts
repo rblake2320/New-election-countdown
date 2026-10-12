@@ -22,7 +22,7 @@ import { aiValidationService } from "./ai-validation-service";
 import { resultsIngestionService } from "./results-ingestion-service";
 import { complianceService } from "./compliance-service";
 import { eventProcessingService } from "./event-processing-service";
-import { globalElectionService } from "./global-election-service";
+import { globalElectionService, UpstreamError } from "./global-election-service";
 import { civicAggregatorService } from "./civic-aggregator-service";
 import { registerCandidatePortalRoutes } from "./routes-candidate-portal";
 import { positionAggregatorService } from "./position-aggregator-service";
@@ -2521,13 +2521,21 @@ Please provide specific, factual information with sources where possible. Focus 
   });
 
   // Global election data endpoints
+  // ET-41: upstream not configured / not answering -> 503 with a code, never an empty 200.
+  const sendUpstreamError = (res: any, error: unknown, fallback: string) => {
+    if (error instanceof UpstreamError) {
+      return res.status(503).json({ error: error.message, code: error.publicCode, provider: error.provider, upstreamStatus: error.upstreamStatus });
+    }
+    console.error(fallback, error);
+    return res.status(500).json({ error: fallback, code: 'internal_error' });
+  };
   app.get("/api/global/elections", async (req, res) => {
     try {
-      const { country } = req.query;
-      const elections = await globalElectionService.fetchIDEAElections(country as string);
+      const country = typeof req.query.country === 'string' && req.query.country.trim() ? req.query.country.trim().slice(0, 64) : undefined;
+      const elections = await globalElectionService.fetchIDEAElections(country);
       res.json(elections);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch global elections" });
+      sendUpstreamError(res, error, 'Failed to fetch global elections');
     }
   });
 
@@ -2537,7 +2545,7 @@ Please provide specific, factual information with sources where possible. Focus 
       const events = await globalElectionService.fetchOpenStatesEvents(state);
       res.json(events);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch legislative events" });
+      sendUpstreamError(res, error, 'Failed to fetch legislative events');
     }
   });
 
