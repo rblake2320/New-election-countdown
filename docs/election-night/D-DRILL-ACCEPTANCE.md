@@ -39,3 +39,21 @@ A/C settle fields; D forwards the exact shared-schema/head reference to B. No pr
 
 ## A draft observed, not settled (board23:15)
 A proposes election_result_reports append-only snapshots plus candidate_result_lines, one recordResultReport writer for ingestion/admin; GET latest+history,404no_results_yet. Exact A draft is on ET6/canonical board. C settlement pending. D receiving questions for settlement: source-called-winner must exclude projections; nullable percent and precision/unit semantics; tie ordering for same-asOf corrections; independent source identity and official URL validation; missing-source-asOf handling; certified downgrade/correction rules. D forwards only final shared types/head to B.
+
+## Batched polling amendment (A agreed23:24; B fan-out finding)
+The A/C v1.2 contract supersedes the earlier draft above: status none is200 with nulls, not404. Confirmed text: Team/workmap/msg/20261011-et6-results-contract-A-confirmed.md; C owns shared/live-election-results.ts. Implementation head still pending.
+
+A agreed GET /api/results?date=2026-11-03 or ?ids=1,2,3 (max600), returning {schemaVersion:1,generatedAt,cursor,items}. Items are the agreed per-election DTO without history. Full request includes no-result contests as status none. changedSince returns only changed contests and advances cursor to the current high-water mark even on an empty delta. ETag/304 supported. Detail pages keep individual GET.
+
+Recorded workload:506 contests at30s/card imply1012 result requests/minute/viewer (plus listing/assets), exceeding a300/minute budget. This arithmetic documents B's reported scenario; it is not a measured runtime failure. New browser acceptance: one batch request per30s interval (2/minute steady state), zero card-level results polling, and real URL paths from the pending B query-fetcher fix. Mount/refocus/reconnect behavior must not create506 requests. Observe at least two full intervals in real browser/server logs.
+
+Extend20/40RPS owned-container profile with batch full reads, conditional304s, changedSince reads and detail reads while recorded updates commit. Record exact mix and client/rate-limit identity distribution; single-viewer ordinary browsing must have zero429. Aggregate-capacity requests are separate from one-viewer rate-budget acceptance: never increase/disable the limiter to manufacture green; report actual rate-limit policy failures. Ingest writes retain their own admin limits.
+
+Additional required acceptance:
+- Full506-contest response exactly matches independent SQL; one item per election, none rows explicit, no accidental history payload explosion.
+- Identical conditional request returns304 with empty body; client preserves last accepted snapshot. A new committed update returns200 with new ETag and only the changed contest in delta. Empty delta advances safely.
+- ETag varies with canonical requested scope, full versus delta/changedSince semantics and effective representation. Stale/staleSince changes invalidate cached data even when report ID does not change; generatedAt semantics must agree with304 caching.
+- Concurrent commit ordering: allocate report n, hold it uncommitted; commit n+1 and read cursor, then commit n. Subsequent delta must deliver n. A plain max(sequence ID) watermark is insufficient unless write/commit order is serialized. Retain exact two-connection schedule and SQL proof.
+- Same-asOf corrected counts and source outages survive delta application; no lost row, double application or reset to fabricated zeros. Recovery after expired/invalid/future cursor has an explicit response and safe full-refresh path.
+- Both date and normalized/deduplicated bounded IDs scopes tested; validate empty/malformed/date/over600 IDs and cross-scope cursor use. Scope changes clear/replace client cache safely.
+- Query fetcher acceptance: Happening Now list, individual result, admin entry and polling-trends requests hit their actual observed API URLs, with encoded parameters and request cancellation intact. B owns implementation; D tests the delivered head.
