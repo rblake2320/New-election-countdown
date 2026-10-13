@@ -1,6 +1,6 @@
 import type { Election, ElectionFilters } from '@shared/schema';
 
-export type ElectionQueryFilters = Partial<ElectionFilters> & { minDate?: Date };
+export type ElectionQueryFilters = Partial<ElectionFilters> & { minDate?: Date; maxDate?: Date };
 export type ElectionListing = Election & { candidateCount: number };
 export class ElectionFilterError extends Error {}
 
@@ -87,6 +87,8 @@ export function normalizeElectionFilters(input: Record<string, unknown> = {}, no
     if (!(input.minDate instanceof Date) || !Number.isFinite(input.minDate.getTime())) throw new ElectionFilterError('Invalid minDate');
     from = utcDay(input.minDate);
   }
+  // Internal upper bound (exclusive day) for admin lookups; a non-Date value, e.g. from a public query string, is ignored.
+  if (input.maxDate instanceof Date && Number.isFinite(input.maxDate.getTime())) until = utcDay(input.maxDate);
   if (range) {
     period = {};
     switch (range) {
