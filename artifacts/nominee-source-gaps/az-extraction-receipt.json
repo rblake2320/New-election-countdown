@@ -1,0 +1,106 @@
+{
+  "outcome": "Worked",
+  "coveredScopes": [
+    "AZ-G00-printed",
+    "AZ-G00-write_in",
+    "AZ-H06-printed",
+    "AZ-H07-printed"
+  ],
+  "counts": {
+    "G_printed": 4,
+    "G_write_in": 2,
+    "H06_printed": 4,
+    "H07_printed": 2,
+    "rows": 12
+  },
+  "sourceProofs": [
+    {
+      "requestedUrl": "https://content.civicplus.com/api/assets/az-pimacounty/d2c310c3-ade7-484e-a6f0-1ddaebec0799",
+      "startedAt": "2026-10-13T18:54:31.962250+00:00",
+      "retrievedAt": "2026-10-13T18:54:32.232313+00:00",
+      "client": "native curl default user agent; no browser/CAPTCHA/proxy changes",
+      "exitCode": 0,
+      "status": 200,
+      "url": "https://content.civicplus.com/api/assets/az-pimacounty/d2c310c3-ade7-484e-a6f0-1ddaebec0799",
+      "bytes": 149881,
+      "sha256": "ed48de5bbf563ce81b84701eeec100486f7efa1d7824e492f0f48332359fa397",
+      "contentType": "application/pdf",
+      "outcome": "Captured",
+      "error": null
+    },
+    {
+      "requestedUrl": "https://www.mohave.gov/media/2rlhqwxj/2026-general-election-write-in-and-withdrawn.pdf",
+      "startedAt": "2026-10-13T18:53:17.285469+00:00",
+      "status": 200,
+      "url": "https://www.mohave.gov/media/2rlhqwxj/2026-general-election-write-in-and-withdrawn.pdf",
+      "contentType": "application/pdf",
+      "retrievedAt": "2026-10-13T18:53:17.910091+00:00",
+      "bytes": 54336,
+      "sha256": "cbcefc385eaf038dcd8051d4dac8eb0ff1baf15c270395e223a65b845f1dc1d6",
+      "outcome": "Captured"
+    }
+  ],
+  "publisherAuthority": {
+    "url": "https://www.pima.gov/elections",
+    "originalBodySha256": "ed867102e425f925c2b75e822776a473b582b5c16d6b74875b895353f1146216",
+    "exactLinks": [
+      {
+        "text": "2026 General Election Official Candidate List (PDF)",
+        "url": "https://content.civicplus.com/api/assets/az-pimacounty/d2c310c3-ade7-484e-a6f0-1ddaebec0799"
+      }
+    ]
+  },
+  "governorRoleIdentity": {
+    "source": {
+      "requestedUrl": "https://storageccec.blob.core.usgovcloudapi.net/public/docs/1509-1497AllDistrictWebEnglishv2.pdf",
+      "startedAt": "2026-10-13T18:57:00.871261+00:00",
+      "retrievedAt": "2026-10-13T18:57:03.966882+00:00",
+      "client": "native curl default user agent; no browser/CAPTCHA/proxy changes",
+      "exitCode": 0,
+      "status": 200,
+      "url": "https://storageccec.blob.core.usgovcloudapi.net/public/docs/1509-1497AllDistrictWebEnglishv2.pdf",
+      "bytes": 14878940,
+      "sha256": "67bc4e66b68a5883f6f68a4fa165d807eb4bbf5a78a3640bd3eac9b08273b5fb",
+      "contentType": "application/pdf",
+      "outcome": "Captured",
+      "error": null
+    },
+    "pages": [
+      {
+        "sourcePage": 20,
+        "heading": "CANDIDATES FOR GOVERNOR",
+        "names": [
+          "Andy Biggs",
+          "Katie Hobbs"
+        ]
+      },
+      {
+        "sourcePage": 21,
+        "heading": "CANDIDATES FOR GOVERNOR",
+        "names": [
+          "Teri Ann Hourihan",
+          "Risa Lombardo"
+        ]
+      }
+    ],
+    "delegatingGovernmentUrl": "https://azcleanelections.gov/voter-education-guide",
+    "exactLinkText": "English under November 3, 2026 Guides",
+    "use": "name/individual Governor role only; no biography/contact, party or nomination inference"
+  },
+  "derivations": [
+    "House surname-first labels invert only the actual comma separator; ballotName retained exactly",
+    "Governor natural names follow exact government guide role headers, with Pima ballotName preserved",
+    "Governor running-mate tickets retained as provenance; only Governor row party used; mixed running-mate party not inferred"
+  ],
+  "unknownIncumbentsAllNull": true,
+  "pendingRootSchemaAdmission": [
+    "Exact Pima delegated civicplus document URL",
+    "Exact CCEC delegated identity-only document URL"
+  ],
+  "remainingAssignedAZScopes": [
+    "H02",
+    "H05",
+    "H08"
+  ],
+  "noDatabaseWrites": true
+}
