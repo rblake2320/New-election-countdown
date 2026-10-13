@@ -1,0 +1,81 @@
+{
+  "sourceHead": "e295bf882dcb9e3543374a3d5fe85e979c607fbf",
+  "database": "et_sol_health_d821a3eae86949cab388f4ee165d7bad",
+  "mode": "actual compiled private fixture; official recorded bytes, simulated source outages, no provider calls",
+  "coreSha256": {
+    "before": "40ffb131dfcb091ce2fc730596a3b6fd84233c1db57ea78e6cba66366eb2d569",
+    "after": "76ebd95652348b660b19b1ed9aa124f80fe1b2da226022619443bcb995df90ea"
+  },
+  "checks": [
+    {
+      "scenario": "explicit additive health migration applied twice to own fresh private fixture",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "three pinned official recordings parsed with independently counted totals and true historical dates",
+      "outcome": "Worked",
+      "totals": [
+        1903073,
+        827755,
+        196212
+      ],
+      "contexts": [
+        {
+          "id": 4242401,
+          "state": "WA",
+          "date": "2024-08-06",
+          "type": "Primary",
+          "level": "state",
+          "title": "Washington Commissioner of Public Lands Primary"
+        },
+        {
+          "id": 910001,
+          "state": "NC",
+          "date": "2026-03-03",
+          "type": "primary",
+          "level": "federal",
+          "title": "Private historical NC Senate DEM primary"
+        },
+        {
+          "id": 910002,
+          "state": "LA",
+          "date": "2026-06-27",
+          "type": "primary_runoff",
+          "level": "federal",
+          "title": "Private historical LA Senate DEM primary_runoff"
+        }
+      ],
+      "rawHashes": [
+        "1d11cc471c4e6bfb62f690cbfd8a248cd649989acc3d479273809316d8f3d466",
+        "a1adde2cbace4018e482d7fdc12297dac32595e7e2a175e0f6fcf87c05e3154c",
+        "8207fef79e8ef25d665671fb5e8ce796164b7dc1513430ea1eac214106dabc31"
+      ]
+    },
+    {
+      "scenario": "actual ingestion outage preserves votes/status/revision; single+batch304 become200; fresh store restart preserves staleSince",
+      "outcome": "Worked"
+    }
+  ],
+  "originalRed": {
+    "outcome": "Failed",
+    "scenario": "old compiled ingestion source failure leaves actual persisted certified WA snapshot falsely fresh",
+    "ingestOutcome": {
+      "electionId": 4242401,
+      "outcome": "failed",
+      "sourceId": "wa-sos-2024-primary-lands",
+      "message": "controlled official source outage",
+      "aborted": false
+    },
+    "status": "certified",
+    "totalVotes": 1903073,
+    "revision": "r1-c01fe8d4",
+    "stale": false
+  },
+  "outcome": "Failed",
+  "failure": {
+    "type": "AssertionError",
+    "code": "ERR_ASSERTION",
+    "message": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 'r5-3adb88a8'\n- 'r2-70cddc29'\n"
+  },
+  "ownedFixtureRemoved": true
+}

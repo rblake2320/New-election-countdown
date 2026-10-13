@@ -13,7 +13,7 @@ import { resultsSourceRegistry } from './results-source-registry';
 import {assertResultsNotAborted,decorateSourceHealth,readSourceHealth,writeSourceHealth,MemSourceHealth,healthCacheVersion,sourceHealthCacheKey,type SourceHealthEvent,type HealthRead} from './results-source-health';
 import {
   ResultReportError, assertNotFuture, buildResultsPayload, canonicalInputHash, contextMatches, electionContextOf, reportContextOf, revisionFor,
-  etagFor,type ElectionContext, type ResultLineRow, type ResultReportInput, type ResultReportRow, type ResultsPayload,
+  etagFor,publishedContentHash,type ElectionContext, type ResultLineRow, type ResultReportInput, type ResultReportRow, type ResultsPayload,
 } from './results-reports';
 
 interface ElectionRow { id: number; state: string; date: Date; type: string; level: string; title: string;official_results_source?:{publisher?:string}|null }
@@ -278,6 +278,11 @@ export class PgResultReportStore implements ResultReportStore {
       assertNotPreElection(input, election.rows[0].date);
       const context = electionContextOf(election.rows[0]);
       const fresh=async()=>{await writeSourceHealth(client,{electionId,sourceId:input.source.id,context,outcome:'success',automatic:ctx.postedBy.startsWith('ingest:'),signal:ctx.signal});assertResultsNotAborted(ctx.signal);};
+      const replayHealth=async(row:ResultReportRow)=>{
+        const current=await client.query<{id:number}>(`SELECT id FROM election_result_reports WHERE election_id=$1 AND source_id=$2 AND source_contest_id=$3 AND context_state=$4 AND context_election_date=$5::date AND context_type=$6 AND context_level=$7 AND context_office=$8 ORDER BY id DESC LIMIT 1`,[electionId,input.source.id,input.source.sourceContestId,context.state,context.electionDate,context.type,context.level,context.office]);
+        if(current.rows[0]?.id===row.id)await fresh();
+        assertResultsNotAborted(ctx.signal);
+      };
       assertSourceRegistered(input, election.rows[0].state, await this.manifestRows(client, election.rows[0].state), { id: electionId, date: election.rows[0].date, type: election.rows[0].type });
       if (EVIDENCE_REQUIRED_KINDS.has(input.source.kind) || input.status === 'certified') {
         const ev = await client.query('SELECT 1 FROM result_evidence_blobs WHERE sha256 = $1', [input.sourcePayloadSha256]);
@@ -293,7 +298,8 @@ export class PgResultReportStore implements ResultReportStore {
           if (row.input_sha256 !== inputSha || row.election_id !== electionId) {
             throw new ResultReportError(409, 'idempotency_conflict', 'idempotencyKey was already used with a different payload');
           }
-          await fresh();await client.query('COMMIT');
+          if(!contextMatches(reportContextOf(row),context))throw new ResultReportError(409,'report_context_changed','Idempotent report belongs to an earlier race context');
+          await replayHealth(row);await client.query('COMMIT');
           return { payload: (await this.getResultsPayload(electionId))!, created: false };
         }
       }
@@ -304,7 +310,8 @@ export class PgResultReportStore implements ResultReportStore {
         [input.source.id, input.source.sourceContestId, inputSha]);
       if (sameSnapshot.rowCount) {
         if (sameSnapshot.rows[0].election_id !== electionId) throw new ResultReportError(422, 'contest_key_conflict', `source contest ${input.source.sourceContestId} is already bound to election ${sameSnapshot.rows[0].election_id}`);
-        await fresh();await client.query('COMMIT');
+        if(!contextMatches(reportContextOf(sameSnapshot.rows[0]),context))throw new ResultReportError(409,'report_context_changed','Idempotent report belongs to an earlier race context');
+        await replayHealth(sameSnapshot.rows[0]);await client.query('COMMIT');
         return { payload: (await this.getResultsPayload(electionId))!, created: false };
       }
       // Scope guard: a qualified contest key never binds to a second election (shared raw ids).
@@ -315,7 +322,10 @@ export class PgResultReportStore implements ResultReportStore {
 
       // A fresh capture of identical content is a health observation, not a new vote revision.
       const previous=await client.query<ResultReportRow&{input_sha256:string}>(`SELECT * FROM election_result_reports WHERE election_id=$1 AND source_id=$2 AND source_contest_id=$3 AND context_state=$4 AND context_election_date=$5::date AND context_type=$6 AND context_level=$7 AND context_office=$8 ORDER BY id DESC LIMIT 1`,[electionId,input.source.id,input.source.sourceContestId,context.state,context.electionDate,context.type,context.level,context.office]);
-      if(previous.rows[0]&&canonicalInputHash({...input,retrievedAt:new Date(previous.rows[0].retrieved_at).toISOString()})===previous.rows[0].input_sha256){await fresh();await client.query('COMMIT');return{payload:(await this.getResultsPayload(electionId))!,created:false};}
+      if(previous.rows[0]){
+        const previousLines=(await client.query<ResultLineRow>('SELECT * FROM candidate_result_lines WHERE report_id=$1',[previous.rows[0].id])).rows;
+        if(publishedContentHash(input)===publishedContentHash(buildResultsPayload(electionId,previous.rows[0],previousLines,[],context))){await fresh();await client.query('COMMIT');return{payload:(await this.getResultsPayload(electionId))!,created:false};}
+      }
 
       const latest = await client.query<ResultReportRow>(
         'SELECT * FROM election_result_reports WHERE election_id = $1 ORDER BY id DESC LIMIT 1', [electionId]);
@@ -366,16 +376,18 @@ export class PgResultReportStore implements ResultReportStore {
          ctx.postedBy, ctx.idempotencyKey, input.note, input.supersedesReportId]);
       const reportId = inserted.rows[0].id;
       const revision = revisionFor(reportId, input);
+      assertResultsNotAborted(ctx.signal);
       await client.query('UPDATE election_result_reports SET revision = $1 WHERE id = $2', [revision, reportId]);
 
       for (const c of input.candidates) {
+        assertResultsNotAborted(ctx.signal);
         await client.query(
           `INSERT INTO candidate_result_lines (report_id, candidate_id, source_candidate_id, name, party, votes, percent, is_winner_declared)
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
           [reportId, c.candidateId, c.sourceCandidateId, c.name, c.party, c.votes, c.percent, c.isWinner === true]);
       }
 
-      await this.syncDerived(client, electionId, input);
+      await this.syncDerived(client, electionId, input,ctx.signal);
       await fresh();
       await client.query('COMMIT');
       return { payload: (await this.getResultsPayload(electionId))!, created: true };
@@ -413,17 +425,18 @@ export class PgResultReportStore implements ResultReportStore {
   }
 
   /** Legacy projections so existing readers (candidate cards, election_results) follow the latest snapshot. */
-  private async syncDerived(client: PoolClient, electionId: number, input: ResultReportInput): Promise<void> {
+  private async syncDerived(client: PoolClient, electionId: number, input: ResultReportInput,signal?:AbortSignal): Promise<void> {
     // Clear derived winner flags for the race (a projection flag is never set by anything any more).
-    await client.query(
+    assertResultsNotAborted(signal);await client.query(
       'UPDATE candidates SET is_winner = false, is_projected_winner = false WHERE election_id = $1 AND (is_winner OR is_projected_winner)', [electionId]);
     for (const c of input.candidates) {
       if (c.candidateId === null) continue;
+      assertResultsNotAborted(signal);
       await client.query(
         'UPDATE candidates SET votes_received = $1, vote_percentage = $2, is_winner = $3 WHERE id = $4 AND election_id = $5',
         [c.votes, c.percent, c.isWinner === true, c.candidateId, electionId]);
     }
-    await client.query(
+    assertResultsNotAborted(signal);await client.query(
       `INSERT INTO election_results (election_id, total_votes, reporting_precincts, total_precincts, percent_reporting, is_complete, is_certified, last_updated, results_source)
        VALUES ($1, $2, $3, $4, $5, false, $6, $7, $8)
        ON CONFLICT (election_id) DO UPDATE SET
@@ -507,6 +520,7 @@ export class MemResultReportStore implements ResultReportStore {
     const current = this.currentContext(electionId);
     const state = current.state;
     const fresh=()=>this.sourceHealth.write({electionId,sourceId:input.source.id,context:current,outcome:'success',automatic:ctx.postedBy.startsWith('ingest:'),signal:ctx.signal},true);
+    const replayHealth=(row:ResultReportRow)=>{const latest=this.reports.filter(r=>r.election_id===electionId&&r.source_id===input.source.id&&r.source_contest_id===input.source.sourceContestId&&contextMatches(reportContextOf(r),current)).sort((a,b)=>b.id-a.id)[0];if(latest?.id===row.id)fresh();assertResultsNotAborted(ctx.signal);};
     assertSourceRegistered(input, state, this.manifest().filter((m) => m.state === state), { id: electionId, date: date ?? null, type: current.type });
     if ((EVIDENCE_REQUIRED_KINDS.has(input.source.kind) || input.status === 'certified') && !this.evidence.has(input.sourcePayloadSha256)) {
       throw new ResultReportError(422, 'evidence_missing', 'sourcePayloadSha256 does not reference retained evidence; upload it first (POST /api/admin/results-evidence)');
@@ -516,18 +530,20 @@ export class MemResultReportStore implements ResultReportStore {
       const prior = this.reports.find((r) => r.idempotency_key === ctx.idempotencyKey);
       if (prior) {
         if (prior.input_sha256 !== inputSha || prior.election_id !== electionId) throw new ResultReportError(409, 'idempotency_conflict', 'idempotencyKey was already used with a different payload');
-        fresh();return { payload: (await this.getResultsPayload(electionId))!, created: false };
+        if(!contextMatches(reportContextOf(prior),current))throw new ResultReportError(409,'report_context_changed','Idempotent report belongs to an earlier race context');
+        replayHealth(prior);return { payload: (await this.getResultsPayload(electionId))!, created: false };
       }
     }
     const same = this.reports.find((r) => r.source_id === input.source.id && r.source_contest_id === input.source.sourceContestId && r.input_sha256 === inputSha);
     if (same) {
       if (same.election_id !== electionId) throw new ResultReportError(422, 'contest_key_conflict', `source contest ${input.source.sourceContestId} is already bound to election ${same.election_id}`);
-      fresh();return { payload: (await this.getResultsPayload(electionId))!, created: false };
+      if(!contextMatches(reportContextOf(same),current))throw new ResultReportError(409,'report_context_changed','Idempotent report belongs to an earlier race context');
+      replayHealth(same);return { payload: (await this.getResultsPayload(electionId))!, created: false };
     }
     const other = this.reports.find((r) => r.source_id === input.source.id && r.source_contest_id === input.source.sourceContestId && r.election_id !== electionId);
     if (other) throw new ResultReportError(422, 'contest_key_conflict', `source contest ${input.source.sourceContestId} is already bound to election ${other.election_id}`, { boundElectionId: other.election_id });
     const previous=this.reports.filter(r=>r.election_id===electionId&&r.source_id===input.source.id&&r.source_contest_id===input.source.sourceContestId&&contextMatches(reportContextOf(r),current)).sort((a,b)=>b.id-a.id)[0];
-    if(previous&&canonicalInputHash({...input,retrievedAt:new Date(previous.retrieved_at).toISOString()})===previous.input_sha256){fresh();return{payload:(await this.getResultsPayload(electionId))!,created:false};}
+    if(previous&&publishedContentHash(input)===publishedContentHash(buildResultsPayload(electionId,previous,this.lines.get(previous.id)??[],[],current))){fresh();return{payload:(await this.getResultsPayload(electionId))!,created:false};}
     const latest = this.reports.filter((r) => r.election_id === electionId).sort((a, b) => b.id - a.id)[0] ?? null;
     if (ctx.enforceRevision && (ctx.expectedRevision ?? null) !== (latest?.revision ?? null)) {
       throw new ResultReportError(409, 'stale_revision', 'expectedRevision does not match the current revision', { currentRevision: latest?.revision ?? null });
