@@ -274,13 +274,13 @@ export default function ElectionDetails() {
                 {candidates.map((candidate) => (
                   <div 
                     key={candidate.id} 
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                    className="flex flex-col gap-3 p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer sm:flex-row sm:items-center sm:justify-between"
                     onClick={() => handleCandidateClick(candidate.id)}
                     data-testid={`candidate-card-${candidate.id}`}
                   >
-                    <div className="flex items-center space-x-3">
-                      <div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 min-w-0">
+                      <div className="min-w-0">
+                        <h3 className="font-semibold text-gray-900 dark:text-white break-words">
                           {candidate.name}
                         </h3>
                         <p className="text-sm text-gray-600 dark:text-gray-300">
@@ -294,8 +294,8 @@ export default function ElectionDetails() {
                         <Trophy className="h-4 w-4 text-green-600" />
                       )}
                     </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
+                    <div className="flex flex-wrap items-center justify-between gap-4 sm:justify-end">
+                      <div className="sm:text-right">
                         {candidate.votePercentage && (
                           <div className="text-lg font-bold text-green-600">
                             {candidate.votePercentage}%
