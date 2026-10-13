@@ -1,0 +1,288 @@
+{
+  "runtimeImporterHead": "fda521497dd5abc9c6f48e253554e3fca3d38cdf",
+  "database": "et_sol_data_6c78a3148c6b",
+  "manifestSha": "f83bee609922a2213213d26fdd956c248a69a14718936ff2f39a757c0821223a",
+  "rows": 87,
+  "sources": 26,
+  "checks": [
+    {
+      "scenario": "actual approved private baseline matches reviewed seven-table content",
+      "outcome": "Worked",
+      "actual": "1322b3367130f43557be09f22033d9481b087d66d54f2bb74ada567f16c88eb2",
+      "expected": "1322b3367130f43557be09f22033d9481b087d66d54f2bb74ada567f16c88eb2",
+      "counts": {
+        "elections": 537,
+        "candidates": 3444,
+        "candidate_source_records": 3856,
+        "general_candidate_list_snapshots": 500,
+        "candidate_ingest_runs": 2,
+        "election_catalog_correction_runs": 1,
+        "official_results_sync_runs": 1
+      }
+    },
+    {
+      "scenario": "full87 current private matching plan has no unresolved rows",
+      "outcome": "Worked",
+      "actions": 87,
+      "unresolved": []
+    },
+    {
+      "scenario": "actual dry-run is source/audit write-free",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "afterApply without guarded admission refuses with no callback or writes",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "actual afterApply fault after87 staged source changes is atomic",
+      "outcome": "Worked",
+      "code": "INJECTED_AFTER_APPLY_FAILURE"
+    },
+    {
+      "scenario": "actual apply postimage captured beforeCOMMIT underall7 tablelocks matches receivingread",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "actual postCOMMIT foreignnew audit changes receivinghash and isnotadopted asownedpost",
+      "outcome": "Worked",
+      "capturedOwnedHash": "43633c7f292294e2d237d8b54781b5eac9f46cacd5e37853e976d5d2ead21f81",
+      "actualConcurrentHash": "e35127b3889feba976a3211847c64708d743bc85aaaffb72541784ad5986fa70",
+      "foreignMarkerId": 29
+    },
+    {
+      "scenario": "actual rollback refuses foreignnewrow ratherthan deleting it",
+      "outcome": "Worked",
+      "code": "POSTIMAGE_DRIFT"
+    },
+    {
+      "scenario": "own marker cleanup restores exactcapturedowned applypost",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "all original complete candidate profile fields preserved",
+      "outcome": "Worked",
+      "originalProfiles": 3444
+    },
+    {
+      "scenario": "all existing physical source history rows retained",
+      "outcome": "Worked",
+      "oldHistoryRows": 3856
+    },
+    {
+      "scenario": "unassigned table untouched elections",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "unassigned table untouched election_catalog_correction_runs",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "unassigned table untouched official_results_sync_runs",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "actual repeat postimage captured beforeCOMMIT underall7 tablelocks matches receivingread",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "exact repeat reports zero new profiles and source changes",
+      "outcome": "Worked",
+      "candidateInserts": 0,
+      "sourceChanges": 0
+    },
+    {
+      "scenario": "exact repeat preserves complete candidate/source/scope content",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "repeat appends only one actual ingest audit",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "actual owned-row postimage drift exists",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "rollback refuses actual stale postimage before changes",
+      "outcome": "Worked",
+      "code": "POSTIMAGE_DRIFT"
+    },
+    {
+      "scenario": "controlled owned-row drift restored without overwriting foreign changes",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "actual rollback mutation fault is atomic",
+      "outcome": "Worked",
+      "code": "INJECTED_ROLLBACK_FAILURE"
+    },
+    {
+      "scenario": "ordered rollback restores exact complete seven-table content",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "all original profiles byte-equivalent after rollback",
+      "outcome": "Worked"
+    }
+  ],
+  "sharedWrites": 0,
+  "authUserWrites": 0,
+  "plan": {
+    "actions": 87,
+    "unresolved": [],
+    "candidateInserts": 0,
+    "sourceChanges": 0,
+    "auditId": null,
+    "byState": {
+      "SC": {
+        "rows": 11,
+        "unboundActions": 4
+      },
+      "FL": {
+        "rows": 1,
+        "unboundActions": 0
+      },
+      "GA": {
+        "rows": 32,
+        "unboundActions": 15
+      },
+      "MN": {
+        "rows": 15,
+        "unboundActions": 4
+      },
+      "AR": {
+        "rows": 7,
+        "unboundActions": 3
+      },
+      "AZ": {
+        "rows": 18,
+        "unboundActions": 9
+      },
+      "IL": {
+        "rows": 3,
+        "unboundActions": 1
+      }
+    }
+  },
+  "privateBackupRunId": "source-gap-sd-10e74b52-fd93-4124-97a6-948e3d7ccb09",
+  "injectedAfterApply": {
+    "candidateInserts": 36,
+    "sourceChanges": 87,
+    "auditId": 27,
+    "capturedHash": "380be081a9e669ddf857b3aa3603a582efc0752b6c347d963e033364c41c7e56"
+  },
+  "applyOwnedCapture": {
+    "sha256": "43633c7f292294e2d237d8b54781b5eac9f46cacd5e37853e976d5d2ead21f81",
+    "auditId": 28,
+    "transactionId": "7062",
+    "sourceLocks": 7
+  },
+  "apply": {
+    "actions": 87,
+    "unresolved": [],
+    "candidateInserts": 36,
+    "sourceChanges": 87,
+    "auditId": 28,
+    "byState": {
+      "SC": {
+        "rows": 11,
+        "unboundActions": 0
+      },
+      "FL": {
+        "rows": 1,
+        "unboundActions": 0
+      },
+      "GA": {
+        "rows": 32,
+        "unboundActions": 0
+      },
+      "MN": {
+        "rows": 15,
+        "unboundActions": 0
+      },
+      "AR": {
+        "rows": 7,
+        "unboundActions": 0
+      },
+      "AZ": {
+        "rows": 18,
+        "unboundActions": 0
+      },
+      "IL": {
+        "rows": 3,
+        "unboundActions": 0
+      }
+    },
+    "actualNewProfilesByState": {
+      "SC": 4,
+      "FL": 0,
+      "GA": 15,
+      "MN": 4,
+      "AR": 3,
+      "AZ": 9,
+      "IL": 1
+    }
+  },
+  "afterApplyHash": "43633c7f292294e2d237d8b54781b5eac9f46cacd5e37853e976d5d2ead21f81",
+  "receivingStates": [
+    "SC",
+    "FL",
+    "GA",
+    "MN",
+    "AR",
+    "AZ",
+    "IL"
+  ],
+  "repeatOwnedCapture": {
+    "sha256": "f9731f65a9b3ed54fa17d388a7544194aaf38c5d7043e3eb57e1f430900dafc8",
+    "auditId": 30,
+    "transactionId": "7065",
+    "sourceLocks": 7
+  },
+  "repeat": {
+    "actions": 87,
+    "unresolved": [],
+    "candidateInserts": 0,
+    "sourceChanges": 0,
+    "auditId": 30,
+    "byState": {
+      "SC": {
+        "rows": 11,
+        "unboundActions": 0
+      },
+      "FL": {
+        "rows": 1,
+        "unboundActions": 0
+      },
+      "GA": {
+        "rows": 32,
+        "unboundActions": 0
+      },
+      "MN": {
+        "rows": 15,
+        "unboundActions": 0
+      },
+      "AR": {
+        "rows": 7,
+        "unboundActions": 0
+      },
+      "AZ": {
+        "rows": 18,
+        "unboundActions": 0
+      },
+      "IL": {
+        "rows": 3,
+        "unboundActions": 0
+      }
+    }
+  },
+  "rollback": {
+    "hash": "1322b3367130f43557be09f22033d9481b087d66d54f2bb74ada567f16c88eb2",
+    "restoredRows": 8341,
+    "deletedInsertedRows": 164
+  },
+  "restoredHash": "1322b3367130f43557be09f22033d9481b087d66d54f2bb74ada567f16c88eb2",
+  "outcome": "Worked",
+  "finishedAt": "2026-10-13T21:11:06.491Z"
+}

@@ -1,0 +1,85 @@
+{
+  "runtimeImporterHead": "fda521497dd5abc9c6f48e253554e3fca3d38cdf",
+  "database": "et_sol_data_6c78a3148c6b",
+  "manifestSha": "f83bee609922a2213213d26fdd956c248a69a14718936ff2f39a757c0821223a",
+  "checks": [
+    {
+      "scenario": "new rollback busy admission refuses before mutation",
+      "outcome": "Worked",
+      "kind": "advisory",
+      "immutableHelper": "fda521497dd5abc9c6f48e253554e3fca3d38cdf:scripts/source_data_rollback.ts",
+      "faultAfterWrites": 1,
+      "busyAttempt": {
+        "code": "SOURCE_WRITER_BUSY",
+        "message": "Rollback refused before transaction because source writer admission is busy"
+      },
+      "busyMs": 15.438200000000052
+    },
+    {
+      "scenario": "new rollback advisory refuses committed source drift before mutations",
+      "outcome": "Worked",
+      "kind": "advisory",
+      "immutableHelper": "fda521497dd5abc9c6f48e253554e3fca3d38cdf:scripts/source_data_rollback.ts",
+      "faultAfterWrites": 1,
+      "busyAttempt": {
+        "code": "SOURCE_WRITER_BUSY",
+        "message": "Rollback refused before transaction because source writer admission is busy"
+      },
+      "busyMs": 15.438200000000052,
+      "actualCommittedHash": "e5677684d9ab95fbb62bd05eed5adaccb47f35c245bf128e68b8e4e577921ab6",
+      "attempt": {
+        "code": "SOURCE_WRITER_BUSY",
+        "message": "Rollback refused before transaction because source writer admission is busy"
+      },
+      "retry": {
+        "code": "POSTIMAGE_DRIFT",
+        "message": "Rollback refused because source data changed after the retained postimage"
+      }
+    },
+    {
+      "scenario": "rollback advisory releases admission after refusal",
+      "outcome": "Worked",
+      "pid": 2324,
+      "admitted": true,
+      "released": true
+    },
+    {
+      "scenario": "rollback advisory control cleanup restores exact baseline",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "new rollback table refuses committed source drift before mutations",
+      "outcome": "Worked",
+      "kind": "table",
+      "immutableHelper": "fda521497dd5abc9c6f48e253554e3fca3d38cdf:scripts/source_data_rollback.ts",
+      "faultAfterWrites": 1,
+      "waitObserved": true,
+      "actualCommittedHash": "0c1fad8d87368aba6278738e39d226f4ec026358d776806e1748c81fc2221d6b",
+      "attempt": {
+        "code": "POSTIMAGE_DRIFT",
+        "message": "Rollback refused because source data changed after the retained postimage"
+      }
+    },
+    {
+      "scenario": "rollback table releases admission after refusal",
+      "outcome": "Worked",
+      "pid": 2326,
+      "admitted": true,
+      "released": true
+    },
+    {
+      "scenario": "rollback table control cleanup restores exact baseline",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "all original source data/audit rows preserved",
+      "outcome": "Worked"
+    }
+  ],
+  "nomineeApplicationWrites": 0,
+  "beforeHash": "1322b3367130f43557be09f22033d9481b087d66d54f2bb74ada567f16c88eb2",
+  "mode": "immutable-new-rollback-admission",
+  "rollbackApplicationWritesCommitted": 0,
+  "afterHash": "1322b3367130f43557be09f22033d9481b087d66d54f2bb74ada567f16c88eb2",
+  "outcome": "Worked"
+}

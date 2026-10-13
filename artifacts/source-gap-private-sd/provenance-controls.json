@@ -1,0 +1,40 @@
+{
+  "outcome": "Worked",
+  "checks": [
+    {
+      "scenario": "all seven physical runtime modules match immutable green source",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "historical red source refuses current green runtime instead of mislabelling it",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "isolated source copy passes without database or secret access",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "actual changed importer bytes refuse before database work",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "portable pinned input copies reproduce87 without origin worktrees",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "portable combined bytes match actual reviewed manifest",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "changed public input bytes are refused before combining",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "actual retained apply/repeat/restore counts match reviewed expectations",
+      "outcome": "Worked"
+    }
+  ],
+  "databaseConnections": 0,
+  "privateScratch": "C:\\Users\\techai\\AppData\\Local\\Temp\\sd-source-pin-2WrnOk",
+  "inputScratch": "C:\\Users\\techai\\AppData\\Local\\Temp\\sd-source-input-Gn5PYD"
+}

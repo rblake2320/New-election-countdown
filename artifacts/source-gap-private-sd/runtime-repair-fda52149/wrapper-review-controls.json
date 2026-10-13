@@ -1,0 +1,148 @@
+{
+  "outcome": "Worked",
+  "sourceHead": "fda521497dd5abc9c6f48e253554e3fca3d38cdf",
+  "wrapperSha256": "696d1b44dec6c6ec32fb502a91731e6c7bb977cbb95c2bbca0eaa5cb3bba6b31",
+  "databaseConnections": 0,
+  "networkRequests": 0,
+  "codeEdits": 0,
+  "checks": [
+    {
+      "scenario": "frozen old recovery body loses final journal when snapshot throws",
+      "outcome": "Worked",
+      "oldWrapperSha256": "832c45c6a2b09ea2ec809960cc0f2a8fe970aff1cd5adb64530e676ccd37fecb",
+      "expected": "retained red"
+    },
+    {
+      "scenario": "actual updated catch classifies snapshot without false rollback ack",
+      "outcome": "Worked",
+      "fault": "snapshot",
+      "trace": {
+        "retained": 1,
+        "rollbackCalls": 0
+      },
+      "receipt": {
+        "outcome": "Blocked",
+        "error": "PRIVATE_OPERATION_FAILURE",
+        "rollbackPerformed": false,
+        "classification": "recovery_unavailable",
+        "recoveryErrorCode": "RECOVERY_UNAVAILABLE",
+        "writeCallReturned": true,
+        "phase": "recovery_classified",
+        "finishedAt": "2026-10-13T21:19:01.877Z"
+      },
+      "thrown": "PRIVATE_OPERATION_FAILURE"
+    },
+    {
+      "scenario": "actual updated catch classifies snapshot-file without false rollback ack",
+      "outcome": "Worked",
+      "fault": "snapshot-file",
+      "trace": {
+        "retained": 1,
+        "rollbackCalls": 0
+      },
+      "receipt": {
+        "outcome": "Blocked",
+        "error": "PRIVATE_OPERATION_FAILURE",
+        "rollbackPerformed": false,
+        "classification": "recovery_unavailable",
+        "recoveryErrorCode": "RECOVERY_UNAVAILABLE",
+        "writeCallReturned": true,
+        "phase": "recovery_classified",
+        "finishedAt": "2026-10-13T21:19:01.878Z"
+      },
+      "thrown": "PRIVATE_OPERATION_FAILURE"
+    },
+    {
+      "scenario": "actual updated catch classifies rollback without false rollback ack",
+      "outcome": "Worked",
+      "fault": "rollback",
+      "trace": {
+        "retained": 1,
+        "rollbackCalls": 1
+      },
+      "receipt": {
+        "outcome": "Blocked",
+        "error": "PRIVATE_OPERATION_FAILURE",
+        "commitStatus": "owned_committed_postimage_verified",
+        "rollbackPerformed": false,
+        "classification": "recovery_unavailable",
+        "recoveryErrorCode": "RECOVERY_UNAVAILABLE",
+        "writeCallReturned": true,
+        "phase": "recovery_classified",
+        "finishedAt": "2026-10-13T21:19:01.878Z"
+      },
+      "thrown": "PRIVATE_OPERATION_FAILURE"
+    },
+    {
+      "scenario": "actual updated catch classifies foreign without false rollback ack",
+      "outcome": "Worked",
+      "fault": "foreign",
+      "trace": {
+        "retained": 1,
+        "rollbackCalls": 0
+      },
+      "receipt": {
+        "outcome": "Blocked",
+        "error": "PRIVATE_OPERATION_FAILURE",
+        "rollbackPerformed": false,
+        "classification": "unknown_or_concurrent_source_postimage",
+        "writeCallReturned": true,
+        "phase": "recovery_classified",
+        "finishedAt": "2026-10-13T21:19:01.878Z"
+      },
+      "thrown": "PRIVATE_OPERATION_FAILURE"
+    },
+    {
+      "scenario": "actual final journal failure emits safeBlocked classification",
+      "outcome": "Worked",
+      "fault": "journal",
+      "trace": {
+        "retained": 1,
+        "rollbackCalls": 1,
+        "safeError": {
+          "outcome": "Blocked",
+          "classification": "recovery_journal_unavailable",
+          "commitStatus": "owned_committed_postimage_verified",
+          "receipt": "private-offline-receipt"
+        }
+      },
+      "receipt": {
+        "outcome": "Blocked",
+        "error": "PRIVATE_OPERATION_FAILURE",
+        "commitStatus": "owned_committed_postimage_verified",
+        "rollbackPerformed": false,
+        "classification": "recovery_unavailable",
+        "recoveryErrorCode": "RECOVERY_UNAVAILABLE",
+        "writeCallReturned": true,
+        "phase": "recovery_classified",
+        "finishedAt": "2026-10-13T21:19:01.878Z"
+      },
+      "thrown": "PRIVATE_OPERATION_FAILURE"
+    },
+    {
+      "scenario": "CLI-bearing helper import reproduces unintended old dispatch",
+      "outcome": "Worked",
+      "exitCode": 1,
+      "stdout": "{\"exportsAvailable\":true}\n",
+      "stderr": "{\"code\":\"INVALID_ARGUMENT\",\"message\":\"Unknown or repeated argument\"}\n",
+      "canonicalEntryUrl": "file:///D:/projects/et-wt/sol-source-gap-release/offline-source-review-entry.mjs"
+    },
+    {
+      "scenario": "pure helper import with same canonical entry and owner argument has no CLI dispatch",
+      "outcome": "Worked",
+      "exitCode": 0,
+      "stdout": "{\"exportsAvailable\":true}\n",
+      "stderr": "",
+      "canonicalEntryUrl": "file:///D:/projects/et-wt/sol-source-gap-release/offline-source-review-entry.mjs"
+    },
+    {
+      "scenario": "actual bundled wrapper without mandatory owner arguments refuses before DB/config reads",
+      "outcome": "Worked",
+      "exitCode": 1
+    },
+    {
+      "scenario": "reviewed wrapper binds actual new owning core and24-check gate",
+      "outcome": "Worked"
+    }
+  ]
+}
