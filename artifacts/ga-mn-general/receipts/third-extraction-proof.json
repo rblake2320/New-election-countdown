@@ -1,0 +1,192 @@
+{
+  "ga-camden-ballot": {
+    "outcome": "Worked",
+    "sha256": "276c080d3f8fe9a909d09e9431c0efde8b8940598ae3ffb4062a2c313a55d159",
+    "selectedScope": {
+      "office": "H",
+      "district": "01",
+      "ballotAccessType": "printed",
+      "expectedCount": 2
+    },
+    "rows": [
+      {
+        "sourceId": "ga-camden-ballot-2026-printed",
+        "state": "GA",
+        "office": "H",
+        "district": "01",
+        "date": "2026-11-03",
+        "name": "James “Jim” Kingston",
+        "partyRaw": "Republican",
+        "incumbent": null,
+        "ballotAccessType": "printed",
+        "sourcePage": 1
+      },
+      {
+        "sourceId": "ga-camden-ballot-2026-printed",
+        "state": "GA",
+        "office": "H",
+        "district": "01",
+        "date": "2026-11-03",
+        "name": "Amanda Hollowell",
+        "partyRaw": "Democrat",
+        "incumbent": null,
+        "ballotAccessType": "printed",
+        "sourcePage": 1
+      }
+    ],
+    "contactsDropped": true,
+    "incumbencyNotInferred": true,
+    "extraction": "PyMuPDF role-delimited page 1, independent pypdf ordered characters",
+    "dateInRawPdf": false,
+    "dateContextEvidence": "Official retained Camden Gov landing explicitly labels link November 3 2026 General/Special Election",
+    "landingSha256": "14de4cfba45dbfb73d91b04820b950b3ee996f214307fd05bd4f411ba1905907"
+  },
+  "ga-fayette-ballot": {
+    "outcome": "Worked",
+    "sha256": "88e05ec35673791ff71c8b31c8c38f39bf926b1d47333a6ee640d8fdbca26537",
+    "selectedScope": {
+      "office": "H",
+      "district": "03",
+      "ballotAccessType": "printed",
+      "expectedCount": 2
+    },
+    "rows": [
+      {
+        "sourceId": "ga-fayette-ballot-2026-printed",
+        "state": "GA",
+        "office": "H",
+        "district": "03",
+        "date": "2026-11-03",
+        "name": "Brian Jack",
+        "partyRaw": "Republican",
+        "incumbent": null,
+        "ballotAccessType": "printed",
+        "sourcePage": 1
+      },
+      {
+        "sourceId": "ga-fayette-ballot-2026-printed",
+        "state": "GA",
+        "office": "H",
+        "district": "03",
+        "date": "2026-11-03",
+        "name": "Maura Keller",
+        "partyRaw": "Democrat",
+        "incumbent": null,
+        "ballotAccessType": "printed",
+        "sourcePage": 1
+      }
+    ],
+    "contactsDropped": true,
+    "incumbencyNotInferred": true,
+    "extraction": "CPU Tesseract eng psm3 from raw PDF page 1 at 200dpi",
+    "candidateWords": [
+      {
+        "text": "Brian",
+        "conf": "96.900238",
+        "left": "371",
+        "top": "1415",
+        "width": "48",
+        "height": "14"
+      },
+      {
+        "text": "Brian",
+        "conf": "95.847626",
+        "left": "778",
+        "top": "1648",
+        "width": "48",
+        "height": "13"
+      },
+      {
+        "text": "Jack",
+        "conf": "96.684349",
+        "left": "832",
+        "top": "1648",
+        "width": "43",
+        "height": "13"
+      },
+      {
+        "text": "Maura",
+        "conf": "96.372536",
+        "left": "791",
+        "top": "1686",
+        "width": "56",
+        "height": "15"
+      },
+      {
+        "text": "Keller",
+        "conf": "94.664291",
+        "left": "854",
+        "top": "1686",
+        "width": "54",
+        "height": "15"
+      }
+    ],
+    "visualReview": {
+      "outcome": "Worked",
+      "image": "ocr/ga-fayette-ballot-page-1.png",
+      "header": "November 2026 General Election / Election Day November 3 2026",
+      "office": "For United States House of Representatives - District 3",
+      "namedRows": [
+        {
+          "name": "Brian Jack",
+          "party": "Republican"
+        },
+        {
+          "name": "Maura Keller",
+          "party": "Democrat"
+        }
+      ],
+      "genericWriteInCount": 1,
+      "reviewer": "Sol independent page-image inspection, not OCR-only admission"
+    },
+    "independentCountyAgreement": {
+      "source": "ga-carroll-ballot",
+      "sha256": "a2fed749ed59c435be73388f950768334fc5be7a87b8752d2a676a47bcc5bfc7",
+      "page": 1,
+      "image": "ocr/ga-carroll-ballot-page-1.png",
+      "visualOutcome": "Worked",
+      "exactNamesPartyAndDistrictAgree": true,
+      "ocrSpellingError": "Carroll OCR Democat; actual image prints Democrat, never admitted OCR typo"
+    }
+  },
+  "ga-columbia-ballot": {
+    "outcome": "Worked",
+    "sha256": "5841f34919fda81a19fada27ba352ff2a4cdfc29d4edb2d3147ec0510728186d",
+    "selectedScope": {
+      "office": "H",
+      "district": "12",
+      "ballotAccessType": "printed",
+      "expectedCount": 2
+    },
+    "rows": [
+      {
+        "sourceId": "ga-columbia-ballot-2026-printed",
+        "state": "GA",
+        "office": "H",
+        "district": "12",
+        "date": "2026-11-03",
+        "name": "Rick W. Allen",
+        "partyRaw": "Republican",
+        "incumbent": null,
+        "ballotAccessType": "printed",
+        "sourcePage": 1
+      },
+      {
+        "sourceId": "ga-columbia-ballot-2026-printed",
+        "state": "GA",
+        "office": "H",
+        "district": "12",
+        "date": "2026-11-03",
+        "name": "Ceretta Smith",
+        "partyRaw": "Democrat",
+        "incumbent": null,
+        "ballotAccessType": "printed",
+        "sourcePage": 1
+      }
+    ],
+    "contactsDropped": true,
+    "incumbencyNotInferred": true,
+    "extraction": "PyMuPDF role-delimited page 1, independent pypdf ordered characters",
+    "dateInRawPdf": true
+  }
+}
