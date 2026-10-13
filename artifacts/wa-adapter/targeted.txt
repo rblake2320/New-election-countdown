@@ -1,0 +1,58 @@
+
+ RUN  v5.0.3 D:/projects/et-wt/sol-live-wa-adapter
+
+ ✓ tests/official-result-wa.test.ts > Actual WA official primary full-contest bytes > parses all39 counties and original certified8-option counts 143ms
+ ✓ tests/official-result-wa.test.ts > Actual WA official primary full-contest bytes > parses amended full counts, legitimate decreasing write-in and separate ballot denominator 85ms
+ ✓ tests/official-result-wa.test.ts > Actual WA official primary full-contest bytes > refuses changed state 2ms
+ ✓ tests/official-result-wa.test.ts > Actual WA official primary full-contest bytes > refuses changed electionDate 0ms
+ ✓ tests/official-result-wa.test.ts > Actual WA official primary full-contest bytes > refuses changed phase 0ms
+ ✓ tests/official-result-wa.test.ts > Actual WA official primary full-contest bytes > refuses changed level 0ms
+ ✓ tests/official-result-wa.test.ts > Actual WA official primary full-contest bytes > refuses changed office 0ms
+ ✓ tests/official-result-wa.test.ts > Actual WA official primary full-contest bytes > refuses changed district 0ms
+ ✓ tests/official-result-wa.test.ts > Actual WA official primary full-contest bytes > refuses changed party 0ms
+ ✓ tests/official-result-wa.test.ts > Actual WA official primary full-contest bytes > refuses swapped certification 1ms
+ ✓ tests/official-result-wa.test.ts > Actual WA official primary full-contest bytes > refuses transformed or damaged official bytes 0ms
+ × tests/official-result-wa.test.ts > Bounded XLSX trust boundary (isolated adversarial controls) > preserves sparse positions, accents, whitespace and cached formulas without evaluation 18ms
+   → expected [ null, …(3) ] to deeply equal [ null, …(3) ]
+ ✓ tests/official-result-wa.test.ts > Bounded XLSX trust boundary (isolated adversarial controls) > refuses uncached formula 6ms
+ ✓ tests/official-result-wa.test.ts > Bounded XLSX trust boundary (isolated adversarial controls) > refuses invalid numeric 3ms
+ ✓ tests/official-result-wa.test.ts > Bounded XLSX trust boundary (isolated adversarial controls) > refuses duplicate cell 2ms
+ ✓ tests/official-result-wa.test.ts > Bounded XLSX trust boundary (isolated adversarial controls) > refuses invalid row 2ms
+ ✓ tests/official-result-wa.test.ts > Bounded XLSX trust boundary (isolated adversarial controls) > refuses huge coordinate 1ms
+ ✓ tests/official-result-wa.test.ts > Bounded XLSX trust boundary (isolated adversarial controls) > refuses out-of-range string 1ms
+ ✓ tests/official-result-wa.test.ts > Bounded XLSX trust boundary (isolated adversarial controls) > refuses entity/DOCTYPE in unused package parts 2ms
+ ✓ tests/official-result-wa.test.ts > Bounded XLSX trust boundary (isolated adversarial controls) > refuses replacement encoding 1ms
+ ✓ tests/official-result-wa.test.ts > Bounded XLSX trust boundary (isolated adversarial controls) > refuses malformed XML 2ms
+ ✓ tests/official-result-wa.test.ts > Bounded XLSX trust boundary (isolated adversarial controls) > refuses CRC-corrupted stored payload 0ms
+ ✓ tests/official-result-wa.test.ts > Bounded XLSX trust boundary (isolated adversarial controls) > refuses truncated ZIP and oversized input 3ms
+ ✓ tests/official-result-wa.test.ts > Bounded XLSX trust boundary (isolated adversarial controls) > refuses excessive entry count before inflation 26ms
+ ✓ tests/official-result-wa.test.ts > Bounded XLSX trust boundary (isolated adversarial controls) > bounds real inflation when forged directory lies about expanded length 16ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/official-result-wa.test.ts > Bounded XLSX trust boundary (isolated adversarial controls) > preserves sparse positions, accents, whitespace and cached formulas without evaluation
+AssertionError: expected [ null, …(3) ] to deeply equal [ null, …(3) ]
+
+- Expected
++ Received
+
+  [
+    null,
+-   " Gretha Solórzano & X
++   " Gretha Solórzano & X&#13;
+  ",
+    null,
+    42,
+  ]
+
+ ❯ tests/official-result-wa.test.ts:43:37
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 24 passed (25)
+   Start at  11:58:24
+   Duration  2.75s (transform 34%, environment 34%, tests 16%, setup 12%, import 4%)
+

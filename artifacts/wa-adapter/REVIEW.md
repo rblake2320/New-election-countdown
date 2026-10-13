@@ -1,0 +1,21 @@
+# WA actual official XLSX adapters
+
+Runtime head: `c390ed65a02d8bf3fc5bffcd28d085515cfbf76e`, based on main `8c0f45a` and shared parser contract `a040d47` (cherry-picked `2c2b220`).
+
+Worked: actual raw full-contest Commissioner of Public Lands original/amended workbook, 39 county rows and 11 three-column groups. Eight vote options total 1,903,073 / 1,903,115; full ballots 1,994,096 / 1,994,099 include over/undervotes and remain separate. Write-in decreases 1,668 → 1,658. Independent openpyxl sums check every option/metric/count variance, without importing the application parser.
+
+Worked: actual raw federal U.S. Senate primary workbook `RAW`, SeqNo 2005, 600 rows, 12 options, matching 50 county/congressional geographic subdivisions across 39 counties. Total 1,948,716. Geographic Congressional DistrictNumber is never presented as a U.S. House contest or Senate-seat district.
+
+Worked: 32 actual-byte and hostile-input tests; strict scoped compiler 0 errors; standalone compiled Node CLI loads the three actual historical snapshots and verifies independent certified totals. Whole repository suite 839 passed, no failures. `npm run build` passes. The compiled CLI also runs from a different working directory using explicit raw input paths. No DB/network/provider/browser/hooks are involved in these acceptance tests.
+
+The first full run had an existing 500-check election-timing performance test at 121ms versus its 100ms limit. A bounded targeted retake passed 23/23. A two-worker full retake hit an existing 5s subprocess test timeout; its targeted retake passed 33/33. Both full-suite red receipts are preserved; the final one-worker full suite passed unchanged tests. No thresholds/configuration were weakened.
+
+Reader refuses oversized ZIPs/entry counts/declared expansion, bounds actual inflation even when sizes lie, verifies CRC/local directory consistency, rejects overlapping/duplicate/unsafe paths and encryption, rejects DOCTYPE/entities/invalid encoding, caps XML nesting and cells including sparse allocated null slots. Cached formula values are read without evaluating formulas; missing caches refuse. A text regression caught literal CRLF normalization by FXP; the retained red transcript and green numeric-reference/CRLF/accent test cover the repair. The same reader is shared with CA.
+
+All context remains WA August 6, 2024 primary. Option IDs remain null when no actual publisher candidate identity exists; source printed names are retained. Senate SeqNo 2005 is an actual source contest key. All isWinner flags are false; no winner is computed. No party inference is performed: Senate party is null because RAW does not publish preference; Lands preference labels are bound to the exact certificate proof. The landing's `Sept 4 @ 1PM` has no timezone, so asOf is null. Date-only certification declarations have certifiedAt null, never invented midnight UTC. The parser contract has no status field; the parent provenance wrapper owns admitting certification status from these retained proofs.
+
+Official government landing: https://www.sos.wa.gov/elections/data-research/election-data-and-maps/election-results-and-voters-pamphlets/2024-primary-election
+
+Certification proof: original raw PDF SHA f75e558434a6633786614cc3b2696916bf81d651c79d4a0868104ca8546849ac, verified vote pages 0 (Senate) and 4 (Lands), signature page 10, declaration 22nd day of August, 2024. Amended raw PDF SHA f9b03babc54a1f108c13bab5a02a565d5bac7fa6a7a11a4f43cd7f0ec02d7949, page 0 full Lands amended returns, declaration 4th day of September, 2024. Original bytes are included, not normalized substitutes. Official URLs and the two raw workbook hashes are in the source receipt.
+
+Blocked House raw-byte extension: complete list of RaceName/SeqNo from the retained workbook contains no U.S. House contests. Fresh ordinary HTTPS fetch of https://results.vote.wa.gov/results/20240806/congressional-district-1-us-representative.html returned HTTP403. Search-index rendering contains historical facts but supplies no admitted raw byte recording for this executable parser. No CAPTCHA/TLS/access bypass attempted and no House counts invented. No claim is made that these historical XLSX layouts describe the 2026 live feed. Parent owns runner/manifest/crosswalk integration; D owns real receiving/storage/load acceptance.

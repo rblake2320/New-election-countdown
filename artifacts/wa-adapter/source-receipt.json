@@ -1,0 +1,20 @@
+{
+  "runtimeHead": "c390ed65a02d8bf3fc5bffcd28d085515cfbf76e",
+  "historicalOnly": true,
+  "state": "WA",
+  "electionDate": "2024-08-06",
+  "phase": "primary",
+  "governmentLanding": "https://www.sos.wa.gov/elections/data-research/election-data-and-maps/election-results-and-voters-pamphlets/2024-primary-election",
+  "frozenSourceHead": "1b57577b999f02265ba893cec1ff474ab97d1813",
+  "sources": [
+    {"file":"raw/wa-2024-recount-all-candidates.xlsx","url":"https://www.sos.wa.gov/sites/default/files/2024-09/TotalsforWeb_AllCandidates.xlsx","sha256":"1d11cc471c4e6bfb62f690cbfd8a248cd649989acc3d479273809316d8f3d466","role":"complete original and amended Lands contest including ballot metrics"},
+    {"file":"raw/wa-2024-congressional-results.xlsx","url":"https://www.sos.wa.gov/sites/default/files/2024-09/2024Pri%20Results%20by%20Congressional%20District.xlsx","sha256":"380e54147db4068f16d1f1339ae274c680bfbb8bc2699b77d27d12386ddd8a5b","role":"statewide Senate primary partitioned by congressional geography; no House contests"},
+    {"file":"raw/wa-2024-original-certification.pdf","url":"https://www.sos.wa.gov/sites/default/files/2024-08/Certification%20of%20Results%20-%202024%20Primary.pdf","sha256":"f75e558434a6633786614cc3b2696916bf81d651c79d4a0868104ca8546849ac","pagesZeroBased":[0,4,10],"dateRaw":"22nd day of August, 2024","certifiedAt":null},
+    {"file":"raw/wa-2024-recount-certification.pdf","url":"https://www.sos.wa.gov/sites/default/files/2024-09/Certification%20of%20recount%20results%20-%202024%20Primary_signed.pdf","sha256":"f9b03babc54a1f108c13bab5a02a565d5bac7fa6a7a11a4f43cd7f0ec02d7949","pagesZeroBased":[0],"dateRaw":"4th day of September, 2024","certifiedAt":null}
+  ],
+  "coverage": [
+    {"office":"Commissioner of Public Lands","level":"state","district":null,"snapshots":["initial","recount"],"outcome":"Worked","optionCount":8,"expectedTotals":[1903073,1903115]},
+    {"office":"U.S. Senate","level":"federal","district":null,"snapshots":["original certified primary"],"outcome":"Worked","sourceContestId":"2005","optionCount":12,"expectedTotals":[1948716]},
+    {"office":"U.S. House","level":"federal","outcome":"Blocked","reason":"No U.S. House contests in actual workbook; direct ordinary archive fetch HTTP403","attemptedUrl":"https://results.vote.wa.gov/results/20240806/congressional-district-1-us-representative.html"}
+  ]
+}
