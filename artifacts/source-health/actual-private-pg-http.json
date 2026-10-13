@@ -1,10 +1,11 @@
 {
-  "sourceHead": "e295bf882dcb9e3543374a3d5fe85e979c607fbf",
-  "database": "et_sol_health_199a112408f84829a8e2301a87e846fe",
+  "sourceHead": "8a9f737e16dc00edb7b7dc5153e625e029b61a3e",
+  "processTimezone": "host default",
+  "database": "et_sol_health_71f2557e8c064006877f4a2896f5d30d",
   "mode": "actual compiled private fixture; official recorded bytes, simulated source outages, no provider calls",
   "coreSha256": {
-    "before": "40ffb131dfcb091ce2fc730596a3b6fd84233c1db57ea78e6cba66366eb2d569",
-    "after": "13ed4947006eab03d1ebb24e0636eb293cae5b07ea581a6c9e0730396ae0bfe6"
+    "before": "0e49f7aa042fe3ae9408263c0858a49b6c272068908ae5dd05b1fafdf89357cc",
+    "after": "677826cd3ec8c0ecd132e5df17b5dc9d6691d6315dde6ec7b95f95d13a781175"
   },
   "checks": [
     {
@@ -52,6 +53,10 @@
       ]
     },
     {
+      "scenario": "actual single/batch/writer calendar contexts match publisher historical days under selected process timezone",
+      "outcome": "Worked"
+    },
+    {
       "scenario": "actual ingestion outage preserves votes/status/revision; single+batch304 become200; fresh store restart preserves staleSince",
       "outcome": "Worked"
     },
@@ -60,7 +65,7 @@
       "outcome": "Worked",
       "freshProcess": {
         "stale": true,
-        "staleSince": "2026-10-13T19:34:54.848Z",
+        "staleSince": "2026-10-13T19:48:55.268Z",
         "revision": "r1-c01fe8d4",
         "totalVotes": 1903073,
         "status": "certified"
@@ -106,6 +111,12 @@
       "rawSha": "1d11cc471c4e6bfb62f690cbfd8a248cd649989acc3d479273809316d8f3d466"
     },
     {
+      "scenario": "actual pool-size1 writer releases committed client before response read and settles without starvation",
+      "outcome": "Worked",
+      "elapsedMs": 18,
+      "waiting": 0
+    },
+    {
       "scenario": "actual old WA initial idempotent replay cannot renew health of newer recount report",
       "outcome": "Worked"
     },
@@ -115,6 +126,31 @@
     },
     {
       "scenario": "actual missing health table fails typed503; restoration recovers reads",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "actual PostgreSQL connection refusal to missing owned-prefix private DB gives single/batch typed503, never304/fresh",
+      "outcome": "Worked",
+      "postgresFailureClass": "3D000 invalid_catalog_name",
+      "single": {
+        "status": 503,
+        "etag": "W/\"4c-QDhGg5WPmL88JPYRqF0fogLWZCE\"",
+        "body": {
+          "error": "Results are temporarily unavailable",
+          "code": "results_unavailable"
+        }
+      },
+      "batch": {
+        "status": 503,
+        "etag": "W/\"4c-QDhGg5WPmL88JPYRqF0fogLWZCE\"",
+        "body": {
+          "error": "Results are temporarily unavailable",
+          "code": "results_unavailable"
+        }
+      }
+    },
+    {
+      "scenario": "actual DB-reader restoration recovers stored counts/health without any report writes",
       "outcome": "Worked"
     },
     {
@@ -136,6 +172,46 @@
     "totalVotes": 1903073,
     "revision": "r1-c01fe8d4",
     "stale": false
+  },
+  "mixedBatchRed": {
+    "outcome": "Failed",
+    "scenario": "one unavailable first-capture plus two independently healthy recorded races",
+    "healthy": [
+      {
+        "electionId": 4242401,
+        "totalVotes": 1903073,
+        "stale": false,
+        "status": 200
+      },
+      {
+        "electionId": 910002,
+        "totalVotes": 196212,
+        "stale": false,
+        "status": 200
+      }
+    ],
+    "actual": {
+      "status": 503,
+      "etag": "W/\"a1-yQKooN6UpsIeQkhUC1Gn1pQcViY\"",
+      "body": {
+        "error": "The admitted official results source is unavailable",
+        "code": "source_unavailable",
+        "details": {
+          "electionId": 910003,
+          "sourceId": "health-unavailable-first"
+        }
+      }
+    },
+    "required": "typed per-race unavailable representation while preserving healthy results; parent owns shared batch amendment"
+  },
+  "oldPoolRed": {
+    "outcome": "Failed",
+    "scenario": "old writer holds sole committed client while queuing its postcommit pool read",
+    "settled": false,
+    "waiting": 1,
+    "idle": 0,
+    "total": 1,
+    "cleanup": "released own instrumented client to drain safely"
   },
   "httpEvidence": {
     "fresh": {
@@ -254,7 +330,7 @@
     },
     "stale": {
       "status": 200,
-      "etag": "W/\"4242401-r1-c01fe8d4-adfc80aa21c553a70e4ed091\"",
+      "etag": "W/\"4242401-r1-c01fe8d4-ca44534a84252f60b766da1e\"",
       "body": {
         "schemaVersion": 1,
         "electionId": 4242401,
@@ -355,7 +431,7 @@
         },
         "supersedesReportId": null,
         "stale": true,
-        "staleSince": "2026-10-13T19:34:54.848Z",
+        "staleSince": "2026-10-13T19:48:55.268Z",
         "electionContext": {
           "state": "WA",
           "electionDate": "2024-08-06",
@@ -482,18 +558,18 @@
     },
     "freshBatch": {
       "status": 200,
-      "etag": "W/\"results-ids-650e634b3f74-7949f930b7958fcee19fee57\"",
+      "etag": "W/\"results-ids-650e634b3f74-7e6c23c234ca06222f2ec404\"",
       "body": {
         "schemaVersion": 1,
         "date": null,
-        "cursor": "7949f930b7958fcee19fee57",
+        "cursor": "7e6c23c234ca06222f2ec404",
         "reset": true,
         "results": [
           {
             "schemaVersion": 1,
             "electionId": 910001,
             "reportId": 2,
-            "revision": "r2-a8fd1cb9",
+            "revision": "r2-e217cf32",
             "status": "unofficial",
             "reporting": {
               "percent": 100,
@@ -511,7 +587,7 @@
             "sourcePayloadSha256": "a1adde2cbace4018e482d7fdc12297dac32595e7e2a175e0f6fcf87c05e3154c",
             "asOf": null,
             "asOfBasis": "not_provided",
-            "retrievedAt": "2026-10-13T19:34:54.534Z",
+            "retrievedAt": "2026-10-13T19:48:54.929Z",
             "totalVotes": 827755,
             "candidates": [
               {
@@ -587,7 +663,7 @@
             "schemaVersion": 1,
             "electionId": 910002,
             "reportId": 3,
-            "revision": "r3-631fc3a9",
+            "revision": "r3-f78bad65",
             "status": "unofficial",
             "reporting": {
               "percent": null,
@@ -605,7 +681,7 @@
             "sourcePayloadSha256": "8207fef79e8ef25d665671fb5e8ce796164b7dc1513430ea1eac214106dabc31",
             "asOf": null,
             "asOfBasis": "not_provided",
-            "retrievedAt": "2026-10-13T19:34:54.535Z",
+            "retrievedAt": "2026-10-13T19:48:54.930Z",
             "totalVotes": 196212,
             "candidates": [
               {
@@ -756,18 +832,18 @@
     },
     "staleBatch": {
       "status": 200,
-      "etag": "W/\"results-ids-650e634b3f74-150335be7ef7bce1c0ff99c3\"",
+      "etag": "W/\"results-ids-650e634b3f74-c2e33a516a229aaf87dabc38\"",
       "body": {
         "schemaVersion": 1,
         "date": null,
-        "cursor": "150335be7ef7bce1c0ff99c3",
+        "cursor": "c2e33a516a229aaf87dabc38",
         "reset": true,
         "results": [
           {
             "schemaVersion": 1,
             "electionId": 910001,
             "reportId": 2,
-            "revision": "r2-a8fd1cb9",
+            "revision": "r2-e217cf32",
             "status": "unofficial",
             "reporting": {
               "percent": 100,
@@ -785,7 +861,7 @@
             "sourcePayloadSha256": "a1adde2cbace4018e482d7fdc12297dac32595e7e2a175e0f6fcf87c05e3154c",
             "asOf": null,
             "asOfBasis": "not_provided",
-            "retrievedAt": "2026-10-13T19:34:54.534Z",
+            "retrievedAt": "2026-10-13T19:48:54.929Z",
             "totalVotes": 827755,
             "candidates": [
               {
@@ -847,7 +923,7 @@
             "certification": null,
             "supersedesReportId": null,
             "stale": true,
-            "staleSince": "2026-10-13T19:34:54.855Z",
+            "staleSince": "2026-10-13T19:48:55.271Z",
             "electionContext": {
               "state": "NC",
               "electionDate": "2026-03-03",
@@ -861,7 +937,7 @@
             "schemaVersion": 1,
             "electionId": 910002,
             "reportId": 3,
-            "revision": "r3-631fc3a9",
+            "revision": "r3-f78bad65",
             "status": "unofficial",
             "reporting": {
               "percent": null,
@@ -879,7 +955,7 @@
             "sourcePayloadSha256": "8207fef79e8ef25d665671fb5e8ce796164b7dc1513430ea1eac214106dabc31",
             "asOf": null,
             "asOfBasis": "not_provided",
-            "retrievedAt": "2026-10-13T19:34:54.535Z",
+            "retrievedAt": "2026-10-13T19:48:54.930Z",
             "totalVotes": 196212,
             "candidates": [
               {
@@ -905,7 +981,7 @@
             "certification": null,
             "supersedesReportId": null,
             "stale": true,
-            "staleSince": "2026-10-13T19:34:54.860Z",
+            "staleSince": "2026-10-13T19:48:55.276Z",
             "electionContext": {
               "state": "LA",
               "electionDate": "2026-06-27",
@@ -1015,7 +1091,7 @@
             },
             "supersedesReportId": null,
             "stale": true,
-            "staleSince": "2026-10-13T19:34:54.848Z",
+            "staleSince": "2026-10-13T19:48:55.268Z",
             "electionContext": {
               "state": "WA",
               "electionDate": "2024-08-06",
@@ -1030,18 +1106,18 @@
     },
     "recoveredBatch": {
       "status": 200,
-      "etag": "W/\"results-ids-650e634b3f74-b08fa50037a00378df03b964\"",
+      "etag": "W/\"results-ids-650e634b3f74-df5af03eb61306912ea77f09\"",
       "body": {
         "schemaVersion": 1,
         "date": null,
-        "cursor": "b08fa50037a00378df03b964",
+        "cursor": "df5af03eb61306912ea77f09",
         "reset": true,
         "results": [
           {
             "schemaVersion": 1,
             "electionId": 910001,
             "reportId": 2,
-            "revision": "r2-a8fd1cb9",
+            "revision": "r2-e217cf32",
             "status": "unofficial",
             "reporting": {
               "percent": 100,
@@ -1059,7 +1135,7 @@
             "sourcePayloadSha256": "a1adde2cbace4018e482d7fdc12297dac32595e7e2a175e0f6fcf87c05e3154c",
             "asOf": null,
             "asOfBasis": "not_provided",
-            "retrievedAt": "2026-10-13T19:34:54.534Z",
+            "retrievedAt": "2026-10-13T19:48:54.929Z",
             "totalVotes": 827755,
             "candidates": [
               {
@@ -1135,7 +1211,7 @@
             "schemaVersion": 1,
             "electionId": 910002,
             "reportId": 3,
-            "revision": "r3-631fc3a9",
+            "revision": "r3-f78bad65",
             "status": "unofficial",
             "reporting": {
               "percent": null,
@@ -1153,7 +1229,7 @@
             "sourcePayloadSha256": "8207fef79e8ef25d665671fb5e8ce796164b7dc1513430ea1eac214106dabc31",
             "asOf": null,
             "asOfBasis": "not_provided",
-            "retrievedAt": "2026-10-13T19:34:54.535Z",
+            "retrievedAt": "2026-10-13T19:48:54.930Z",
             "totalVotes": 196212,
             "candidates": [
               {

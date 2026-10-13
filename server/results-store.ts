@@ -13,10 +13,10 @@ import { resultsSourceRegistry } from './results-source-registry';
 import {assertResultsNotAborted,decorateSourceHealth,readSourceHealth,writeSourceHealth,MemSourceHealth,healthCacheVersion,sourceHealthCacheKey,type SourceHealthEvent,type HealthRead} from './results-source-health';
 import {
   ResultReportError, assertNotFuture, buildResultsPayload, canonicalInputHash, contextMatches, electionContextOf, reportContextOf, revisionFor,
-  etagFor,publishedContentHash,type ElectionContext, type ResultLineRow, type ResultReportInput, type ResultReportRow, type ResultsPayload,
+  etagFor,publishedContentHash,resultElectionDay,type ElectionContext, type ResultLineRow, type ResultReportInput, type ResultReportRow, type ResultsPayload,
 } from './results-reports';
 
-interface ElectionRow { id: number; state: string; date: Date; type: string; level: string; title: string;official_results_source?:{publisher?:string}|null }
+interface ElectionRow { id: number; state: string; date: Date|string; type: string; level: string; title: string;official_results_source?:{publisher?:string}|null }
 // SQL fragment: report r is bound to the same race context election e currently has.
 const CONTEXT_MATCH_SQL = `r.context_state = e.state AND r.context_election_date = e.date::date AND r.context_type = e.type AND r.context_level = e.level AND r.context_office = e.title`;
 
@@ -194,8 +194,7 @@ export function snapshotCursor(results: ResultsPayload[]): string {
  * The election date is a calendar day; anything from 00:00 UTC of that day onward is allowed.
  */
 export function assertNotPreElection(input: ResultReportInput, electionDate: Date | string): void {
-  const day = new Date(electionDate);
-  const dayStart = Date.UTC(day.getUTCFullYear(), day.getUTCMonth(), day.getUTCDate());
+  const dayStart = Date.parse(resultElectionDay(electionDate)+'T00:00:00Z');
   const offending: Array<{ path: string; message: string }> = [];
   if (input.asOf && new Date(input.asOf).getTime() < dayStart) offending.push({ path: 'asOf', message: `precedes the election day ${new Date(dayStart).toISOString().slice(0, 10)}` });
   if (new Date(input.retrievedAt).getTime() < dayStart) offending.push({ path: 'retrievedAt', message: `precedes the election day ${new Date(dayStart).toISOString().slice(0, 10)}` });
@@ -216,11 +215,11 @@ export class PgResultReportStore implements ResultReportStore {
   }
 
   async getResultsPayload(electionId: number): Promise<ResultsPayload | null> {
-    const election = await this.pool.query<ElectionRow>('SELECT id, state, date, type, level, title,official_results_source FROM elections WHERE id = $1', [electionId]);
+    const election = await this.pool.query<ElectionRow>('SELECT id, state, date::text AS date, type, level, title,official_results_source FROM elections WHERE id = $1', [electionId]);
     if (election.rowCount === 0) return null;
     const current = electionContextOf(election.rows[0]);
     const history = await this.pool.query<ResultReportRow>(
-      'SELECT * FROM election_result_reports WHERE election_id = $1 ORDER BY id DESC LIMIT $2', [electionId, HISTORY_LIMIT]);
+      'SELECT *,context_election_date::text AS context_election_date FROM election_result_reports WHERE election_id = $1 ORDER BY id DESC LIMIT $2', [electionId, HISTORY_LIMIT]);
     // Current = newest report still bound to the race context the election row has NOW.
     const latest = history.rows.find((r) => contextMatches(reportContextOf(r), current)) ?? null;
     const lines = latest
@@ -240,12 +239,12 @@ export class PgResultReportStore implements ResultReportStore {
     // Two queries, no N+1: latest CONTEXT-MATCHING report per election via LATERAL, then all lines.
     // A report recorded under a context the election row no longer has is never exported here.
     const latestSql = `
-      SELECT e.id AS e_id, e.state AS e_state, e.date AS e_date, e.type AS e_type, e.level AS e_level, e.title AS e_title,e.official_results_source AS e_source, r.*
+      SELECT e.id AS e_id, e.state AS e_state, e.date::text AS e_date, e.type AS e_type, e.level AS e_level, e.title AS e_title,e.official_results_source AS e_source, r.*,r.context_election_date::text AS context_election_date
         FROM elections e
         LEFT JOIN LATERAL (SELECT * FROM election_result_reports r WHERE r.election_id = e.id AND ${CONTEXT_MATCH_SQL} ORDER BY r.id DESC LIMIT 1) r ON true
        WHERE ${where.join(' AND ')}
        ORDER BY e.id`;
-    type Row = ResultReportRow & { e_id: number; id: number | null; e_state: string; e_date: Date; e_type: string; e_level: string; e_title: string;e_source?:{publisher?:string}|null };
+    type Row = ResultReportRow & { e_id: number; id: number | null; e_state: string; e_date: Date|string; e_type: string; e_level: string; e_title: string;e_source?:{publisher?:string}|null };
     const rows = (await this.pool.query<Row>(latestSql, params)).rows;
     const reportIds = rows.map((r) => r.id).filter((id): id is number => id !== null);
     const lines = reportIds.length
@@ -266,12 +265,14 @@ export class PgResultReportStore implements ResultReportStore {
     assertResultsNotAborted(ctx.signal);
     const inputSha = canonicalInputHash(input);
     const client = await this.pool.connect();
+    let released=false,committed=false;
+    const committedPayload=async()=>{assertResultsNotAborted(ctx.signal);await client.query('COMMIT');committed=true;client.release();released=true;return(await this.getResultsPayload(electionId))!;};
     try {
       await client.query('BEGIN');
       // Serialise writers per election so revision checks are exact.
       await client.query('SELECT pg_advisory_xact_lock($1, $2)', [20261106, electionId]);
 
-      const election = await client.query<ElectionRow>('SELECT id, state, date, type, level, title FROM elections WHERE id = $1', [electionId]);
+      const election = await client.query<ElectionRow>('SELECT id, state, date::text AS date, type, level, title FROM elections WHERE id = $1', [electionId]);
       if (election.rowCount === 0) throw new ResultReportError(404, 'election_not_found', `Election ${electionId} not found`);
       if (input.electionId !== electionId) throw new ResultReportError(422, 'invalid_report', 'report electionId does not match the target election', [{ path: 'electionId', message: 'mismatch' }]);
       assertNotFuture(input);
@@ -283,7 +284,7 @@ export class PgResultReportStore implements ResultReportStore {
         if(current.rows[0]?.id===row.id)await fresh();
         assertResultsNotAborted(ctx.signal);
       };
-      assertSourceRegistered(input, election.rows[0].state, await this.manifestRows(client, election.rows[0].state), { id: electionId, date: election.rows[0].date, type: election.rows[0].type });
+      assertSourceRegistered(input, election.rows[0].state, await this.manifestRows(client, election.rows[0].state), { id: electionId, date:context.electionDate, type: election.rows[0].type });
       if (EVIDENCE_REQUIRED_KINDS.has(input.source.kind) || input.status === 'certified') {
         const ev = await client.query('SELECT 1 FROM result_evidence_blobs WHERE sha256 = $1', [input.sourcePayloadSha256]);
         if (ev.rowCount === 0) throw new ResultReportError(422, 'evidence_missing', 'sourcePayloadSha256 does not reference retained evidence; upload it first (POST /api/admin/results-evidence)');
@@ -292,27 +293,27 @@ export class PgResultReportStore implements ResultReportStore {
       // Idempotent replay / conflict
       if (ctx.idempotencyKey) {
         const prior = await client.query<ResultReportRow & { input_sha256: string }>(
-          'SELECT * FROM election_result_reports WHERE idempotency_key = $1', [ctx.idempotencyKey]);
+          'SELECT *,context_election_date::text AS context_election_date FROM election_result_reports WHERE idempotency_key = $1', [ctx.idempotencyKey]);
         if (prior.rowCount) {
           const row = prior.rows[0];
           if (row.input_sha256 !== inputSha || row.election_id !== electionId) {
             throw new ResultReportError(409, 'idempotency_conflict', 'idempotencyKey was already used with a different payload');
           }
           if(!contextMatches(reportContextOf(row),context))throw new ResultReportError(409,'report_context_changed','Idempotent report belongs to an earlier race context');
-          await replayHealth(row);await client.query('COMMIT');
-          return { payload: (await this.getResultsPayload(electionId))!, created: false };
+          await replayHealth(row);
+          return { payload: await committedPayload(), created: false };
         }
       }
       // Same recorded content from the same source+contest -> idempotent (keyed on the canonical input,
       // not the raw payload hash: one raw file can legitimately carry two revisions).
       const sameSnapshot = await client.query<ResultReportRow>(
-        'SELECT * FROM election_result_reports WHERE source_id = $1 AND source_contest_id = $2 AND input_sha256 = $3',
+        'SELECT *,context_election_date::text AS context_election_date FROM election_result_reports WHERE source_id = $1 AND source_contest_id = $2 AND input_sha256 = $3',
         [input.source.id, input.source.sourceContestId, inputSha]);
       if (sameSnapshot.rowCount) {
         if (sameSnapshot.rows[0].election_id !== electionId) throw new ResultReportError(422, 'contest_key_conflict', `source contest ${input.source.sourceContestId} is already bound to election ${sameSnapshot.rows[0].election_id}`);
         if(!contextMatches(reportContextOf(sameSnapshot.rows[0]),context))throw new ResultReportError(409,'report_context_changed','Idempotent report belongs to an earlier race context');
-        await replayHealth(sameSnapshot.rows[0]);await client.query('COMMIT');
-        return { payload: (await this.getResultsPayload(electionId))!, created: false };
+        await replayHealth(sameSnapshot.rows[0]);
+        return { payload: await committedPayload(), created: false };
       }
       // Scope guard: a qualified contest key never binds to a second election (shared raw ids).
       const otherElection = await client.query<{ election_id: number }>(
@@ -321,14 +322,14 @@ export class PgResultReportStore implements ResultReportStore {
       if (otherElection.rowCount) throw new ResultReportError(422, 'contest_key_conflict', `source contest ${input.source.sourceContestId} is already bound to election ${otherElection.rows[0].election_id}`, { boundElectionId: otherElection.rows[0].election_id });
 
       // A fresh capture of identical content is a health observation, not a new vote revision.
-      const previous=await client.query<ResultReportRow&{input_sha256:string}>(`SELECT * FROM election_result_reports WHERE election_id=$1 AND source_id=$2 AND source_contest_id=$3 AND context_state=$4 AND context_election_date=$5::date AND context_type=$6 AND context_level=$7 AND context_office=$8 ORDER BY id DESC LIMIT 1`,[electionId,input.source.id,input.source.sourceContestId,context.state,context.electionDate,context.type,context.level,context.office]);
+      const previous=await client.query<ResultReportRow&{input_sha256:string}>(`SELECT *,context_election_date::text AS context_election_date FROM election_result_reports WHERE election_id=$1 AND source_id=$2 AND source_contest_id=$3 AND context_state=$4 AND context_election_date=$5::date AND context_type=$6 AND context_level=$7 AND context_office=$8 ORDER BY id DESC LIMIT 1`,[electionId,input.source.id,input.source.sourceContestId,context.state,context.electionDate,context.type,context.level,context.office]);
       if(previous.rows[0]){
         const previousLines=(await client.query<ResultLineRow>('SELECT * FROM candidate_result_lines WHERE report_id=$1',[previous.rows[0].id])).rows;
-        if(publishedContentHash(input)===publishedContentHash(buildResultsPayload(electionId,previous.rows[0],previousLines,[],context))){await fresh();await client.query('COMMIT');return{payload:(await this.getResultsPayload(electionId))!,created:false};}
+        if(publishedContentHash(input)===publishedContentHash(buildResultsPayload(electionId,previous.rows[0],previousLines,[],context))){await fresh();return{payload:await committedPayload(),created:false};}
       }
 
       const latest = await client.query<ResultReportRow>(
-        'SELECT * FROM election_result_reports WHERE election_id = $1 ORDER BY id DESC LIMIT 1', [electionId]);
+        'SELECT *,context_election_date::text AS context_election_date FROM election_result_reports WHERE election_id = $1 ORDER BY id DESC LIMIT 1', [electionId]);
       const latestRow = latest.rows[0] ?? null;
       if (ctx.enforceRevision && (ctx.expectedRevision ?? null) !== (latestRow?.revision ?? null)) {
         throw new ResultReportError(409, 'stale_revision', 'expectedRevision does not match the current revision', { currentRevision: latestRow?.revision ?? null });
@@ -389,13 +390,12 @@ export class PgResultReportStore implements ResultReportStore {
 
       await this.syncDerived(client, electionId, input,ctx.signal);
       await fresh();
-      await client.query('COMMIT');
-      return { payload: (await this.getResultsPayload(electionId))!, created: true };
+      return { payload:await committedPayload(), created: true };
     } catch (error) {
-      await client.query('ROLLBACK').catch(() => undefined);
+      if(!committed)await client.query('ROLLBACK').catch(() => undefined);
       throw error;
     } finally {
-      client.release();
+      if(!released)client.release();
     }
   }
 

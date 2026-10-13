@@ -80,11 +80,15 @@ export interface ElectionContext {
   level: string;
   office: string;
 }
+export function resultElectionDay(value:Date|string):string{
+  // PostgreSQL calendar/timestamp-without-zone text is a civil date, not a host-zone instant.
+  return typeof value==='string'&&/^\d{4}-\d{2}-\d{2}(?:$|[ T])/.test(value)?value.slice(0,10):new Date(value).toISOString().slice(0,10);
+}
 export function electionContextOf(e: { state: string; date: Date | string; type: string; level: string; title: string }): ElectionContext {
-  return { state: e.state, electionDate: new Date(e.date).toISOString().slice(0, 10), type: e.type, level: e.level, office: e.title };
+  return { state: e.state, electionDate: resultElectionDay(e.date), type: e.type, level: e.level, office: e.title };
 }
 export function reportContextOf(r: ResultReportRow): ElectionContext {
-  return { state: r.context_state, electionDate: new Date(r.context_election_date).toISOString().slice(0, 10), type: r.context_type, level: r.context_level, office: r.context_office };
+  return { state: r.context_state, electionDate: resultElectionDay(r.context_election_date), type: r.context_type, level: r.context_level, office: r.context_office };
 }
 export function contextMatches(a: ElectionContext, b: ElectionContext): boolean {
   return a.state === b.state && a.electionDate === b.electionDate && a.type === b.type && a.level === b.level && a.office === b.office;
