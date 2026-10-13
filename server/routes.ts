@@ -12,6 +12,7 @@ import { registerCongressImportRoutes } from "./congress-import-routes";
 import { registerCongressMembersRoutes } from "./congress-members-routes";
 import { registerCampaignRegisterRoutes } from "./campaign-register-routes";
 import { registerResultsRoutes } from "./results-routes";
+import { registerResultsCoverageRoute } from "./results-coverage-routes";
 import { setupAuth, isAuthenticated } from "./auth";
 import { requireAdmin } from "./middleware/require-admin";
 import { verifySendGridWebhook, verifyTwilioWebhook } from "./webhook-verify";
@@ -1162,6 +1163,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     requireAdmin,
     adminIdentity: (req: any) => (req.userId ?? req.user?.claims?.sub) ? String(req.userId ?? req.user?.claims?.sub) : null,
   });
+
+  // ET-6: GET /api/results/coverage?date= — automatic (published manifest + registered adapter) vs manual-only per race
+  registerResultsCoverageRoute(app, { coverage: (date) => resultsIngestionService.coverage(date) });
 
   // Update election results endpoint
   // Perplexity AI endpoints
