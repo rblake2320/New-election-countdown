@@ -7,3 +7,5 @@ Original evidence: docs/evidence/et6/mixed-browser-internal/155624-654a31f1/ at 
 Run from any working directory with Node 24: node <repo>/scripts/audit-mixed-browser-wire.mjs. CI also runs node --test scripts/verify-browser-wire.node.mjs (four actual replays plus 17 altered-evidence refusal controls). These are offline verifier regression checks, not a new browser/runtime/DB run or deployment clearance.
 
 The verifier also requires a recorded 506-card state with505 healthy races and only NC24 in error, no loading or date alert, before recovery. Its first observation must be between the initial snapshot and first held304 poll on the same browser clock. Six UI mutation controls failed on the prior verifier and pass after this repair; the four actual observations are unchanged.
+
+The audit command accepts no arguments: it always reads the fixed pinned replay. Any extra positional argument, flag, or empty argument exits2 without a success payload. Five real child-process controls cover refusal and no-argument execution from repository and unrelated working directories.
