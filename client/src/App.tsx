@@ -19,7 +19,6 @@ const CampaignPortal = lazy(() => import("@/pages/campaign-portal"));
 const CandidatePortalFixed = lazy(() => import("@/pages/candidate-portal-fixed"));
 const MonitoringDashboard = lazy(() => import("@/pages/monitoring-dashboard"));
 const ApiStatusPage = lazy(() => import("@/pages/api-status"));
-const GlobalDashboard = lazy(() => import("@/pages/global-dashboard"));
 const CivicDashboard = lazy(() => import("@/pages/civic-dashboard"));
 const ElectionDetails = lazy(() => import("@/pages/election-details"));
 const Midterm2026 = lazy(() => import("@/pages/midterm-2026"));
@@ -50,7 +49,6 @@ function Router() {
             <Route path="/candidate-portal" component={CandidatePortalFixed} />
             <Route path="/monitoring" component={MonitoringDashboard} />
             <Route path="/api-status" component={ApiStatusPage} />
-            <Route path="/global" component={GlobalDashboard} />
             <Route path="/civic" component={CivicDashboard} />
             <Route path="/2026" component={Midterm2026} />
             <Route path="/elections/:id" component={ElectionDetails} />

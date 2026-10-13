@@ -22,9 +22,10 @@ const registered = {
   },
 };
 
-async function registerAndOpenPortal() {
+async function registerAndOpenPortal(opts: { subscription?: object } = {}) {
   vi.stubGlobal("fetch", vi.fn(async (url: string) => {
     if (url === "/api/campaign/register") return new Response(JSON.stringify(registered), { status: 200 });
+    if (url === "/api/campaign/subscription" && opts.subscription) return new Response(JSON.stringify(opts.subscription), { status: 200 });
     return new Response(JSON.stringify({ error: "Invalid API key or inactive account" }), { status: 400 });
   }));
   render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><CampaignPortal /></QueryClientProvider>);
@@ -52,6 +53,17 @@ describe("campaign portal exports and error states (ET-38)", () => {
     expect(alert).toHaveTextContent("Analytics could not be loaded (400): Invalid API key or inactive account.");
     expect(within(alert).getByRole("button", { name: "Try again" })).toBeTruthy();
     expect(screen.queryByText("No analytics data available")).toBeNull();
+  });
+
+  it("is early access, by invitation: no payment, no plan-purchase or price wording", async () => {
+    render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><CampaignPortal /></QueryClientProvider>);
+    expect(screen.getByText(/Early access, by invitation: no payment is taken\./)).toBeInTheDocument();
+    cleanup();
+    await registerAndOpenPortal({ subscription: registered.data.subscription });
+    expect(await screen.findByText(/Pro access/)).toBeInTheDocument();
+    expect(screen.getByText('Your early access')).toBeInTheDocument();
+    expect(screen.getByText(/Pro early-access features/)).toBeInTheDocument();
+    expect(document.body.textContent).not.toMatch(/\bPlan\b|\bSubscription\b|\$\d/);
   });
 
   it("offers nothing for sale: no Purchase button and no export prices", async () => {
