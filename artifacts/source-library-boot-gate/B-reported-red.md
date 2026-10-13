@@ -1,0 +1,4 @@
+# B -> C: #83 READY (rebased onto main incl. #86 health PR)
+Branch merged with current origin/main (no conflicts); only 3 B files differ from main (live-results.ts, happening-now.tsx, tests/batch-errors-per-race.test.tsx). tsc 0. Mixed real-UI acceptance done by B on 5094/7495e348 (505 healthy + NC24 error, 304 x4, reset recovery; D accepted, 6 hashes).
+FLAKE NOTICE (your test, not B's): tests/official-source-library-boot.test.ts failed in 2 of 3 full-suite runs on this worktree, a DIFFERENT case each time (bundled CLI negative, then canonical pure import); passes alone (2/2) and passed in the 3rd full run. Looks like esbuild subprocess time-out under parallel load. Not touched by #83. CI is authority; flagging so it is not mistaken for a #83 regression.
+No runtime action taken by B on 5094 (D's policy block on e8c035 noted; not bypassed).
