@@ -10,16 +10,18 @@
 import type { Pool, PoolClient } from 'pg';
 import { createHash } from 'node:crypto';
 import { resultsSourceRegistry } from './results-source-registry';
+import {assertResultsNotAborted,decorateSourceHealth,readSourceHealth,writeSourceHealth,MemSourceHealth,healthCacheVersion,sourceHealthCacheKey,type SourceHealthEvent,type HealthRead} from './results-source-health';
 import {
   ResultReportError, assertNotFuture, buildResultsPayload, canonicalInputHash, contextMatches, electionContextOf, reportContextOf, revisionFor,
-  type ElectionContext, type ResultLineRow, type ResultReportInput, type ResultReportRow, type ResultsPayload,
+  etagFor,type ElectionContext, type ResultLineRow, type ResultReportInput, type ResultReportRow, type ResultsPayload,
 } from './results-reports';
 
-interface ElectionRow { id: number; state: string; date: Date; type: string; level: string; title: string }
+interface ElectionRow { id: number; state: string; date: Date; type: string; level: string; title: string;official_results_source?:{publisher?:string}|null }
 // SQL fragment: report r is bound to the same race context election e currently has.
 const CONTEXT_MATCH_SQL = `r.context_state = e.state AND r.context_election_date = e.date::date AND r.context_type = e.type AND r.context_level = e.level AND r.context_office = e.title`;
 
 export interface RecordContext {
+  signal?:AbortSignal;
   /** admin user id, 'ingest:<adapter>' or 'replay:<drill>' — never from the request body */
   postedBy: string;
   idempotencyKey: string | null;
@@ -75,6 +77,7 @@ export interface ResultSource {
 }
 
 export interface ResultReportStore {
+  recordResultSourceHealth(event:SourceHealthEvent):Promise<void>;
   recordResultReport(electionId: number, input: ResultReportInput, ctx: RecordContext): Promise<RecordOutcome>;
   getResultsPayload(electionId: number): Promise<ResultsPayload | null>; // null = election does not exist
   listResultsPayloads(query: ResultsListQuery): Promise<ResultsListPayload>;
@@ -176,11 +179,11 @@ function assertSourceRegistered(input: ResultReportInput, state: string, manifes
 }
 
 function stripHistory(p: ResultsPayload): ResultsPayload {
-  return { ...p, history: [] };
+  const out={...p,history:[]};Object.defineProperty(out,healthCacheVersion,{value:sourceHealthCacheKey(p),enumerable:false});return out;
 }
 
-export function snapshotCursor(results: Array<{ electionId: number; revision: string | null }>): string {
-  const canon = results.map((r) => `${r.electionId}:${r.revision ?? 'none'}`).sort().join('|');
+export function snapshotCursor(results: ResultsPayload[]): string {
+  const canon = results.map((r) => etagFor(r)).sort().join('|');
   return createHash('sha256').update(canon).digest('hex').slice(0, 24);
 }
 
@@ -205,8 +208,15 @@ export function assertNotPreElection(input: ResultReportInput, electionDate: Dat
 export class PgResultReportStore implements ResultReportStore {
   constructor(private readonly pool: Pool) {}
 
+  async recordResultSourceHealth(event:SourceHealthEvent):Promise<void>{
+    const client=await this.pool.connect();
+    try{await client.query('BEGIN');await client.query('SELECT pg_advisory_xact_lock($1,$2)',[20261106,event.electionId]);await writeSourceHealth(client,event);assertResultsNotAborted(event.signal);await client.query('COMMIT');}
+    catch(error){await client.query('ROLLBACK').catch(()=>{});if(error instanceof ResultReportError)throw error;throw new ResultReportError(503,'source_health_unavailable','Official results source health could not be persisted');}
+    finally{client.release();}
+  }
+
   async getResultsPayload(electionId: number): Promise<ResultsPayload | null> {
-    const election = await this.pool.query<ElectionRow>('SELECT id, state, date, type, level, title FROM elections WHERE id = $1', [electionId]);
+    const election = await this.pool.query<ElectionRow>('SELECT id, state, date, type, level, title,official_results_source FROM elections WHERE id = $1', [electionId]);
     if (election.rowCount === 0) return null;
     const current = electionContextOf(election.rows[0]);
     const history = await this.pool.query<ResultReportRow>(
@@ -216,7 +226,9 @@ export class PgResultReportStore implements ResultReportStore {
     const lines = latest
       ? (await this.pool.query<ResultLineRow>('SELECT * FROM candidate_result_lines WHERE report_id = $1 ORDER BY votes DESC, id', [latest.id])).rows
       : [];
-    return buildResultsPayload(electionId, latest, lines, history.rows, current);
+    const payload=buildResultsPayload(electionId, latest, lines, history.rows, current);
+    const health=await readSourceHealth(this.pool,[healthReadFor(electionId,current,payload.source?.id??null,election.rows[0].official_results_source?.publisher)]);
+    return decorateSourceHealth(payload,health.get(electionId)??null,latest?.posted_by.startsWith('ingest:')??false);
   }
 
   async listResultsPayloads(query: ResultsListQuery): Promise<ResultsListPayload> {
@@ -228,12 +240,12 @@ export class PgResultReportStore implements ResultReportStore {
     // Two queries, no N+1: latest CONTEXT-MATCHING report per election via LATERAL, then all lines.
     // A report recorded under a context the election row no longer has is never exported here.
     const latestSql = `
-      SELECT e.id AS e_id, e.state AS e_state, e.date AS e_date, e.type AS e_type, e.level AS e_level, e.title AS e_title, r.*
+      SELECT e.id AS e_id, e.state AS e_state, e.date AS e_date, e.type AS e_type, e.level AS e_level, e.title AS e_title,e.official_results_source AS e_source, r.*
         FROM elections e
         LEFT JOIN LATERAL (SELECT * FROM election_result_reports r WHERE r.election_id = e.id AND ${CONTEXT_MATCH_SQL} ORDER BY r.id DESC LIMIT 1) r ON true
        WHERE ${where.join(' AND ')}
        ORDER BY e.id`;
-    type Row = ResultReportRow & { e_id: number; id: number | null; e_state: string; e_date: Date; e_type: string; e_level: string; e_title: string };
+    type Row = ResultReportRow & { e_id: number; id: number | null; e_state: string; e_date: Date; e_type: string; e_level: string; e_title: string;e_source?:{publisher?:string}|null };
     const rows = (await this.pool.query<Row>(latestSql, params)).rows;
     const reportIds = rows.map((r) => r.id).filter((id): id is number => id !== null);
     const lines = reportIds.length
@@ -241,14 +253,17 @@ export class PgResultReportStore implements ResultReportStore {
       : [];
     const linesByReport = new Map<number, ResultLineRow[]>();
     for (const l of lines) { const arr = linesByReport.get(l.report_id) ?? []; arr.push(l); linesByReport.set(l.report_id, arr); }
+    const reads=rows.map(r=>healthReadFor(r.e_id,electionContextOf({state:r.e_state,date:r.e_date,type:r.e_type,level:r.e_level,title:r.e_title}),r.source_id??null,r.e_source?.publisher));
+    const health=await readSourceHealth(this.pool,reads);
     const results = rows.map((r) => {
       const current = electionContextOf({ state: r.e_state, date: r.e_date, type: r.e_type, level: r.e_level, title: r.e_title });
-      return stripHistory(buildResultsPayload(r.e_id, r.id === null ? null : r, r.id === null ? [] : linesByReport.get(r.id) ?? [], [], current));
+      return decorateSourceHealth(stripHistory(buildResultsPayload(r.e_id, r.id === null ? null : r, r.id === null ? [] : linesByReport.get(r.id) ?? [], [], current)),health.get(r.e_id)??null,r.posted_by?.startsWith('ingest:')??false);
     });
     return { schemaVersion: 1, date: query.date ?? null, cursor: snapshotCursor(results), reset: true, results };
   }
 
   async recordResultReport(electionId: number, input: ResultReportInput, ctx: RecordContext): Promise<RecordOutcome> {
+    assertResultsNotAborted(ctx.signal);
     const inputSha = canonicalInputHash(input);
     const client = await this.pool.connect();
     try {
@@ -262,6 +277,7 @@ export class PgResultReportStore implements ResultReportStore {
       assertNotFuture(input);
       assertNotPreElection(input, election.rows[0].date);
       const context = electionContextOf(election.rows[0]);
+      const fresh=async()=>{await writeSourceHealth(client,{electionId,sourceId:input.source.id,context,outcome:'success',automatic:ctx.postedBy.startsWith('ingest:'),signal:ctx.signal});assertResultsNotAborted(ctx.signal);};
       assertSourceRegistered(input, election.rows[0].state, await this.manifestRows(client, election.rows[0].state), { id: electionId, date: election.rows[0].date, type: election.rows[0].type });
       if (EVIDENCE_REQUIRED_KINDS.has(input.source.kind) || input.status === 'certified') {
         const ev = await client.query('SELECT 1 FROM result_evidence_blobs WHERE sha256 = $1', [input.sourcePayloadSha256]);
@@ -277,7 +293,7 @@ export class PgResultReportStore implements ResultReportStore {
           if (row.input_sha256 !== inputSha || row.election_id !== electionId) {
             throw new ResultReportError(409, 'idempotency_conflict', 'idempotencyKey was already used with a different payload');
           }
-          await client.query('COMMIT');
+          await fresh();await client.query('COMMIT');
           return { payload: (await this.getResultsPayload(electionId))!, created: false };
         }
       }
@@ -288,7 +304,7 @@ export class PgResultReportStore implements ResultReportStore {
         [input.source.id, input.source.sourceContestId, inputSha]);
       if (sameSnapshot.rowCount) {
         if (sameSnapshot.rows[0].election_id !== electionId) throw new ResultReportError(422, 'contest_key_conflict', `source contest ${input.source.sourceContestId} is already bound to election ${sameSnapshot.rows[0].election_id}`);
-        await client.query('COMMIT');
+        await fresh();await client.query('COMMIT');
         return { payload: (await this.getResultsPayload(electionId))!, created: false };
       }
       // Scope guard: a qualified contest key never binds to a second election (shared raw ids).
@@ -296,6 +312,10 @@ export class PgResultReportStore implements ResultReportStore {
         'SELECT election_id FROM election_result_reports WHERE source_id = $1 AND source_contest_id = $2 AND election_id <> $3 LIMIT 1',
         [input.source.id, input.source.sourceContestId, electionId]);
       if (otherElection.rowCount) throw new ResultReportError(422, 'contest_key_conflict', `source contest ${input.source.sourceContestId} is already bound to election ${otherElection.rows[0].election_id}`, { boundElectionId: otherElection.rows[0].election_id });
+
+      // A fresh capture of identical content is a health observation, not a new vote revision.
+      const previous=await client.query<ResultReportRow&{input_sha256:string}>(`SELECT * FROM election_result_reports WHERE election_id=$1 AND source_id=$2 AND source_contest_id=$3 AND context_state=$4 AND context_election_date=$5::date AND context_type=$6 AND context_level=$7 AND context_office=$8 ORDER BY id DESC LIMIT 1`,[electionId,input.source.id,input.source.sourceContestId,context.state,context.electionDate,context.type,context.level,context.office]);
+      if(previous.rows[0]&&canonicalInputHash({...input,retrievedAt:new Date(previous.rows[0].retrieved_at).toISOString()})===previous.rows[0].input_sha256){await fresh();await client.query('COMMIT');return{payload:(await this.getResultsPayload(electionId))!,created:false};}
 
       const latest = await client.query<ResultReportRow>(
         'SELECT * FROM election_result_reports WHERE election_id = $1 ORDER BY id DESC LIMIT 1', [electionId]);
@@ -325,6 +345,7 @@ export class PgResultReportStore implements ResultReportStore {
       }
 
       // Insert the report with a placeholder revision, then set the real one (needs the id).
+      assertResultsNotAborted(ctx.signal);
       const inserted = await client.query<{ id: number }>(
         `INSERT INTO election_result_reports (
            election_id, revision, status, source_id, source_kind, source_name, source_url, source_contest_id,
@@ -355,6 +376,7 @@ export class PgResultReportStore implements ResultReportStore {
       }
 
       await this.syncDerived(client, electionId, input);
+      await fresh();
       await client.query('COMMIT');
       return { payload: (await this.getResultsPayload(electionId))!, created: true };
     } catch (error) {
@@ -416,6 +438,7 @@ export class PgResultReportStore implements ResultReportStore {
 // In-memory (MemStorage) — same semantics, no projections, used by unit tests and memory mode
 // ---------------------------------------------------------------------------------------------
 export class MemResultReportStore implements ResultReportStore {
+  private readonly sourceHealth=new MemSourceHealth();
   private nextId = 1;
   private reports: Array<ResultReportRow & { input_sha256: string }> = [];
   private lines = new Map<number, ResultLineRow[]>();
@@ -433,6 +456,11 @@ export class MemResultReportStore implements ResultReportStore {
 
   private currentContext(electionId: number): ElectionContext {
     return this.electionContext(electionId) ?? { state: '', electionDate: '', type: '', level: '', office: '' };
+  }
+
+  async recordResultSourceHealth(event:SourceHealthEvent):Promise<void>{
+    if(!this.electionExists(event.electionId)||!contextMatches(event.context,this.currentContext(event.electionId)))throw new ResultReportError(409,'health_context_changed','Race context changed before source health was recorded');
+    const hasReport=this.reports.some(r=>r.election_id===event.electionId&&r.source_id===event.sourceId&&contextMatches(reportContextOf(r),event.context));this.sourceHealth.write(event,hasReport);
   }
 
   async storeResultEvidence(bytes: Buffer, contentType: string, _filename: string | null, _uploadedBy: string): Promise<EvidenceRecord> {
@@ -465,10 +493,12 @@ export class MemResultReportStore implements ResultReportStore {
     const current = this.currentContext(electionId);
     const history = this.reports.filter((r) => r.election_id === electionId).sort((a, b) => b.id - a.id).slice(0, HISTORY_LIMIT);
     const latest = history.find((r) => contextMatches(reportContextOf(r), current)) ?? null;
-    return buildResultsPayload(electionId, latest, latest ? [...(this.lines.get(latest.id) ?? [])].sort((a, b) => Number(b.votes) - Number(a.votes)) : [], history, current);
+    const payload=buildResultsPayload(electionId, latest, latest ? [...(this.lines.get(latest.id) ?? [])].sort((a, b) => Number(b.votes) - Number(a.votes)) : [], history, current);
+    return decorateSourceHealth(payload,this.sourceHealth.read(healthReadFor(electionId,current,latest?.source_id??null,this.manifest().find(r=>r.election_id===electionId)?.publisher)),latest?.posted_by.startsWith('ingest:')??false);
   }
 
   async recordResultReport(electionId: number, input: ResultReportInput, ctx: RecordContext): Promise<RecordOutcome> {
+    assertResultsNotAborted(ctx.signal);
     if (!this.electionExists(electionId)) throw new ResultReportError(404, 'election_not_found', `Election ${electionId} not found`);
     if (input.electionId !== electionId) throw new ResultReportError(422, 'invalid_report', 'report electionId does not match the target election', [{ path: 'electionId', message: 'mismatch' }]);
     assertNotFuture(input);
@@ -476,6 +506,7 @@ export class MemResultReportStore implements ResultReportStore {
     if (date) assertNotPreElection(input, date);
     const current = this.currentContext(electionId);
     const state = current.state;
+    const fresh=()=>this.sourceHealth.write({electionId,sourceId:input.source.id,context:current,outcome:'success',automatic:ctx.postedBy.startsWith('ingest:'),signal:ctx.signal},true);
     assertSourceRegistered(input, state, this.manifest().filter((m) => m.state === state), { id: electionId, date: date ?? null, type: current.type });
     if ((EVIDENCE_REQUIRED_KINDS.has(input.source.kind) || input.status === 'certified') && !this.evidence.has(input.sourcePayloadSha256)) {
       throw new ResultReportError(422, 'evidence_missing', 'sourcePayloadSha256 does not reference retained evidence; upload it first (POST /api/admin/results-evidence)');
@@ -485,16 +516,18 @@ export class MemResultReportStore implements ResultReportStore {
       const prior = this.reports.find((r) => r.idempotency_key === ctx.idempotencyKey);
       if (prior) {
         if (prior.input_sha256 !== inputSha || prior.election_id !== electionId) throw new ResultReportError(409, 'idempotency_conflict', 'idempotencyKey was already used with a different payload');
-        return { payload: (await this.getResultsPayload(electionId))!, created: false };
+        fresh();return { payload: (await this.getResultsPayload(electionId))!, created: false };
       }
     }
     const same = this.reports.find((r) => r.source_id === input.source.id && r.source_contest_id === input.source.sourceContestId && r.input_sha256 === inputSha);
     if (same) {
       if (same.election_id !== electionId) throw new ResultReportError(422, 'contest_key_conflict', `source contest ${input.source.sourceContestId} is already bound to election ${same.election_id}`);
-      return { payload: (await this.getResultsPayload(electionId))!, created: false };
+      fresh();return { payload: (await this.getResultsPayload(electionId))!, created: false };
     }
     const other = this.reports.find((r) => r.source_id === input.source.id && r.source_contest_id === input.source.sourceContestId && r.election_id !== electionId);
     if (other) throw new ResultReportError(422, 'contest_key_conflict', `source contest ${input.source.sourceContestId} is already bound to election ${other.election_id}`, { boundElectionId: other.election_id });
+    const previous=this.reports.filter(r=>r.election_id===electionId&&r.source_id===input.source.id&&r.source_contest_id===input.source.sourceContestId&&contextMatches(reportContextOf(r),current)).sort((a,b)=>b.id-a.id)[0];
+    if(previous&&canonicalInputHash({...input,retrievedAt:new Date(previous.retrieved_at).toISOString()})===previous.input_sha256){fresh();return{payload:(await this.getResultsPayload(electionId))!,created:false};}
     const latest = this.reports.filter((r) => r.election_id === electionId).sort((a, b) => b.id - a.id)[0] ?? null;
     if (ctx.enforceRevision && (ctx.expectedRevision ?? null) !== (latest?.revision ?? null)) {
       throw new ResultReportError(409, 'stale_revision', 'expectedRevision does not match the current revision', { currentRevision: latest?.revision ?? null });
@@ -521,11 +554,16 @@ export class MemResultReportStore implements ResultReportStore {
       certification_url: input.certification?.url ?? null, certified_at: input.certification?.certifiedAt ?? null,
       posted_by: ctx.postedBy, idempotency_key: ctx.idempotencyKey, note: input.note, supersedes_report_id: input.supersedesReportId, created_at: new Date(),
     };
-    this.reports.push(row);
+    assertResultsNotAborted(ctx.signal);this.reports.push(row);
     this.lines.set(id, input.candidates.map((c, i) => ({
       id: id * 1000 + i, report_id: id, candidate_id: c.candidateId, source_candidate_id: c.sourceCandidateId, name: c.name, party: c.party,
       votes: c.votes, percent: c.percent, is_winner_declared: c.isWinner === true,
     })));
-    return { payload: (await this.getResultsPayload(electionId))!, created: true };
+    fresh();return { payload: (await this.getResultsPayload(electionId))!, created: true };
   }
+}
+
+function healthReadFor(electionId:number,context:ElectionContext,sourceId:string|null,manifestPublisher?:string):HealthRead{
+ const sourceIds=sourceId?[sourceId]:[...new Set([...resultsSourceRegistry.admittedFor({id:electionId,state:context.state,date:context.electionDate,type:context.type}).map(r=>r.id),...(manifestPublisher?[manifestPublisher]:[])])];
+ return{electionId,context,sourceIds};
 }

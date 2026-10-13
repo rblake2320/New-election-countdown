@@ -8,6 +8,7 @@
  */
 import { z } from 'zod';
 import { createHash } from 'node:crypto';
+import {sourceHealthCacheKey} from './results-source-health';
 import {
   liveResultReportInputSchema, liveResultSourceKinds, liveResultReportingBases, liveResultAsOfBases,
   type LiveElectionResultsResponse, type LiveResultReportInput,
@@ -176,7 +177,8 @@ export function canonicalInputHash(input: ResultReportInput): string {
   return createHash('sha256').update(stableStringify(rest)).digest('hex');
 }
 export function etagFor(payload: ResultsPayload): string {
-  return `W/"${payload.electionId}-${payload.revision ?? 'none'}"`;
+  const state=createHash('sha256').update(stableStringify([payload,sourceHealthCacheKey(payload)])).digest('hex').slice(0,24);
+  return `W/"${payload.electionId}-${payload.revision ?? 'none'}-${state}"`;
 }
 
 /** Errors the writer raises; routes map `status`/`publicCode` straight to HTTP. */
