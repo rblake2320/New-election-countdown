@@ -1,6 +1,7 @@
 import {readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {createHash} from 'node:crypto';
+import {execFileSync} from 'node:child_process';
 const pins={
   "72f7e8e6e5ac3fb93a7d31993c094565c1de1310": {
     "server/louisiana-house-catalog.ts": "7e5d41d86c243753ab4bc981632a014904a0eb2fad1655d48adbe9d6936acd92",
@@ -28,4 +29,13 @@ export function assertSourceGapRuntime(head, root=process.cwd()){
   if(createHash('sha256').update(normalized).digest('hex')!==expected)throw new Error('Runtime source pin differs: '+path);
  }
  return {outcome:'Worked',runtimeHead:head,modules:Object.keys(files).length};
+}
+export function assertGitPinnedSourceGapRuntime(head,root=process.cwd()){
+ if(!/^[a-f0-9]{40}$/.test(head))throw new Error('An immutable40-hex reviewed source head is required');
+ const paths=[...Object.keys(pins['72f7e8e6e5ac3fb93a7d31993c094565c1de1310']),'scripts/source_data_capture.ts'];
+ for(const path of paths){
+  const expected=execFileSync('git',['show',head+':'+path],{cwd:root,encoding:'utf8'}).replace(/\r\n/g,'\n');
+  if(readFileSync(resolve(root,path),'utf8').replace(/\r\n/g,'\n')!==expected)throw new Error('Runtime source differs from immutable reviewed head: '+path);
+ }
+ return {outcome:'Worked',runtimeHead:head,modules:paths.length};
 }
