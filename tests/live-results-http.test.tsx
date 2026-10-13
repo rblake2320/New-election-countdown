@@ -71,6 +71,8 @@ async function forward({ request }: { request: Request }) {
 const msw = setupServer(
   http.get('/api/auth/me', () => HttpResponse.json({ user: { id: 'admin-1', email: 'ops@example.org', role: 'admin' } })),
   http.get('/api/elections', () => HttpResponse.json([real.election])),
+  // Admin race lookup (contract proposed to lane A): answered locally until A's route exists; replace with forward() then.
+  http.get('/api/admin/elections', () => HttpResponse.json([real.election])),
   http.get('/api/elections/:id/candidates', () => HttpResponse.json(real.candidates.map(c => ({ id: c.id, name: c.name, party: c.party })))),
   http.all('/api/results', forward),
   http.all('/api/results/sources', forward),
