@@ -1,0 +1,3 @@
+import pg from 'pg';import {parse} from 'dotenv';import{readFileSync}from'node:fs';import{privateConnection}from'./source_data_release';
+const env=parse(readFileSync(process.env.ELECTION_ENV_FILE??'D:/projects/New-election-countdown/.env'));const pool=new pg.Pool({connectionString:privateConnection(env.DATABASE_URL,process.argv[2]),max:1});
+try{console.log(JSON.stringify((await pool.query("SELECT child.relname AS child,parent.relname AS parent,c.confdeltype AS delete_action FROM pg_constraint c JOIN pg_class child ON child.oid=c.conrelid JOIN pg_class parent ON parent.oid=c.confrelid WHERE c.contype='f' AND parent.relname IN ('elections','candidates') ORDER BY parent.relname,child.relname")).rows));}finally{await pool.end();}

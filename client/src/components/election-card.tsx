@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { CountdownTimer } from "@/components/countdown-timer";
 import { CandidateComparisonWizard } from "@/components/candidate-comparison-wizard";
 import { apiRequest } from "@/lib/queryClient";
+import { cardQualificationNote } from "@/lib/candidate-qualification";
 import { cn } from "@/lib/utils";
 import type { Election, Candidate } from "@shared/schema";
 import { useCandidates, useElectionResults } from "@/hooks/use-elections";
@@ -318,6 +319,9 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
               </span>
             )}
           </div>
+          {cardQualificationNote(candidates) && (
+            <p className="text-xs text-muted-foreground" data-testid={`card-qualification-${election.id}`}>{cardQualificationNote(candidates)}</p>
+          )}
           <div className="grid grid-cols-2 gap-2">
             {candidates.slice(0, 4).map((candidate: any) => (
               <div key={candidate.id} className={cn(
