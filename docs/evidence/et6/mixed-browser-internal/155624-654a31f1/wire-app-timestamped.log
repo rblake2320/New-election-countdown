@@ -1,0 +1,221 @@
+2026-10-13T22:29:50.455682431Z MemStorage initialized empty (failover cache; database is source of truth)
+2026-10-13T22:29:50.456881562Z PERPLEXITY_API_KEY not found in environment variables
+2026-10-13T22:29:50.458171702Z MAPQUEST_API_KEY not set — geocoding features disabled
+2026-10-13T22:29:50.456063765Z ℹ️ No replica configurations found - running with primary database only
+2026-10-13T22:29:50.457850464Z ✅ Delivery Tracking Service initialized
+2026-10-13T22:29:50.467743322Z ⚠️ Analytics temporarily using in-memory queue (database unavailable)
+2026-10-13T22:29:50.489648564Z ✅ Infrastructure-as-Code Service initialized
+2026-10-13T22:29:50.490542669Z ✅ Secrets Rotation Service initialized { enabledServices: 8, rotationFrequency: '90 days' }
+2026-10-13T22:29:50.491127900Z ⏰ Artifact cleanup scheduler started
+2026-10-13T22:29:50.491185523Z ✅ Artifact Retention Service initialized {
+2026-10-13T22:29:50.491192737Z   storageBasePath: '/app/artifacts',
+2026-10-13T22:29:50.491194671Z   compressionEnabled: true,
+2026-10-13T22:29:50.491196063Z   defaultRetentionDays: 90
+2026-10-13T22:29:50.491197176Z }
+2026-10-13T22:29:50.491773590Z ✅ Environment Bootstrap Service initialized { environment: 'development', timeoutMinutes: 30 }
+2026-10-13T22:29:50.463679055Z VOTESMART_API_KEY not found - VoteSmart features will be unavailable
+2026-10-13T22:29:50.463963620Z Missing API keys: PROPUBLICA_API_KEY, GOOGLE_CIVIC_API_KEY, OPENFEC_API_KEY, OPENSTATES_API_KEY, VOTESMART_API_KEY. Some features may be limited.
+2026-10-13T22:29:50.464531930Z OPENSTATES_API_KEY not configured. OpenStates features unavailable.
+2026-10-13T22:29:50.485426730Z SENDGRID_API_KEY not found - email notifications will be disabled
+2026-10-13T22:29:50.489985552Z ⚠️ Secrets vault unavailable: BACKUP_ENCRYPTION_KEY is missing or shorter than 32 bytes. Vault operations will be refused; the application keeps running.
+2026-10-13T22:29:50.492446093Z Twilio credentials not found - SMS notifications will be disabled
+2026-10-13T22:29:50.492452786Z Required: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER
+2026-10-13T22:29:50.512020605Z GOOGLE_CIVIC_API_KEY not found in environment variables
+2026-10-13T22:29:50.517374911Z [official feeds] boot registration failed; registry-admitted polling is unavailable: Disabling official network adapters requires explicit private replay mode
+2026-10-13T22:29:50.562088624Z Neon snapshot service disabled (NEON_API_KEY/NEON_PROJECT_ID not set — using pg-based backups instead)
+2026-10-13T22:29:50.492883630Z ✅ Database-backed Notification Queue Service initialized
+2026-10-13T22:29:50.493216620Z ✅ RTO/RPO Performance Dashboard Service initialized
+2026-10-13T22:29:50.493223764Z ✅ RTO/RPO Performance Dashboard Service initialized
+2026-10-13T22:29:50.510610622Z 🔄 Storage: memory mode; DB unhealthy—writes gated
+2026-10-13T22:29:50.510731860Z ℹ️  Database operations will be queued until health is restored
+2026-10-13T22:29:50.511982462Z Initial sync with Google Civic API completed
+2026-10-13T22:29:50.512240265Z 🔄 Storage System Initialized:
+2026-10-13T22:29:50.512263541Z   - Mode: memory
+2026-10-13T22:29:50.512265715Z   - Database Health: ❌ Unhealthy
+2026-10-13T22:29:50.512287698Z   - Current Storage: memory
+2026-10-13T22:29:50.512294201Z   - Queue Length: 0
+2026-10-13T22:29:50.512297828Z   - Last Health Check: 1970-01-01T00:00:00.000Z
+2026-10-13T22:29:50.514487240Z ✅ Notification management routes registered
+2026-10-13T22:29:50.517395181Z [official feeds] boot registration: 0 source(s), 0 adapter(s), ERROR
+2026-10-13T22:29:50.535503078Z 10:29:50 PM [express] ✅ Live results ingestion service started (30s polling)
+2026-10-13T22:29:50.536716556Z 🌱 Starting database seed (verified 2026 data)...
+2026-10-13T22:29:50.558536371Z ✅ Database connection established
+2026-10-13T22:29:50.559467597Z ✅ Database connection established
+2026-10-13T22:29:50.561255731Z ✅ Primary database connection restored { latency: '61ms', attempts: 0, consecutiveFailures: 0 }
+2026-10-13T22:29:50.561672755Z 🔄 Orchestrating failover: memory → database { trigger: 'automatic', reason: 'Primary database restored' }
+2026-10-13T22:29:50.561734195Z ✅ Failover completed: memory → database (0ms) {
+2026-10-13T22:29:50.561741729Z   trigger: 'automatic',
+2026-10-13T22:29:50.561743583Z   reason: 'Primary database restored',
+2026-10-13T22:29:50.561744926Z   readOnlyMode: false
+2026-10-13T22:29:50.561746048Z }
+2026-10-13T22:29:50.562317083Z ✅ Restore Validation Service initialized {
+2026-10-13T22:29:50.562324818Z   timeoutSeconds: 3600,
+2026-10-13T22:29:50.562326912Z   rtoTarget: '300s',
+2026-10-13T22:29:50.562328335Z   validationQueries: 3,
+2026-10-13T22:29:50.562329838Z   benchmarkQueries: 3
+2026-10-13T22:29:50.562331010Z }
+2026-10-13T22:29:50.562431695Z ✅ Schema Drift Detection Service initialized
+2026-10-13T22:29:50.562636286Z ✅ Disaster Recovery Coordinator initialized {
+2026-10-13T22:29:50.562643410Z   scheduledBackups: true,
+2026-10-13T22:29:50.562645184Z   automaticValidation: true,
+2026-10-13T22:29:50.562646406Z   schemaDriftMonitoring: true
+2026-10-13T22:29:50.562647638Z }
+2026-10-13T22:29:50.564459664Z ✅ Database already seeded, skipping...
+2026-10-13T22:29:50.564912721Z 10:29:50 PM [express] ✅ Database seeded successfully
+2026-10-13T22:29:50.566922295Z 10:29:50 PM [express] serving on http://0.0.0.0:5000
+2026-10-13T22:29:51.242028657Z 10:29:51 PM [express] GET /api/health 200 in 98ms rid=377ce870-5d39-4cf9-aadc-5d4b5e1efb45
+2026-10-13T22:29:51.693977789Z 🔵 Registration attempt started: et6-admin@example.test
+2026-10-13T22:29:51.694210178Z 🔵 Calling storageFactory.createUser for: et6-admin@example.test
+2026-10-13T22:29:51.771742626Z 🔵 User created successfully: 46673300-7aa1-46b2-a2fd-6f17858cedd4
+2026-10-13T22:30:03.817087026Z 🚨 System Error: HTTP 401 GET /me
+2026-10-13T22:29:51.772474251Z 📊 Analytics tracking started for user 46673300-7aa1-46b2-a2fd-6f17858cedd4
+2026-10-13T22:29:51.773713909Z 📧 Email verification token created (not logged); configure SMTP to deliver it
+2026-10-13T22:29:51.775285320Z ✅ Welcome email sent to: et6-admin@example.test
+2026-10-13T22:29:51.776400279Z 10:29:51 PM [express] POST /api/auth/register 201 in 88ms rid=d0f9db8b-44e8-4b97-b0da-9cfeac5faf01
+2026-10-13T22:29:53.722967019Z 10:29:53 PM [express] GET /api/health 200 in 55ms rid=48304232-0c24-4aad-b4f7-0719b0a1938e
+2026-10-13T22:30:03.816006891Z {"ts":"2026-10-13T22:30:03.815Z","type":"security_decision","action":"auth.session","result":"deny","actor":null,"resource":"/api/auth/me","reason":"no_session_cookie","requestId":"c1485ac0-1b20-44b8-bf04-4e91fad7de55","ip":"192.168.208.5","method":"GET","path":"/api/auth/me"}
+2026-10-13T22:30:03.816948746Z 10:30:03 PM [express] GET /api/auth/me 401 in 2ms rid=c1485ac0-1b20-44b8-bf04-4e91fad7de55
+2026-10-13T22:30:03.817229055Z 🚨 ALERT: High error rate detected: 6.67%
+2026-10-13T22:30:06.803055042Z 🚨 System Error: HTTP 401 GET /me
+2026-10-13T22:30:06.803066094Z 🚨 ALERT: High error rate detected: 6.90%
+2026-10-13T22:30:03.818784725Z 🔍 API services health check requested
+2026-10-13T22:30:03.819051668Z 🔍 Starting comprehensive API health check...
+2026-10-13T22:30:03.819565997Z ✅ Health check completed: 0 available, 0 degraded, 10 unavailable (0 critical failures)
+2026-10-13T22:30:03.821684481Z 10:30:03 PM [express] GET /api/services/notification-summary 200 in 2ms rid=fb28e3c2-e6f2-47ea-89b8-d75dfd49b4f1
+2026-10-13T22:30:03.831056357Z 10:30:03 PM [express] GET /api/health/services 200 in 12ms rid=2dcc832e-2228-4127-81e9-a99317f6bb55
+2026-10-13T22:30:03.887434361Z 10:30:03 PM [express] GET /api/election-cycles 200 in 64ms rid=9795ada7-488b-40ac-9213-582bd2239e81
+2026-10-13T22:30:03.949678368Z ✅ Database connection established
+2026-10-13T22:30:06.802155382Z {"ts":"2026-10-13T22:30:06.801Z","type":"security_decision","action":"auth.session","result":"deny","actor":null,"resource":"/api/auth/me","reason":"no_session_cookie","requestId":"83d17813-a5af-4f9b-a60a-aa462ad8cfd4","ip":"192.168.208.5","method":"GET","path":"/api/auth/me"}
+2026-10-13T22:30:06.802960038Z 10:30:06 PM [express] GET /api/auth/me 401 in 1ms rid=83d17813-a5af-4f9b-a60a-aa462ad8cfd4
+2026-10-13T22:30:06.804443851Z 10:30:06 PM [express] GET /api/services/notification-summary 200 in 1ms rid=786c4e6a-6818-48db-9600-36c460027e43
+2026-10-13T22:30:06.808583931Z 🔍 API services health check requested
+2026-10-13T22:30:06.808598099Z 🔍 Starting comprehensive API health check...
+2026-10-13T22:30:06.808771969Z ✅ Health check completed: 0 available, 0 degraded, 10 unavailable (0 critical failures)
+2026-10-13T22:30:10.175393638Z 🚨 System Error: HTTP 401 GET /me
+2026-10-13T22:30:06.810567492Z 10:30:06 PM [express] GET /api/health/services 200 in 2ms rid=ade19916-6737-4786-a981-716baaa0abe7
+2026-10-13T22:30:06.865219699Z 10:30:06 PM [express] GET /api/election-cycles 200 in 49ms rid=b2717445-69d3-4527-90df-7897582fd2aa
+2026-10-13T22:30:06.899473827Z 10:30:06 PM [express] GET /api/stats 200 in 82ms rid=d5e310b2-3f26-4d50-a4f1-16b781452558
+2026-10-13T22:30:06.901230734Z 10:30:06 PM [express] GET /api/elections 200 in 83ms rid=12be4178-9453-4196-8a31-608bd41eafa0
+2026-10-13T22:30:10.174380865Z {"ts":"2026-10-13T22:30:10.174Z","type":"security_decision","action":"auth.session","result":"deny","actor":null,"resource":"/api/auth/me","reason":"no_session_cookie","requestId":"eeb96392-3f9a-4064-856b-73a911205dc7","ip":"192.168.208.5","method":"GET","path":"/api/auth/me"}
+2026-10-13T22:30:10.175327600Z 10:30:10 PM [express] GET /api/auth/me 401 in 1ms rid=eeb96392-3f9a-4064-856b-73a911205dc7
+2026-10-13T22:30:10.176804309Z 10:30:10 PM [express] GET /api/services/notification-summary 200 in 1ms rid=ccd8fb95-1699-4df9-91eb-1f6f2cd92f4f
+2026-10-13T22:30:10.179669857Z 🔍 API services health check requested
+2026-10-13T22:30:10.179689746Z 🔍 Starting comprehensive API health check...
+2026-10-13T22:30:10.179827847Z ✅ Health check completed: 0 available, 0 degraded, 10 unavailable (0 critical failures)
+2026-10-13T22:30:10.181509147Z 10:30:10 PM [express] GET /api/health/services 200 in 1ms rid=e4867b72-fa35-4465-80d7-27ca91ecf653
+2026-10-13T22:30:10.254473061Z 10:30:10 PM [express] GET /api/election-cycles 200 in 70ms rid=d3ed41ab-07ab-4719-ae52-5e62b5ed6faf
+2026-10-13T22:30:10.271429838Z 10:30:10 PM [express] GET /api/stats 200 in 85ms rid=cce22c37-5b75-4b56-8407-ed35bb7a16d6
+2026-10-13T22:30:15.813395298Z 10:30:15 PM [express] GET /api/results 200 in 41ms rid=e48254d1-4cc8-4cd7-beae-bade68034123
+2026-10-13T22:30:15.885772323Z 10:30:15 PM [express] GET /api/results 200 in 34ms rid=309a35ac-2e1f-4c96-a3bb-f4a36c7a056d
+2026-10-13T22:30:15.897672289Z 10:30:15 PM [express] GET /api/elections/24/results 503 in 3ms rid=44c284d0-c6b4-4c8b-9418-8b99c989ca90
+2026-10-13T22:30:15.927692737Z 10:30:15 PM [express] GET /api/results 304 in 27ms rid=e14e1fb4-0140-4101-aefd-853f144ebb14
+2026-10-13T22:30:20.467162639Z ✅ Analytics database connection restored
+2026-10-13T22:30:21.799859420Z {"ts":"2026-10-13T22:30:21.799Z","type":"security_decision","action":"auth.session","result":"deny","actor":null,"resource":"/api/auth/me","reason":"no_session_cookie","requestId":"5202dc08-066a-4ffa-a955-6f659cdcd7a0","ip":"192.168.208.5","method":"GET","path":"/api/auth/me"}
+2026-10-13T22:30:21.800674362Z 10:30:21 PM [express] GET /api/auth/me 401 in 1ms rid=5202dc08-066a-4ffa-a955-6f659cdcd7a0
+2026-10-13T22:30:10.175403327Z 🚨 ALERT: High error rate detected: 6.52%
+2026-10-13T22:30:15.897842039Z 🚨 System Error: HTTP 503 GET /api/elections/24/results
+2026-10-13T22:30:15.897855715Z 🚨 ALERT: High error rate detected: 7.02%
+2026-10-13T22:30:21.800719621Z 🚨 System Error: HTTP 401 GET /me
+2026-10-13T22:30:21.800728698Z 🚨 ALERT: High error rate detected: 7.25%
+2026-10-13T22:30:21.801488441Z 10:30:21 PM [express] GET /api/services/notification-summary 200 in 1ms rid=5c84419f-aada-424a-9316-90b8b7515ae1
+2026-10-13T22:30:21.801578125Z 🔍 API services health check requested
+2026-10-13T22:30:21.801585149Z 🔍 Starting comprehensive API health check...
+2026-10-13T22:30:21.801764668Z ✅ Health check completed: 0 available, 0 degraded, 10 unavailable (0 critical failures)
+2026-10-13T22:30:21.804921202Z 10:30:21 PM [express] GET /api/health/services 200 in 3ms rid=b107be8b-05ae-47e4-b5d2-9de4c7d4e448
+2026-10-13T22:30:22.101972026Z 10:30:22 PM [express] GET /api/elections 200 in 103ms rid=e7b363a1-2878-434b-9c54-ee152a2f53b5
+2026-10-13T22:30:22.904466670Z 10:30:22 PM [express] GET /api/results 200 in 31ms rid=et6-webkit-1280-1
+2026-10-13T22:30:23.956197758Z 10:30:23 PM [express] GET /api/health 200 in 53ms rid=1532d3e1-3826-4724-8ca2-fb7ae397e573
+2026-10-13T22:30:24.006614876Z {"ts":"2026-10-13T22:30:24.006Z","type":"security_decision","action":"auth.session","result":"deny","actor":null,"resource":"/api/auth/me","reason":"no_session_cookie","requestId":"9e417a56-08b6-4fdb-9d35-8cfa8a211ec2","ip":"192.168.208.6","method":"GET","path":"/api/auth/me"}
+2026-10-13T22:30:24.007535579Z 10:30:24 PM [express] GET /api/auth/me 401 in 0ms rid=9e417a56-08b6-4fdb-9d35-8cfa8a211ec2
+2026-10-13T22:30:24.008673439Z 10:30:24 PM [express] GET /api/services/notification-summary 200 in 1ms rid=03f501a1-6dc8-4a7f-9963-2ee151ad9037
+2026-10-13T22:30:24.008803402Z 🔍 API services health check requested
+2026-10-13T22:30:24.008810877Z 🔍 Starting comprehensive API health check...
+2026-10-13T22:30:24.008987034Z ✅ Health check completed: 0 available, 0 degraded, 10 unavailable (0 critical failures)
+2026-10-13T22:30:24.010773666Z 10:30:24 PM [express] GET /api/health/services 200 in 2ms rid=0d51b28f-f247-493d-bafd-eb8191b2bee5
+2026-10-13T22:30:24.172666961Z 10:30:24 PM [express] GET /api/elections 200 in 66ms rid=1175adf4-579d-4fdd-b6ed-e3690b9d6f16
+2026-10-13T22:30:24.007629945Z 🚨 System Error: HTTP 401 GET /me
+2026-10-13T22:30:24.007642179Z 🚨 ALERT: High error rate detected: 6.45%
+2026-10-13T22:30:24.473093208Z 10:30:24 PM [express] GET /api/results 200 in 43ms rid=et6-firefox-1280-1
+2026-10-13T22:30:40.195334521Z 🔌 Database connection removed from pool
+2026-10-13T22:30:52.147436310Z 10:30:52 PM [express] GET /api/elections 200 in 28ms rid=3d866e43-cb41-452f-ba95-6eff2486935d
+2026-10-13T22:30:52.964197061Z 10:30:52 PM [express] GET /api/results 304 in 17ms rid=et6-webkit-1280-2
+2026-10-13T22:30:54.111363317Z 10:30:54 PM [express] GET /api/health 200 in 40ms rid=5ce756d8-36ee-442b-b321-4720c8eb25c6
+2026-10-13T22:30:54.219469259Z 10:30:54 PM [express] GET /api/elections 200 in 25ms rid=bcdc033f-117d-4686-9e26-2d2778593fcc
+2026-10-13T22:30:54.660970356Z 10:30:54 PM [express] GET /api/results 304 in 15ms rid=et6-firefox-1280-2
+2026-10-13T22:31:22.207935895Z 10:31:22 PM [express] GET /api/elections 200 in 36ms rid=78b0c4a4-d6f4-4abb-a822-5f9d082b6453
+2026-10-13T22:31:22.991368736Z 10:31:22 PM [express] GET /api/results 304 in 20ms rid=et6-webkit-1280-3
+2026-10-13T22:31:24.257076423Z 10:31:24 PM [express] GET /api/health 200 in 32ms rid=6b72dc01-846b-4f3c-a8af-067d1819881e
+2026-10-13T22:31:24.286463972Z 10:31:24 PM [express] GET /api/elections 200 in 28ms rid=79402aeb-7de8-4b9e-a9e5-ab1468fd8ddf
+2026-10-13T22:31:24.687954079Z 10:31:24 PM [express] GET /api/results 304 in 19ms rid=et6-firefox-1280-3
+2026-10-13T22:31:52.275971176Z 10:31:52 PM [express] GET /api/elections 200 in 39ms rid=654a04ea-c15f-4f50-b751-1f609785a558
+2026-10-13T22:31:53.020566777Z 10:31:53 PM [express] GET /api/results 304 in 22ms rid=et6-webkit-1280-4
+2026-10-13T22:31:54.356538884Z 10:31:54 PM [express] GET /api/elections 200 in 50ms rid=80e6f47f-f66a-4fee-ad51-8fa3af4bb37e
+2026-10-13T22:31:54.438295873Z 10:31:54 PM [express] GET /api/health 200 in 35ms rid=596e975c-c4f1-4bcf-855d-72f7f1e97d68
+2026-10-13T22:31:54.714530341Z 10:31:54 PM [express] GET /api/results 304 in 17ms rid=et6-firefox-1280-4
+2026-10-13T22:32:22.337162320Z 10:32:22 PM [express] GET /api/elections 200 in 38ms rid=d3f1d620-2692-4af0-ba02-4a2193c13f69
+2026-10-13T22:32:23.047270177Z 10:32:23 PM [express] GET /api/results 304 in 20ms rid=et6-webkit-1280-5
+2026-10-13T22:32:24.416426252Z 10:32:24 PM [express] GET /api/elections 200 in 37ms rid=bed30df6-e9a8-4541-94a3-39f06000ddcf
+2026-10-13T22:32:24.576285826Z 10:32:24 PM [express] GET /api/health 200 in 27ms rid=827c2c8f-9eff-4254-a8ca-f52ec65f287a
+2026-10-13T22:32:24.756018970Z 10:32:24 PM [express] GET /api/results 304 in 21ms rid=et6-firefox-1280-5
+2026-10-13T22:32:45.971009314Z 10:32:45 PM [express] GET /api/results 200 in 23ms rid=d60cd689-5c72-471f-a0b7-7d27fa158eb5
+2026-10-13T22:32:46.002118564Z 10:32:46 PM [express] GET /api/results 304 in 24ms rid=83c41973-5d58-4f82-9991-2329393a7ee9
+2026-10-13T22:32:52.390102084Z 10:32:52 PM [express] GET /api/elections 200 in 32ms rid=a9455c8f-7e87-4ac3-aeb1-5fb9e4d951bc
+2026-10-13T22:32:53.077955030Z 10:32:53 PM [express] GET /api/results 200 in 25ms rid=et6-webkit-1280-6
+2026-10-13T22:32:54.461394048Z 10:32:54 PM [express] GET /api/elections 200 in 27ms rid=c607909a-0ab9-4e64-ace3-989047075c61
+2026-10-13T22:32:54.707798148Z 10:32:54 PM [express] GET /api/health 200 in 36ms rid=08993bf9-9b94-4106-acd8-b5143dbfef2a
+2026-10-13T22:32:54.788289908Z 10:32:54 PM [express] GET /api/results 200 in 23ms rid=et6-firefox-1280-6
+2026-10-13T22:32:59.969773144Z 10:32:59 PM [express] GET /api/results 200 in 15ms rid=7f0566f1-1af9-4d41-9ecf-330ee9a8ed27
+2026-10-13T22:33:00.005289971Z 10:33:00 PM [express] GET /api/results 200 in 14ms rid=ad3fd5d8-5304-4ed4-a7a2-ad6e0829f472
+2026-10-13T22:33:00.016711638Z 10:33:00 PM [express] GET /api/elections/24/results 503 in 3ms rid=752ea3e9-e913-4d1f-9053-90b358955b80
+2026-10-13T22:33:00.016753259Z 🚨 System Error: HTTP 503 GET /api/elections/24/results
+2026-10-13T22:33:00.016787295Z 🚨 ALERT: High error rate detected: 5.51%
+2026-10-13T22:33:00.033498060Z 10:33:00 PM [express] GET /api/results 304 in 14ms rid=d92d079b-8cbf-4d3b-9232-d939d178037d
+2026-10-13T22:33:04.969298432Z {"ts":"2026-10-13T22:33:04.968Z","type":"security_decision","action":"auth.session","result":"deny","actor":null,"resource":"/api/auth/me","reason":"no_session_cookie","requestId":"f3c3ddd5-42a4-4567-8d3b-125da23fafb1","ip":"192.168.208.5","method":"GET","path":"/api/auth/me"}
+2026-10-13T22:33:04.970061715Z 🚨 System Error: HTTP 401 GET /me
+2026-10-13T22:33:04.970073528Z 🚨 ALERT: High error rate detected: 5.76%
+2026-10-13T22:33:04.969930968Z 10:33:04 PM [express] GET /api/auth/me 401 in 1ms rid=f3c3ddd5-42a4-4567-8d3b-125da23fafb1
+2026-10-13T22:33:04.985356924Z 10:33:04 PM [express] GET /api/services/notification-summary 200 in 7ms rid=b4dae2fc-8d1e-450a-bae1-abbb4f90aa5b
+2026-10-13T22:33:04.985502949Z 🔍 API services health check requested
+2026-10-13T22:33:04.985513550Z 🔍 Starting comprehensive API health check...
+2026-10-13T22:33:04.985710276Z ✅ Health check completed: 0 available, 0 degraded, 10 unavailable (0 critical failures)
+2026-10-13T22:33:04.986922693Z 10:33:04 PM [express] GET /api/health/services 200 in 1ms rid=952e66fa-9372-4167-9834-74007e441c32
+2026-10-13T22:33:05.067805040Z 10:33:05 PM [express] GET /api/elections 200 in 36ms rid=3f1bcfbe-c9cf-46c7-a29e-6b54bce26350
+2026-10-13T22:33:05.741665261Z 10:33:05 PM [express] GET /api/results 200 in 34ms rid=et6-webkit-390-1
+2026-10-13T22:33:07.139668727Z 🚨 System Error: HTTP 401 GET /me
+2026-10-13T22:33:07.138812272Z {"ts":"2026-10-13T22:33:07.138Z","type":"security_decision","action":"auth.session","result":"deny","actor":null,"resource":"/api/auth/me","reason":"no_session_cookie","requestId":"24367fa0-6445-4853-82f0-85bf291e39e0","ip":"192.168.208.6","method":"GET","path":"/api/auth/me"}
+2026-10-13T22:33:07.139705208Z 🚨 ALERT: High error rate detected: 5.56%
+2026-10-13T22:33:07.139632615Z 10:33:07 PM [express] GET /api/auth/me 401 in 1ms rid=24367fa0-6445-4853-82f0-85bf291e39e0
+2026-10-13T22:33:07.140678067Z 10:33:07 PM [express] GET /api/services/notification-summary 200 in 1ms rid=fe2c7e28-e67f-476a-a85b-084293d54834
+2026-10-13T22:33:07.145404712Z 🔍 API services health check requested
+2026-10-13T22:33:07.145444350Z 🔍 Starting comprehensive API health check...
+2026-10-13T22:33:07.145554618Z ✅ Health check completed: 0 available, 0 degraded, 10 unavailable (0 critical failures)
+2026-10-13T22:33:07.147391172Z 10:33:07 PM [express] GET /api/health/services 200 in 2ms rid=d2666d31-ff59-407c-9955-19542ad71a5f
+2026-10-13T22:33:07.216286629Z 10:33:07 PM [express] GET /api/elections 200 in 49ms rid=fd29707d-bba2-4eab-8f1c-d8936a8e9af9
+2026-10-13T22:33:07.427702145Z 10:33:07 PM [express] GET /api/results 200 in 21ms rid=et6-firefox-390-1
+2026-10-13T22:33:24.857217093Z 10:33:24 PM [express] GET /api/health 200 in 31ms rid=33d9e0f8-6d53-4181-9cc8-bf87b67e7d7b
+2026-10-13T22:33:35.171297713Z 10:33:35 PM [express] GET /api/elections 200 in 70ms rid=6e3deabf-09af-479c-bd61-48d9a72c12ff
+2026-10-13T22:33:35.785895068Z 10:33:35 PM [express] GET /api/results 304 in 17ms rid=et6-webkit-390-2
+2026-10-13T22:33:37.271033831Z 10:33:37 PM [express] GET /api/elections 200 in 40ms rid=38a3322f-0af9-49ac-b8b3-62e3f4e74296
+2026-10-13T22:33:37.586187620Z 10:33:37 PM [express] GET /api/results 304 in 19ms rid=et6-firefox-390-2
+2026-10-13T22:33:55.003464983Z 10:33:55 PM [express] GET /api/health 200 in 34ms rid=7428c04e-c6b8-40a0-a37d-9203c1253214
+2026-10-13T22:34:05.219641723Z 10:34:05 PM [express] GET /api/elections 200 in 29ms rid=81e484e7-a2eb-40b5-a785-7a42a2a402f0
+2026-10-13T22:34:05.812188394Z 10:34:05 PM [express] GET /api/results 304 in 19ms rid=et6-webkit-390-3
+2026-10-13T22:34:07.321562017Z 10:34:07 PM [express] GET /api/elections 200 in 37ms rid=085ac386-842a-45d7-8b2f-4f41f6d98461
+2026-10-13T22:34:07.613061941Z 10:34:07 PM [express] GET /api/results 304 in 17ms rid=et6-firefox-390-3
+2026-10-13T22:34:25.125526248Z 10:34:25 PM [express] GET /api/health 200 in 24ms rid=0cb40729-b127-4074-908e-af5477c08a49
+2026-10-13T22:34:35.267914811Z 10:34:35 PM [express] GET /api/elections 200 in 30ms rid=9512789a-d9a7-4511-b2a2-056ad3b1edf9
+2026-10-13T22:34:35.832517186Z 10:34:35 PM [express] GET /api/results 304 in 15ms rid=et6-webkit-390-4
+2026-10-13T22:34:37.380821184Z 10:34:37 PM [express] GET /api/elections 200 in 41ms rid=a09facbf-1e00-4f7b-afd4-e91ed4241348
+2026-10-13T22:34:37.635551295Z 10:34:37 PM [express] GET /api/results 304 in 14ms rid=et6-firefox-390-4
+2026-10-13T22:34:55.321786436Z 10:34:55 PM [express] GET /api/health 200 in 37ms rid=941c15e5-c2c5-48e7-9657-c183da90c478
+2026-10-13T22:35:05.315035196Z 10:35:05 PM [express] GET /api/elections 200 in 30ms rid=51967709-12a0-4dd1-b354-7b6137f1b614
+2026-10-13T22:35:05.853919315Z 10:35:05 PM [express] GET /api/results 304 in 16ms rid=et6-webkit-390-5
+2026-10-13T22:35:07.428630271Z 10:35:07 PM [express] GET /api/elections 200 in 36ms rid=9af5114e-2914-4800-b95b-05adf51a6d98
+2026-10-13T22:35:07.666252939Z 10:35:07 PM [express] GET /api/results 304 in 18ms rid=et6-firefox-390-5
+2026-10-13T22:35:25.456694306Z 10:35:25 PM [express] GET /api/health 200 in 32ms rid=f981cd8b-02c4-4cfa-85bb-fd7a260d4787
+2026-10-13T22:35:30.067545082Z 10:35:30 PM [express] GET /api/results 200 in 17ms rid=08ffe895-0d08-4fc5-a218-bd0ee89a6d6a
+2026-10-13T22:35:30.086892776Z 10:35:30 PM [express] GET /api/results 304 in 15ms rid=406fed1b-2690-4560-8351-bda8bd6483d7
+2026-10-13T22:35:35.368530537Z 10:35:35 PM [express] GET /api/elections 200 in 39ms rid=f2251c60-8fe3-4f93-aa39-7204e6897d1d
+2026-10-13T22:35:35.878493022Z 10:35:35 PM [express] GET /api/results 200 in 19ms rid=et6-webkit-390-6
+2026-10-13T22:35:37.483260088Z 10:35:37 PM [express] GET /api/elections 200 in 40ms rid=381d2956-9441-41e7-99a5-c3d597edafc3
+2026-10-13T22:35:37.696383443Z 10:35:37 PM [express] GET /api/results 200 in 21ms rid=et6-firefox-390-6
