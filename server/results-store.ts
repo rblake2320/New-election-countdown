@@ -180,12 +180,12 @@ export class PgResultReportStore implements ResultReportStore {
     // Two queries, no N+1: latest CONTEXT-MATCHING report per election via LATERAL, then all lines.
     // A report recorded under a context the election row no longer has is never exported here.
     const latestSql = `
-      SELECT e.id AS election_id, e.state AS e_state, e.date AS e_date, e.type AS e_type, e.level AS e_level, e.title AS e_title, r.*
+      SELECT e.id AS e_id, e.state AS e_state, e.date AS e_date, e.type AS e_type, e.level AS e_level, e.title AS e_title, r.*
         FROM elections e
         LEFT JOIN LATERAL (SELECT * FROM election_result_reports r WHERE r.election_id = e.id AND ${CONTEXT_MATCH_SQL} ORDER BY r.id DESC LIMIT 1) r ON true
        WHERE ${where.join(' AND ')}
        ORDER BY e.id`;
-    type Row = ResultReportRow & { election_id: number; id: number | null; e_state: string; e_date: Date; e_type: string; e_level: string; e_title: string };
+    type Row = ResultReportRow & { e_id: number; id: number | null; e_state: string; e_date: Date; e_type: string; e_level: string; e_title: string };
     const rows = (await this.pool.query<Row>(latestSql, params)).rows;
     const reportIds = rows.map((r) => r.id).filter((id): id is number => id !== null);
     const lines = reportIds.length
@@ -195,7 +195,7 @@ export class PgResultReportStore implements ResultReportStore {
     for (const l of lines) { const arr = linesByReport.get(l.report_id) ?? []; arr.push(l); linesByReport.set(l.report_id, arr); }
     const results = rows.map((r) => {
       const current = electionContextOf({ state: r.e_state, date: r.e_date, type: r.e_type, level: r.e_level, title: r.e_title });
-      return stripHistory(buildResultsPayload(r.election_id, r.id === null ? null : r, r.id === null ? [] : linesByReport.get(r.id) ?? [], [], current));
+      return stripHistory(buildResultsPayload(r.e_id, r.id === null ? null : r, r.id === null ? [] : linesByReport.get(r.id) ?? [], [], current));
     });
     return { schemaVersion: 1, date: query.date ?? null, cursor: snapshotCursor(results), reset: true, results };
   }
