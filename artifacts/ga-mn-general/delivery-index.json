@@ -1,8 +1,8 @@
 {
   "version": 1,
   "branch": "lane-c/ga-mn-general-source-increment",
-  "sourceCheckpoint": "30d9d02d16e4d8af3ae75ee0e2b001dab2d572f9",
-  "sealedAt": "2026-10-13T19:38:35.446701+00:00",
+  "sourceCheckpoint": "f6b007f0cd86bbd9744422127736c198e706b8c9",
+  "sealedAt": "2026-10-13T19:42:18.873822+00:00",
   "outcome": "Worked",
   "scope": {
     "outcome": "Worked",
@@ -231,8 +231,8 @@
         ]
       }
     ],
-    "sourceCount": 18,
-    "draftRowCount": 56,
+    "sourceCount": 19,
+    "draftRowCount": 72,
     "independentScopeRowConservation": true,
     "actualRawShaBinding": true,
     "noContactFields": true,
@@ -272,13 +272,23 @@
       ]
     },
     "allPrintedFederalGovernorScoped": true,
-    "overlappingHistoricalMnSourceRequiresRootReview": true
+    "overlappingHistoricalMnSourceRequiresRootReview": true,
+    "overlappingHistoricalGaWriteinSourceRequiresRootReview": true,
+    "scopeClassRowCounts": {
+      "printed": 56,
+      "write_in": 16
+    }
   },
   "files": [
     {
       "path": "artifacts/ga-mn-general/.gitattributes",
       "bytes": 21,
       "sha256": "44de1c400fbf981689257d46e4ff3fe6a7796292dd5551642680fb7822f2dd97"
+    },
+    {
+      "path": "artifacts/ga-mn-general/drafts/ga-2026-general-current-writeins.json",
+      "bytes": 6671,
+      "sha256": "f1e7fcb23fc7b089189d00235bfb1206ef510aefe467f580277e02aabb084fba"
     },
     {
       "path": "artifacts/ga-mn-general/drafts/ga-2026-general-incremental.json",
@@ -471,9 +481,19 @@
       "sha256": "79bd0b7084541245ac91b5bd56f54af89233bcdbe4f5185398befa7f422c6497"
     },
     {
+      "path": "artifacts/ga-mn-general/raw/ga-morgan-writeins-current.pdf",
+      "bytes": 285523,
+      "sha256": "7b9274b86ef4dd385f159b345d3b269611a0afce4122ae8ec6d9f4588adf9993"
+    },
+    {
       "path": "artifacts/ga-mn-general/raw/ga-morgan.html",
       "bytes": 91935,
       "sha256": "edcfccf5f3b62677e84cec7bf5b0a18b43fca77bdd38d3666205d52a4e3b9b54"
+    },
+    {
+      "path": "artifacts/ga-mn-general/raw/ga-qualified-writeins-current.pdf",
+      "bytes": 53556,
+      "sha256": "4cd09293f499fd2dc258f66b398b3760149250b13ffad5db7764089814ca72ee"
     },
     {
       "path": "artifacts/ga-mn-general/raw/ga-walker-ballot-correct.pdf",
@@ -826,6 +846,11 @@
       "sha256": "77cf0925837e69de53024f41f90e796d105bbecbdeb479d4376cfce946b7ceb9"
     },
     {
+      "path": "artifacts/ga-mn-general/receipts/ga-current-writeins-comparison.json",
+      "bytes": 2053,
+      "sha256": "7ffe07c66764c3238ab4de944bb60b0e574d0391ad99cd484040c86613fc5a4b"
+    },
+    {
       "path": "artifacts/ga-mn-general/receipts/ga-dekalb-ballot.json",
       "bytes": 507,
       "sha256": "0502eeb4348e8fd834e9af72868b2b9e8c07e37045dee46f514561f6b0146f4f"
@@ -896,6 +921,11 @@
       "sha256": "a680fa6e9d5aa63a7875bbbb79de73deed506e48302a9f96820744fc6a270693"
     },
     {
+      "path": "artifacts/ga-mn-general/receipts/ga-morgan-writeins-current.json",
+      "bytes": 515,
+      "sha256": "808872116b28c5dd20827a1bb2601ef389547f63070e4713bb44be155098b944"
+    },
+    {
       "path": "artifacts/ga-mn-general/receipts/ga-morgan.json",
       "bytes": 453,
       "sha256": "288b23c53f12256d33dd3670fa96288639836e378f74e3132d150e9de0b3ea4a"
@@ -909,6 +939,11 @@
       "path": "artifacts/ga-mn-general/receipts/ga-qualified-current.json",
       "bytes": 206,
       "sha256": "6a66da55d6517a6046f14bf54bc67be4be22dc06f9f39e2dd8fa3f1010c8285a"
+    },
+    {
+      "path": "artifacts/ga-mn-general/receipts/ga-qualified-writeins-current.json",
+      "bytes": 544,
+      "sha256": "97fd28800d9234aece77fc9b873a47eb7c4ac31ec2bd5b8f40d93fe3d38b40e4"
     },
     {
       "path": "artifacts/ga-mn-general/receipts/ga-qualified.json",
@@ -1222,13 +1257,13 @@
     },
     {
       "path": "artifacts/ga-mn-general/receipts/source-scope-review.json",
-      "bytes": 6270,
-      "sha256": "198124ff0d9891538f83ef9e9b05f6e52ff7a99fb0ec79267d9eac57c0b30808"
+      "bytes": 6406,
+      "sha256": "81dd1bdf2b920a8152e709f056edeb742de6a1e47f1a19e03252e5210c9298ea"
     },
     {
       "path": "artifacts/ga-mn-general/receipts/strict-expanded-ga-mn-controls.jsonl",
-      "bytes": 3715,
-      "sha256": "cab456ce5a65a49cc3a5824d683a083970c8bdbf7fd745e72184a2d100cd7672"
+      "bytes": 4813,
+      "sha256": "cf8060ca3b7b79a64492af75c05b0023af530f3520924ead26a20278e826ce3f"
     },
     {
       "path": "artifacts/ga-mn-general/receipts/strict-manifest-negative-controls.jsonl",
@@ -1252,8 +1287,8 @@
     },
     {
       "path": "artifacts/ga-mn-general/REVIEW.md",
-      "bytes": 4602,
-      "sha256": "f91e531916d191891f0fa3d86aede5de4b776f9d67f37bf4231d240cdc26b3b1"
+      "bytes": 5485,
+      "sha256": "94f13f1332e5abed5d442b4370b5f2b7644d90f823faaff5bf1246b16e044836"
     },
     {
       "path": "artifacts/ga-mn-general/text/ga-dekalb-ballot.txt",
@@ -1277,23 +1312,28 @@
     },
     {
       "path": "artifacts/ga-mn-general/verify-increment.mjs",
-      "bytes": 135261,
-      "sha256": "61ae2c19f695bec787774afdbc15fd708431f192000944ef5337d3f3321e78ce"
+      "bytes": 135327,
+      "sha256": "29cfc324c1a7233e01dd445552ff968def82e3206eea7fe176fe8eeb8d7ea2b8"
     },
     {
-      "path": "scripts/extract_fifth_general_ballots.py",
-      "bytes": 2682,
-      "sha256": "e1b67fed212ddfc6d29b1a861a08d2367cc6e9c5f2d6063d32a11a8058c70d43"
+      "path": "scripts/research_ga_mn.py",
+      "bytes": 2037,
+      "sha256": "18e39215396dd8ec2ebaac4d34773b71763b4a0b00f6ea28be054c1a85475de9"
+    },
+    {
+      "path": "scripts/fetch_source.py",
+      "bytes": 1345,
+      "sha256": "ccaa70e6858e78820048e8e60e40f4e396547a00d6422a9e92b9b27335132d25"
+    },
+    {
+      "path": "scripts/correct_capture_classification.py",
+      "bytes": 729,
+      "sha256": "31c5bea7551f7416d0365980f8248769b4a00392e1b3aa0b8da98da7be6bb476"
     },
     {
       "path": "scripts/extract_first_general_ballots.py",
       "bytes": 4966,
       "sha256": "ec35b6208028c9ec7083d4ad08abb6e2d02d65b5a4f570400771567d7664ead8"
-    },
-    {
-      "path": "scripts/extract_fourth_general_ballots.py",
-      "bytes": 3317,
-      "sha256": "fad7b8bdfa7b16456950c9b3173b775ec84c5fec95127da4760efb261b1e4a38"
     },
     {
       "path": "scripts/extract_second_general_ballots.py",
@@ -1304,6 +1344,46 @@
       "path": "scripts/extract_third_general_ballots.py",
       "bytes": 4746,
       "sha256": "9736c18471a6b19c2bda9230e76bd0287b44096f577421978bc17bdc1d321555"
+    },
+    {
+      "path": "scripts/extract_fourth_general_ballots.py",
+      "bytes": 3317,
+      "sha256": "fad7b8bdfa7b16456950c9b3173b775ec84c5fec95127da4760efb261b1e4a38"
+    },
+    {
+      "path": "scripts/extract_fifth_general_ballots.py",
+      "bytes": 2682,
+      "sha256": "e1b67fed212ddfc6d29b1a861a08d2367cc6e9c5f2d6063d32a11a8058c70d43"
+    },
+    {
+      "path": "scripts/ocr_general_sources.py",
+      "bytes": 1275,
+      "sha256": "c1be9026f07cb36fb7dff282c6f58d360ad3c5513364bb121ba17aa762268b46"
+    },
+    {
+      "path": "scripts/fetch_curl_source.py",
+      "bytes": 1622,
+      "sha256": "e6c25371343534654278e4b89a7d3c8d5274c5406d90a36182ef5872ce4234b4"
+    },
+    {
+      "path": "scripts/seal_ga_mn_source_packet.py",
+      "bytes": 4649,
+      "sha256": "c31747aa9fa13a24fd03671308c1c90b804688045b998e618e83c4a9f66f2cfa"
+    },
+    {
+      "path": "scripts/verify_ga_mn_increment.ts",
+      "bytes": 1451,
+      "sha256": "835541713631c827140e8c604911f3bdcdadf98c7352ed98556bd873aeb5b8d9"
+    },
+    {
+      "path": "scripts/compare_current_mn_sgh03.py",
+      "bytes": 4110,
+      "sha256": "d82f60caa94facb82ec7d0f05b4d47f5afe665cc046f934373523e21c70410dd"
+    },
+    {
+      "path": "scripts/compare_current_ga_writeins.py",
+      "bytes": 3655,
+      "sha256": "021f1ca557e5301cfed1d8107f116711ab511e9753fac96d45f4c078965baab9"
     }
   ]
 }

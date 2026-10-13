@@ -1,6 +1,6 @@
 import {readFileSync} from 'node:fs';
 import {parseNomineeManifest} from '../server/candidate-nominee-sync';
-for(const [state,file] of [['ga','ga-2026-general-incremental.json'],['mn','mn-2026-general-incremental.json'],['mn-current-sgh03','mn-2026-general-current-sgh03.json']]){
+for(const [state,file] of [['ga','ga-2026-general-incremental.json'],['mn','mn-2026-general-incremental.json'],['mn-current-sgh03','mn-2026-general-current-sgh03.json'],['ga-current-writeins','ga-2026-general-current-writeins.json']]){
   const manifest=parseNomineeManifest(JSON.parse(readFileSync(`artifacts/ga-mn-general/drafts/${file}`,'utf8')));
   console.log(JSON.stringify({state,outcome:'Worked',sources:manifest.sources.length,candidates:manifest.candidates.length,scopes:manifest.sources.flatMap(s=>s.completeScopes),dbWrites:false}));
   const controls: Array<[string,(value: typeof manifest)=>void]>=[
