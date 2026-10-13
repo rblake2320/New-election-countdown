@@ -9,6 +9,13 @@ import { resolve, dirname } from 'node:path';
 const exec = promisify(execFile);
 const ownerLabel = 'org.electiontracker.et6-receiving';
 const loadLabel = 'org.electiontracker.et6-load';
+const loadDate = process.env.ET6_LOAD_DATE ?? '2026-11-03';
+if (!/^\d{4}-\d{2}-\d{2}$/.test(loadDate) || !Number.isFinite(Date.parse(`${loadDate}T00:00:00Z`)) ||
+    new Date(`${loadDate}T00:00:00Z`).toISOString().slice(0, 10) !== loadDate) throw new Error('ET6_LOAD_DATE must be a valid yyyy-mm-dd calendar date');
+const loadElectionIdText = process.env.ET6_LOAD_ELECTION_ID ?? '2';
+if (!/^[1-9]\d*$/.test(loadElectionIdText) || !Number.isSafeInteger(Number(loadElectionIdText))) throw new Error('ET6_LOAD_ELECTION_ID must be a positive safe integer');
+const loadElectionId = Number(loadElectionIdText);
+const paths = { batch: `/api/results?date=${loadDate}`, single: `/api/elections/${loadElectionId}/results` };
 if (process.argv.length !== 3) throw new Error('Usage: node scripts/test-et6-load.mjs receiving-receipt.json');
 const input = resolve(process.argv[2]);
 const receipt = JSON.parse(await readFile(input, 'utf8'));
@@ -17,6 +24,7 @@ const evidence = resolve(dirname(input), `load-${runId}`);
 await mkdir(evidence, { recursive: true });
 const report = { outcome: 'Running', startedAt: new Date().toISOString(), input, runId, evidence, sourceReplay: false,
   scope: 'Read-only private compiled application; actual current results, not official-feed replay',
+  selection: { date: loadDate, electionId: loadElectionId, paths },
   workload: { clients: 10, phasesRps: [20, 40], durationSecondsEach: 60, timeoutMs: 5000, maxScheduleLatenessMs: 100 },
   identities: [], phases: [], cleanup: [] };
 const clients = [];
@@ -44,7 +52,7 @@ async function worker(config) {
   const wait = ms => new Promise(r => setTimeout(r, Math.max(0, ms)));
   async function request(i, scheduledAt, startedAt) {
     const mode = (i + config.index) % 3;
-    const path = mode === 2 ? '/api/elections/2/results' : '/api/results?date=2026-11-03';
+    const path = mode === 2 ? config.paths.single : config.paths.batch;
     const expectedStatus = mode === 1 ? 304 : 200;
     const headers = mode === 1 ? { 'If-None-Match': config.baseline.etag } : {};
     const record = { client: config.name, sourceIp: config.ip, sequence: i, path, mode: mode === 1 ? 'conditional' : 'full',
@@ -67,7 +75,10 @@ async function worker(config) {
           record.resultCount = body.results?.length;
           if (!Array.isArray(body.results) || body.results.length !== config.baseline.count ||
               JSON.stringify(body.results.map(x => x.electionId).sort((a, b) => a - b)) !== JSON.stringify(config.baseline.ids)) throw new Error('baseline_membership_changed');
-        } else if (body.electionId !== 2 || body.status !== config.baseline.singleStatus) throw new Error('single_contract_changed');
+        } else {
+          record.single = { electionId: body.electionId, status: body.status, reportId: body.reportId, totalVotes: body.totalVotes, revision: body.revision };
+          if (Object.keys(record.single).some(key => record.single[key] !== config.baseline.single[key])) throw new Error('single_contract_changed');
+        }
       }
       record.valid = true;
     } catch (error) { record.error = controller.signal.aborted ? 'timeout' : ['unexpected_status', 'conditional_body_not_empty', 'baseline_membership_changed', 'single_contract_changed'].includes(error.message) ? error.message : 'transport_or_payload_error'; }
@@ -122,14 +133,14 @@ try {
     report.identities.push({ name, ip });
   }
   const base = `http://${resources.app}:5000`;
-  const baselineCode = `const base=${JSON.stringify(base)}; const a=await fetch(base+'/api/results?date=2026-11-03',{signal:AbortSignal.timeout(5000)});const batch=await a.json();const etag=a.headers.get('etag');if(a.status!==200||!etag||!Array.isArray(batch.results)||batch.results.length===0)throw Error('Invalid actual batch baseline');const b=await fetch(base+'/api/elections/2/results',{signal:AbortSignal.timeout(5000)});const single=await b.json();if(b.status!==200||single.electionId!==2)throw Error('Invalid actual single baseline');console.log(JSON.stringify({count:batch.results.length,ids:batch.results.map(x=>x.electionId).sort((a,b)=>a-b),etag,singleStatus:single.status}));`;
+  const baselineCode = `const base=${JSON.stringify(base)},paths=${JSON.stringify(paths)},electionId=${loadElectionId}; const a=await fetch(base+paths.batch,{signal:AbortSignal.timeout(5000)});const batch=await a.json();const etag=a.headers.get('etag');if(a.status!==200||!etag||!Array.isArray(batch.results)||batch.results.length===0)throw Error('Invalid actual batch baseline');const b=await fetch(base+paths.single,{signal:AbortSignal.timeout(5000)});const single=await b.json();if(b.status!==200||single.electionId!==electionId||!batch.results.some(x=>x.electionId===electionId)||!['reportId','totalVotes','revision'].every(key=>Object.hasOwn(single,key)))throw Error('Invalid actual single baseline');console.log(JSON.stringify({count:batch.results.length,ids:batch.results.map(x=>x.electionId).sort((a,b)=>a-b),etag,single:{electionId:single.electionId,status:single.status,reportId:single.reportId,totalVotes:single.totalVotes,revision:single.revision},context:{electionContext:single.electionContext,source:single.source,asOf:single.asOf,retrievedAt:single.retrievedAt}}));`;
   report.baseline = JSON.parse(await docker('exec', clients[0], 'node', '--input-type=module', '-e', baselineCode));
   requireThat(new Set(report.baseline.ids).size === report.baseline.count, 'Baseline contains duplicate election IDs');
   await save();
   for (const rps of [20, 40]) {
     const startAt = Date.now() + 10000;
     const outcomes = await Promise.allSettled(report.identities.map(({ name, ip }, index) => {
-      const config = { name, ip, index, base, baseline: report.baseline, startAt, rps, seconds: 60, clients: 10, maxLatenessMs: 100 };
+      const config = { name, ip, index, base, paths, baseline: report.baseline, startAt, rps, seconds: 60, clients: 10, maxLatenessMs: 100 };
       return docker('exec', name, 'node', '--input-type=module', '-e', `const out=await (${worker.toString()})(${JSON.stringify(config)});console.log(JSON.stringify(out));`).then(JSON.parse);
     }));
     const records = [];
