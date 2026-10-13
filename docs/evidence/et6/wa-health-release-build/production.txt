@@ -1,0 +1,77 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 2.33kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/node:24-alpine
+#2 DONE 0.2s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 848B done
+#3 DONE 0.0s
+
+#4 [builder 1/6] FROM docker.io/library/node:24-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1
+#4 resolve docker.io/library/node:24-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1 0.0s done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 132.31kB 0.1s done
+#5 DONE 0.1s
+
+#6 [builder 5/6] COPY . .
+#6 CACHED
+
+#7 [builder 4/6] RUN npm ci &&     npm cache clean --force
+#7 CACHED
+
+#8 [builder 2/6] WORKDIR /app
+#8 CACHED
+
+#9 [builder 3/6] COPY package*.json ./
+#9 CACHED
+
+#10 [builder 6/6] RUN npm run build
+#10 CACHED
+
+#11 [production  6/11] RUN npm ci --omit=dev &&     npm cache clean --force
+#11 CACHED
+
+#12 [production  2/11] RUN apk add --no-cache dumb-init postgresql16-client
+#12 CACHED
+
+#13 [production  8/11] COPY --from=builder --chown=nodejs:nodejs /app/data/official-results ./data/official-results
+#13 CACHED
+
+#14 [production  5/11] COPY package*.json ./
+#14 CACHED
+
+#15 [production  3/11] RUN addgroup -g 1001 -S nodejs &&     adduser -S nodejs -u 1001
+#15 CACHED
+
+#16 [production  7/11] COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
+#16 CACHED
+
+#17 [production  4/11] WORKDIR /app
+#17 CACHED
+
+#18 [production  9/11] COPY --from=builder --chown=nodejs:nodejs /app/migrations/20261011_official_results_routes.sql ./migrations/20261011_official_results_routes.sql
+#18 CACHED
+
+#19 [production 10/11] COPY --from=builder --chown=nodejs:nodejs /app/migrations/20261013_result_source_health.sql ./migrations/20261013_result_source_health.sql
+#19 DONE 0.1s
+
+#20 [production 11/11] RUN mkdir -p /app/artifacts /app/backups /app/logs /app/infrastructure &&     chown nodejs:nodejs /app/artifacts /app/backups /app/logs /app/infrastructure
+#20 DONE 0.3s
+
+#21 exporting to image
+#21 exporting layers
+#21 exporting layers 0.2s done
+#21 exporting manifest sha256:2a14fb1ccbbcb138ed573d31d9a5865ea2a2b09e61ba72e1be8d07578596ddfc 0.0s done
+#21 exporting config sha256:59266080391541110a1749f853146638957a0aa4445b85abc217c1841b31ffb4 0.0s done
+#21 exporting attestation manifest sha256:4e48886761660969030a16bfe6580e1eebb9d7c9aa682d499b747625beade17d 0.0s done
+#21 exporting manifest list sha256:dd9ede966d3704bd79353785cae270a919a293b993c78fd19b438ff3e01d8cc5
+#21 exporting manifest list sha256:dd9ede966d3704bd79353785cae270a919a293b993c78fd19b438ff3e01d8cc5 0.0s done
+#21 naming to docker.io/library/electiontracker:et6-d-wa-health-release-20261013 done
+#21 unpacking to docker.io/library/electiontracker:et6-d-wa-health-release-20261013 0.1s done
+#21 DONE 0.5s
