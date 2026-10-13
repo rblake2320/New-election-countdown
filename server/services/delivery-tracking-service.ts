@@ -5,6 +5,11 @@ import {
   NotificationWebhook
 } from '@shared/schema';
 
+/** jsonb webhook payloads arrive untyped; only object payloads are inspectable. */
+function asRecord(value: unknown): Record<string, any> | null {
+  return value !== null && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, any>) : null;
+}
+
 export interface DeliveryMetrics {
   campaignId?: number;
   dateRange: { start: Date; end: Date };
@@ -81,11 +86,35 @@ export class DeliveryTrackingService {
    */
   async recordDelivery(deliveryData: InsertNotificationDelivery): Promise<NotificationDelivery> {
     try {
+      const input: Partial<NotificationDelivery> = deliveryData;
+      const now = new Date();
       const delivery: NotificationDelivery = {
-        id: Date.now(), // In real implementation, this would be auto-generated
-        ...deliveryData,
-        createdAt: new Date(),
-        updatedAt: new Date()
+        id: Date.now(), // in-memory tracker: ids are not database-generated
+        campaignId: input.campaignId ?? null,
+        userId: input.userId ?? null,
+        subscriptionId: input.subscriptionId ?? null,
+        templateId: input.templateId ?? null,
+        channel: deliveryData.channel,
+        recipient: deliveryData.recipient,
+        status: input.status ?? 'queued',
+        externalId: input.externalId ?? null,
+        subject: input.subject ?? null,
+        content: deliveryData.content,
+        queuedAt: input.queuedAt ?? now,
+        sentAt: input.sentAt ?? null,
+        deliveredAt: input.deliveredAt ?? null,
+        openedAt: input.openedAt ?? null,
+        clickedAt: input.clickedAt ?? null,
+        bouncedAt: input.bouncedAt ?? null,
+        failedAt: input.failedAt ?? null,
+        errorCode: input.errorCode ?? null,
+        errorMessage: input.errorMessage ?? null,
+        retryCount: input.retryCount ?? 0,
+        nextRetryAt: input.nextRetryAt ?? null,
+        providerResponse: input.providerResponse ?? null,
+        cost: input.cost ?? null,
+        createdAt: now,
+        updatedAt: now
       };
 
       // Cache the delivery for quick access
@@ -137,13 +166,13 @@ export class DeliveryTrackingService {
           break;
         case 'failed':
           delivery.failedAt = new Date();
-          delivery.errorCode = metadata?.errorCode;
-          delivery.errorMessage = metadata?.errorMessage;
+          delivery.errorCode = metadata?.errorCode ?? null;
+          delivery.errorMessage = metadata?.errorMessage ?? null;
           break;
         case 'bounced':
           delivery.bouncedAt = new Date();
-          delivery.errorCode = metadata?.errorCode;
-          delivery.errorMessage = metadata?.errorMessage;
+          delivery.errorCode = metadata?.errorCode ?? null;
+          delivery.errorMessage = metadata?.errorMessage ?? null;
           break;
         case 'opened':
           delivery.openedAt = new Date();
@@ -192,7 +221,7 @@ export class DeliveryTrackingService {
       const deliveries = Array.from(this.deliveryCache.values()).filter(delivery => {
         if (campaignId && delivery.campaignId !== campaignId) return false;
         if (dateRange) {
-          const deliveryDate = new Date(delivery.createdAt);
+          const deliveryDate = new Date(delivery.createdAt ?? 0);
           if (deliveryDate < dateRange.start || deliveryDate > dateRange.end) return false;
         }
         return true;
@@ -272,7 +301,7 @@ export class DeliveryTrackingService {
       const deliveries = Array.from(this.deliveryCache.values()).filter(delivery => {
         if (campaignId && delivery.campaignId !== campaignId) return false;
         if (dateRange) {
-          const deliveryDate = new Date(delivery.createdAt);
+          const deliveryDate = new Date(delivery.createdAt ?? 0);
           if (deliveryDate < dateRange.start || deliveryDate > dateRange.end) return false;
         }
         return true;
@@ -288,7 +317,7 @@ export class DeliveryTrackingService {
       const errorData = new Map<string, number>();
 
       deliveries.forEach(delivery => {
-        const date = new Date(delivery.createdAt);
+        const date = new Date(delivery.createdAt ?? 0);
         const hour = `${date.getHours()}:00`;
         const day = date.toISOString().split('T')[0];
 
@@ -459,7 +488,8 @@ export class DeliveryTrackingService {
    * Process SendGrid webhook
    */
   private async processSendGridWebhook(webhook: NotificationWebhook): Promise<void> {
-    const data = webhook.webhookData;
+    const data = asRecord(webhook.webhookData);
+    if (!data) return;
     const externalId = data.sg_message_id;
 
     if (!externalId) return;
@@ -509,7 +539,8 @@ export class DeliveryTrackingService {
    * Process Twilio webhook
    */
   private async processTwilioWebhook(webhook: NotificationWebhook): Promise<void> {
-    const data = webhook.webhookData;
+    const data = asRecord(webhook.webhookData);
+    if (!data) return;
     const externalId = data.MessageSid;
 
     if (!externalId) return;
@@ -566,7 +597,7 @@ export class DeliveryTrackingService {
         // Cleanup old cache entries
         const oneHourAgo = Date.now() - 60 * 60 * 1000;
         for (const [key, delivery] of this.deliveryCache.entries()) {
-          if (new Date(delivery.createdAt).getTime() < oneHourAgo) {
+          if (new Date(delivery.createdAt ?? 0).getTime() < oneHourAgo) {
             this.deliveryCache.delete(key);
           }
         }

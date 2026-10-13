@@ -75,15 +75,15 @@ export function registerCampaignRegisterRoutes(
     const tierInfo = SUBSCRIPTION_TIERS[tier];
 
     if (activation !== 'free' || !created.apiKey) {
-      // Honest refusal: no payment path exists yet, so a paid plan is recorded as a
-      // pending request and NO key is issued (the old code activated it for free).
-      return res.status(402).json({
+      // Honest refusal: the portal is invitation-only during early access (owner decision 2026-10-13). The
+      // request is recorded inactive and NO key is issued; nothing here quotes a price or implies a purchase.
+      return res.status(403).json({
         success: false,
-        code: 'PAYMENT_NOT_AVAILABLE',
-        error: 'Paid plans are not purchasable yet',
+        code: 'INVITATION_REQUIRED',
+        error: 'Campaign portal access is by invitation during early access; your request has been recorded',
         data: {
           campaignId: created.account.id,
-          subscription: { tier, name: tierInfo.name, priceCents: tierInfo.price, isActive: false, status: 'pending_payment' },
+          subscription: { tier, name: tierInfo.name, isActive: false, status: 'invitation_requested' },
           electionInfo,
         },
       });
