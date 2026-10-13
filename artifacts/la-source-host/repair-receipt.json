@@ -1,0 +1,82 @@
+{
+  "runtimeHead": "7b7ddf185b9c3298bdf420e5cf88ee6f2878f663",
+  "base": "c564f7a9d606a829c53a7ea0e4171273400e3ccd",
+  "scope": "exact reviewed LA manual host only",
+  "dependencies": "same owned physical npmci as NC, unchanged lock",
+  "proof": "official-host-proof.json, both current normal HTTPS200; raw pages local-only/contact-free projection retained",
+  "packet": {
+    "path": "artifacts/source-packet/la-manual/packet.json",
+    "sha256": "919f6d611fffed08635eba006d7932f2f3bd7d551bed70db6d66ba1311d93354",
+    "publisher": {
+      "id": "admin_manual:LA",
+      "kind": "admin_manual",
+      "name": "Manual ingest of official Louisiana Secretary of State raw data",
+      "url": "https://voterportal.sos.la.gov/ElectionResults/ElectionResults/Data?blob=20260627/Votes_Multiparish.htm"
+    },
+    "target": {
+      "id": 4242405,
+      "state": "LA",
+      "date": "2026-06-27",
+      "type": "primary_runoff",
+      "level": "federal",
+      "title": "Louisiana U.S. Senate Democratic Primary Runoff"
+    },
+    "files": [
+      {
+        "role": "payload",
+        "path": "raw/LA-Jun27-votes.raw.json",
+        "sha256": "8207fef79e8ef25d665671fb5e8ce796164b7dc1513430ea1eac214106dabc31",
+        "url": "https://voterportal.sos.la.gov/ElectionResults/ElectionResults/Data?blob=20260627/Votes_Multiparish.htm"
+      },
+      {
+        "role": "companion",
+        "path": "raw/LA-Jun27-races.raw.json",
+        "sha256": "cf1e6a52f5554f0bb4959f6b9ad7cc583e53f70e57ca28b62346f7c8c01be637",
+        "url": "https://voterportal.sos.la.gov/ElectionResults/ElectionResults/Data?blob=20260627/RacesCandidates_Multiparish.htm"
+      },
+      {
+        "role": "capture_receipt",
+        "path": "raw/LA-Jun27-votes-raw-proof.json",
+        "sha256": "aed4c472684da5f76d0d796a17a51a0ccda797b43dbc27a0716bc2249791523d",
+        "url": null
+      }
+    ],
+    "expected": {
+      "totalVotes": 196212,
+      "optionCount": 2
+    }
+  },
+  "oldRed": {
+    "tests": 11,
+    "passed": 10,
+    "failed": 1,
+    "name": "accepts actual LA runoff packet with manifest-only shape after exact portal delegation review",
+    "error": "admin_manual URL host voterportal.sos.la.gov is not one of the registered official hosts for LA"
+  },
+  "newGreen": {
+    "tests": 85,
+    "passed": 85,
+    "failed": 0,
+    "outcome": "Worked",
+    "scenario": "actual unchanged196212-vote two-option LA runoff input +retained evidence accepted, same-source repeat0; host/state/port negatives retained; NC acceptance unchanged"
+  },
+  "invariants": {
+    "onlyLAHostAdded": true,
+    "reviewedHost": "voterportal.sos.la.gov",
+    "noWildcard": true,
+    "noURLRewrite": true,
+    "sourceManifestUnchanged": true,
+    "liveRegistryUnchanged": true,
+    "NCheadUnchanged": true,
+    "PGconnections": 0,
+    "browserActions": 0,
+    "sharedWrites": 0
+  },
+  "historicalContext": "2026-06-27 primary_runoff, unofficial. No Nov3 publication/certification claim. Current SOS newsroom also warns its pre-election transmission test returns are mock: host admission is never publication proof.",
+  "verification": {
+    "focused": 85,
+    "fullTypecheckExit": 0,
+    "buildExit": 0,
+    "fullSuite": "not run; finite focused scope performed"
+  }
+}
