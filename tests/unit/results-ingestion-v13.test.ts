@@ -188,3 +188,34 @@ describe('v1.3 delta 3: XLSX evidence is retained under its own type with a sign
     }
   });
 });
+
+// ---- D's independent PR #69 review pins (msg/20261013-D-PR69-review-RED.md, nonce D-A69-red1338) ----
+describe('D review pins: cancellation and source scope at the module boundary', () => {
+  const register = () => resultsSourceRegistry.register({ id: 'nc-sbe-2024p', kind: 'official_state_enr', name: 'NC SBE', state: 'NC', allowedHosts: ['results.enr.clarityelections.com'], electionDate: '2024-03-05', phase: 'primary' });
+  it('refuses an already-cancelled adapter success before writing', async () => {
+    register(); const svc = new ResultsIngestionService(); const controller = new AbortController(); controller.abort();
+    const outcome = await svc.ingestOne(ncPrimary, { id: 'nc-sbe-2024p', kind: 'official_state_enr', via: 'registry', publication: 'none', registered: resultsSourceRegistry.get('nc-sbe-2024p')! }, async () => snapshot(11, 'nc-sbe-2024p') as any, controller.signal);
+    expect(recorded).toHaveLength(0); expect(outcome).toMatchObject({ outcome: 'failed', aborted: true });
+  });
+  it('bounds stop even when a scheduled adapter ignores abort (controlled clock)', async () => {
+    vi.useFakeTimers(); register(); elections.push(ncPrimary); const svc = new ResultsIngestionService(); let release!: () => void; let started!: () => void;
+    const began = new Promise<void>((r) => { started = r; }); const gate = new Promise<void>((r) => { release = r; });
+    svc.registerAdapter('nc-sbe-2024p', async () => { started(); await gate; return null; });
+    const start = svc.startPolling(); await began; let stopped = false; const stop = svc.stopPolling().then(() => { stopped = true; });
+    await vi.advanceTimersByTimeAsync(10001); const bounded = stopped;
+    release(); await start; await stop; vi.useRealTimers(); expect(bounded).toBe(true);
+  });
+  it('writer refuses a source registered only for a different phase and day (2024 primary into a 2023 general)', async () => {
+    register(); const mem = new MemResultReportStore(() => true, () => true, () => [], () => new Date('2023-11-07T05:00:00Z'), () => ({ state: 'NC', electionDate: '2023-11-07', type: 'general', level: 'federal', office: 'US Senate' }), () => []);
+    await expect(mem.recordResultReport(99, snapshot(99, 'nc-sbe-2024p') as any, { postedBy: 'admin', idempotencyKey: null })).rejects.toMatchObject({ status: 422, publicCode: 'source_mismatch' });
+    const ok = new MemResultReportStore(() => true, () => true, () => [], () => new Date('2024-03-05T05:00:00Z'), () => ({ state: 'NC', electionDate: '2024-03-05', type: 'primary', level: 'federal', office: 'US Senate' }), () => []);
+    expect((await ok.recordResultReport(11, snapshot(11, 'nc-sbe-2024p') as any, { postedBy: 'admin', idempotencyKey: null })).created).toBe(true);
+  });
+  it('prevents the write when an in-flight adapter resolves after stop', async () => {
+    resultsSourceRegistry.register({ id: 'nc-sbe-2024p', kind: 'official_state_enr', name: 'NC SBE', state: 'NC', allowedHosts: ['results.enr.clarityelections.com'], electionIds: [11] });
+    elections.push(ncPrimary); const svc = new ResultsIngestionService(); let release!: (v: any) => void; let began!: () => void; const started = new Promise<void>((r) => { began = r; });
+    svc.registerAdapter('nc-sbe-2024p', async () => { began(); return await new Promise((r) => { release = r; }); });
+    const cycle = svc.ingestResults(); await started; const stop = svc.stopPolling(); release(snapshot(11, 'nc-sbe-2024p')); const result = await cycle; await stop;
+    expect(recorded).toHaveLength(0); expect(result[0]).toMatchObject({ outcome: 'failed', aborted: true });
+  });
+});

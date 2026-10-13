@@ -46,7 +46,9 @@ let uploads: { type: string | null; filename: string | null; size: number }[] = 
 const sourceList = { sources: [
   { id: 'ak-doe-enr', kind: 'official_state_enr', name: 'Alaska Division of Elections', url: 'https://www.elections.alaska.gov/results/26GENR/', state: 'AK' },
   // A's real list returns url: null for the manual entry (the admin supplies the page).
-  { id: 'admin_manual:AK', kind: 'admin_manual', name: 'Manual entry from an official Alaska page', url: null, state: 'AK' },
+  { id: 'admin_manual:AK', kind: 'admin_manual', name: 'Manual entry from an official Alaska page', url: null, state: 'AK', published: false, registeredBy: 'manifest' },
+  // Lane A v1.3: a registry entry carries published:false and never claims publication.
+  { id: 'ak-registry-historical', kind: 'official_state_page', name: 'Alaska historical results (registry)', url: 'https://www.elections.alaska.gov/results/', state: 'AK', published: false, registeredBy: 'registry' },
 ] };
 const digestOf = async (buf: ArrayBuffer) => [...new Uint8Array(await crypto.subtle.digest('SHA-256', buf))].map(b => b.toString(16).padStart(2, '0')).join('');
 const server = setupServer(
@@ -207,6 +209,47 @@ describe('admin results entry (ET-6 v1.2)', () => {
     fireEvent.click(screen.getByTestId('button-post-report'));
     expect((await screen.findByText('The report was not posted.')).closest('[role=alert]')).toHaveTextContent('Official results URL is required.');
     expect(posted).toEqual([]);
+  });
+
+  it('accepts an XLSX results workbook as evidence and sends it with the XLSX content type', async () => {
+    const XLSX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    renderForm();
+    await chooseRace(/U\.S\. Senate Election - Alaska/);
+    await screen.findByTestId('line-0');
+    const file = new File(['PK-xlsx-bytes'], 'wa-results.xlsx', { type: XLSX });
+    fireEvent.change(screen.getByLabelText('Official results file or page snapshot'), { target: { files: [file] } });
+    await screen.findByText(/Stored: wa-results\.xlsx \(SHA-256 [0-9a-f]{64}\)/);
+    expect(uploads).toEqual([{ type: XLSX, filename: 'wa-results.xlsx', size: file.size }]);
+    expect(screen.queryByText(/are not accepted/)).toBeNull();
+  });
+
+  it('a registry source that is not yet published is labelled as such; a manual entry is not', async () => {
+    renderForm();
+    await chooseRace(/U\.S\. Senate Election - Alaska/);
+    await screen.findByTestId('line-0');
+    await waitFor(() => expect(screen.getByRole('option', { name: /Manual entry/ })).toBeInTheDocument());
+    expect(screen.getByRole('option', { name: /Alaska historical results \(registry\).*registered, not yet published/ })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: /Manual entry from an official Alaska page \(admin manual\)$/ })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: /Alaska Division of Elections \(official state enr\)$/ })).toBeInTheDocument();
+  });
+
+  it('source_mismatch from the writer is explained, and an evidence signature mismatch shows the server reason', async () => {
+    renderForm();
+    await chooseRace(/U\.S\. Senate Election - Alaska/);
+    await screen.findByTestId('line-0');
+    server.use(http.post('/api/admin/results-evidence', () => HttpResponse.json({ error: 'Evidence bytes do not match application/pdf: not a PDF', code: 'evidence_signature_mismatch' }, { status: 400 })));
+    fireEvent.change(screen.getByLabelText('Official results file or page snapshot'), { target: { files: [new File(['not a pdf'], 'fake.pdf', { type: 'application/pdf' })] } });
+    expect(await screen.findByText(/The file was not stored \(400: Evidence bytes do not match application\/pdf: not a PDF\)/)).toBeInTheDocument();
+    expect(screen.queryByText(/Stored:/)).toBeNull();
+    server.resetHandlers();
+    server.use(http.post('/api/elections/:id/results', () => HttpResponse.json({ error: 'source mismatch', code: 'source_mismatch' }, { status: 422 })));
+    await waitFor(() => expect(screen.getByRole('option', { name: /Manual entry/ })).toBeInTheDocument());
+    fireEvent.change(screen.getByLabelText('Registered source'), { target: { value: 'ak-doe-enr' } });
+    fireEvent.change(screen.getByLabelText('Source contest ID'), { target: { value: 'US-SEN' } });
+    fireEvent.change(screen.getByLabelText('Official results file or page snapshot'), { target: { files: [new File(['<html>x</html>'], 'ok.html', { type: 'text/html' })] } });
+    await screen.findByText(/Stored: ok\.html/);
+    fireEvent.click(screen.getByTestId('button-post-report'));
+    expect(await screen.findByText(/The source's type or web address does not match what is registered for it/)).toBeInTheDocument();
   });
 
   it('renders access denied, then the form, as the admin check resolves (no hook-order crash)', async () => {
