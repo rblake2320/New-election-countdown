@@ -65,12 +65,20 @@ function unzip(bytes: Buffer): Map<string, Buffer> {
 function xml(files: Map<string, Buffer>, path: string): Record<string, unknown> {
   const data = files.get(path); if (!data) refuse(`Required XML absent: ${path}`);
   const text = data.toString('utf8');
+  if (/&(?!(?:amp|lt|gt|apos|quot|#\d+|#x[\da-fA-F]+);)/.test(text)) refuse('Unknown XML entity');
+  for (const match of text.matchAll(/&#(x[\da-fA-F]+|\d+);/g)) {
+    const literal = match[1] ?? '', code = literal.startsWith('x') ? Number.parseInt(literal.slice(1), 16) : Number(literal);
+    if (![9, 10, 13].includes(code) && !(code >= 32 && code <= 0xd7ff) && !(code >= 0xe000 && code <= 0xfffd) && !(code >= 0x10000 && code <= 0x10ffff)) refuse('Invalid XML character reference');
+  }
   let depth = 0; for (const token of text.matchAll(/<\/?[A-Za-z_][^>]*>/g)) {
     if (token[0].startsWith('</')) depth--; else if (!token[0].endsWith('/>')) depth++;
     if (depth > 64) refuse('XML nesting exceeds bound');
   }
   if (XMLValidator.validate(text) !== true) refuse('Malformed XML');
-  const parsed: unknown = new XMLParser({ ignoreAttributes: false, parseTagValue: false, parseAttributeValue: false, trimValues: false, processEntities: true }).parse(text);
+  // FXP normalizes literal CRLF before parsing. Preserve source cell text by
+  // encoding only CR characters in text nodes (never tags/attributes).
+  const preservedText = text.replace(/>[^<]*/g, value => value.replace(/\r/g, '&#13;'));
+  const parsed: unknown = new XMLParser({ ignoreAttributes: false, parseTagValue: false, parseAttributeValue: false, trimValues: false, processEntities: true, htmlEntities: true }).parse(preservedText);
   return object(parsed);
 }
 function richText(value: unknown): string {
