@@ -2,7 +2,7 @@ import express, { type Express, type Request, type RequestHandler, type Response
 import { createHash } from 'node:crypto';
 import { z, ZodError } from 'zod';
 import { adminResultPostSchema, etagFor, narrowRecorded, ResultReportError, stripAdminFields, type ResultsPayload } from './results-reports';
-import { EVIDENCE_CONTENT_TYPES, EVIDENCE_MAX_BYTES, LIST_MAX_IDS, type RecordContext, type ResultReportStore } from './results-store';
+import { EVIDENCE_CONTENT_TYPES, evidenceSignatureProblem, EVIDENCE_MAX_BYTES, LIST_MAX_IDS, type RecordContext, type ResultReportStore } from './results-store';
 
 const resultsListQuerySchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
@@ -111,6 +111,8 @@ export function registerResultsRoutes(app: Express, deps: ResultsRoutesDeps): vo
       }
       const body = req.body;
       if (!Buffer.isBuffer(body) || body.length === 0) return res.status(400).json({ error: 'Empty evidence body', code: 'empty_evidence' });
+      const signature = evidenceSignatureProblem(contentType, body);
+      if (signature) return res.status(400).json({ error: `Evidence bytes do not match ${contentType}: ${signature}`, code: 'evidence_signature_mismatch' });
       const filenameHeader = req.headers['x-evidence-filename'];
       const filename = typeof filenameHeader === 'string' ? filenameHeader.slice(0, 255) : null;
       try {

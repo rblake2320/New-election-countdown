@@ -5,6 +5,7 @@ import compression from "compression";
 import { securityHeaders } from "./security-middleware";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import { registerRequestBodyParsers } from './request-body-parsers';
 import { globalWriteGuard, healthAwareErrorHandler } from "./middleware/health-guard";
 import { createGracefulShutdown } from './graceful-shutdown';
 import { pool } from './db';
@@ -51,8 +52,7 @@ app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 
 // rawBody is needed to verify provider webhook signatures (server/webhook-verify.ts)
-app.use(express.json({ verify: (req: any, _res, buf) => { req.rawBody = buf; } }));
-app.use(express.urlencoded({ extended: false }));
+registerRequestBodyParsers(app);
 app.use(cookieParser());
 
 // Global health guard middleware - CRITICAL: Apply before all API routes

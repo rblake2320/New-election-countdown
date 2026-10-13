@@ -131,7 +131,7 @@ export class BackupMonitoringService {
    * Monitor backup operation in real-time
    */
   async monitorBackupOperation(backupOperation: BackupOperation): Promise<void> {
-    console.log(`🔍 Monitoring backup operation ${backupOperation.id}: ${backupOperation.operationType}`);
+    console.log(`🔍 Monitoring backup operation ${backupOperation.id}: ${backupOperation.type}`);
 
     try {
       // Get applicable monitoring configurations
@@ -261,7 +261,7 @@ export class BackupMonitoringService {
           }, 0) / completedBackups.length / 1000 // Convert to seconds
         : 0;
 
-      const totalStorageUsed = backups.reduce((sum, b) => sum + (b.sizeBytes || 0), 0);
+      const totalStorageUsed = backups.reduce((sum, b) => sum + (b.backupSize || 0), 0);
       const alertsGenerated = alerts.length;
       const criticalAlerts = alerts.filter(a => a.severity === 'critical').length;
 
@@ -298,10 +298,10 @@ export class BackupMonitoringService {
         totalBackups,
         successfulBackups,
         failedBackups,
-        successRate,
+        successRate: String(successRate),
         averageBackupDuration: Math.round(averageDuration),
         totalStorageUsed,
-        healthScore,
+        healthScore: String(healthScore),
         riskLevel,
         metricsByType: this.groupMetricsByType(backups),
         metricsByLocation: this.groupMetricsByLocation(backups)
@@ -427,7 +427,7 @@ export class BackupMonitoringService {
         name: 'Backup Integrity Check Failure',
         condition: 'integrityCheck === "failed"',
         threshold: 1,
-        alertType: 'corruption_detected',
+        alertType: 'integrity_verification_failed',
         severity: 'critical',
         enabled: true
       }
@@ -506,11 +506,11 @@ export class BackupMonitoringService {
         }
         
         if (config.monitoringType === 'backup_type' && config.backupTypes) {
-          return config.backupTypes.includes(backupOperation.operationType);
+          return config.backupTypes.includes(backupOperation.type);
         }
         
         if (config.monitoringType === 'storage_location' && config.storageLocationIds) {
-          return config.storageLocationIds.includes(backupOperation.storageLocationId);
+          return backupOperation.storageLocationId !== null && config.storageLocationIds.includes(backupOperation.storageLocationId);
         }
         
         return false;
@@ -555,14 +555,14 @@ export class BackupMonitoringService {
       alertId: nanoid(),
       alertType: 'backup_failure',
       severity: 'high',
-      title: `Backup Failure: ${backupOperation.operationType}`,
+      title: `Backup Failure: ${backupOperation.type}`,
       message: `Backup operation ${backupOperation.id} failed. Error: ${backupOperation.errorMessage || 'Unknown error'}`,
       status: 'active',
       backupOperationId: backupOperation.id,
-      affectedBackupTypes: [backupOperation.operationType],
+      affectedBackupTypes: [backupOperation.type],
       alertData: {
         backupId: backupOperation.id,
-        operationType: backupOperation.operationType,
+        operationType: backupOperation.type,
         errorMessage: backupOperation.errorMessage,
         failureTime: backupOperation.completedAt || new Date()
       }
@@ -583,7 +583,7 @@ export class BackupMonitoringService {
     const durationMinutes = duration / (1000 * 60);
 
     // Check if duration exceeds expected thresholds (this would be configurable)
-    const expectedDurationMinutes = this.getExpectedBackupDuration(backupOperation.operationType);
+    const expectedDurationMinutes = this.getExpectedBackupDuration(backupOperation.type);
     const threshold = expectedDurationMinutes * 2; // Alert if 2x expected duration
 
     if (durationMinutes > threshold) {
@@ -591,11 +591,11 @@ export class BackupMonitoringService {
         alertId: nanoid(),
         alertType: 'performance_issue',
         severity: 'medium',
-        title: `Slow Backup Performance: ${backupOperation.operationType}`,
+        title: `Slow Backup Performance: ${backupOperation.type}`,
         message: `Backup operation ${backupOperation.id} took ${Math.round(durationMinutes)} minutes, exceeding expected duration of ${expectedDurationMinutes} minutes`,
         status: 'active',
         backupOperationId: backupOperation.id,
-        affectedBackupTypes: [backupOperation.operationType],
+        affectedBackupTypes: [backupOperation.type],
         alertData: {
           actualDuration: durationMinutes,
           expectedDuration: expectedDurationMinutes,
@@ -611,7 +611,7 @@ export class BackupMonitoringService {
    * Check backup size variance
    */
   private async checkBackupSizeVariance(backupOperation: BackupOperation): Promise<void> {
-    if (!backupOperation.sizeBytes) {
+    if (!backupOperation.backupSize) {
       return;
     }
 
@@ -621,8 +621,8 @@ export class BackupMonitoringService {
       // Get recent backups of the same type to calculate average size
       const recentBackups = await storage.getRecentBackupOperations(10);
       const sameTypeBackups = recentBackups.filter(b => 
-        b.operationType === backupOperation.operationType && 
-        b.sizeBytes && 
+        b.type === backupOperation.type &&
+        b.backupSize &&
         b.id !== backupOperation.id
       );
 
@@ -630,8 +630,8 @@ export class BackupMonitoringService {
         return; // Not enough data for comparison
       }
 
-      const averageSize = sameTypeBackups.reduce((sum, b) => sum + (b.sizeBytes || 0), 0) / sameTypeBackups.length;
-      const variancePercent = Math.abs((backupOperation.sizeBytes - averageSize) / averageSize) * 100;
+      const averageSize = sameTypeBackups.reduce((sum, b) => sum + (b.backupSize || 0), 0) / sameTypeBackups.length;
+      const variancePercent = Math.abs((backupOperation.backupSize - averageSize) / averageSize) * 100;
 
       // Alert if variance exceeds 50% (configurable)
       if (variancePercent > 50) {
@@ -639,16 +639,16 @@ export class BackupMonitoringService {
           alertId: nanoid(),
           alertType: 'size_anomaly',
           severity: 'medium',
-          title: `Backup Size Anomaly: ${backupOperation.operationType}`,
-          message: `Backup operation ${backupOperation.id} size (${this.formatBytes(backupOperation.sizeBytes)}) varies by ${Math.round(variancePercent)}% from average (${this.formatBytes(averageSize)})`,
+          title: `Backup Size Anomaly: ${backupOperation.type}`,
+          message: `Backup operation ${backupOperation.id} size (${this.formatBytes(backupOperation.backupSize)}) varies by ${Math.round(variancePercent)}% from average (${this.formatBytes(averageSize)})`,
           status: 'active',
           backupOperationId: backupOperation.id,
-          affectedBackupTypes: [backupOperation.operationType],
+          affectedBackupTypes: [backupOperation.type],
           alertData: {
-            actualSize: backupOperation.sizeBytes,
+            actualSize: backupOperation.backupSize,
             averageSize,
             variancePercent,
-            anomalyType: backupOperation.sizeBytes > averageSize ? 'larger_than_expected' : 'smaller_than_expected'
+            anomalyType: backupOperation.backupSize > averageSize ? 'larger_than_expected' : 'smaller_than_expected'
           }
         };
 
@@ -675,7 +675,7 @@ export class BackupMonitoringService {
       // Check for each backup type in configuration
       for (const backupType of config.backupTypes || []) {
         const typeBackups = recentBackups.filter(b => 
-          b.operationType === backupType && 
+          b.type === backupType &&
           b.status === 'completed' &&
           new Date(b.completedAt || b.startedAt) > cutoffTime
         );
@@ -739,7 +739,7 @@ export class BackupMonitoringService {
    */
   private async performIntegrityCheck(
     backupOperation: BackupOperation,
-    config: BackupMonitoringConfiguration | null
+    config: BackupMonitoringConfiguration | null | undefined
   ): Promise<void> {
     console.log(`🔒 Performing integrity check for backup ${backupOperation.id}`);
 
@@ -778,13 +778,13 @@ export class BackupMonitoringService {
         // Generate corruption alert
         const alert: InsertBackupAlert = {
           alertId: nanoid(),
-          alertType: 'corruption_detected',
+          alertType: 'integrity_verification_failed',
           severity: 'critical',
-          title: `Backup Integrity Check Failed: ${backupOperation.operationType}`,
-          message: `Integrity check failed for backup operation ${backupOperation.id}. Potential data corruption detected.`,
+          title: `Backup Integrity Check Failed: ${backupOperation.type}`,
+          message: `Integrity check failed for backup operation ${backupOperation.id}. See check results for failed or unavailable verification.`,
           status: 'active',
           backupOperationId: backupOperation.id,
-          affectedBackupTypes: [backupOperation.operationType],
+          affectedBackupTypes: [backupOperation.type],
           alertData: {
             integrityCheckResults: results,
             failedChecks: results.filter(r => r.status === 'rejected' || !r.result?.passed)
@@ -876,11 +876,7 @@ export class BackupMonitoringService {
         }
       }
 
-      // Update alert with notification count
-      await storage.updateBackupAlert(alert.alertId, {
-        notificationsSent: (alert.notificationsSent || 0) + channels.length,
-        lastNotificationAt: new Date()
-      });
+      // Queue acceptance is not provider delivery; sent counters are not advanced here.
 
     } catch (error) {
       console.error('Failed to send alert notifications:', error);
@@ -894,9 +890,9 @@ export class BackupMonitoringService {
     alert: BackupAlert,
     subject: string,
     message: string,
-    config: BackupMonitoringConfiguration | null
+    config: BackupMonitoringConfiguration | null | undefined
   ): Promise<void> {
-    const recipients = config?.alertEmails || ['admin@electiontracker.app'];
+    const recipients = config?.alertEmails || [];
     
     for (const recipient of recipients) {
       await notificationQueueService.queueNotification({
@@ -908,11 +904,9 @@ export class BackupMonitoringService {
           message,
           html: this.formatAlertEmailHtml(alert, message)
         },
-        metadata: {
-          alertId: alert.alertId,
-          alertType: alert.alertType,
-          severity: alert.severity
-        }
+        metadata: {},
+        scheduledAt: new Date(),
+        maxRetries: 3
       });
     }
   }
@@ -923,25 +917,9 @@ export class BackupMonitoringService {
   private async sendSmsAlert(
     alert: BackupAlert,
     message: string,
-    config: BackupMonitoringConfiguration | null
+    config: BackupMonitoringConfiguration | null | undefined
   ): Promise<void> {
-    // SMS notifications would use configured phone numbers
-    const phoneNumbers = ['+1234567890']; // This should come from config
-    
-    for (const phoneNumber of phoneNumbers) {
-      await notificationQueueService.queueNotification({
-        type: 'sms',
-        priority: alert.severity === 'critical' ? 'high' : 'normal',
-        recipient: phoneNumber,
-        content: {
-          message: message.substring(0, 160) // SMS length limit
-        },
-        metadata: {
-          alertId: alert.alertId,
-          alertType: alert.alertType
-        }
-      });
-    }
+    throw new Error('Backup SMS requires a verified recipient configuration');
   }
 
   /**
@@ -949,32 +927,9 @@ export class BackupMonitoringService {
    */
   private async sendWebhookAlert(
     alert: BackupAlert,
-    config: BackupMonitoringConfiguration | null
+    config: BackupMonitoringConfiguration | null | undefined
   ): Promise<void> {
-    const webhookUrls = config?.webhookUrls || [];
-    
-    for (const webhookUrl of webhookUrls) {
-      await notificationQueueService.queueNotification({
-        type: 'webhook',
-        priority: 'normal',
-        recipient: webhookUrl,
-        content: {
-          alert: {
-            id: alert.alertId,
-            type: alert.alertType,
-            severity: alert.severity,
-            title: alert.title,
-            message: alert.message,
-            createdAt: alert.createdAt,
-            data: alert.alertData
-          }
-        },
-        metadata: {
-          alertId: alert.alertId,
-          webhookType: 'backup_alert'
-        }
-      });
-    }
+    throw new Error('Backup webhooks require a configured transport; email/SMS queue does not support webhooks');
   }
 
   /**
@@ -1044,17 +999,17 @@ export class BackupMonitoringService {
    */
   private async performSizeVerification(backupOperation: BackupOperation): Promise<{ passed: boolean; details?: any }> {
     // Verify backup size is reasonable
-    return { passed: true, details: { sizeBytes: backupOperation.sizeBytes } };
+    return { passed: false, details: { code: 'VERIFIER_UNAVAILABLE', recordedSize: backupOperation.backupSize } };
   }
 
   private async performChecksumValidation(backupOperation: BackupOperation): Promise<{ passed: boolean; details?: any }> {
     // Validate backup checksum if available
-    return { passed: true, details: { checksum: 'validated' } };
+    return { passed: false, details: { code: 'VERIFIER_UNAVAILABLE', message: 'No backup bytes were read for checksum verification' } };
   }
 
   private async performBasicCorruptionScan(backupOperation: BackupOperation): Promise<{ passed: boolean; details?: any }> {
     // Basic corruption detection
-    return { passed: true, details: { corruptionFound: false } };
+    return { passed: false, details: { code: 'VERIFIER_UNAVAILABLE', message: 'No format-aware corruption scanner is configured' } };
   }
 
   /**
@@ -1065,7 +1020,7 @@ export class BackupMonitoringService {
   }
 
   private isCriticalBackup(backupOperation: BackupOperation): boolean {
-    return backupOperation.operationType === 'neon_snapshot' || backupOperation.operationType === 'full_backup';
+    return backupOperation.type === 'neon_snapshot' || backupOperation.type === 'full_backup';
   }
 
   private runImmediateIntegrityCheck(backupOperation: BackupOperation): Promise<void> {
@@ -1092,10 +1047,10 @@ export class BackupMonitoringService {
 
   private findLastSuccessfulBackup(backups: BackupOperation[], backupType: string): Date | null {
     const typeBackups = backups
-      .filter(b => b.operationType === backupType && b.status === 'completed')
-      .sort((a, b) => new Date(b.completedAt || b.startedAt).getTime() - new Date(a.completedAt || a.startedAt).getTime());
+      .filter(b => b.type === backupType && b.status === 'completed' && (b.completedAt || b.startedAt))
+      .sort((a, b) => (b.completedAt?.getTime() ?? b.startedAt?.getTime() ?? 0) - (a.completedAt?.getTime() ?? a.startedAt?.getTime() ?? 0));
     
-    return typeBackups.length > 0 ? new Date(typeBackups[0].completedAt || typeBackups[0].startedAt) : null;
+    return typeBackups.length > 0 ? (typeBackups[0].completedAt ?? typeBackups[0].startedAt) : null;
   }
 
   private calculateHealthScore(metrics: {
@@ -1129,12 +1084,12 @@ export class BackupMonitoringService {
   private groupMetricsByType(backups: BackupOperation[]): any {
     const groups: Record<string, any> = {};
     for (const backup of backups) {
-      if (!groups[backup.operationType]) {
-        groups[backup.operationType] = { count: 0, successful: 0, failed: 0 };
+      if (!groups[backup.type]) {
+        groups[backup.type] = { count: 0, successful: 0, failed: 0 };
       }
-      groups[backup.operationType].count++;
-      if (backup.status === 'completed') groups[backup.operationType].successful++;
-      if (backup.status === 'failed') groups[backup.operationType].failed++;
+      groups[backup.type].count++;
+      if (backup.status === 'completed') groups[backup.type].successful++;
+      if (backup.status === 'failed') groups[backup.type].failed++;
     }
     return groups;
   }

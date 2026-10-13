@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PolicyComparisonResults, type PolicyComparison } from "@/components/policy-comparison-results";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHead, pageMetadata } from "@/components/page-head";
@@ -8,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { APICard } from "@/components/APICard";
 import CandidateIdFinder from "@/components/CandidateIdFinder";
-import ConfidenceMeter from "@/components/ConfidenceMeter";
 import BallotInfoPane from "@/components/BallotInfoPane";
 import CodeToggle from "@/components/CodeToggle";
 import { 
@@ -39,17 +39,6 @@ interface APIStatus {
   lastUpdated: string;
 }
 
-interface PolicyComparison {
-  category: string;
-  positions: Array<{
-    candidateId: string;
-    candidateName: string;
-    position: string;
-    details: string;
-    source: string;
-    confidence: number;
-  }>;
-}
 
 export default function CivicDashboard() {
   const [candidateIds, setCandidateIds] = useState("");
@@ -65,7 +54,7 @@ export default function CivicDashboard() {
   }) as { data: APIStatus | undefined };
 
   // Policy comparison query
-  const { data: policyComparison, isLoading: isPolicyLoading } = useQuery({
+  const { data: policyComparison, isLoading: isPolicyLoading, error: policyError, refetch: refetchPolicy } = useQuery<PolicyComparison[]>({
     queryKey: ["/api/civic/compare", candidateIds, policyCategories],
     queryFn: async () => {
       const params = new URLSearchParams({
@@ -77,7 +66,7 @@ export default function CivicDashboard() {
       return response.json();
     },
     enabled: candidateIds.length > 0 && policyCategories.length > 0,
-  }) as { data: PolicyComparison[] | undefined; isLoading: boolean };
+  });
 
   // Ballot info query
   const { data: ballotInfo, isLoading: isBallotLoading } = useQuery({
@@ -224,38 +213,7 @@ export default function CivicDashboard() {
                   />
                 </div>
 
-                {isPolicyLoading && (
-                  <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary mx-auto"></div>
-                    <p className="mt-2 text-sm text-text-muted">Gathering multi-source policy data...</p>
-                  </div>
-                )}
-
-                {policyComparison && (
-                  <div className="space-y-4">
-                    {policyComparison.map((category) => (
-                      <Card key={category.category}>
-                        <CardHeader>
-                          <CardTitle className="text-lg">{category.category}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-3">
-                            {category.positions.map((position) => (
-                              <div key={position.candidateId} className="border-l-4 border-brand-primary pl-4">
-                                <div className="flex items-center justify-between mb-1">
-                                  <h4 className="font-medium">{position.candidateName}</h4>
-                                  <ConfidenceMeter value={position.confidence * 100} />
-                                </div>
-                                <p className="text-sm text-text-muted mb-1">{position.position}</p>
-                                <p className="text-xs text-text-muted">Source: {position.source}</p>
-                              </div>
-                            ))}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
+                <PolicyComparisonResults data={policyComparison} isLoading={isPolicyLoading} error={policyError} onRetry={() => refetchPolicy()} />
               </CardContent>
             </Card>
           </TabsContent>

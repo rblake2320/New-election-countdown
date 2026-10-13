@@ -8,31 +8,30 @@ import {
   pollingResults,
   elections,
   voterInteractions,
-  type InsertCampaignAccessLog,
-  type InsertDataPurchase
+  candidates
 } from '@shared/schema';
 import { eq, and, gte, lte, count, avg, sum, sql } from 'drizzle-orm';
 import crypto from 'crypto';
 
 export type CampaignTier = 'basic' | 'pro' | 'enterprise' | 'custom';
 
-// Subscription tier pricing (in cents). Single source of truth for advertised features.
-export const SUBSCRIPTION_TIERS: Record<CampaignTier, { price: number; name: string; monthlyApiLimit: number; features: string[] }> = {
-  basic: { price: 9900, name: 'Basic', monthlyApiLimit: 1000, features: ['Aggregated state data', 'Basic analytics', 'Weekly reports'] },
-  pro: { price: 49900, name: 'Pro', monthlyApiLimit: 5000, features: ['District-level analytics', 'Demographic breakdowns', 'Trend analysis', 'Daily reports', 'Email alerts'] },
-  enterprise: { price: 249900, name: 'Enterprise', monthlyApiLimit: 50000, features: ['Individual user insights (anonymized)', 'Real-time analytics', 'Custom reports', 'API access', 'Phone support'] },
-  custom: { price: 0, name: 'Custom', monthlyApiLimit: 100000, features: ['Raw data exports (coming soon)', 'Custom integrations', 'Dedicated support', 'White-label options'] }
+// Campaign portal tiers. OWNER DECISION 2026-10-13: access is by invitation / early access - no dollar
+// pricing and no plan-purchase wording anywhere on the server. Features list only what the API serves today.
+export const SUBSCRIPTION_TIERS: Record<CampaignTier, { name: string; monthlyApiLimit: number; features: string[] }> = {
+  basic: { name: 'Basic', monthlyApiLimit: 1000, features: ['Aggregated state data', 'Basic analytics'] },
+  pro: { name: 'Pro', monthlyApiLimit: 5000, features: ['Aggregated state data', 'Basic analytics', 'Demographic breakdowns'] },
+  enterprise: { name: 'Enterprise', monthlyApiLimit: 50000, features: ['Aggregated state data', 'Basic analytics', 'Demographic breakdowns', 'API access'] },
+  custom: { name: 'Custom', monthlyApiLimit: 100000, features: ['Aggregated state data', 'Basic analytics', 'Demographic breakdowns', 'API access', 'Raw data exports (coming soon)'] }
 };
 
-// ET-40 activation policy. No payment path exists today, so no paid tier may be activated
-// on registration (the old route activated every tier for free). A tier marked 'free'
-// activates immediately and issues a key; 'payment_required' persists the request inactive
-// with no key. Owner/B decide which tiers (if any) are free at launch - change it HERE only.
-export const TIER_ACTIVATION: Record<CampaignTier, 'free' | 'payment_required'> = {
-  basic: 'payment_required',
-  pro: 'payment_required',
-  enterprise: 'payment_required',
-  custom: 'payment_required',
+// ET-40 activation policy. There is no purchase path and the portal is invitation-only (owner, 2026-10-13):
+// a tier marked 'free' activates immediately and issues a key; 'invitation_required' persists the request
+// inactive with no key. Owner/B decide which tiers (if any) are free at launch - change it HERE only.
+export const TIER_ACTIVATION: Record<CampaignTier, 'free' | 'invitation_required'> = {
+  basic: 'invitation_required',
+  pro: 'invitation_required',
+  enterprise: 'invitation_required',
+  custom: 'invitation_required',
 };
 
 export interface NewCampaignAccountInput {
@@ -183,9 +182,9 @@ export class CampaignPortalService {
         .from(pollingResults)
         .where(and(
           eq(pollingResults.electionId, electionId),
-          gte(pollingResults.conductedDate, startDate),
-          lte(pollingResults.conductedDate, endDate),
-          eq(pollingResults.isPublic, true) // Only public polling data
+          gte(pollingResults.pollingDate, startDate),
+          lte(pollingResults.pollingDate, endDate),
+          eq(pollingResults.isAuthentic, true) // Only verified polling data
         ));
 
       return {
@@ -194,7 +193,7 @@ export class CampaignPortalService {
         pollingResults: polling.map(poll => ({
           ...poll,
           // Remove any potentially identifying information
-          pollingOrganization: poll.pollingOrganization ? 'Available' : 'Not disclosed'
+          pollster: poll.pollster ? 'Available' : 'Not disclosed'
         }))
       };
     } catch (error) {
@@ -203,44 +202,12 @@ export class CampaignPortalService {
     }
   }
 
-  // Data export functionality
-  async purchaseDataExport(campaignId: number, datasetType: string, format: string = 'json'): Promise<any> {
-    try {
-      const campaign = await db
-        .select()
-        .from(campaignAccounts)
-        .where(eq(campaignAccounts.id, campaignId));
-
-      if (!campaign[0]) {
-        throw new Error('Campaign not found');
-      }
-
-      // Calculate price based on dataset type and subscription tier
-      const price = this.calculateExportPrice(datasetType, campaign[0].subscriptionTier ?? 'basic');
-
-      const [purchase] = await db
-        .insert(dataPurchases)
-        .values({
-          campaignId,
-          datasetType,
-          price,
-          format
-        })
-        .returning();
-
-      // Generate download link (would integrate with cloud storage)
-      const downloadUrl = await this.generateDownloadUrl(purchase.id, datasetType, format);
-
-      return {
-        purchaseId: purchase.id,
-        downloadUrl,
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
-        price: price / 100 // Convert to dollars
-      };
-    } catch (error) {
-      console.error('Error purchasing data export:', error);
-      throw error;
-    }
+  // Data export functionality — ET-38: exports are not available yet. Refuses without writing a data_purchases
+  // row or minting a download URL (the route answers 503 exports_unavailable before reaching here).
+  async purchaseDataExport(campaignId: number, _datasetType: string, _format: string = 'json'): Promise<never> {
+    const campaign = await db.select().from(campaignAccounts).where(eq(campaignAccounts.id, campaignId));
+    if (!campaign[0]) throw new Error('Campaign not found');
+    throw new Error('Data exports are not available yet');
   }
 
   // Private helper methods
@@ -252,7 +219,7 @@ export class CampaignPortalService {
           campaignId,
           endpointAccessed: endpoint,
           datasetType,
-          cost: 0 // Would calculate based on usage
+          cost: '0' // numeric column; access is not metered yet
         });
     } catch (error) {
       console.error('Error logging access:', error);
@@ -292,11 +259,15 @@ export class CampaignPortalService {
       .from(geographicClusters)
       .where(eq(geographicClusters.electionId, electionId));
 
+    const politicalLean: Record<string, number> = {};
+    for (const cluster of clusters) {
+      const lean = cluster.politicalLean ?? 'unknown';
+      politicalLean[lean] = (politicalLean[lean] ?? 0) + 1;
+    }
     return {
-      totalEngagement: clusters.reduce((sum, cluster) => sum + (cluster.engagementScore || 0), 0),
-      averageInterest: clusters.length > 0 
-        ? clusters.reduce((sum, cluster) => sum + (cluster.interestLevel || 0), 0) / clusters.length 
-        : 0,
+      clusters: clusters.length,
+      totalVoterDensity: clusters.reduce((sum, cluster) => sum + Number(cluster.voterDensity ?? 0), 0),
+      politicalLean,
       geographicSpread: clusters.length
     };
   }
@@ -318,49 +289,26 @@ export class CampaignPortalService {
 
     return {
       segments: segments.map(segment => ({
-        name: segment.segmentName,
-        size: segment.userCount,
-        criteria: segment.criteria
+        ageGroup: segment.ageGroup,
+        income: segment.income,
+        education: segment.education,
+        partyAffiliation: segment.partyAffiliation,
+        voterHistory: segment.voterHistory,
+        size: segment.count
       }))
     };
   }
 
-  private async getRealTimeMetrics(electionId: number): Promise<any> {
-    // Calculate real metrics based on actual user sessions and requests
-    try {
-      // Get session count from web server logs (simulated through actual API calls)
-      const recentSessions = await db.execute(`
-        SELECT COUNT(*) as active_sessions 
-        FROM pg_stat_activity 
-        WHERE state = 'active' AND query_start > NOW() - INTERVAL '5 minutes'
-      `);
-
-      // Get API call patterns for this election from audit logs
-      const apiActivity = await db
-        .select({ count: count() })
-        .from(auditLogs)
-        .where(
-          and(
-            gte(auditLogs.timestamp, new Date(Date.now() - 5 * 60 * 1000)),
-            eq(auditLogs.action, 'view_election')
-          )
-        );
-
-      return {
-        liveViewers: recentSessions.rows[0]?.active_sessions || 0,
-        hourlyTrend: [], // Real trend data would come from analytics
-        peakHours: [], // Real peak hour analysis
-        recentActivity: apiActivity[0]?.count || 0
-      };
-    } catch (error) {
-      console.error('Error getting real-time metrics:', error);
-      return {
-        liveViewers: 0,
-        hourlyTrend: [],
-        peakHours: [],
-        recentActivity: 0
-      };
-    }
+  private async getRealTimeMetrics(_electionId: number): Promise<any> {
+    // Not measured: there is no viewer/session telemetry in this deployment. Returning nulls is the honest
+    // answer; the previous implementation reported database connection counts as 'live viewers'.
+    return {
+      measured: false,
+      liveViewers: null,
+      hourlyTrend: [],
+      peakHours: [],
+      recentActivity: null
+    };
   }
 
   private async getAnonymizedUserInsights(electionId: number): Promise<any> {
@@ -461,32 +409,6 @@ export class CampaignPortalService {
     return { startDate, endDate };
   }
 
-  private calculateExportPrice(datasetType: string, tier: string): number {
-    const basePrices: Record<string, number> = {
-      'basic_analytics': 2500, // $25
-      'demographic_data': 5000, // $50
-      'engagement_metrics': 7500, // $75
-      'geographic_clusters': 10000, // $100
-      'custom_export': 15000 // $150
-    };
-
-    const tierMultiplier: Record<string, number> = {
-      'basic': 1.0,
-      'pro': 0.8,
-      'enterprise': 0.6,
-      'custom': 0.4
-    };
-
-    const basePrice = basePrices[datasetType] || 5000;
-    const multiplier = tierMultiplier[tier] || 1.0;
-
-    return Math.floor(basePrice * multiplier);
-  }
-
-  private async generateDownloadUrl(purchaseId: number, datasetType: string, format: string): Promise<string> {
-    // Would generate secure download URL with cloud storage
-    return `https://downloads.electiontracker.com/${purchaseId}/${datasetType}.${format}?expires=${Date.now() + 86400000}`;
-  }
 }
 
 export const campaignPortalService = new CampaignPortalService();

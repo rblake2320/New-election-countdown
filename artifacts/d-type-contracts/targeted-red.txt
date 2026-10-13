@@ -1,0 +1,317 @@
+
+ RUN  v5.0.3 D:/projects/et-wt/astra-type-contracts
+
+stdout | tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > round trips real gzip/GCM streams after service restart, compression=true
+✅ S3 Backup Service initialized {
+  region: 'us-east-1',
+  bucket: 'fixture',
+  endpoint: 'AWS S3',
+  encryption: true,
+  compression: true
+}
+🔄 Uploading backup to S3: fixture
+
+stdout | tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > round trips real gzip/GCM streams after service restart, compression=false
+✅ S3 Backup Service initialized {
+  region: 'us-east-1',
+  bucket: 'fixture',
+  endpoint: 'AWS S3',
+  encryption: true,
+  compression: false
+}
+🔄 Uploading backup to S3: fixture
+
+stdout | tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > refuses ephemeral encryption keys before any upload
+✅ S3 Backup Service initialized {
+  region: 'us-east-1',
+  bucket: 'fixture',
+  endpoint: 'AWS S3',
+  encryption: true,
+  compression: true
+}
+🔄 Uploading backup to S3: fixture
+
+stdout | tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > preserves existing destination on ciphertext failure
+✅ S3 Backup Service initialized {
+  region: 'us-east-1',
+  bucket: 'fixture',
+  endpoint: 'AWS S3',
+  encryption: true,
+  compression: true
+}
+🔄 Uploading backup to S3: fixture
+
+stdout | tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > preserves existing destination on checksum failure
+✅ S3 Backup Service initialized {
+  region: 'us-east-1',
+  bucket: 'fixture',
+  endpoint: 'AWS S3',
+  encryption: true,
+  compression: true
+}
+🔄 Uploading backup to S3: fixture
+
+stdout | tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > preserves existing destination on missing-checksum failure
+✅ S3 Backup Service initialized {
+  region: 'us-east-1',
+  bucket: 'fixture',
+  endpoint: 'AWS S3',
+  encryption: true,
+  compression: true
+}
+🔄 Uploading backup to S3: fixture
+
+stdout | tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > preserves existing destination on legacy failure
+✅ S3 Backup Service initialized {
+  region: 'us-east-1',
+  bucket: 'fixture',
+  endpoint: 'AWS S3',
+  encryption: true,
+  compression: true
+}
+🔄 Uploading backup to S3: fixture
+
+stdout | tests/d-backup-contracts.test.ts > runbook foreign keys > uses the natural runbook key for steps and numeric key only for executions
+📋 Initialized 2 built-in runbook templates
+✅ Runbook Management Service initialized
+📋 Creating runbook from template database_outage_response
+
+stdout | tests/d-backup-contracts.test.ts > operational evidence boundaries > persists observed event counts, decimal strings, bytes and seconds in existing columns
+[BackupAlertService] Initializing backup monitoring
+[BackupAlertService] Processing backup event: backup_failed for job job-1
+
+stdout | tests/d-backup-contracts.test.ts > operational evidence boundaries > queues real email with retry scheduling without claiming it was delivered
+[BackupAlertService] Initializing backup monitoring
+[BackupAlertService] Processing backup event: backup_failed for job job-1
+
+stdout | tests/d-backup-contracts.test.ts > operational evidence boundaries > does not inject simulated events into operational health
+[BackupAlertService] Initializing backup monitoring
+[BackupAlertService] Processing backup event: backup_completed for job fixture
+
+stdout | tests/d-backup-contracts.test.ts > operational evidence boundaries > refuses unsupported notification channels when saving configuration
+[BackupAlertService] Initializing backup monitoring
+
+stdout | tests/d-backup-contracts.test.ts > operational evidence boundaries > does not claim unperformed checksum or corruption verification
+📋 Initialized 5 default monitoring rules
+✅ Backup Monitoring Service initialized
+
+stdout | tests/d-backup-contracts.test.ts
+📋 Initialized 2 built-in runbook templates
+✅ Runbook Management Service initialized
+
+stdout | tests/d-backup-contracts.test.ts
+📋 Initialized 3 built-in drill scenarios
+✅ Synthetic Drill Service initialized
+
+stdout | tests/d-backup-contracts.test.ts
+📋 Initialized 5 default monitoring rules
+✅ Backup Monitoring Service initialized
+
+ ❯ tests/d-backup-contracts.test.ts (14 tests | 13 failed | 1 skipped) 58ms
+   ❯ S3 backup stream integrity (local transport fixture) (7)
+     × round trips real gzip/GCM streams after service restart, compression=true 19ms
+     × round trips real gzip/GCM streams after service restart, compression=false 4ms
+     × refuses ephemeral encryption keys before any upload 8ms
+     × preserves existing destination on ciphertext failure 3ms
+     × preserves existing destination on checksum failure 4ms
+     × preserves existing destination on missing-checksum failure 4ms
+     × preserves existing destination on legacy failure 4ms
+   ❯ runbook foreign keys (1)
+     × uses the natural runbook key for steps and numeric key only for executions 2ms
+   ❯ operational evidence boundaries (6)
+     × persists observed event counts, decimal strings, bytes and seconds in existing columns 4ms
+     × queues real email with retry scheduling without claiming it was delivered 1ms
+     × does not inject simulated events into operational health 1ms
+     × refuses unsupported notification channels when saving configuration 1ms
+     × does not claim unperformed checksum or corruption verification 2ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 13 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > round trips real gzip/GCM streams after service restart, compression=true
+Error: S3 upload failed: The "callback" argument must be of type function. Received undefined
+ ❯ S3BackupService.uploadBackup server/services/s3-backup-service.ts:240:13
+    238|       const duration = Math.round((Date.now() - startTime) / 1000);
+    239|       console.error(`❌ S3 upload failed after ${duration}s:`, error);
+    240|       throw new Error(`S3 upload failed: ${error instanceof Error ? er…
+       |             ^
+    241|     }
+    242|   }
+ ❯ tests/d-backup-contracts.test.ts:72:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/13]⎯
+
+ FAIL  tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > round trips real gzip/GCM streams after service restart, compression=false
+Error: S3 upload failed: createCipher is not a function
+ ❯ S3BackupService.uploadBackup server/services/s3-backup-service.ts:240:13
+    238|       const duration = Math.round((Date.now() - startTime) / 1000);
+    239|       console.error(`❌ S3 upload failed after ${duration}s:`, error);
+    240|       throw new Error(`S3 upload failed: ${error instanceof Error ? er…
+       |             ^
+    241|     }
+    242|   }
+ ❯ tests/d-backup-contracts.test.ts:72:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/13]⎯
+
+ FAIL  tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > refuses ephemeral encryption keys before any upload
+AssertionError: expected [Function] to throw error including 'persistent BACKUP_ENCRYPTION_KEY' but got 'S3 upload failed: The "callback" argu…'
+
+Expected: "persistent BACKUP_ENCRYPTION_KEY"
+Received: "S3 upload failed: The "callback" argument must be of type function. Received undefined"
+
+ ❯ tests/d-backup-contracts.test.ts:86:67
+     84|     delete process.env.BACKUP_ENCRYPTION_KEY;
+     85|     const service = new S3BackupService(config);
+     86|     await expect(service.uploadBackup(source, { key: 'fixture' })).rej…
+       |                                                                   ^
+     87|     expect(sends).not.toHaveBeenCalled();
+     88|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/13]⎯
+
+ FAIL  tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > preserves existing destination on ciphertext failure
+ FAIL  tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > preserves existing destination on checksum failure
+ FAIL  tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > preserves existing destination on missing-checksum failure
+ FAIL  tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > preserves existing destination on legacy failure
+Error: S3 upload failed: The "callback" argument must be of type function. Received undefined
+ ❯ S3BackupService.uploadBackup server/services/s3-backup-service.ts:240:13
+    238|       const duration = Math.round((Date.now() - startTime) / 1000);
+    239|       console.error(`❌ S3 upload failed after ${duration}s:`, error);
+    240|       throw new Error(`S3 upload failed: ${error instanceof Error ? er…
+       |             ^
+    241|     }
+    242|   }
+ ❯ tests/d-backup-contracts.test.ts:92:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/13]⎯
+
+ FAIL  tests/d-backup-contracts.test.ts > runbook foreign keys > uses the natural runbook key for steps and numeric key only for executions
+Error: runbook_steps natural FK violation
+ ❯ Object.<anonymous> tests/d-backup-contracts.test.ts:110:61
+    108|     mocked.storage.createIncidentRunbook.mockImplementation(async inpu…
+    109|     mocked.storage.createRunbookStep.mockImplementation(async input =>…
+    110|       if (input.runbookId !== savedRunbook.runbookId) throw new Error(…
+       |                                                             ^
+    111|       steps.push(input); return input;
+    112|     });
+ ❯ RunbookManagementService.createRunbookFromTemplate server/services/runbook-management-service.ts:272:23
+ ❯ tests/d-backup-contracts.test.ts:123:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/13]⎯
+
+ FAIL  tests/d-backup-contracts.test.ts > operational evidence boundaries > persists observed event counts, decimal strings, bytes and seconds in existing columns
+AssertionError: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…} ]
+
+Received:
+
+  1st vi.fn() call:
+
+  [
+-   ObjectContaining {
+-     "averageBackupDuration": 120,
+-     "averageBackupSize": 0,
+-     "failedBackups": 1,
+-     "successRate": "0",
+-     "successfulBackups": 0,
+-     "totalBackups": 1,
++   {
++     "backupJobId": "job-1",
++     "metadata": {
++       "backupType": "full",
++       "error": undefined,
++     },
++     "metricTimestamp": 2026-10-13T16:59:01.645Z,
++     "metricType": "backup_success_rate",
++     "metricUnit": "percentage",
++     "metricValue": 0,
++     "source": "fixture",
+    },
+  ]
+
+
+Number of calls: 1
+
+ ❯ tests/d-backup-contracts.test.ts:141:53
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/13]⎯
+
+ FAIL  tests/d-backup-contracts.test.ts > operational evidence boundaries > queues real email with retry scheduling without claiming it was delivered
+AssertionError: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…} ]
+
+Number of calls: 0
+
+ ❯ tests/d-backup-contracts.test.ts:149:26
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/13]⎯
+
+ FAIL  tests/d-backup-contracts.test.ts > operational evidence boundaries > does not inject simulated events into operational health
+AssertionError: promise resolved "undefined" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+undefined
+
+ ❯ tests/d-backup-contracts.test.ts:156:77
+    154|   it('does not inject simulated events into operational health', async…
+    155|     const service = new BackupAlertService(mocked.storage);
+    156|     await expect(service.simulateBackupEvent('backup_completed', 'fixt…
+       |                                                                             ^
+    157|     expect(mocked.storage.createBackupHealthMetric).not.toHaveBeenCall…
+    158|     service.destroy();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/13]⎯
+
+ FAIL  tests/d-backup-contracts.test.ts > operational evidence boundaries > refuses unsupported notification channels when saving configuration
+AssertionError: expected [Function] to throw error including 'configured email' but got 'Configuration name is required'
+
+Expected: "configured email"
+Received: "Configuration name is required"
+
+ ❯ tests/d-backup-contracts.test.ts:162:136
+    160|   it('refuses unsupported notification channels when saving configurat…
+    161|     const service = new BackupAlertService(mocked.storage);
+    162|     await expect(service.createMonitoringConfiguration({ name: 'fixtur…
+       |                                                                                                                                        ^
+    163|     expect(mocked.storage.createBackupMonitoringConfiguration).not.toH…
+    164|     service.destroy();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/13]⎯
+
+ FAIL  tests/d-backup-contracts.test.ts > operational evidence boundaries > does not claim unperformed checksum or corruption verification
+AssertionError: expected { passed: true, …(1) } to match object { passed: false, …(1) }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "details": {
+-     "code": "VERIFIER_UNAVAILABLE",
++     "checksum": "validated",
+    },
+-   "passed": false,
++   "passed": true,
+  }
+
+ ❯ tests/d-backup-contracts.test.ts:168:67
+    166|   it('does not claim unperformed checksum or corruption verification',…
+    167|     const service = new BackupMonitoringService();
+    168|     expect(await service['performChecksumValidation']({ id: 1 })).toMa…
+       |                                                                   ^
+    169|     expect(await service['performBasicCorruptionScan']({ id: 1 })).toM…
+    170|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/13]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  13 failed | 1 skipped (14)
+   Start at  11:59:00
+   Duration  1.12s (environment 47%, transform 19%, setup 15%, import 12%, tests 6%, worker 1%)
+

@@ -9,6 +9,7 @@
  */
 import type { Pool, PoolClient } from 'pg';
 import { createHash } from 'node:crypto';
+import { resultsSourceRegistry } from './results-source-registry';
 import {
   ResultReportError, assertNotFuture, buildResultsPayload, canonicalInputHash, contextMatches, electionContextOf, reportContextOf, revisionFor,
   type ElectionContext, type ResultLineRow, type ResultReportInput, type ResultReportRow, type ResultsPayload,
@@ -66,6 +67,10 @@ export interface ResultSource {
   /** null for the admin_manual entry: the admin supplies the official page URL */
   url: string | null;
   state: string;
+  /** where the entry comes from: C's reviewed registry, the C6 manifest, or both */
+  registeredBy: 'registry' | 'manifest' | 'both';
+  /** true only when a manifest row for this publisher is status='published'; a registry entry never claims publication */
+  published: boolean;
   electionIds: number[];
 }
 
@@ -82,14 +87,30 @@ export interface ResultReportStore {
 const HISTORY_LIMIT = 50;
 export const LIST_MAX_IDS = 600;
 export const EVIDENCE_MAX_BYTES = 10 * 1024 * 1024;
-export const EVIDENCE_CONTENT_TYPES = ['text/html', 'application/json', 'text/csv', 'application/pdf', 'image/png', 'image/jpeg'] as const;
+export const EVIDENCE_CONTENT_TYPES = ['text/html', 'application/json', 'text/csv', 'application/pdf', 'image/png', 'image/jpeg', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'] as const;
+/** Bounded signature checks for binary evidence so an XLSX cannot be retained under a PDF label (or vice versa). Returns null when the bytes match the declared type. */
+export function evidenceSignatureProblem(contentType: string, bytes: Buffer): string | null {
+  const head = bytes.subarray(0, 8);
+  switch (contentType) {
+    case 'application/pdf': return head.subarray(0, 5).toString('latin1') === '%PDF-' ? null : 'bytes do not start with %PDF-';
+    case 'image/png': return head.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) ? null : 'bytes are not a PNG';
+    case 'image/jpeg': return head[0] === 0xff && head[1] === 0xd8 && head[2] === 0xff ? null : 'bytes are not a JPEG';
+    case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': {
+      if (!(head[0] === 0x50 && head[1] === 0x4b && head[2] === 0x03 && head[3] === 0x04)) return 'bytes are not a ZIP container';
+      // An OOXML workbook names its parts in the local headers; look only at the first 64 KiB of entry names.
+      const window = bytes.subarray(0, Math.min(bytes.length, 64 * 1024)).toString('latin1');
+      return window.includes('[Content_Types].xml') && window.includes('xl/') ? null : 'ZIP container is not an OOXML workbook';
+    }
+    default: return null; // text types: content is whatever the official page served
+  }
+}
 /** kinds whose reports must point at retained evidence (ingestion adapters retain theirs too, but are not blocked on it) */
 const EVIDENCE_REQUIRED_KINDS = new Set(['admin_manual', 'official_state_page']);
 
 export function sha256Hex(bytes: Buffer): string { return createHash('sha256').update(bytes).digest('hex'); }
 export function adminManualSourceId(state: string): string { return `admin_manual:${state}`; }
 
-interface ManifestSourceRow { election_id: number; state: string; publisher: string; route_type: string; government_url: string }
+interface ManifestSourceRow { election_id: number; state: string; publisher: string; route_type: string; government_url: string; status?: string | null }
 function kindForRoute(routeType: string): ResultSource['kind'] {
   if (/county/i.test(routeType)) return 'official_county';
   if (/enr|clarity|feed|results/i.test(routeType)) return 'official_state_enr';
@@ -100,31 +121,53 @@ function buildSources(rows: ManifestSourceRow[], states: string[], filterState?:
   for (const r of rows) {
     if (filterState && r.state !== filterState) continue;
     const existing = byId.get(r.publisher);
-    if (existing) { existing.electionIds.push(r.election_id); continue; }
-    byId.set(r.publisher, { id: r.publisher, kind: kindForRoute(r.route_type), name: r.publisher, url: r.government_url, state: r.state, electionIds: [r.election_id] });
+    if (existing) { existing.electionIds.push(r.election_id); if (r.status === 'published') existing.published = true; continue; }
+    byId.set(r.publisher, { id: r.publisher, kind: kindForRoute(r.route_type), name: r.publisher, url: r.government_url, state: r.state, electionIds: [r.election_id], registeredBy: 'manifest', published: r.status === 'published' });
+  }
+  // Registered (reviewed) sources are listed without any publication claim; a manifest row of the same id keeps its flag.
+  for (const reg of resultsSourceRegistry.list(filterState)) {
+    const existing = byId.get(reg.id);
+    if (existing) { existing.registeredBy = 'both'; for (const id of reg.electionIds ?? []) if (!existing.electionIds.includes(id)) existing.electionIds.push(id); continue; }
+    byId.set(reg.id, { id: reg.id, kind: reg.kind, name: reg.name, url: reg.allowedUrls?.[0] ?? null, state: reg.state, electionIds: [...(reg.electionIds ?? [])], registeredBy: 'registry', published: false });
   }
   for (const st of states) {
     if (filterState && st !== filterState) continue;
-    byId.set(adminManualSourceId(st), { id: adminManualSourceId(st), kind: 'admin_manual', name: `Manual entry from an official ${st} page`, url: null, state: st, electionIds: [] });
+    byId.set(adminManualSourceId(st), { id: adminManualSourceId(st), kind: 'admin_manual', name: `Manual entry from an official ${st} page`, url: null, state: st, electionIds: [], registeredBy: 'manifest', published: false });
   }
   return [...byId.values()].sort((a, b) => a.state.localeCompare(b.state) || a.id.localeCompare(b.id));
 }
-/** The writer's source rule: id must be registered for the election's state; admin_manual URLs must sit on a manifest host when the state has any. */
+/** The writer's source rule (v1.3): the id must be registered for the election's state (registry or manifest) AND the
+ *  report's kind/URL must match that registration, so a caller cannot relabel a kind or point at a foreign URL to evade
+ *  evidence rules. admin_manual URLs must sit on a registered official host when the state has any. */
 function assertSourceRegistered(input: ResultReportInput, state: string, manifestForState: ManifestSourceRow[]): void {
   const src = input.source;
   if (src.kind === 'admin_manual') {
     if (src.id !== adminManualSourceId(state)) throw new ResultReportError(422, 'unknown_source', `admin_manual source id must be ${adminManualSourceId(state)}`);
-    const hosts = new Set(manifestForState.map((m) => { try { return new URL(m.government_url).host; } catch { return ''; } }).filter(Boolean));
+    const hosts = new Set<string>();
+    for (const m of manifestForState) { try { hosts.add(new URL(m.government_url).host.toLowerCase()); } catch { /* unusable manifest url */ } }
+    for (const r of resultsSourceRegistry.list(state)) { for (const h of r.allowedHosts ?? []) hosts.add(h); for (const u of r.allowedUrls ?? []) { try { hosts.add(new URL(u).host.toLowerCase()); } catch { /* validated at registration */ } } }
     if (hosts.size) {
-      const host = new URL(src.url).host;
+      const host = new URL(src.url).host.toLowerCase();
       if (!hosts.has(host)) throw new ResultReportError(422, 'unknown_source', `admin_manual URL host ${host} is not one of the registered official hosts for ${state}`, { allowedHosts: [...hosts] });
     }
     return;
   }
   if (src.kind === 'ap') return; // owner flag is checked by the caller
-  if (!manifestForState.some((m) => m.publisher === src.id)) {
-    throw new ResultReportError(422, 'unknown_source', `source id ${src.id} is not registered for ${state}`);
+  const reg = resultsSourceRegistry.get(src.id);
+  if (reg) {
+    if (reg.state !== state) throw new ResultReportError(422, 'unknown_source', `source id ${src.id} is registered for ${reg.state}, not ${state}`);
+    const problem = resultsSourceRegistry.mismatch(src);
+    if (problem) throw new ResultReportError(422, 'source_mismatch', `source ${src.id}: ${problem}`);
+    return;
   }
+  const manifest = manifestForState.filter((m) => m.publisher === src.id);
+  if (!manifest.length) throw new ResultReportError(422, 'unknown_source', `source id ${src.id} is not registered for ${state}`);
+  const expectedKind = kindForRoute(manifest[0].route_type);
+  if (src.kind !== expectedKind) throw new ResultReportError(422, 'source_mismatch', `source ${src.id}: kind ${src.kind} differs from the manifest kind ${expectedKind}`);
+  let host: string;
+  try { const u = new URL(src.url); if (u.protocol !== 'https:') throw new Error('not https'); host = u.host.toLowerCase(); } catch { throw new ResultReportError(422, 'source_mismatch', `source ${src.id}: url must be https`); }
+  const hosts = new Set(manifest.map((m) => { try { return new URL(m.government_url).host.toLowerCase(); } catch { return ''; } }).filter(Boolean));
+  if (hosts.size && !hosts.has(host)) throw new ResultReportError(422, 'source_mismatch', `source ${src.id}: url host ${host} is not the manifest host`, { allowedHosts: [...hosts] });
 }
 
 function stripHistory(p: ResultsPayload): ResultsPayload {
@@ -180,12 +223,12 @@ export class PgResultReportStore implements ResultReportStore {
     // Two queries, no N+1: latest CONTEXT-MATCHING report per election via LATERAL, then all lines.
     // A report recorded under a context the election row no longer has is never exported here.
     const latestSql = `
-      SELECT e.id AS election_id, e.state AS e_state, e.date AS e_date, e.type AS e_type, e.level AS e_level, e.title AS e_title, r.*
+      SELECT e.id AS e_id, e.state AS e_state, e.date AS e_date, e.type AS e_type, e.level AS e_level, e.title AS e_title, r.*
         FROM elections e
         LEFT JOIN LATERAL (SELECT * FROM election_result_reports r WHERE r.election_id = e.id AND ${CONTEXT_MATCH_SQL} ORDER BY r.id DESC LIMIT 1) r ON true
        WHERE ${where.join(' AND ')}
        ORDER BY e.id`;
-    type Row = ResultReportRow & { election_id: number; id: number | null; e_state: string; e_date: Date; e_type: string; e_level: string; e_title: string };
+    type Row = ResultReportRow & { e_id: number; id: number | null; e_state: string; e_date: Date; e_type: string; e_level: string; e_title: string };
     const rows = (await this.pool.query<Row>(latestSql, params)).rows;
     const reportIds = rows.map((r) => r.id).filter((id): id is number => id !== null);
     const lines = reportIds.length
@@ -195,7 +238,7 @@ export class PgResultReportStore implements ResultReportStore {
     for (const l of lines) { const arr = linesByReport.get(l.report_id) ?? []; arr.push(l); linesByReport.set(l.report_id, arr); }
     const results = rows.map((r) => {
       const current = electionContextOf({ state: r.e_state, date: r.e_date, type: r.e_type, level: r.e_level, title: r.e_title });
-      return stripHistory(buildResultsPayload(r.election_id, r.id === null ? null : r, r.id === null ? [] : linesByReport.get(r.id) ?? [], [], current));
+      return stripHistory(buildResultsPayload(r.e_id, r.id === null ? null : r, r.id === null ? [] : linesByReport.get(r.id) ?? [], [], current));
     });
     return { schemaVersion: 1, date: query.date ?? null, cursor: snapshotCursor(results), reset: true, results };
   }
@@ -334,7 +377,7 @@ export class PgResultReportStore implements ResultReportStore {
 
   private async manifestRows(q: { query: Pool['query'] }, state?: string): Promise<ManifestSourceRow[]> {
     const sql = `SELECT id AS election_id, state, official_results_source->>'publisher' AS publisher,
-                        official_results_source->>'routeType' AS route_type, official_results_source->>'governmentUrl' AS government_url
+                        official_results_source->>'routeType' AS route_type, official_results_source->>'governmentUrl' AS government_url, official_results_source->>'status' AS status
                    FROM elections
                   WHERE official_results_source IS NOT NULL AND official_results_source->>'routeVerification' = 'worked'
                     ${state ? 'AND state = $1' : ''}
@@ -396,7 +439,7 @@ export class MemResultReportStore implements ResultReportStore {
 
   async listResultSources(state?: string): Promise<ResultSource[]> {
     const rows = this.manifest();
-    const states = [...new Set([...rows.map((r) => r.state), ...(state ? [state] : [])])];
+    const states = [...new Set([...rows.map((r) => r.state), ...resultsSourceRegistry.list().map((r) => r.state), ...(state ? [state] : [])])];
     return buildSources(rows, states, state);
   }
 

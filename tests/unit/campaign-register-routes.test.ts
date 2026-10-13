@@ -36,7 +36,7 @@ async function serve(storage: any) {
 }
 
 const freeTier = (Object.keys(TIER_ACTIVATION) as CampaignTier[]).find((t) => TIER_ACTIVATION[t] === 'free');
-const paidTier = (Object.keys(TIER_ACTIVATION) as CampaignTier[]).find((t) => TIER_ACTIVATION[t] === 'payment_required');
+const paidTier = (Object.keys(TIER_ACTIVATION) as CampaignTier[]).find((t) => TIER_ACTIVATION[t] === 'invitation_required');
 
 describe('POST /api/campaign/register (ET-40)', () => {
   let s: ReturnType<typeof store>;
@@ -63,15 +63,17 @@ describe('POST /api/campaign/register (ET-40)', () => {
     } finally { await close(); }
   });
 
-  it('a payment_required tier is persisted inactive, answers 402 and issues NO key', async () => {
+  it('an invitation_required tier is persisted inactive, answers 403 INVITATION_REQUIRED and issues NO key', async () => {
     if (!paidTier) return; // every tier free: nothing to assert here
     const { post, close } = await serve(s.storage);
     try {
       const res = await post({ organizationName: 'Org Name', contactEmail: 'a@b.co', electionId: 2, subscriptionTier: paidTier });
-      expect(res.status).toBe(402);
+      expect(res.status).toBe(403);
       const body = await res.json();
-      expect(body.code).toBe('PAYMENT_NOT_AVAILABLE');
-      expect(body.data.subscription).toMatchObject({ tier: paidTier, isActive: false, status: 'pending_payment', priceCents: SUBSCRIPTION_TIERS[paidTier].price });
+      expect(body.code).toBe('INVITATION_REQUIRED');
+      expect(JSON.stringify(body)).not.toMatch(/price|\$|purchase|payment/i);
+      expect(body.data.subscription).toMatchObject({ tier: paidTier, isActive: false, status: 'invitation_requested' });
+      expect(body.data.subscription).not.toHaveProperty('priceCents');
       expect(JSON.stringify(body)).not.toMatch(/camp_[0-9a-f]{64}/);
       expect(typeof body.data.campaignId).toBe('number');
     } finally { await close(); }
@@ -95,10 +97,11 @@ describe('POST /api/campaign/register (ET-40)', () => {
     } finally { await close(); }
   });
 
-  it('the activation policy is explicit for every tier and no paid tier is marked free without a price of 0', () => {
+  it('the activation policy is explicit for every tier and no tier carries a price or purchase wording', () => {
     for (const tier of Object.keys(SUBSCRIPTION_TIERS) as CampaignTier[]) {
-      expect(['free', 'payment_required']).toContain(TIER_ACTIVATION[tier]);
-      if (TIER_ACTIVATION[tier] === 'free') expect(SUBSCRIPTION_TIERS[tier].price).toBe(0);
+      expect(['free', 'invitation_required']).toContain(TIER_ACTIVATION[tier]);
+      expect(SUBSCRIPTION_TIERS[tier]).not.toHaveProperty('price');
+      expect(JSON.stringify(SUBSCRIPTION_TIERS[tier])).not.toMatch(/\$|purchase|payment|per month/i);
     }
   });
 

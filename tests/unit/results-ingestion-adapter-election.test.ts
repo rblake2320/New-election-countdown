@@ -12,14 +12,18 @@ vi.mock('../../server/storage', () => ({ storage: { getElections: vi.fn(async ()
 import { ResultsIngestionService, type AdapterElection } from '../../server/results-ingestion-service';
 
 describe('ET-6 ingestion hands adapters the authoritative race context (C ask 2026-10-13)', () => {
-  it('passes id/state/date AND type/level/title from the election row; only published manifests are offered', async () => {
+  it('passes id/state/date AND type/level/title from the election row; worked-route manifests are offered before publication', async () => {
     const svc = new ResultsIngestionService();
     const seen: AdapterElection[] = [];
     svc.registerAdapter('ak-doe', async (e) => { seen.push(e); return null; });
     const outcomes = await svc.ingestResults();
-    expect(seen.map((e) => e.id)).toEqual([7]);
+    // v1.3: a worked route is admitted BEFORE publication, so the draft race is offered too and reports not_published
+    expect(seen.map((e) => e.id)).toEqual([7, 8]);
     expect(seen[0]).toMatchObject({ id: 7, state: 'AK', type: 'general', level: 'federal', title: 'U.S. Senate Election - Alaska' });
     expect(seen[0].date).toEqual(published.date);
-    expect(outcomes).toEqual([{ electionId: 7, outcome: 'not_published' }]);
+    expect(outcomes).toEqual([
+      { electionId: 7, outcome: 'not_published', sourceId: 'ak-doe', publication: 'published' },
+      { electionId: 8, outcome: 'not_published', sourceId: 'ak-doe', publication: 'draft' },
+    ]);
   });
 });

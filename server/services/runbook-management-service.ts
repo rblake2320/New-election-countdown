@@ -252,7 +252,7 @@ export class RunbookManagementService {
       const steps = customizations.customSteps || template.steps;
       for (const [index, stepTemplate] of steps.entries()) {
         const step: InsertRunbookStep = {
-          runbookId: createdRunbook.id,
+          runbookId: createdRunbook.runbookId,
           stepOrder: index + 1,
           stepId: stepTemplate.id,
           title: stepTemplate.title,
@@ -333,7 +333,7 @@ export class RunbookManagementService {
       const createdExecution = await storage.createRunbookExecution(execution);
 
       // Get runbook steps
-      const steps = await storage.getRunbookStepsByOrder(runbook.id);
+      const steps = await storage.getRunbookStepsByOrder(runbook.runbookId);
 
       // Initialize execution progress
       const progress: RunbookExecutionProgress = {
@@ -928,8 +928,8 @@ export class RunbookManagementService {
       currentTime: now,
       businessHours: this.parseBusinessHours(contact.businessHours),
       onCallSchedule: this.parseOnCallSchedule(contact.onCallSchedule),
-      lastResponse: contact.lastResponseAt,
-      responseRate: contact.responseRate || 0
+      lastResponse: contact.lastResponseAt ?? undefined,
+      responseRate: contact.responseRate === null ? 0 : Number(contact.responseRate)
     };
   }
 
@@ -1147,11 +1147,9 @@ export class RunbookManagementService {
         message,
         html: this.formatEscalationEmailHtml(contact, message, executionId, runbook)
       },
-      metadata: {
-        contactId: contact.contactId,
-        executionId,
-        escalationType: 'runbook_execution'
-      }
+      metadata: {},
+      maxRetries: 3,
+      scheduledAt: new Date()
     });
   }
 
@@ -1170,11 +1168,9 @@ export class RunbookManagementService {
       content: {
         message: message.substring(0, 160) // SMS length limit
       },
-      metadata: {
-        contactId: contact.contactId,
-        executionId,
-        escalationType: 'runbook_execution'
-      }
+      metadata: {},
+      maxRetries: 3,
+      scheduledAt: new Date()
     });
   }
 
@@ -1244,10 +1240,9 @@ export class RunbookManagementService {
           subject: `Runbook Review Required: ${runbookId}`,
           message: `A runbook has been submitted for review and requires your approval.`
         },
-        metadata: {
-          runbookId,
-          workflowType: 'approval_request'
-        }
+        metadata: {},
+        maxRetries: 3,
+        scheduledAt: new Date()
       });
     }
   }
