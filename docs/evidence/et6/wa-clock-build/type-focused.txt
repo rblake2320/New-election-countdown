@@ -1,0 +1,49 @@
+
+> rest-express@1.0.0 check
+> tsc --noEmit --incremental false
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.3 [39m[90m/app[39m
+
+ [32m✓[39m tests/unit/results-store-batch.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m tests/unit/results-ingestion-adapter-election.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m tests/unit/results-registry-intersection.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m tests/unit/results-source-health.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 48[2mms[22m[39m
+ [32m✓[39m tests/unit/results-ingestion-v13.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 104[2mms[22m[39m
+[90mstdout[2m | tests/unit/results-routes.test.ts[2m > [22m[2mET-6 results contract (v1.2)[2m > [22m[2mthe schema refuses projections, missing evidence and pre-contract shapes
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-routes.test.ts[2m > [22m[2mET-6 results contract (v1.2)[2m > [22m[2mGET before any report is 200 status none with nulls, never an error
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-routes.test.ts[2m > [22m[2mET-6 results contract (v1.2)[2m > [22m[2madmin POST records a snapshot (201), replays idempotently (200), refuses conflicts (409) and bad input (422)
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-routes.test.ts[2m > [22m[2mET-6 results contract (v1.2)[2m > [22m[2ma declared winner needs the official declaration; certified needs certification evidence
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-routes.test.ts[2m > [22m[2mET-6 results contract (v1.2)[2m > [22m[2mETag/304 on the detail read; batch read lists every race on the date with explicit none rows and an opaque cursor
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-routes.test.ts[2m > [22m[2mET-6 results contract (v1.2)[2m > [22m[2ma report recorded under a context the election row no longer has is never current (admin date edit acceptance)
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-routes.test.ts[2m > [22m[2mET-6 results contract (v1.2)[2m > [22m[2munauthenticated POST is refused and writes nothing
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-routes.test.ts[2m > [22m[2mET-6 results contract (v1.2)[2m > [22m[2munauthenticated POST is refused and writes nothing
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-routes.test.ts[2m > [22m[2mET-6 results contract (v1.2)[2m > [22m[2msources are registered: unknown ids are refused, the picker lists the manifest + admin_manual, manual entries need retained evidence
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-routes.test.ts[2m > [22m[2mET-6 results contract (v1.2)[2m > [22m[2mtwo different recordings from one raw payload are both kept (WA recount workbook case)
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+ [32m✓[39m tests/unit/results-routes.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 177[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m6 passed[39m[22m[90m (6)[39m
+[2m      Tests [22m [1m[32m54 passed[39m[22m[90m (54)[39m
+[2m   Start at [22m 19:38:36
+[2m   Duration [22m 1.98s[2m (environment 50%, transform 16%, setup 15%, import 13%, tests 5%, worker 1%)[22m
+

@@ -1,0 +1,127 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 2.19kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/node:24-alpine
+#2 DONE 0.2s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 848B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 DONE 0.0s
+
+#5 [builder 1/6] FROM docker.io/library/node:24-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1
+#5 resolve docker.io/library/node:24-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1 0.1s done
+#5 DONE 0.1s
+
+#4 [internal] load build context
+#4 transferring context: 140.01kB 0.1s done
+#4 DONE 0.1s
+
+#6 [builder 2/6] WORKDIR /app
+#6 CACHED
+
+#7 [builder 3/6] COPY package*.json ./
+#7 CACHED
+
+#8 [builder 4/6] RUN npm ci &&     npm cache clean --force
+#8 CACHED
+
+#9 [builder 5/6] COPY . .
+#9 DONE 0.5s
+
+#10 [builder 6/6] RUN npm run build
+#10 0.500 
+#10 0.500 > rest-express@1.0.0 build
+#10 0.500 > vite build && node scripts/build-server.mjs && node scripts/build-congress-import.mjs
+#10 0.500 
+#10 0.723 vite v8.3.4 building client environment for production...
+#10 0.738 transforming...
+#10 2.407 ✓ 2701 modules transformed.
+#10 2.558 rendering chunks...
+#10 2.676 computing gzip size...
+#10 2.684 dist/public/index.html                                   1.83 kB │ gzip:   0.68 kB
+#10 2.684 dist/public/assets/index-CDpdpM3u.css                  124.23 kB │ gzip:  19.84 kB
+#10 2.684 dist/public/assets/skeleton-B3qL_WbC.js                  0.21 kB │ gzip:   0.18 kB
+#10 2.684 dist/public/assets/progress-BP4rSzyM.js                  0.56 kB │ gzip:   0.37 kB
+#10 2.684 dist/public/assets/rolldown-runtime-hePW80VL.js          0.71 kB │ gzip:   0.42 kB
+#10 2.684 dist/public/assets/card-BADleCpt.js                      1.20 kB │ gzip:   0.48 kB
+#10 2.684 dist/public/assets/tabs-0qcRNMuR.js                      1.24 kB │ gzip:   0.53 kB
+#10 2.684 dist/public/assets/form-B2M2Px7R.js                      1.88 kB │ gzip:   0.82 kB
+#10 2.684 dist/public/assets/not-found-BdsayviG.js                 2.78 kB │ gzip:   0.97 kB
+#10 2.684 dist/public/assets/Compare-DB0TTMA2.js                   2.85 kB │ gzip:   1.13 kB
+#10 2.684 dist/public/assets/congress-members-BuO1iERy.js          4.02 kB │ gzip:   1.77 kB
+#10 2.684 dist/public/assets/happening-now-Bfi-JPvI.js             5.45 kB │ gzip:   1.97 kB
+#10 2.684 dist/public/assets/midterm-2026-BsmqMDvq.js              6.52 kB │ gzip:   1.61 kB
+#10 2.684 dist/public/assets/api-status-D539pIVK.js                7.21 kB │ gzip:   2.04 kB
+#10 2.684 dist/public/assets/admin-settings-CbC31gEP.js            7.83 kB │ gzip:   2.19 kB
+#10 2.684 dist/public/assets/investor-dashboard-pJRepqMB.js        8.27 kB │ gzip:   2.15 kB
+#10 2.684 dist/public/assets/congress-admin-FAfa2iKD.js            9.19 kB │ gzip:   2.59 kB
+#10 2.684 dist/public/assets/monitoring-dashboard-CNieblwo.js      9.25 kB │ gzip:   2.47 kB
+#10 2.684 dist/public/assets/campaign-portal-B1DMOcku.js           9.87 kB │ gzip:   2.81 kB
+#10 2.684 dist/public/assets/candidate-portal-fixed-DVwn2dce.js   14.63 kB │ gzip:   3.77 kB
+#10 2.684 dist/public/assets/civic-dashboard-Drw4IdP7.js          16.08 kB │ gzip:   4.64 kB
+#10 2.684 dist/public/assets/congress-CuG6a8eP.js                 16.27 kB │ gzip:   4.16 kB
+#10 2.684 dist/public/assets/icons-2f1bqvgh.js                    16.42 kB │ gzip:   5.77 kB
+#10 2.684 dist/public/assets/live-result-view-As9coWHK.js         18.24 kB │ gzip:   5.79 kB
+#10 2.684 dist/public/assets/preferences-CcK2tBSy.js              18.65 kB │ gzip:   4.35 kB
+#10 2.684 dist/public/assets/format-rEXDVrHF.js                   19.29 kB │ gzip:   5.51 kB
+#10 2.684 dist/public/assets/react-BpqA32dN.js                    20.46 kB │ gzip:   7.06 kB
+#10 2.684 dist/public/assets/admin-results-entry-9ybyBmMU.js      20.87 kB │ gzip:   6.53 kB
+#10 2.684 dist/public/assets/dashboard-BDPAzv1l.js                24.35 kB │ gzip:   5.03 kB
+#10 2.684 dist/public/assets/DataSteward-CeNHmwIh.js              24.70 kB │ gzip:   6.17 kB
+#10 2.684 dist/public/assets/zod-COPzk9ED.js                      25.92 kB │ gzip:   9.62 kB
+#10 2.684 dist/public/assets/auth-C9dDs_Lk.js                     29.19 kB │ gzip:   6.17 kB
+#10 2.684 dist/public/assets/query-DasIO8rc.js                    33.51 kB │ gzip:  10.07 kB
+#10 2.684 dist/public/assets/election-details-BhhdFWrb.js         35.72 kB │ gzip:   9.79 kB
+#10 2.684 dist/public/assets/lib-UMKb9-QE.js                      59.30 kB │ gzip:  14.13 kB
+#10 2.684 dist/public/assets/index-EFJErwMd.js                   230.87 kB │ gzip:  62.91 kB
+#10 2.684 dist/public/assets/radix-C-mTOb-Q.js                   268.45 kB │ gzip:  84.22 kB
+#10 2.684 dist/public/assets/charts-BTQhWz69.js                  394.33 kB │ gzip: 103.55 kB
+#10 2.684 
+#10 2.693 ✓ built in 1.97s
+#10 DONE 3.0s
+
+#11 [production  4/10] WORKDIR /app
+#11 CACHED
+
+#12 [production  5/10] COPY package*.json ./
+#12 CACHED
+
+#13 [production  2/10] RUN apk add --no-cache dumb-init postgresql16-client
+#13 CACHED
+
+#14 [production  3/10] RUN addgroup -g 1001 -S nodejs &&     adduser -S nodejs -u 1001
+#14 CACHED
+
+#15 [production  6/10] RUN npm ci --omit=dev &&     npm cache clean --force
+#15 CACHED
+
+#16 [production  7/10] COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
+#16 DONE 0.1s
+
+#17 [production  8/10] COPY --from=builder --chown=nodejs:nodejs /app/data/official-results ./data/official-results
+#17 DONE 0.2s
+
+#18 [production  9/10] COPY --from=builder --chown=nodejs:nodejs /app/migrations/20261011_official_results_routes.sql ./migrations/20261011_official_results_routes.sql
+#18 DONE 0.1s
+
+#19 [production 10/10] RUN mkdir -p /app/artifacts /app/backups /app/logs /app/infrastructure &&     chown nodejs:nodejs /app/artifacts /app/backups /app/logs /app/infrastructure
+#19 DONE 0.3s
+
+#20 exporting to image
+#20 exporting layers
+#20 exporting layers 0.3s done
+#20 exporting manifest sha256:865013b1d7a3a6642329b9eb26cc91b310c3a077938688a337fadd12ec8f022f 0.0s done
+#20 exporting config sha256:03582fdaea64703a370c7a1f7eb5f252aa0165fb3651b0dd1ac78919e7fa294a 0.0s done
+#20 exporting attestation manifest sha256:c42de0237309a7cdef1ee40661ab9138ac9c26df7bd527906d370e09ea736c55 0.1s done
+#20 exporting manifest list sha256:24c2da336b020504973f962e8bd5b48b2c62451d83261aec41e6954c25342049
+#20 exporting manifest list sha256:24c2da336b020504973f962e8bd5b48b2c62451d83261aec41e6954c25342049 0.0s done
+#20 naming to docker.io/library/electiontracker:et6-d-wa-clock-20261013 done
+#20 unpacking to docker.io/library/electiontracker:et6-d-wa-clock-20261013
+#20 unpacking to docker.io/library/electiontracker:et6-d-wa-clock-20261013 0.2s done
+#20 DONE 0.7s
