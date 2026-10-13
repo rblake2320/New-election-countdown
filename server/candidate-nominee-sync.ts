@@ -1,6 +1,6 @@
 import { isLouisiana2026HouseOpenPrimary } from './louisiana-house-catalog';
 import { createHash } from 'node:crypto';
-import type { Pool } from 'pg';
+import type { Pool, PoolClient } from 'pg';
 import { z } from 'zod';
 import { normalizedCandidateName, FEC_MASTER_URL, type RaceRow, type ExistingCandidate } from './fec-candidate-sync';
 
@@ -185,13 +185,17 @@ function assertPublicationFresh(incoming:string|null,previous:unknown,observed:s
   if(incoming===previousPublication && Number.isFinite(previousTime) && new Date(observed).getTime()<previousTime)throw new Error('Older source observation cannot replace a newer general-list snapshot');
 }
 
-async function runNomineeRefreshOnce(pool:Pool,m:NomineeManifest,manifestSha:string,apply:boolean):Promise<NomineePlan>{
+/** Operator-only guard runs inside the writer transaction after the shared identity lock.
+ * HTTP bodies cannot supply this callback. A refusal rolls back before profile/source/audit writes. */
+export interface NomineeApplyGuard { beforeApply?:(client:PoolClient)=>Promise<void> }
+async function runNomineeRefreshOnce(pool:Pool,m:NomineeManifest,manifestSha:string,apply:boolean,operation:NomineeApplyGuard):Promise<NomineePlan>{
   if(!/^[a-f0-9]{64}$/.test(manifestSha))throw new Error('Reviewed manifest SHA256 required');
   const client=await pool.connect();
   try{
     await client.query(apply?'BEGIN ISOLATION LEVEL SERIALIZABLE':'BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
     await client.query("SET LOCAL statement_timeout='30s'");await client.query("SET LOCAL lock_timeout='5s'");
     if(apply)await client.query('SELECT pg_advisory_xact_lock($1)',[2026110301]); // Shared identity writer lock with FEC.
+    if(apply&&operation.beforeApply)await operation.beforeApply(client);
     const tables=(await client.query("SELECT to_regclass('public.elections') AS elections,to_regclass('public.candidates') AS candidates,to_regclass('public.candidate_source_records') AS sources,to_regclass('public.candidate_ingest_runs') AS audit,to_regclass('public.general_candidate_list_snapshots') AS snapshots")).rows[0];
     if(!tables.elections || !tables.candidates)throw new Error('ElectionTracker schema absent');
     if(apply && (!tables.sources || !tables.audit || !tables.snapshots))throw new Error('Candidate source and general-list snapshot migrations required');
@@ -282,9 +286,9 @@ async function runNomineeRefreshOnce(pool:Pool,m:NomineeManifest,manifestSha:str
   }catch(error){await client.query('ROLLBACK').catch(()=>{});throw error;}finally{client.release();}
 }
 
-export async function runNomineeRefresh(pool:Pool,m:NomineeManifest,manifestSha:string,apply:boolean):Promise<NomineePlan>{
+export async function runNomineeRefresh(pool:Pool,m:NomineeManifest,manifestSha:string,apply:boolean,operation:NomineeApplyGuard={}):Promise<NomineePlan>{
   for(let attempt=0;;attempt++){
-    try{return await runNomineeRefreshOnce(pool,m,manifestSha,apply);}
+    try{return await runNomineeRefreshOnce(pool,m,manifestSha,apply,operation);}
     catch(error){if(attempt>=2 || !['40001','40P01'].includes((error as {code?:string}).code??''))throw error;await new Promise(resolve=>setTimeout(resolve,50*(attempt+1)));}
   }
 }
