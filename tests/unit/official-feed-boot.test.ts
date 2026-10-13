@@ -7,9 +7,9 @@ import { ResultsSourceRegistry } from '../../server/results-source-registry';
 import { registerOfficialFeedAdapters, registerOfficialFeedSources } from '../../server/official-feed-adapters';
 
 describe('ET-6 boot registration hook for lane C sources/adapters', () => {
-  it('the shipped body registers nothing yet and says so', () => {
+  it('the shipped body registers22 reviewed sources/adapters and reports them', () => {
     const receipt = registerOfficialFeedAdapters(new ResultsIngestionService(), new ResultsSourceRegistry(), registerOfficialFeedSources);
-    expect(receipt).toMatchObject({ sources: [], adapters: [], adaptersWithoutSource: [], error: null });
+    expect(receipt.sources).toHaveLength(22);expect(receipt.adapters).toHaveLength(22);expect(receipt).toMatchObject({ adaptersWithoutSource: [], error: null });
   });
 
   it('reports exactly what the boot body registered and flags adapters without a registry entry', () => {
