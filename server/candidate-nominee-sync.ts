@@ -187,9 +187,14 @@ function assertPublicationFresh(incoming:string|null,previous:unknown,observed:s
 
 /** Operator-only guard runs inside the writer transaction after the shared identity lock.
  * HTTP bodies cannot supply this callback. A refusal rolls back before profile/source/audit writes. */
-export interface NomineeApplyGuard { beforeApply?:(client:PoolClient)=>Promise<void> }
+export interface NomineeApplyGuard {
+ beforeApply?:(client:PoolClient)=>Promise<void>;
+ /** Capture the exact owned postimage before COMMIT and admission/table unlock. */
+ afterApply?:(client:PoolClient,plan:NomineePlan)=>Promise<void>;
+}
 async function runNomineeRefreshOnce(pool:Pool,m:NomineeManifest,manifestSha:string,apply:boolean,operation:NomineeApplyGuard):Promise<NomineePlan>{
   if(!/^[a-f0-9]{64}$/.test(manifestSha))throw new Error('Reviewed manifest SHA256 required');
+  if(operation.afterApply&&!operation.beforeApply)throw new Error('Owned postimage capture requires guarded source admission');
   const client=await pool.connect();
   let sessionAdmission=false;
   try{
@@ -293,6 +298,7 @@ async function runNomineeRefreshOnce(pool:Pool,m:NomineeManifest,manifestSha:str
     const receipt=await client.query<{id:number}>(`INSERT INTO candidate_ingest_runs(source_layer,source_url,source_file_sha256,applied_at,receipt)
       VALUES('general_candidate_list','urn:electiontracker:reviewed-general-list-manifest',$1,now(),$2::jsonb) RETURNING id`,[manifestSha,JSON.stringify({candidateInserts:inserted,sourceChanges,unresolved:plan.unresolved,sources:m.sources.map(s=>({id:s.id,url:s.url,publishedAt:s.publishedAt,completeScopes:s.completeScopes}))})]);
     plan.auditId=receipt.rows[0].id;
+    if(operation.afterApply)await operation.afterApply(client,plan);
     await client.query('COMMIT');return plan;
   }catch(error){await client.query('ROLLBACK').catch(()=>{});throw error;}finally{
     let cleanupError:Error|undefined;
