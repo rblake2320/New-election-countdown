@@ -1,0 +1,1539 @@
+{
+  "version": 1,
+  "outcome": "Worked",
+  "date": "2026-11-03",
+  "database": "et_sol_data_6c78a3148c6b",
+  "baselineSourceHash": "f96fbee688ecb420d9e91b02558aede045b9d405d145b972deb5636053bf3da0",
+  "finalSourceHash": "1322b3367130f43557be09f22033d9481b087d66d54f2bb74ada567f16c88eb2",
+  "rollbackSourceHash": "f96fbee688ecb420d9e91b02558aede045b9d405d145b972deb5636053bf3da0",
+  "rollbackExact": true,
+  "rollbackFaultAtomic": true,
+  "actualPostimageDriftRefused": true,
+  "sourceInputs": {
+    "fecZipSha": "6062f203fd5dd90a7e33e487088a4d496bd9634cc1e560f94b0f5e7ff8ea0126",
+    "fecRows": 8711,
+    "fecEligible": 2523,
+    "nomineeManifestSha": "7890860f047cb79e64144c57f56ea721669348c2f5905fd25159ba738c81982e",
+    "nomineeRows": 1361,
+    "resultsManifestSha": "edbc1deff97cba8a154f3322e305be08427be1db358761635e59153328e04c86"
+  },
+  "initialTableCounts": {
+    "elections": 537,
+    "candidates": 136,
+    "candidate_source_records": 0,
+    "general_candidate_list_snapshots": 0,
+    "candidate_ingest_runs": 0,
+    "election_catalog_correction_runs": 0,
+    "official_results_sync_runs": 0
+  },
+  "finalTableCounts": {
+    "elections": 537,
+    "candidates": 3444,
+    "candidate_source_records": 3856,
+    "general_candidate_list_snapshots": 500,
+    "candidate_ingest_runs": 2,
+    "election_catalog_correction_runs": 1,
+    "official_results_sync_runs": 1
+  },
+  "totals": {
+    "elections": 506,
+    "emptyElections": 0,
+    "candidates": 3428,
+    "officialGeneralSourceRecords": 1361,
+    "officialListScopes": 500,
+    "pollHoursRows": 506,
+    "pollCloseUnknownRows": 10,
+    "resultsMetadataRows": 506,
+    "actualResultsURLRows": 502
+  },
+  "states": [
+    {
+      "state": "AK",
+      "before": {
+        "elections": 3,
+        "emptyElections": 2,
+        "candidates": 2,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 3,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 15,
+        "newCandidates": 13
+      },
+      "after": {
+        "elections": 3,
+        "emptyElections": 0,
+        "candidates": 20,
+        "officialGeneralSourceRecords": 15,
+        "officialListScopes": 5,
+        "pollHoursRows": 3,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 3,
+        "actualResultsURLRows": 3
+      }
+    },
+    {
+      "state": "AL",
+      "before": {
+        "elections": 9,
+        "emptyElections": 8,
+        "candidates": 2,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 9,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 14,
+        "newCandidates": 10
+      },
+      "after": {
+        "elections": 9,
+        "emptyElections": 0,
+        "candidates": 52,
+        "officialGeneralSourceRecords": 14,
+        "officialListScopes": 14,
+        "pollHoursRows": 9,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 9,
+        "actualResultsURLRows": 9
+      }
+    },
+    {
+      "state": "AR",
+      "before": {
+        "elections": 6,
+        "emptyElections": 4,
+        "candidates": 3,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 6,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 9,
+        "newCandidates": 5
+      },
+      "after": {
+        "elections": 6,
+        "emptyElections": 0,
+        "candidates": 25,
+        "officialGeneralSourceRecords": 9,
+        "officialListScopes": 3,
+        "pollHoursRows": 6,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 6,
+        "actualResultsURLRows": 6
+      }
+    },
+    {
+      "state": "AZ",
+      "before": {
+        "elections": 10,
+        "emptyElections": 9,
+        "candidates": 3,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 10,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 6,
+        "newCandidates": 6
+      },
+      "after": {
+        "elections": 10,
+        "emptyElections": 0,
+        "candidates": 52,
+        "officialGeneralSourceRecords": 6,
+        "officialListScopes": 4,
+        "pollHoursRows": 10,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 10,
+        "actualResultsURLRows": 10
+      }
+    },
+    {
+      "state": "CA",
+      "before": {
+        "elections": 53,
+        "emptyElections": 52,
+        "candidates": 2,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 53,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 106,
+        "newCandidates": 37
+      },
+      "after": {
+        "elections": 53,
+        "emptyElections": 0,
+        "candidates": 275,
+        "officialGeneralSourceRecords": 106,
+        "officialListScopes": 53,
+        "pollHoursRows": 53,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 53,
+        "actualResultsURLRows": 53
+      }
+    },
+    {
+      "state": "CO",
+      "before": {
+        "elections": 10,
+        "emptyElections": 8,
+        "candidates": 3,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 10,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 54,
+        "newCandidates": 43
+      },
+      "after": {
+        "elections": 10,
+        "emptyElections": 0,
+        "candidates": 93,
+        "officialGeneralSourceRecords": 54,
+        "officialListScopes": 10,
+        "pollHoursRows": 10,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 10,
+        "actualResultsURLRows": 10
+      }
+    },
+    {
+      "state": "CT",
+      "before": {
+        "elections": 6,
+        "emptyElections": 5,
+        "candidates": 2,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 6,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 15,
+        "newCandidates": 7
+      },
+      "after": {
+        "elections": 6,
+        "emptyElections": 0,
+        "candidates": 31,
+        "officialGeneralSourceRecords": 15,
+        "officialListScopes": 6,
+        "pollHoursRows": 6,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 6,
+        "actualResultsURLRows": 6
+      }
+    },
+    {
+      "state": "DE",
+      "before": {
+        "elections": 2,
+        "emptyElections": 1,
+        "candidates": 1,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 2,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 8,
+        "newCandidates": 6
+      },
+      "after": {
+        "elections": 2,
+        "emptyElections": 0,
+        "candidates": 15,
+        "officialGeneralSourceRecords": 8,
+        "officialListScopes": 4,
+        "pollHoursRows": 2,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 2,
+        "actualResultsURLRows": 2
+      }
+    },
+    {
+      "state": "FL",
+      "before": {
+        "elections": 30,
+        "emptyElections": 28,
+        "candidates": 7,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 30,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 95,
+        "newCandidates": 45
+      },
+      "after": {
+        "elections": 30,
+        "emptyElections": 0,
+        "candidates": 271,
+        "officialGeneralSourceRecords": 95,
+        "officialListScopes": 38,
+        "pollHoursRows": 30,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 30,
+        "actualResultsURLRows": 30
+      }
+    },
+    {
+      "state": "GA",
+      "before": {
+        "elections": 16,
+        "emptyElections": 14,
+        "candidates": 6,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 16,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 16,
+        "newCandidates": 16
+      },
+      "after": {
+        "elections": 16,
+        "emptyElections": 0,
+        "candidates": 123,
+        "officialGeneralSourceRecords": 16,
+        "officialListScopes": 6,
+        "pollHoursRows": 16,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 16,
+        "actualResultsURLRows": 16
+      }
+    },
+    {
+      "state": "HI",
+      "before": {
+        "elections": 3,
+        "emptyElections": 2,
+        "candidates": 1,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 3,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 8,
+        "newCandidates": 6
+      },
+      "after": {
+        "elections": 3,
+        "emptyElections": 0,
+        "candidates": 12,
+        "officialGeneralSourceRecords": 8,
+        "officialListScopes": 3,
+        "pollHoursRows": 3,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 3,
+        "actualResultsURLRows": 3
+      }
+    },
+    {
+      "state": "IA",
+      "before": {
+        "elections": 6,
+        "emptyElections": 4,
+        "candidates": 4,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 6,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 16,
+        "newCandidates": 3
+      },
+      "after": {
+        "elections": 6,
+        "emptyElections": 0,
+        "candidates": 44,
+        "officialGeneralSourceRecords": 16,
+        "officialListScopes": 6,
+        "pollHoursRows": 6,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 6,
+        "actualResultsURLRows": 6
+      }
+    },
+    {
+      "state": "ID",
+      "before": {
+        "elections": 4,
+        "emptyElections": 2,
+        "candidates": 4,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 4,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 19,
+        "newCandidates": 14
+      },
+      "after": {
+        "elections": 4,
+        "emptyElections": 0,
+        "candidates": 33,
+        "officialGeneralSourceRecords": 19,
+        "officialListScopes": 4,
+        "pollHoursRows": 4,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 4,
+        "actualResultsURLRows": 4
+      }
+    },
+    {
+      "state": "IL",
+      "before": {
+        "elections": 19,
+        "emptyElections": 17,
+        "candidates": 3,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 19,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 39,
+        "newCandidates": 20
+      },
+      "after": {
+        "elections": 19,
+        "emptyElections": 0,
+        "candidates": 142,
+        "officialGeneralSourceRecords": 39,
+        "officialListScopes": 18,
+        "pollHoursRows": 19,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 19,
+        "actualResultsURLRows": 19
+      }
+    },
+    {
+      "state": "IN",
+      "before": {
+        "elections": 9,
+        "emptyElections": 9,
+        "candidates": 0,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 9,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 26,
+        "newCandidates": 17
+      },
+      "after": {
+        "elections": 9,
+        "emptyElections": 0,
+        "candidates": 53,
+        "officialGeneralSourceRecords": 26,
+        "officialListScopes": 9,
+        "pollHoursRows": 9,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 9,
+        "actualResultsURLRows": 9
+      }
+    },
+    {
+      "state": "KS",
+      "before": {
+        "elections": 6,
+        "emptyElections": 5,
+        "candidates": 1,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 6,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 17,
+        "newCandidates": 9
+      },
+      "after": {
+        "elections": 6,
+        "emptyElections": 0,
+        "candidates": 33,
+        "officialGeneralSourceRecords": 17,
+        "officialListScopes": 6,
+        "pollHoursRows": 6,
+        "pollCloseUnknownRows": 6,
+        "resultsMetadataRows": 6,
+        "actualResultsURLRows": 6
+      }
+    },
+    {
+      "state": "KY",
+      "before": {
+        "elections": 7,
+        "emptyElections": 6,
+        "candidates": 2,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 7,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 20,
+        "newCandidates": 13
+      },
+      "after": {
+        "elections": 7,
+        "emptyElections": 0,
+        "candidates": 57,
+        "officialGeneralSourceRecords": 20,
+        "officialListScopes": 7,
+        "pollHoursRows": 7,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 7,
+        "actualResultsURLRows": 7
+      }
+    },
+    {
+      "state": "LA",
+      "before": {
+        "elections": 7,
+        "emptyElections": 7,
+        "candidates": 0,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 7,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 2,
+        "newCandidates": 0
+      },
+      "after": {
+        "elections": 7,
+        "emptyElections": 0,
+        "candidates": 41,
+        "officialGeneralSourceRecords": 2,
+        "officialListScopes": 1,
+        "pollHoursRows": 7,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 7,
+        "actualResultsURLRows": 7
+      }
+    },
+    {
+      "state": "MA",
+      "before": {
+        "elections": 11,
+        "emptyElections": 9,
+        "candidates": 2,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 11,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 24,
+        "newCandidates": 18
+      },
+      "after": {
+        "elections": 11,
+        "emptyElections": 0,
+        "candidates": 56,
+        "officialGeneralSourceRecords": 24,
+        "officialListScopes": 11,
+        "pollHoursRows": 11,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 11,
+        "actualResultsURLRows": 11
+      }
+    },
+    {
+      "state": "MD",
+      "before": {
+        "elections": 9,
+        "emptyElections": 8,
+        "candidates": 1,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 9,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 26,
+        "newCandidates": 19
+      },
+      "after": {
+        "elections": 9,
+        "emptyElections": 0,
+        "candidates": 64,
+        "officialGeneralSourceRecords": 26,
+        "officialListScopes": 9,
+        "pollHoursRows": 9,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 9,
+        "actualResultsURLRows": 9
+      }
+    },
+    {
+      "state": "ME",
+      "before": {
+        "elections": 4,
+        "emptyElections": 2,
+        "candidates": 3,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 4,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 18,
+        "newCandidates": 16
+      },
+      "after": {
+        "elections": 4,
+        "emptyElections": 0,
+        "candidates": 44,
+        "officialGeneralSourceRecords": 18,
+        "officialListScopes": 8,
+        "pollHoursRows": 4,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 4,
+        "actualResultsURLRows": 4
+      }
+    },
+    {
+      "state": "MI",
+      "before": {
+        "elections": 15,
+        "emptyElections": 13,
+        "candidates": 6,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 15,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 73,
+        "newCandidates": 57
+      },
+      "after": {
+        "elections": 15,
+        "emptyElections": 0,
+        "candidates": 131,
+        "officialGeneralSourceRecords": 73,
+        "officialListScopes": 15,
+        "pollHoursRows": 15,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 15,
+        "actualResultsURLRows": 15
+      }
+    },
+    {
+      "state": "MN",
+      "before": {
+        "elections": 10,
+        "emptyElections": 8,
+        "candidates": 3,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 10,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 9,
+        "newCandidates": 6
+      },
+      "after": {
+        "elections": 10,
+        "emptyElections": 0,
+        "candidates": 50,
+        "officialGeneralSourceRecords": 9,
+        "officialListScopes": 3,
+        "pollHoursRows": 10,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 10,
+        "actualResultsURLRows": 10
+      }
+    },
+    {
+      "state": "MO",
+      "before": {
+        "elections": 8,
+        "emptyElections": 8,
+        "candidates": 0,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 8,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 24,
+        "newCandidates": 16
+      },
+      "after": {
+        "elections": 8,
+        "emptyElections": 0,
+        "candidates": 57,
+        "officialGeneralSourceRecords": 24,
+        "officialListScopes": 8,
+        "pollHoursRows": 8,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 8,
+        "actualResultsURLRows": 8
+      }
+    },
+    {
+      "state": "MS",
+      "before": {
+        "elections": 5,
+        "emptyElections": 4,
+        "candidates": 2,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 5,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 15,
+        "newCandidates": 9
+      },
+      "after": {
+        "elections": 5,
+        "emptyElections": 0,
+        "candidates": 26,
+        "officialGeneralSourceRecords": 15,
+        "officialListScopes": 5,
+        "pollHoursRows": 5,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 5,
+        "actualResultsURLRows": 5
+      }
+    },
+    {
+      "state": "MT",
+      "before": {
+        "elections": 3,
+        "emptyElections": 2,
+        "candidates": 3,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 3,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 11,
+        "newCandidates": 5
+      },
+      "after": {
+        "elections": 3,
+        "emptyElections": 0,
+        "candidates": 27,
+        "officialGeneralSourceRecords": 11,
+        "officialListScopes": 3,
+        "pollHoursRows": 3,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 3,
+        "actualResultsURLRows": 3
+      }
+    },
+    {
+      "state": "NC",
+      "before": {
+        "elections": 15,
+        "emptyElections": 14,
+        "candidates": 2,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 15,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 42,
+        "newCandidates": 24
+      },
+      "after": {
+        "elections": 15,
+        "emptyElections": 0,
+        "candidates": 96,
+        "officialGeneralSourceRecords": 42,
+        "officialListScopes": 15,
+        "pollHoursRows": 15,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 15,
+        "actualResultsURLRows": 15
+      }
+    },
+    {
+      "state": "ND",
+      "before": {
+        "elections": 1,
+        "emptyElections": 1,
+        "candidates": 0,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 1,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 4,
+        "newCandidates": 2
+      },
+      "after": {
+        "elections": 1,
+        "emptyElections": 0,
+        "candidates": 5,
+        "officialGeneralSourceRecords": 4,
+        "officialListScopes": 1,
+        "pollHoursRows": 1,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 1,
+        "actualResultsURLRows": 1
+      }
+    },
+    {
+      "state": "NE",
+      "before": {
+        "elections": 5,
+        "emptyElections": 3,
+        "candidates": 4,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 5,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 21,
+        "newCandidates": 11
+      },
+      "after": {
+        "elections": 5,
+        "emptyElections": 0,
+        "candidates": 35,
+        "officialGeneralSourceRecords": 21,
+        "officialListScopes": 5,
+        "pollHoursRows": 5,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 5,
+        "actualResultsURLRows": 5
+      }
+    },
+    {
+      "state": "NH",
+      "before": {
+        "elections": 4,
+        "emptyElections": 2,
+        "candidates": 5,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 4,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 11,
+        "newCandidates": 3
+      },
+      "after": {
+        "elections": 4,
+        "emptyElections": 0,
+        "candidates": 31,
+        "officialGeneralSourceRecords": 11,
+        "officialListScopes": 4,
+        "pollHoursRows": 4,
+        "pollCloseUnknownRows": 4,
+        "resultsMetadataRows": 4,
+        "actualResultsURLRows": 0
+      }
+    },
+    {
+      "state": "NJ",
+      "before": {
+        "elections": 13,
+        "emptyElections": 12,
+        "candidates": 1,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 13,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 39,
+        "newCandidates": 25
+      },
+      "after": {
+        "elections": 13,
+        "emptyElections": 0,
+        "candidates": 106,
+        "officialGeneralSourceRecords": 39,
+        "officialListScopes": 13,
+        "pollHoursRows": 13,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 13,
+        "actualResultsURLRows": 13
+      }
+    },
+    {
+      "state": "NM",
+      "before": {
+        "elections": 5,
+        "emptyElections": 3,
+        "candidates": 4,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 5,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 10,
+        "newCandidates": 6
+      },
+      "after": {
+        "elections": 5,
+        "emptyElections": 0,
+        "candidates": 20,
+        "officialGeneralSourceRecords": 10,
+        "officialListScopes": 5,
+        "pollHoursRows": 5,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 5,
+        "actualResultsURLRows": 5
+      }
+    },
+    {
+      "state": "NV",
+      "before": {
+        "elections": 5,
+        "emptyElections": 4,
+        "candidates": 2,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 5,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 17,
+        "newCandidates": 12
+      },
+      "after": {
+        "elections": 5,
+        "emptyElections": 0,
+        "candidates": 47,
+        "officialGeneralSourceRecords": 17,
+        "officialListScopes": 5,
+        "pollHoursRows": 5,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 5,
+        "actualResultsURLRows": 5
+      }
+    },
+    {
+      "state": "NY",
+      "before": {
+        "elections": 27,
+        "emptyElections": 26,
+        "candidates": 2,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 27,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 61,
+        "newCandidates": 40
+      },
+      "after": {
+        "elections": 27,
+        "emptyElections": 0,
+        "candidates": 163,
+        "officialGeneralSourceRecords": 61,
+        "officialListScopes": 27,
+        "pollHoursRows": 27,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 27,
+        "actualResultsURLRows": 27
+      }
+    },
+    {
+      "state": "OH",
+      "before": {
+        "elections": 17,
+        "emptyElections": 15,
+        "candidates": 4,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 17,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 54,
+        "newCandidates": 37
+      },
+      "after": {
+        "elections": 17,
+        "emptyElections": 0,
+        "candidates": 104,
+        "officialGeneralSourceRecords": 54,
+        "officialListScopes": 21,
+        "pollHoursRows": 17,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 17,
+        "actualResultsURLRows": 17
+      }
+    },
+    {
+      "state": "OK",
+      "before": {
+        "elections": 7,
+        "emptyElections": 6,
+        "candidates": 2,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 7,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 24,
+        "newCandidates": 15
+      },
+      "after": {
+        "elections": 7,
+        "emptyElections": 0,
+        "candidates": 51,
+        "officialGeneralSourceRecords": 24,
+        "officialListScopes": 7,
+        "pollHoursRows": 7,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 7,
+        "actualResultsURLRows": 7
+      }
+    },
+    {
+      "state": "OR",
+      "before": {
+        "elections": 8,
+        "emptyElections": 6,
+        "candidates": 3,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 8,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 21,
+        "newCandidates": 12
+      },
+      "after": {
+        "elections": 8,
+        "emptyElections": 0,
+        "candidates": 39,
+        "officialGeneralSourceRecords": 21,
+        "officialListScopes": 8,
+        "pollHoursRows": 8,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 8,
+        "actualResultsURLRows": 8
+      }
+    },
+    {
+      "state": "PA",
+      "before": {
+        "elections": 18,
+        "emptyElections": 17,
+        "candidates": 2,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 18,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 37,
+        "newCandidates": 18
+      },
+      "after": {
+        "elections": 18,
+        "emptyElections": 0,
+        "candidates": 80,
+        "officialGeneralSourceRecords": 37,
+        "officialListScopes": 18,
+        "pollHoursRows": 18,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 18,
+        "actualResultsURLRows": 18
+      }
+    },
+    {
+      "state": "RI",
+      "before": {
+        "elections": 4,
+        "emptyElections": 2,
+        "candidates": 2,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 4,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 13,
+        "newCandidates": 12
+      },
+      "after": {
+        "elections": 4,
+        "emptyElections": 0,
+        "candidates": 23,
+        "officialGeneralSourceRecords": 13,
+        "officialListScopes": 4,
+        "pollHoursRows": 4,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 4,
+        "actualResultsURLRows": 4
+      }
+    },
+    {
+      "state": "SC",
+      "before": {
+        "elections": 9,
+        "emptyElections": 7,
+        "candidates": 5,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 9,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 15,
+        "newCandidates": 7
+      },
+      "after": {
+        "elections": 9,
+        "emptyElections": 0,
+        "candidates": 65,
+        "officialGeneralSourceRecords": 15,
+        "officialListScopes": 5,
+        "pollHoursRows": 9,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 9,
+        "actualResultsURLRows": 9
+      }
+    },
+    {
+      "state": "SD",
+      "before": {
+        "elections": 3,
+        "emptyElections": 1,
+        "candidates": 3,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 3,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 6,
+        "newCandidates": 3
+      },
+      "after": {
+        "elections": 3,
+        "emptyElections": 0,
+        "candidates": 14,
+        "officialGeneralSourceRecords": 6,
+        "officialListScopes": 3,
+        "pollHoursRows": 3,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 3,
+        "actualResultsURLRows": 3
+      }
+    },
+    {
+      "state": "TN",
+      "before": {
+        "elections": 11,
+        "emptyElections": 9,
+        "candidates": 3,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 11,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 71,
+        "newCandidates": 53
+      },
+      "after": {
+        "elections": 11,
+        "emptyElections": 0,
+        "candidates": 101,
+        "officialGeneralSourceRecords": 71,
+        "officialListScopes": 11,
+        "pollHoursRows": 11,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 11,
+        "actualResultsURLRows": 11
+      }
+    },
+    {
+      "state": "TX",
+      "before": {
+        "elections": 40,
+        "emptyElections": 38,
+        "candidates": 4,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 40,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 100,
+        "newCandidates": 56
+      },
+      "after": {
+        "elections": 40,
+        "emptyElections": 0,
+        "candidates": 300,
+        "officialGeneralSourceRecords": 100,
+        "officialListScopes": 44,
+        "pollHoursRows": 40,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 40,
+        "actualResultsURLRows": 40
+      }
+    },
+    {
+      "state": "UT",
+      "before": {
+        "elections": 4,
+        "emptyElections": 4,
+        "candidates": 0,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 4,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 20,
+        "newCandidates": 13
+      },
+      "after": {
+        "elections": 4,
+        "emptyElections": 0,
+        "candidates": 38,
+        "officialGeneralSourceRecords": 20,
+        "officialListScopes": 5,
+        "pollHoursRows": 4,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 4,
+        "actualResultsURLRows": 4
+      }
+    },
+    {
+      "state": "VA",
+      "before": {
+        "elections": 12,
+        "emptyElections": 11,
+        "candidates": 1,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 12,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 38,
+        "newCandidates": 35
+      },
+      "after": {
+        "elections": 12,
+        "emptyElections": 0,
+        "candidates": 123,
+        "officialGeneralSourceRecords": 38,
+        "officialListScopes": 12,
+        "pollHoursRows": 12,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 12,
+        "actualResultsURLRows": 12
+      }
+    },
+    {
+      "state": "VT",
+      "before": {
+        "elections": 2,
+        "emptyElections": 1,
+        "candidates": 1,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 2,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 11,
+        "newCandidates": 10
+      },
+      "after": {
+        "elections": 2,
+        "emptyElections": 0,
+        "candidates": 14,
+        "officialGeneralSourceRecords": 11,
+        "officialListScopes": 2,
+        "pollHoursRows": 2,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 2,
+        "actualResultsURLRows": 2
+      }
+    },
+    {
+      "state": "WA",
+      "before": {
+        "elections": 10,
+        "emptyElections": 10,
+        "candidates": 0,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 10,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 20,
+        "newCandidates": 8
+      },
+      "after": {
+        "elections": 10,
+        "emptyElections": 0,
+        "candidates": 51,
+        "officialGeneralSourceRecords": 20,
+        "officialListScopes": 10,
+        "pollHoursRows": 10,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 10,
+        "actualResultsURLRows": 10
+      }
+    },
+    {
+      "state": "WI",
+      "before": {
+        "elections": 9,
+        "emptyElections": 8,
+        "candidates": 2,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 9,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 23,
+        "newCandidates": 14
+      },
+      "after": {
+        "elections": 9,
+        "emptyElections": 0,
+        "candidates": 50,
+        "officialGeneralSourceRecords": 23,
+        "officialListScopes": 9,
+        "pollHoursRows": 9,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 9,
+        "actualResultsURLRows": 9
+      }
+    },
+    {
+      "state": "WV",
+      "before": {
+        "elections": 3,
+        "emptyElections": 2,
+        "candidates": 1,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 3,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 9,
+        "newCandidates": 6
+      },
+      "after": {
+        "elections": 3,
+        "emptyElections": 0,
+        "candidates": 23,
+        "officialGeneralSourceRecords": 9,
+        "officialListScopes": 4,
+        "pollHoursRows": 3,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 3,
+        "actualResultsURLRows": 3
+      }
+    },
+    {
+      "state": "WY",
+      "before": {
+        "elections": 3,
+        "emptyElections": 2,
+        "candidates": 1,
+        "officialGeneralSourceRecords": 0,
+        "officialListScopes": 0,
+        "pollHoursRows": 0,
+        "pollCloseUnknownRows": 3,
+        "resultsMetadataRows": 0,
+        "actualResultsURLRows": 0
+      },
+      "nomineePlan": {
+        "rows": 9,
+        "newCandidates": 6
+      },
+      "after": {
+        "elections": 3,
+        "emptyElections": 0,
+        "candidates": 22,
+        "officialGeneralSourceRecords": 9,
+        "officialListScopes": 3,
+        "pollHoursRows": 3,
+        "pollCloseUnknownRows": 0,
+        "resultsMetadataRows": 3,
+        "actualResultsURLRows": 3
+      }
+    }
+  ],
+  "LAHouseFecActionsByDistrict": {
+    "01": 2,
+    "02": 1,
+    "03": 3,
+    "05": 11,
+    "06": 7,
+    "04": 4
+  },
+  "LAHouseRegistrationOnlyCounts": {
+    "01": 2,
+    "02": 1,
+    "03": 3,
+    "04": 4,
+    "05": 11,
+    "06": 7
+  },
+  "fecUnmatchedByTuple": {
+    "TX|H|30|ambiguous-identity": 2,
+    "NC|H|04|ambiguous-identity": 2,
+    "GA|H|11|ambiguous-identity": 4,
+    "NC|H|08|ambiguous-identity": 2,
+    "NV|H|03|ambiguous-identity": 2,
+    "GA|H|23|missing-race": 1,
+    "KY|H|04|ambiguous-identity": 2,
+    "NM|H|66|missing-race": 1,
+    "SC|H|02|ambiguous-identity": 2,
+    "TX|H|10|ambiguous-identity": 4,
+    "TX|H|14|ambiguous-identity": 2,
+    "WI|H|06|ambiguous-identity": 2,
+    "MS|S|00|ambiguous-identity": 2
+  },
+  "originalCandidateFieldChanges": {
+    "fec_status": 31,
+    "updated_at": 31,
+    "fec_candidate_id": 31
+  },
+  "originalProfilesPreserved": true,
+  "interpretation": "Candidate totals include FEC registrations, not certified nominees. Results metadata includes blocked NH routes; actual URL counts are separate. Null poll close is explicitly unknown. No source-row values or credentials retained."
+}
