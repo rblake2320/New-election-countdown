@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "purpose": "dry_run_only",
+  "parser": "wa_lands_recount",
+  "context": {
+    "state": "WA",
+    "electionDate": "2024-08-06",
+    "phase": "primary",
+    "level": "state",
+    "office": "Commissioner of Public Lands",
+    "district": null,
+    "party": null
+  },
+  "targetBinding": {
+    "id": 4242401,
+    "state": "WA",
+    "date": "2024-08-06",
+    "type": "Primary",
+    "level": "state",
+    "title": "Washington Commissioner of Public Lands Primary"
+  },
+  "publisher": {
+    "id": "wa-sos-2024-primary-lands",
+    "kind": "official_state_page",
+    "name": "Washington Secretary of State",
+    "url": "https://www.sos.wa.gov/sites/default/files/2024-09/TotalsforWeb_AllCandidates.xlsx"
+  },
+  "files": [
+    {
+      "role": "payload",
+      "path": "raw/wa-2024-recount-all-candidates.xlsx",
+      "sha256": "1d11cc471c4e6bfb62f690cbfd8a248cd649989acc3d479273809316d8f3d466",
+      "url": "https://www.sos.wa.gov/sites/default/files/2024-09/TotalsforWeb_AllCandidates.xlsx"
+    },
+    {
+      "role": "certificate",
+      "path": "raw/wa-2024-recount-certification.pdf",
+      "sha256": "f9b03babc54a1f108c13bab5a02a565d5bac7fa6a7a11a4f43cd7f0ec02d7949",
+      "url": "https://www.sos.wa.gov/sites/default/files/2024-09/Certification%20of%20recount%20results%20-%202024%20Primary_signed.pdf"
+    },
+    {
+      "role": "capture_receipt",
+      "path": "raw/capture-receipt.json",
+      "sha256": "29bfff72856d6dc0df98c1107479dcaab897182a40027b1e651abede63f96890",
+      "url": null
+    }
+  ],
+  "reviewedCertification": true,
+  "sourceContestId": null,
+  "localContestId": null,
+  "expectedTotals": {
+    "totalVotes": 1903115,
+    "optionCount": 8
+  }
+}

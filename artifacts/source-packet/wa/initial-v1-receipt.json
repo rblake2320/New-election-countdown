@@ -1,0 +1,175 @@
+{
+  "outcome": "Worked",
+  "mode": "dry_run_only",
+  "manifestSha256": "31c846a01cb024d130d1f779573528f9e07f5ad2a2a1af2e6d6d446a32f11b5c",
+  "files": [
+    {
+      "role": "payload",
+      "sha256": "1d11cc471c4e6bfb62f690cbfd8a248cd649989acc3d479273809316d8f3d466"
+    },
+    {
+      "role": "certificate",
+      "sha256": "f75e558434a6633786614cc3b2696916bf81d651c79d4a0868104ca8546849ac"
+    },
+    {
+      "role": "capture_receipt",
+      "sha256": "29bfff72856d6dc0df98c1107479dcaab897182a40027b1e651abede63f96890"
+    }
+  ],
+  "targetBinding": {
+    "id": 4242401,
+    "state": "WA",
+    "date": "2024-08-06",
+    "type": "Primary",
+    "level": "state",
+    "title": "Washington Commissioner of Public Lands Primary"
+  },
+  "identifierBasis": [
+    {
+      "sourceLabel": "Allen Lebovitz",
+      "basis": "printed_label",
+      "optionKind": "named"
+    },
+    {
+      "sourceLabel": "Jaime Herrera Beutler",
+      "basis": "printed_label",
+      "optionKind": "named"
+    },
+    {
+      "sourceLabel": "Dave Upthegrove",
+      "basis": "printed_label",
+      "optionKind": "named"
+    },
+    {
+      "sourceLabel": "Sue Kuehl Pederson",
+      "basis": "printed_label",
+      "optionKind": "named"
+    },
+    {
+      "sourceLabel": "Patrick DePoe",
+      "basis": "printed_label",
+      "optionKind": "named"
+    },
+    {
+      "sourceLabel": "Jeralee Anderson",
+      "basis": "printed_label",
+      "optionKind": "named"
+    },
+    {
+      "sourceLabel": "Kevin Van De Wege",
+      "basis": "printed_label",
+      "optionKind": "named"
+    },
+    {
+      "sourceLabel": "Write-In",
+      "basis": "printed_label",
+      "optionKind": "write_in"
+    }
+  ],
+  "publisherMetrics": {
+    "overvote": 1205,
+    "undervote": 89818,
+    "ballotTotal": 1994096
+  },
+  "input": {
+    "schemaVersion": 1,
+    "electionId": 4242401,
+    "status": "certified",
+    "reporting": null,
+    "source": {
+      "id": "wa-sos-2024-primary-lands",
+      "kind": "official_state_page",
+      "name": "Washington Secretary of State",
+      "url": "https://www.sos.wa.gov/sites/default/files/2024-09/TotalsforWeb_AllCandidates.xlsx",
+      "sourceContestId": "Sheet1:Commissioner of Public Lands:Initial"
+    },
+    "sourcePayloadSha256": "1d11cc471c4e6bfb62f690cbfd8a248cd649989acc3d479273809316d8f3d466",
+    "asOf": null,
+    "asOfBasis": "not_provided",
+    "retrievedAt": "2026-10-12T04:27:30.691594+00:00",
+    "totalVotes": 1903073,
+    "candidates": [
+      {
+        "candidateId": null,
+        "sourceCandidateId": "Allen Lebovitz",
+        "name": "Allen Lebovitz",
+        "party": "(Prefers Democratic Party)",
+        "votes": 194114,
+        "percent": null,
+        "isWinner": false
+      },
+      {
+        "candidateId": null,
+        "sourceCandidateId": "Jaime Herrera Beutler",
+        "name": "Jaime Herrera Beutler",
+        "party": "(Prefers Republican Party)",
+        "votes": 419297,
+        "percent": null,
+        "isWinner": false
+      },
+      {
+        "candidateId": null,
+        "sourceCandidateId": "Dave Upthegrove",
+        "name": "Dave Upthegrove",
+        "party": "(Prefers Democratic Party)",
+        "votes": 396300,
+        "percent": null,
+        "isWinner": false
+      },
+      {
+        "candidateId": null,
+        "sourceCandidateId": "Sue Kuehl Pederson",
+        "name": "Sue Kuehl Pederson",
+        "party": "(Prefers Republican Party)",
+        "votes": 396249,
+        "percent": null,
+        "isWinner": false
+      },
+      {
+        "candidateId": null,
+        "sourceCandidateId": "Patrick DePoe",
+        "name": "Patrick DePoe",
+        "party": "(Prefers Democratic Party)",
+        "votes": 267924,
+        "percent": null,
+        "isWinner": false
+      },
+      {
+        "candidateId": null,
+        "sourceCandidateId": "Jeralee Anderson",
+        "name": "Jeralee Anderson",
+        "party": "(Prefers Democratic Party)",
+        "votes": 84351,
+        "percent": null,
+        "isWinner": false
+      },
+      {
+        "candidateId": null,
+        "sourceCandidateId": "Kevin Van De Wege",
+        "name": "Kevin Van De Wege",
+        "party": "(Prefers Democratic Party)",
+        "votes": 143170,
+        "percent": null,
+        "isWinner": false
+      },
+      {
+        "candidateId": null,
+        "sourceCandidateId": "Write-In",
+        "name": "Write-In",
+        "party": null,
+        "votes": 1668,
+        "percent": null,
+        "isWinner": false
+      }
+    ],
+    "winnerCalledBy": null,
+    "certification": {
+      "url": "https://www.sos.wa.gov/sites/default/files/2024-08/Certification%20of%20Results%20-%202024%20Primary.pdf",
+      "certifiedAt": null
+    },
+    "supersedesReportId": null,
+    "expectedRevision": null,
+    "idempotencyKey": "sourcepacket:28b857afbf45a9aa31f8d11cc69df9f33ca41fd5753e98910675ee44a0053fad",
+    "note": "Identifiers are exact publisher IDs when provided, otherwise exact source printed labels scoped to the source contest; all candidateId null; no winners inferred. Certification raw SHA256: f75e558434a6633786614cc3b2696916bf81d651c79d4a0868104ca8546849ac."
+  }
+}
