@@ -1,0 +1,1067 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.3 [39m[90m/app[39m
+
+ [32m✓[39m tests/official-source-library-boot.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 341[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m   Start at [22m 19:33:32
+[2m   Duration [22m 981ms[2m (environment 43%, tests 39%, setup 13%, transform 4%, worker 1%, import 1%)[22m
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.3 [39m[90m/app[39m
+
+ [32m✓[39m tests/unit/autofix-security.test.ts [2m([22m[2m40 tests[22m[2m)[22m[33m 328[2mms[22m[39m
+[90mstdout[2m | tests/unit/results-routes.test.ts[2m > [22m[2mET-6 results contract (v1.2)[2m > [22m[2mthe schema refuses projections, missing evidence and pre-contract shapes
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-routes.test.ts[2m > [22m[2mET-6 results contract (v1.2)[2m > [22m[2mGET before any report is 200 status none with nulls, never an error
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-routes.test.ts[2m > [22m[2mET-6 results contract (v1.2)[2m > [22m[2madmin POST records a snapshot (201), replays idempotently (200), refuses conflicts (409) and bad input (422)
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-routes.test.ts[2m > [22m[2mET-6 results contract (v1.2)[2m > [22m[2ma declared winner needs the official declaration; certified needs certification evidence
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-routes.test.ts[2m > [22m[2mET-6 results contract (v1.2)[2m > [22m[2mETag/304 on the detail read; batch read lists every race on the date with explicit none rows and an opaque cursor
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-routes.test.ts[2m > [22m[2mET-6 results contract (v1.2)[2m > [22m[2ma report recorded under a context the election row no longer has is never current (admin date edit acceptance)
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-routes.test.ts[2m > [22m[2mET-6 results contract (v1.2)[2m > [22m[2munauthenticated POST is refused and writes nothing
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-routes.test.ts[2m > [22m[2mET-6 results contract (v1.2)[2m > [22m[2munauthenticated POST is refused and writes nothing
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-routes.test.ts[2m > [22m[2mET-6 results contract (v1.2)[2m > [22m[2msources are registered: unknown ids are refused, the picker lists the manifest + admin_manual, manual entries need retained evidence
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-routes.test.ts[2m > [22m[2mET-6 results contract (v1.2)[2m > [22m[2mtwo different recordings from one raw payload are both kept (WA recount workbook case)
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+ [32m✓[39m tests/unit/results-routes.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 157[2mms[22m[39m
+ [32m✓[39m tests/unit/results-ingestion-v13.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 84[2mms[22m[39m
+ [32m✓[39m tests/unit/official-live-factory.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 211[2mms[22m[39m
+[90mstdout[2m | tests/unit/health-guard.test.ts[2m > [22m[2mglobalWriteGuard Middleware[2m > [22m[2mwhen database is unhealthy[2m > [22m[2mshould return 503 for POST requests when database is unhealthy
+[22m[39m🚫 Blocked POST /test - Database unhealthy
+
+[90mstdout[2m | tests/unit/health-guard.test.ts[2m > [22m[2mglobalWriteGuard Middleware[2m > [22m[2mwhen database is unhealthy[2m > [22m[2mshould return 503 for PUT requests when database is unhealthy
+[22m[39m🚫 Blocked PUT /test - Database unhealthy
+
+[90mstdout[2m | tests/unit/health-guard.test.ts[2m > [22m[2mglobalWriteGuard Middleware[2m > [22m[2mwhen database is unhealthy[2m > [22m[2mshould return 503 for DELETE requests when database is unhealthy
+[22m[39m🚫 Blocked DELETE /test - Database unhealthy
+
+[90mstdout[2m | tests/unit/health-guard.test.ts[2m > [22m[2mglobalWriteGuard Middleware[2m > [22m[2mwhen database is unhealthy[2m > [22m[2mshould return 503 for PATCH requests when database is unhealthy
+[22m[39m🚫 Blocked PATCH /test - Database unhealthy
+
+[90mstdout[2m | tests/unit/health-guard.test.ts[2m > [22m[2mglobalWriteGuard Middleware[2m > [22m[2mspecial allowlist handling[2m > [22m[2mshould handle case insensitive methods correctly
+[22m[39m🚫 Blocked POST /test - Database unhealthy
+
+ [32m✓[39m tests/unit/health-guard.test.ts [2m([22m[2m31 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m tests/unit/api-key-guard.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m tests/admin-results-entry.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 1762[2mms[22m[39m
+   [32m✓[39m admin results entry (ET-6 v1.2) [2m(13)[22m
+     [33m[2m✓[22m[39m loads the recorded counts for the race (Sullivan 10, not 0)[33m 318[2mms[22m[39m
+     [33m[2m✓[22m[39m A's writer refusals (evidence_missing, unknown_source, contest_key_conflict) are explained[33m 319[2mms[22m[39m
+ [32m✓[39m tests/unit/official-results.test.ts [2m([22m[2m33 tests[22m[2m)[22m[33m 345[2mms[22m[39m
+[90mstdout[2m | tests/live-results-http.test.tsx[2m > [22m[2mET-6 client against the real results routes (real HTTP, real schema)[2m > [22m[2madmin form posts through A's writer; the public page shows exactly what was recorded
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/live-results-http.test.tsx[2m > [22m[2mET-6 client against the real results routes (real HTTP, real schema)[2m > [22m[2ma second report is appended (revision changes, the first stays in history) and a repeat poll is a 304
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+ [32m✓[39m tests/general-roster.test.tsx [2m([22m[2m26 tests[22m[2m)[22m[32m 271[2mms[22m[39m
+[90mstdout[2m | tests/live-results-http.test.tsx[2m > [22m[2mET-6 client against the real results routes (real HTTP, real schema)[2m > [22m[2ma stale post is refused by the real writer with 409 and the form explains it
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+ [32m✓[39m tests/live-results-http.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1311[2mms[22m[39m
+   [32m✓[39m ET-6 client against the real results routes (real HTTP, real schema) [2m(3)[22m
+     [33m[2m✓[22m[39m admin form posts through A's writer; the public page shows exactly what was recorded[33m 591[2mms[22m[39m
+     [33m[2m✓[22m[39m a second report is appended (revision changes, the first stays in history) and a repeat poll is a 304[33m 410[2mms[22m[39m
+     [33m[2m✓[22m[39m a stale post is refused by the real writer with 409 and the form explains it[33m 305[2mms[22m[39m
+[90mstdout[2m | tests/d-backup-contracts.test.ts
+[22m[39m📋 Initialized 2 built-in runbook templates
+✅ Runbook Management Service initialized
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts
+[22m[39m📋 Initialized 3 built-in drill scenarios
+✅ Synthetic Drill Service initialized
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts
+[22m[39m📋 Initialized 5 default monitoring rules
+✅ Backup Monitoring Service initialized
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2mround trips real gzip/GCM streams after service restart, compression=true
+[22m[39m✅ S3 Backup Service initialized {
+  region: [32m'us-east-1'[39m,
+  bucket: [32m'fixture'[39m,
+  endpoint: [32m'AWS S3'[39m,
+  encryption: [33mtrue[39m,
+  compression: [33mtrue[39m
+}
+🔄 Uploading backup to S3: fixture
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2mround trips real gzip/GCM streams after service restart, compression=true
+[22m[39m✅ S3 upload completed {
+  key: [32m'fixture'[39m,
+  originalSize: [32m'0MB'[39m,
+  uploadedSize: [32m'0MB'[39m,
+  compressionRatio: [32m'100%'[39m,
+  duration: [32m'0s'[39m
+}
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2mround trips real gzip/GCM streams after service restart, compression=true
+[22m[39m✅ S3 Backup Service initialized {
+  region: [32m'us-east-1'[39m,
+  bucket: [32m'fixture'[39m,
+  endpoint: [32m'AWS S3'[39m,
+  encryption: [33mtrue[39m,
+  compression: [33mtrue[39m
+}
+🔄 Downloading backup from S3: fixture
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2mround trips real gzip/GCM streams after service restart, compression=true
+[22m[39m✅ S3 download completed {
+  key: [32m'fixture'[39m,
+  localPath: [32m'/tmp/et-contract-test-IDePEE/restored.sql'[39m,
+  size: [32m'0MB'[39m,
+  verified: [32m'✓'[39m,
+  duration: [32m'0s'[39m
+}
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2mround trips real gzip/GCM streams after service restart, compression=false
+[22m[39m✅ S3 Backup Service initialized {
+  region: [32m'us-east-1'[39m,
+  bucket: [32m'fixture'[39m,
+  endpoint: [32m'AWS S3'[39m,
+  encryption: [33mtrue[39m,
+  compression: [33mfalse[39m
+}
+🔄 Uploading backup to S3: fixture
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2mround trips real gzip/GCM streams after service restart, compression=false
+[22m[39m✅ S3 upload completed {
+  key: [32m'fixture'[39m,
+  originalSize: [32m'0MB'[39m,
+  uploadedSize: [32m'0MB'[39m,
+  compressionRatio: [32m'N/A'[39m,
+  duration: [32m'0s'[39m
+}
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2mround trips real gzip/GCM streams after service restart, compression=false
+[22m[39m✅ S3 Backup Service initialized {
+  region: [32m'us-east-1'[39m,
+  bucket: [32m'fixture'[39m,
+  endpoint: [32m'AWS S3'[39m,
+  encryption: [33mtrue[39m,
+  compression: [33mfalse[39m
+}
+🔄 Downloading backup from S3: fixture
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2mround trips real gzip/GCM streams after service restart, compression=false
+[22m[39m✅ S3 download completed {
+  key: [32m'fixture'[39m,
+  localPath: [32m'/tmp/et-contract-test-iONlBF/restored.sql'[39m,
+  size: [32m'0MB'[39m,
+  verified: [32m'✓'[39m,
+  duration: [32m'0s'[39m
+}
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2muses body-version metadata when stale HEAD describes plaintext, compression=true
+[22m[39m✅ S3 Backup Service initialized {
+  region: [32m'us-east-1'[39m,
+  bucket: [32m'fixture'[39m,
+  endpoint: [32m'AWS S3'[39m,
+  encryption: [33mtrue[39m,
+  compression: [33mtrue[39m
+}
+🔄 Uploading backup to S3: fixture
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2muses body-version metadata when stale HEAD describes plaintext, compression=true
+[22m[39m✅ S3 upload completed {
+  key: [32m'fixture'[39m,
+  originalSize: [32m'0MB'[39m,
+  uploadedSize: [32m'0MB'[39m,
+  compressionRatio: [32m'100%'[39m,
+  duration: [32m'0s'[39m
+}
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2muses body-version metadata when stale HEAD describes plaintext, compression=true
+[22m[39m🔄 Downloading backup from S3: fixture
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2muses body-version metadata when stale HEAD describes plaintext, compression=true
+[22m[39m✅ S3 download completed {
+  key: [32m'fixture'[39m,
+  localPath: [32m'/tmp/et-contract-test-LPmcMF/restored.sql'[39m,
+  size: [32m'0MB'[39m,
+  verified: [32m'✗'[39m,
+  duration: [32m'0s'[39m
+}
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2muses body-version metadata when stale HEAD describes plaintext, compression=false
+[22m[39m✅ S3 Backup Service initialized {
+  region: [32m'us-east-1'[39m,
+  bucket: [32m'fixture'[39m,
+  endpoint: [32m'AWS S3'[39m,
+  encryption: [33mtrue[39m,
+  compression: [33mfalse[39m
+}
+🔄 Uploading backup to S3: fixture
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2muses body-version metadata when stale HEAD describes plaintext, compression=false
+[22m[39m✅ S3 upload completed {
+  key: [32m'fixture'[39m,
+  originalSize: [32m'0MB'[39m,
+  uploadedSize: [32m'0MB'[39m,
+  compressionRatio: [32m'N/A'[39m,
+  duration: [32m'0s'[39m
+}
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2muses body-version metadata when stale HEAD describes plaintext, compression=false
+[22m[39m🔄 Downloading backup from S3: fixture
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2muses body-version metadata when stale HEAD describes plaintext, compression=false
+[22m[39m✅ S3 download completed {
+  key: [32m'fixture'[39m,
+  localPath: [32m'/tmp/et-contract-test-iiNKgF/restored.sql'[39m,
+  size: [32m'0MB'[39m,
+  verified: [32m'✗'[39m,
+  duration: [32m'0s'[39m
+}
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2mauthenticates ciphertext despite stale plaintext HEAD when checksum is omitted
+[22m[39m✅ S3 Backup Service initialized {
+  region: [32m'us-east-1'[39m,
+  bucket: [32m'fixture'[39m,
+  endpoint: [32m'AWS S3'[39m,
+  encryption: [33mtrue[39m,
+  compression: [33mfalse[39m
+}
+🔄 Uploading backup to S3: fixture
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2mauthenticates ciphertext despite stale plaintext HEAD when checksum is omitted
+[22m[39m✅ S3 upload completed {
+  key: [32m'fixture'[39m,
+  originalSize: [32m'0MB'[39m,
+  uploadedSize: [32m'0MB'[39m,
+  compressionRatio: [32m'N/A'[39m,
+  duration: [32m'0s'[39m
+}
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2mauthenticates ciphertext despite stale plaintext HEAD when checksum is omitted
+[22m[39m🔄 Downloading backup from S3: fixture
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2mrefuses ephemeral encryption keys before any upload
+[22m[39m✅ S3 Backup Service initialized {
+  region: [32m'us-east-1'[39m,
+  bucket: [32m'fixture'[39m,
+  endpoint: [32m'AWS S3'[39m,
+  encryption: [33mtrue[39m,
+  compression: [33mtrue[39m
+}
+🔄 Uploading backup to S3: fixture
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2mpreserves existing destination on ciphertext failure
+[22m[39m✅ S3 Backup Service initialized {
+  region: [32m'us-east-1'[39m,
+  bucket: [32m'fixture'[39m,
+  endpoint: [32m'AWS S3'[39m,
+  encryption: [33mtrue[39m,
+  compression: [33mtrue[39m
+}
+🔄 Uploading backup to S3: fixture
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2mpreserves existing destination on ciphertext failure
+[22m[39m✅ S3 upload completed {
+  key: [32m'fixture'[39m,
+  originalSize: [32m'0MB'[39m,
+  uploadedSize: [32m'0MB'[39m,
+  compressionRatio: [32m'100%'[39m,
+  duration: [32m'0s'[39m
+}
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2mpreserves existing destination on ciphertext failure
+[22m[39m🔄 Downloading backup from S3: fixture
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2mpreserves existing destination on checksum failure
+[22m[39m✅ S3 Backup Service initialized {
+  region: [32m'us-east-1'[39m,
+  bucket: [32m'fixture'[39m,
+  endpoint: [32m'AWS S3'[39m,
+  encryption: [33mtrue[39m,
+  compression: [33mtrue[39m
+}
+🔄 Uploading backup to S3: fixture
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2mpreserves existing destination on checksum failure
+[22m[39m✅ S3 upload completed {
+  key: [32m'fixture'[39m,
+  originalSize: [32m'0MB'[39m,
+  uploadedSize: [32m'0MB'[39m,
+  compressionRatio: [32m'100%'[39m,
+  duration: [32m'0s'[39m
+}
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2mpreserves existing destination on checksum failure
+[22m[39m🔄 Downloading backup from S3: fixture
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2mpreserves existing destination on missing-checksum failure
+[22m[39m✅ S3 Backup Service initialized {
+  region: [32m'us-east-1'[39m,
+  bucket: [32m'fixture'[39m,
+  endpoint: [32m'AWS S3'[39m,
+  encryption: [33mtrue[39m,
+  compression: [33mtrue[39m
+}
+🔄 Uploading backup to S3: fixture
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2mpreserves existing destination on missing-checksum failure
+[22m[39m✅ S3 upload completed {
+  key: [32m'fixture'[39m,
+  originalSize: [32m'0MB'[39m,
+  uploadedSize: [32m'0MB'[39m,
+  compressionRatio: [32m'100%'[39m,
+  duration: [32m'0s'[39m
+}
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2mpreserves existing destination on missing-checksum failure
+[22m[39m🔄 Downloading backup from S3: fixture
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2mpreserves existing destination on legacy failure
+[22m[39m✅ S3 Backup Service initialized {
+  region: [32m'us-east-1'[39m,
+  bucket: [32m'fixture'[39m,
+  endpoint: [32m'AWS S3'[39m,
+  encryption: [33mtrue[39m,
+  compression: [33mtrue[39m
+}
+🔄 Uploading backup to S3: fixture
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2mpreserves existing destination on legacy failure
+[22m[39m✅ S3 upload completed {
+  key: [32m'fixture'[39m,
+  originalSize: [32m'0MB'[39m,
+  uploadedSize: [32m'0MB'[39m,
+  compressionRatio: [32m'100%'[39m,
+  duration: [32m'0s'[39m
+}
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mS3 backup stream integrity (local transport fixture)[2m > [22m[2mpreserves existing destination on legacy failure
+[22m[39m🔄 Downloading backup from S3: fixture
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mrunbook foreign keys[2m > [22m[2muses the natural runbook key for steps and numeric key only for executions
+[22m[39m📋 Initialized 2 built-in runbook templates
+✅ Runbook Management Service initialized
+📋 Creating runbook from template database_outage_response
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mrunbook foreign keys[2m > [22m[2muses the natural runbook key for steps and numeric key only for executions
+[22m[39m✅ Created runbook V5pBuecwIeWdAxPjV746t from template database_outage_response
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mrunbook foreign keys[2m > [22m[2muses the natural runbook key for steps and numeric key only for executions
+[22m[39m🚀 Starting runbook execution for V5pBuecwIeWdAxPjV746t
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2mrunbook foreign keys[2m > [22m[2muses the natural runbook key for steps and numeric key only for executions
+[22m[39m📋 Started execution of runbook Database Outage Response (21IFlkNS3lFgo_BOu7uBa)
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2moperational evidence boundaries[2m > [22m[2mpersists observed event counts, decimal strings, bytes and seconds in existing columns
+[22m[39m[BackupAlertService] Processing backup event: backup_failed for job job-1
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2moperational evidence boundaries[2m > [22m[2mqueues real email with retry scheduling without claiming it was delivered
+[22m[39m[BackupAlertService] Processing backup event: backup_failed for job job-1
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2moperational evidence boundaries[2m > [22m[2mqueues real email with retry scheduling without claiming it was delivered
+[22m[39m[BackupAlertService] Alert triggered: critical - Backup operation failed
+[BackupAlertService] Processing alert: -8L-x4Cq3dI3YDN3M5T5_
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2moperational evidence boundaries[2m > [22m[2mdoes not claim unperformed checksum or corruption verification
+[22m[39m📋 Initialized 5 default monitoring rules
+✅ Backup Monitoring Service initialized
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2moperational evidence boundaries[2m > [22m[2mreturns an explicit unavailable result for every unimplemented drill operation
+[22m[39m📋 Initialized 3 built-in drill scenarios
+✅ Synthetic Drill Service initialized
+🔧 Executing failover step: fixture
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2moperational evidence boundaries[2m > [22m[2mreturns an explicit unavailable result for every unimplemented drill operation
+[22m[39m🔧 Executing restore step: fixture
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2moperational evidence boundaries[2m > [22m[2mreturns an explicit unavailable result for every unimplemented drill operation
+[22m[39m🔧 Executing validate step: fixture
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2moperational evidence boundaries[2m > [22m[2mreturns an explicit unavailable result for every unimplemented drill operation
+[22m[39m🔧 Executing health_check step: fixture
+
+[90mstdout[2m | tests/d-backup-contracts.test.ts[2m > [22m[2moperational evidence boundaries[2m > [22m[2mreturns an explicit unavailable result for every unimplemented drill operation
+[22m[39m🔧 Executing cleanup step: fixture
+
+ [32m✓[39m tests/d-backup-contracts.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 127[2mms[22m[39m
+ [32m✓[39m tests/live-results-v12.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 700[2mms[22m[39m
+ [32m✓[39m tests/official-result-adapters/nc-la.test.ts [2m([22m[2m43 tests[22m[2m)[22m[32m 65[2mms[22m[39m
+ [32m✓[39m tests/official-source-packet.test.ts [2m([22m[2m31 tests[22m[2m)[22m[33m 1072[2mms[22m[39m
+   [32m✓[39m Actual raw packet→V1 bridge [2m(31)[22m
+     [33m[2m✓[22m[39m calls actual wa-senate raw parser from portable packet[33m 706[2mms[22m[39m
+ [32m✓[39m tests/live-election-results.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m tests/official-result-wa.test.ts [2m([22m[2m32 tests[22m[2m)[22m[33m 1139[2mms[22m[39m
+   [32m✓[39m Actual WA official primary full-contest bytes [2m(14)[22m
+     [33m[2m✓[22m[39m parses actual federal Senate12-option totals across600 county/CD parts[33m 898[2mms[22m[39m
+stderr | tests/unit/upstream-cancellation.test.ts
+VOTESMART_API_KEY not found - VoteSmart features will be unavailable
+
+stderr | tests/unit/upstream-cancellation.test.ts
+Missing API keys: PROPUBLICA_API_KEY, GOOGLE_CIVIC_API_KEY, OPENFEC_API_KEY, OPENSTATES_API_KEY, VOTESMART_API_KEY. Some features may be limited.
+
+[90mstdout[2m | tests/unit/upstream-cancellation.test.ts[2m > [22m[2mhanging BODY after headers (Sol: 450 active / 0 aborts at all three points)[2m > [22m[2maggregator under budget with hanging bodies: all transports aborted, in-flight 0
+[22m[39mOpenStates API configured (500 requests/day, 1 req/sec limit)
+
+ [32m✓[39m tests/CongressData.test.tsx [2m([22m[2m16 tests[22m[2m)[22m[33m 4184[2mms[22m[39m
+   [32m✓[39m CongressData members on the actual /api/members response [2m(8)[22m
+     [33m[2m✓[22m[39m lists the sitting Congress only and states honest composition counts[33m 626[2mms[22m[39m
+     [33m[2m✓[22m[39m server default scope (PR #34): 539 official members with no unrecognized seats[33m 369[2mms[22m[39m
+   [32m✓[39m CongressData member load states [2m(6)[22m
+     [33m[2m✓[22m[39m members-by-state waits for a full two-letter code before requesting[33m 751[2mms[22m[39m
+     [33m[2m✓[22m[39m members-by-state errors are shown as errors[33m 552[2mms[22m[39m
+[90mstdout[2m | tests/unit/upstream-cancellation.test.ts[2m > [22m[2menrichment settles its upstream work when the budget expires[2m > [22m[2maggregator: every provider request is aborted and in-flight returns to 0 right after the fallback
+[22m[39mOpenStates API configured (500 requests/day, 1 req/sec limit)
+
+[90mstdout[2m | tests/unit/upstream-cancellation.test.ts[2m > [22m[2menrichment settles its upstream work when the budget expires[2m > [22m[2m30 concurrent enrichments of the same candidate open one request per provider, not 30
+[22m[39mOpenStates API configured (500 requests/day, 1 req/sec limit)
+
+ [32m✓[39m tests/unit/upstream-cancellation.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 981[2mms[22m[39m
+ [32m✓[39m tests/demo.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m tests/election-timing.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 47[2mms[22m[39m
+ [32m✓[39m tests/fec-candidate-sync.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m tests/unit/tranche3-contracts.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 31[2mms[22m[39m
+ [32m✓[39m tests/unit/congress-members-routes.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+stderr | tests/unit/consent-management-service.test.ts
+SENDGRID_API_KEY not found - email notifications will be disabled
+
+stderr | tests/unit/consent-management-service.test.ts
+Twilio credentials not found - SMS notifications will be disabled
+Required: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER
+
+[90mstdout[2m | tests/unit/consent-management-service.test.ts[2m > [22m[2mConsentManagementService stores and checks real consent rows[2m > [22m[2mrecords a grant, reports it valid, withdraws it and deactivates that channel's subscriptions
+[22m[39m📝 Consent recorded: u1 - email: true (preferences_page)
+
+[90mstdout[2m | tests/unit/consent-management-service.test.ts[2m > [22m[2mConsentManagementService stores and checks real consent rows[2m > [22m[2mrecords a grant, reports it valid, withdraws it and deactivates that channel's subscriptions
+[22m[39m✅ Subscription created: u1 - election_alerts (email); verification NOT sent
+
+[90mstdout[2m | tests/unit/consent-management-service.test.ts[2m > [22m[2mConsentManagementService stores and checks real consent rows[2m > [22m[2mrecords a grant, reports it valid, withdraws it and deactivates that channel's subscriptions
+[22m[39m❌ Consent withdrawn: u1 - email
+
+[90mstdout[2m | tests/unit/consent-management-service.test.ts[2m > [22m[2mConsentManagementService stores and checks real consent rows[2m > [22m[2mverifies and unsubscribes only with a real token
+[22m[39m📝 Consent recorded: u1 - sms: true (signup)
+
+[90mstdout[2m | tests/unit/consent-management-service.test.ts[2m > [22m[2mConsentManagementService stores and checks real consent rows[2m > [22m[2mverifies and unsubscribes only with a real token
+[22m[39m✅ Subscription created: u1 - weekly_digest (sms); verification NOT sent
+
+[90mstdout[2m | tests/unit/consent-management-service.test.ts[2m > [22m[2mConsentManagementService stores and checks real consent rows[2m > [22m[2mverifies and unsubscribes only with a real token
+[22m[39m✅ Subscription verified: 2
+
+[90mstdout[2m | tests/unit/consent-management-service.test.ts[2m > [22m[2mConsentManagementService stores and checks real consent rows[2m > [22m[2mverifies and unsubscribes only with a real token
+[22m[39m❌ Unsubscribed: 2
+
+[90mstdout[2m | tests/unit/consent-management-service.test.ts[2m > [22m[2mConsentManagementService stores and checks real consent rows[2m > [22m[2mexports the user's own data and refuses an unknown user; erasure deactivates and clears targets
+[22m[39m📝 Consent recorded: u1 - email: true (signup)
+
+[90mstdout[2m | tests/unit/consent-management-service.test.ts[2m > [22m[2mConsentManagementService stores and checks real consent rows[2m > [22m[2mexports the user's own data and refuses an unknown user; erasure deactivates and clears targets
+[22m[39m✅ Subscription created: u1 - election_alerts (email); verification NOT sent
+
+[90mstdout[2m | tests/unit/consent-management-service.test.ts[2m > [22m[2mConsentManagementService stores and checks real consent rows[2m > [22m[2mexports the user's own data and refuses an unknown user; erasure deactivates and clears targets
+[22m[39m🗑️ Notification data erased for u1: 1 subscription(s) deactivated; retained: consent_records_legal_basis, delivery_logs_audit_trail
+
+[90mstdout[2m | tests/unit/consent-management-service.test.ts[2m > [22m[2mConsentManagementService stores and checks real consent rows[2m > [22m[2mretention and the audit report come from rows, not constants
+[22m[39m📝 Consent recorded: u1 - sms: true (api)
+
+[90mstdout[2m | tests/unit/consent-management-service.test.ts[2m > [22m[2mConsentManagementService stores and checks real consent rows[2m > [22m[2mretention and the audit report come from rows, not constants
+[22m[39m📝 Consent recorded: u1 - email: true (signup)
+
+[90mstdout[2m | tests/unit/consent-management-service.test.ts[2m > [22m[2mConsentManagementService stores and checks real consent rows[2m > [22m[2mretention and the audit report come from rows, not constants
+[22m[39m🔄 Data retention: 1 expired consent(s), 1 withdrawn, 0 error(s)
+
+ [32m✓[39m tests/unit/consent-management-service.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mruns notification steps for real, stops at the manual step, and records it all on the execution row
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mruns notification steps for real, stops at the manual step, and records it all on the execution row
+[22m[39m[RunbookService] Created runbook RB-DB-OUTAGE: Database outage (database_outage/high)
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mruns notification steps for real, stops at the manual step, and records it all on the execution row
+[22m[39m[RunbookService] Created contact C-ONCALL: On-call DBA (level 1)
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mruns notification steps for real, stops at the manual step, and records it all on the execution row
+[22m[39m[RunbookService] Created contact C-LEAD: Platform lead (level 2)
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mruns notification steps for real, stops at the manual step, and records it all on the execution row
+[22m[39m[RunbookService] Created escalation tree T-DB: Database escalation for database_outage
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mruns notification steps for real, stops at the manual step, and records it all on the execution row
+[22m[39m[RunbookService] Executing runbook for incident INC-1: database_outage (high)
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mruns notification steps for real, stops at the manual step, and records it all on the execution row
+[22m[39m[RunbookService] Started execution tLvFMQ7MO31AvxMAxBQo4 of RB-DB-OUTAGE (3 steps)
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mruns notification steps for real, stops at the manual step, and records it all on the execution row
+[22m[39m[RunbookService] Paused execution tLvFMQ7MO31AvxMAxBQo4: Step 2 "Fail over to replica" (manual) requires an operator
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mresume records the operator's confirmation, escalates through the tree, and completes honestly
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mresume records the operator's confirmation, escalates through the tree, and completes honestly
+[22m[39m[RunbookService] Created runbook RB-DB-OUTAGE: Database outage (database_outage/high)
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mresume records the operator's confirmation, escalates through the tree, and completes honestly
+[22m[39m[RunbookService] Created contact C-ONCALL: On-call DBA (level 1)
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mresume records the operator's confirmation, escalates through the tree, and completes honestly
+[22m[39m[RunbookService] Created contact C-LEAD: Platform lead (level 2)
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mresume records the operator's confirmation, escalates through the tree, and completes honestly
+[22m[39m[RunbookService] Created escalation tree T-DB: Database escalation for database_outage
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mresume records the operator's confirmation, escalates through the tree, and completes honestly
+[22m[39m[RunbookService] Executing runbook for incident INC-1: database_outage (high)
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mresume records the operator's confirmation, escalates through the tree, and completes honestly
+[22m[39m[RunbookService] Started execution UJKdRE0_15ciBbSR_mLcq of RB-DB-OUTAGE (3 steps)
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mresume records the operator's confirmation, escalates through the tree, and completes honestly
+[22m[39m[RunbookService] Paused execution UJKdRE0_15ciBbSR_mLcq: Step 2 "Fail over to replica" (manual) requires an operator
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mresume records the operator's confirmation, escalates through the tree, and completes honestly
+[22m[39m[RunbookService] Resumed execution UJKdRE0_15ciBbSR_mLcq
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mresume records the operator's confirmation, escalates through the tree, and completes honestly
+[22m[39m[RunbookService] Escalating INC-1 to level 2: Escalation step: Escalate to lead
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mresume records the operator's confirmation, escalates through the tree, and completes honestly
+[22m[39m[RunbookService] Completed execution UJKdRE0_15ciBbSR_mLcq: All steps completed
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mrefuses to resume an execution that is not paused and refuses an unknown runbook
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mrefuses to resume an execution that is not paused and refuses an unknown runbook
+[22m[39m[RunbookService] Created runbook RB-DB-OUTAGE: Database outage (database_outage/high)
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mrefuses to resume an execution that is not paused and refuses an unknown runbook
+[22m[39m[RunbookService] Created contact C-ONCALL: On-call DBA (level 1)
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mrefuses to resume an execution that is not paused and refuses an unknown runbook
+[22m[39m[RunbookService] Created contact C-LEAD: Platform lead (level 2)
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mrefuses to resume an execution that is not paused and refuses an unknown runbook
+[22m[39m[RunbookService] Created escalation tree T-DB: Database escalation for database_outage
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mrefuses to resume an execution that is not paused and refuses an unknown runbook
+[22m[39m[RunbookService] Executing runbook for incident INC-1: unknown_kind (high)
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mrefuses to resume an execution that is not paused and refuses an unknown runbook
+[22m[39m[RunbookService] Executing runbook for incident INC-1: database_outage (high)
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mrefuses to resume an execution that is not paused and refuses an unknown runbook
+[22m[39m[RunbookService] Started execution prq5oJ9turawRj2V0DC2Y of RB-DB-OUTAGE (3 steps)
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mrefuses to resume an execution that is not paused and refuses an unknown runbook
+[22m[39m[RunbookService] Paused execution prq5oJ9turawRj2V0DC2Y: Step 2 "Fail over to replica" (manual) requires an operator
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mrefuses to resume an execution that is not paused and refuses an unknown runbook
+[22m[39m[RunbookService] Paused execution prq5oJ9turawRj2V0DC2Y: holding
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mrefuses to resume an execution that is not paused and refuses an unknown runbook
+[22m[39m[RunbookService] Resumed execution prq5oJ9turawRj2V0DC2Y
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mrefuses to resume an execution that is not paused and refuses an unknown runbook
+[22m[39m[RunbookService] Escalating INC-1 to level 2: Escalation step: Escalate to lead
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mrefuses to resume an execution that is not paused and refuses an unknown runbook
+[22m[39m[RunbookService] Completed execution prq5oJ9turawRj2V0DC2Y: All steps completed
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mwill not create a contact nobody can reach, nor a runbook without a title
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mwill not create a contact nobody can reach, nor a runbook without a title
+[22m[39m[RunbookService] Created runbook RB-DB-OUTAGE: Database outage (database_outage/high)
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mwill not create a contact nobody can reach, nor a runbook without a title
+[22m[39m[RunbookService] Created contact C-ONCALL: On-call DBA (level 1)
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mwill not create a contact nobody can reach, nor a runbook without a title
+[22m[39m[RunbookService] Created contact C-LEAD: Platform lead (level 2)
+
+[90mstdout[2m | tests/unit/incident-runbook-service.test.ts[2m > [22m[2mIncidentRunbookService (real storage, recording queue)[2m > [22m[2mwill not create a contact nobody can reach, nor a runbook without a title
+[22m[39m[RunbookService] Created escalation tree T-DB: Database escalation for database_outage
+
+ [32m✓[39m tests/unit/incident-runbook-service.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+[90mstdout[2m | tests/unit/storage-honesty.test.ts
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/storage-honesty.test.ts[2m > [22m[2manalytics members the live routes call[2m > [22m[2mrecordEngagement refuses without a session id instead of inserting a NOT NULL violation
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+ℹ️ No replica configurations found - running with primary database only
+
+ [32m✓[39m tests/unit/storage-honesty.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 71[2mms[22m[39m
+[90mstdout[2m | unknown test
+[22m[39m⏳ Primary database retry 1/15 in 3s {
+  error: [32m'Failed query: SELECT 1 as health_check, NOW() as server_time\nparams: '[39m,
+  consecutiveFailures: [33m1[39m
+}
+
+[90mstdout[2m | tests/unit/c38-source-contracts.test.ts
+[22m[39m✅ Event Processor Service initialized
+
+[90mstdout[2m | tests/unit/c38-source-contracts.test.ts[2m > [22m[2mC38 source and receiving contracts[2m > [22m[2muses actual election.date in the alert receiving payload
+[22m[39m✅ Event Processor Service initialized
+🗳️ Processing election event: voting_started for Offline receiving boundary
+
+[90mstdout[2m | tests/unit/c38-source-contracts.test.ts[2m > [22m[2mC38 source and receiving contracts[2m > [22m[2mrefuses unconfigured scheduling instead of guessing registration/early-voting dates or claiming scheduled work
+[22m[39m✅ Event Processor Service initialized
+
+[90mstdout[2m | tests/unit/c38-source-contracts.test.ts[2m > [22m[2mC38 source and receiving contracts[2m > [22m[2mrefuses cross-election alert context before emitting or claiming a result
+[22m[39m✅ Event Processor Service initialized
+
+[90mstdout[2m | tests/unit/c38-source-contracts.test.ts[2m > [22m[2mC38 source and receiving contracts[2m > [22m[2mdoes not invent processing history from the stats-read clock
+[22m[39m✅ Event Processor Service initialized
+
+ [32m✓[39m tests/unit/c38-source-contracts.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+stderr | tests/unit/notification-queue-service.test.ts
+SENDGRID_API_KEY not found - email notifications will be disabled
+
+stderr | tests/unit/notification-queue-service.test.ts
+Twilio credentials not found - SMS notifications will be disabled
+Required: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER
+
+[90mstdout[2m | tests/unit/notification-queue-service.test.ts
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+ℹ️ No replica configurations found - running with primary database only
+
+[90mstdout[2m | tests/unit/notification-queue-service.test.ts
+[22m[39m✅ Database-backed Notification Queue Service initialized
+
+[90mstdout[2m | tests/unit/notification-queue-service.test.ts[2m > [22m[2mNotificationQueueService processes the delivery rows for real[2m > [22m[2msends due queued rows through the provider and records sent + externalId on the row
+[22m[39m📬 Notification queued: 1 (email)
+
+[90mstdout[2m | tests/unit/notification-queue-service.test.ts[2m > [22m[2mNotificationQueueService processes the delivery rows for real[2m > [22m[2msends due queued rows through the provider and records sent + externalId on the row
+[22m[39m✅ Notification sent: 1 (email)
+
+ [32m✓[39m tests/candidate-nominee-sync.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+[90mstdout[2m | tests/unit/notification-queue-service.test.ts[2m > [22m[2mNotificationQueueService processes the delivery rows for real[2m > [22m[2ma channel with no configured provider fails its rows with provider_not_configured instead of pretending
+[22m[39m📬 Notification queued: 1 (sms)
+
+[90mstdout[2m | tests/unit/notification-queue-service.test.ts[2m > [22m[2mNotificationQueueService processes the delivery rows for real[2m > [22m[2mprovider failures retry with backoff and fail permanently after MAX_RETRIES
+[22m[39m📬 Notification queued: 1 (email)
+
+[90mstdout[2m | tests/unit/notification-queue-service.test.ts[2m > [22m[2mNotificationQueueService processes the delivery rows for real[2m > [22m[2mprovider failures retry with backoff and fail permanently after MAX_RETRIES
+[22m[39m🔄 Retrying notification 1 in 10 minutes (attempt 1/3): 550 mailbox unavailable
+
+[90mstdout[2m | tests/unit/notification-queue-service.test.ts[2m > [22m[2mNotificationQueueService processes the delivery rows for real[2m > [22m[2mprovider failures retry with backoff and fail permanently after MAX_RETRIES
+[22m[39m🔄 Retrying notification 1 in 20 minutes (attempt 2/3): 550 mailbox unavailable
+
+[90mstdout[2m | tests/unit/notification-queue-service.test.ts[2m > [22m[2mNotificationQueueService processes the delivery rows for real[2m > [22m[2ma scheduled delivery is not sent before its time
+[22m[39m📬 Notification queued: 1 (email)
+
+[90mstdout[2m | tests/unit/notification-queue-service.test.ts[2m > [22m[2mNotificationQueueService processes the delivery rows for real[2m > [22m[2ma scheduled delivery is not sent before its time
+[22m[39m✅ Notification sent: 1 (email)
+
+[90mstdout[2m | tests/unit/notification-queue-service.test.ts[2m > [22m[2mNotificationQueueService processes the delivery rows for real[2m > [22m[2mrespects the per-minute rate limit per channel
+[22m[39m📊 Rate limits updated: email=2/min, sms=60/min
+
+[90mstdout[2m | tests/unit/notification-queue-service.test.ts[2m > [22m[2mNotificationQueueService processes the delivery rows for real[2m > [22m[2mrespects the per-minute rate limit per channel
+[22m[39m📬 Notification queued: 1 (email)
+
+[90mstdout[2m | tests/unit/notification-queue-service.test.ts[2m > [22m[2mNotificationQueueService processes the delivery rows for real[2m > [22m[2mrespects the per-minute rate limit per channel
+[22m[39m📬 Notification queued: 2 (email)
+
+[90mstdout[2m | tests/unit/notification-queue-service.test.ts[2m > [22m[2mNotificationQueueService processes the delivery rows for real[2m > [22m[2mrespects the per-minute rate limit per channel
+[22m[39m📬 Notification queued: 3 (email)
+
+[90mstdout[2m | tests/unit/notification-queue-service.test.ts[2m > [22m[2mNotificationQueueService processes the delivery rows for real[2m > [22m[2mrespects the per-minute rate limit per channel
+[22m[39m✅ Notification sent: 1 (email)
+
+[90mstdout[2m | tests/unit/notification-queue-service.test.ts[2m > [22m[2mNotificationQueueService processes the delivery rows for real[2m > [22m[2mrespects the per-minute rate limit per channel
+[22m[39m✅ Notification sent: 2 (email)
+
+[90mstdout[2m | tests/unit/notification-queue-service.test.ts[2m > [22m[2mNotificationQueueService processes the delivery rows for real[2m > [22m[2mrespects the per-minute rate limit per channel
+[22m[39m✅ Notification sent: 3 (email)
+
+[90mstdout[2m | tests/unit/notification-queue-service.test.ts[2m > [22m[2mNotificationQueueService processes the delivery rows for real[2m > [22m[2mturns an election event into one queued row per active, verified email/sms subscription
+[22m[39m📬 Notification queued: 1 (email)
+
+[90mstdout[2m | tests/unit/notification-queue-service.test.ts[2m > [22m[2mNotificationQueueService processes the delivery rows for real[2m > [22m[2mturns an election event into one queued row per active, verified email/sms subscription
+[22m[39m📬 Notification queued: 2 (sms)
+
+[90mstdout[2m | tests/unit/notification-queue-service.test.ts[2m > [22m[2mNotificationQueueService processes the delivery rows for real[2m > [22m[2mturns an election event into one queued row per active, verified email/sms subscription
+[22m[39m📬 Bulk notifications queued: 2 notifications
+
+ [32m✓[39m tests/unit/notification-queue-service.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+[90mstdout[2m | unknown test
+[22m[39m⏳ Primary database retry 1/15 in 3s {
+  error: [32m'Failed query: SELECT 1 as health_check, NOW() as server_time\nparams: '[39m,
+  consecutiveFailures: [33m1[39m
+}
+
+[90mstdout[2m | tests/detail-date-gate.test.tsx[2m > [22m[2mactual election detail preserves active election-day timing[2m > [22m[2mcontrol: day before election shows real countdown to Texas poll opening
+[22m[39m{"scenario":"2026-11-02T11:30:00Z","browserZone":"UTC","localClock":"Mon Nov 02 2026 11:30:00 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Chicago","closeKind":"polls","pastBadge":false,"upcomingBadge":true,"timerCount":1,"timerLabel":"1 days, 1 hours, 30 minutes until polls open","text":"BackTexas election timing acceptance fixtureTuesday, November 3, 2026Texas, federalCandidates not yet recordedUpcomingGeneral01DAYS01HRS30MIN00SECuntil polls open · sourceOverviewPolling TrendsCandidatesCandidatesCurrent candidate standings and information"}
+
+[90mstdout[2m | tests/detail-date-gate.test.tsx[2m > [22m[2mactual election detail preserves active election-day timing[2m > [22m[2m06:30 Eastern on election day: Texas polls have not opened, so keep countdown
+[22m[39m{"scenario":"2026-11-03T11:30:00Z","browserZone":"UTC","localClock":"Tue Nov 03 2026 11:30:00 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Chicago","closeKind":"polls","pastBadge":false,"upcomingBadge":true,"timerCount":1,"timerLabel":"0 days, 1 hours, 30 minutes until polls open","text":"BackTexas election timing acceptance fixtureTuesday, November 3, 2026Texas, federalCandidates not yet recordedUpcomingGeneral00DAYS01HRS30MIN00SECuntil polls open · sourceOverviewPolling TrendsCandidatesCandidatesCurrent candidate standings and information"}
+
+[90mstdout[2m | tests/detail-date-gate.test.tsx[2m > [22m[2mactual election detail preserves active election-day timing[2m > [22m[2mduring Texas voting: retain actual countdown to poll closing
+[22m[39m{"scenario":"2026-11-03T15:00:00Z","browserZone":"UTC","localClock":"Tue Nov 03 2026 15:00:00 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Chicago","closeKind":"polls","pastBadge":false,"upcomingBadge":false,"timerCount":1,"timerLabel":"0 days, 10 hours, 0 minutes until polls close","text":"BackTexas election timing acceptance fixtureTuesday, November 3, 2026Texas, federalCandidates not yet recordedElection DayGeneralPolls open00DAYS10HRS00MIN00SECuntil polls close · sourceOverviewPolling TrendsCandidatesResultsAs recorded from official sources. No projections.No results reported yet. They appear here once an official source publishes them and they are recorded.CandidatesCurrent candidate standings and information"}
+
+ [32m✓[39m tests/congress-admin.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[33m 543[2mms[22m[39m
+[90mstdout[2m | tests/detail-date-gate.test.tsx[2m > [22m[2mactual election detail preserves active election-day timing[2m > [22m[2mmounted detail changes Upcoming to Election Day when Texas polls open
+[22m[39m{"scenario":"2026-11-03T12:59:30Z","browserZone":"UTC","localClock":"Tue Nov 03 2026 12:59:30 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Chicago","closeKind":"polls","pastBadge":false,"upcomingBadge":true,"timerCount":1,"timerLabel":"0 days, 0 hours, 0 minutes until polls open","text":"BackTexas election timing acceptance fixtureTuesday, November 3, 2026Texas, federalCandidates not yet recordedUpcomingGeneral00DAYS00HRS00MIN30SECuntil polls open · sourceOverviewPolling TrendsCandidatesCandidatesCurrent candidate standings and information"}
+{"rollover":"Texas opening","at":"2026-11-03T13:00:30.000Z","badge":"Election Day","timer":"0 days, 11 hours, 59 minutes until polls close","sameMountedHeading":true}
+
+[90mstdout[2m | tests/detail-date-gate.test.tsx[2m > [22m[2mactual election detail preserves active election-day timing[2m > [22m[2mmounted detail changes Election Day to Polls closed after Texas closes
+[22m[39m{"scenario":"2026-11-04T00:59:30Z","browserZone":"UTC","localClock":"Wed Nov 04 2026 00:59:30 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Chicago","closeKind":"polls","pastBadge":false,"upcomingBadge":false,"timerCount":1,"timerLabel":"0 days, 0 hours, 0 minutes until polls close","text":"BackTexas election timing acceptance fixtureTuesday, November 3, 2026Texas, federalCandidates not yet recordedElection DayGeneralPolls open00DAYS00HRS00MIN30SECuntil polls close · sourceOverviewPolling TrendsCandidatesResultsAs recorded from official sources. No projections.No results reported yet. They appear here once an official source publishes them and they are recorded.CandidatesCurrent candidate standings and information"}
+{"rollover":"Texas closing","at":"2026-11-04T01:00:30.000Z","badge":"Polls closed","status":"Polls closed · results pending","sameMountedHeading":true}
+
+[90mstdout[2m | tests/detail-date-gate.test.tsx[2m > [22m[2mactual election detail preserves active election-day timing[2m > [22m[2munknown opening on a ballot-return election says deadline pending
+[22m[39m{"scenario":"2026-11-03T08:30:00Z","browserZone":"UTC","localClock":"Tue Nov 03 2026 08:30:00 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Los_Angeles","closeKind":"ballot_return","pastBadge":false,"upcomingBadge":false,"timerCount":1,"timerLabel":"0 days, 19 hours, 30 minutes until ballot drop-off deadline","text":"BackOregon ballot deadline acceptance fixtureTuesday, November 3, 2026Oregon, federalCandidates not yet recordedElection DayGeneralElection Day · ballot drop-off deadline pending00DAYS19HRS30MIN00SECuntil ballot drop-off deadline · sourceOverviewPolling TrendsCandidatesResultsAs recorded from official sources. No projections.No results reported yet. They appear here once an official source publishes them and they are recorded.CandidatesCurrent candidate standings and information"}
+
+[90mstdout[2m | tests/detail-date-gate.test.tsx[2m > [22m[2mactual election detail preserves active election-day timing[2m > [22m[2mballot-return deadline passed must not call mail-election polls closed
+[22m[39m{"scenario":"2026-11-04T04:01:00Z","browserZone":"UTC","localClock":"Wed Nov 04 2026 04:01:00 GMT+0000 (Coordinated Universal Time)","electionZone":"America/Los_Angeles","closeKind":"ballot_return","pastBadge":false,"upcomingBadge":false,"timerCount":0,"timerLabel":null,"text":"BackOregon ballot deadline acceptance fixtureTuesday, November 3, 2026Oregon, federalCandidates not yet recordedDrop-off closedGeneralBallot drop-off closed · results pendingOverviewPolling TrendsCandidatesResultsAs recorded from official sources. No projections.No results reported yet. They appear here once an official source publishes them and they are recorded.CandidatesCurrent candidate standings and information"}
+
+ [32m✓[39m tests/detail-date-gate.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 431[2mms[22m[39m
+ [32m✓[39m tests/candidate-nominee-review.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m tests/unit/official-results-ca.test.ts [2m([22m[2m17 tests[22m[2m)[22m[33m 591[2mms[22m[39m
+[90mstdout[2m | tests/real-general-roster-review.test.tsx[2m > [22m[2mactual GeneralRoster receiving component with retained real API payloads[2m > [22m[2mTX-32 names, write-in/incumbent counts and source URL/check date match retained payload
+[22m[39m{"payload":"TX-32","sha256":"55e24e1fa55b9a5fdf2519f5b503c4528762d89ff27bc5f6d3ea84adda5e13f8","candidateCount":7,"renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Avery AyersWrite-inBradford \"Brad\" HallWrite-inJade SimmonsWrite-inJames TalaricoDemocraticKen PaxtonRepublicanTED BROWNLibertarianZul MohamedWrite-inCovers only: printed-ballot candidates; write-in candidates. Other candidates may appear on the ballot.Source: Texas Secretary of State Certified Declared Write-In Candidates (published Aug 28, 2026) · checked Oct 11, 2026Source: Texas Secretary of State Final Ballot Certification Report (published Aug 28, 2026) · checked Oct 11, 2026","links":[{"text":"Texas Secretary of State Certified Declared Write-In Candidates","href":"https://www.sos.texas.gov/elections/forms/2026-write-In-ballot-cert.pdf"},{"text":"Texas Secretary of State Final Ballot Certification Report","href":"https://www.sos.texas.gov/elections/forms/2026-ballot-cert.pdf"}]}
+
+[90mstdout[2m | tests/real-general-roster-review.test.tsx[2m > [22m[2mactual GeneralRoster receiving component with retained real API payloads[2m > [22m[2mNE-55 names, write-in/incumbent counts and source URL/check date match retained payload
+[22m[39m{"payload":"NE-55","sha256":"8907ff043abc771e25e6ee87d4ea2d5bd60bdcb19f6830e36ce0dae063a8f5a5","candidateCount":4,"renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Brett LindstromAmerica FirstJim PillenRepublicanIncumbentLynne WalzDemocraticRick BeardLegal Marijuana NOWSource: Nebraska Secretary of State Final Statewide General Candidate List (published Sep 11, 2026) · checked Oct 11, 2026","links":[{"text":"Nebraska Secretary of State Final Statewide General Candidate List","href":"https://sos.nebraska.gov/sites/default/files/doc/elections/2026/Final_Statewide_General_Candidate_Filing_List_9.11.26.pdf"}]}
+
+[90mstdout[2m | tests/real-general-roster-review.test.tsx[2m > [22m[2mactual GeneralRoster receiving component with retained real API payloads[2m > [22m[2mWA-329 names, write-in/incumbent counts and source URL/check date match retained payload
+[22m[39m{"payload":"WA-329","sha256":"69168224a42c7dc15aae1078ef3714e4cb3630e7ecc12068688aba450d4e82d1","candidateCount":2,"renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Mary Silva(Prefers Republican Party)Suzan DelBene(Prefers Democratic Party)Covers only: printed-ballot candidates. Other candidates may appear on the ballot.Source: Washington Secretary of State Certification of Candidates to General Election (published Aug 21, 2026) · checked Oct 11, 2026","links":[{"text":"Washington Secretary of State Certification of Candidates to General Election","href":"https://www.sos.wa.gov/sites/default/files/2026-08/2026%20Certification%20of%20Candidates%20to%20General%20Election.pdf"}]}
+
+[90mstdout[2m | tests/real-general-roster-review.test.tsx[2m > [22m[2mactual GeneralRoster receiving component with retained real API payloads[2m > [22m[2mNV-475 names, write-in/incumbent counts and source URL/check date match retained payload
+[22m[39m{"payload":"NV-475","sha256":"2a2515b67b1925c68960b8b5cbe61fc02c98cce84d4b80bdfddf223d65999e08","candidateCount":3,"renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Jon KamerathIndependent American PartyMarty O'DonnellRepublicanSusie LeeDemocraticSource: 2026 General Election Statewide Certified List of Candidates (published Aug 25, 2026) · checked Oct 11, 2026","links":[{"text":"2026 General Election Statewide Certified List of Candidates","href":"https://www.nvsos.gov/home/showpublisheddocument/20105/639232733439300000"}]}
+
+[90mstdout[2m | tests/real-general-roster-review.test.tsx[2m > [22m[2mactual GeneralRoster receiving component with retained real API payloads[2m > [22m[2mTX write-ins with empty official party do not become Independent or Other
+[22m[39m{"payload":"TX-32","sha256":"55e24e1fa55b9a5fdf2519f5b503c4528762d89ff27bc5f6d3ea84adda5e13f8","candidateCount":7,"renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Avery AyersWrite-inBradford \"Brad\" HallWrite-inJade SimmonsWrite-inJames TalaricoDemocraticKen PaxtonRepublicanTED BROWNLibertarianZul MohamedWrite-inCovers only: printed-ballot candidates; write-in candidates. Other candidates may appear on the ballot.Source: Texas Secretary of State Certified Declared Write-In Candidates (published Aug 28, 2026) · checked Oct 11, 2026Source: Texas Secretary of State Final Ballot Certification Report (published Aug 28, 2026) · checked Oct 11, 2026","links":[{"text":"Texas Secretary of State Certified Declared Write-In Candidates","href":"https://www.sos.texas.gov/elections/forms/2026-write-In-ballot-cert.pdf"},{"text":"Texas Secretary of State Final Ballot Certification Report","href":"https://www.sos.texas.gov/elections/forms/2026-ballot-cert.pdf"}]}
+
+[90mstdout[2m | tests/real-general-roster-review.test.tsx[2m > [22m[2mactual GeneralRoster receiving component with retained real API payloads[2m > [22m[2mWA official party preference remains visible rather than being asserted as party membership
+[22m[39m{"payload":"WA-329","sha256":"69168224a42c7dc15aae1078ef3714e4cb3630e7ecc12068688aba450d4e82d1","candidateCount":2,"renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.Mary Silva(Prefers Republican Party)Suzan DelBene(Prefers Democratic Party)Covers only: printed-ballot candidates. Other candidates may appear on the ballot.Source: Washington Secretary of State Certification of Candidates to General Election (published Aug 21, 2026) · checked Oct 11, 2026","links":[{"text":"Washington Secretary of State Certification of Candidates to General Election","href":"https://www.sos.wa.gov/sites/default/files/2026-08/2026%20Certification%20of%20Candidates%20to%20General%20Election.pdf"}]}
+
+[90mstdout[2m | tests/real-general-roster-review.test.tsx[2m > [22m[2mactual GeneralRoster receiving component with retained real API payloads[2m > [22m[2mfirst-load error with undefined data displays honest error rather than silently disappearing
+[22m[39m{"boundary":"undefined-data + error","renderedText":"Official general-election candidate listAs published by the state election office. Being listed is not the same as certification of results.The official list could not be loaded right now.","rosterPresent":true}
+
+ [32m✓[39m tests/real-general-roster-review.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[32m 191[2mms[22m[39m
+ [32m✓[39m tests/unit/congress-import-routes.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m tests/global-dashboard.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 618[2mms[22m[39m
+ [32m✓[39m tests/congress-members.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m tests/unit/security-events.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+stderr | tests/unit/upstream-bounds.test.ts
+VOTESMART_API_KEY not found - VoteSmart features will be unavailable
+
+stderr | tests/unit/upstream-bounds.test.ts
+Missing API keys: PROPUBLICA_API_KEY, GOOGLE_CIVIC_API_KEY, OPENFEC_API_KEY, OPENSTATES_API_KEY, VOTESMART_API_KEY. Some features may be limited.
+
+ [32m✓[39m tests/general-roster-real-payloads.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[32m 289[2mms[22m[39m
+stderr | tests/unit/candidates-batch.test.ts
+VOTESMART_API_KEY not found - VoteSmart features will be unavailable
+
+stderr | tests/unit/candidates-batch.test.ts
+Missing API keys: PROPUBLICA_API_KEY, GOOGLE_CIVIC_API_KEY, OPENFEC_API_KEY, OPENSTATES_API_KEY, VOTESMART_API_KEY. Some features may be limited.
+
+ [32m✓[39m tests/unit/candidates-batch.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m tests/fec-first-identity.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 67[2mms[22m[39m
+[90mstdout[2m | tests/unit/results-evidence-body.test.ts[2m > [22m[2mproduction body parsers composed with the evidence route over HTTP[2m > [22m[2mretains the exact official JSON bytes and hash, and repeats idempotently
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-evidence-body.test.ts[2m > [22m[2mproduction body parsers composed with the evidence route over HTTP[2m > [22m[2muses the same case-insensitive and optional-trailing-slash route matching as Express
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-evidence-body.test.ts[2m > [22m[2mproduction body parsers composed with the evidence route over HTTP[2m > [22m[2maccepts JSON evidence above the normal JSON parser limit up to exactly 10 MB
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-evidence-body.test.ts[2m > [22m[2mproduction body parsers composed with the evidence route over HTTP[2m > [22m[2mkeeps media and empty-body errors, without storing rejected bytes
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-evidence-body.test.ts[2m > [22m[2mproduction body parsers composed with the evidence route over HTTP[2m > [22m[2mstill applies authentication, admin authorization, and the real database write guard
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-evidence-body.test.ts[2m > [22m[2mproduction body parsers composed with the evidence route over HTTP[2m > [22m[2mstill applies authentication, admin authorization, and the real database write guard
+[22m[39m🚫 Blocked POST /admin/results-evidence - Database unhealthy
+
+[90mstdout[2m | tests/unit/results-evidence-body.test.ts[2m > [22m[2mproduction body parsers composed with the evidence route over HTTP[2m > [22m[2mpreserves normal JSON parsing, webhook rawBody, urlencoded forms and the ordinary JSON limit
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+ [32m✓[39m tests/unit/results-evidence-body.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 210[2mms[22m[39m
+ [32m✓[39m tests/unit/poll-hours-2026.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 49[2mms[22m[39m
+ [32m✓[39m tests/unit/upstream-bounds.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 3788[2mms[22m[39m
+   [32m✓[39m CivicAggregatorService under an unreachable provider [2m(3)[22m
+     [33m[2m✓[22m[39m returns local base data within the enrichment budget when every provider hangs[33m 3506[2mms[22m[39m
+[90mstdout[2m | tests/unit/campaign-register-routes.test.ts[2m > [22m[2mPOST /api/campaign/register (ET-40)[2m > [22m[2mrejects bad input with 400 and field details, writing nothing
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/campaign-register-routes.test.ts[2m > [22m[2mPOST /api/campaign/register (ET-40)[2m > [22m[2m404 for an unknown election, writing nothing
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/campaign-register-routes.test.ts[2m > [22m[2mPOST /api/campaign/register (ET-40)[2m > [22m[2man invitation_required tier is persisted inactive, answers 403 INVITATION_REQUIRED and issues NO key
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/campaign-register-routes.test.ts[2m > [22m[2mPOST /api/campaign/register (ET-40)[2m > [22m[2ma free tier is persisted active and the issued key validates (hashed at rest)
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/campaign-register-routes.test.ts[2m > [22m[2mPOST /api/campaign/register (ET-40)[2m > [22m[2mthe activation policy is explicit for every tier and no tier carries a price or purchase wording
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/campaign-register-routes.test.ts[2m > [22m[2mPOST /api/campaign/register (ET-40)[2m > [22m[2mMemStorage no longer validates arbitrary keys
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+ [32m✓[39m tests/unit/campaign-register-routes.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 83[2mms[22m[39m
+ [32m✓[39m tests/official-results-link.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 123[2mms[22m[39m
+[90mstdout[2m | tests/unit/secrets-rotation-truth.test.ts
+stderr | tests/unit/secrets-rotation-truth.test.ts
+[22m[39m✅ Secrets Rotation Service initialized { enabledServices: [33m8[39m, rotationFrequency: [32m'90 days'[39m }
+
+⚠️ Secrets vault unavailable: BACKUP_ENCRYPTION_KEY is missing or shorter than 32 bytes. Vault operations will be refused; the application keeps running.
+
+[90mstdout[2m | tests/unit/secrets-rotation-truth.test.ts[2m > [22m[2mY-01: vault key material[2m > [22m[2mis unavailable without BACKUP_ENCRYPTION_KEY and refuses to encrypt or decrypt
+[22m[39m✅ Secrets Rotation Service initialized { enabledServices: [33m8[39m, rotationFrequency: [32m'90 days'[39m }
+
+[90mstdout[2m | tests/unit/secrets-rotation-truth.test.ts[2m > [22m[2mY-01: vault key material[2m > [22m[2mrejects short keys and round-trips with a real one
+[22m[39m✅ Secrets Rotation Service initialized { enabledServices: [33m8[39m, rotationFrequency: [32m'90 days'[39m }
+✅ Secrets Rotation Service initialized { enabledServices: [33m8[39m, rotationFrequency: [32m'90 days'[39m }
+
+[90mstdout[2m | tests/unit/secrets-rotation-truth.test.ts[2m > [22m[2mY-01: vault key material[2m > [22m[2minitializeSecretsVault writes nothing when the vault is not ready
+[22m[39m✅ Secrets Rotation Service initialized { enabledServices: [33m8[39m, rotationFrequency: [32m'90 days'[39m }
+
+[90mstdout[2m | tests/unit/secrets-rotation-truth.test.ts[2m > [22m[2mY-02: rotation honesty[2m > [22m[2mno provider is advertised as auto-rotatable and no handler fabricates credentials
+[22m[39m✅ Secrets Rotation Service initialized { enabledServices: [33m8[39m, rotationFrequency: [32m'90 days'[39m }
+
+[90mstdout[2m | tests/unit/secrets-rotation-truth.test.ts[2m > [22m[2mY-02: rotation honesty[2m > [22m[2mrotating a manual-only secret returns manual_required and changes nothing
+[22m[39m✅ Secrets Rotation Service initialized { enabledServices: [33m8[39m, rotationFrequency: [32m'90 days'[39m }
+🔄 Starting secret rotation: WSwPo7XWHfjdKLuIWb8wR
+
+[90mstdout[2m | tests/unit/secrets-rotation-truth.test.ts[2m > [22m[2mY-02: rotation honesty[2m > [22m[2mrotating a manual-only secret returns manual_required and changes nothing
+[22m[39m⚠️ sendgrid requires manual rotation in the provider console
+
+ [32m✓[39m tests/unit/secrets-rotation-truth.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 120[2mms[22m[39m
+ [32m✓[39m tests/congress-nonmember-queries.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 695[2mms[22m[39m
+   [32m✓[39m CongressData with the actual production non-member responses [2m(6)[22m
+     [33m[2m✓[22m[39m renders the members page without crashing when bills-by-Congress is a 503 object[33m 451[2mms[22m[39m
+ [32m✓[39m tests/la-house-catalog.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m tests/unit/backup-process-contract.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 40[2mms[22m[39m
+ [32m✓[39m tests/congress-official-import.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 162[2mms[22m[39m
+[90mstdout[2m | tests/unit/candidate-portal-authz.test.ts
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+ℹ️ No replica configurations found - running with primary database only
+
+[90mstdout[2m | tests/unit/candidate-portal-authz.test.ts
+[22m[39m⏳ Primary database retry 1/15 in 3s {
+  error: [32m'Failed query: SELECT 1 as health_check, NOW() as server_time\nparams: '[39m,
+  consecutiveFailures: [33m1[39m
+}
+
+ [32m✓[39m tests/unit/candidate-portal-authz.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m tests/fec-expanded-identity.test.ts [2m([22m[2m48 tests[22m[2m)[22m[32m 51[2mms[22m[39m
+ [32m✓[39m tests/campaign-portal-exports.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 274[2mms[22m[39m
+ [32m✓[39m tests/congress-member-search.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 220[2mms[22m[39m
+[90mstdout[2m | tests/honest-product-state.test.tsx[2m > [22m[2mhonest product state (owner decisions 2026-10-13)[2m > [22m[2ma race with no candidates recorded says so on its card (never silence, never '0 candidates')
+[22m[39mPoliticalLeaningBorder rendering with leaning: neutral
+
+[90mstdout[2m | tests/honest-product-state.test.tsx[2m > [22m[2mhonest product state (owner decisions 2026-10-13)[2m > [22m[2ma race with no candidates recorded says so on its card (never silence, never '0 candidates')
+[22m[39mPoliticalLeaningBorder rendering with leaning: neutral
+
+[90mstdout[2m | tests/honest-product-state.test.tsx[2m > [22m[2mhonest product state (owner decisions 2026-10-13)[2m > [22m[2ma race with no candidates recorded says so on its card (never silence, never '0 candidates')
+[22m[39mPoliticalLeaningBorder rendering with leaning: neutral
+
+ [32m✓[39m tests/position-cache-contract.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+[90mstdout[2m | tests/honest-product-state.test.tsx[2m > [22m[2mhonest product state (owner decisions 2026-10-13)[2m > [22m[2ma race that has candidates shows them, not the 'not yet recorded' line
+[22m[39mPoliticalLeaningBorder rendering with leaning: neutral
+
+[90mstdout[2m | tests/honest-product-state.test.tsx[2m > [22m[2mhonest product state (owner decisions 2026-10-13)[2m > [22m[2ma race that has candidates shows them, not the 'not yet recorded' line
+[22m[39mPoliticalLeaningBorder rendering with leaning: neutral
+
+[90mstdout[2m | tests/honest-product-state.test.tsx[2m > [22m[2mhonest product state (owner decisions 2026-10-13)[2m > [22m[2ma race that has candidates shows them, not the 'not yet recorded' line
+[22m[39mPoliticalLeaningBorder rendering with leaning: neutral
+
+ [32m✓[39m tests/honest-product-state.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 303[2mms[22m[39m
+[90mstdout[2m | tests/unit/candidate-admin-listing.test.ts[2m > [22m[2mPOST /api/admin/candidate-accounts/:id/approve[2m > [22m[2mactivates with the requested access level and omits the hash
+[22m[39mCandidate account 1 approved by admin admin-1 (accessLevel=limited)
+
+ [32m✓[39m tests/unit/candidate-admin-listing.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+[90mstdout[2m | tests/unit/monitor-catalog.test.ts
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+ℹ️ No replica configurations found - running with primary database only
+
+stderr | tests/unit/monitor-catalog.test.ts
+PERPLEXITY_API_KEY not found in environment variables
+
+ [32m✓[39m tests/unit/monitor-catalog.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+[90mstdout[2m | unknown test
+[22m[39m⏳ Primary database retry 1/15 in 3s {
+  error: [32m'Failed query: SELECT 1 as health_check, NOW() as server_time\nparams: '[39m,
+  consecutiveFailures: [33m1[39m
+}
+
+[90mstdout[2m | tests/election-list-filters.test.ts[2m > [22m[2melection listing contract in failover memory[2m > [22m[2mreturns today and Nov 3 for next-30-days, excluding prior and inactive elections
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/election-list-filters.test.ts[2m > [22m[2melection listing contract in failover memory[2m > [22m[2mhonors the timeRange alias instead of returning past elections
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/election-list-filters.test.ts[2m > [22m[2melection listing contract in failover memory[2m > [22m[2mincludes the whole UTC calendar day for the legacy week filter
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/election-list-filters.test.ts[2m > [22m[2melection listing contract in failover memory[2m > [22m[2mmatches party names and codes and counts all candidates, not just the selected party
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/election-list-filters.test.ts[2m > [22m[2melection listing contract in failover memory[2m > [22m[2mrejects unknown timeframes instead of silently broadening or truncating
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/election-list-filters.test.ts[2m > [22m[2melection listing contract in failover memory[2m > [22m[2mhonors the API recent-date floor before returning rows
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/election-list-filters.test.ts[2m > [22m[2melection listing contract in failover memory[2m > [22m[2mkeeps Nov 3 races at 05:30 UTC on Nov 4 when timezone metadata is absent
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/election-list-filters.test.ts[2m > [22m[2melection listing contract in failover memory[2m > [22m[2muses each known election timezone, retaining Aleutian races after New York midnight
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/election-list-filters.test.ts[2m > [22m[2melection listing contract in failover memory[2m > [22m[2mtreats a legacy missing party as Other without crashing
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+ [32m✓[39m tests/election-list-filters.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m tests/confidence-unknown.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 94[2mms[22m[39m
+ [32m✓[39m tests/unit/results-coverage.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 49[2mms[22m[39m
+ [32m✓[39m tests/unit/provider-dto-and-cache.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+[90mstdout[2m | tests/polling-scrape-availability.test.ts[2m > [22m[2mpolling scrape availability is a boolean, not an invented age policy[2m > [22m[2man unavailable scraper preserves the public null polling result
+[22m[39mNo authentic polling data found for election 101
+
+[90mstdout[2m | tests/polling-scrape-availability.test.ts[2m > [22m[2mpolling scrape availability is a boolean, not an invented age policy[2m > [22m[2mnull/rejected generic sources produce null, not an empty successful polling object
+[22m[39mNo authentic polling data found for election 101
+
+ [32m✓[39m tests/polling-scrape-availability.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m tests/candidate-nominee-watermark.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m tests/unit/campaign-export-contract.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 40[2mms[22m[39m
+ [32m✓[39m tests/unit/graceful-shutdown.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 4078[2mms[22m[39m
+   [32m✓[39m graceful shutdown [2m(4)[22m
+     [33m[2m✓[22m[39m finishes an admitted HTTP response before closing the database, once[33m 4016[2mms[22m[39m
+ [32m✓[39m tests/election-list-query.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+stderr | tests/unit/global-elections-upstream.test.ts
+PERPLEXITY_API_KEY not found in environment variables
+
+[90mstdout[2m | tests/unit/global-elections-upstream.test.ts
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+ℹ️ No replica configurations found - running with primary database only
+
+ [32m✓[39m tests/unit/global-elections-upstream.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+[90mstdout[2m | unknown test
+[22m[39m⏳ Primary database retry 1/15 in 3s {
+  error: [32m'Failed query: SELECT 1 as health_check, NOW() as server_time\nparams: '[39m,
+  consecutiveFailures: [33m1[39m
+}
+
+ [32m✓[39m tests/d-backup-config-routes.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m tests/unit/results-registry-intersection.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m tests/certified-render.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 112[2mms[22m[39m
+ [32m✓[39m tests/happening-now-results.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 70[2mms[22m[39m
+ [32m✓[39m tests/detail-error-states.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 186[2mms[22m[39m
+ [32m✓[39m tests/unit/route-policy.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m tests/unit/storage-surface.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m tests/detail-header.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 180[2mms[22m[39m
+ [32m✓[39m tests/onboarding-flow.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 1855[2mms[22m[39m
+   [32m✓[39m OnboardingFlow [2m(2)[22m
+     [33m[2m✓[22m[39m shows preferences after registering, then hands control back to the caller (no forced /dashboard)[33m 1793[2mms[22m[39m
+[90mstdout[2m | tests/election-card-xss.test.tsx[2m > [22m[2mElectionCard details dialog with hostile AI content[2m > [22m[2mrenders AI analysis as text and never links non-http(s) sources
+[22m[39mPoliticalLeaningBorder rendering with leaning: neutral
+PoliticalLeaningBorder rendering with leaning: neutral
+
+[90mstdout[2m | tests/election-card-xss.test.tsx[2m > [22m[2mElectionCard details dialog with hostile AI content[2m > [22m[2mrenders AI analysis as text and never links non-http(s) sources
+[22m[39mPoliticalLeaningBorder rendering with leaning: neutral
+
+ [32m✓[39m tests/election-card-xss.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 220[2mms[22m[39m
+ [32m✓[39m tests/unit/no-embedded-credentials.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+[90mstdout[2m | tests/unit/storage-factory-shutdown.test.ts
+[22m[39mℹ️ No replica configurations found - running with primary database only
+
+[90mstdout[2m | tests/unit/storage-factory-shutdown.test.ts
+[22m[39m⏳ Primary database retry 1/15 in 3s { error: [32m'synthetic unavailable'[39m, consecutiveFailures: [33m1[39m }
+
+[90mstdout[2m | tests/unit/storage-factory-shutdown.test.ts[2m > [22m[2mstorage factory background shutdown[2m > [22m[2mwaits for async health startup and prevents its timer from appearing after shutdown
+[22m[39mℹ️ No replica configurations found - running with primary database only
+
+[90mstdout[2m | tests/unit/storage-factory-shutdown.test.ts[2m > [22m[2mstorage factory background shutdown[2m > [22m[2mclears health/queue timers and awaits an admitted queue operation
+[22m[39mℹ️ No replica configurations found - running with primary database only
+
+ [32m✓[39m tests/unit/storage-factory-shutdown.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m tests/candidate-nominee-undated.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m tests/onboarding-preferences.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 725[2mms[22m[39m
+   [32m✓[39m OnboardingPreferences step navigation [2m(2)[22m
+     [33m[2m✓[22m[39m Next on step 3 shows step 4 and saves nothing; only Complete saves[33m 377[2mms[22m[39m
+     [33m[2m✓[22m[39m a form submit on an early step (Enter in a field) never saves[33m 344[2mms[22m[39m
+ [32m✓[39m tests/unit/results-polling-shutdown.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m tests/fec-source-artifacts.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+[90mstdout[2m | tests/unit/official-feed-boot.test.ts[2m > [22m[2mET-6 boot registration hook for lane C sources/adapters[2m > [22m[2mthe shipped body registers22 reviewed sources/adapters and reports them
+[22m[39m[official feeds] boot registration: 22 source(s), 22 adapter(s)
+
+[90mstdout[2m | tests/unit/official-feed-boot.test.ts[2m > [22m[2mET-6 boot registration hook for lane C sources/adapters[2m > [22m[2mreports exactly what the boot body registered and flags adapters without a registry entry
+[22m[39m[official feeds] boot registration: 1 source(s), 2 adapter(s), 1 adapter(s) without a registry entry (manifest publishers only)
+
+[90mstdout[2m | tests/unit/official-feed-boot.test.ts[2m > [22m[2mET-6 boot registration hook for lane C sources/adapters[2m > [22m[2msurvives a throwing body: the server still boots and the error is in the receipt
+[22m[39m[official feeds] boot registration: 0 source(s), 0 adapter(s), ERROR
+
+ [32m✓[39m tests/unit/official-feed-boot.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m tests/query-key-urls.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m tests/unit/rate-limit-contract.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m tests/congress-count-contracts.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+[90mstdout[2m | tests/unit/storage-sync-shutdown.test.ts[2m > [22m[2mperiodic storage sync shutdown[2m > [22m[2mdrains both admitted periodic sync and factory cleanup before resolving
+[22m[39mPeriodic sync with Google Civic API completed
+
+ [32m✓[39m tests/unit/storage-sync-shutdown.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 354[2mms[22m[39m
+   [32m✓[39m periodic storage sync shutdown [2m(1)[22m
+     [33m[2m✓[22m[39m drains both admitted periodic sync and factory cleanup before resolving[33m 351[2mms[22m[39m
+ [32m✓[39m tests/candidate-profile.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m tests/unit/no-secret-logging.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m tests/unit/results-ingestion-adapter-election.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m tests/candidates-exact-race.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 123[2mms[22m[39m
+ [32m✓[39m tests/official-source-library-boot.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 292[2mms[22m[39m
+[90mstdout[2m | tests/unit/c38-candidate-event-guard.test.ts
+[22m[39m✅ Event Processor Service initialized
+
+[90mstdout[2m | tests/unit/c38-candidate-event-guard.test.ts[2m > [22m[2mC38 actual candidate-to-election receiving guard[2m > [22m[2mrefuses stored candidate election binding 999 before alert or filter queue mutation
+[22m[39m✅ Event Processor Service initialized
+
+[90mstdout[2m | tests/unit/c38-candidate-event-guard.test.ts[2m > [22m[2mC38 actual candidate-to-election receiving guard[2m > [22m[2mrefuses stored candidate election binding null before alert or filter queue mutation
+[22m[39m✅ Event Processor Service initialized
+
+[90mstdout[2m | tests/unit/c38-candidate-event-guard.test.ts[2m > [22m[2mC38 actual candidate-to-election receiving guard[2m > [22m[2mrefuses stored candidate election binding undefined before alert or filter queue mutation
+[22m[39m✅ Event Processor Service initialized
+
+[90mstdout[2m | tests/unit/c38-candidate-event-guard.test.ts[2m > [22m[2mC38 actual candidate-to-election receiving guard[2m > [22m[2msame actual candidate/election/event binding reaches alert boundary once
+[22m[39m✅ Event Processor Service initialized
+👤 Processing candidate event: position_change for Isolated subject
+
+ [32m✓[39m tests/unit/c38-candidate-event-guard.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m tests/unit/dashboard-user.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m tests/auth-user-switch.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 126[2mms[22m[39m
+ [32m✓[39m tests/unit/untrusted-text.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/results-store-batch.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m tests/upcoming-rollover.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32m✓[39m tests/filter-codes.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m tests/candidate-ci-registration.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m tests/candidate-ci-expectations.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m tests/filter-sidebar-ids.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 394[2mms[22m[39m
+   [32m✓[39m FilterSidebar rendered twice [2m(1)[22m
+     [33m[2m✓[22m[39m each copy has unique ids and named checkboxes[33m 391[2mms[22m[39m
+ [32m✓[39m tests/auth-return.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m tests/unit/session-identity.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m tests/code-toggle.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 116[2mms[22m[39m
+ [32m✓[39m tests/url-state.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m tests/election-menominee-contract.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 15[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m110 passed[39m[22m[90m (110)[39m
+[2m      Tests [22m [1m[32m1060 passed[39m[22m[90m (1060)[39m
+[2m   Start at [22m 19:33:34
+[2m   Duration [22m 55.59s[2m (environment 40%, tests 32%, import 14%, setup 10%, transform 3%, worker 1%)[22m
+
+[2mEnvironment [22m [33mjsdom was created 110 times[39m[2m · 40.00s total, 40% of tracked time[22m
+[2m            [22m [2mcreate it once per worker with [22m[33mpool: 'vmThreads'[39m[2m (keeps per-file isolation) or [22m[33misolate: false[39m[2m (shares it across files)[22m
+[2m            [22m [2mlearn more: https://vitest.dev/guide/improving-performance#test-environments[22m
+

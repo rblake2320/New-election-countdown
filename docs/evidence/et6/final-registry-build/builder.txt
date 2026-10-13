@@ -1,0 +1,104 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 2.19kB 0.0s done
+#1 DONE 0.1s
+
+#2 [internal] load metadata for docker.io/library/node:24-alpine
+#2 ...
+
+#3 [auth] library/node:pull token for registry-1.docker.io
+#3 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/node:24-alpine
+#2 DONE 0.7s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 848B 0.0s done
+#4 DONE 0.1s
+
+#5 [builder 1/6] FROM docker.io/library/node:24-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1
+#5 resolve docker.io/library/node:24-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1 0.0s done
+#5 DONE 0.1s
+
+#6 [internal] load build context
+#6 transferring context: 48.84MB 4.9s
+#6 transferring context: 69.82MB 7.1s done
+#6 DONE 7.2s
+
+#7 [builder 2/6] WORKDIR /app
+#7 CACHED
+
+#8 [builder 3/6] COPY package*.json ./
+#8 CACHED
+
+#9 [builder 4/6] RUN npm ci &&     npm cache clean --force
+#9 CACHED
+
+#10 [builder 5/6] COPY . .
+#10 DONE 0.8s
+
+#11 [builder 6/6] RUN npm run build
+#11 0.731 
+#11 0.731 > rest-express@1.0.0 build
+#11 0.731 > vite build && node scripts/build-server.mjs && node scripts/build-congress-import.mjs
+#11 0.731 
+#11 1.116 vite v8.3.4 building client environment for production...
+#11 1.135 transforming...
+#11 3.068 ✓ 2701 modules transformed.
+#11 3.286 rendering chunks...
+#11 3.430 computing gzip size...
+#11 3.435 dist/public/index.html                                   1.83 kB │ gzip:   0.68 kB
+#11 3.435 dist/public/assets/index-CDpdpM3u.css                  124.23 kB │ gzip:  19.84 kB
+#11 3.435 dist/public/assets/skeleton-B3qL_WbC.js                  0.21 kB │ gzip:   0.18 kB
+#11 3.435 dist/public/assets/progress-BP4rSzyM.js                  0.56 kB │ gzip:   0.37 kB
+#11 3.435 dist/public/assets/rolldown-runtime-hePW80VL.js          0.71 kB │ gzip:   0.42 kB
+#11 3.435 dist/public/assets/card-BADleCpt.js                      1.20 kB │ gzip:   0.48 kB
+#11 3.435 dist/public/assets/tabs-0qcRNMuR.js                      1.24 kB │ gzip:   0.53 kB
+#11 3.435 dist/public/assets/form-B2M2Px7R.js                      1.88 kB │ gzip:   0.82 kB
+#11 3.435 dist/public/assets/not-found-BdsayviG.js                 2.78 kB │ gzip:   0.97 kB
+#11 3.435 dist/public/assets/Compare-DB0TTMA2.js                   2.85 kB │ gzip:   1.13 kB
+#11 3.435 dist/public/assets/congress-members-BuO1iERy.js          4.02 kB │ gzip:   1.77 kB
+#11 3.435 dist/public/assets/happening-now-Bfi-JPvI.js             5.45 kB │ gzip:   1.97 kB
+#11 3.435 dist/public/assets/midterm-2026-BsmqMDvq.js              6.52 kB │ gzip:   1.61 kB
+#11 3.435 dist/public/assets/api-status-D539pIVK.js                7.21 kB │ gzip:   2.04 kB
+#11 3.435 dist/public/assets/admin-settings-CbC31gEP.js            7.83 kB │ gzip:   2.19 kB
+#11 3.435 dist/public/assets/investor-dashboard-pJRepqMB.js        8.27 kB │ gzip:   2.15 kB
+#11 3.435 dist/public/assets/congress-admin-FAfa2iKD.js            9.19 kB │ gzip:   2.59 kB
+#11 3.435 dist/public/assets/monitoring-dashboard-CNieblwo.js      9.25 kB │ gzip:   2.47 kB
+#11 3.435 dist/public/assets/campaign-portal-B1DMOcku.js           9.87 kB │ gzip:   2.81 kB
+#11 3.435 dist/public/assets/candidate-portal-fixed-DVwn2dce.js   14.63 kB │ gzip:   3.77 kB
+#11 3.435 dist/public/assets/civic-dashboard-Drw4IdP7.js          16.08 kB │ gzip:   4.64 kB
+#11 3.435 dist/public/assets/congress-CuG6a8eP.js                 16.27 kB │ gzip:   4.16 kB
+#11 3.435 dist/public/assets/icons-2f1bqvgh.js                    16.42 kB │ gzip:   5.77 kB
+#11 3.435 dist/public/assets/live-result-view-As9coWHK.js         18.24 kB │ gzip:   5.79 kB
+#11 3.435 dist/public/assets/preferences-CcK2tBSy.js              18.65 kB │ gzip:   4.35 kB
+#11 3.435 dist/public/assets/format-rEXDVrHF.js                   19.29 kB │ gzip:   5.51 kB
+#11 3.435 dist/public/assets/react-BpqA32dN.js                    20.46 kB │ gzip:   7.06 kB
+#11 3.435 dist/public/assets/admin-results-entry-9ybyBmMU.js      20.87 kB │ gzip:   6.53 kB
+#11 3.435 dist/public/assets/dashboard-BDPAzv1l.js                24.35 kB │ gzip:   5.03 kB
+#11 3.435 dist/public/assets/DataSteward-CeNHmwIh.js              24.70 kB │ gzip:   6.17 kB
+#11 3.435 dist/public/assets/zod-COPzk9ED.js                      25.92 kB │ gzip:   9.62 kB
+#11 3.435 dist/public/assets/auth-C9dDs_Lk.js                     29.19 kB │ gzip:   6.17 kB
+#11 3.435 dist/public/assets/query-DasIO8rc.js                    33.51 kB │ gzip:  10.07 kB
+#11 3.435 dist/public/assets/election-details-BhhdFWrb.js         35.72 kB │ gzip:   9.79 kB
+#11 3.435 dist/public/assets/lib-UMKb9-QE.js                      59.30 kB │ gzip:  14.13 kB
+#11 3.435 dist/public/assets/index-EFJErwMd.js                   230.87 kB │ gzip:  62.91 kB
+#11 3.435 dist/public/assets/radix-C-mTOb-Q.js                   268.45 kB │ gzip:  84.22 kB
+#11 3.435 dist/public/assets/charts-BTQhWz69.js                  394.33 kB │ gzip: 103.55 kB
+#11 3.435 
+#11 3.445 ✓ built in 2.33s
+#11 DONE 3.8s
+
+#12 exporting to image
+#12 exporting layers
+#12 exporting layers 1.1s done
+#12 exporting manifest sha256:4c6d2085eec0ce377f69794a3613dc775a94976e51511ba14a608214eb229515 0.0s done
+#12 exporting config sha256:1368fbe00408ee2d4334702658f134843b4c5813b552239ef7cc41c5ec0f7384 0.0s done
+#12 exporting attestation manifest sha256:432686f937e9d9c386c1ba613dccbf67b793e3e79881a469422c238bad798ca1 0.1s done
+#12 exporting manifest list sha256:c110a3c94c50757b5b054849a65494c7b156ccab123a1126e63ccc468f520404
+#12 exporting manifest list sha256:c110a3c94c50757b5b054849a65494c7b156ccab123a1126e63ccc468f520404 0.0s done
+#12 naming to docker.io/library/electiontracker:et6-d-final-registry-20261013-builder done
+#12 unpacking to docker.io/library/electiontracker:et6-d-final-registry-20261013-builder
+#12 unpacking to docker.io/library/electiontracker:et6-d-final-registry-20261013-builder 1.0s done
+#12 DONE 2.3s
