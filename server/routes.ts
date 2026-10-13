@@ -31,6 +31,8 @@ import { civicAggregatorService } from "./civic-aggregator-service";
 import { registerCandidatePortalRoutes } from "./routes-candidate-portal";
 import { positionAggregatorService } from "./position-aggregator-service";
 import { candidatePositionAPI } from "./candidate-position-api";
+import { compareVerifiedCandidatePolicies } from "./verified-policy-comparison";
+import { registerVerifiedPolicyRoutes } from "./verified-policy-routes";
 import { pollingTrendService } from "./polling-trend-service";
 import { openStatesService } from "./openstates-service";
 import {
@@ -368,16 +370,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Enhanced candidate positions from multiple authentic sources
-  app.get("/api/candidates/:id/positions", requireVoteSmartAPI, async (req, res) => {
-    try {
-      const candidateId = parseInt(req.params.id);
-      const positions = await candidatePositionAPI.getPositionsForCandidate(candidateId);
-      res.json(positions);
-    } catch (error) {
-      console.error("Error fetching candidate positions:", error);
-      res.status(500).json({ error: "Failed to fetch candidate positions" });
-    }
+  registerVerifiedPolicyRoutes(app, {
+    positions: id => candidatePositionAPI.getPositionsForCandidate(id),
+    compare: compareVerifiedCandidatePolicies,
   });
 
   // Data integrity cleanup endpoint (admin only)
@@ -2303,26 +2298,6 @@ Please provide specific, factual information with sources where possible. Focus 
       res.json(status);
     } catch (error) {
       res.status(500).json({ error: "Failed to get civic aggregator status" });
-    }
-  });
-
-  app.get("/api/civic/compare", async (req, res) => {
-    try {
-      const candidateIds = req.query.candidateIds as string;
-      const policyCategories = req.query.policyCategories as string;
-
-      if (!candidateIds || !policyCategories) {
-        return res.status(400).json({ message: "Missing candidateIds or policyCategories" });
-      }
-
-      const ids = candidateIds.split(',');
-      const categories = policyCategories.split(',');
-
-      const comparison = await civicAggregatorService.comparePolicies(ids, categories);
-      res.json(comparison);
-    } catch (error: any) {
-      console.error('Policy comparison error:', error);
-      res.status(500).json({ error: error.message });
     }
   });
 
