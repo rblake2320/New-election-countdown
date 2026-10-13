@@ -1,0 +1,29 @@
+# Portable official raw-source packet bridge
+
+Runtime `554cbef13bf1d48cedea41af030a60614da14846`; physical branch `lane-c/official-source-packet-bridge`. Canonical exported schemas: `officialSourcePacketSchema` in `scripts/parse_official_source_packet.ts`, `reviewedSourceTargetBindingSchema` and `officialTargetBindingSchema` in `server/official-result-adapters/bridge.ts`. Posting output is parsed by the actual shared `liveResultReportInputSchema` V1.
+
+Worked: eight compiled CLI cases from an alternate Windows working directory: original/amended WA Lands, WA Senate, CA Governor, NC Senate, NC House01, LA Senate primary runoff, and rewritten target refusal. Worked: same compiled bundle executed all seven positive packets in a network-disabled, read-only Linux Node24 container, 1 CPU/256MB with bounded scratch tmpfs; an actual POSIX symlink escape was refused. The native Windows actual directory-junction escape test passed. File-symlink creation initially failed with Windows EPERM; that environment receipt is retained, rather than counted as successful parser enforcement.
+
+Worked: 30 bridge tests, 929 full repository tests, build, strict scoped compiler (0 errors). Isolated mutation controls test target ID/state/date/type/level/title, independently reviewed source office/party mapping, payload/certification pins, missing proof, manifest hash, raw-byte tampering, expected-total mismatch, invalid capture clock, path traversal, duplicate roles, link escape, case-exact target tuples and manual-source truthfulness. The supplied-ID unit control is a synthetic mechanism test; actual LA raw publisher choice IDs 124648/124649 are separately verified through the full packet path.
+
+`parseOfficialSourcePacket(packetPath, expectedManifestSha256, actualTarget)` checks the externally supplied reviewed manifest SHA, every raw-file digest and bounded relative path before parsing. The packet's `reviewedBinding` explicitly maps source canonical role/district/party/date/phase to an exact reviewed target tuple. Both editable context/targetBinding and independently supplied actual target must match that mapping. DB title need not equal the publisher's canonical office label; no title guessing occurs. Type-phase semantic matching is case-insensitive; actual-vs-reviewed target tuple matching remains case-exact.
+
+Certification defaults to unofficial. An explicit reviewed certification flag additionally requires actual parser certification evidence, independently declared raw certificate SHA, exact original PDF bytes, URL and source context. Date-only declarations remain certifiedAt null. Manual sources require source.id equal the source state and always remain unofficial. NC/LA display names explicitly say manual ingestion of official raw data; no automatic source registration or C6 November publication flag is invented.
+
+Capture time comes solely from the retained successful payload fetch receipt bound by its payload URL/hash/status: WA and CA `checkedAt`, LA original `retrievedAt`. Conflicting clocks or missing/invalid clocks refuse. No parsing clock is substituted for asOf/retrievedAt. Unzoned source clocks remain asOf null and are retained as raw metadata in the receipt. No winner is inferred; all candidateId remain null. Actual publisher option IDs are used when provided; otherwise sourceCandidateId is the exact parsed printed name, scoped to the source contest. The receipt documents identifier basis and aggregate option kind.
+
+WA original/amended returns share source contest key `WA:2024-08-06:primary:state:Commissioner of Public Lands`: a documented derived qualified role/context key, not an official numeric ID. They share target fixture PK4242401 and raw workbook SHA, but votes/certificate inputs and full-input idempotency keys differ. This is a correction within one contest. A owns writer revision/idempotency/transaction semantics.
+
+All PKs4242401..4242406 are explicitly synthetic dry-run fixture bindings, with genuine historical/primary vote/date/name/source facts. There are no DB or fetch operations in the bridge/CLI. Root owns real catalog binding, packet deployment/startup registration and admitted-source registry; A owns writer/schema; D owns real receiving/storage/load. No raw packet is relabelled as November2026 general returns.
+
+Actual expected totals: WA Lands1,903,073 →1,903,115 (eight options; separate ballot totals1,994,096 →1,994,099), WA Senate1,948,716/12, CA Governor9,262,468/68, NC Senate827,755/6, NC House01REP67,376/5, LA SenateDEMrunoff196,212/2. Source raw bytes, original capture receipts, raw certificate files when present, packet manifest and exact target binding are included in each portable packet directory.
+
+Reproduce from the repository:
+
+```powershell
+npx esbuild scripts/parse_official_source_packet.ts --bundle --platform=node --format=esm --outfile=artifacts/source-packet/parse_official_source_packet.mjs
+python scripts/verify_source_packet_cli.py
+npx vitest run tests/official-source-packet.test.ts
+```
+
+Direct CLI accepts only `--packet <packet.json> --sha256 <reviewed SHA256> --target <actual target-binding.json>` and writes a structured input/refusal receipt to stdout. There is no post/apply flag. The manifest SHA and complete output/file hashes are in `delivery-index.json` and `compiled-cli-receipt.json`. Candidate/provider IDs, vote totals and timestamps were not generated from a parsing clock or model.
