@@ -5,7 +5,7 @@ import { pathToFileURL } from 'node:url';
 import { z } from 'zod';
 import { httpsResultsUrl, resultsTimestamp } from '../shared/official-results';
 import { officialContestContextSchema, OfficialResultParseError, type ParsedOfficialContest } from '../server/official-result-adapters/types';
-import { bridgeOfficialContest, officialTargetBindingSchema, reviewedPublisherSchema, type OfficialTargetBinding } from '../server/official-result-adapters/bridge';
+import { bridgeOfficialContest, officialTargetBindingSchema, reviewedPublisherSchema, reviewedSourceTargetBindingSchema, type OfficialTargetBinding } from '../server/official-result-adapters/bridge';
 import { parseWashingtonLandsRecount, parseWashingtonSenatePrimary } from '../server/official-result-adapters/wa';
 import { parseCaliforniaGovernorSov } from '../server/official-result-adapters/ca';
 import { parseNcOfficialResults } from '../server/official-result-adapters/nc';
@@ -14,6 +14,7 @@ const sha=z.string().regex(/^[a-f0-9]{64}$/),token=z.string().min(1).max(256);
 export const officialSourcePacketSchema=z.object({version:z.literal(1),purpose:z.literal('dry_run_only'),
   parser:z.enum(['wa_lands_initial','wa_lands_recount','wa_senate_primary','ca_governor_primary','nc_official','la_official']),
   context:officialContestContextSchema,targetBinding:officialTargetBindingSchema,publisher:reviewedPublisherSchema,
+  reviewedBinding:reviewedSourceTargetBindingSchema,
   files:z.array(z.object({role:z.enum(['payload','companion','certificate','capture_receipt']),path:z.string().min(1).max(512),sha256:sha,url:httpsResultsUrl.nullable()}).strict()).min(2).max(8),
   reviewedCertification:z.boolean().default(false),sourceContestId:token.nullable(),localContestId:token.nullable(),
   expectedTotals:z.object({totalVotes:z.number().int().nonnegative().safe(),optionCount:z.number().int().positive().max(5000)}).strict(),
@@ -41,7 +42,9 @@ export async function parseOfficialSourcePacket(packetPath:string,expectedManife
   const captureRows=z.array(z.record(z.unknown())).parse(Array.isArray(captureValue)?captureValue:[captureValue]);
   const matches=captureRows.filter(row=>row.url===payload.url&&row.sha256===payload.sha256&&(row.status===200||row.httpStatus===200));
   if(matches.length!==1)refuse('CAPTURE_RECEIPT_MISMATCH','No unique actual successful payload capture receipt');
-  const retrievedAt=resultsTimestamp.parse(matches[0]?.checkedAt);
+  const captureClock=matches[0];
+  if(captureClock?.checkedAt!==undefined&&captureClock?.retrievedAt!==undefined&&captureClock.checkedAt!==captureClock.retrievedAt)refuse('CAPTURE_RECEIPT_MISMATCH','Capture receipt clocks disagree');
+  const retrievedAt=resultsTimestamp.parse(captureClock?.checkedAt??captureClock?.retrievedAt);
   const certificate=roles.get('certificate');let parsed:ParsedOfficialContest;
   switch(packet.parser){
     case 'wa_lands_initial':case 'wa_lands_recount':
@@ -57,7 +60,7 @@ export async function parseOfficialSourcePacket(packetPath:string,expectedManife
   }
   if(packet.sourceContestId!==null&&parsed.sourceContestId!==packet.sourceContestId)refuse('SOURCE_CONTEST_MISMATCH','Actual parsed contest differs from reviewed source contest key');
   if(parsed.totalVotes!==packet.expectedTotals.totalVotes||parsed.options.length!==packet.expectedTotals.optionCount)refuse('EXPECTED_TOTAL_MISMATCH','Actual parsed vote/option counts differ from independently reviewed expected totals');
-  const input=bridgeOfficialContest(parsed,{publisher:packet.publisher,retrievedAt,target,reviewedTarget:packet.targetBinding,reviewedContext:packet.context,rawPayload:payload.bytes,rawCertificates:certificate?.url?[{url:certificate.url,bytes:certificate.bytes}]:[],reviewedCertification:packet.reviewedCertification});
+  const input=bridgeOfficialContest(parsed,{publisher:packet.publisher,retrievedAt,target,reviewedTarget:packet.targetBinding,reviewedContext:packet.context,reviewedBinding:packet.reviewedBinding,rawPayload:payload.bytes,rawCertificates:certificate?.url?[{url:certificate.url,sha256:certificate.sha256,bytes:certificate.bytes}]:[],reviewedCertification:packet.reviewedCertification});
   return {outcome:'Worked',mode:'dry_run_only',manifestSha256:digest(bytes),files:packet.files.map(file=>({role:file.role,sha256:file.sha256})),targetBinding:target,identifierBasis:parsed.options.map(option=>({sourceLabel:option.name,basis:option.identifierBasis,optionKind:option.optionKind})),publisherMetrics:parsed.publisherMetrics,certificationEvidence:parsed.certificationEvidence,input};
 }
 async function main(){

@@ -8,6 +8,7 @@ def make(folder,kind,context,target,publisher,sources,total,options,sourceid,cer
         dest=root/'raw'/source.name;shutil.copyfile(source,dest)
         files.append({'role':role,'path':'raw/'+source.name,'sha256':hashlib.sha256(dest.read_bytes()).hexdigest(),'url':url})
     packet={'version':1,'purpose':'dry_run_only','parser':kind,'context':context,'targetBinding':target,'publisher':publisher,'files':files,'reviewedCertification':certified,'sourceContestId':sourceid,'localContestId':None,'expectedTotals':{'totalVotes':total,'optionCount':options}}
+    packet['reviewedBinding']={'target':target,'sourceContext':context}
     write(root/'packet.json',packet);write(root/'target-binding.json',target);print(folder,hashlib.sha256((root/'packet.json').read_bytes()).hexdigest())
 wa=repo/'artifacts/wa-adapter/raw';capture=packets/'wa/raw/capture-receipt.json'
 url='https://www.sos.wa.gov/sites/default/files/2024-09/2024Pri%20Results%20by%20Congressional%20District.xlsx'
