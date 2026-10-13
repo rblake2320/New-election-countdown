@@ -1,0 +1,34 @@
+
+ RUN  v5.0.3 D:/projects/et-wt/astra-registry-intersection
+
+ ❯ tests/unit/results-ingestion-v13.test.ts (13 tests | 1 failed) 117ms
+   ❯ v1.3 deltas 2/5/6: admitted polling, foreign refusal, lifetime (4)
+     × cannot bypass explicit registry constraints through a worked manifest fallback 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/results-ingestion-v13.test.ts > v1.3 deltas 2/5/6: admitted polling, foreign refusal, lifetime > cannot bypass explicit registry constraints through a worked manifest fallback
+AssertionError: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/unit/results-ingestion-v13.test.ts:93:53
+     91|     const svc = new ResultsIngestionService(); const adapter = vi.fn(a…
+     92|     svc.registerAdapter('nc-exact', adapter);
+     93|     expect((await svc.coverage()).counts.automatic).toBe(0);
+       |                                                     ^
+     94|     await svc.ingestResults();
+     95|     expect(adapter).not.toHaveBeenCalled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 12 passed (13)
+   Start at  14:29:08
+   Duration  1.93s (environment 46%, import 19%, transform 13%, setup 12%, tests 9%, worker 1%)
+
