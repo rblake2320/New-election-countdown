@@ -35,7 +35,7 @@ export async function writeSourceHealth(q:Pick<PoolClient,'query'>,event:SourceH
  outcome=EXCLUDED.outcome,automatic=EXCLUDED.automatic,ttl_seconds=EXCLUDED.ttl_seconds,last_attempt_at=EXCLUDED.last_attempt_at,
  last_success_at=CASE WHEN EXCLUDED.outcome='success' THEN EXCLUDED.last_success_at ELSE result_source_health.last_success_at END,
  stale_since=CASE WHEN EXCLUDED.outcome='success' THEN NULL WHEN EXCLUDED.stale_since IS NOT NULL THEN coalesce(result_source_health.stale_since,EXCLUDED.stale_since) ELSE result_source_health.stale_since END,
- health_version=result_source_health.health_version+CASE WHEN result_source_health.outcome<>EXCLUDED.outcome OR result_source_health.automatic<>EXCLUDED.automatic OR (result_source_health.stale_since IS NOT NULL AND EXCLUDED.outcome='success') THEN 1 ELSE 0 END`,
+ health_version=result_source_health.health_version+CASE WHEN result_source_health.outcome<>EXCLUDED.outcome OR result_source_health.automatic<>EXCLUDED.automatic OR (result_source_health.stale_since IS NOT NULL AND EXCLUDED.outcome='success') OR (EXCLUDED.outcome='success' AND result_source_health.automatic AND result_source_health.last_success_at+result_source_health.ttl_seconds*INTERVAL '1 second'<=EXCLUDED.last_attempt_at) THEN 1 ELSE 0 END`,
  [event.electionId,event.sourceId,c.state,c.electionDate,c.type,c.level,c.office,event.outcome,event.automatic,AUTOMATIC_RESULTS_TTL_SECONDS]);
  if(outcome.rowCount!==1)throw new ResultReportError(409,'health_context_changed','Race context changed before source health was recorded');
  assertResultsNotAborted(event.signal);
@@ -57,7 +57,8 @@ export class MemSourceHealth {
  write(event:SourceHealthEvent,hasReport:boolean):void{
   assertResultsNotAborted(event.signal);const key=this.key(event),old=this.rows.get(key),at=new Date().toISOString(),c=event.context;
   const stale=event.outcome==='success'?null:event.outcome==='failed'||hasReport?old?.stale_since??at:old?.stale_since??null;
-  this.rows.set(key,{election_id:event.electionId,source_id:event.sourceId,context_state:c.state,context_election_date:c.electionDate,context_type:c.type,context_level:c.level,context_office:c.office,outcome:event.outcome,automatic:event.automatic,ttl_seconds:AUTOMATIC_RESULTS_TTL_SECONDS,last_attempt_at:at,last_success_at:event.outcome==='success'?at:old?.last_success_at??null,stale_since:stale,health_version:old?Number(old.health_version)+(old.outcome!==event.outcome||old.automatic!==event.automatic||old.stale_since!==null&&event.outcome==='success'?1:0):1});
+  const expiredRecovery=old?.automatic&&old.last_success_at&&event.outcome==='success'&&Date.now()>=new Date(old.last_success_at).getTime()+old.ttl_seconds*1000;
+  this.rows.set(key,{election_id:event.electionId,source_id:event.sourceId,context_state:c.state,context_election_date:c.electionDate,context_type:c.type,context_level:c.level,context_office:c.office,outcome:event.outcome,automatic:event.automatic,ttl_seconds:AUTOMATIC_RESULTS_TTL_SECONDS,last_attempt_at:at,last_success_at:event.outcome==='success'?at:old?.last_success_at??null,stale_since:stale,health_version:old?Number(old.health_version)+(old.outcome!==event.outcome||old.automatic!==event.automatic||old.stale_since!==null&&event.outcome==='success'||expiredRecovery?1:0):1});
  }
  read(read:HealthRead):SourceHealthRow|null{return read.sourceIds.map(sourceId=>this.rows.get(this.key({electionId:read.electionId,sourceId,context:read.context}))).filter((r):r is SourceHealthRow=>!!r).sort((a,b)=>new Date(b.last_attempt_at).getTime()-new Date(a.last_attempt_at).getTime())[0]??null;}
 }

@@ -176,6 +176,14 @@ export function canonicalInputHash(input: ResultReportInput): string {
   const { note: _n, supersedesReportId: _s, ...rest } = input;
   return createHash('sha256').update(stableStringify(rest)).digest('hex');
 }
+/** Same published facts across fresh captures and database timestamp spellings. */
+export function publishedContentHash(input:ResultReportInput|ResultsPayload):string{
+ const time=(value:string|null)=>value===null?null:new Date(value).toISOString();
+ const normalized={schemaVersion:input.schemaVersion,electionId:input.electionId,status:input.status,source:input.source,sourcePayloadSha256:input.sourcePayloadSha256,asOf:time(input.asOf),asOfBasis:input.asOfBasis,reporting:input.reporting,totalVotes:input.totalVotes,
+ candidates:[...input.candidates].sort((a,b)=>a.sourceCandidateId<b.sourceCandidateId?-1:a.sourceCandidateId>b.sourceCandidateId?1:0),
+ winnerCalledBy:input.winnerCalledBy?{...input.winnerCalledBy,at:time(input.winnerCalledBy.at)}:null,certification:input.certification?{...input.certification,certifiedAt:time(input.certification.certifiedAt)}:null};
+ return createHash('sha256').update(stableStringify(normalized)).digest('hex');
+}
 export function etagFor(payload: ResultsPayload): string {
   const state=createHash('sha256').update(stableStringify([payload,sourceHealthCacheKey(payload)])).digest('hex').slice(0,24);
   return `W/"${payload.electionId}-${payload.revision ?? 'none'}-${state}"`;
