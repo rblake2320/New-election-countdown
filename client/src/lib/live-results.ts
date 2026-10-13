@@ -112,6 +112,20 @@ export function statusLabel(status: LiveElectionResultsResponse["status"]): stri
   return status === "certified" ? "Certified results" : status === "unofficial" ? "Unofficial results" : "No results reported yet";
 }
 
+/** Per-race outcome of one batch read: a recorded snapshot, a failed source read for that race, or neither. */
+export type BatchOutcome =
+  | { kind: "result"; result: LiveResultsBatchResponse["results"][number] }
+  | { kind: "error"; error: NonNullable<LiveResultsBatchResponse["errors"]>[number] }
+  | { kind: "absent" };
+
+/** Look one race up in a validated batch. Ids are unique across results and errors (schema-enforced), so a failed race never hides a healthy one. */
+export function batchOutcomeFor(batch: LiveResultsBatchResponse | undefined, electionId: number): BatchOutcome {
+  const result = batch?.results.find(r => r.electionId === electionId);
+  if (result) return { kind: "result", result };
+  const error = batch?.errors?.find(e => e.electionId === electionId);
+  return error ? { kind: "error", error } : { kind: "absent" };
+}
+
 /** Election dates (YYYY-MM-DD, as stored) for the races on screen. */
 export function electionDates(elections: { date: string }[]): string[] {
   return [...new Set(elections.map(e => e.date.slice(0, 10)))].sort();
