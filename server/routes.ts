@@ -22,6 +22,8 @@ import { realTimeMonitor } from "./real-time-monitor";
 import { electionScraper } from "./web-scraper";
 import { aiValidationService } from "./ai-validation-service";
 import { resultsIngestionService } from "./results-ingestion-service";
+import { resultsSourceRegistry } from "./results-source-registry";
+import { registerOfficialFeedAdapters, type OfficialFeedBootReceipt } from "./official-feed-adapters";
 import { complianceService } from "./compliance-service";
 import { eventProcessingService } from "./event-processing-service";
 import { globalElectionService, UpstreamError } from "./global-election-service";
@@ -1166,6 +1168,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // ET-6: GET /api/results/coverage?date= — automatic (published manifest + registered adapter) vs manual-only per race
   registerResultsCoverageRoute(app, { coverage: (date) => resultsIngestionService.coverage(date) });
+
+  // ET-6 v1.3: lane C's official-feed sources/adapters are registered at boot (bundled app, no external singleton).
+  const officialFeedBoot: OfficialFeedBootReceipt = registerOfficialFeedAdapters(resultsIngestionService, resultsSourceRegistry);
+  app.get('/api/results/ingestion/boot', (_req, res) => { res.set('Cache-Control', 'no-store'); res.json({ ...officialFeedBoot, status: resultsIngestionService.getStatus() }); });
 
   // Update election results endpoint
   // Perplexity AI endpoints

@@ -30,10 +30,11 @@ import { LiveResultView } from "@/components/live-result-view";
 interface Election { id: number; title: string; location: string; state: string; date: string; type: string; level: string }
 interface Candidate { id: number; name: string; party: string | null }
 /** One entry of GET /api/results/sources: a registered source an admin may cite. */
-interface ResultSource { id: string; kind: string; name: string; url: string | null; state?: string }
+interface ResultSource { id: string; kind: string; name: string; url: string | null; state?: string; published?: boolean; registeredBy?: string }
 
 // Evidence types the server accepts (POST /api/admin/results-evidence).
-const EVIDENCE_TYPES = ["text/html", "application/json", "text/csv", "application/pdf", "image/png", "image/jpeg"];
+const XLSX_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"; // accepted since lane A's v1.3 (e.g. WA results workbook)
+const EVIDENCE_TYPES = ["text/html", "application/json", "text/csv", "application/pdf", "image/png", "image/jpeg", XLSX_TYPE];
 const EVIDENCE_MAX_BYTES = 10 * 1024 * 1024;
 
 interface Line { candidateId: number | null; sourceCandidateId: string; name: string; party: string; votes: string; percent: string; isWinner: boolean }
@@ -137,6 +138,7 @@ async function sha256Hex(file: File): Promise<string> {
 }
 
 const POST_ERRORS: Record<string, string> = {
+  source_mismatch: "The source's type or web address does not match what is registered for it. Use the registered address on the official site.",
   evidence_missing: "The server has no stored copy of the official file for this report. Upload the file again and post.",
   unknown_source: "That source is not registered. Choose one from the list.",
   contest_key_conflict: "That source contest ID is already recorded for a different race. Check the contest ID.",
@@ -373,7 +375,7 @@ export default function AdminResultsEntry() {
                         : { sourceId: "", sourceKind: "admin_manual", sourceName: "", sourceUrl: "" });
                     }}>
                     <option value="">{sourcesQuery.isLoading ? "Loading sources..." : "Choose the source you are citing..."}</option>
-                    {sources.map(x => <option key={x.id} value={x.id}>{x.name} ({x.kind.replace(/_/g, " ")})</option>)}
+                    {sources.map(x => <option key={x.id} value={x.id}>{x.name} ({x.kind.replace(/_/g, " ")}){x.kind !== "admin_manual" && x.published === false ? " - registered, not yet published" : ""}</option>)}
                   </select>
                   {sourcesQuery.error && (
                     <p role="alert" className="mt-1 text-sm text-destructive">
@@ -393,7 +395,7 @@ export default function AdminResultsEntry() {
                   <Input id="src-file" type="file" accept={EVIDENCE_TYPES.join(",")} disabled={uploading} onChange={async e => {
                     const f = e.target.files?.[0];
                     if (!f) return;
-                    if (!EVIDENCE_TYPES.includes(f.type)) { setIssues([`${f.name}: files of type ${f.type || "unknown"} are not accepted. Use HTML, JSON, CSV, PDF, PNG or JPEG.`]); return; }
+                    if (!EVIDENCE_TYPES.includes(f.type)) { setIssues([`${f.name}: files of type ${f.type || "unknown"} are not accepted. Use HTML, JSON, CSV, PDF, PNG, JPEG or XLSX.`]); return; }
                     if (f.size > EVIDENCE_MAX_BYTES) { setIssues([`${f.name} is larger than 10 MB.`]); return; }
                     setUploading(true); setIssues([]);
                     try {

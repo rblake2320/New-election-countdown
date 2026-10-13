@@ -33,8 +33,9 @@ jobs:
       - run: npm run build
       - name: Runtime dependency audit
         run: npm audit --omit=dev --audit-level=high
-      - name: Enforce client types and report full-project diagnostics
-        run: node scripts/check-client-types.mjs
+      - name: Enforce full-project types
+        shell: bash
+        run: npm run check 2>&1 | tee typecheck.txt
       - name: Full dependency audit report
         if: always()
         run: npm audit --json > audit.json || true
