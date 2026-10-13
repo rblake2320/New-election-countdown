@@ -14,6 +14,9 @@ source = dotenv_values(os.environ.get('ELECTION_ENV_FILE', 'D:/projects/New-elec
 url = urlparse(source or '')
 if url.hostname not in ('localhost', '127.0.0.1') or (url.port or 5432) != 5432 or url.path != '/elections':
     raise SystemExit('Approved local elections source required')
+receipt_path = Path(os.environ.get('SOURCE_BACKUP_RECEIPT_PATH', 'artifacts/data-deployment/backup-receipt.json'))
+if receipt_path.is_absolute() or '..' in receipt_path.parts or len(receipt_path.parts) < 2 or receipt_path.parts[0] != 'artifacts' or receipt_path.suffix.lower() != '.json':
+    raise SystemExit('Backup receipt must stay in the reviewed relative artifacts directory')
 label = 'et_sol_data_' + uuid.uuid4().hex[:12]
 root = Path('C:/Users/techai/.codex/private/election-source-backups') / label
 root.mkdir(parents=True, exist_ok=False)
@@ -43,8 +46,8 @@ try:
     receipt = {'outcome': 'Worked', 'source': 'approved local5432/elections', 'privateDatabase': label, 'archive': str(protected), 'plaintextBytes': len(raw), 'archiveSha256': hashlib.sha256(raw).hexdigest(), 'protectedSha256': hashlib.sha256(protected.read_bytes()).hexdigest(), 'protection': 'current Windows user DPAPI plus owner/SYSTEM-only ACL', 'entropy': label, 'dpapiReadback': 'identical', 'privateRestore': 'Worked', 'plaintextFileRetained': False}
     output = root / 'receipt.json'
     output.write_text(json.dumps(receipt, indent=2) + '\n', encoding='utf-8')
-    Path('artifacts/data-deployment').mkdir(parents=True, exist_ok=True)
-    Path('artifacts/data-deployment/backup-receipt.json').write_text(json.dumps(receipt, indent=2) + '\n', encoding='utf-8')
+    receipt_path.parent.mkdir(parents=True, exist_ok=True)
+    receipt_path.write_text(json.dumps(receipt, indent=2) + '\n', encoding='utf-8')
     print(json.dumps(receipt))
 except Exception as exc:
     print(json.dumps({'outcome': 'Failed', 'stage': stage, 'errorType': type(exc).__name__, 'protectedArchiveRetained': protected.exists(), 'privateDatabase': label}))
