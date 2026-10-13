@@ -1,0 +1,11 @@
+{
+ skip_install_trust
+ fallback_sni et6-prod-146988-68fd49ce.internal
+}
+https://et6-prod-146988-68fd49ce.internal {
+ tls internal
+ reverse_proxy et6-prod-146988-68fd49ce-app:5000
+}
+:443 {
+ reverse_proxy et6-prod-146988-68fd49ce-app:5000
+}

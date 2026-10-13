@@ -1,0 +1,54 @@
+{
+ "playwright": "1.64.0",
+ "engine": "firefox",
+ "width": 1280,
+ "expectErrId": 24,
+ "results": [
+  {
+   "name": "first sample: >= MIN_HEALTHY healthy cards + exactly one error card with the expected id + no date-level alert",
+   "ok": true,
+   "detail": {
+    "cards": 506,
+    "errCards": [
+     24
+    ],
+    "loading": 0,
+    "healthy": 505,
+    "dateAlerts": 0
+   }
+  },
+  {
+   "name": "304 persistence: a poll answered 304 with If-None-Match while the error was shown, and error + healthy cards were unchanged",
+   "ok": true,
+   "detail": 4
+  },
+  {
+   "name": "recovery: the error card cleared without a reload and every card is healthy",
+   "ok": true,
+   "detail": {
+    "recoveredAt": 152
+   }
+  },
+  {
+   "name": "recovery came from a reset poll: a 200 with If-None-Match after the 304s",
+   "ok": true,
+   "detail": 1
+  },
+  {
+   "name": "no mutation attempted (rejected count 0; this page needs no sign-in)",
+   "ok": true,
+   "detail": 0
+  },
+  {
+   "name": "no page errors",
+   "ok": true,
+   "detail": []
+  },
+  {
+   "name": "every retained cookie is Secure (none is also acceptable on this public page)",
+   "ok": true,
+   "detail": 0
+  }
+ ],
+ "failing": 0
+}
