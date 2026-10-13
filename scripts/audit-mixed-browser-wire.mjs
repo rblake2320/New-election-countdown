@@ -21,4 +21,9 @@ export function auditReplay(){
  }
  return {outcome:'Worked',runId:replay.runId,results};
 }
-if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url))console.log(JSON.stringify(auditReplay(),null,2));
+if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
+ if(process.argv.length!==2){
+  console.error('Unexpected arguments: this command accepts no arguments and audits only its fixed pinned replay.');
+  process.exitCode=2;
+ }else console.log(JSON.stringify(auditReplay(),null,2));
+}
