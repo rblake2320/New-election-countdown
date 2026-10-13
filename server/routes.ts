@@ -1877,7 +1877,7 @@ Please provide detailed, current information about this specific election.`;
       const campaign = await storage.validateCampaignAccess(apiKey);
       const electionId = parseInt(req.params.electionId);
 
-      const analytics = await storage.getCampaignAnalytics(campaign.id, electionId, campaign.subscriptionTier);
+      const analytics = await storage.getCampaignAnalytics(campaign.id, electionId, campaign.subscriptionTier ?? 'basic');
       res.json(analytics);
     } catch (error: any) {
       console.error('Error fetching campaign analytics:', error);
@@ -1895,7 +1895,7 @@ Please provide detailed, current information about this specific election.`;
       const campaign = await storage.validateCampaignAccess(apiKey);
       const region = req.params.region;
 
-      const demographics = await storage.getCampaignGeographics(campaign.id, region, campaign.subscriptionTier);
+      const demographics = await storage.getCampaignGeographics(campaign.id, region, campaign.subscriptionTier ?? 'basic');
       res.json(demographics);
     } catch (error: any) {
       console.error('Error fetching demographics:', error);
