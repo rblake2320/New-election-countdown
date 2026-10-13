@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'wouter';
 import { LiveResultView } from '@/components/live-result-view';
-import { electionDates, useLiveResultsBatch } from '@/lib/live-results';
+import { batchOutcomeFor, electionDates, formatTime, useLiveResultsBatch } from '@/lib/live-results';
 
 interface Election {
   id: number;
@@ -153,7 +153,6 @@ export default function HappeningNow() {
 
 function DateResults({ date, elections, poll }: { date: string; elections: Election[]; poll: boolean }) {
   const { data, isLoading, error, refetch } = useLiveResultsBatch(date, poll);
-  const byElection = new Map((data?.data.results ?? []).map(r => [r.electionId, r]));
   const heading = new Date(date + 'T12:00:00Z').toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
 
   return (
@@ -194,11 +193,19 @@ function DateResults({ date, elections, poll }: { date: string; elections: Elect
                 </div>
               ) : error ? (
                 <p className="text-sm text-muted-foreground">Results for this race are not available right now (see above).</p>
-              ) : byElection.has(election.id) ? (
-                <LiveResultView result={byElection.get(election.id)!} />
-              ) : (
-                <p className="text-sm text-muted-foreground">This race is not in the results feed for {heading}.</p>
-              )}
+              ) : (() => {
+                const outcome = batchOutcomeFor(data?.data, election.id);
+                if (outcome.kind === 'result') return <LiveResultView result={outcome.result} />;
+                if (outcome.kind === 'error') {
+                  return (
+                    <div role="alert" data-testid={`result-error-${election.id}`} className="text-sm space-y-1">
+                      <p className="text-destructive">The official source for this race could not be read{outcome.error.failedSince ? ` since ${formatTime(outcome.error.failedSince)}` : ''}. {outcome.error.message}</p>
+                      <p className="text-muted-foreground">This does not mean no results were reported. Other races on this date are unaffected.</p>
+                    </div>
+                  );
+                }
+                return <p className="text-sm text-muted-foreground">This race is not in the results feed for {heading}.</p>;
+              })()}
             </CardContent>
           </Card>
         ))}
