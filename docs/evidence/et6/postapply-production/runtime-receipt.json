@@ -1,0 +1,275 @@
+{
+  "outcome": "Worked",
+  "startedAt": "2026-10-13T18:30:14.001Z",
+  "image": "electiontracker:et6-d-bootstrap-20261013",
+  "builder": "electiontracker:et6-d-bootstrap-20261013-builder",
+  "resources": {
+    "runId": "109656-3a740d1d",
+    "network": "et6-prod-109656-3a740d1d",
+    "db": "et6-prod-109656-3a740d1d-db",
+    "app": "et6-prod-109656-3a740d1d-app",
+    "schema": "et6-prod-109656-3a740d1d-schema",
+    "database": "et6_receiving",
+    "role": "et6_receiving"
+  },
+  "resourcesRetained": true,
+  "url": "http://127.0.0.1:5094",
+  "networkScope": "owned private bridge; application published on loopback only; database has no published port",
+  "checks": [
+    {
+      "name": "owned PostgreSQL ready",
+      "outcome": "Worked"
+    },
+    {
+      "name": "explicit results migration applies and repeats",
+      "outcome": "Worked"
+    },
+    {
+      "name": "actual source snapshot file pin",
+      "outcome": "Worked"
+    },
+    {
+      "name": "private full-row source restore exit",
+      "outcome": "Worked"
+    },
+    {
+      "name": "private full-row source digest matches actual postapply",
+      "outcome": "Worked"
+    },
+    {
+      "name": "production health is ready",
+      "outcome": "Worked"
+    },
+    {
+      "name": "loopback browser preview is reachable",
+      "outcome": "Worked"
+    },
+    {
+      "name": "real seeded elections available for none-state reads",
+      "outcome": "Worked"
+    },
+    {
+      "name": "none read, alias, batch, validators and invalid inputs",
+      "outcome": "Worked"
+    },
+    {
+      "name": "no fabricated reports, candidate votes or evidence inserted",
+      "outcome": "Worked"
+    }
+  ],
+  "sourceReplay": {
+    "outcome": "Not run",
+    "reason": "Historical replay is a separate receiving step; this harness checks the initial runtime baseline"
+  },
+  "fixture": {
+    "email": "et6-admin@example.test",
+    "passwordEnvironment": "ET6_FIXTURE_PASSWORD",
+    "scope": "Disposable private admin identity only"
+  },
+  "cleanupCommand": [
+    "node",
+    "D:\\projects\\et-wt\\astra-et6-composed\\scripts\\test-et6-production.mjs",
+    "--cleanup",
+    "D:\\projects\\et-wt\\astra-et6-composed\\test-results\\et6-prod-109656-3a740d1d\\receipt.json"
+  ],
+  "imageId": "sha256:0426f52a18af62712fb503387f834d9a713e2ef7a0368dd2c1a5db083c05188c",
+  "builderId": "sha256:7bd79026a0d4db1b4ab39c113ae823f008d55f8917c16e286a4d84289a9299c5",
+  "migration": {
+    "file": "migrations/20261011_live_results_reports.sql",
+    "sha256": "240e82ac5c8a715d620fd3a6837d36d6434321408a2acf62ce65ce263aad3d17"
+  },
+  "sourceRestore": {
+    "outcome": "Worked",
+    "fileSha256": "60043ee405be675af1eb4a012f5953da13ab2badd976f2ddd70ec1d13aaa25ce",
+    "sourceSha256": "99d76b1c02ac17d106aa3534e43493d70f8f5e3095cbe75e5127c896584be673",
+    "counts": {
+      "elections": 537,
+      "candidates": 3444,
+      "candidate_source_records": 3856,
+      "general_candidate_list_snapshots": 500,
+      "candidate_ingest_runs": 2,
+      "election_catalog_correction_runs": 1,
+      "official_results_sync_runs": 1
+    }
+  },
+  "fixtureRegistration": {
+    "register": 201,
+    "me": 200,
+    "role": "admin",
+    "invalidReport": {
+      "status": 422,
+      "code": "invalid_report"
+    }
+  },
+  "results": {
+    "single": {
+      "status": 200,
+      "etag": "W/\"1-none\"",
+      "body": {
+        "schemaVersion": 1,
+        "electionId": 1,
+        "reportId": null,
+        "revision": null,
+        "status": "none",
+        "reporting": null,
+        "source": null,
+        "sourcePayloadSha256": null,
+        "asOf": null,
+        "asOfBasis": null,
+        "retrievedAt": null,
+        "totalVotes": null,
+        "candidates": [],
+        "winnerCalledBy": null,
+        "certification": null,
+        "supersedesReportId": null,
+        "stale": false,
+        "staleSince": null,
+        "electionContext": null,
+        "history": []
+      }
+    },
+    "alias": {
+      "status": 200,
+      "etag": "W/\"1-none\"",
+      "body": {
+        "schemaVersion": 1,
+        "electionId": 1,
+        "reportId": null,
+        "revision": null,
+        "status": "none",
+        "reporting": null,
+        "source": null,
+        "sourcePayloadSha256": null,
+        "asOf": null,
+        "asOfBasis": null,
+        "retrievedAt": null,
+        "totalVotes": null,
+        "candidates": [],
+        "winnerCalledBy": null,
+        "certification": null,
+        "supersedesReportId": null,
+        "stale": false,
+        "staleSince": null,
+        "electionContext": null,
+        "history": []
+      }
+    },
+    "singleCached": {
+      "status": 304,
+      "etag": "W/\"1-none\"",
+      "body": null
+    },
+    "batch": {
+      "status": 200,
+      "etag": "W/\"results-ids-8a6ae1512200-c04e6813ff5aed30b8003fb7\"",
+      "body": {
+        "schemaVersion": 1,
+        "date": null,
+        "cursor": "c04e6813ff5aed30b8003fb7",
+        "reset": true,
+        "results": [
+          {
+            "schemaVersion": 1,
+            "electionId": 1,
+            "reportId": null,
+            "revision": null,
+            "status": "none",
+            "reporting": null,
+            "source": null,
+            "sourcePayloadSha256": null,
+            "asOf": null,
+            "asOfBasis": null,
+            "retrievedAt": null,
+            "totalVotes": null,
+            "candidates": [],
+            "winnerCalledBy": null,
+            "certification": null,
+            "supersedesReportId": null,
+            "stale": false,
+            "staleSince": null,
+            "electionContext": null,
+            "history": []
+          },
+          {
+            "schemaVersion": 1,
+            "electionId": 2,
+            "reportId": null,
+            "revision": null,
+            "status": "none",
+            "reporting": null,
+            "source": null,
+            "sourcePayloadSha256": null,
+            "asOf": null,
+            "asOfBasis": null,
+            "retrievedAt": null,
+            "totalVotes": null,
+            "candidates": [],
+            "winnerCalledBy": null,
+            "certification": null,
+            "supersedesReportId": null,
+            "stale": false,
+            "staleSince": null,
+            "electionContext": null,
+            "history": []
+          },
+          {
+            "schemaVersion": 1,
+            "electionId": 3,
+            "reportId": null,
+            "revision": null,
+            "status": "none",
+            "reporting": null,
+            "source": null,
+            "sourcePayloadSha256": null,
+            "asOf": null,
+            "asOfBasis": null,
+            "retrievedAt": null,
+            "totalVotes": null,
+            "candidates": [],
+            "winnerCalledBy": null,
+            "certification": null,
+            "supersedesReportId": null,
+            "stale": false,
+            "staleSince": null,
+            "electionContext": null,
+            "history": []
+          }
+        ]
+      }
+    },
+    "batchCached": {
+      "status": 304,
+      "etag": "W/\"results-ids-8a6ae1512200-c04e6813ff5aed30b8003fb7\"",
+      "body": null
+    },
+    "cursorCached": {
+      "status": 304,
+      "etag": "W/\"results-ids-8a6ae1512200-c04e6813ff5aed30b8003fb7\"",
+      "body": null
+    },
+    "invalid": [
+      {
+        "path": "/api/results",
+        "status": 400,
+        "code": "invalid_query"
+      },
+      {
+        "path": "/api/results?ids=abc",
+        "status": 400,
+        "code": "invalid_query"
+      },
+      {
+        "path": "/api/results?ids=1&date=2026-11-03",
+        "status": 400,
+        "code": "invalid_query"
+      },
+      {
+        "path": "invalid ID",
+        "status": 404,
+        "code": "election_not_found"
+      }
+    ]
+  },
+  "resultRowCounts": "0:0:0",
+  "completedAt": "2026-10-13T18:30:29.436Z"
+}

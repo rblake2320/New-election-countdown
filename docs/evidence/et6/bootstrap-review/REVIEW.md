@@ -1,0 +1,9 @@
+# Bootstrap independent review
+
+Head a9e219dd94a1615f716d40404b3f2b0007387b16. Dependency6499e043e590932186bea05ce20140f145cece8d is not ancestor, but source target-binding JSON and existing parser/packet/bridge paths are byte-identical across heads. Only new live adapter and replay assets differ in these paths.
+
+Worked18/18 factory/boot tests. Independently compiled bundled module in dist, invoked from unrelated working directory:22 default registrations/no external fetch or evidence at boot; real packaged initial/recount WA bytes parsed totals1903073/1903115 with3 evidence calls each. Five private flag/SHA/path/target/shared-local5434 guards refused. Dockerfile copies full data/official-results; .dockerignore does not exclude needed JSON/PDF/XLSX; bundled relative ../data path exercised successfully.
+
+NEW MUST FIX: preserveAcceptedCaptureClock compares candidates in source order against results-store vote-descending response order. Actual LA two-option source order Gary39423 then Jamie156789 differs from receiving order. Same source SHA/votes/body with a later capture clock creates r2 rather than unchanged. Real MemResultReportStore roundtrip reproduced firstCreated=true,secondCreated=true, totals196212/196212, revisionsr1-ae74c12e/r2-3081bb6a. Fix semantic candidate comparison using stable source identity or canonical sorting; retain raw provenance and preserve old clock only for identical content. Existing registry OR/intersection defect is already A-owned, not duplicated here.
+
+Evidence: yellow-bootstrap-{targeted.txt,compiled.json,clock.json,roundtrip.json}. Tests used injected storage boundary or actual in-memory writer with retained raw bytes, no shared/private PostgreSQL, Docker run, provider fetch or production image claim. Root owns composed-image acceptance.

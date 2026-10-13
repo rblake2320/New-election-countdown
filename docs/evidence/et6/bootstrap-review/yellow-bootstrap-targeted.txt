@@ -1,0 +1,19 @@
+
+ RUN  v5.0.3 D:/projects/et-wt/yellow-pr69-review
+
+stdout | tests/unit/official-feed-boot.test.ts > ET-6 boot registration hook for lane C sources/adapters > the shipped body registers22 reviewed sources/adapters and reports them
+[official feeds] boot registration: 22 source(s), 22 adapter(s)
+
+stdout | tests/unit/official-feed-boot.test.ts > ET-6 boot registration hook for lane C sources/adapters > reports exactly what the boot body registered and flags adapters without a registry entry
+[official feeds] boot registration: 1 source(s), 2 adapter(s), 1 adapter(s) without a registry entry (manifest publishers only)
+
+stdout | tests/unit/official-feed-boot.test.ts > ET-6 boot registration hook for lane C sources/adapters > survives a throwing body: the server still boots and the error is in the receipt
+[official feeds] boot registration: 0 source(s), 0 adapter(s), ERROR
+
+··················
+
+ Test Files  2 passed (2)
+      Tests  18 passed (18)
+   Start at  13:26:45
+   Duration  1.14s (import 36%, environment 30%, transform 19%, setup 11%, tests 4%)
+

@@ -70,7 +70,7 @@ if (process.argv[2] === '--cleanup') {
   const report = {
     outcome: 'Running', startedAt: new Date().toISOString(), image, builder, resources, resourcesRetained: false,
     url: `http://127.0.0.1:${port}`, networkScope: 'owned private bridge; application published on loopback only; database has no published port',
-    checks: [], sourceReplay: { outcome: 'Blocked', reason: 'C historical source adapter/packet not yet provided; no official result fixtures fabricated' },
+    checks: [], sourceReplay: { outcome: 'Not run', reason: 'Historical replay is a separate receiving step; this harness checks the initial runtime baseline' },
     fixture: { email: 'et6-admin@example.test', passwordEnvironment: 'ET6_FIXTURE_PASSWORD', scope: 'Disposable private admin identity only' },
     cleanupCommand: ['node', resolve(root, 'scripts/test-et6-production.mjs'), '--cleanup', receiptPath],
   };
@@ -104,6 +104,24 @@ if (process.argv[2] === '--cleanup') {
     await docker('cp', migrationPath, `${db}:/tmp/et6-results-migration.sql`);
     for (let i = 0; i < 2; i++) await docker('exec', db, 'psql', '-v', 'ON_ERROR_STOP=1', '-U', role, '-d', database, '-f', '/tmp/et6-results-migration.sql');
     check('explicit results migration applies and repeats', await sql("SELECT count(*) FROM information_schema.tables WHERE table_schema='public' AND table_name IN ('election_result_reports','candidate_result_lines','result_evidence_blobs')") === '3');
+    if (process.env.ET6_SOURCE_SNAPSHOT) {
+      const snapshotPath = resolve(process.env.ET6_SOURCE_SNAPSHOT);
+      const snapshotBytes = await readFile(snapshotPath);
+      check('actual source snapshot file pin', createHash('sha256').update(snapshotBytes).digest('hex') === '60043ee405be675af1eb4a012f5953da13ab2badd976f2ddd70ec1d13aaa25ce');
+      const loaderCode = await readFile(resolve(root, 'scripts/restore-et6-source-snapshot.mjs'), 'utf8');
+      await docker('create', '--name', schema, '--label', `${label}=${runId}`, '--network', network,
+        '-e', `DATABASE_URL=${databaseURL}`, '-e', `ET6_EXPECTED_DB_HOST=${db}`,
+        '--entrypoint', 'node', builder, '--input-type=module', '-e', loaderCode);
+      await docker('cp', snapshotPath, `${schema}:/tmp/source-snapshot.json`);
+      const restoreOutput = await docker('start', '-a', schema);
+      const restoreExit = await docker('inspect', '--format', '{{.State.ExitCode}}', schema);
+      await writeFile(resolve(evidence, 'source-restore.json'), restoreOutput);
+      check('private full-row source restore exit', restoreExit === '0');
+      report.sourceRestore = JSON.parse(restoreOutput);
+      check('private full-row source digest matches actual postapply', report.sourceRestore.outcome === 'Worked' && report.sourceRestore.sourceSha256 === '99d76b1c02ac17d106aa3534e43493d70f8f5e3095cbe75e5127c896584be673');
+      await docker('rm', schema); // Removes the ephemeral private raw-copy container.
+      await writeJson(receiptPath, report);
+    }
     await docker('run', '-d', '--name', app, '--label', `${label}=${runId}`, '--network', network, '-p', `127.0.0.1:${port}:5000`,
       '-e', `DATABASE_URL=${databaseURL}`, '-e', `JWT_SECRET=${jwt}`, '-e', `CANDIDATE_JWT_SECRET=${jwt}`,
       '-e', `ET6_FIXTURE_PASSWORD=${fixturePassword}`, '-e', `APP_ORIGIN=http://127.0.0.1:${port}`, image);
