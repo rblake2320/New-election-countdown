@@ -1,0 +1,275 @@
+{
+  "outcome": "Worked",
+  "startedAt": "2026-10-13T23:13:05.137Z",
+  "runId": "147312-426dbb52",
+  "image": "sha256:4fd2c2f8427c1271b3502824dce782006257b0f77a3d88524ecc936867f403f1",
+  "builder": "sha256:1b0a3a14c046439e9ffccd359e912ec5fa765e00f98a4e64c77323d50498ff6c",
+  "network": "et6-prod-147312-426dbb52",
+  "names": {
+    "db": "et6-prod-147312-426dbb52-db",
+    "schema": "et6-prod-147312-426dbb52-schema",
+    "restore": "et6-prod-147312-426dbb52-restore",
+    "app": "et6-prod-147312-426dbb52-app"
+  },
+  "scope": "New disposable internal Docker network, no host ports; source-only pinned copy and existing 10-client20/40RPS60s profile",
+  "checks": [
+    {
+      "name": "immutable production image exists",
+      "worked": true
+    },
+    {
+      "name": "immutable builder image exists",
+      "worked": true
+    },
+    {
+      "name": "pinned source-only snapshot",
+      "worked": true
+    },
+    {
+      "name": "network has no external route",
+      "worked": true
+    },
+    {
+      "name": "fresh private PG ready",
+      "worked": true
+    },
+    {
+      "name": "source-only full-row digest restored",
+      "worked": true
+    },
+    {
+      "name": "no host ports et6-prod-147312-426dbb52-db",
+      "worked": true
+    },
+    {
+      "name": "no host ports et6-prod-147312-426dbb52-app",
+      "worked": true
+    },
+    {
+      "name": "actual production entrypoint ready",
+      "worked": true
+    },
+    {
+      "name": "actual batch baseline has506 healthy races",
+      "worked": true
+    },
+    {
+      "name": "existing load profile worked",
+      "worked": true
+    },
+    {
+      "name": "all seven source tables unchanged after runtime receiving",
+      "worked": true
+    }
+  ],
+  "cleanup": [
+    {
+      "name": "et6-prod-147312-426dbb52-schema",
+      "outcome": "absent"
+    },
+    {
+      "name": "et6-prod-147312-426dbb52-app",
+      "outcome": "removed"
+    },
+    {
+      "name": "et6-prod-147312-426dbb52-restore",
+      "outcome": "removed"
+    },
+    {
+      "name": "et6-prod-147312-426dbb52-db",
+      "outcome": "removed"
+    },
+    {
+      "name": "et6-prod-147312-426dbb52",
+      "outcome": "removed or absent"
+    }
+  ],
+  "loadScriptSha256": "01635bbd00eb3394f01a3b1dd546d4343d96fe21d9bb3680d9d97395b50f6f5c",
+  "load": {
+    "receipt": "D:\\projects\\et-wt\\astra-et6-final-production\\docs\\evidence\\et6\\final-image-load\\147312-426dbb52\\load-149400-97deca81\\receipt.json",
+    "outcome": "Worked",
+    "phases": [
+      {
+        "rps": 20,
+        "durationSeconds": 60,
+        "startAt": 1791933224333,
+        "endScheduledAt": 1791933284333,
+        "scheduled": 1200,
+        "observedSlots": 1200,
+        "completed": 1200,
+        "missed": 0,
+        "workerErrors": [],
+        "warmups": [
+          {
+            "name": "et6-load-149400-97deca81-0",
+            "status": 200,
+            "startedAt": 1791933214858,
+            "completedAt": 1791933215094
+          },
+          {
+            "name": "et6-load-149400-97deca81-1",
+            "status": 200,
+            "startedAt": 1791933215204,
+            "completedAt": 1791933215561
+          },
+          {
+            "name": "et6-load-149400-97deca81-2",
+            "status": 200,
+            "startedAt": 1791933215034,
+            "completedAt": 1791933215723
+          },
+          {
+            "name": "et6-load-149400-97deca81-3",
+            "status": 200,
+            "startedAt": 1791933214918,
+            "completedAt": 1791933215334
+          },
+          {
+            "name": "et6-load-149400-97deca81-4",
+            "status": 200,
+            "startedAt": 1791933215008,
+            "completedAt": 1791933215665
+          },
+          {
+            "name": "et6-load-149400-97deca81-5",
+            "status": 200,
+            "startedAt": 1791933214878,
+            "completedAt": 1791933215229
+          },
+          {
+            "name": "et6-load-149400-97deca81-6",
+            "status": 200,
+            "startedAt": 1791933214946,
+            "completedAt": 1791933215631
+          },
+          {
+            "name": "et6-load-149400-97deca81-7",
+            "status": 200,
+            "startedAt": 1791933214994,
+            "completedAt": 1791933215380
+          },
+          {
+            "name": "et6-load-149400-97deca81-8",
+            "status": 200,
+            "startedAt": 1791933215090,
+            "completedAt": 1791933215491
+          },
+          {
+            "name": "et6-load-149400-97deca81-9",
+            "status": 200,
+            "startedAt": 1791933215028,
+            "completedAt": 1791933215429
+          }
+        ],
+        "valid": 1200,
+        "statuses": {
+          "200": 800,
+          "304": 400
+        },
+        "bytes": 73409200,
+        "timeouts": 0,
+        "p50Ms": 15.912,
+        "p95Ms": 27.893,
+        "p99Ms": 40.263,
+        "passed": true
+      },
+      {
+        "rps": 40,
+        "durationSeconds": 60,
+        "startAt": 1791933294427,
+        "endScheduledAt": 1791933354427,
+        "scheduled": 2400,
+        "observedSlots": 2400,
+        "completed": 2400,
+        "missed": 0,
+        "workerErrors": [],
+        "warmups": [
+          {
+            "name": "et6-load-149400-97deca81-0",
+            "status": 200,
+            "startedAt": 1791933284857,
+            "completedAt": 1791933284998
+          },
+          {
+            "name": "et6-load-149400-97deca81-1",
+            "status": 200,
+            "startedAt": 1791933284994,
+            "completedAt": 1791933285213
+          },
+          {
+            "name": "et6-load-149400-97deca81-2",
+            "status": 200,
+            "startedAt": 1791933285004,
+            "completedAt": 1791933285305
+          },
+          {
+            "name": "et6-load-149400-97deca81-3",
+            "status": 200,
+            "startedAt": 1791933285000,
+            "completedAt": 1791933285388
+          },
+          {
+            "name": "et6-load-149400-97deca81-4",
+            "status": 200,
+            "startedAt": 1791933285092,
+            "completedAt": 1791933285460
+          },
+          {
+            "name": "et6-load-149400-97deca81-5",
+            "status": 200,
+            "startedAt": 1791933284966,
+            "completedAt": 1791933285119
+          },
+          {
+            "name": "et6-load-149400-97deca81-6",
+            "status": 200,
+            "startedAt": 1791933284976,
+            "completedAt": 1791933285173
+          },
+          {
+            "name": "et6-load-149400-97deca81-7",
+            "status": 200,
+            "startedAt": 1791933285041,
+            "completedAt": 1791933285423
+          },
+          {
+            "name": "et6-load-149400-97deca81-8",
+            "status": 200,
+            "startedAt": 1791933285041,
+            "completedAt": 1791933285264
+          },
+          {
+            "name": "et6-load-149400-97deca81-9",
+            "status": 200,
+            "startedAt": 1791933285059,
+            "completedAt": 1791933285350
+          }
+        ],
+        "valid": 2400,
+        "statuses": {
+          "200": 1600,
+          "304": 800
+        },
+        "bytes": 146818400,
+        "timeouts": 0,
+        "p50Ms": 13.622,
+        "p95Ms": 23.584,
+        "p99Ms": 30.908,
+        "passed": true
+      }
+    ]
+  },
+  "sourceAfter": {
+    "sha256": "769c35bb4b850257f9409ee567da95e00b271855d510cbb0015e8557e431f93a",
+    "counts": {
+      "elections": 537,
+      "candidates": 3480,
+      "candidate_source_records": 3943,
+      "general_candidate_list_snapshots": 539,
+      "candidate_ingest_runs": 4,
+      "election_catalog_correction_runs": 1,
+      "official_results_sync_runs": 1
+    }
+  },
+  "completedAt": "2026-10-13T23:16:20.228Z"
+}

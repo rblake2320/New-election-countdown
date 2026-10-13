@@ -1,0 +1,60 @@
+{
+  "reviewedAt": "2026-10-13T23:17:00.687052+00:00",
+  "reviewer": "Astra independent orange_review subagent",
+  "outcome": "Worked",
+  "scope": "Offline independent raw JSONL recomputation; no runtime operations",
+  "imageId": "sha256:4fd2c2f8427c1271b3502824dce782006257b0f77a3d88524ecc936867f403f1",
+  "phases": [
+    {
+      "rps": 20,
+      "seconds": 60,
+      "requests": 1200,
+      "statuses": {
+        "200": 800,
+        "304": 400
+      },
+      "clients": 10,
+      "distinctIps": 10,
+      "missed": 0,
+      "invalid": 0,
+      "timeouts": 0,
+      "rateLimit429": 0,
+      "server5xx": 0,
+      "p50Ms": 15.912,
+      "p95Ms": 27.893,
+      "p99Ms": 40.263,
+      "minScheduleLatenessMs": -2,
+      "maxScheduleLatenessMs": 27,
+      "rawSha256": "bd2091c3e9a8740cd733a4af98e4ca2ac751ed16dcdc721c3f6de854e112247f"
+    },
+    {
+      "rps": 40,
+      "seconds": 60,
+      "requests": 2400,
+      "statuses": {
+        "200": 1600,
+        "304": 800
+      },
+      "clients": 10,
+      "distinctIps": 10,
+      "missed": 0,
+      "invalid": 0,
+      "timeouts": 0,
+      "rateLimit429": 0,
+      "server5xx": 0,
+      "p50Ms": 13.622,
+      "p95Ms": 23.584,
+      "p99Ms": 30.908,
+      "minScheduleLatenessMs": -2,
+      "maxScheduleLatenessMs": 7,
+      "rawSha256": "948d6bc7a1b732e9037daaaaa9dc9820ddca92766152cb4399c9a1a62e3224fb"
+    }
+  ],
+  "sourceAfterSha256": "769c35bb4b850257f9409ee567da95e00b271855d510cbb0015e8557e431f93a",
+  "cleanup": "Receipts record all10loadclients removed; parent app/restore/DB/network removed and schema absent",
+  "reviewNote": "First reviewer check assumed nonnegative schedule lateness; raw timers fired up to2ms early. Corrected review to unchanged actual gate <=100ms and retained observed minimum.",
+  "receiptHashes": {
+    "load": "ea4e64c7c1f59df3b7ab84f667808d58011cc30193245cc53eff3ac9cfd62b94",
+    "parent": "f8e1241539b44b808506ddc12cc441c016e15e1c399aa72be80a33ccdb6bbc08"
+  }
+}
