@@ -240,6 +240,7 @@ export class ReplicaStorage implements IStorage {
   }
 
   async recordResultReport(..._args: unknown[]): Promise<never> { return this.readOnly('recordResultReport'); }
+  async recordResultSourceHealth(..._args:unknown[]):Promise<never>{return this.readOnly('recordResultSourceHealth');}
   async getResultsPayload(..._args: unknown[]): Promise<never> { return this.readOnly('getResultsPayload'); }
   async listResultsPayloads(..._args: unknown[]): Promise<never> { return this.readOnly('listResultsPayloads'); }
   async storeResultEvidence(..._args: unknown[]): Promise<never> { return this.readOnly('storeResultEvidence'); }

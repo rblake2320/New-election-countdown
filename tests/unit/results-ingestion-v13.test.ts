@@ -10,6 +10,7 @@ const elections: any[] = [];
 const recorded: any[] = [];
 vi.mock('../../server/storage', () => ({
   storage: {
+    recordResultSourceHealth:vi.fn(async()=>{}),
     getElections: vi.fn(async () => elections),
     recordResultReport: vi.fn(async (electionId: number, input: any) => {
       recorded.push({ electionId, input });
