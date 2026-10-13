@@ -191,11 +191,22 @@ export interface NomineeApplyGuard { beforeApply?:(client:PoolClient)=>Promise<v
 async function runNomineeRefreshOnce(pool:Pool,m:NomineeManifest,manifestSha:string,apply:boolean,operation:NomineeApplyGuard):Promise<NomineePlan>{
   if(!/^[a-f0-9]{64}$/.test(manifestSha))throw new Error('Reviewed manifest SHA256 required');
   const client=await pool.connect();
+  let sessionAdmission=false;
   try{
+    // A SERIALIZABLE transaction takes its snapshot at its first SELECT, even
+    // when that SELECT is waiting for a transaction-level advisory lock. Take
+    // guarded admission outside BEGIN, refusing a busy writer without writes.
+    if(apply&&operation.beforeApply){
+      const admitted=await client.query<{admitted:boolean}>('SELECT pg_try_advisory_lock($1) AS admitted',[2026110301]);
+      if(admitted.rows[0]?.admitted!==true)throw new Error('Source identity writer is busy; guarded source apply refused before transaction');
+      sessionAdmission=true;
+    }
     await client.query(apply?'BEGIN ISOLATION LEVEL SERIALIZABLE':'BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
     await client.query("SET LOCAL statement_timeout='30s'");await client.query("SET LOCAL lock_timeout='5s'");
-    if(apply)await client.query('SELECT pg_advisory_xact_lock($1)',[2026110301]); // Shared identity writer lock with FEC.
+    // The operator callback must acquire its source table locks before SELECT,
+    // so even a writer not using the advisory lock cannot freeze a stale view.
     if(apply&&operation.beforeApply)await operation.beforeApply(client);
+    else if(apply)await client.query('SELECT pg_advisory_xact_lock($1)',[2026110301]); // Legacy shared identity writer lock with FEC.
     const tables=(await client.query("SELECT to_regclass('public.elections') AS elections,to_regclass('public.candidates') AS candidates,to_regclass('public.candidate_source_records') AS sources,to_regclass('public.candidate_ingest_runs') AS audit,to_regclass('public.general_candidate_list_snapshots') AS snapshots")).rows[0];
     if(!tables.elections || !tables.candidates)throw new Error('ElectionTracker schema absent');
     if(apply && (!tables.sources || !tables.audit || !tables.snapshots))throw new Error('Candidate source and general-list snapshot migrations required');
@@ -283,7 +294,15 @@ async function runNomineeRefreshOnce(pool:Pool,m:NomineeManifest,manifestSha:str
       VALUES('general_candidate_list','urn:electiontracker:reviewed-general-list-manifest',$1,now(),$2::jsonb) RETURNING id`,[manifestSha,JSON.stringify({candidateInserts:inserted,sourceChanges,unresolved:plan.unresolved,sources:m.sources.map(s=>({id:s.id,url:s.url,publishedAt:s.publishedAt,completeScopes:s.completeScopes}))})]);
     plan.auditId=receipt.rows[0].id;
     await client.query('COMMIT');return plan;
-  }catch(error){await client.query('ROLLBACK').catch(()=>{});throw error;}finally{client.release();}
+  }catch(error){await client.query('ROLLBACK').catch(()=>{});throw error;}finally{
+    let cleanupError:Error|undefined;
+    if(sessionAdmission){
+      try{const released=await client.query<{released:boolean}>('SELECT pg_advisory_unlock($1) AS released',[2026110301]);if(released.rows[0]?.released!==true)cleanupError=new Error('Guarded source admission lock cleanup failed');}
+      catch{cleanupError=new Error('Guarded source admission connection failed during cleanup');}
+    }
+    client.release(Boolean(cleanupError));
+    if(cleanupError)throw cleanupError;
+  }
 }
 
 export async function runNomineeRefresh(pool:Pool,m:NomineeManifest,manifestSha:string,apply:boolean,operation:NomineeApplyGuard={}):Promise<NomineePlan>{
