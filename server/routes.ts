@@ -1,4 +1,4 @@
-import { electionListHandler } from "./election-list-handler";
+import { electionListHandler, sendElectionListingUnavailable } from "./election-list-handler";
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
@@ -18,7 +18,7 @@ import { requireAdmin } from "./middleware/require-admin";
 import { adminElectionLookupHandler } from "./admin-election-lookup";
 import { verifySendGridWebhook, verifyTwilioWebhook } from "./webhook-verify";
 import { deliveryTrackingService } from "./services/delivery-tracking-service";
-import { mapQuestService } from "./mapquest-service";
+import { mapQuestService, GeocoderUnavailableError, GeocoderInputError, validGeocodeAddress, parseGeocodeCoordinates } from "./mapquest-service";
 import { realTimeMonitor } from "./real-time-monitor";
 import { electionScraper } from "./web-scraper";
 import { aiValidationService } from "./ai-validation-service";
@@ -32,6 +32,8 @@ import { civicAggregatorService } from "./civic-aggregator-service";
 import { registerCandidatePortalRoutes } from "./routes-candidate-portal";
 import { positionAggregatorService } from "./position-aggregator-service";
 import { candidatePositionAPI } from "./candidate-position-api";
+import { compareVerifiedCandidatePolicies } from "./verified-policy-comparison";
+import { registerVerifiedPolicyRoutes } from "./verified-policy-routes";
 import { pollingTrendService } from "./polling-trend-service";
 import { openStatesService } from "./openstates-service";
 import {
@@ -160,6 +162,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register candidate portal routes
   registerCandidatePortalRoutes(app);
+
+  // Enhanced election search with AI
+  app.get("/api/elections/search", async (req, res) => {
+    try {
+      const { query, enhance = false } = req.query;
+
+      if (!query || typeof query !== 'string') {
+        return res.status(400).json({ error: "Search query is required" });
+      }
+
+      // Search existing elections
+      const elections = await storage.getElectionsStrict({
+        search: query,
+        state: undefined,
+        type: undefined,
+        level: undefined,
+        timeframe: undefined,
+        timeRange: undefined,
+        party: undefined,
+        electionType: undefined
+      } as any);
+
+      let aiEnhancement: unknown = null;
+      if (enhance === 'true') {
+        try {
+          aiEnhancement = await perplexityCongressService.searchWithAI(
+            `Find additional election information for: ${query}`
+          );
+        } catch (error) {
+          console.error('AI enhancement failed:', error);
+        }
+      }
+
+      res.json({
+        elections,
+        aiEnhancement,
+        totalResults: elections.length
+      });
+    } catch (error) {
+      sendElectionListingUnavailable(res);
+    }
+  });
 
   // Register elections routes with degraded mode handling
   app.use("/api/elections", electionDegradedModeHandler, electionsRouter);
@@ -369,16 +413,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Enhanced candidate positions from multiple authentic sources
-  app.get("/api/candidates/:id/positions", requireVoteSmartAPI, async (req, res) => {
-    try {
-      const candidateId = parseInt(req.params.id);
-      const positions = await candidatePositionAPI.getPositionsForCandidate(candidateId);
-      res.json(positions);
-    } catch (error) {
-      console.error("Error fetching candidate positions:", error);
-      res.status(500).json({ error: "Failed to fetch candidate positions" });
-    }
+  registerVerifiedPolicyRoutes(app, {
+    positions: id => candidatePositionAPI.getPositionsForCandidate(id),
+    compare: compareVerifiedCandidatePolicies,
   });
 
   // Data integrity cleanup endpoint (admin only)
@@ -752,7 +789,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { address } = req.query;
 
-      if (!address || typeof address !== 'string') {
+      if (!validGeocodeAddress(address)) {
         return res.status(400).json({ error: "Address parameter is required" });
       }
 
@@ -764,6 +801,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(location);
     } catch (error) {
+      if (error instanceof GeocoderUnavailableError) return res.status(503).json({ error: error.message, code: error.code });
+      if (error instanceof GeocoderInputError) return res.status(400).json({ error: error.message, code: error.code });
       console.error('Geocoding error:', error);
       res.status(500).json({ error: "Failed to geocode address" });
     }
@@ -773,16 +812,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { lat, lng } = req.query;
 
-      if (!lat || !lng) {
-        return res.status(400).json({ error: "Latitude and longitude parameters are required" });
-      }
-
-      const latitude = parseFloat(lat as string);
-      const longitude = parseFloat(lng as string);
-
-      if (isNaN(latitude) || isNaN(longitude)) {
-        return res.status(400).json({ error: "Invalid latitude or longitude" });
-      }
+      const coordinates = parseGeocodeCoordinates(lat, lng);
+      if (!coordinates) return res.status(400).json({ error: "Invalid latitude or longitude", code: 'invalid_query' });
+      const { latitude, longitude } = coordinates;
 
       const location = await mapQuestService.reverseGeocode(latitude, longitude);
 
@@ -792,6 +824,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(location);
     } catch (error) {
+      if (error instanceof GeocoderUnavailableError) return res.status(503).json({ error: error.message, code: error.code });
+      if (error instanceof GeocoderInputError) return res.status(400).json({ error: error.message, code: error.code });
       console.error('Reverse geocoding error:', error);
       res.status(500).json({ error: "Failed to reverse geocode location" });
     }
@@ -801,13 +835,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { address } = req.query;
 
-      if (!address || typeof address !== 'string') {
+      if (!validGeocodeAddress(address)) {
         return res.status(400).json({ error: "Address parameter is required" });
       }
 
       const validation = await mapQuestService.validateAddress(address);
       res.json(validation);
     } catch (error) {
+      if (error instanceof GeocoderUnavailableError) return res.status(503).json({ error: error.message, code: error.code });
+      if (error instanceof GeocoderInputError) return res.status(400).json({ error: error.message, code: error.code });
       console.error('Address validation error:', error);
       res.status(500).json({ error: "Failed to validate address" });
     }
@@ -974,25 +1010,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { address, lat, lng } = req.query;
 
+      const hasAddress = address !== undefined;
+      const coordinates = parseGeocodeCoordinates(lat, lng);
+      if ((hasAddress && !validGeocodeAddress(address)) || (!hasAddress && !coordinates)) {
+        return res.status(400).json({ error: "Valid address or coordinates required", code: 'invalid_query' });
+      }
       let location;
-
-      if (address && typeof address === 'string') {
-        location = await mapQuestService.geocodeAddress(address);
-      } else if (lat && lng) {
-        const latitude = parseFloat(lat as string);
-        const longitude = parseFloat(lng as string);
-
-        if (!isNaN(latitude) && !isNaN(longitude)) {
-          location = await mapQuestService.reverseGeocode(latitude, longitude);
-        }
-      }
-
-      if (!location) {
-        return res.status(400).json({ error: "Valid address or coordinates required" });
-      }
+      if (validGeocodeAddress(address)) location = await mapQuestService.geocodeAddress(address);
+      else if (coordinates) location = await mapQuestService.reverseGeocode(coordinates.latitude, coordinates.longitude);
+      else return res.status(400).json({ error: "Valid address or coordinates required", code: 'invalid_query' });
+      if (!location) return res.status(400).json({ error: "Address or coordinates not found", code: 'location_not_found' });
 
       // Get elections for the location's state, prioritizing local elections
-      const stateElections = await storage.getElections({
+      const stateElections = await storage.getElectionsStrict({
         state: location.state,
         level: ["Local", "State", "Federal"],
         timeframe: undefined,
@@ -1058,8 +1088,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         searchPriority: localElections.length > 0 ? 'local' : 'state'
       });
     } catch (error) {
+      if (error instanceof GeocoderUnavailableError) return res.status(503).json({ error: error.message, code: error.code });
+      if (error instanceof GeocoderInputError) return res.status(400).json({ error: error.message, code: error.code });
       console.error('Elections by location error:', error);
-      res.status(500).json({ error: "Failed to get elections by location" });
+      sendElectionListingUnavailable(res);
     }
   });
 
@@ -2310,26 +2342,6 @@ Please provide specific, factual information with sources where possible. Focus 
     }
   });
 
-  app.get("/api/civic/compare", async (req, res) => {
-    try {
-      const candidateIds = req.query.candidateIds as string;
-      const policyCategories = req.query.policyCategories as string;
-
-      if (!candidateIds || !policyCategories) {
-        return res.status(400).json({ message: "Missing candidateIds or policyCategories" });
-      }
-
-      const ids = candidateIds.split(',');
-      const categories = policyCategories.split(',');
-
-      const comparison = await civicAggregatorService.comparePolicies(ids, categories);
-      res.json(comparison);
-    } catch (error: any) {
-      console.error('Policy comparison error:', error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-
   app.get("/api/civic/ballot-info", async (req, res) => {
     try {
       const address = req.query.address as string;
@@ -2432,48 +2444,6 @@ Please provide specific, factual information with sources where possible. Focus 
       res.json(scrapedData);
     } catch (error) {
       res.status(500).json({ error: "Failed to scrape election data" });
-    }
-  });
-
-  // Enhanced election search with AI
-  app.get("/api/elections/search", async (req, res) => {
-    try {
-      const { query, enhance = false } = req.query;
-
-      if (!query || typeof query !== 'string') {
-        return res.status(400).json({ error: "Search query is required" });
-      }
-
-      // Search existing elections
-      const elections = await storage.getElections({
-        search: query,
-        state: undefined,
-        type: undefined,
-        level: undefined,
-        timeframe: undefined,
-        timeRange: undefined,
-        party: undefined,
-        electionType: undefined
-      } as any);
-
-      let aiEnhancement: unknown = null;
-      if (enhance === 'true') {
-        try {
-          aiEnhancement = await perplexityCongressService.searchWithAI(
-            `Find additional election information for: ${query}`
-          );
-        } catch (error) {
-          console.error('AI enhancement failed:', error);
-        }
-      }
-
-      res.json({
-        elections,
-        aiEnhancement,
-        totalResults: elections.length
-      });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to search elections" });
     }
   });
 

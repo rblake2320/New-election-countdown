@@ -1,0 +1,20 @@
+MemStorage initialized empty (failover cache; database is source of truth)
+ℹ️ No replica configurations found - running with primary database only
+
+MAPQUEST_API_KEY not set — geocoding features disabled
+VOTESMART_API_KEY not found - VoteSmart features will be unavailable
+Missing API keys: PROPUBLICA_API_KEY, GOOGLE_CIVIC_API_KEY, OPENFEC_API_KEY, OPENSTATES_API_KEY, VOTESMART_API_KEY. Some features may be limited.
+file:///app/list-receiving.js:6236
+    throw new Error(`[config] ${name} must be set (>=16 chars) in production`);
+          ^
+
+Error: [config] JWT_SECRET must be set (>=16 chars) in production
+    at getRequiredSecret (file:///app/list-receiving.js:6236:11)
+    at server/auth.ts (file:///app/list-receiving.js:6339:18)
+    at __init (file:///app/list-receiving.js:6:58)
+    at file:///app/list-receiving.js:18128:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:561:25)
+    at async node:internal/modules/esm/loader:647:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.21.0

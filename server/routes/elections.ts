@@ -2,9 +2,16 @@ import { Router } from "express";
 import { storage, type IStorage } from "../storage";
 import { civicAggregatorService } from "../civic-aggregator-service";
 import { voteSmartService, type VoteSmartBio, type VoteSmartPosition, type VoteSmartVotingRecord, type VoteSmartRating } from "../services/votesmart-service";
-import { calculateAdvancedPoliticalLeaning } from "../lib/political-analysis.js";
+import { registerElectionIntegrityRoutes } from "../election-integrity-routes";
+import { VotingIntentionsService } from "../voting-intentions";
+import { pool } from "../db";
+import { isAuthenticated } from "../auth";
 import { projectOfficialResultsForElection } from '../../shared/official-results';
 import { candidateSourceMarkers } from '../candidate-source-markers';
+import { candidateRecordUpdatedAt } from '../candidate-record-freshness';
+
+import { sendElectionListingUnavailable } from '../election-list-handler';
+import { electionCalendarDay } from '../election-list-filters';
 
 export const electionsRouter = Router();
 
@@ -12,81 +19,15 @@ export const electionsRouter = Router();
 // POLITICAL ANALYSIS ENDPOINTS
 // =============================================================================
 
-// Get political analysis for an election
-electionsRouter.get("/:id/political-analysis", async (req, res) => {
-  try {
-    const id = Number(req.params.id);
-    if (!Number.isInteger(id) || id <= 0) {
-      return res.status(400).json({ error: "Invalid election ID" });
-    }
-
-    // Get election data
-    const election = await storage.getElection(id);
-    if (!election) {
-      return res.status(404).json({ error: "Election not found" });
-    }
-
-    // Get candidates
-    const candidatesData = await storage.getCandidatesByElection(id);
-
-    // For now, simulate polling and momentum data since database tables aren't available yet
-    // This will be replaced with real data once the database is properly configured
-    let currentPolling = undefined;
-    let momentum = undefined;
-    let userIntentions = undefined;
-
-    // TODO: Replace with actual database queries once tables are created
-    // In the future, this will pull from pollingData, politicalMomentum, and userVotingIntentions tables
-
-    // Calculate political analysis using baseline + candidate data
-    const analysis = calculateAdvancedPoliticalLeaning(
-      election.state,
-      candidatesData,
-      currentPolling,
-      momentum,
-      userIntentions
-    );
-
-    res.json({
-      ...analysis,
-      lastUpdated: new Date(),
-    });
-  } catch (error) {
-    console.error('Political analysis error:', error);
-    res.status(500).json({ error: "Failed to calculate political analysis" });
-  }
+registerElectionIntegrityRoutes(electionsRouter, {
+  getElection: id => storage.getElection(id),
+  authenticate: isAuthenticated,
+  actor: req => { const id: unknown = Reflect.get(req, "userId"); return typeof id === "string" && id.length > 0 ? id : null; },
+  intentions: new VotingIntentionsService(pool),
 });
 
-// Submit user voting intention (stores in memory for now)
-electionsRouter.post("/:id/voting-intention", async (req, res) => {
-  try {
-    const id = Number(req.params.id);
-    if (!Number.isInteger(id) || id <= 0) {
-      return res.status(400).json({ error: "Invalid election ID" });
-    }
+// Existing election and candidate readers
 
-    const { candidateId, partyPreference, confidence = 'medium' } = req.body;
-
-    // Validate election exists
-    const election = await storage.getElection(id);
-    if (!election) {
-      return res.status(404).json({ error: "Election not found" });
-    }
-
-    // For now, just acknowledge the intention
-    // TODO: Store in userVotingIntentions table once database is configured
-    console.log(`Voting intention received for election ${id}: ${partyPreference}`);
-
-    res.json({ success: true, message: "Voting intention recorded successfully" });
-  } catch (error) {
-    console.error('Voting intention error:', error);
-    res.status(500).json({ error: "Failed to record voting intention" });
-  }
-});
-
-// =============================================================================
-// EXISTING ENDPOINTS
-// =============================================================================
 
 // Candidate rows come from Drizzle (camelCase) or raw SQL (snake_case); read both so
 // FEC identity and source markers survive the enrichment projection.
@@ -163,23 +104,82 @@ electionsRouter.get("/candidates-by-ids", async (req, res) => {
 // Add counts endpoint first
 electionsRouter.get("/counts", async (req, res) => {
   try {
-    const stats = await storage.getElectionStats();
-
     // Calculate upcoming/past from all elections
     const now = new Date();
-    const allElections = await storage.getElections();
-    const upcoming = allElections.filter(e => new Date(e.date) >= now).length;
-    const past = allElections.filter(e => new Date(e.date) < now).length;
+    const allElections = await storage.getElectionsStrict();
+    const upcoming = allElections.filter(e => new Date(e.date) >= electionCalendarDay(now, e.timezone)).length;
+    const past = allElections.length - upcoming;
 
+    const byType: Record<string, number> = Object.create(null);
+    const standardTypes: Record<'Primary' | 'General' | 'Special', number> = { Primary: 0, General: 0, Special: 0 };
+    for (const election of allElections) {
+      byType[election.type] = (byType[election.type] ?? 0) + 1;
+      const type = election.type.trim().toLowerCase();
+      if (type === 'primary') standardTypes.Primary++;
+      else if (type === 'general') standardTypes.General++;
+      else if (type === 'special') standardTypes.Special++;
+    }
     res.json({
-      total: stats.total,
+      total: allElections.length,
       upcoming: upcoming,
       past: past,
-      byType: stats.byType
+      byType: { ...byType, ...standardTypes }
     });
   } catch (error) {
     console.error("Error fetching election counts:", error);
-    res.status(500).json({ error: "Failed to fetch counts" });
+    sendElectionListingUnavailable(res);
+  }
+});
+
+// List elections in next X days missing candidates
+electionsRouter.get('/missing-candidates', async (req, res) => {
+  try {
+    const rawWindow = req.query.window;
+    if (Object.keys(req.query).some(key => key.startsWith('window[')) ||
+        (rawWindow !== undefined && (typeof rawWindow !== 'string' || !/^[1-9]\d{0,2}$/.test(rawWindow) || Number(rawWindow) > 120))) {
+      return res.status(400).json({ error: 'window must be a single integer from 1 to 120', code: 'invalid_query' });
+    }
+    const window = rawWindow === undefined ? 60 : Number(rawWindow);
+
+    // Get all elections and filter by date range
+    const allElections = await storage.getElectionsStrict();
+    const now = new Date();
+    const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // 7 days ago
+    const endDate = new Date(now.getTime() + window * 24 * 60 * 60 * 1000); // window days from now
+
+    const electionsInWindow = allElections.filter(election => {
+      const electionDate = new Date(election.date);
+      return electionDate >= startDate && electionDate <= endDate;
+    });
+
+    // The strict grouped listing already contains exact all-candidate counts.
+    const missingCandidates: Array<{ id: number; title: string; state: string; date: Date; candidate_count: number }> = [];
+    for (const election of electionsInWindow) {
+      if (!Number.isSafeInteger(election.candidateCount) || election.candidateCount < 0) {
+        throw new Error('Election candidate count is unavailable');
+      }
+      if (election.candidateCount === 0) {
+        missingCandidates.push({
+          id: election.id,
+          title: election.title,
+          state: election.state,
+          date: election.date,
+          candidate_count: 0
+        });
+      }
+    }
+
+    // Sort by date ASC, then state ASC
+    missingCandidates.sort((a, b) => {
+      const dateComparison = new Date(a.date).getTime() - new Date(b.date).getTime();
+      if (dateComparison !== 0) return dateComparison;
+      return a.state.localeCompare(b.state);
+    });
+
+    res.json({ window_days: window, missing: missingCandidates });
+  } catch (error) {
+    console.error("Error fetching missing candidates:", error);
+    sendElectionListingUnavailable(res);
   }
 });
 
@@ -290,7 +290,7 @@ electionsRouter.get("/:id/candidates", async (req, res) => {
 
               // Issues and data source information
               data_issues: enrichedData.voteSmartData?.issues || [],
-              last_data_update: enrichedData.voteSmartData?.lastUpdated || new Date().toISOString(),
+              last_data_update: candidateRecordUpdatedAt(candidate),
 
               // Additional identifiers for data linking
               external_ids: candidateExternalIds(candidate),
@@ -319,7 +319,7 @@ electionsRouter.get("/:id/candidates", async (req, res) => {
           data_issues: voteSmartService ?
             ['VoteSmart data not yet available for this candidate'] :
             ['VoteSmart API key required for comprehensive candidate data - configure VOTESMART_API_KEY to unlock detailed biographies, positions, and voting records'],
-          last_data_update: new Date().toISOString(),
+          last_data_update: candidateRecordUpdatedAt(candidate),
           external_ids: candidateExternalIds(candidate),
               source: candidateSourceMarkers(candidate)
         };
@@ -345,7 +345,7 @@ electionsRouter.get("/:id/candidates", async (req, res) => {
             has_ratings: false
           },
           data_issues: [`Data enrichment temporarily unavailable: ${enrichmentError instanceof Error ? enrichmentError.message : 'Unknown error'}`],
-          last_data_update: new Date().toISOString(),
+          last_data_update: candidateRecordUpdatedAt(candidate),
           external_ids: candidateExternalIds(candidate),
               source: candidateSourceMarkers(candidate)
         };
@@ -432,7 +432,7 @@ interface CandidateDetailResponse {
   voting_summary: string | null;
   interest_group_ratings: VoteSmartRating[];
   data_issues: string[];
-  last_data_update: string;
+  last_data_update: string | null;
   created_at: Date | null;
   updated_at: Date | null;
 }
@@ -501,7 +501,7 @@ electionsRouter.get("/:electionId/candidates/:candidateId", async (req, res) => 
       voting_summary: null,
       interest_group_ratings: [],
       data_issues: [],
-      last_data_update: new Date().toISOString(),
+      last_data_update: candidateRecordUpdatedAt(candidate),
       created_at: candidate.createdAt,
       updated_at: candidate.updatedAt
     };
@@ -543,7 +543,8 @@ electionsRouter.get("/:electionId/candidates/:candidateId", async (req, res) => 
           baseResponse.data_completeness.has_ratings = true;
         }
         baseResponse.data_issues = vsData.issues ?? [];
-        baseResponse.last_data_update = vsData.lastUpdated ?? new Date().toISOString();
+        // VoteSmart's aggregate lastUpdated is a generated capture clock;
+        // preserve the persisted candidate record update time above.
       }
 
       const alreadyExplained = baseResponse.data_issues.some((issue) => /votesmart/i.test(issue));
@@ -571,47 +572,3 @@ electionsRouter.get("/:electionId/candidates/:candidateId", async (req, res) => 
   }
 });
 
-// List elections in next X days missing candidates
-electionsRouter.get('/missing-candidates', async (req, res) => {
-  try {
-    const window = Math.max(1, Math.min(120, Number(req.query.window ?? 60)));
-
-    // Get all elections and filter by date range
-    const allElections = await storage.getElections();
-    const now = new Date();
-    const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // 7 days ago
-    const endDate = new Date(now.getTime() + window * 24 * 60 * 60 * 1000); // window days from now
-
-    const electionsInWindow = allElections.filter(election => {
-      const electionDate = new Date(election.date);
-      return electionDate >= startDate && electionDate <= endDate;
-    });
-
-    // Check each election for candidates
-    const missingCandidates: Array<{ id: number; title: string; state: string; date: Date; candidate_count: number }> = [];
-    for (const election of electionsInWindow) {
-      const candidates = await storage.getCandidatesByElection(election.id);
-      if (candidates.length === 0) {
-        missingCandidates.push({
-          id: election.id,
-          title: election.title,
-          state: election.state,
-          date: election.date,
-          candidate_count: 0
-        });
-      }
-    }
-
-    // Sort by date ASC, then state ASC
-    missingCandidates.sort((a, b) => {
-      const dateComparison = new Date(a.date).getTime() - new Date(b.date).getTime();
-      if (dateComparison !== 0) return dateComparison;
-      return a.state.localeCompare(b.state);
-    });
-
-    res.json({ window_days: window, missing: missingCandidates });
-  } catch (error) {
-    console.error("Error fetching missing candidates:", error);
-    res.status(500).json({ error: "Failed to fetch missing candidates" });
-  }
-});

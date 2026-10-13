@@ -1,0 +1,21 @@
+{
+  "outcome": "Worked",
+  "compiled": true,
+  "actualNativePg": true,
+  "syntheticOwnedDatabase": true,
+  "hostPortsExposed": false,
+  "sharedDatabaseTouched": false,
+  "outcomes": [
+    {
+      "scenario": "actual native pg closed-port refusal through DatabaseStorage and compiled HTTP handler",
+      "nativeCode": "ECONNREFUSED",
+      "response": {
+        "status": 503,
+        "body": {
+          "error": "Election listing temporarily unavailable",
+          "code": "listing_unavailable"
+        }
+      }
+    }
+  ]
+}

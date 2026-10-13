@@ -1,0 +1,834 @@
+{
+  "outcome": "Worked",
+  "execution": "compiled standalone Node ESM, real physical dependencies, zero network and DB calls",
+  "at": "2026-10-13T16:58:23.407Z",
+  "node": "v24.17.0",
+  "sourceHead": "d3f00a8c93e97e53afd2178a6ec2c56319cd4060",
+  "checks": [
+    {
+      "scenario": "actual official workbook and signed certificate byte digests",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "68 actual primary options and three independently published PDF totals",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "all 68 county-to-state reconciliations across 58 counties",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "actual Unicode, preference labels, seven write-ins and lossless raw header proof",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "no invented IDs, timestamps, percentages or winners; exact primary certificate scope",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "absent certificate bytes leave certification evidence empty",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "seven exact source context mismatches refuse before report creation",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "truncated workbook and unrelated certificate refuse",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "actual HTTP200/nonzero Oct9 V26GG staging input REFUSED for Nov3 general",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "four malformed or empty format controls refuse without parser crash",
+      "outcome": "Worked"
+    }
+  ],
+  "parsedContest": {
+    "context": {
+      "state": "CA",
+      "electionDate": "2026-06-02",
+      "phase": "primary",
+      "level": "state",
+      "office": "Governor",
+      "district": null,
+      "party": null
+    },
+    "sourceContestId": "2026-primary:sov:19-gov",
+    "sourcePayloadSha256": "2c3f509d9b144dff74d2d68ae7be124e697cf6e6bd7e50291cbd1393532980d1",
+    "asOf": null,
+    "asOfBasis": "not_provided",
+    "asOfRaw": null,
+    "reporting": null,
+    "totalVotes": 9262468,
+    "options": [
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Akinyemi Agbede",
+        "party": "DEM",
+        "votes": 3037,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Mohammad Arif",
+        "party": "DEM",
+        "votes": 8458,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Larry Azevedo",
+        "party": "DEM",
+        "votes": 4675,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Xavier Becerra",
+        "party": "DEM",
+        "votes": 2591857,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Carolina Buhler",
+        "party": "DEM",
+        "votes": 15013,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Louis A. De Barraicua",
+        "party": "DEM",
+        "votes": 8851,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Sophia Edum-a-Sam",
+        "party": "DEM",
+        "votes": 3550,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Derek Grasty",
+        "party": "DEM",
+        "votes": 4994,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Joel E. Jacob",
+        "party": "DEM",
+        "votes": 2350,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Gary Howard Kidgell",
+        "party": "DEM",
+        "votes": 2415,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Matthew Chase Levy",
+        "party": "DEM",
+        "votes": 11059,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Matt Mahan",
+        "party": "DEM",
+        "votes": 327537,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Barack D. Obama Shaw",
+        "party": "DEM",
+        "votes": 16716,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Thunder Parley",
+        "party": "DEM",
+        "votes": 2320,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Katie Porter",
+        "party": "DEM",
+        "votes": 403908,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Raji Rab",
+        "party": "DEM",
+        "votes": 3606,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Satish Rao",
+        "party": "DEM",
+        "votes": 5668,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Scott P Shields",
+        "party": "DEM",
+        "votes": 5043,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Tom Steyer",
+        "party": "DEM",
+        "votes": 2110707,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Eric Swalwell",
+        "party": "DEM",
+        "votes": 28164,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Tony K. Thurmond",
+        "party": "DEM",
+        "votes": 63762,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Antonio Villaraigosa",
+        "party": "DEM",
+        "votes": 104107,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Betty T. Yee",
+        "party": "DEM",
+        "votes": 40873,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Erin \"Zez\" Zezulak",
+        "party": "DEM",
+        "votes": 9251,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "James Athans Jr.",
+        "party": "REP",
+        "votes": 6633,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Chad Bianco",
+        "party": "REP",
+        "votes": 941708,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Patricia De Luca Basualdo",
+        "party": "REP",
+        "votes": 4064,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Randeep S. Dhillon",
+        "party": "REP",
+        "votes": 21937,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Rafael M. Hernandez",
+        "party": "REP",
+        "votes": 5223,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Steve Hilton",
+        "party": "REP",
+        "votes": 2277318,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Alicia Olivia Lapp",
+        "party": "REP",
+        "votes": 5370,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Leo Naranjo IV",
+        "party": "REP",
+        "votes": 8099,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Tim Nelson",
+        "party": "REP",
+        "votes": 23712,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Gretha Solórzano",
+        "party": "REP",
+        "votes": 12563,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Leo Samuel Zacky",
+        "party": "REP",
+        "votes": 14708,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "David Zickefoose",
+        "party": "REP",
+        "votes": 5882,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Tom Woodard",
+        "party": "LIB",
+        "votes": 9328,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Ramsey Robinson",
+        "party": "PF",
+        "votes": 51803,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Naomi Bar-Lev",
+        "party": "NPP",
+        "votes": 2744,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Joseph Cabrera",
+        "party": "NPP",
+        "votes": 6196,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Elaine Culotti",
+        "party": "NPP",
+        "votes": 4483,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "LivingForGod AndCountry DeMott",
+        "party": "NPP",
+        "votes": 2206,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Serge Fiankan",
+        "party": "NPP",
+        "votes": 488,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Lukasz Adam Filinski",
+        "party": "NPP",
+        "votes": 527,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Max Fomin",
+        "party": "NPP",
+        "votes": 842,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Don J. Grundmann",
+        "party": "NPP",
+        "votes": 1903,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Jon Henderson",
+        "party": "NPP",
+        "votes": 5589,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Lewis Herms",
+        "party": "NPP",
+        "votes": 2995,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Dawit Kellel",
+        "party": "NPP",
+        "votes": 1360,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Anne Komarovsk",
+        "party": "NPP",
+        "votes": 1535,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Duane Terrence Loynes Jr.",
+        "party": "NPP",
+        "votes": 1905,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Amanda Martin",
+        "party": "NPP",
+        "votes": 5234,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Brent Maupin",
+        "party": "NPP",
+        "votes": 3132,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Daniel Mercuri",
+        "party": "NPP",
+        "votes": 2667,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Mauro Alberto Orozco",
+        "party": "NPP",
+        "votes": 4052,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Reza Safarnejad",
+        "party": "NPP",
+        "votes": 1990,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Sam Sandak",
+        "party": "NPP",
+        "votes": 1222,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Christine R. Sarmiento",
+        "party": "NPP",
+        "votes": 5643,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Frederic C. Schultz",
+        "party": "NPP",
+        "votes": 5230,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Margaret Trowe",
+        "party": "NPP",
+        "votes": 2286,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Nancy D. Young",
+        "party": "NPP",
+        "votes": 7012,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "named"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Kalid Meky",
+        "party": "DEM (W/I)",
+        "votes": 5,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "write_in"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Jibri J Peavy",
+        "party": "DEM (W/I)",
+        "votes": 10,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "write_in"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Che Ahn",
+        "party": "REP (W/I)",
+        "votes": 2419,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "write_in"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Butch Ware",
+        "party": "GRN (W/I)",
+        "votes": 22493,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "write_in"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Michael J Dilger",
+        "party": "NPP (W/I)",
+        "votes": 1,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "write_in"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Sean Forbes",
+        "party": "NPP (W/I)",
+        "votes": 22,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "write_in"
+      },
+      {
+        "sourceCandidateId": null,
+        "identifierBasis": "printed_label",
+        "name": "Dirk Langer",
+        "party": "NPP (W/I)",
+        "votes": 8,
+        "percent": null,
+        "isWinner": false,
+        "optionKind": "write_in"
+      }
+    ],
+    "publisherMetrics": {},
+    "certificationEvidence": [
+      {
+        "url": "https://elections.cdn.sos.ca.gov/sov/2026-primary/sov/18-sov-certificate.pdf",
+        "sha256": "3ffb90f022e448d84ea77cfccc2baa54ad87669a0aaa0575c7a08df66c460d77",
+        "dateRaw": "July 10, 2026",
+        "certifiedAt": null,
+        "context": {
+          "state": "CA",
+          "electionDate": "2026-06-02",
+          "phase": "primary",
+          "level": "state",
+          "office": "Governor",
+          "district": null,
+          "party": null
+        }
+      }
+    ]
+  },
+  "context": {
+    "state": "CA",
+    "electionDate": "2026-06-02",
+    "phase": "primary",
+    "level": "state",
+    "office": "Governor",
+    "district": null,
+    "party": null
+  },
+  "optionCount": 68,
+  "countyCount": 58,
+  "independentPublishedPdfTotals": {
+    "Xavier Becerra": 2591857,
+    "Steve Hilton": 2277318,
+    "Tom Steyer": 2110707
+  },
+  "totalOptionVotes": 9262468,
+  "certificate": {
+    "url": "https://elections.cdn.sos.ca.gov/sov/2026-primary/sov/18-sov-certificate.pdf",
+    "sha256": "3ffb90f022e448d84ea77cfccc2baa54ad87669a0aaa0575c7a08df66c460d77",
+    "dateRaw": "July 10, 2026",
+    "certifiedAt": null,
+    "context": {
+      "state": "CA",
+      "electionDate": "2026-06-02",
+      "phase": "primary",
+      "level": "state",
+      "office": "Governor",
+      "district": null,
+      "party": null
+    }
+  },
+  "rawWorkbookSHA256": "2c3f509d9b144dff74d2d68ae7be124e697cf6e6bd7e50291cbd1393532980d1",
+  "rawCertificateSHA256": "3ffb90f022e448d84ea77cfccc2baa54ad87669a0aaa0575c7a08df66c460d77",
+  "rawPdfSHA256": "5722d7e4042a00bc894775f3ea022e734eb9a3b0382c522eae50318e024bbaa0",
+  "rawHeaderTextsSHA256": "5b5d09d7ba5b53fd80435467a38f3b8442b3b16f6fb01ccaf8d1ec75d0ba80c0",
+  "staging": {
+    "outcome": "Refused",
+    "code": "SOURCE_NOT_PUBLISHED",
+    "originalWholeSourceSHA256": "f1d76831074659a488fa31d089694d1959f9e9f2c0d9f740d54e89018ef453c2",
+    "retainedFragmentSHA256": "026505a658f72c08009a4d68bfeb0a3de9b74197dd563deb479b03a9c059c261",
+    "sourceDate": "2026-10-09",
+    "declaredElectionDate": "2026-11-03",
+    "fragmentNotWholeFile": true
+  },
+  "fixtureFiles": [
+    {
+      "name": "CA-primary-gov.xlsx",
+      "sha256": "2c3f509d9b144dff74d2d68ae7be124e697cf6e6bd7e50291cbd1393532980d1"
+    },
+    {
+      "name": "CA-primary-certificate.pdf",
+      "sha256": "3ffb90f022e448d84ea77cfccc2baa54ad87669a0aaa0575c7a08df66c460d77"
+    },
+    {
+      "name": "CA-primary-gov-pdf.pdf",
+      "sha256": "5722d7e4042a00bc894775f3ea022e734eb9a3b0382c522eae50318e024bbaa0"
+    },
+    {
+      "name": "reviewed-proof.json",
+      "sha256": "f2ba1f4eabb9c271243de161b58ea3c29aa871bd9e46fdd21219f3e23e800428"
+    },
+    {
+      "name": "V26GG-retained-header-fragment.txt",
+      "sha256": "026505a658f72c08009a4d68bfeb0a3de9b74197dd563deb479b03a9c059c261"
+    }
+  ]
+}

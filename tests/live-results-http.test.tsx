@@ -20,6 +20,7 @@ import { http, HttpResponse, bypass } from 'msw';
 import { setupServer } from 'msw/node';
 import { MemStorage } from '../server/mem-storage';
 import { registerResultsRoutes } from '../server/results-routes';
+import { adminElectionLookupHandler } from '../server/admin-election-lookup';
 import AdminResultsEntry from '../client/src/pages/admin-results-entry';
 import HappeningNow from '../client/src/pages/happening-now';
 import { LiveResultView } from '../client/src/components/live-result-view';
@@ -55,6 +56,7 @@ async function startReal(): Promise<Real> {
     requireAdmin: (_req, _res, next) => next(),
     adminIdentity: (req: any) => req.userId ?? null,
   });
+  app.get('/api/admin/elections', adminElectionLookupHandler(mem));
   const server = createServer(app);
   await new Promise<void>(r => server.listen(0, '127.0.0.1', r));
   return { mem, election, candidates, base: `http://127.0.0.1:${(server.address() as AddressInfo).port}`, server, seen: [] };
@@ -71,6 +73,7 @@ async function forward({ request }: { request: Request }) {
 const msw = setupServer(
   http.get('/api/auth/me', () => HttpResponse.json({ user: { id: 'admin-1', email: 'ops@example.org', role: 'admin' } })),
   http.get('/api/elections', () => HttpResponse.json([real.election])),
+  http.get('/api/admin/elections', forward),
   http.get('/api/elections/:id/candidates', () => HttpResponse.json(real.candidates.map(c => ({ id: c.id, name: c.name, party: c.party })))),
   http.all('/api/results', forward),
   http.all('/api/results/sources', forward),
@@ -189,6 +192,29 @@ describe('ET-6 client against the real results routes (real HTTP, real schema)',
     fireEvent.click(screen.getByTestId('button-manual-refresh'));
     await waitFor(() => expect(real.seen.filter(s => s.path.startsWith('/api/results?date=')).map(s => s.status)).toEqual([200, 304]));
     expect(within(card).getByText('150 votes')).toBeInTheDocument();
+  });
+
+  it('an older race outside the public 30-day window is found through the REAL guarded lookup route and selectable', { timeout: 30000 }, async () => {
+    real = await startReal();
+    const old = await real.mem.createElection({
+      title: 'North Carolina U.S. Senate Democratic Primary', subtitle: null, location: 'North Carolina', state: 'NC', date: new Date('2026-03-03T00:00:00Z'),
+      type: 'primary', level: 'federal', offices: ['U.S. Senate'], description: null, pollsOpen: null, pollsClose: null, timezone: null, isActive: true,
+    } as any);
+    render(<QueryClientProvider client={client()}><AdminResultsEntry /></QueryClientProvider>);
+    await screen.findByRole('combobox', { name: 'Race' });
+    fireEvent.click(screen.getByText(/Look up older races/));
+    fireEvent.change(screen.getByLabelText('From'), { target: { value: '2026-03-01' } });
+    fireEvent.change(screen.getByLabelText('To'), { target: { value: '2026-03-31' } });
+    fireEvent.click(screen.getByTestId('button-lookup'));
+    await waitFor(() => expect(real.seen.some(s => s.path.startsWith('/api/admin/elections?') && s.path.includes('from=2026-03-01') && s.status === 200)).toBe(true));
+    const trigger = screen.getByRole('combobox', { name: 'Race' });
+    await waitFor(() => expect(trigger).not.toBeDisabled());
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' });
+    fireEvent.click(await screen.findByRole('option', { name: /North Carolina U\.S\. Senate Democratic Primary/ }));
+    expect(await screen.findByText('No report recorded yet')).toBeInTheDocument();
+    expect(old.id).toBeGreaterThan(0);
+    // The real guarded route itself returns the older race (inclusive range, no 30-day cutoff).
+    expect(await getReal('/api/admin/elections?from=2026-03-01&to=2026-03-31')).toHaveLength(1);
   });
 
   it('a stale post is refused by the real writer with 409 and the form explains it', { timeout: 30000 }, async () => {

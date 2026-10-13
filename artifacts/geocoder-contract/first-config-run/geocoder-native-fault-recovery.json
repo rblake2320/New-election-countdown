@@ -1,0 +1,540 @@
+{
+  "outcome": "Worked",
+  "compiled": true,
+  "actualNativePg": true,
+  "syntheticOwnedDatabase": true,
+  "hostPortsExposed": false,
+  "sharedDatabaseTouched": false,
+  "outcomes": [
+    {
+      "scenario": "healthy compiled native-PG listing excludes inactive row",
+      "response": {
+        "status": 200,
+        "body": [
+          {
+            "id": 1,
+            "title": "U.S. Senate Election - Colorado",
+            "subtitle": null,
+            "location": "Colorado",
+            "state": "CO",
+            "date": "2026-11-03T00:00:00.000Z",
+            "type": "general",
+            "level": "federal",
+            "offices": null,
+            "description": null,
+            "pollsOpen": null,
+            "pollsClose": null,
+            "timezone": null,
+            "pollCloseKind": null,
+            "pollHoursBasis": null,
+            "pollHoursSource": null,
+            "officialResultsUrl": null,
+            "officialResultsSource": null,
+            "isActive": true,
+            "candidateCount": 0
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "count derivation equals existing real-PG active-row stats",
+      "counts": {
+        "total": 1,
+        "upcoming": 1,
+        "past": 0,
+        "byType": {
+          "general": 1,
+          "Primary": 0,
+          "General": 1,
+          "Special": 0
+        }
+      },
+      "stats": {
+        "total": 1,
+        "byType": {
+          "general": 1,
+          "Primary": 0,
+          "General": 1,
+          "Special": 0
+        }
+      }
+    },
+    {
+      "scenario": "strict malformed window garbage",
+      "response": {
+        "status": 400,
+        "body": {
+          "error": "window must be a single integer from 1 to 120",
+          "code": "invalid_query"
+        }
+      },
+      "nativeQueries": 0
+    },
+    {
+      "scenario": "strict malformed window 0",
+      "response": {
+        "status": 400,
+        "body": {
+          "error": "window must be a single integer from 1 to 120",
+          "code": "invalid_query"
+        }
+      },
+      "nativeQueries": 0
+    },
+    {
+      "scenario": "strict malformed window 121",
+      "response": {
+        "status": 400,
+        "body": {
+          "error": "window must be a single integer from 1 to 120",
+          "code": "invalid_query"
+        }
+      },
+      "nativeQueries": 0
+    },
+    {
+      "scenario": "strict malformed window 1.5",
+      "response": {
+        "status": 400,
+        "body": {
+          "error": "window must be a single integer from 1 to 120",
+          "code": "invalid_query"
+        }
+      },
+      "nativeQueries": 0
+    },
+    {
+      "scenario": "strict malformed window ",
+      "response": {
+        "status": 400,
+        "body": {
+          "error": "window must be a single integer from 1 to 120",
+          "code": "invalid_query"
+        }
+      },
+      "nativeQueries": 0
+    },
+    {
+      "scenario": "strict malformed window 60&window=60",
+      "response": {
+        "status": 400,
+        "body": {
+          "error": "window must be a single integer from 1 to 120",
+          "code": "invalid_query"
+        }
+      },
+      "nativeQueries": 0
+    },
+    {
+      "scenario": "strict malformed window 60&window=70",
+      "response": {
+        "status": 400,
+        "body": {
+          "error": "window must be a single integer from 1 to 120",
+          "code": "invalid_query"
+        }
+      },
+      "nativeQueries": 0
+    },
+    {
+      "scenario": "array window refused before native query",
+      "response": {
+        "status": 400,
+        "body": {
+          "error": "window must be a single integer from 1 to 120",
+          "code": "invalid_query"
+        }
+      },
+      "nativeQueries": 0
+    },
+    {
+      "scenario": "actual absent-config MapQuestService + compiled receiver /api/elections-by-location?address=Raleigh%20NC",
+      "response": {
+        "status": 503,
+        "body": {
+          "error": "Geocoding service temporarily unavailable",
+          "code": "geocoder_unavailable"
+        }
+      },
+      "nativeSqlQueries": 0,
+      "providerRequests": 0
+    },
+    {
+      "scenario": "actual absent-config MapQuestService + compiled receiver /api/geocode?address=Raleigh%20NC",
+      "response": {
+        "status": 503,
+        "body": {
+          "error": "Geocoding service temporarily unavailable",
+          "code": "geocoder_unavailable"
+        }
+      },
+      "nativeSqlQueries": 0,
+      "providerRequests": 0
+    },
+    {
+      "scenario": "actual absent-config MapQuestService + compiled receiver /api/reverse-geocode?lat=0&lng=0",
+      "response": {
+        "status": 503,
+        "body": {
+          "error": "Geocoding service temporarily unavailable",
+          "code": "geocoder_unavailable"
+        }
+      },
+      "nativeSqlQueries": 0,
+      "providerRequests": 0
+    },
+    {
+      "scenario": "actual absent-config MapQuestService + compiled receiver /api/validate-address?address=Raleigh%20NC",
+      "response": {
+        "status": 503,
+        "body": {
+          "error": "Geocoding service temporarily unavailable",
+          "code": "geocoder_unavailable"
+        }
+      },
+      "nativeSqlQueries": 0,
+      "providerRequests": 0
+    },
+    {
+      "scenario": "malformed input before actual disabled provider /api/elections-by-location",
+      "response": {
+        "status": 400,
+        "body": {
+          "error": "Valid address or coordinates required",
+          "code": "invalid_query"
+        }
+      },
+      "nativeSqlQueries": 0,
+      "providerRequests": 0
+    },
+    {
+      "scenario": "malformed input before actual disabled provider /api/elections-by-location?lat=91&lng=0",
+      "response": {
+        "status": 400,
+        "body": {
+          "error": "Valid address or coordinates required",
+          "code": "invalid_query"
+        }
+      },
+      "nativeSqlQueries": 0,
+      "providerRequests": 0
+    },
+    {
+      "scenario": "malformed input before actual disabled provider /api/elections-by-location?lat=0&lng=181",
+      "response": {
+        "status": 400,
+        "body": {
+          "error": "Valid address or coordinates required",
+          "code": "invalid_query"
+        }
+      },
+      "nativeSqlQueries": 0,
+      "providerRequests": 0
+    },
+    {
+      "scenario": "malformed input before actual disabled provider /api/elections-by-location?lat=12junk&lng=0",
+      "response": {
+        "status": 400,
+        "body": {
+          "error": "Valid address or coordinates required",
+          "code": "invalid_query"
+        }
+      },
+      "nativeSqlQueries": 0,
+      "providerRequests": 0
+    },
+    {
+      "scenario": "malformed input before actual disabled provider /api/elections-by-location?address=a&address=b",
+      "response": {
+        "status": 400,
+        "body": {
+          "error": "Valid address or coordinates required",
+          "code": "invalid_query"
+        }
+      },
+      "nativeSqlQueries": 0,
+      "providerRequests": 0
+    },
+    {
+      "scenario": "native candidateCount zero, one grouped query",
+      "response": {
+        "status": 200,
+        "body": {
+          "window_days": 60,
+          "missing": [
+            {
+              "id": 1,
+              "title": "U.S. Senate Election - Colorado",
+              "state": "CO",
+              "date": "2026-11-03T00:00:00.000Z",
+              "candidate_count": 0
+            }
+          ]
+        }
+      },
+      "nativeQueries": 1
+    },
+    {
+      "scenario": "native candidateCount one excludes race, one grouped query",
+      "response": {
+        "status": 200,
+        "body": {
+          "window_days": 60,
+          "missing": []
+        }
+      },
+      "nativeQueries": 1
+    },
+    {
+      "scenario": "actual native Nov3 unknown/Adak vsNY at pinnedNov4 05:30Z",
+      "response": {
+        "status": 200,
+        "body": {
+          "total": 3,
+          "upcoming": 2,
+          "past": 1,
+          "byType": {
+            "general": 3,
+            "Primary": 0,
+            "General": 3,
+            "Special": 0
+          }
+        }
+      }
+    },
+    {
+      "scenario": "actual native mixed-case known types aggregate, unknown key preserved (includes baseline general row)",
+      "response": {
+        "status": 200,
+        "body": {
+          "total": 9,
+          "upcoming": 9,
+          "past": 0,
+          "byType": {
+            "general": 2,
+            "Primary": 2,
+            "primary": 1,
+            "General": 3,
+            "Special": 1,
+            "Referendum": 1,
+            "__proto__": 1,
+            "constructor": 1
+          }
+        }
+      }
+    },
+    {
+      "scenario": "legitimate filtered empty200[]",
+      "response": {
+        "status": 200,
+        "body": []
+      }
+    },
+    {
+      "scenario": "invalid filter400",
+      "response": {
+        "status": 400,
+        "body": {
+          "error": "Invalid timeframe: bad"
+        }
+      }
+    },
+    {
+      "scenario": "healthy actual reserved route /api/elections/search?query=Colorado",
+      "response": {
+        "status": 200,
+        "body": {
+          "elections": [
+            {
+              "id": 1,
+              "title": "U.S. Senate Election - Colorado",
+              "subtitle": null,
+              "location": "Colorado",
+              "state": "CO",
+              "date": "2026-11-03T00:00:00.000Z",
+              "type": "general",
+              "level": "federal",
+              "offices": null,
+              "description": null,
+              "pollsOpen": null,
+              "pollsClose": null,
+              "timezone": null,
+              "pollCloseKind": null,
+              "pollHoursBasis": null,
+              "pollHoursSource": null,
+              "officialResultsUrl": null,
+              "officialResultsSource": null,
+              "isActive": true,
+              "candidateCount": 0
+            }
+          ],
+          "aiEnhancement": null,
+          "totalResults": 1
+        }
+      }
+    },
+    {
+      "scenario": "healthy actual reserved route /api/elections/missing-candidates",
+      "response": {
+        "status": 200,
+        "body": {
+          "window_days": 60,
+          "missing": [
+            {
+              "id": 1,
+              "title": "U.S. Senate Election - Colorado",
+              "state": "CO",
+              "date": "2026-11-03T00:00:00.000Z",
+              "candidate_count": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "scenario": "healthy actual reserved route /api/elections-by-location?address=Denver",
+      "response": {
+        "status": 200,
+        "body": {
+          "location": {
+            "latitude": 0,
+            "longitude": 0,
+            "state": "CO",
+            "city": "Denver",
+            "county": "Denver",
+            "postalCode": "",
+            "street": "",
+            "quality": "CITY"
+          },
+          "elections": [
+            {
+              "id": 1,
+              "title": "U.S. Senate Election - Colorado",
+              "subtitle": null,
+              "location": "Colorado",
+              "state": "CO",
+              "date": "2026-11-03T00:00:00.000Z",
+              "type": "general",
+              "level": "federal",
+              "offices": null,
+              "description": null,
+              "pollsOpen": null,
+              "pollsClose": null,
+              "timezone": null,
+              "pollCloseKind": null,
+              "pollHoursBasis": null,
+              "pollHoursSource": null,
+              "officialResultsUrl": null,
+              "officialResultsSource": null,
+              "isActive": true,
+              "candidateCount": 0
+            }
+          ],
+          "localElectionsFound": 0,
+          "totalStateElections": 1,
+          "aiVerification": null,
+          "searchPriority": "state"
+        }
+      }
+    },
+    {
+      "scenario": "actual native SQL relation fault /api/elections",
+      "nativeCode": "42P01",
+      "response": {
+        "status": 503,
+        "body": {
+          "error": "Election listing temporarily unavailable",
+          "code": "listing_unavailable"
+        }
+      }
+    },
+    {
+      "scenario": "actual native SQL relation fault /api/elections/counts",
+      "nativeCode": "42P01",
+      "response": {
+        "status": 503,
+        "body": {
+          "error": "Election listing temporarily unavailable",
+          "code": "listing_unavailable"
+        }
+      }
+    },
+    {
+      "scenario": "actual native SQL relation fault /api/elections/search?query=Colorado",
+      "nativeCode": "42P01",
+      "response": {
+        "status": 503,
+        "body": {
+          "error": "Election listing temporarily unavailable",
+          "code": "listing_unavailable"
+        }
+      }
+    },
+    {
+      "scenario": "actual native SQL relation fault /api/elections/missing-candidates",
+      "nativeCode": "42P01",
+      "response": {
+        "status": 503,
+        "body": {
+          "error": "Election listing temporarily unavailable",
+          "code": "listing_unavailable"
+        }
+      }
+    },
+    {
+      "scenario": "actual native SQL relation fault /api/elections-by-location?address=Denver",
+      "nativeCode": "42P01",
+      "response": {
+        "status": 503,
+        "body": {
+          "error": "Election listing temporarily unavailable",
+          "code": "listing_unavailable"
+        }
+      }
+    },
+    {
+      "scenario": "same process SQL recovery restores identical list",
+      "response": {
+        "status": 200,
+        "body": [
+          {
+            "id": 1,
+            "title": "U.S. Senate Election - Colorado",
+            "subtitle": null,
+            "location": "Colorado",
+            "state": "CO",
+            "date": "2026-11-03T00:00:00.000Z",
+            "type": "general",
+            "level": "federal",
+            "offices": null,
+            "description": null,
+            "pollsOpen": null,
+            "pollsClose": null,
+            "timezone": null,
+            "pollCloseKind": null,
+            "pollHoursBasis": null,
+            "pollHoursSource": null,
+            "officialResultsUrl": null,
+            "officialResultsSource": null,
+            "isActive": true,
+            "candidateCount": 0
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "real factory degraded memory immutable-old200[] / current typed503",
+      "old": {
+        "status": 200,
+        "body": []
+      },
+      "current": {
+        "status": 503,
+        "body": {
+          "error": "Election listing temporarily unavailable",
+          "code": "listing_unavailable"
+        }
+      }
+    }
+  ]
+}
