@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { readFileSync, mkdtempSync, cpSync, writeFileSync, symlinkSync } from 'node:fs';
+import { readFileSync, mkdtempSync, mkdirSync, cpSync, writeFileSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { resolve, join } from 'node:path';
 import { describe,it,expect } from 'vitest';
@@ -26,6 +26,11 @@ describe('Actual raw packet→V1 bridge',()=>{
   it('refuses target phase even if both target tuples are rewritten together',()=>{expect(()=>bridgeOfficialContest(parsed,{...base,target:{...target,type:'General'},reviewedTarget:{...target,type:'General'}})).toThrow(/phase/);});
   it('derives stable full-input idempotency; changed actual retrieval gets a different key',()=>{expect(bridgeOfficialContest(parsed,base).idempotencyKey).toBe(bridgeOfficialContest(parsed,base).idempotencyKey);expect(bridgeOfficialContest(parsed,{...base,retrievedAt:'2026-10-12T04:28:30Z'}).idempotencyKey).not.toBe(bridgeOfficialContest(parsed,base).idempotencyKey);});
   it('runs actual pinned portable packet and binds real capture clock',async()=>{const receipt=await parseOfficialSourcePacket(packetPath,sha(readFileSync(packetPath)),target);expect(receipt.input.totalVotes).toBe(1903073);expect(receipt.input.retrievedAt).toBe(base.retrievedAt);expect(receipt.input.certification?.certifiedAt).toBeNull();});
+  for(const [folder,total,count] of [['wa-senate',1948716,12],['ca',9262468,68]] as const)it(`calls actual ${folder} raw parser from portable packet`,async()=>{
+    const dir=resolve('artifacts/source-packet',folder),path=join(dir,'packet.json'),actualTarget=JSON.parse(readFileSync(join(dir,'target-binding.json'),'utf8'));
+    const receipt=await parseOfficialSourcePacket(path,sha(readFileSync(path)),actualTarget);
+    expect(receipt.input.totalVotes).toBe(total);expect(receipt.input.candidates.length).toBe(count);expect(receipt.input.status).toBe('certified');expect(receipt.input.asOf).toBeNull();expect(receipt.input.candidates.every(c=>c.candidateId===null&&!c.isWinner)).toBe(true);
+  });
   it('keeps original/amended actual returns on SAME source contest with different counts and keys',async()=>{
     const before=await parseOfficialSourcePacket(packetPath,sha(readFileSync(packetPath)),target),afterPath=join(root,'recount.packet.json'),after=await parseOfficialSourcePacket(afterPath,sha(readFileSync(afterPath)),target);
     expect(before.input.source?.sourceContestId).toBe(after.input.source?.sourceContestId);expect(before.input.electionId).toBe(after.input.electionId);
@@ -35,5 +40,17 @@ describe('Actual raw packet→V1 bridge',()=>{
   it('refuses changed raw source bytes',async()=>{const s=scratch();writeFileSync(join(s.dir,'packet/raw/wa-2024-recount-all-candidates.xlsx'),'damaged');await expect(parseOfficialSourcePacket(s.path,sha(readFileSync(s.path)),target)).rejects.toThrow(/Raw payload/);});
   it('refuses traversal/absolute paths and duplicate roles',async()=>{await expect(mutation(p=>{p.files[0]!.path='../outside';})).rejects.toThrow(/relative paths/);await expect(mutation(p=>{p.files[0]!.path='C:/outside';})).rejects.toThrow(/relative paths/);await expect(mutation(p=>{p.files.push(p.files[0]!);})).rejects.toThrow(/ambiguous file roles/);});
   it('refuses missing or mismatched actual capture receipt',async()=>{await expect(mutation(p=>{p.files=p.files.filter(f=>f.role!=='capture_receipt');})).rejects.toThrow(/capture_receipt absent/);await expect(mutation(p=>{p.publisher.url='https://www.sos.wa.gov/other';})).rejects.toThrow(/Publisher URL/);});
-  it('refuses real filesystem symlink escape',async()=>{const s=scratch(),outside=join(s.dir,'outside.xlsx');writeFileSync(outside,payload);symlinkSync(outside,join(s.dir,'packet/link.xlsx'),'file');const value=structuredClone(packet);value.files[0]!.path='link.xlsx';const bytes=Buffer.from(JSON.stringify(value));writeFileSync(s.path,bytes);await expect(parseOfficialSourcePacket(s.path,sha(bytes),target)).rejects.toThrow(/outside packet/);});
+  it('refuses invalid capture clock rather than supplying parsing time',async()=>{
+    const s=scratch(),value=structuredClone(packet),capture=value.files.find(f=>f.role==='capture_receipt');if(!capture)throw new Error('missing capturefixture');
+    const file=join(s.dir,'packet',capture.path),rows:Record<string,unknown>[]=JSON.parse(readFileSync(file,'utf8'));
+    const record=rows.find(r=>r.sha256===sha(payload));if(!record)throw new Error('missing payload receipt');record.checkedAt='2026-10-12T04:27:30+99:99';
+    const raw=Buffer.from(JSON.stringify(rows));writeFileSync(file,raw);capture.sha256=sha(raw);const manifest=Buffer.from(JSON.stringify(value));writeFileSync(s.path,manifest);
+    await expect(parseOfficialSourcePacket(s.path,sha(manifest),target)).rejects.toThrow();
+  });
+  it('refuses real filesystem link escape (Windows junction / POSIX symlink)',async()=>{
+    const s=scratch(),outside=join(s.dir,'outside');mkdirSync(outside);writeFileSync(join(outside,'payload.xlsx'),payload);
+    symlinkSync(outside,join(s.dir,'packet/link'),process.platform==='win32'?'junction':'dir');
+    const value=structuredClone(packet);value.files[0]!.path='link/payload.xlsx';const bytes=Buffer.from(JSON.stringify(value));writeFileSync(s.path,bytes);
+    await expect(parseOfficialSourcePacket(s.path,sha(bytes),target)).rejects.toThrow(/outside packet/);
+  });
 });

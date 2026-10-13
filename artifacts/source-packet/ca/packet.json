@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "purpose": "dry_run_only",
+  "parser": "ca_governor_primary",
+  "context": {
+    "state": "CA",
+    "electionDate": "2026-06-02",
+    "phase": "primary",
+    "level": "state",
+    "office": "Governor",
+    "district": null,
+    "party": null
+  },
+  "targetBinding": {
+    "id": 4242403,
+    "state": "CA",
+    "date": "2026-06-02",
+    "type": "Primary",
+    "level": "state",
+    "title": "California Governor Primary"
+  },
+  "publisher": {
+    "id": "ca-sos-2026-primary-governor",
+    "kind": "official_state_page",
+    "name": "California Secretary of State",
+    "url": "https://elections.cdn.sos.ca.gov/sov/2026-primary/sov/19-gov.xlsx"
+  },
+  "files": [
+    {
+      "role": "payload",
+      "path": "raw/CA-primary-gov.xlsx",
+      "sha256": "2c3f509d9b144dff74d2d68ae7be124e697cf6e6bd7e50291cbd1393532980d1",
+      "url": "https://elections.cdn.sos.ca.gov/sov/2026-primary/sov/19-gov.xlsx"
+    },
+    {
+      "role": "certificate",
+      "path": "raw/CA-primary-certificate.pdf",
+      "sha256": "3ffb90f022e448d84ea77cfccc2baa54ad87669a0aaa0575c7a08df66c460d77",
+      "url": "https://elections.cdn.sos.ca.gov/sov/2026-primary/sov/18-sov-certificate.pdf"
+    },
+    {
+      "role": "capture_receipt",
+      "path": "raw/CA-primary-gov-receipt.json",
+      "sha256": "68163e1eaaaa26aaa0c6cd8e3c271b267ed8ed8e69c9d9d4609b1ec767021e4a",
+      "url": null
+    }
+  ],
+  "reviewedCertification": true,
+  "sourceContestId": "2026-primary:sov:19-gov",
+  "localContestId": null,
+  "expectedTotals": {
+    "totalVotes": 9262468,
+    "optionCount": 68
+  }
+}
