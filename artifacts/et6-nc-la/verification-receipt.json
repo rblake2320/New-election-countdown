@@ -6,12 +6,12 @@
     "server/official-result-adapters/nc.ts": "dba6a801c9054e229211df6bfce2e78d25192a4605eac20bff050ade5d20a79e",
     "server/official-result-adapters/la.ts": "0e513b08c3ed69f2253592f78a743d37321f4a0c91fcb91ac1c06a704222ca0e",
     "server/official-result-adapters/types.ts": "5164d4a9a443daf3eb5ee507578e5c05d038848539ec71ce33429299b408d417",
-    "tests/official-result-adapters/parse-cli.ts": "964d7d8f5f42553e875826392ec6599e8f49de147cbf28f8d6f38d5fb781da74",
-    "tests/fixtures/official-result-adapters/manifest.json": "ccab3bea4de824ac5c8a8f019b5dc85ae72d840f00274e8250e39dee3e59524a"
+    "tests/official-result-adapters/parse-cli.ts": "a2f3aa11c2a95149b3d62317d4c8a7b48b23df4dca2f8f65fd16ab06dd9cf96f",
+    "tests/fixtures/official-result-adapters/manifest.json": "d3dd1962df72827ef2c1537a503b3d10b422616a664495223a24de2718f2132b"
   },
-  "compiledVerifierSha256": "c50729ad11a23fad9902d1e37445857b80f4d4bfb069944293f976dea2a52888",
-  "focusedTests": 42,
-  "fullTests": 849,
+  "compiledVerifierSha256": "ab2eda60d049f27ab05cc658a58ce957d7ba990148e413f7876a64964760add6",
+  "focusedTests": 43,
+  "fullTests": 850,
   "failedTests": 0,
   "build": "Worked",
   "strictOwningModules": "Worked (exit0)",
@@ -35,5 +35,20 @@
       "U.S. House"
     ]
   },
-  "fullTestsCheckpoint": "849/849 before final unsupported Governor-path restriction; focused42/42, strict adapter check and compiled CLI repeated after restriction"
+  "fullTestsCheckpoint": "Final owning core plus House independent-count regression:850/850",
+  "realParsedContests": 4,
+  "NC_House01_Independent": {
+    "sourceRows": 1735,
+    "counties": 25,
+    "choices": 5,
+    "totalVotes": 67376,
+    "proof": "tests/fixtures/official-result-adapters/NC-House01-independent-proof.json"
+  },
+  "sourceAcquisitionInitialRefusal": {
+    "status": "Failed",
+    "cause": "Extraction expected-choice assertion copied Senate6, but actualHouse01 has5",
+    "partialOutputAdmitted": false,
+    "repair": "Use independently agreeing5choiceZIP/ENR sets;25countyCSVsum guard added",
+    "retest": "Worked"
+  }
 }
