@@ -7,9 +7,10 @@ const published = {
 };
 const draft = { ...published, id: 8, title: 'Draft race', officialResultsSource: { ...published.officialResultsSource, status: 'draft' } };
 
-vi.mock('../../server/storage', () => ({ storage: { getElections: vi.fn(async () => [published, draft]) } }));
+vi.mock('../../server/storage', () => ({ storage: { getElections: vi.fn(async () => [published, draft]),recordResultSourceHealth:vi.fn(async()=>{}) } }));
 
 import { ResultsIngestionService, type AdapterElection } from '../../server/results-ingestion-service';
+import{storage}from'../../server/storage';
 
 describe('ET-6 ingestion hands adapters the authoritative race context (C ask 2026-10-13)', () => {
   it('passes id/state/date AND type/level/title from the election row; worked-route manifests are offered before publication', async () => {
@@ -25,5 +26,6 @@ describe('ET-6 ingestion hands adapters the authoritative race context (C ask 20
       { electionId: 7, outcome: 'not_published', sourceId: 'ak-doe', publication: 'published' },
       { electionId: 8, outcome: 'not_published', sourceId: 'ak-doe', publication: 'draft' },
     ]);
+    expect(storage.recordResultSourceHealth).toHaveBeenCalledWith(expect.objectContaining({electionId:7,sourceId:'ak-doe',outcome:'not_published',context:{state:'AK',electionDate:'2026-11-03',type:'general',level:'federal',office:published.title}}));
   });
 });
