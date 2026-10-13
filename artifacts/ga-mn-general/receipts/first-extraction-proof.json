@@ -1,0 +1,120 @@
+{
+  "GA": {
+    "outcome": "Worked",
+    "rawSha256": "6f83a84d6f4a90948920499e7149efb5db0134ae90551b9adb6a7b6c0a82ae52",
+    "publishedGeneralDate": "2026-11-03",
+    "pageZeroBased": 0,
+    "selectedRows": 10,
+    "selectedScopes": [
+      {
+        "office": "S",
+        "district": "00",
+        "ballotAccessType": "printed",
+        "expectedCount": 2
+      },
+      {
+        "office": "G",
+        "district": "00",
+        "ballotAccessType": "printed",
+        "expectedCount": 2
+      },
+      {
+        "office": "H",
+        "district": "04",
+        "ballotAccessType": "printed",
+        "expectedCount": 2
+      },
+      {
+        "office": "H",
+        "district": "05",
+        "ballotAccessType": "printed",
+        "expectedCount": 2
+      },
+      {
+        "office": "H",
+        "district": "13",
+        "ballotAccessType": "printed",
+        "expectedCount": 2
+      }
+    ],
+    "regions": {
+      "S00": {
+        "box": [
+          55,
+          175,
+          215,
+          260
+        ],
+        "text": "For United States Senate\n(Vote for One)\nMike Collins Republican\nJon Ossoff (I) Democrat\nWrite-in:\n",
+        "independentWholePageNamesPartyMatch": true
+      },
+      "G00": {
+        "box": [
+          55,
+          260,
+          215,
+          340
+        ],
+        "text": "For Governor\n(Vote for One)\nRick Jackson Republican\nKeisha Lance Bottoms Democrat\nWrite-in:\n",
+        "independentWholePageNamesPartyMatch": true
+      },
+      "H04": {
+        "box": [
+          220,
+          520,
+          390,
+          610
+        ],
+        "text": "For United States House of\nRepresentatives - District 4\n(Vote for One)\nJim Duffie Republican\nHenry \"Hank\" Johnson, Jr. (I) Democrat\nWrite-in:\nA\n",
+        "independentWholePageNamesPartyMatch": true
+      },
+      "H05": {
+        "box": [
+          220,
+          610,
+          390,
+          715
+        ],
+        "text": "For United States House of\nRepresentatives - District 5\n(Vote for One)\nJohn \"Bongo\" Salvesen Republican\nNikema Williams (I) Democrat\nWrite-in:\n",
+        "independentWholePageNamesPartyMatch": true
+      },
+      "H13": {
+        "box": [
+          390,
+          175,
+          550,
+          270
+        ],
+        "text": "For United States House of\nRepresentatives - District 13\n(Vote for One)\nJonathan Chavez Republican\nJasmine Clark Democrat\nWrite-in:\nPLE\n",
+        "independentWholePageNamesPartyMatch": true
+      }
+    },
+    "primaryExtractor": "PyMuPDF bounding boxes",
+    "independentExtractor": "pypdf whole page exact raw name/party line conservation",
+    "notOCR": true,
+    "contactsDropped": true,
+    "genericWriteInSlotsExcluded": true,
+    "incumbencyNotInferred": true
+  },
+  "MN": {
+    "outcome": "Worked",
+    "rawSha256": "2c100c4ef9a8db81b17da7932ab54af9738b9d91176adce03dc80254d3204114",
+    "publishedGeneralDate": "2026-11-03",
+    "pageZeroBased": 0,
+    "selectedRows": 2,
+    "district": "02",
+    "primaryExtractor": "PyMuPDF role-delimited text",
+    "independentExtractor": "pypdf same actual PDF plus independent West St Paul official general ballot",
+    "rawRows": [
+      "Matt Little",
+      "Democratic-Farmer-Labor",
+      "Eric Pratt",
+      "Republican"
+    ],
+    "independentWspSha256": "8ab87326fdc77e2c59c7f7ff30b80cdc8e2954fa61c417e8068d69ced14fc8cb",
+    "notOCR": true,
+    "contactsDropped": true,
+    "genericWriteInSlotsExcluded": true,
+    "incumbencyNotInferred": true
+  }
+}

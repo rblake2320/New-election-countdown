@@ -1,0 +1,2713 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+	<meta http-equiv="Content-type" content="text/html; charset=UTF-8" />
+<!-- Google Tag Manager for GA4 -->
+				<script>(function(w,d,s,l,i){w.GAMeasurementID='G-WKNN0WRTLN';w[l]=w[l]||[];w[l].push({'gtm.start':
+				new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+				j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+				'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+				})(window,document,'script','cpDataLayerGA4','GTM-K73C5PS');</script>
+				<!-- End Google Tag Manager for GA4 -->
+				<script type='text/javascript'>
+					var enableTelemetry = 'false'
+					var aiConfig = {
+					instrumentationKey: '1cde048e-3185-4906-aa46-c92a7312b60f'						
+					}
+					var appInsights = window.appInsights || function (a) { function b(a) { c[a] = function () { var b = arguments; c.queue.push(function () { c[a].apply(c, b) }) } } var c = { config: a }, d = document, e = window; setTimeout(function () { var b = d.createElement('script'); b.src = a.url || 'https://js.monitor.azure.com/scripts/a/ai.0.js', d.getElementsByTagName('script')[0].parentNode.appendChild(b) }); try { c.cookie = d.cookie } catch (a) { } c.queue = []; for (var f = ['Event', 'Exception', 'Metric', 'PageView', 'Trace', 'Dependency']; f.length;)b('track' + f.pop()); if (b('setAuthenticatedUserContext'), b('clearAuthenticatedUserContext'), b('startTrackEvent'), b('stopTrackEvent'), b('startTrackPage'), b('stopTrackPage'), b('flush'), !a.disableExceptionTracking) { f = 'onerror', b('_' + f); var g = e[f]; e[f] = function (a, b, d, e, h) { var i = g && g(a, b, d, e, h); return !0 !== i && c['_' + f](a, b, d, e, h), i } } return c }(aiConfig);
+					window.appInsights = appInsights, appInsights.queue && 0 === appInsights.queue.length;
+					// Add telemetry initializer
+					appInsights.queue.push(function() {
+						appInsights.context.addTelemetryInitializer(function(envelope) {
+							var telemetryItem = envelope.data.baseData;
+							// To check the telemetry item’s type:
+							if (!false)
+							{
+								//If the telemetry is not enabled, we still want to capture Google map custom event, so only allow that
+								if (envelope.name.indexOf('.Event') == -1)
+									return false;
+							}
+						});
+					});						
+					appInsights.trackPageView();
+				</script>
+	<script>
+		function populateAntiForgery(token) {
+			var input = document.createElement("input");
+			input.name = "__RequestVerificationToken";
+			input.type = "hidden";
+			input.value = token;
+			var absPat = /^https?:\/\/|^\/\//i;
+			var forms = document.getElementsByTagName("form");
+			for (var i = 0; i < forms.length; i++) {
+				if (forms[i].method == "post" &&
+					!forms[i].querySelector('[name="__RequestVerificationToken"]') &&
+					!absPat.test(forms[i].getAttribute("action"))) {
+					forms[i].appendChild(input.cloneNode());
+				}
+			}
+		}
+
+		function getAntiForgeryToken(callback, error) {
+			var xhr = new XMLHttpRequest();
+			xhr.open("GET", "/antiforgery");
+			xhr.addEventListener("load", function() {
+				try {
+					if (this.status !== 200) {
+						throw Error("Invalid status. Could not retrieve antiforgery token.");
+					}
+					var obj = JSON.parse(this.responseText);
+					callback(obj.token);
+				} catch (e) {
+					typeof error === "function" && error(e);
+				}
+			});
+			xhr.send();
+		}
+
+		getAntiForgeryToken(function(token) {
+			if (document.readyState === "complete"
+				|| document.readyState === "loaded" 
+				|| document.readyState === "interactive") {
+				populateAntiForgery(token);
+				return;
+			}
+			document.addEventListener("DOMContentLoaded", function() {
+				populateAntiForgery(token);
+			}, false);
+		}, console.error);
+	</script>
+			
+
+	<script type="text/javascript">
+		window.departmentHeader = {};
+		window.pageSectionTracker = {};
+		window.isResponsiveEnabled = true;
+		window.isRemoveSetHeights= true;
+		if (window.isRemoveSetHeights) {
+			document.documentElement.className += ' removeSetHeights';
+		}
+		window.mainMenuMediaQuery = 'screen and (max-width: 40em)';
+		window.isMobileBrowserIncludingTablets = false;
+		window.fixedResponsiveMenu = false;
+		window.fullWidthResponsiveMenu = false;
+		window.responsiveMenuHeight = '';
+		window.responsiveMenuFontSize = '';
+		window.isContentAdvisor = false;
+		(function () {
+			window.setSizeCookie = function () {
+				document.cookie = "dpi=" + window.devicePixelRatio + "; path=/";
+				document.cookie = "viewportWidth=" + window.innerWidth + "; path=/";
+				document.cookie = "viewportHeight=" + window.innerHeight + "; path=/";
+				if (screen && screen.width && screen.height) {
+					document.cookie = "screenWidth=" + screen.width + "; path=/";
+					document.cookie = "screenHeight=" + screen.height + "; path=/";
+				}
+				document.cookie = "responsiveGhost=1; path=/";
+			};
+
+			setSizeCookie();
+		}());
+	</script>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<script async src="https://docaccess.com/docbox.js"></script>
+	<meta name="google-site-verification" content="3-bj_OUfX329cBoZb2YcfddDETclJNLQMnpY59h4RA8" />
+
+	<meta name="category0" content="Home" />
+<meta name="category1" content="Your Government" />
+<meta name="category2" content="Elections" />
+
+	
+	<meta name="theme-color" content="rgb(41, 58, 69)">
+	<link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+	<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
+		<title>Elections &amp; Voter services | West St. Paul, MN - Official Website</title>
+
+		<meta name="description" content="Be a part of the voting process and stay up to date on election news.">
+			<script src="/Assets/Scripts/jQuery/jquery-3.7.1.min.js"></script>
+	<script src="/Assets/Scripts/jQuery/jquery-migrate-3.6.0.min.js" type="text/javascript"></script>
+	
+
+	<!--[if IE 6]><script language="JavaScript" type="text/javascript"> var isie6 = true; </script><![endif]-->
+	<!--[if IE 7]><script language="JavaScript" type="text/javascript"> var isie7 = true; </script><![endif]-->
+	<!--[if IE 8]><script language="JavaScript" type="text/javascript"> var isie8 = true; </script><![endif]-->
+	<!--[if IE 9]><script language="JavaScript" type="text/javascript"> var isie8 = true; </script><![endif]-->
+	<script type="text/javascript"><!--
+	var intCountryCode = 840;
+	var order = '';
+//--></script>
+	
+<link href="/-681783051.css" rel="stylesheet" type="text/css" />	<link href="/-2140275272.css" rel="stylesheet" type="text/css" />	<link href="/-1997027698.css" rel="stylesheet" type="text/css" />
+
+	<link rel="stylesheet" type="text/css" href="/Assets/Styles/Print.css" media="print">
+	<script type="text/javascript">
+		window.Pages = window.Pages || {};
+		// FrontEnd RWD initialization
+		window.Pages.rwdReady = $.Deferred();
+		window.Pages.toolBarDeferred = $.Deferred();
+		window.Pages.rwdSetupComplete = $.Deferred();
+		window.Pages.megaMenuLoaded = $.Deferred();
+		window.Pages.angularToolbarComplete = $.Deferred();
+		window.Pages.frontEndToolbarComplete = $.Deferred();
+	</script>
+	<!--CPHeadContent-->
+	<script src="/739942322.js" type="text/javascript"></script>
+	
+	
+	
+	
+
+
+
+
+	<!--[if lte IE 8]><link rel="stylesheet" type="text/css" href="/App_Themes/ie8.css"><![endif]-->
+	<!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="/App_Themes/ie7.css"><![endif]-->
+	<!--[if lte IE 6]><link rel="stylesheet" type="text/css" href="/App_Themes/ie6.css"><![endif]-->
+	<!--[if lt IE 9]><script type="text/javascript" src="/Scripts/html5.js"></script><![endif]-->
+
+	<script type="text/javascript">
+		setEditorVariables(false, 840);
+		function getPrintPreviewType() { return 0; } function printPreview() {pPreview(getPrintPreviewType()); }
+	</script>
+	<script src="/Assets/Scripts/AlpineJS/3.14.1/alpine.min.js" type="text/javascript" defer="defer"></script>
+</head>
+<body class="wide " >
+
+    <script>jQuery(document).click(function (event) {
+	var target = jQuery(event.target);
+	if (target.attr('src') && target.parents('.image').length && target.parents('.widget').length) {
+		var text = target.attr('title');
+		
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Image',
+				eventAction: 'Image - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.is('button') || target.hasClass('button') || target.parents().hasClass('button')) {
+		var text = "";
+		if (target.parents('.button')[0]) {
+			text = target.parents('.button').first().text();
+		} else if (target.text().length) {
+			text = target.text();
+		} else if (target.attr('title').length) {
+			text = target.attr('title');
+		}
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Button',
+				eventAction: 'Button - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.widgetCustomHtml').length) {
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Custom Html',
+				eventAction: 'Custom Html Clicked',
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.editor').length) {
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Editor',
+				eventAction: 'Editor Link Clicked',
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.GraphicLinks').length) {
+		var text = "";
+		var targetGraphicLink = target;
+		if (target.hasClass('widgetGraphicLinksLink')) {
+			targetGraphicLink = jQuery(target.children()[0]);
+		}
+		if (targetGraphicLink.hasClass('text')) {
+			text = targetGraphicLink.text();
+		} else if (targetGraphicLink.attr('src').length) {
+			if (targetGraphicLink.attr('alt').length) {
+				text = targetGraphicLink.attr('alt');
+			} else {
+				text = targetGraphicLink.attr('src');
+			}
+		} else {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Graphic Links',
+				eventAction: 'Graphic Link - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.InfoAdvanced').length) {
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Info Advanced',
+				eventAction: 'Info Advanced Clicked',
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.list').length) {
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'List',
+				eventAction: 'List Clicked',
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.megaMenuItem').length || target.parents('.topMenuItem').length) {
+		var megaMenuText = jQuery('.topMenuItem.mouseover').find('span').text();
+		var breadCrumbs = [];
+		jQuery('.breadCrumbs > li').each(function () {
+			 breadCrumbs.push(this.textContent);
+		});
+		var pageTitle = breadCrumbs.join('>');
+		var subTitleText = target.parents('.megaMenuItem').children('.widgetTitle').children().text();
+		var text = "";
+		if (pageTitle) {
+			text += pageTitle + " | ";
+		} else {
+			text += document.title + ' - ';
+		}
+		if (target.text() == "" && megaMenuText == "") {
+			text += "N/A";
+		} else if (target.text().length && megaMenuText.length) {
+			if (megaMenuText == target.text()) {
+				text += megaMenuText;
+			} else {
+				text += megaMenuText + " - " + subTitleText + " - " + target.text();
+			}
+		} else if (target.text() == "") {
+			text += megaMenuText;
+		} else {
+			text += target.text();
+		}
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Mega Menu',
+				eventAction: 'Mega Menu : ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.widgetNewsFlash').length && target.parents('.widgetItem').length) {
+		var text = jQuery(target.parents('.widgetItem')[0]).find('.widgetTitle').children().text();
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'News Flash',
+				eventAction: 'News Flash - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.hasClass('widgetQuickLinksLink') || target.find('.widgetQuickLinksLink').length) {
+		var text = target.text();
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Quick Links',
+				eventAction: 'Quick Links - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.attr('src') && target.parents('.cpSlideshow').length) {
+		var text = target.attr('title');
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Slideshow',
+				eventAction: 'Slideshow - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.widgetText').length) {
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Text',
+				eventAction: 'Text Link Clicked',
+				eventLabel: window.location.href
+			});
+	}
+});</script>
+	<div id="popoverModal" class="cp-PopOver cp-PopOver--modal cp-AdminWrap" style="position: fixed; display: none;">
+	<div class="cp-PopOver-header">
+		<h3 class="cp-PopOver-title"></h3>
+		<button class="cp-Btn cp-PopOver-close" onclick="closePopOverModal(event)">
+			<svg class="cp-Icon--close" alt="close" title="close">
+				<use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#iconClose"></use>
+			</svg>
+		</button>
+	</div>
+	<div id="cpPopOverBody" class="cp-PopOver-body">
+		<form id="cpPopOverForm" name="cpPopOverForm" novalidate></form>
+	</div>
+	<div id="cpPopOverFooter" class="cp-PopOver-footer">
+		<div class="cp-BtnGroup" id="actionButtons">
+			<!-- Action buttons will be dynamically added here -->
+		</div>
+	</div>
+</div>
+    <div id="fb-root"></div>
+<div id=skipToContentLinks>
+<a href="#cc1eb93f7d-74f1-4c40-ac9a-4ad7864c7e53" target="_self" class="skipToContentLink">Skip to Main Content</a>
+</div>
+    <form id="frmReferenceFormForTelerikEditorDialogs"></form>
+
+        <input type="hidden" id="GoogleMapsKey" value="AIzaSyDWUuE-ifkbhxblF920N8MjpBdTg1Wt784" />
+
+
+
+    <input type="hidden" id="cpcDomain" value="https://cp-civicplusuniversity2.civicplus.com">
+    <input type="hidden" id="hdnStructureID" value="7" />
+    <input type="hidden" id="hdnContentCollectionID" value="2d5d4fb3-b82d-4ee3-8bdf-02a7fb7b8637" />
+    <input type="hidden" id="hdnWorkingCopyID" value="00000000-0000-0000-0000-000000000000" />
+    <input type="hidden" id="hdnThemeID" value="22" />
+    <input type="hidden" id="pageIsFrontEnd" value="true" />
+    <input type="hidden" id="pageModuleID" />
+    <input type="hidden" id="pagePageID" value="453" />
+
+    <div id="stickyPlaceholder"></div>
+    <div id="outer-wrap" class="outer-wrap">
+        <div id="inner-wrap" class="inner-wrap">
+                <div id="divToolbars" class="cpToolbars newCP mui-fixed" style="">
+                    
+
+
+
+                </div>
+            <div id="bodyWrapper">
+                <div id="mainNavHolderMobile" class="mainNavHolderMobile"></div>
+                
+<div data-cpRole="structuralContainer" id="bodyContainerTS">
+<!-- Header Container --><header data-cpRole="structuralContainer" id="headerContainerTS" class="fixedTopTS">
+<div class="siteWrap3"><div data-cpRole="structuralContainer" id="flexHeaderTS" class="flexTS heightMatchTS">
+<div data-cpRole="structuralContainer" id="logoTS" class="flexTS">
+<div data-cpRole="banner" id="bannerLogoTS" class="bannerLogoTS empty">
+
+
+
+
+				<a id="bannerLogoTS-67" style="			display: block; text-align: center;
+" class="bannerObject" href="/" target="_self"><img alt="Homepage West St. Paul, Minnesota" class="bannerObject" height="56" src="/ImageRepository/Document?documentID=4519" width="279" /></a>
+</div>
+</div><nav data-cpRole="nav" id="mainNav" class="siteNav mainNav" role="navigation">
+<ol id="mainNavMenu" data-parent="1" class="rootNavMenu" role="menu"><!--
+--><li id="MainItem839" class="topMenuItem" role="none" data-pageid="839" data-displaymegamenu="True"><!--
+			--><!--
+			--> <a role = "menuitem"  aria-haspopup=true aria-expanded='false' aria-controls="mainNavMegaMenu839" id = "mainNavCityServices" class="navMainItem mainNavItem mainNavItem1 " href="/839/City-Services" target = "_self" >   City Services  </a>			<!--
+			--><!--
+			--></li><!----><li id="MainItem27" class="topMenuItem" role="none" data-pageid="27" data-displaymegamenu="True"><!--
+			--><!--
+			--> <a role = "menuitem"  aria-haspopup=true aria-expanded='false' aria-controls="mainNavMegaMenu27" id = "mainNavYourGovernment" class="navMainItem mainNavItem mainNavItem2 " href="/27/Your-Government" target = "_self" >   Your Government  </a>			<!--
+			--><!--
+			--></li><!----><li id="MainItem843" class="topMenuItem" role="none" data-pageid="843" data-displaymegamenu="True"><!--
+			--><!--
+			--> <a role = "menuitem"  aria-haspopup=true aria-expanded='false' aria-controls="mainNavMegaMenu843" id = "mainNavOurCommunity" class="navMainItem mainNavItem mainNavItem3 " href="/843/Our-Community" target = "_self" >   Our Community  </a>			<!--
+			--><!--
+			--></li><!----><li id="MainItem841" class="topMenuItem" role="none" data-pageid="841" data-displaymegamenu="True"><!--
+			--><!--
+			--> <a role = "menuitem"  aria-haspopup=true aria-expanded='false' aria-controls="mainNavMegaMenu841" id = "mainNavDoingBusiness" class="navMainItem mainNavItem mainNavItem4 " href="/841/Doing-Business" target = "_self" >   Doing Business  </a>			<!--
+			--><!--
+			--></li><!----><li id="MainItem9" class="topMenuItem" role="none" data-pageid="9" data-displaymegamenu="True"><!--
+			--><!--
+			--> <a role = "menuitem"  aria-haspopup=true aria-expanded='false' aria-controls="mainNavMegaMenu9" id = "mainNavHowDoI" class="navMainItem mainNavItem mainNavItem5 " href="/9/How-Do-I" target = "_self" >   How Do I...  </a>			<!--
+			--><!--
+			--></li><!---->
+</ol>
+
+
+	<script type="text/javascript">
+		(function () {
+			function setupMenu() {
+				const menuID = 'mainNavMenu';
+				const menuType = MAIN_MENU;
+
+				//setup menu manager properties for main menu
+				if (!menuManager.mobileMainNav && true)
+					menuManager.adjustMainItemsWidth('#' + menuID);
+				menuManager.isMainMenuEditable = false;
+				menuManager.mainMenuMaxSubMenuLevels = 4;
+				menuManager.setMOMMode(2, menuType);
+
+				//Init main menu
+				const setupDraggable = menuManager.isMainMenuEditable;
+				const urlToGetHiddenMenus = '/Pages/MenuMain/HiddenMainSubMenus?pageID=1&moduleID=&themeID=22&menuContainerID=mainNav';
+
+				menuManager.setupMenu(menuID, 'mainNav', menuType, setupDraggable, urlToGetHiddenMenus);
+				menuManager.mainMenuInit = true;
+				menuManager.mainMenuTextResizer = true;
+				if (1.00 > 0)
+					menuManager.mainMenuTextResizerRatio = 1.00;
+				if (window.isResponsiveEnabled)
+					menuManager.mainMenuReady.resolve();
+
+			}
+
+			if (document.readyState === "complete"
+				|| document.readyState === "loaded"
+				|| document.readyState === "interactive") {
+				setupMenu();
+				return;
+			}
+
+			document.addEventListener("DOMContentLoaded", setupMenu);
+		})();
+	</script>
+
+
+<aside data-cpRole="megaMenu" id="megaMenu" class="megaMenu" style="display: none;"><input type="hidden" id="megaMenuPopupDirection" value="0"><input type="hidden" id="megaMenuWidthReference" value="1"><aside role="menu" data-cpRole="contentContainer" id="mainNavMegaMenu839" class="contentTop mainNavMegaMenu megaMenuContainer pageID_839 hidden" data-orientation="horizontal"><div class="inner">	<div id="ccced3683a-f264-440b-8563-4d6b2c15376f" data-containerid="ced3683a-f264-440b-8563-4d6b2c15376f" class="pageContent cpGrid cpGrid24">
+				                
+
+
+
+	</div>
+</div></aside><aside role="menu" data-cpRole="contentContainer" id="mainNavMegaMenu27" class="contentTop mainNavMegaMenu megaMenuContainer pageID_27 hidden" data-orientation="horizontal"><div class="inner">	<div id="ccf4b38915-6bb0-4808-920c-ffe6110f6816" data-containerid="f4b38915-6bb0-4808-920c-ffe6110f6816" class="pageContent cpGrid cpGrid24">
+				                
+
+
+
+	</div>
+</div></aside><aside role="menu" data-cpRole="contentContainer" id="mainNavMegaMenu843" class="contentTop mainNavMegaMenu megaMenuContainer pageID_843 hidden" data-orientation="horizontal"><div class="inner">	<div id="cc1ed4337b-5421-48b4-b9b6-7297fd999798" data-containerid="1ed4337b-5421-48b4-b9b6-7297fd999798" class="pageContent cpGrid cpGrid24">
+				                
+
+
+
+	</div>
+</div></aside><aside role="menu" data-cpRole="contentContainer" id="mainNavMegaMenu841" class="contentTop mainNavMegaMenu megaMenuContainer pageID_841 hidden" data-orientation="horizontal"><div class="inner">	<div id="cc57938ac9-1f57-477e-a26d-37e8a9661843" data-containerid="57938ac9-1f57-477e-a26d-37e8a9661843" class="pageContent cpGrid cpGrid24">
+				                
+
+
+
+	</div>
+</div></aside><aside role="menu" data-cpRole="contentContainer" id="mainNavMegaMenu9" class="contentTop mainNavMegaMenu megaMenuContainer pageID_9 hidden" data-orientation="horizontal"><div class="inner">	<div id="ccd2faa51e-ad60-453b-9489-b3d8726c5ced" data-containerid="d2faa51e-ad60-453b-9489-b3d8726c5ced" class="pageContent cpGrid cpGrid24">
+				                
+
+
+
+	</div>
+</div></aside></aside></nav><div data-cpRole="contentContainer" id="searchTS">	<div id="ccf3bf2c61-0e2b-4dec-bc81-295cd94b69d5" data-containerid="f3bf2c61-0e2b-4dec-bc81-295cd94b69d5" class="pageContent cpGrid cpGrid24 isLockedContainer showInMobile" data-contentcontainerbreakpoint="25">
+				                
+
+		<div class="row outer wide"><!--
+--><div class="outer col col14 first" style="" data-widgetcontainerid="254a7f98-573f-41a2-a26c-5ae8b5c54b62">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col14 first last idf49d0f09-3ccb-4e45-ad26-01959756af58" style="" data-widgetcontainerid="f49d0f09-3ccb-4e45-ad26-01959756af58">	
+<div data-widget-id="6da9b4d3-13a4-443e-8c55-91eb866b1c1b" data-widget-controller-path="/Layout/WidgetSearch">
+	
+	<script defer type="text/javascript" src="/Common/Controls/jquery-ui-1.14.2/jquery-ui.min.js"></script>
+	<script defer src="/Areas/Layout/Assets/Scripts/Search.js" type="text/javascript"></script>
+	<script defer type="text/javascript">
+
+		$(document).ready(function () {
+			try {
+				// Minimum characters required before performing a search/autocomplete
+				var minPrefixLength = 3;
+				var autoCompleteDebounceDelay = 500;
+				var searchFieldSelector = "#searchField" + '6da9b4d3-13a4-443e-8c55-91eb866b1c1b';
+				var checkboxSelector = "#ysnSearchOnlyDept" + '6da9b4d3-13a4-443e-8c55-91eb866b1c1b';
+				var buttonSelector = ".widgetSearchButton" + '6da9b4d3-13a4-443e-8c55-91eb866b1c1b';
+				var autoCompleteCache = {};
+				var autoCompleteCacheKeys = [];
+				var autoCompleteCacheLimit = 25;
+				var currentAutoCompleteRequest = null;
+				var currentAutoCompleteRequestKey = null;
+				var autoCompleteDebounceTimer = null;
+				var autoCompleteDebounceKey = null;
+				var pendingAutoCompleteResponses = [];
+
+				function normalizeAutoCompleteTerm(term) {
+					return $.trim((term || "") + "").replace(/\s+/g, " ");
+				}
+
+				function shouldSearch(term) {
+					return normalizeAutoCompleteTerm(term).length >= minPrefixLength;
+				}
+
+				function getAutoCompleteUrl() {
+					return '/Search/AutoComplete' + ($(checkboxSelector).is(':checked') || false? '?departmentId=0' : '');
+				}
+
+				function getAutoCompleteCacheKey(requestUrl, term) {
+					return requestUrl + "|" + term.toLowerCase();
+				}
+
+				function cacheAutoCompleteResult(cacheKey, data) {
+					if (!Object.prototype.hasOwnProperty.call(autoCompleteCache, cacheKey)) {
+						autoCompleteCacheKeys.push(cacheKey);
+						if (autoCompleteCacheKeys.length > autoCompleteCacheLimit) {
+							delete autoCompleteCache[autoCompleteCacheKeys.shift()];
+						}
+					}
+					autoCompleteCache[cacheKey] = data;
+				}
+
+				function respondToPendingAutoComplete(data) {
+					var responses = pendingAutoCompleteResponses;
+					pendingAutoCompleteResponses = [];
+					for (var i = 0; i < responses.length; i++) {
+						responses[i](data);
+					}
+				}
+
+				function cancelPendingAutoComplete() {
+					clearTimeout(autoCompleteDebounceTimer);
+					autoCompleteDebounceKey = null;
+					if (currentAutoCompleteRequest != null) {
+						currentAutoCompleteRequest.abort();
+						currentAutoCompleteRequest = null;
+					}
+					currentAutoCompleteRequestKey = null;
+					respondToPendingAutoComplete([]);
+				}
+
+				function createWidgetAutoCompleteSource(options) {
+					return function (request, response) {
+						var term = normalizeAutoCompleteTerm(request.term);
+						if (!options.shouldSearch(term)) {
+							response([]);
+							return;
+						}
+
+						var requestUrl = options.url();
+						var cacheKey = getAutoCompleteCacheKey(requestUrl, term);
+						if (Object.prototype.hasOwnProperty.call(autoCompleteCache, cacheKey)) {
+							response(autoCompleteCache[cacheKey]);
+							if (options.success) {
+								options.success(autoCompleteCache[cacheKey]);
+							}
+							return;
+						}
+
+						if (currentAutoCompleteRequestKey === cacheKey || autoCompleteDebounceKey === cacheKey) {
+							pendingAutoCompleteResponses.push(response);
+							return;
+						}
+
+						cancelPendingAutoComplete();
+						autoCompleteDebounceKey = cacheKey;
+						pendingAutoCompleteResponses.push(response);
+						autoCompleteDebounceTimer = setTimeout(function () {
+							autoCompleteDebounceKey = null;
+							currentAutoCompleteRequestKey = cacheKey;
+							currentAutoCompleteRequest = $.ajax({
+								url: requestUrl,
+								dataType: "json",
+								timeout: options.timeout,
+								data: {
+									term: term,
+								},
+								success: function (data) {
+									if (currentAutoCompleteRequestKey === cacheKey) {
+										cacheAutoCompleteResult(cacheKey, data);
+										respondToPendingAutoComplete(data);
+										if (options.success) {
+											options.success(data);
+										}
+									}
+								},
+								error: function (xmlhttprequest, textstatus, message) {
+									if (textstatus === "abort") {
+										return;
+									}
+
+									if (options.error) {
+										options.error(xmlhttprequest, textstatus, message);
+									}
+
+									respondToPendingAutoComplete([]);
+								},
+								complete: function (xmlhttprequest) {
+									if (currentAutoCompleteRequest === xmlhttprequest) {
+										currentAutoCompleteRequest = null;
+										currentAutoCompleteRequestKey = null;
+									}
+								}
+							});
+						}, options.delay);
+					};
+				}
+
+				// click handler for search buttons
+				$(buttonSelector).click(function (e) {
+					e.preventDefault();
+					var $btn = $(this);
+					var $field = $btn.siblings(".widgetSearchBox");
+					var term = $field.val() + "";
+					if (!shouldSearch(term)) {
+						// do nothing until user types enough characters
+						$field.focus();
+						return;
+					}
+
+					if ($(checkboxSelector).is(':checked') || false)
+					{
+						doWidgetSearch($.trim(term), Number(0));
+					}
+					else {
+						doWidgetSearch($.trim(term), 0);
+					}
+				});
+
+				// enter key handler for the search field
+				$(searchFieldSelector).keypress(function (e) {
+					var code = e.which || e.keyCode;
+					if (code === 13) {
+						e.preventDefault();
+						var $this = $(this);
+						var term = $this.val() + "";
+						if (!shouldSearch(term)) {
+							// do nothing until user types enough characters
+							$this.focus();
+							return false;
+						}
+
+						if ($(checkboxSelector).is(':checked') || false) {
+							doWidgetSearch($.trim(term), Number(0));
+						} else {
+							doWidgetSearch($.trim(term), 0);
+						}
+						return false;
+					}
+					return true;
+				});
+
+				// autocomplete: set minLength and guard source
+				if (true) {
+					var $searchField = $(searchFieldSelector).autocomplete({
+						minLength: minPrefixLength,
+						source: createWidgetAutoCompleteSource({
+							delay: autoCompleteDebounceDelay,
+							timeout: 10000,
+							shouldSearch: shouldSearch,
+							url: getAutoCompleteUrl,
+							success: function () {
+								$('.autoCompleteError').remove();
+							},
+							error: function (xmlhttprequest, textstatus, message) {
+								if (textstatus === "timeout") {
+									if ($(searchFieldSelector).siblings('.autoCompleteError').length == 0)
+										$('<span class="autoCompleteError"><p class="alert error">Search autocomplete is currently not responding. Please try again later.</p></span>').insertAfter($(searchFieldSelector));
+								}
+							}
+						}),
+						html: true,
+						delay: 0,
+						select: function (event, ui) {
+							$(this).val(ui.item.value);
+							$(this).next().click();
+						}
+					});
+
+					$searchField.data("ui-autocomplete")._renderItem = function (ul, item) {
+						return $("<li class=\"itemList\"></li>")
+							.data("ui-autocomplete-item", item)
+							.append("<a>" + item.label + "</a>")
+							.appendTo(ul);
+					};
+				}
+
+				// keep searchBtnApplyQuery consistent with prefix rule
+				window.searchBtnApplyQuery = function() {
+					var $field = $(searchFieldSelector);
+					var term = $field.val() + "";
+					if (shouldSearch(term)) {
+						// update href for the icon/button (if present)
+						var btn = document.getElementById("btnSearchIcon");
+						if (btn) btn.href = "/Search?searchPhrase=" + encodeURIComponent($.trim(term));
+					} else {
+						var btn = document.getElementById("btnSearchIcon");
+						if (btn) btn.href = "#";
+					}
+				};
+			}
+			catch(e) {} //we're going to eat this error. Autocomplete won't work but we dont wan't to break anything else on the page.
+		});
+	</script>
+
+	<section id="widgetPreviewSearch" class="widget widgetSearch skin75 widgetOptionSet42" style="display: block;" aria-label="Search">
+				<!-- For the button right and inside -->
+		<div class="widgetBody buttonRightInside">
+			<input class="widgetSearchBox widgetSearchBox6da9b4d3-13a4-443e-8c55-91eb866b1c1b" cp5ph="true" id="searchField6da9b4d3-13a4-443e-8c55-91eb866b1c1b" name="searchField" onchange="searchBtnApplyQuery();" placeholder="Search our site…" type="text" value="" />
+						<a href="/Search/Results" id="btnSearchIcon" class="widgetSearchButton widgetSearchButton6da9b4d3-13a4-443e-8c55-91eb866b1c1b" role="button"><img alt="Search" class="imageHover" data-hover="/ImageRepository/Document?documentID=4535" data-image="/ImageRepository/Document?documentID=4536" src="/ImageRepository/Document?documentID=4536" /></a>
+
+			<label class="searchLabel" aria-hidden="true" for="searchField6da9b4d3-13a4-443e-8c55-91eb866b1c1b">Search</label>
+		</div>
+
+	</section>
+
+
+<style scoped>
+	  
+		.widgetSearch ::-webkit-input-placeholder {
+		color: #2E2E2E;
+	  }
+		.widgetSearch :-moz-placeholder { /* Firefox 18- */
+	   color: #2E2E2E;
+	}
+		.widgetSearch ::-moz-placeholder {  /* Firefox 19+ */
+	   color: #2E2E2E;
+	}
+	.widgetSearch :-ms-input-placeholder {
+	   color: #2E2E2E;
+	}
+	
+
+	.widgetSearch .widgetBody .widgetSearchBox6da9b4d3-13a4-443e-8c55-91eb866b1c1b
+	{
+		color: #000000;
+		background-color: #E9EEF2;
+height: 55px;
+border: 0 none;
+border-radius: 100px;
+font-family: Poppins;
+font-size: 14px;
+font-weight: 600;
+padding: 0 56px 0 28px;
+box-shadow: inset 0px 3px 6px rgba(0, 0, 0, 0.16);
+	}
+	.widgetSearch .widgetBody .widgetSearchButton6da9b4d3-13a4-443e-8c55-91eb866b1c1b
+	{
+		margin: 10px 10px 0 0;
+	}
+	.widgetSearch .widgetSearch-onlyDept6da9b4d3-13a4-443e-8c55-91eb866b1c1b
+	{
+		display: inline-block;
+		color: #333;
+		
+		
+		 padding-top: 10px;
+	}
+	#ysnSearchOnlyDept6da9b4d3-13a4-443e-8c55-91eb866b1c1b
+	{
+		position: relative;
+		top: .125em;
+	}
+
+</style>
+
+<link rel="stylesheet" href="/Common/Controls/jquery-ui-1.14.2/jquery-ui.min.css">
+<link rel="stylesheet" href="/Common/Controls/jquery-ui-1.14.2/jquery-ui.theme.min.css">
+
+
+
+<script type="text/javascript">
+	//Updates search icons href to have the correct queryString
+	function searchBtnApplyQuery() {
+		document.getElementById("btnSearchIcon").href = "/Search?searchPhrase=" + document.getElementById("searchField6da9b4d3-13a4-443e-8c55-91eb866b1c1b").value;
+	}
+</script>
+
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col10 last" style="" data-widgetcontainerid="df64d3b9-a908-478d-aae0-d6d19e2c9f30">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col10 first last idf39cc6f2-d5e7-477f-9238-d7b8b6d3a10e" style="" data-widgetcontainerid="f39cc6f2-d5e7-477f-9238-d7b8b6d3a10e">	
+ 
+	<div data-widget-id='cef3f77f-4df8-43f5-a1b6-40bda2d5be6a' data-moduleName="customHtml" id='widgetCustomHtmlcef3f77f-4df8-43f5-a1b6-40bda2d5be6a' class="widget widgetCustomHtml skin75 narrow" >
+	<div class="widgetBody pageStyles" id="widgetBodycef3f77f-4df8-43f5-a1b6-40bda2d5be6a">
+		<div id="customHtmlcef3f77f-4df8-43f5-a1b6-40bda2d5be6a"><div><!----------Google Translate (Mobile Friendly)--------->
+
+<style>
+  #google-translate-container {
+display: flex;
+justify-content: center;
+    padding: 3px 5px 0px 0px;
+    z-index: 5;
+  }
+
+  .row.outer.wide #google-translate-container {
+    margin-left: 1em;
+  }
+  
+  .goog-te-combo, .goog-te-banner *, .goog-te-ftab *, .goog-te-menu *, .goog-te-menu2 *, .goog-te-balloon * {
+    font-family: arial;
+    font-size: 10pt;
+    background-image: url("https://www.gstatic.com/images/branding/product/2x/translate_24dp.png");
+    background-position: 5px 5px;
+    background-size: 18px;
+    background-repeat: no-repeat;
+    text-indent: 16px;
+    background-color: #fff;
+    color: #000 !important;
+  }
+  
+  .goog-logo-link {
+    display: none !important;
+  }
+  
+  .goog-te-gadget {
+    color: transparent !important;
+  }
+  
+  .goog-te-gadget .goog-te-combo {
+    margin: 2px 0 !important;
+    border-radius: 15px !important;
+    }
+  
+  .goog-te-combo{
+    border: 1px solid !important;
+    border-color: #bcc9d7 #96a3b1 #96a3b1 #bcc9d7 !important;
+    border-radius: 50px !important;
+    height:31px !important;
+    padding: 0 1px 0 .25rem !important;
+                width: 156px;
+  }
+
+  #launcher-wrapper {
+    bottom: 50px !important;
+  }
+
+  @media (min-width: 63em) {
+    .row.outer:not(.wide) #google-translate-container {
+      margin-bottom: -60px;
+    transform: translate(0, 32px);
+    }
+  }
+
+
+</style>
+
+<div id="google-translate-container">
+  <div id="google_translate_element">
+  </div>
+</div>
+
+<!--------------End Google Translate----------------->
+</div></div>
+	</div>
+
+	</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+	</div>
+</div>
+</div></div>
+</header><!-- Banner --><div data-cpRole="structuralContainer" id="bannerContainerTS" class="noOverflowTS">
+<div data-cpRole="banner" id="banner1"><div data-cpRole="structuralContainer" id="bannerSizingTS">
+<div data-cpRole="structuralContainer" id="bannerContentTS">
+<div class="siteWrap2"><div data-cpRole="contentContainer" id="contentTS">	<div id="cc17fe8289-60b8-48a3-8222-981666f0d4be" data-containerid="17fe8289-60b8-48a3-8222-981666f0d4be" class="pageContent cpGrid cpGrid24 showInMobile">
+				                
+
+
+
+	</div>
+</div></div>
+</div>
+</div>
+
+
+
+
+		<div id="bannerImagesJSON66" class="hidden"></div>
+		<div id="bannerSlideshowControls_banner1" class="bannerSlideshowControlsNew none " style="display:none">
+			<a id="arrowPrev_banner1" tabindex="0" class="arrowNew prev" aria-label="Banner Arrow Previous"><svg style=" " class=""><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#iconSlideshowArrowLeft"></use></svg></a>
+			<a id="arrowNext_banner1" tabindex="0" class="arrowNew next" aria-label="Banner Arrow Next"><svg style=" " class=""><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#iconSlideshowArrowRight"></use></svg></a>
+		</div>
+			<script type="text/javascript">
+				$(window).on("load", function () {
+					$.when(window.Pages.rwdSetupComplete)
+						.done(function () {
+							renderExternalBannerSlideshow('banner1',
+								{"BannerOptionID":66,"ThemeID":22,"SlotName":"banner1","Name":"Default","IsDefault":true,"BannerMode":2,"SlideShowSlideTiming":"5","SlideshowTransition":0,"SlideShowTransitionTiming":"1","ImageScale":true,"ImageAlignment":1,"ImageScroll":true,"MuteSound":true,"VideoType":0,"Status":40,"SlideshowControlsPosition":0,"SlideshowControlsAlignment":0,"SlideshowBannerControlsColorScheme":0,"DisplayVideoPauseButton":false,"VideoPauseButtonAlignment":1,"VideoPauseButtonControlsAlignment":0,"VideoPauseButtonStyle":"#FFFFFF","VideoPauseButtonBackgroundStyle":"#000000","VideoPauseButtonAlignmentClass":"alignRight viewport","DisplaySlideshowPauseButton":true,"SlideshowControlsColor":"#FFFFFF","SlideshowControlsBackgroundColor":"#000000","SlideshowPauseButtonClass":"isHidden","BannerImages":[{"BannerImageID":134,"BannerOptionID":66,"FileName":"/ImageRepository/Document?documentID=4591","Height":285,"Width":2200,"StartingOn":null,"StoppingOn":null,"IsLink":false,"LinkAddress":null,"Sequence":1,"RecordStatus":0,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/","AltText":""}],"BannerVideos":[{"BannerVideoID":2,"BannerOptionID":66,"VideoFileName":"","ImageFileName":"EmptyBannerBkg202307210851142795.png","IsLink":false,"LinkAddress":null,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/","VideoFileID":"00000000-0000-0000-0000-000000000000","ImageFileID":"00000000-0000-0000-0000-000000000000","VideoWidth":0,"VideoHeight":0,"ImageWidth":0,"ImageHeight":0,"LinkedVideoUrl":"","RecordStatus":0,"AltText":null}],"RecordStatus":0,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/"},
+								'/App_Themes/2023 - Interior/Images/',
+								'Rotating');
+						});
+				});
+			</script>
+
+</div>
+</div><!-- Content container --><div data-cpRole="structuralContainer" id="mainContainerTS">
+<div class="siteWrap2"><div data-cpRole="structuralContainer" id="mainWrapTS" class="mainWrap flexTS" role="main">
+<div data-cpRole="structuralContainer" id="siteSidebarTS" class="siteSidebar">
+<aside data-cpRole="contentContainer" id="sidebarContainer1TS">	<div id="ccefd21506-b66f-4ba3-b63d-3530a4b42f39" data-containerid="efd21506-b66f-4ba3-b63d-3530a4b42f39" class="pageContent cpGrid cpGrid24 showInMobile">
+				                
+
+
+
+	</div>
+</aside><nav data-cpRole="nav" id="secondaryNav" class="siteNav secondaryNav">
+
+
+
+
+
+	<ol role="menu" id="secondaryMenusecondaryNav" data-parent="453" class="rootNavMenu accordionNav">
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="0" id="SideItem936" data-pageid="936">
+		<div class="accordionNavItem">
+			<a href="/936/Register-to-Vote" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">Register to Vote</a>
+		</div>
+			</li>
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem948" data-pageid="948">
+		<div class="accordionNavItem">
+			<a href="/948/2022-Election-Results" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">2022 Election Results</a>
+		</div>
+			</li>
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem1004" data-pageid="1004">
+		<div class="accordionNavItem">
+			<a href="/1004/2024-Election-Results" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">2024 Election Results</a>
+		</div>
+			</li>
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem1035" data-pageid="1035">
+		<div class="accordionNavItem">
+			<a href="https://electionresults.sos.mn.gov/20260811" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">2026 Election Results</a>
+		</div>
+			</li>
+
+	</ol>
+
+
+	<script type="text/javascript">
+		(function () {
+			function setupSecondaryMenuProperties() {
+				//setup menu manager properties for secondary menu
+				menuManager.isSideMenuEditable = false;
+				menuManager.sideMenuMaxSubMenuLevels = 4;
+				menuManager.sideMenuHasCustomLinks = false;
+			}
+
+			if (document.readyState === "loading") {
+				document.addEventListener("DOMContentLoaded", setupSecondaryMenuProperties, { once: true });
+				return;
+			}
+
+			setupSecondaryMenuProperties();
+		})();
+	</script>
+
+	<script type="text/javascript">
+		(function () {
+			function setupAccordionSecondaryNav() {
+				var $menuContainer = $('#secondaryNav');
+
+				$menuContainer.find('*[id^="SideItem"]').each(function () {
+					var ids = $('[id="' + this.id + '"]');
+					if (ids.length > 1)
+						$.each(ids, function (index, value) {
+							value.id = value.id + '_' + index;
+						});
+				});
+
+				$menuContainer.find('.hasAccordionChildren .openAccordionNav').off('click.secondaryNav').on('click.secondaryNav', function (e) {
+					e.preventDefault();
+					showHideAccordionMenuForSecondaryNav($(this));
+				});
+
+				$menuContainer.find(".grippy").each(function () {
+					menuManager.setupDraggableElement($(this), SIDE_MENU, '#secondaryNav');
+				});
+
+				$menuContainer.find("li").each(function () {
+					menuManager.setupDroppableAccordionElement($(this), SIDE_MENU);
+				});
+			}
+
+			if (document.readyState === "loading") {
+				document.addEventListener("DOMContentLoaded", setupAccordionSecondaryNav, { once: true });
+				return;
+			}
+
+			setupAccordionSecondaryNav();
+		})();
+	</script>
+
+
+
+</nav><aside data-cpRole="contentContainer" id="sidebarContainer2TS">	<div id="ccc449a691-e318-42e5-bc78-666f22fd742f" data-containerid="c449a691-e318-42e5-bc78-666f22fd742f" class="pageContent cpGrid cpGrid24 showInMobile">
+				                
+
+
+
+	</div>
+</aside>
+</div><div data-cpRole="structuralContainer" id="outerContentWrapTS" class="outerContentWrap">
+<div data-cpRole="structuralContainer" id="contentWrapTS" class="contentWrap">
+<div data-cpRole="breadCrumbs" id="breadCrumbs" class="breadCrumbContainer">		<ol class="semanticList breadCrumbs">
+			<li><a class="breadCrumb" href="/">Home</a></li><li><a class="breadCrumb" href="/27/Your-Government">Your Government</a></li><li id="currentBCPage" data-pageid="453"><a href class="breadCrumb" aria-current="page">Elections</a></li>
+		</ol>
+
+	   
+    
+</div><div data-cpRole="mainContentContainer" id="moduleContent">
+	
+	<div id="page" class="moduleContentNew">
+		
+
+	<input id="hdnPageID" name="hdnPageID" type="hidden" value="453" />
+	<input id="hdnParentID" name="hdnParentID" type="hidden" value="27" />
+	<input id="hdnVersionID" name="hdnVersionID" type="hidden" value="8259" />
+	<input id="pageMenuTitle" name="pageMenuTitle" type="hidden" value="Elections" />
+	<input id="pageShowFeatureColumn" name="pageShowFeatureColumn" type="hidden" value="False" />
+	<input id="hdnIsLayoutPage" name="hdnIsLayoutPage" type="hidden" value="False" />
+	<input id="hdnPageStatus" name="hdnPageStatus" type="hidden" value="Published" />
+
+				<h1 id="versionHeadLine" class="headline">
+
+Elections &amp; Voter services		</h1>
+	
+		<div id="cc1eb93f7d-74f1-4c40-ac9a-4ad7864c7e53" data-containerid="1eb93f7d-74f1-4c40-ac9a-4ad7864c7e53" class="pageContent cpGrid cpGrid24"  >
+			
+
+		<div class="row outer wide"><!--
+--><div class="outer col col19 first" style="" data-widgetcontainerid="2d535c15-a3a7-489b-87f9-e5cdca5bcabe">				
+	<div class="row nest first wide">
+	
+	<div class="inner col col19 first last id9d3ad012-7729-4e48-bf49-27a698800e8c" style="" data-widgetcontainerid="9d3ad012-7729-4e48-bf49-27a698800e8c">	
+<div class="widget editor pageStyles narrow" id="divEditorc0bb1160-4088-42fa-a314-3402dc453136" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}'>
+	    <div class="fr-view">
+
+
+        <div id="isPasted"><h2 class="subhead1" id="isPasted"><strong>UPCOMING ELECTIONS</strong></h2><p data-pasted="true">November 3, 2026 - General Election</p><p>City offices on the November 3, 2026, ballot will include three, 4-year City Council seats and the Mayor.&nbsp;</p></div>
+    </div>
+
+<script type="text/javascript">
+	$(document).ready(function (e) {		
+	    renderSlideshowIfApplicable($('#divEditor' + 'c0bb1160-4088-42fa-a314-3402dc453136'));
+	});
+</script>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+	<div class="row nest last wide">
+	
+	<div class="inner col col19 first last id0251eeaf-b133-44a1-875a-8cd56d7a9297" style="" data-widgetcontainerid="0251eeaf-b133-44a1-875a-8cd56d7a9297">	
+
+	<div id="divTabbed22f23837-bcea-44ee-8d0a-6f76446531c2" class="widget widgetTabbed narrow skin75 accordionTabs" data-widgetid="22f23837-bcea-44ee-8d0a-6f76446531c2">
+
+		<div class="cpTabPanels">
+					<ol class="tabbedWidgetNarrow cpTabs  accordion"  aria-hidden="False.ToString().ToLowerInvariant()" >
+						<li class="" role="presentation">	<a href="#tab22f23837-bcea-44ee-8d0a-6f76446531c2_0" class="tabButton" id="tabBtnNarrow22f23837-bcea-44ee-8d0a-6f76446531c2_0" role="button" aria-controls="tab22f23837-bcea-44ee-8d0a-6f76446531c2_0" aria-expanded="false" ><span class="tabName editable" data-sequence="0" data-tabname="Where to Vote" contenteditable="false">Where to Vote</span></a>
+</li>
+					</ol>
+				<div class="tabbedWidget cpTabPanel " style="display: none;" id="tab22f23837-bcea-44ee-8d0a-6f76446531c2_0" role="region" aria-labelledby="tabBtn22f23837-bcea-44ee-8d0a-6f76446531c2_0" >
+
+<div class="widget editor pageStyles narrow" id="divEditor72119a84-2cb0-4d20-9aee-9a82948fad9d" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}'>
+	    <div class="fr-view">
+
+
+        <h1 class="headline" id="isPasted"><strong>ELECTION DATES FOR 2026</strong></h1><h3 class="subhead2" data-pasted="true">August 11, 2026 - State Primary Election</h3><h3 class="subhead2">November 3, 2026 - General Election</h3><p><br></p><h2 class="subhead1" id="isPasted"><strong>ELECTION WARD MAP AND&nbsp;</strong><a href="https://pollfinder.sos.state.mn.us/" target="_blank" rel="noopener" aria-label="POLLING LOCATION FINDER Opens in new window"><strong>POLLING LOCATION FINDER</strong></a><strong>&nbsp;</strong></h2><p><strong style="font-size: 12.8px; outline: 0px;"><img src="/ImageRepository/Document?documentID=4161" alt="2022 Final Ward Precinct Map" title="2022 Final Ward Precinct Map" class="fr-fic fr-dii"></strong></p><h2 class="subhead1"><strong>Voting Location Information -&nbsp;</strong><strong>What You Need to know</strong></h2><p>The City of West St. Paul has adopted the following <a aria-label="precinct map Opens in new window" class="Hyperlink docaccess-activated" href="/DocumentCenter/View/4160/WSPWardsPrecincts2022_Final" target="_blank" title="WSP_Ward_Precinct Map 2022" data-docaccess-source-url="https://wspmn.gov/DocumentCenter/View/4160/WSPWardsPrecincts2022_Final" data-url-hash="cbf8722de77a9947bcce45b8a95dfb5a17a880d9e7ea87b16cc073c71856264d" data-url-status="disabled">precinct&nbsp;map</a>. Your polling location may have changed. Visit the Minnesota Secretary of State&apos;s <a href="https://pollfinder.sos.state.mn.us/">Pollfinder</a> to find your current voting location.</p><p>Polling locations for the 2026 Elections will be as follows:</p><p id="isPasted">WARD 1 PRECINCT 1 Thompson County Park, Dakota Lodge, 1200 Stassen Lane&nbsp;</p><p>WARD 1 PRECINCT 2 Augustana Lutheran Church, 1400 Robert Street South</p><p>WARD 2 PRECINCT 1 Heritage Middle School, 121 Butler Avenue West</p><p>WARD 2 PRECINCT 2 Municipal Center Council Chambers, 1616 Humboldt Avenue</p><p>WARD 3 PRECINCT 1 St. Joseph&rsquo;s Catholic Church, 1154 Seminole Avenue</p><p>WARD 3 PRECINCT 2 St. Stephen&rsquo;s Lutheran Church, 1575 Charlton Street</p><h2 class="subhead1"><strong>Additional Information</strong></h2><p>Dakota County mails postcards to registered voters annually with your precinct information.&nbsp;</p><p>Visit <a href="http://www.mnvotes.org/">mnvotes.org</a> for voting and election information.&nbsp;</p><h2 class="subhead1"><strong>City Offices on Ballot</strong></h2><p>City offices on the November 3, 2026, ballot will include three, 4-year City Council seats and the Mayor.&nbsp;</p><h2 class="subhead1"><a href="https://www.sos.state.mn.us/elections-voting/whats-on-my-ballot" target="_blank" rel="noopener"><strong>What&apos;s on My Ballot?</strong></a></h2><p>2026 Sample Ballots will be posted when made available.</p><p><a href="/DocumentCenter/View/7662" target="_blank" rel="noopener">Ward 1, Precinct 1</a></p><p><a href="/DocumentCenter/View/7657" target="_blank" rel="noopener">Ward 1, Precinct 2</a></p><p><a href="/DocumentCenter/View/7658" target="_blank" rel="noopener">Ward 2, Precinct 1</a></p><p><a href="/DocumentCenter/View/7659" target="_blank" rel="noopener">Ward 2, Precinct 2</a></p><p><a href="/DocumentCenter/View/7660" target="_blank" rel="noopener">Ward 3, Precinct 1</a></p><p><a href="/DocumentCenter/View/7661" target="_blank" rel="noopener">Ward 3, Precinct 2</a></p><p>Visit <a href="https://www.mnvotes.org/">Minnesota Secretary of State&apos;s Elections site for additional information</a>.</p>
+    </div>
+
+<script type="text/javascript">
+	$(document).ready(function (e) {		
+	    renderSlideshowIfApplicable($('#divEditor' + '72119a84-2cb0-4d20-9aee-9a82948fad9d'));
+	});
+</script>
+</div>
+
+				</div>
+					<ol class="tabbedWidgetNarrow cpTabs  accordion"  aria-hidden="False.ToString().ToLowerInvariant()" >
+						<li class="" role="presentation">	<a href="#tab22f23837-bcea-44ee-8d0a-6f76446531c2_1" class="tabButton" id="tabBtnNarrow22f23837-bcea-44ee-8d0a-6f76446531c2_1" role="button" aria-controls="tab22f23837-bcea-44ee-8d0a-6f76446531c2_1" aria-expanded="false" ><span class="tabName editable" data-sequence="1" data-tabname="How to Vote" contenteditable="false">How to Vote</span></a>
+</li>
+					</ol>
+				<div class="tabbedWidget cpTabPanel " style="display: none;" id="tab22f23837-bcea-44ee-8d0a-6f76446531c2_1" role="region" aria-labelledby="tabBtn22f23837-bcea-44ee-8d0a-6f76446531c2_1" >
+
+<div class="widget editor pageStyles narrow" id="divEditor70d0589e-2a07-4364-abf7-d31264599b11" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}'>
+	    <div class="fr-view">
+
+
+        <h2 class="subhead1">ELECTION DAY REGISTRATION</h2><p><strong>Option 1:</strong> Valid ID with Current Name and Address. Accepted IDs include: Valid Minnesota driver&rsquo;s license, Minnesota learner&rsquo;s permit, Minnesota ID card&mdash;or a receipt for any of these, U.S. Passport, U.S. Military or Veteran ID, Minnesota high school ID, Tribal ID card with your name, address, photo and signature.</p><p><strong>Option 2:</strong> Photo ID with old address plus a bill due or dated within 30 days with Current Name and Address (can be shown on electronic device).</p><p><strong>Option 3:</strong> A registered voter from your precinct can go with you to the polling place to sign an oath confirming your address. A registered voter can vouch for up to eight others.</p><p><strong>Option 4:</strong> College Student ID (if a Student Housing List was provided). College students can use a student photo ID card if their college provided a student housing list to election officials.</p><p><strong>Option 5:</strong> Valid Registration in the Same Precinct. If you were previously registered in the precinct, but changed names or moved within the same precinct, you only need to tell the elections official your previous name or address &mdash; no additional documentation is needed.</p><p><strong>Option 6:</strong> Notice of Late Registration. If you pre-registered too close to Election Day, you may have received a Notice of Late Registration in the mail. This notice can be used to register.</p><p><strong>Option 7:</strong> Staff Person of a Residential Facility. If you live in a residential facility, a facility staff person can go with you to the polling place to confirm your name and address.</p><h2 class="subhead1">VOTING ELIGIBILITY</h2><p><span style="color: rgb(77, 71, 56);">You are eligible to vote if you meet all three of the following criteria:</span></p><ul><li>&bull; U.S. Citizen</li><li>&bull; At least 18 years old on election day</li><li>&bull; A resident of Minnesota for 20 days or more</li></ul><p>There are special rules for those who received a sentence for a felony, have been declared legally incompetent by a Court and individuals under guardianship. Please visit the&nbsp;<a href="https://www.sos.state.mn.us/elections-voting/" target="_blank" class="Hyperlink">Minnesota Secretary of State&apos;s Office</a> for more information.<br><br></p><h2 class="subhead1">ABSENTEE VOTING</h2><p>All Minnesota voters are allowed to vote early and do not need a valid reason to vote by Absentee Ballot. For residents of West St. Paul, Absentee Ballots are issued and processed by the Dakota County Elections Offices. Absentee Ballots received at West St. Paul City Hall or other County offices will be couriered to the Administration Service Center in Hastings.&nbsp;</p><p>Absentee Ballots for the 2026 Primary and General Elections will be available 46 days before the election. Anyone wishing to vote by Absentee Ballot must first complete and submit an Absentee Ballot Application. You may choose to vote by mail or vote in person at any Dakota County Elections Office (see locations below). All ballots, whether voted by absentee or at the polling site, remain secured at Dakota County or West St. Paul City Hall for 22 months following each election, after which time they are destroyed.</p><p>Download an <span style="box-sizing: border-box;"><a href="https://www.sos.mn.gov/media/2444/english-regular-absentee-ballot-application.pdf" target="_blank" rel="noopener" aria-label="Absentee Ballot Application Opens in new window">Absentee Ballot Application</a></span><a href="https://www.sos.mn.gov/media/2444/english-regular-absentee-ballot-application.pdf" target="_blank" rel="noopener" aria-label=" here Opens in new window">&nbsp;here</a> or stop by any Dakota County Elections Office to vote in person.</p><p id="isPasted"><span style="font-weight: 700;">Administration Service Center</span><br>1590 Highway 55<br>Hastings, MN 55033<br>651-437-3191</p><p><span style="font-weight: 700;">Northern Service Center</span><br>1 Mendota Road<br>West St. Paul, MN 55118<br>651-554-6600</p><p><span style="font-weight: 700;">Western Service Center</span><br>14955 Galaxie Avenue<br>Apple Valley, MN 55124<br>952-891-7570<br><br></p><p>Visit the <a href="https://www.co.dakota.mn.us/Government/VotingElections/Absentee/Pages/default.aspx" target="_blank" class="Hyperlink" aria-label="Dakota County Elections Office Opens in new window">Dakota County Elections Office</a> for more information and office hours.</p><p>Visit the <a href="https://www.sos.mn.gov/elections-voting/">Minnesota Secretary of State&apos;s Office</a> for more information on elections and voting, get a copy of your sample ballot, search candidate filings, and more. Or contact the West St. Paul City Clerk at 651-552-4102.</p>
+    </div>
+
+<script type="text/javascript">
+	$(document).ready(function (e) {		
+	    renderSlideshowIfApplicable($('#divEditor' + '70d0589e-2a07-4364-abf7-d31264599b11'));
+	});
+</script>
+</div>
+
+				</div>
+					<ol class="tabbedWidgetNarrow cpTabs  accordion"  aria-hidden="False.ToString().ToLowerInvariant()" >
+						<li class="" role="presentation">	<a href="#tab22f23837-bcea-44ee-8d0a-6f76446531c2_2" class="tabButton" id="tabBtnNarrow22f23837-bcea-44ee-8d0a-6f76446531c2_2" role="button" aria-controls="tab22f23837-bcea-44ee-8d0a-6f76446531c2_2" aria-expanded="false" ><span class="tabName editable" data-sequence="2" data-tabname="Election Judges" contenteditable="false">Election Judges</span></a>
+</li>
+					</ol>
+				<div class="tabbedWidget cpTabPanel " style="display: none;" id="tab22f23837-bcea-44ee-8d0a-6f76446531c2_2" role="region" aria-labelledby="tabBtn22f23837-bcea-44ee-8d0a-6f76446531c2_2" >
+
+<div class="widget editor pageStyles narrow" id="divEditor1a0077be-e672-425d-8213-034b26ee0e7d" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}'>
+	    <div class="fr-view">
+
+
+        <h2 class="subhead1" style="text-align: left;"><a href="https://wspmn.gov/FormCenter/Elections-8/Election-Judge-Application-52" target="_blank" rel="noopener" aria-label="Apply to be a West St. Paul Election Judge for the 2024 election cycle. Opens in new window" style="box-sizing: border-box; user-select: auto; color: rgb(44, 58, 68); text-decoration: underline; font-size: 1em; font-style: normal; font-weight: 500; border: 0px none; font-family: Poppins; line-height: 1.2; text-transform: uppercase; display: inline;"><strong style="box-sizing: border-box; font-weight: 700;">APPLY TO BE A WEST ST. PAUL ELECTION JUDGE FOR THE 2026 ELECTION CYCLE.</strong></a></h2><div><div id="isPasted"><p>Thank you for your interest!&nbsp;</p></div></div><p id="isPasted">To be an election judge you must meet all of the following state and city qualifications:</p><p><strong style="box-sizing: border-box; font-weight: bold;">State-Required Qualifications</strong></p><ul type="disc"><li style="box-sizing: border-box; padding: 0px;">Must be at least 18 years of age (student trainee judges may be 16-17 years of age).</li><li style="box-sizing: border-box; padding: 0px;">Eligible to vote in Minnesota.</li><li style="box-sizing: border-box; padding: 0px;">Able to read, write, and speak English.</li><li style="box-sizing: border-box; padding: 0px;">You cannot be a spouse, parent, child, or sibling of any election judge serving in the same precinct at the same time.</li><li style="box-sizing: border-box; padding: 0px;">You cannot be a candidate or the spouse, parent, child, or sibling of a candidate on the ballot in that precinct.</li></ul><p><strong style="box-sizing: border-box; font-weight: bold;">City of West St. Paul Qualifications</strong></p><ul type="disc"><li style="box-sizing: border-box; padding: 0px;">Communicate clearly with voters.</li><li style="box-sizing: border-box; padding: 0px;">Detail-oriented.</li><li style="box-sizing: border-box; padding: 0px;">General math skills.</li><li style="box-sizing: border-box; padding: 0px;">Comfortable with serving a diverse population.</li><li style="box-sizing: border-box; padding: 0px;">Physical stamina.</li><li style="box-sizing: border-box; padding: 0px;">Function calmly and professionally in stressful situations.</li><li style="box-sizing: border-box; padding: 0px;">Remain impartial in conduct and speech; maintain neutrality and impartiality in the polling place.&nbsp;</li><li style="box-sizing: border-box; padding: 0px;">Work as a team member and in support of the Precinct Head Judge.</li></ul><p>Election Judges are an important part of the election process and may serve as:</p><p id="isPasted"><strong>Head Judge&nbsp;</strong>- in charge of the polling place; opens, closes and assigns duties to other judges.</p><p id="isPasted"><strong>Greeter Judge&nbsp;</strong>- directs traffic flow and maintains order in the polling place. Provides timely information regarding a voter&apos;s correct poll location and Election Day registration documents.&nbsp;</p><p id="isPasted"><strong>Roster/Registration Judge&nbsp;</strong>- signs in voters who registered in advance of Election Day; also registers voters same day. Verifies correct poll location and voter information.</p><p id="isPasted"><strong>Demonstration Judge&nbsp;</strong>- explains to voters how to mark their ballot. who registered in advance of Election Day; also registers voters same day.&nbsp;</p><p id="isPasted"><strong>Ballot Judge&nbsp;</strong>- provides official ballots to voters; explains spoiled ballot procedure; monitors and maintains supply of official ballots and secrecy covers.</p><p id="isPasted"><strong>Ballot Counter Judge&nbsp;</strong>- oversees the ballot box area; gives out &quot;I Voted&quot; sticker&nbsp;to voters.</p><p id="isPasted"><strong>Health Care Facility Absentee Ballot Judge&nbsp;</strong>- provides voter outreach and administers absentee voting to voters who reside in a health care facility, VA medical center or hospital.&nbsp;</p><p id="isPasted"><strong>Absentee Ballot Board Judge&nbsp;</strong>- serves on a special board that processes absentee ballots.&nbsp;</p><p id="isPasted"><strong>Student Election Judge Trainee&nbsp;</strong>- students age 16 and 17 can serve as election judges trainees. To serve, students must be a U.S. Citizen in good academic standing at a Minnesota high school (or home schooled). They must also obtain school and parental permission and serve in the county where they reside or in an adjacent county. Trainees are assigned the same duties as other judges, with the exception of tasks requiring party affiliation. Trainees do not designate party affiliation. Trainees must attend and complete the same training as other judges.&nbsp;</p><p><strong id="isPasted">Party Balance&nbsp;</strong>- State law requires that party balance be maintained among judges in the precinct as there are specific tasks in the precinct that require representation from different political parties, i.e. curbside voting, emptying the ballot box, etc. For this reason, you will be required to disclose your party affiliation to the Election Official. This information will only be shared with the head judge in the precinct you will be working in. You do have the option of serving as a non-partisan judge; however, you would be unable to complete some tasks in the precinct.</p><p id="isPasted">Complete the application below or contact the West St. Paul City Clerk at 651-552-4102 for more information.</p><div style="text-align: left;"><a href="https://wspmn.gov/FormCenter/Elections-8/Election-Judge-Application-52" target="_blank" rel="noopener" aria-label="CLICK HERE FOR THE 2024 Election Judge application Opens in new window"><strong style="color: rgb(94, 58, 8); font-family: Raleway; font-size: 2em; text-transform: uppercase;"><span style="font-size: 14pt;">CLICK HERE FOR THE 2026 Election Judge application</span></strong></a><strong style="color: rgb(94, 58, 8); font-family: Raleway; font-size: 2em; text-transform: uppercase;"><span style="font-size: 14pt;"><span style="font-weight: 700; color: rgb(94, 58, 8);"><div style="text-align: center;"><br></div></span></span></strong><strong>Training and Certification:</strong><br>You must complete an Election Judge training course before you may serve as an Election Judge. You will attend a class at least two hours in length, either in person or online, and your certification is valid for two years. Renew your certification by repeating the course every two years. The City Clerk/Local Election Official will keep proof of your training on file.<br><br>Head Judges and Health Care Facility Judges are required to complete an additional hour of training. Judges assigned to an Absentee Ballot Board must also receive extra training.</div><p><br><strong id="isPasted">Assignment Notices:&nbsp;</strong>If you are selected to serve, an assignment notice will be emailed to you before each election.<br><br>Election Judges are paid for training and time worked. You can also choose to volunteer. Consider joining the West St. Paul team of Election Judges today!<br><br>City Clerk<br>(651) 552-4102</p>
+    </div>
+
+<script type="text/javascript">
+	$(document).ready(function (e) {		
+	    renderSlideshowIfApplicable($('#divEditor' + '1a0077be-e672-425d-8213-034b26ee0e7d'));
+	});
+</script>
+</div>
+
+				</div>
+					<ol class="tabbedWidgetNarrow cpTabs  accordion"  aria-hidden="False.ToString().ToLowerInvariant()" >
+						<li class="" role="presentation">	<a href="#tab22f23837-bcea-44ee-8d0a-6f76446531c2_3" class="tabButton" id="tabBtnNarrow22f23837-bcea-44ee-8d0a-6f76446531c2_3" role="button" aria-controls="tab22f23837-bcea-44ee-8d0a-6f76446531c2_3" aria-expanded="false" ><span class="tabName editable" data-sequence="3" data-tabname="Political Party Info" contenteditable="false">Political Party Info</span></a>
+</li>
+					</ol>
+				<div class="tabbedWidget cpTabPanel " style="display: none;" id="tab22f23837-bcea-44ee-8d0a-6f76446531c2_3" role="region" aria-labelledby="tabBtn22f23837-bcea-44ee-8d0a-6f76446531c2_3" >
+
+<div class="widget editor pageStyles narrow" id="divEditorff46b330-a7e2-4a03-8e59-78825411705a" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}'>
+	    <div class="fr-view">
+
+
+        <h2 class="subhead1">THE MAJOR POLITICAL PARTIES, IN ALPHABETICAL ORDER, ARE AS FOLLOWS:</h2><ul><li>Democratic-Farmer-Labor Party</li><li>Republican Party of Minnesota</li></ul><h3 class="subhead2">MAJOR PARTIES</h3><p>See <a href="https://www.revisor.mn.gov/statutes/cite/200.02" target="_blank" class="Hyperlink" aria-label="Minnesota Statutes 200.2, Subd. 7 Opens in new window">Minnesota Statutes 200.2, subd. 7</a> for a definition of &quot;Major Party.&quot; Click on the party name below to open a new tab and be directed to their website.</p><h3 class="subhead2"><a href="https://www.dfl.org/" target="_blank" class="Hyperlink" aria-label="Democratic Party  Opens in new window">Democratic Party&nbsp;</a></h3><p>255 E Plato Blvd<br>St. Paul, MN 55107<br>Ph: 651-293-1200</p><h3 class="subhead2"><a href="https://mngop.com/" target="_blank" class="Hyperlink" aria-label="Republican Party of Minnesota Opens in new window">Republican Party of Minnesota</a></h3><p>7400 Metro Blvd, Ste 424<br>Edina, MN 55439<br>Ph: 651-222-0022</p><h2>MINOR PARTIES</h2><p>See <a href="https://www.revisor.mn.gov/statutes/cite/200.02" target="_blank" class="Hyperlink" aria-label="Minnesota Statutes 200.02 Subd. 23 Opens in new window">Minnesota Statutes 200.02 subd. 23</a> for a definition of &quot;Minor Party.&quot; Click on the party name below to open a new tab and be directed to their website.</p><h3 id="isPasted"><span style="font-size: 14px;">Grassroots-Legalize Cannabis Party</span></h3><h3 class="subhead2"><span style="font-size: 14px;">Forward Independence</span></h3><h3 class="subhead2"><span style="font-size: 14px;">Libertarian Party of Minnesota</span></h3><h3 id="isPasted"><span style="font-size: 14px;">Minnesota Legal Marijuana Now! Party</span></h3><h2 class="subhead1"><br><a href="https://www.gis.leg.mn/iMaps/districts/" target="_blank" class="subhead2" aria-label="Who represents me? Opens in new window">Who represents me?</a></h2>
+    </div>
+
+<script type="text/javascript">
+	$(document).ready(function (e) {		
+	    renderSlideshowIfApplicable($('#divEditor' + 'ff46b330-a7e2-4a03-8e59-78825411705a'));
+	});
+</script>
+</div>
+
+				</div>
+					<ol class="tabbedWidgetNarrow cpTabs  accordion"  aria-hidden="False.ToString().ToLowerInvariant()" >
+						<li class="" role="presentation">	<a href="#tab22f23837-bcea-44ee-8d0a-6f76446531c2_4" class="tabButton" id="tabBtnNarrow22f23837-bcea-44ee-8d0a-6f76446531c2_4" role="button" aria-controls="tab22f23837-bcea-44ee-8d0a-6f76446531c2_4" aria-expanded="false" ><span class="tabName editable" data-sequence="4" data-tabname="Candidate Info" contenteditable="false">Candidate Info</span></a>
+</li>
+					</ol>
+				<div class="tabbedWidget cpTabPanel " style="display: none;" id="tab22f23837-bcea-44ee-8d0a-6f76446531c2_4" role="region" aria-labelledby="tabBtn22f23837-bcea-44ee-8d0a-6f76446531c2_4" >
+
+<div class="widget editor pageStyles narrow" id="divEditor3c669a6b-c34c-4d70-a0e1-2556bb6fd9bb" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}'>
+	    <div class="fr-view">
+
+
+        <h3 class="subhead2"><strong>In 2026, the City of West St. Paul will have four open seats on the ballot; three City Council seats, one for each ward, along with the Mayor&apos;s seat.</strong></h3><h3 class="subhead2"><br></h3><h3 class="subhead2"><strong><a href="/DocumentCenter/View/7177" target="_blank" rel="noopener">NOTICE OF FILING FOR THE 2026 MUNICIPAL ELECTION - City of West St. Paul, Minnesota</a></strong></h3><h3 class="subhead2"><br></h3><h3 class="subhead2"><strong>RUNNING FOR OFFICE</strong></h3><p>For a list of candidates running for office in West St. Paul, visit the <a class="Hyperlink" href="https://candidates.sos.state.mn.us/CandidateFilingResults.aspx?county=0&municipality=69700&schooldistrict=&hospitaldistrict=&level=3&party=0&federal=True&judicial=False&executive=True&senate=True&representative=True&title=&office=0&candidateid=0" target="_blank" aria-label="Minnesota Secretary of State's Office Opens in new window">Minnesota Secretary of State&apos;s Office</a>.</p><h2 id="isPasted"><strong>CAMPAIGN FILING FORMS AND MATERIALS</strong></h2><p>Upon filing the affidavit of candidacy, the City Clerk will provide candidates an informational packet to help keep track of important dates, required financial reports and other documents.</p><p>Candidates who file for office must comply with the Minnesota Fair Campaign Practices Act and financial reporting requirements. &nbsp;Visit the <a href="https://www.sos.state.mn.us/election-administration-campaigns/campaigning/" target="_blank" style="box-sizing: inherit; background: transparent; text-decoration: none; color: rgb(13, 177, 75); font-family: Gotham-Book, Arial, Helvetica, sans-serif; overflow-wrap: break-word; hyphens: auto;" aria-label="Minnesota Secretary of State's website Opens in new window"><span style="color: rgb(41, 105, 176);">Minnesota Secretary of State&apos;s website</span></a> to learn more about these requirements.</p><p>The 2026 <a href="https://www.sos.mn.gov/election-administration-campaigns/" target="_blank" aria-label="Minnesota Secretary of State's Office Opens in new window" data-pasted="true" rel="noopener">Minnesota Secretary of State&apos;s Office</a> Candidate Packet can be found <a href="https://www.sos.mn.gov/election-administration-campaigns/become-a-candidate/campaign-filing-packet/" target="_blank" rel="noopener">here</a>.&nbsp;</p><h3 class="subhead2" id="isPasted"><strong>CAMPAIGN FINANCIAL DISCLOSURES</strong></h3><h3 class="subhead2"><strong>Filing Requirements</strong></h3><p id="isPasted"><a href="https://www.revisor.mn.gov/statutes/cite/211a">State Statutes 211A</a> governs financial reporting duties and responsibilities of the election candidates/committees and the filing officer (city clerk). Each candidate/committee has a duty to acquaint themselves with the required filing periods and submit their reports on the due dates prescribed by the law. To find out about the required reports and filing due dates please refer to the <a href="https://www.sos.state.mn.us/election-administration-campaigns/campaigning/campaign-finance-filings/" style="box-sizing: border-box; color: rgb(84, 102, 57); text-decoration: underline;">Secretary of State&rsquo;s website</a>. Please note that each report must start off from the date when the previous report ended, and extend up to 5 days before the due date.</p><p>A failure to file a report is a misdemeanor pursuant to Minnesota Statute 211A05, subdivision 1 and creates an obligation on the filing officer to notify the candidate of the failure. If a report is not received within 10 days the filing officer must notify the Office of Administrative Hearings regarding the violation of Chapter 211A provisions.</p><h3 class="subhead2"><strong>Forms</strong></h3><ul><li style="box-sizing: border-box; margin-bottom: 0.35em;"><a href="/DocumentCenter/View/6420" target="_blank" rel="noopener"></a><a href="/DocumentCenter/View/6420" target="_blank" rel="noopener">Campaign Financial Report&nbsp;</a><a href="/DocumentCenter/View/6420" target="_blank" rel="noopener">(PDF)</a> - To be used for all types of reporting</li><li style="box-sizing: border-box; margin-bottom: 0.35em;"><a href="/DocumentCenter/View/6419" target="_blank" rel="noopener">Certification of Filing (PDF)</a> - To be filed by all candidates within 7 days of the general election</li></ul><p>Pursuant to Minnesota Statute 211A.02, Subdivision 6, campaign financial reports received by the City of West St. Paul will be available online for four years from the date posted.</p><p><a href="/DocumentCenter/Index/497">2026 Financial Disclosures</a></p><p><a href="/DocumentCenter/Index/449">2024 Financial Disclosures</a></p><p><a class="Hyperlink" href="/DocumentCenter/Index/382" target="_self">2022 Financial Disclosures</a></p><p><a aria-label="2020 Financial Disclosures Opens in new window" href="/DocumentCenter/Index/267" target="_blank">2020 Financial Disclosures</a></p>
+    </div>
+
+<script type="text/javascript">
+	$(document).ready(function (e) {		
+	    renderSlideshowIfApplicable($('#divEditor' + '3c669a6b-c34c-4d70-a0e1-2556bb6fd9bb'));
+	});
+</script>
+</div>
+
+				</div>
+					<ol class="tabbedWidgetNarrow cpTabs  accordion"  aria-hidden="False.ToString().ToLowerInvariant()" >
+						<li class="" role="presentation">	<a href="#tab22f23837-bcea-44ee-8d0a-6f76446531c2_5" class="tabButton" id="tabBtnNarrow22f23837-bcea-44ee-8d0a-6f76446531c2_5" role="button" aria-controls="tab22f23837-bcea-44ee-8d0a-6f76446531c2_5" aria-expanded="false" ><span class="tabName editable" data-sequence="5" data-tabname="Notices" contenteditable="false">Notices</span></a>
+</li>
+					</ol>
+				<div class="tabbedWidget cpTabPanel " style="display: none;" id="tab22f23837-bcea-44ee-8d0a-6f76446531c2_5" role="region" aria-labelledby="tabBtn22f23837-bcea-44ee-8d0a-6f76446531c2_5" >
+
+<div class="widget editor pageStyles narrow" id="divEditorb4986da3-7704-466a-9729-ea7085b702b6" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}'>
+	    <div class="fr-view">
+
+
+        <h2 class="subhead1">Candidate Notices:</h2><p><a href="https://wspmn.gov/DocumentCenter/View/7177/WSP-NOTICE-OF-FILING-CITY2026?bidId=">Candidate Filing Notice for 2026</a></p><p><a href="/DocumentCenter/View/7489" target="_blank" rel="noopener">2026 County, State, and Federal Notice</a><br><a href="/DocumentCenter/View/5070" target="_blank" rel="noopener" aria-label="Candidate Filing Notice for 2024 Opens in new window" class="docaccess-activated" data-docaccess-source-url="https://wspmn.gov/DocumentCenter/View/5070" data-url-hash="da4bea87aac597ff9efb5669720d99860ff16304cb494ea53bf361d504454821" data-url-status="disabled"></a></p><h2 class="subhead1">Equipment Notices:</h2><p><a href="/DocumentCenter/View/7591" target="_blank" rel="noopener">Notice of Public Accuracy Test 2026 State Primary Election</a></p><p><span>Notice of Public Accuracy Test 2026 State General Election</span></p><h2 class="subhead1"><br>Location Notices:</h2><p><a href="/DocumentCenter/View/5022" target="_blank" rel="noopener" aria-label="Resolution No. 23-073 Designating Polling Places for 2024 Municipal Elections Opens in new window" class="docaccess-activated" data-docaccess-source-url="https://wspmn.gov/DocumentCenter/View/5022" data-url-hash="8f3ee083ffc0626c961b21f00faf8a61a6b3b797699a0b81f61e5fae32e3b230" data-url-status="disabled">Resolution No. 23-073 Designating Polling Places for 2024 Municipal Elections</a></p><p><a href="/DocumentCenter/View/4160" target="_blank" rel="noopener" aria-label="West St. Paul Precinct Map Opens in new window" class="docaccess-activated" data-docaccess-source-url="https://wspmn.gov/DocumentCenter/View/4160" data-url-hash="cbf8722de77a9947bcce45b8a95dfb5a17a880d9e7ea87b16cc073c71856264d" data-url-status="disabled">West St. Paul Precinct Map</a></p><p><a href="/DocumentCenter/View/7577" target="_blank" rel="noopener">Notice of 2026 State Primary Election</a></p><p><a href="/DocumentCenter/View/7665" target="_blank" rel="noopener">Notice of 2026 State General Election</a></p><p><br></p><h2 data-pasted="true"><a href="https://www.sos.state.mn.us/elections-voting/whats-on-my-ballot" target="_blank" rel="noopener"><strong>What&apos;s on My Ballot?</strong></a></h2><p>2026 Sample Ballots will be posted when made available.</p><p data-pasted="true"><a href="/DocumentCenter/View/7662" target="_blank" rel="noopener">Ward 1, Precinct 1</a></p><p><a href="/DocumentCenter/View/7657" target="_blank" rel="noopener">Ward 1, Precinct 2</a></p><p><a href="/DocumentCenter/View/7658" target="_blank" rel="noopener">Ward 2, Precinct 1</a></p><p><a href="/DocumentCenter/View/7659" target="_blank" rel="noopener">Ward 2, Precinct 2</a></p><p><a href="/DocumentCenter/View/7660" target="_blank" rel="noopener">Ward 3, Precinct 1</a></p><p><a href="/DocumentCenter/View/7661" target="_blank" rel="noopener">Ward 3, Precinct 2</a></p><p>Visit <a href="https://www.mnvotes.org/">Minnesota Secretary of State&apos;s Elections site for additional information</a>.</p><h2 class="subhead1"><br>More information can be found at the <a href="https://www.sos.state.mn.us/elections-voting/whats-on-my-ballot" target="_blank" class="Hyperlink" aria-label="Minnesota Secretary of State's website Opens in new window">Minnesota Secretary of State&apos;s website</a>.&nbsp;</h2>
+    </div>
+
+<script type="text/javascript">
+	$(document).ready(function (e) {		
+	    renderSlideshowIfApplicable($('#divEditor' + 'b4986da3-7704-466a-9729-ea7085b702b6'));
+	});
+</script>
+</div>
+
+				</div>
+					</div>
+	</div>
+	<script type="text/javascript">
+
+		//If responsive not enabled, execute this after a timeout
+		if(!isResponsiveEnabled)
+		{
+			window.setTimeout(function(){
+				var tabbedWidgetID = 'divTabbed22f23837-bcea-44ee-8d0a-6f76446531c2';
+				typeof setTabbedWidgetsTabHeight === "function" && setTabbedWidgetsTabHeight(tabbedWidgetID);
+			}, 1500);
+		}
+
+		function reinitCarousels() {
+			if (window.carouselsToInit) {
+				for (var i = 0; i < window.carouselsToInit.length; i++) {
+					carouselsToInit[i]();
+				}
+			}
+		}
+		function sizeTabbedContent(element){
+			if(window.Pages){
+				if(window.Pages.onResizeHandlers){
+					var setTabbedInterval = setInterval(function () {
+						window.Pages.onResizeHandlers.forEach(function(car){car();});
+					}, 25)
+
+
+					setTimeout(function () {
+						clearInterval(setTabbedInterval);
+						if ($.cookie("enableLiveEdit") === "true") {
+							setInterval(function () {
+								window.Pages.onResizeHandlers.forEach(function(car){car();});
+							}, 2000);
+						}
+					}, 2500);
+					element.onclick="window.setTimeout(function(){reinitCarousels();},2);"
+				}
+			}
+		}
+
+		function adjustTab(e) {
+			e.preventDefault();
+			window.setTimeout(function(){
+				reinitCarousels();
+			}, 2);
+			sizeTabbedContent(this);
+		}
+
+		var tabButtons = document.querySelectorAll("#divTabbed22f23837-bcea-44ee-8d0a-6f76446531c2 .tabButton");
+
+		tabButtons.forEach(function (tabButton) {
+			tabButton.addEventListener("click", adjustTab);
+		});
+
+	</script>
+
+
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col5 last" style="" data-widgetcontainerid="927aa31f-7cfd-45ca-b532-1a0ddebc0dfc">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col5 first last id9943bf97-2d74-472a-8c1a-a5add94d912d" style="" data-widgetcontainerid="9943bf97-2d74-472a-8c1a-a5add94d912d">	
+<div class="widget editor pageStyles narrow" id="divEditorafc8bff2-9fda-4831-b2b1-701b81093019" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}'>
+	    <div class="fr-view">
+
+
+        <h2 class="subhead1 "><span class="subhead1"><strong>Elected Officials</strong></span></h2><p><span class="subhead2">Mayor</span><br><strong>Dave Napier</strong><br>Term Expires<br>December 2026</p><p><span class="subhead2">Ward 1&nbsp;</span></p><p><strong id="isPasted">Pat Armon&nbsp;</strong><br>Term Expires<br>December 2026</p><p><strong>Doug Fromm&nbsp;</strong><br>Term Expires<br>December 2028</p><p><span class="subhead2">Ward 2&nbsp;</span></p><p><span><strong>Robyn Gulley</strong><br>Term Expires</span><br><span>December 2028</span></p><p><strong>John Justen<br></strong>Term Expires<br>December 2026</p><p data-empty="true"><span class="subhead2">Ward 3&nbsp;</span></p><p><strong>Wendy Berry</strong><br>Term Expires<br>December 2026</p><p><strong>Lisa Eng-Sarne</strong><br>Term Expires<br>December 2028</p><p><br></p><h2 class="subhead1 ">Elections Contact</h2><p><strong>Elke Johnson</strong><br>City Clerk&nbsp;</p><p><a href="mailto:ejohnson@wspmn.gov">Email Elke Johnson</a></p><p><strong>City Hall</strong><br>1616 Humboldt Ave<br>West St. Paul, MN 55118</p><p>Ph: 651-552-4102</p><p><br></p><p><br></p><p><br></p>
+    </div>
+
+<script type="text/javascript">
+	$(document).ready(function (e) {		
+	    renderSlideshowIfApplicable($('#divEditor' + 'afc8bff2-9fda-4831-b2b1-701b81093019'));
+	});
+</script>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+		</div>
+
+	</div>
+
+	
+	<div class="newCP">
+
+	</div>
+</div>
+</div><aside data-cpRole="contentContainer" id="featureColumn" class="secondaryContent">	<div id="cc6a2c0c8d-d842-4844-b7c6-ce6b30632a10" data-containerid="6a2c0c8d-d842-4844-b7c6-ce6b30632a10" class="pageContent cpGrid cpGrid24 showInMobile">
+				                
+
+
+
+	</div>
+</aside>
+</div>
+</div></div>
+</div><!-- GBs --><div data-cpRole="structuralContainer" id="gbsContainerTS">
+<div class="siteWrap"><div data-cpRole="contentContainer" id="gbsTS">	<div id="ccb8a20d89-1364-4116-a6d9-1a0e25782a0e" data-containerid="b8a20d89-1364-4116-a6d9-1a0e25782a0e" class="pageContent cpGrid cpGrid24 isLockedContainer showInMobile" data-contentcontainerbreakpoint="35">
+				                
+
+		<div class="row outer wide"><!--
+--><div class="outer col col8 first" style="" data-widgetcontainerid="fc7ff17c-70d2-41dc-9942-c6d66de3e7f5">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col8 first last idb513b489-3672-415f-a3b1-79d80817e41e" style="" data-widgetcontainerid="b513b489-3672-415f-a3b1-79d80817e41e">	
+<div data-widget-id="5c8bf29f-1997-4b6b-a884-33b362c4b30f" data-widget-controller-path="/GraphicLinks/Widget">
+
+
+
+
+<div id="graphicLinkWidget5c8bf29f-1997-4b6b-a884-33b362c4b30f" class="widget widgetGraphicLinks skin78 widgetOptionSet4 wide" data-elementqueryclasses='{"wide-narrow":"min-width:22em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' data-modulewidgettype="graphicLinks">
+	<div class="widgetHeader">
+		<div class="">
+				</div>
+	</div>
+	<div class="widgetBody cpGrid cpGrid2 ">
+		<nav class="widgetGraphicLinksNav" aria-labelledby="GraphicLinkHeaderText">
+				<div class="row   wide">
+					<!--
+--><div class="col col1 first "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="/directory" target="_self" class="fancyButton fancyButton184 " >
+		<span>
+			<span><span class="text"><span class="textStyle1">Contact Us</span></span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton184.fancyButton:link,.fancyButton184.fancyButton:visited, .fancyButton184div.fancyButton{
+	background-image: url('/ImageRepository/Document?documentID=4534');
+	background-repeat: no-repeat;
+	background-position: center 6.75em ;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);}
+.fancyButton184.fancyButton:hover,.fancyButton184.fancyButton:focus,.fancyButton184.fancyButton:active,.fancyButton184.fancyButton.hover{
+	background-repeat: no-repeat;
+	background-position: center 6.75em ;
+}
+.fancyButton184.fancyButton:link > span,.fancyButton184.fancyButton:visited > span, .fancyButton184div.fancyButton > span{
+}
+.fancyButton184.fancyButton:hover > span,.fancyButton184.fancyButton:focus > span,.fancyButton184.fancyButton:active > span,.fancyButton184.fancyButton.hover > span{
+}
+.fancyButton184.fancyButton .text{
+	color: #293a45;
+	font-size: 1em;
+	font-family: "Poppins";
+	padding-top: 7.875em;
+	font-style: normal;
+	text-decoration: none;
+	padding-top: 7.875em;
+	background-image: url('/ImageRepository/Document?documentID=4522');
+	background-repeat: no-repeat;
+	background-position: center top;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fancyButton184.fancyButton:hover .text,.fancyButton184.fancyButton:focus .text,.fancyButton184.fancyButton:active .text,.fancyButton184.fancyButton.hover .text{
+	text-decoration: none;
+	background-image: url('/ImageRepository/Document?documentID=4523');
+	background-repeat: no-repeat;
+	background-position: center top;
+
+
+}
+.fancyButton184.fancyButton .textStyle1{
+	color: #293a45;
+	font-size: 1.2em;
+	font-weight: 500;
+	text-decoration: none;
+display: block;
+position: relative;
+}
+
+.fancyButton184 .textStyle1::after {
+content: "";
+display: block;
+border-radius: 2px;
+height: 4px;
+width: 100%;
+max-width: 50px;
+margin: .375em auto;
+background: #C16228;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);}
+.fancyButton184.fancyButton:hover .textStyle1, .fancyButton184.fancyButton.hover .textStyle1{
+	text-decoration: underline;
+}
+
+.fancyButton184:where(:hover, :focus, :active) .textStyle1::after {
+max-width: 100px;
+transition: all 0.3s ease-in-out;}
+</style>
+
+ </li><!--
+--></ul></div><!----><div class="col col1  last"><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="/agendacenter" target="_self" class="fancyButton fancyButton185 " >
+		<span>
+			<span><span class="text"><span class="textStyle1">Meetings</span></span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton185.fancyButton:link,.fancyButton185.fancyButton:visited, .fancyButton185div.fancyButton{
+	background-image: url('/ImageRepository/Document?documentID=4534');
+	background-repeat: no-repeat;
+	background-position: center 6.75em ;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);}
+.fancyButton185.fancyButton:hover,.fancyButton185.fancyButton:focus,.fancyButton185.fancyButton:active,.fancyButton185.fancyButton.hover{
+	background-repeat: no-repeat;
+	background-position: center 6.75em ;
+}
+.fancyButton185.fancyButton:link > span,.fancyButton185.fancyButton:visited > span, .fancyButton185div.fancyButton > span{
+}
+.fancyButton185.fancyButton:hover > span,.fancyButton185.fancyButton:focus > span,.fancyButton185.fancyButton:active > span,.fancyButton185.fancyButton.hover > span{
+}
+.fancyButton185.fancyButton .text{
+	color: #293a45;
+	font-size: 1em;
+	font-family: "Poppins";
+	padding-top: 7.875em;
+	font-style: normal;
+	text-decoration: none;
+	padding-top: 7.875em;
+	background-image: url('/ImageRepository/Document?documentID=4524');
+	background-repeat: no-repeat;
+	background-position: center top;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fancyButton185.fancyButton:hover .text,.fancyButton185.fancyButton:focus .text,.fancyButton185.fancyButton:active .text,.fancyButton185.fancyButton.hover .text{
+	text-decoration: none;
+	background-image: url('/ImageRepository/Document?documentID=4525');
+	background-repeat: no-repeat;
+	background-position: center top;
+
+
+}
+.fancyButton185.fancyButton .textStyle1{
+	color: #293a45;
+	font-size: 1.2em;
+	font-weight: 500;
+	text-decoration: none;
+display: block;
+position: relative;
+}
+
+.fancyButton185 .textStyle1::after {
+content: "";
+display: block;
+border-radius: 2px;
+height: 4px;
+width: 100%;
+max-width: 50px;
+margin: .375em auto;
+background: #C16228;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);}
+.fancyButton185.fancyButton:hover .textStyle1, .fancyButton185.fancyButton.hover .textStyle1{
+	text-decoration: underline;
+}
+
+.fancyButton185:where(:hover, :focus, :active) .textStyle1::after {
+max-width: 100px;
+transition: all 0.3s ease-in-out;}
+</style>
+
+ </li><!--
+--></ul></div><!--				-->
+				</div>
+			</nav>
+		</div>
+	<div class="widgetFooter">
+			</div>
+</div>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col8" style="" data-widgetcontainerid="7e2dda1f-a16e-4d0e-bf98-bc34271274cf">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col8 first last idc91dd54e-cbf5-4bc9-af9c-bd27484b6f2d" style="" data-widgetcontainerid="c91dd54e-cbf5-4bc9-af9c-bd27484b6f2d">	
+<div data-widget-id="3a838fe7-2c48-464d-acef-e42f08bb9cfb" data-widget-controller-path="/GraphicLinks/Widget">
+
+
+
+
+<div id="graphicLinkWidget3a838fe7-2c48-464d-acef-e42f08bb9cfb" class="widget widgetGraphicLinks skin78 widgetOptionSet4 wide" data-elementqueryclasses='{"wide-narrow":"min-width:22em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' data-modulewidgettype="graphicLinks">
+	<div class="widgetHeader">
+		<div class="">
+				</div>
+	</div>
+	<div class="widgetBody cpGrid cpGrid2 ">
+		<nav class="widgetGraphicLinksNav" aria-labelledby="GraphicLinkHeaderText">
+				<div class="row   wide">
+					<!--
+--><div class="col col1 first "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="/list.aspx" target="_self" class="fancyButton fancyButton186 " >
+		<span>
+			<span><span class="text"><span class="textStyle1">Notifications</span></span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton186.fancyButton:link,.fancyButton186.fancyButton:visited, .fancyButton186div.fancyButton{
+	background-image: url('/ImageRepository/Document?documentID=4534');
+	background-repeat: no-repeat;
+	background-position: center 6.75em ;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);}
+.fancyButton186.fancyButton:hover,.fancyButton186.fancyButton:focus,.fancyButton186.fancyButton:active,.fancyButton186.fancyButton.hover{
+	background-repeat: no-repeat;
+	background-position: center 6.75em ;
+}
+.fancyButton186.fancyButton:link > span,.fancyButton186.fancyButton:visited > span, .fancyButton186div.fancyButton > span{
+}
+.fancyButton186.fancyButton:hover > span,.fancyButton186.fancyButton:focus > span,.fancyButton186.fancyButton:active > span,.fancyButton186.fancyButton.hover > span{
+}
+.fancyButton186.fancyButton .text{
+	color: #293a45;
+	font-size: 1em;
+	font-family: "Poppins";
+	padding-top: 7.875em;
+	font-style: normal;
+	text-decoration: none;
+	padding-top: 7.875em;
+	background-image: url('/ImageRepository/Document?documentID=4526');
+	background-repeat: no-repeat;
+	background-position: center top;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fancyButton186.fancyButton:hover .text,.fancyButton186.fancyButton:focus .text,.fancyButton186.fancyButton:active .text,.fancyButton186.fancyButton.hover .text{
+	text-decoration: none;
+	background-image: url('/ImageRepository/Document?documentID=4527');
+	background-repeat: no-repeat;
+	background-position: center top;
+
+
+}
+.fancyButton186.fancyButton .textStyle1{
+	color: #293a45;
+	font-size: 1.2em;
+	font-weight: 500;
+	text-decoration: none;
+display: block;
+position: relative;
+}
+
+.fancyButton186 .textStyle1::after {
+content: "";
+display: block;
+border-radius: 2px;
+height: 4px;
+width: 100%;
+max-width: 50px;
+margin: .375em auto;
+background: #C16228;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);}
+.fancyButton186.fancyButton:hover .textStyle1, .fancyButton186.fancyButton.hover .textStyle1{
+	text-decoration: underline;
+}
+
+.fancyButton186:where(:hover, :focus, :active) .textStyle1::after {
+max-width: 100px;
+transition: all 0.3s ease-in-out;}
+</style>
+
+ </li><!--
+--></ul></div><!----><div class="col col1  last"><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="/requesttracker.aspx" target="_self" class="fancyButton fancyButton187 " >
+		<span>
+			<span><span class="text"><span class="textStyle1">Report a Concern</span></span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton187.fancyButton:link,.fancyButton187.fancyButton:visited, .fancyButton187div.fancyButton{
+	background-image: url('/ImageRepository/Document?documentID=4534');
+	background-repeat: no-repeat;
+	background-position: center 6.75em ;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);}
+.fancyButton187.fancyButton:hover,.fancyButton187.fancyButton:focus,.fancyButton187.fancyButton:active,.fancyButton187.fancyButton.hover{
+	background-repeat: no-repeat;
+	background-position: center 6.75em ;
+}
+.fancyButton187.fancyButton:link > span,.fancyButton187.fancyButton:visited > span, .fancyButton187div.fancyButton > span{
+}
+.fancyButton187.fancyButton:hover > span,.fancyButton187.fancyButton:focus > span,.fancyButton187.fancyButton:active > span,.fancyButton187.fancyButton.hover > span{
+}
+.fancyButton187.fancyButton .text{
+	color: #293a45;
+	font-size: 1em;
+	font-family: "Poppins";
+	padding-top: 7.875em;
+	font-style: normal;
+	text-decoration: none;
+	padding-top: 7.875em;
+	background-image: url('/ImageRepository/Document?documentID=4530');
+	background-repeat: no-repeat;
+	background-position: center top;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fancyButton187.fancyButton:hover .text,.fancyButton187.fancyButton:focus .text,.fancyButton187.fancyButton:active .text,.fancyButton187.fancyButton.hover .text{
+	text-decoration: none;
+	background-image: url('/ImageRepository/Document?documentID=4531');
+	background-repeat: no-repeat;
+	background-position: center top;
+
+
+}
+.fancyButton187.fancyButton .textStyle1{
+	color: #293a45;
+	font-size: 1.2em;
+	font-weight: 500;
+	text-decoration: none;
+display: block;
+position: relative;
+}
+
+.fancyButton187 .textStyle1::after {
+content: "";
+display: block;
+border-radius: 2px;
+height: 4px;
+width: 100%;
+max-width: 50px;
+margin: .375em auto;
+background: #C16228;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);}
+.fancyButton187.fancyButton:hover .textStyle1, .fancyButton187.fancyButton.hover .textStyle1{
+	text-decoration: underline;
+}
+
+.fancyButton187:where(:hover, :focus, :active) .textStyle1::after {
+max-width: 100px;
+transition: all 0.3s ease-in-out;}
+</style>
+
+ </li><!--
+--></ul></div><!--				-->
+				</div>
+			</nav>
+		</div>
+	<div class="widgetFooter">
+			</div>
+</div>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col8 last" style="" data-widgetcontainerid="95acf900-4536-47d1-9371-6cf814403a90">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col8 first last id274abe9b-926b-4294-950a-c8086cb53aa4" style="" data-widgetcontainerid="274abe9b-926b-4294-950a-c8086cb53aa4">	
+<div data-widget-id="d32bf21c-27c2-42fa-89d6-f914cf4b8bfb" data-widget-controller-path="/GraphicLinks/Widget">
+
+
+
+
+<div id="graphicLinkWidgetd32bf21c-27c2-42fa-89d6-f914cf4b8bfb" class="widget widgetGraphicLinks skin78 widgetOptionSet4 wide" data-elementqueryclasses='{"wide-narrow":"min-width:22em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' data-modulewidgettype="graphicLinks">
+	<div class="widgetHeader">
+		<div class="">
+				</div>
+	</div>
+	<div class="widgetBody cpGrid cpGrid2 ">
+		<nav class="widgetGraphicLinksNav" aria-labelledby="GraphicLinkHeaderText">
+				<div class="row   wide">
+					<!--
+--><div class="col col1 first "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="/350/Building-Permits-Inspection" target="_self" class="fancyButton fancyButton188 " >
+		<span>
+			<span><span class="text"><span class="textStyle1">Permits</span></span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton188.fancyButton:link,.fancyButton188.fancyButton:visited, .fancyButton188div.fancyButton{
+	background-image: url('/ImageRepository/Document?documentID=4534');
+	background-repeat: no-repeat;
+	background-position: center 6.75em ;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);}
+.fancyButton188.fancyButton:hover,.fancyButton188.fancyButton:focus,.fancyButton188.fancyButton:active,.fancyButton188.fancyButton.hover{
+	background-repeat: no-repeat;
+	background-position: center 6.75em ;
+}
+.fancyButton188.fancyButton:link > span,.fancyButton188.fancyButton:visited > span, .fancyButton188div.fancyButton > span{
+}
+.fancyButton188.fancyButton:hover > span,.fancyButton188.fancyButton:focus > span,.fancyButton188.fancyButton:active > span,.fancyButton188.fancyButton.hover > span{
+}
+.fancyButton188.fancyButton .text{
+	color: #293a45;
+	font-size: 1em;
+	font-family: "Poppins";
+	padding-top: 7.875em;
+	font-style: normal;
+	text-decoration: none;
+	padding-top: 7.875em;
+	background-image: url('/ImageRepository/Document?documentID=4528');
+	background-repeat: no-repeat;
+	background-position: center top;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fancyButton188.fancyButton:hover .text,.fancyButton188.fancyButton:focus .text,.fancyButton188.fancyButton:active .text,.fancyButton188.fancyButton.hover .text{
+	text-decoration: none;
+	background-image: url('/ImageRepository/Document?documentID=4529');
+	background-repeat: no-repeat;
+	background-position: center top;
+
+
+}
+.fancyButton188.fancyButton .textStyle1{
+	color: #293a45;
+	font-size: 1.2em;
+	font-weight: 500;
+	text-decoration: none;
+display: block;
+position: relative;
+}
+
+.fancyButton188 .textStyle1::after {
+content: "";
+display: block;
+border-radius: 2px;
+height: 4px;
+width: 100%;
+max-width: 50px;
+margin: .375em auto;
+background: #C16228;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);}
+.fancyButton188.fancyButton:hover .textStyle1, .fancyButton188.fancyButton.hover .textStyle1{
+	text-decoration: underline;
+}
+
+.fancyButton188:where(:hover, :focus, :active) .textStyle1::after {
+max-width: 100px;
+transition: all 0.3s ease-in-out;}
+</style>
+
+ </li><!--
+--></ul></div><!----><div class="col col1  last"><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="https://www.townsquare.tv/webstreaming" target="_self" class="fancyButton fancyButton189 " >
+		<span>
+			<span><span class="text"><span class="textStyle1">Watch it Now</span></span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton189.fancyButton:link,.fancyButton189.fancyButton:visited, .fancyButton189div.fancyButton{
+	background-image: url('/ImageRepository/Document?documentID=4534');
+	background-repeat: no-repeat;
+	background-position: center 6.75em ;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);}
+.fancyButton189.fancyButton:hover,.fancyButton189.fancyButton:focus,.fancyButton189.fancyButton:active,.fancyButton189.fancyButton.hover{
+	background-repeat: no-repeat;
+	background-position: center 6.75em ;
+}
+.fancyButton189.fancyButton:link > span,.fancyButton189.fancyButton:visited > span, .fancyButton189div.fancyButton > span{
+}
+.fancyButton189.fancyButton:hover > span,.fancyButton189.fancyButton:focus > span,.fancyButton189.fancyButton:active > span,.fancyButton189.fancyButton.hover > span{
+}
+.fancyButton189.fancyButton .text{
+	color: #293a45;
+	font-size: 1em;
+	font-family: "Poppins";
+	padding-top: 7.875em;
+	font-style: normal;
+	text-decoration: none;
+	padding-top: 7.875em;
+	background-image: url('/ImageRepository/Document?documentID=4532');
+	background-repeat: no-repeat;
+	background-position: center top;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fancyButton189.fancyButton:hover .text,.fancyButton189.fancyButton:focus .text,.fancyButton189.fancyButton:active .text,.fancyButton189.fancyButton.hover .text{
+	text-decoration: none;
+	background-image: url('/ImageRepository/Document?documentID=4533');
+	background-repeat: no-repeat;
+	background-position: center top;
+
+
+}
+.fancyButton189.fancyButton .textStyle1{
+	color: #293a45;
+	font-size: 1.2em;
+	font-weight: 500;
+	text-decoration: none;
+display: block;
+position: relative;
+}
+
+.fancyButton189 .textStyle1::after {
+content: "";
+display: block;
+border-radius: 2px;
+height: 4px;
+width: 100%;
+max-width: 50px;
+margin: .375em auto;
+background: #C16228;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);}
+.fancyButton189.fancyButton:hover .textStyle1, .fancyButton189.fancyButton.hover .textStyle1{
+	text-decoration: underline;
+}
+
+.fancyButton189:where(:hover, :focus, :active) .textStyle1::after {
+max-width: 100px;
+transition: all 0.3s ease-in-out;}
+</style>
+
+ </li><!--
+--></ul></div><!--				-->
+				</div>
+			</nav>
+		</div>
+	<div class="widgetFooter">
+			</div>
+</div>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+	</div>
+</div></div>
+</div><!-- Calendar/Carousel --><!-- <div data-cpRole="structuralContainer" id="homeContainer1">
+    <div class="siteWrap2">
+      <div data-cpRole="contentContainer" id="homeContent1a"></div>
+    </div>
+  </div> --><!-- Footer --><footer data-cpRole="structuralContainer" id="footerContainerTS">
+<div class="siteWrap2"><div data-cpRole="contentContainer" id="footerTS">	<div id="cc65224482-cccc-4756-aec1-a2d3a63b6bb8" data-containerid="65224482-cccc-4756-aec1-a2d3a63b6bb8" class="pageContent cpGrid cpGrid24 isLockedContainer showInMobile" data-contentcontainerbreakpoint="60">
+				                
+
+		<div class="row outer wide"><!--
+--><div class="outer col col4 first" style="" data-widgetcontainerid="312d20d6-b23d-44ae-bc2d-af6f4b35c6c4">				
+	<div class="row nest first wide">
+	
+	<div class="inner col col4 first last id268cac02-9a61-429c-98a1-cd262cdd5b7c" style="" data-widgetcontainerid="268cac02-9a61-429c-98a1-cd262cdd5b7c">	
+    <div data-widget-id="289e6d43-2704-4e12-847e-f731d549d550" data-widget-controller-path="/InfoAdvanced/Widget">
+
+
+
+
+
+	<section id="divInfoAdv289e6d43-2704-4e12-847e-f731d549d550" class="widget widgetInfoAdvanced skin81 widgetOptionSet5 wide" data-modulewidgettype="infoAdv" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' aria-label="Info Advanced">
+			<header class="widgetHeader" id="header289e6d43-2704-4e12-847e-f731d549d550">
+		<div class="">
+								</div>
+	</header>
+	<div class="widgetBody  cpGrid cpGrid1 ">
+		<div class="row  wide">
+					<div class="col col1 first last">
+						<ol class="pageStyles semanticList">
+
+<li class="InfoAdvanced widgetItem fr-view">
+	<p><a href="/"><img src="/ImageRepository/Document?documentId=4537" class="fr-fil fr-dib" alt="Homepage West St. Paul, Minnesota"></a>1616 HUMBOLDT AVENUE WEST ST. PAUL, MN 55118<br>PHONE: <a href="tel:6515524100">651-552-4100</a></p>
+</li>						</ol>
+					</div>
+		</div>
+	</div>
+	<div class="widgetFooter">
+
+	</div>
+
+	</section>
+
+
+
+<script type="text/javascript">
+	//Render slideshow if info advacned items contain one.
+	$(document).ready(function (e) {
+		$('#divInfoAdv289e6d43-2704-4e12-847e-f731d549d550 .InfoAdvanced.widgetItem').each(function () {
+			renderSlideshowIfApplicable($(this));		
+		});
+	});
+</script></div>
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+	<div class="row nest last wide">
+	
+	<div class="inner col col4 first last idce570577-a84e-4e69-880e-07ec11aab0ae" style="" data-widgetcontainerid="ce570577-a84e-4e69-880e-07ec11aab0ae">	
+<div data-widget-id="48136dbd-b182-445f-be38-7aa8f1187f9e" data-widget-controller-path="/GraphicLinks/Widget">
+
+
+
+
+<div id="graphicLinkWidget48136dbd-b182-445f-be38-7aa8f1187f9e" class="widget widgetGraphicLinks skin82 widgetOptionSet43 wide" data-elementqueryclasses='{"wide-narrow":"min-width:1em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' data-modulewidgettype="graphicLinks">
+	<div class="widgetHeader">
+		<div class="">
+				</div>
+	</div>
+	<div class="widgetBody cpGrid cpGrid3 ">
+		<nav class="widgetGraphicLinksNav" aria-labelledby="GraphicLinkHeaderText">
+				<div class="row autoWidths center wide">
+					<!--
+--><div class="col col1 first "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks"><a class="widgetDesc widgetGraphicLinksLink" href="/facebook" target="_self">
+
+<img src="/ImageRepository/Document?documentID=4538" 
+     class="graphicButtonLink" alt="Facebook" 
+     onmouseover="this.src='/ImageRepository/Document?documentID=4538'" 
+	onmouseout="this.src='/ImageRepository/Document?documentID=4538'"
+     onfocus="this.src='/ImageRepository/Document?documentID=4538'" 
+	onblur="this.src='/ImageRepository/Document?documentID=4538'"> 
+</a></li><!--
+--></ul></div><!----><div class="col col1  "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks"><a class="widgetDesc widgetGraphicLinksLink" href="https://twitter.com/WestStPaul" target="_self">
+
+<img src="/ImageRepository/Document?documentID=4590" 
+     class="graphicButtonLink" alt="X" 
+     onmouseover="this.src='/ImageRepository/Document?documentID=4590'" 
+	onmouseout="this.src='/ImageRepository/Document?documentID=4590'"
+     onfocus="this.src='/ImageRepository/Document?documentID=4590'" 
+	onblur="this.src='/ImageRepository/Document?documentID=4590'"> 
+</a></li><!--
+--></ul></div><!----><div class="col col1  last"><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks"><a class="widgetDesc widgetGraphicLinksLink" href="/instagram" target="_self">
+
+<img src="/ImageRepository/Document?documentID=4539" 
+     class="graphicButtonLink" alt="Instagram" 
+     onmouseover="this.src='/ImageRepository/Document?documentID=4539'" 
+	onmouseout="this.src='/ImageRepository/Document?documentID=4539'"
+     onfocus="this.src='/ImageRepository/Document?documentID=4539'" 
+	onblur="this.src='/ImageRepository/Document?documentID=4539'"> 
+</a></li><!--
+--></ul></div><!--				-->
+				</div>
+			</nav>
+		</div>
+	<div class="widgetFooter">
+			</div>
+</div>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col2" style="" data-widgetcontainerid="e57c6460-6d02-4c03-88be-d9b7c228c735">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col2 first last id9bb68fd6-3fce-446c-b64f-32a3f2f92a37" style="" data-widgetcontainerid="9bb68fd6-3fce-446c-b64f-32a3f2f92a37">	
+
+<div class="widget widgetSpacer" id="500e7510-02a5-45e1-a53c-c872c6fa6e40"></div>
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col6" style="" data-widgetcontainerid="5c44f851-86a7-40b9-bb4b-5259b1e22f90">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col6 first last id1947e84f-1da1-422e-8416-b457efa29e48" style="" data-widgetcontainerid="1947e84f-1da1-422e-8416-b457efa29e48">	
+	<div data-widget-id="044c3ab0-7331-464d-aad5-eaed946d4d8d" data-widget-controller-path="/QuickLinks/Widget">
+
+
+
+
+
+
+
+
+	<section id="widgetQuicklink044c3ab0-7331-464d-aad5-eaed946d4d8d" class="widget widgetQuickLinks skin79 widgetOptionSet24 narrow" data-modulewidgettype="quickLinks" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' aria-labelledby="quickLinksHeader044c3ab0-7331-464d-aad5-eaed946d4d8d">
+			<header class="widgetHeader" id="quickLinksHeader044c3ab0-7331-464d-aad5-eaed946d4d8d">
+		<div class="">
+					<h3><a  style="" href="/QuickLinks.aspx?CID=15" >Helpful Links</a></h3>
+						</div>
+	</header>
+	<div class="widgetBody cpGrid cpGrid2 ">
+        <div class="row  narrow">
+				<div class="col col1 first ">
+					<ol class="semanticList">
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="https://www.governmentjobs.com/careers/wspmn" target="_self" aria-label="Job Opportunities - Helpful Links" rel="">Job Opportunities</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/493/Volunteer" target="_self" aria-label="Volunteering - Helpful Links" rel="">Volunteering</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/AgendaCenter" target="_self" aria-label="Agendas and Minutes - Helpful Links" rel="">Agendas and Minutes</a>
+        <div class="widgetMeta"></div>
+    </li>
+					</ol>
+				</div>
+				<div class="col col1  last">
+					<ol class="semanticList">
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/498/Local-Resources" target="_self" aria-label="Local Resources - Helpful Links" rel="">Local Resources</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/directory.aspx" target="_self" aria-label="Staff Directory - Helpful Links" rel="">Staff Directory</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/270/Recycling-Rubbish" target="_self" aria-label="Recycling &amp; Rubbish - Helpful Links" rel="">Recycling & Rubbish</a>
+        <div class="widgetMeta"></div>
+    </li>
+					</ol>
+				</div>
+		</div>
+        
+	</div>
+	<div class="widgetFooter">
+	</div>
+	<div class="addItemModal hidden">
+		<div class="url hidden">/QuickLinks.aspx</div>
+	</div>
+
+	</section>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col2" style="" data-widgetcontainerid="789df03b-e1f4-457a-9950-95d14f0bb742">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col2 first last id800c1d79-7034-49a0-8251-df6d203bab40" style="" data-widgetcontainerid="800c1d79-7034-49a0-8251-df6d203bab40">	
+
+<div class="widget widgetSpacer" id="af660cb8-cf26-4bf6-9669-1ff48fd1fb1b"></div>
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col5" style="" data-widgetcontainerid="750a6362-950e-4657-a90a-912ddbb5ae4e">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col5 first last id311d2aed-0018-4612-8bc0-9bdec9cdf38c" style="" data-widgetcontainerid="311d2aed-0018-4612-8bc0-9bdec9cdf38c">	
+	<div data-widget-id="376051fb-91fd-4d9f-aa03-19970ad2376b" data-widget-controller-path="/QuickLinks/Widget">
+
+
+
+
+
+
+
+
+	<section id="widgetQuicklink376051fb-91fd-4d9f-aa03-19970ad2376b" class="widget widgetQuickLinks skin79 widgetOptionSet24 narrow" data-modulewidgettype="quickLinks" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' aria-labelledby="quickLinksHeader376051fb-91fd-4d9f-aa03-19970ad2376b">
+			<header class="widgetHeader" id="quickLinksHeader376051fb-91fd-4d9f-aa03-19970ad2376b">
+		<div class="">
+					<h3><a  style="" href="/QuickLinks.aspx?CID=16" >Site Links</a></h3>
+						</div>
+	</header>
+	<div class="widgetBody cpGrid cpGrid1 ">
+        <div class="row  narrow">
+				<div class="col col1 first last">
+					<ol class="semanticList">
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/" target="_self" aria-label="Home - Using This Site" rel="">Home</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/sitemap" target="_self" aria-label="Site Map - Using This Site" rel="">Site Map</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/accessibility" target="_self" aria-label="Accessibility - Using This Site" rel="">Accessibility</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/copyright" target="_self" aria-label="Copyright Notices - Using This Site" rel="">Copyright Notices</a>
+        <div class="widgetMeta"></div>
+    </li>
+					</ol>
+				</div>
+		</div>
+        
+	</div>
+	<div class="widgetFooter">
+	</div>
+	<div class="addItemModal hidden">
+		<div class="url hidden">/QuickLinks.aspx</div>
+	</div>
+
+	</section>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col5 last" style="" data-widgetcontainerid="2f816fc9-359c-4207-a318-2a34882da669">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col5 first last id27f08d69-cf88-4a7a-8cac-b30316aa1300" style="" data-widgetcontainerid="27f08d69-cf88-4a7a-8cac-b30316aa1300">	
+<div class="widget editor pageStyles narrow" id="divEditor1825a8f1-ad96-4454-9a13-974c4d41a996" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}'>
+	    <div class="fr-view">
+
+
+        <h2 data-pasted="true">Municipal Center</h2><p>Hours<br><strong>Monday - Thursday:</strong> 8am-4:30pm<br><strong>Fridays:</strong> 8am-12:00pm</p>
+    </div>
+
+<script type="text/javascript">
+	$(document).ready(function (e) {		
+	    renderSlideshowIfApplicable($('#divEditor' + '1825a8f1-ad96-4454-9a13-974c4d41a996'));
+	});
+</script>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+	</div>
+</div></div>
+</footer><!-- Powered By --><div data-cpRole="structuralContainer" id="poweredByContainerTS">
+<div class="siteWrap"><div data-cpRole="contentContainer" id="poweredByTS">	<div id="cc894d2c77-6cf0-4b86-af07-42eae24862dc" data-containerid="894d2c77-6cf0-4b86-af07-42eae24862dc" class="pageContent cpGrid cpGrid24 isLockedContainer showInMobile">
+				                
+
+		<div class="row outer wide"><!--
+--><div class="outer col col24 first last" style="" data-widgetcontainerid="9c70143c-2312-4502-863a-9d1fbd54780f">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col24 first last id7adb592f-cf7f-4837-8358-921cae27ea54" style="" data-widgetcontainerid="7adb592f-cf7f-4837-8358-921cae27ea54">	
+ 
+	<div data-widget-id='b3cb74e3-41c4-48bd-a48d-295e3b499163' data-moduleName="customHtml" id='widgetCustomHtmlb3cb74e3-41c4-48bd-a48d-295e3b499163' class="widget widgetCustomHtml skin80 narrow" >
+	<div class="widgetBody pageStyles" id="widgetBodyb3cb74e3-41c4-48bd-a48d-295e3b499163">
+		<div id="customHtmlb3cb74e3-41c4-48bd-a48d-295e3b499163"><div><style>
+  /* CP icon */
+  .cpBylineIconTS {
+    color: #fff;
+  }
+  /* CP Text */
+  .cpBylineTextTS,
+  .cpBylineTextTS a:link {
+    color: #fff;
+  }
+
+  .cpBylineTS {
+    text-align: center;
+  }
+  
+  .cpBylineIconTS {
+    fill: currentColor;
+    width: 39px;
+    height: 26px;
+    display: inline;
+    vertical-align: middle;
+  }
+</style>
+
+<div class="widgetItem cpBylineTS">
+  <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 100 100" class="cpBylineIconTS">
+    <path class="c" d="M73.4,23.2h-19v16.7h19c2.8,0,5,2.2,5,5c0,2.8-2.2,5-5,5h-19v28.4h5.5l11.3-11.7h2.2c11.9,0,21.6-9.7,21.6-21.6C95,33,85.3,23.2,73.4,23.2"></path>
+    <path class="p" d="M45.8,66.5H26.6C14.7,66.5,5,56.8,5,44.9C5,33,14.7,23.2,26.6,23.2h19.1v16.7H26.6c-2.8,0-5,2.2-5,5c0,2.8,2.2,5,5,5h19.1V66.5z"></path>
+  </svg>
+  <span class="cpBylineTextTS">Government Websites by <a href="https://connect.civicplus.com/referral">CivicPlus&reg;</a></span>
+</div>
+</div></div>
+	</div>
+
+	</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+	</div>
+</div></div>
+</div>
+</div>
+
+            </div>
+        </div>
+    </div>
+
+<link href="/745732998.css" rel="stylesheet" type="text/css" />
+
+<div id="SplashMessageWrapper" class="cp-Splash-wrapper">
+	<div role="dialog" aria-labelledby="cp-Splash-title" aria-describedby="editorContentDesc" aria-modal="true" tabindex="-1" id="SplashMessage" class="hidden cp-Splash cp-Splash--modal is-open">
+		<div class="cp-Splash-header">
+			<h2 class="cp-Splash-title" id="cp-Splash-title">Loading</h2>
+			<button class="cp-Splash-Btn cp-Splash-close" aria-label="Close this modal" title="Close this window">
+				<svg id="iconClose" viewBox="0 0 25 25">
+					<polygon style="fill:currentcolor"
+							 points="18.806,6.98 18.075,6.248 12.532,11.792 6.989,6.248 6.257,6.98 11.786,12.508 6.212,18.084 6.943,18.815 12.532,13.224 18.12,18.815 18.851,18.084 13.277,12.508"></polygon>
+				</svg>
+			</button>
+		</div>
+		<div class="cp-Splash-body">
+			<div class="cp-Splash-Prose editorContent fr-view" id="editorContentDesc">
+				<!-- Content from the Froala Editor will go here. -->
+				Loading
+			</div>
+		</div>
+		<div class="cp-Splash-footer">
+			<button class="cp-Splash-Btn cp-Splash-Btn--NoShow">Do Not Show Again</button>
+			<button class="cp-Splash-Btn cp-Splash-Btn--Close">Close</button>
+		</div>
+	</div>
+</div>
+
+<script src="/Assets/Scripts/APIClient.js"></script>
+<script src="/Assets/Mystique/Shared/Scripts/Moment/Moment.min.js"></script>
+<script src="/Assets/Scripts/SplashModal/SplashModalRender.js"></script>
+<script>
+
+		$(document).ready(function () {
+			var filter = {
+				targetId: '453',
+				targetType: 1
+			}
+
+			new SplashModalRender().triggerRender(filter);
+		});
+</script>
+
+
+	
+	
+	
+	
+
+
+
+	
+
+
+
+
+
+
+    <script src="/-1442400649.js" type="text/javascript"></script>
+    <script>
+
+  function googleTranslateElementInit() {
+    var el = document.getElementById("google_translate_element");
+    if (el && el.innerHTML.trim() !== "") {
+        return;
+    }
+
+    new google.translate.TranslateElement({ pageLanguage: "en" }, "google_translate_element");
+    // begin accessibility compliance
+    $('img.goog-te-gadget-icon').attr('alt','Google Translate');
+    $('div#goog-gt-tt div.logo img').attr('alt','translate');
+    $('div#goog-gt-tt .original-text').css('text-align','left');
+    $('.goog-te-gadget-simple .goog-te-menu-value span').css('color','#000000');
+    $('.goog-te-combo').attr('aria-label','google translate languages');
+    $('svg.goog-te-spinner').attr('title','Google Translate Spinner');
+    $('.goog-te-gadget-simple .goog-te-menu-value span').css('color','#000000');
+  }
+
+  $(function() {
+    $.getScript("//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit");
+  });
+
+</script>
+
+<!-- Fixed Nav Adjustment -->
+<script>
+$(window).load(function () {
+	setTimeout(function() {
+	   fixedNavAdjustment();
+	}, 250);
+    $(window).resize(function() {
+		fixedNavAdjustment();
+    });
+    $.when(window.Pages.angularToolbarComplete).done(function () {
+        fixedNavAdjustment();
+    });
+    function fixedNavAdjustment() {        
+        if($('#doneEditing').length === 0) {
+            var divToolbarsHeight = $('#divToolbars').outerHeight();
+            var fixedNavHeight = $('body.wide .fixedTop_ts').height();
+            var contentOffset = divToolbarsHeight + fixedNavHeight;
+            if ($('body.wide #angularToolbarInLegacy').length === 1)
+            {
+                contentOffset -= $('body.wide #angularToolbarInLegacy').outerHeight();    
+            }
+			if (!window.matchMedia('screen and (max-width: 75em)').matches) {
+				$('body.wide .fixedTop_ts').css('padding-top', divToolbarsHeight + 'px');
+				$('#bodyWrapper').css('padding-top', contentOffset + 'px');
+			}else{
+				$('.fixedTop_ts').css('padding-top', 'auto');
+				$('#bodyWrapper').css('padding-top', 'auto');
+			}
+        }
+        else
+        {
+            $('.fixedTop_ts').css('position', 'relative');
+        }
+    };
+});
+</script>
+<!-- End Fixed Nav Adjustment -->
+
+
+<!-- Fixed Nav Adjustment -->
+<script>
+  function getValueTS(elem, attr) {
+    const val = elem.css(attr);
+    if (val === undefined) return undefined;
+    const num = parseInt(val, 10);
+    if (num === NaN) return undefined;
+    return num;
+  }
+
+  function clampTS(number, min, max) {
+    return Math.min(Math.max(number, min), max);
+  }
+
+  function isPageEditingTS() {
+    return (
+      $("#doneEditing").length > 0 || // In live edit
+      typeof DesignCenter !== "undefined" // In theme manager
+    );
+  }
+
+  const bgColorRegexTS = /rgba\((\d+), (\d+), (\d+), (\d*\.?\d*)\)/;
+  function isTransparentTS(elem) {
+    const bg = elem.css('background-color');
+    if (typeof bg !== "string" || !bg.startsWith('rgba(')) return false;
+    const matchState = bg.match(bgColorRegexTS);
+    if (!matchState || matchState.length !== 5) return false;
+    const alpha = parseFloat(matchState[4], 10);
+    if (!(alpha >= 0 && alpha < 1)) return false;
+    return true;
+  }
+
+  function iterateLeftpads(cb) {
+    const containersTS = $("[class^='siteWrap'],[class*=' siteWrap']");
+    for (let i = 0; i < containersTS.length; i++) {
+      const containerTS = containersTS[i];
+      // Skip the body container and anything with data-skip-leftpad
+      if (
+        containerTS.id !== "bodyContainerTS" &&
+        containerTS.getAttribute('data-skip-leftpad') === null
+      ) {
+        cb(containerTS);
+      }
+    }
+  }
+
+  function iterateRightpads(cb) {
+      const containersTS = $("[class^='siteWrap'],[class*=' siteWrap']");
+      for (let i = 0; i < containersTS.length; i++) {
+        const containerTS = containersTS[i];
+        // Skip the body container and anything with data-skip-leftpad
+        if (
+          containerTS.id !== "bodyContainerTS" &&
+          containerTS.getAttribute('data-skip-rightpad') === null
+        ) {
+          cb(containerTS);
+        }
+      }
+    }
+
+  const anchor = $("#divToolbars");
+
+  // Outer banner padding (push banner down)
+  const outerSizingTS = $("#bannerContainerTS");
+  // Inner banner padding (push banner content down) - Transparent header OR on attaching headers
+  const innerSizingTS = $("#bannerSizingTS");
+  const bodyContainerTS = $("#bodyContainerTS");
+  const headerContainerTS = $("#headerContainerTS");
+  const forceUnfixClassTS = "forceUnfixTS";
+
+  const fixedTopTS = $(".fixedTopTS");
+  const fixedBottomTS = $(".fixedBottomTS");
+  const fixedLeftTS = $(".fixedLeftTS");
+  const fixedRightTS = $(".fixedRightTS");
+
+  var initialTopTS;
+  var topAttachTS;
+  if (fixedTopTS && fixedTopTS.length === 1) {
+    initialTopTS = getValueTS(fixedTopTS, 'top');
+    const attachment = fixedTopTS.attr('data-attach');
+    if (attachment) topAttachTS = $("#" + attachment);
+    if (!topAttachTS || topAttachTS.length !== 1) topAttachTS = undefined;
+  }
+
+  function resizeAdjustmentTS() {
+    const editing = isPageEditingTS();
+
+    // Fixed top script
+    (function () {
+      if (!fixedTopTS || fixedTopTS.length !== 1 || initialTopTS === undefined) return;
+
+      if (editing) {
+        fixedTopTS[0].classList.add(forceUnfixClassTS);
+      } else {
+        fixedTopTS[0].classList.remove(forceUnfixClassTS);
+      }
+
+      const topPosition = fixedTopTS.css('position');
+      if (topPosition === 'fixed') {
+        if (topAttachTS) {
+          scrollAdjustmentTS();
+        } else {
+          const anchorHeight = anchor.outerHeight() - 1;
+          fixedTopTS.css('top', anchorHeight + initialTopTS);
+        }
+      } else {
+        fixedTopTS.css('top', initialTopTS);
+      }
+
+      if (topPosition === 'fixed' || topPosition === 'absolute') {
+        // Bump the banner content down
+        if (isTransparentTS(fixedTopTS)) {
+          innerSizingTS.css('padding-top', initialTopTS + fixedTopTS.outerHeight() - 1);
+          outerSizingTS.css('padding-top', '');
+
+          try {
+            window.Pages.onResizeHandlersExecute();
+          } catch (e) { }
+        } else {
+          outerSizingTS.css('padding-top', fixedTopTS.outerHeight() - 1);
+          innerSizingTS.css('padding-top', '');
+        }
+      } else {
+        innerSizingTS.css('padding-top', '');
+        outerSizingTS.css('padding-top', '');
+      }
+    })();
+
+    // Fixed bottom script
+    (function () {
+      if (!fixedBottomTS || fixedBottomTS.length === 0) return;
+
+      // If the widget has gone narrow, force unfix
+      if (editing || fixedBottomTS.outerHeight() > 200) {
+        fixedBottomTS[0].classList.add(forceUnfixClassTS);
+      } else {
+        fixedBottomTS[0].classList.remove(forceUnfixClassTS);
+      }
+
+      if (fixedBottomTS.css('position') === 'fixed') {
+        bodyContainerTS.css('padding-bottom', fixedBottomTS.outerHeight());
+      } else {
+        bodyContainerTS.css('padding-bottom', '');
+      }
+    })();
+
+    // Fixed left script
+    (function () {
+      if (!fixedLeftTS || fixedLeftTS.length === 0) return;
+
+      if (editing) {
+        fixedLeftTS[0].classList.add(forceUnfixClassTS);
+      } else {
+        fixedLeftTS[0].classList.remove(forceUnfixClassTS);
+      }
+
+      if (fixedLeftTS.css('position') === 'fixed') {
+        const anchorHeight = anchor.outerHeight() - 1;
+        const headerHeight = headerContainerTS.outerHeight() - 1;
+        fixedLeftTS.css('top', anchorHeight + headerHeight + 100);
+        const leftBoundingTS = fixedLeftTS[0].getBoundingClientRect();
+        iterateLeftpads(function (containerTS) {
+          const containerBoundingTS = containerTS.getBoundingClientRect();
+          if (containerBoundingTS.left <= leftBoundingTS.right) {
+            $(containerTS).css('padding-left', leftBoundingTS.width + 16);
+          }
+        });
+      } else {
+        fixedLeftTS.css('top', '');
+        iterateLeftpads(function (containerTS) {
+          $(containerTS).css('padding-left', '');
+        });
+      }
+    })();
+
+    // Fixed right script
+    (function () {
+        if (!fixedRightTS || fixedRightTS.length === 0) return;
+  
+        if (editing) {
+          fixedRightTS[0].classList.add(forceUnfixClassTS);
+        } else {
+          fixedRightTS[0].classList.remove(forceUnfixClassTS);
+        }
+  
+        if (fixedRightTS.css('position') === 'fixed') {
+          const anchorHeight = anchor.outerHeight() - 1;
+          const headerHeight = headerContainerTS.outerHeight() - 1;
+          fixedRightTS.css('top', anchorHeight + headerHeight + 100);
+          const rightBoundingTS = fixedRightTS[0].getBoundingClientRect();
+          iterateRightpads(function (containerTS) {
+            const containerBoundingTS = containerTS.getBoundingClientRect();
+            if (containerBoundingTS.left <= rightBoundingTS.right) {
+              $(containerTS).css('padding-right', rightBoundingTS.width + 16);
+            }
+          });
+        } else {
+          fixedRightTS.css('top', '');
+          iterateRightpads(function (containerTS) {
+            $(containerTS).css('padding-right', '');
+          });
+        }
+      })();
+  }
+
+  function scrollAdjustmentTS() {
+    if (!fixedTopTS || fixedTopTS.length !== 1 || !topAttachTS || topAttachTS.length !== 1) return;
+    const topPosition = fixedTopTS.css('position');
+    if (topPosition === 'fixed' || topPosition === 'absolute') {
+      const anchorBounding = anchor[0].getBoundingClientRect();
+      const attachBounding = topAttachTS[0].getBoundingClientRect();
+      const scrollTop = $(window).scrollTop();
+
+      fixedTopTS.css('top', Math.max(anchorBounding.bottom - 1, attachBounding.bottom));
+    } else {
+      fixedTopTS.css('top', initialTopTS);
+    }
+  }
+
+  $(window).load(function () {
+    setTimeout(function () {
+      resizeAdjustmentTS();
+    }, 350);
+
+    $(window).scroll(function () {
+      scrollAdjustmentTS();
+    });
+
+    var adjustTimeoutTS;
+    $(window).resize(function () {
+      clearTimeout(adjustTimeoutTS);
+      adjustTimeoutTS = setTimeout(function () {
+        resizeAdjustmentTS();
+      }, 350);
+    });
+
+    $.when(window.Pages.angularToolbarComplete).done(function () {
+      resizeAdjustmentTS();
+    });
+  });
+</script>
+<!-- End Fixed Nav Adjustment -->
+
+
+    <script type="text/javascript">
+        $(function () {
+            document.cookie = "responsiveGhost=0; path=/";
+        });
+        $(window).on("load", function () {
+            $('body').addClass('doneLoading').removeClass('hideContent');
+
+            if ($('#404Content').length > 0)
+                $('div#bodyWrapper').css('padding', '0px');
+        });
+    </script>
+
+    <noscript>
+        <style>
+            body.hideContent {
+                opacity: 1 !important;
+            }
+        </style>
+    </noscript>
+
+        
+<div style="display: none;">
+	<svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
+
+		<symbol id="iconArrow--left" viewbox="0 0 25 25">
+			<title>Arrow Left</title>
+			<polygon style="fill:currentcolor" points="18.044,25 19.498,23.545 8.409,12.454 19.408,1.455 17.954,0 5.502,12.452"></polygon>
+		</symbol>
+
+		<symbol id="iconArrow--right" viewbox="0 0 25 25">
+			<title>Arrow Right</title>
+			<polygon style="fill:currentcolor" points="6.957,0 5.502,1.455 16.591,12.546 5.592,23.545 7.047,25 19.498,12.548"></polygon>
+		</symbol>
+
+	</svg>
+</div>
+    <script type="text/javascript">loadCSS('//fonts.googleapis.com/css?family=Montserrat:500,600,700,800,italic,regular|Poppins:500,600,700,regular|Raleway:500,600,700,800,900,regular|');</script>
+    
+
+    <div class="hidden activeWidgetSkinComponentsOnPageJson">[]</div>
+        <div style="display: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                <symbol id="iconSlideshowArrowLeft" viewBox="0 0 22.68 40">
+                    <title>Slideshow Left Arrow</title>
+                    <g>
+                        <path style="fill:currentcolor;" d="M20,40a2.67,2.67,0,0,1-1.9-.79L.79,21.9a2.68,2.68,0,0,1,0-3.79L18.1.79a2.68,2.68,0,1,1,3.79,3.79L6.47,20,21.89,35.42A2.68,2.68,0,0,1,20,40Z"></path>
+                    </g>
+                </symbol>
+                <symbol id="iconSlideshowArrowRight" viewBox="0 0 22.68 40">
+                    <title>Slideshow Right Arrow</title>
+                    <g>
+                        <path style="fill:currentcolor;" d="M2.68,0a2.67,2.67,0,0,1,1.9.79L21.89,18.1a2.68,2.68,0,0,1,0,3.79L4.58,39.21A2.68,2.68,0,0,1,.79,35.42L16.21,20,.79,4.58A2.68,2.68,0,0,1,2.68,0Z"></path>
+                    </g>
+                </symbol>
+            </svg>
+        </div>
+    
+	
+	
+
+    <div id="root-picker-outlet"></div>
+</body>
+</html>

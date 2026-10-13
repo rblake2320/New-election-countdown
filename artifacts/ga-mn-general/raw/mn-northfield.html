@@ -1,0 +1,2909 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+	<meta http-equiv="Content-type" content="text/html; charset=UTF-8" />
+<!-- Google Tag Manager for GA4 -->
+				<script>(function(w,d,s,l,i){w.GAMeasurementID='G-W844XEC2YL';w[l]=w[l]||[];w[l].push({'gtm.start':
+				new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+				j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+				'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+				})(window,document,'script','cpDataLayerGA4','GTM-K73C5PS');</script>
+				<!-- End Google Tag Manager for GA4 -->
+				<script type='text/javascript'>
+					var enableTelemetry = 'false'
+					var aiConfig = {
+					instrumentationKey: '1cde048e-3185-4906-aa46-c92a7312b60f'						
+					}
+					var appInsights = window.appInsights || function (a) { function b(a) { c[a] = function () { var b = arguments; c.queue.push(function () { c[a].apply(c, b) }) } } var c = { config: a }, d = document, e = window; setTimeout(function () { var b = d.createElement('script'); b.src = a.url || 'https://js.monitor.azure.com/scripts/a/ai.0.js', d.getElementsByTagName('script')[0].parentNode.appendChild(b) }); try { c.cookie = d.cookie } catch (a) { } c.queue = []; for (var f = ['Event', 'Exception', 'Metric', 'PageView', 'Trace', 'Dependency']; f.length;)b('track' + f.pop()); if (b('setAuthenticatedUserContext'), b('clearAuthenticatedUserContext'), b('startTrackEvent'), b('stopTrackEvent'), b('startTrackPage'), b('stopTrackPage'), b('flush'), !a.disableExceptionTracking) { f = 'onerror', b('_' + f); var g = e[f]; e[f] = function (a, b, d, e, h) { var i = g && g(a, b, d, e, h); return !0 !== i && c['_' + f](a, b, d, e, h), i } } return c }(aiConfig);
+					window.appInsights = appInsights, appInsights.queue && 0 === appInsights.queue.length;
+					// Add telemetry initializer
+					appInsights.queue.push(function() {
+						appInsights.context.addTelemetryInitializer(function(envelope) {
+							var telemetryItem = envelope.data.baseData;
+							// To check the telemetry item’s type:
+							if (!false)
+							{
+								//If the telemetry is not enabled, we still want to capture Google map custom event, so only allow that
+								if (envelope.name.indexOf('.Event') == -1)
+									return false;
+							}
+						});
+					});						
+					appInsights.trackPageView();
+				</script>
+	<script>
+		function populateAntiForgery(token) {
+			var input = document.createElement("input");
+			input.name = "__RequestVerificationToken";
+			input.type = "hidden";
+			input.value = token;
+			var absPat = /^https?:\/\/|^\/\//i;
+			var forms = document.getElementsByTagName("form");
+			for (var i = 0; i < forms.length; i++) {
+				if (forms[i].method == "post" &&
+					!forms[i].querySelector('[name="__RequestVerificationToken"]') &&
+					!absPat.test(forms[i].getAttribute("action"))) {
+					forms[i].appendChild(input.cloneNode());
+				}
+			}
+		}
+
+		function getAntiForgeryToken(callback, error) {
+			var xhr = new XMLHttpRequest();
+			xhr.open("GET", "/antiforgery");
+			xhr.addEventListener("load", function() {
+				try {
+					if (this.status !== 200) {
+						throw Error("Invalid status. Could not retrieve antiforgery token.");
+					}
+					var obj = JSON.parse(this.responseText);
+					callback(obj.token);
+				} catch (e) {
+					typeof error === "function" && error(e);
+				}
+			});
+			xhr.send();
+		}
+
+		getAntiForgeryToken(function(token) {
+			if (document.readyState === "complete"
+				|| document.readyState === "loaded" 
+				|| document.readyState === "interactive") {
+				populateAntiForgery(token);
+				return;
+			}
+			document.addEventListener("DOMContentLoaded", function() {
+				populateAntiForgery(token);
+			}, false);
+		}, console.error);
+	</script>
+			
+
+	<script type="text/javascript">
+		window.departmentHeader = {};
+		window.pageSectionTracker = {};
+		window.isResponsiveEnabled = true;
+		window.isRemoveSetHeights= false;
+		if (window.isRemoveSetHeights) {
+			document.documentElement.className += ' removeSetHeights';
+		}
+		window.mainMenuMediaQuery = 'screen and (max-width: 40em)';
+		window.isMobileBrowserIncludingTablets = false;
+		window.fixedResponsiveMenu = false;
+		window.fullWidthResponsiveMenu = false;
+		window.responsiveMenuHeight = '';
+		window.responsiveMenuFontSize = '';
+		window.isContentAdvisor = false;
+		(function () {
+			window.setSizeCookie = function () {
+				document.cookie = "dpi=" + window.devicePixelRatio + "; path=/";
+				document.cookie = "viewportWidth=" + window.innerWidth + "; path=/";
+				document.cookie = "viewportHeight=" + window.innerHeight + "; path=/";
+				if (screen && screen.width && screen.height) {
+					document.cookie = "screenWidth=" + screen.width + "; path=/";
+					document.cookie = "screenHeight=" + screen.height + "; path=/";
+				}
+				document.cookie = "responsiveGhost=1; path=/";
+			};
+
+			setSizeCookie();
+		}());
+	</script>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<script async src="https://docaccess.com/docbox.js"></script>
+	
+	<meta name="category0" content="Home" />
+<meta name="category1" content="Government" />
+<meta name="category2" content="Elections &amp; Voter Information" />
+<meta name="category3" content="Absentee and Early Voting" />
+
+	
+	<meta name="theme-color" content="rgb(40, 45, 114)">
+	<link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+	<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
+		<title>Absentee and Early Voting | Northfield, MN - Official Website</title>
+
+		<meta name="description" content="Prior to the primary or general election, Minnesota voters may choose to vote by absentee by mail, absentee/early in person, or by using a designated agent.">
+		<meta name="keywords" content="Absentee/Early Voting">
+			<script src="/Assets/Scripts/jQuery/jquery-3.7.1.min.js"></script>
+	<script src="/Assets/Scripts/jQuery/jquery-migrate-3.6.0.min.js" type="text/javascript"></script>
+	
+
+	<!--[if IE 6]><script language="JavaScript" type="text/javascript"> var isie6 = true; </script><![endif]-->
+	<!--[if IE 7]><script language="JavaScript" type="text/javascript"> var isie7 = true; </script><![endif]-->
+	<!--[if IE 8]><script language="JavaScript" type="text/javascript"> var isie8 = true; </script><![endif]-->
+	<!--[if IE 9]><script language="JavaScript" type="text/javascript"> var isie8 = true; </script><![endif]-->
+	<script type="text/javascript"><!--
+	var intCountryCode = 840;
+	var order = '';
+//--></script>
+	
+	<link href="/-2140275272.css" rel="stylesheet" type="text/css" />	<link href="/1529113918.css" rel="stylesheet" type="text/css" />
+
+	<link rel="stylesheet" type="text/css" href="/Assets/Styles/Print.css" media="print">
+	<script type="text/javascript">
+		window.Pages = window.Pages || {};
+		// FrontEnd RWD initialization
+		window.Pages.rwdReady = $.Deferred();
+		window.Pages.toolBarDeferred = $.Deferred();
+		window.Pages.rwdSetupComplete = $.Deferred();
+		window.Pages.megaMenuLoaded = $.Deferred();
+		window.Pages.angularToolbarComplete = $.Deferred();
+		window.Pages.frontEndToolbarComplete = $.Deferred();
+	</script>
+	<!--CPHeadContent-->
+	<script src="/739942322.js" type="text/javascript"></script>
+	
+	
+	
+	
+
+
+
+
+	<!--[if lte IE 8]><link rel="stylesheet" type="text/css" href="/App_Themes/ie8.css"><![endif]-->
+	<!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="/App_Themes/ie7.css"><![endif]-->
+	<!--[if lte IE 6]><link rel="stylesheet" type="text/css" href="/App_Themes/ie6.css"><![endif]-->
+	<!--[if lt IE 9]><script type="text/javascript" src="/Scripts/html5.js"></script><![endif]-->
+
+	<script type="text/javascript">
+		setEditorVariables(false, 840);
+		function getPrintPreviewType() { return 0; } function printPreview() {pPreview(getPrintPreviewType()); }
+	</script>
+	<script src="/Assets/Scripts/AlpineJS/3.14.1/alpine.min.js" type="text/javascript" defer="defer"></script>
+</head>
+<body class="wide " >
+
+    <script>jQuery(document).click(function (event) {
+	var target = jQuery(event.target);
+	if (target.attr('src') && target.parents('.image').length && target.parents('.widget').length) {
+		var text = target.attr('title');
+		
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Image',
+				eventAction: 'Image - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.is('button') || target.hasClass('button') || target.parents().hasClass('button')) {
+		var text = "";
+		if (target.parents('.button')[0]) {
+			text = target.parents('.button').first().text();
+		} else if (target.text().length) {
+			text = target.text();
+		} else if (target.attr('title').length) {
+			text = target.attr('title');
+		}
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Button',
+				eventAction: 'Button - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.widgetCustomHtml').length) {
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Custom Html',
+				eventAction: 'Custom Html Clicked',
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.editor').length) {
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Editor',
+				eventAction: 'Editor Link Clicked',
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.GraphicLinks').length) {
+		var text = "";
+		var targetGraphicLink = target;
+		if (target.hasClass('widgetGraphicLinksLink')) {
+			targetGraphicLink = jQuery(target.children()[0]);
+		}
+		if (targetGraphicLink.hasClass('text')) {
+			text = targetGraphicLink.text();
+		} else if (targetGraphicLink.attr('src').length) {
+			if (targetGraphicLink.attr('alt').length) {
+				text = targetGraphicLink.attr('alt');
+			} else {
+				text = targetGraphicLink.attr('src');
+			}
+		} else {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Graphic Links',
+				eventAction: 'Graphic Link - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.InfoAdvanced').length) {
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Info Advanced',
+				eventAction: 'Info Advanced Clicked',
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.list').length) {
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'List',
+				eventAction: 'List Clicked',
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.megaMenuItem').length || target.parents('.topMenuItem').length) {
+		var megaMenuText = jQuery('.topMenuItem.mouseover').find('span').text();
+		var breadCrumbs = [];
+		jQuery('.breadCrumbs > li').each(function () {
+			 breadCrumbs.push(this.textContent);
+		});
+		var pageTitle = breadCrumbs.join('>');
+		var subTitleText = target.parents('.megaMenuItem').children('.widgetTitle').children().text();
+		var text = "";
+		if (pageTitle) {
+			text += pageTitle + " | ";
+		} else {
+			text += document.title + ' - ';
+		}
+		if (target.text() == "" && megaMenuText == "") {
+			text += "N/A";
+		} else if (target.text().length && megaMenuText.length) {
+			if (megaMenuText == target.text()) {
+				text += megaMenuText;
+			} else {
+				text += megaMenuText + " - " + subTitleText + " - " + target.text();
+			}
+		} else if (target.text() == "") {
+			text += megaMenuText;
+		} else {
+			text += target.text();
+		}
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Mega Menu',
+				eventAction: 'Mega Menu : ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.widgetNewsFlash').length && target.parents('.widgetItem').length) {
+		var text = jQuery(target.parents('.widgetItem')[0]).find('.widgetTitle').children().text();
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'News Flash',
+				eventAction: 'News Flash - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.hasClass('widgetQuickLinksLink') || target.find('.widgetQuickLinksLink').length) {
+		var text = target.text();
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Quick Links',
+				eventAction: 'Quick Links - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.attr('src') && target.parents('.cpSlideshow').length) {
+		var text = target.attr('title');
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Slideshow',
+				eventAction: 'Slideshow - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.widgetText').length) {
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Text',
+				eventAction: 'Text Link Clicked',
+				eventLabel: window.location.href
+			});
+	}
+});</script>
+	<div id="popoverModal" class="cp-PopOver cp-PopOver--modal cp-AdminWrap" style="position: fixed; display: none;">
+	<div class="cp-PopOver-header">
+		<h3 class="cp-PopOver-title"></h3>
+		<button class="cp-Btn cp-PopOver-close" onclick="closePopOverModal(event)">
+			<svg class="cp-Icon--close" alt="close" title="close">
+				<use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#iconClose"></use>
+			</svg>
+		</button>
+	</div>
+	<div id="cpPopOverBody" class="cp-PopOver-body">
+		<form id="cpPopOverForm" name="cpPopOverForm" novalidate></form>
+	</div>
+	<div id="cpPopOverFooter" class="cp-PopOver-footer">
+		<div class="cp-BtnGroup" id="actionButtons">
+			<!-- Action buttons will be dynamically added here -->
+		</div>
+	</div>
+</div>
+    <div id="fb-root"></div>
+<div id=skipToContentLinks>
+<a href="#cc934ab78c-c0b1-4fe6-9c44-de9759a17df9" target="_self" class="skipToContentLink">Skip to Main Content</a>
+</div>
+    <form id="frmReferenceFormForTelerikEditorDialogs"></form>
+
+        <input type="hidden" id="GoogleMapsKey" value="AIzaSyDWUuE-ifkbhxblF920N8MjpBdTg1Wt784" />
+
+
+
+    <input type="hidden" id="cpcDomain" value="https://cp-civicplusuniversity2.civicplus.com">
+    <input type="hidden" id="hdnStructureID" value="10" />
+    <input type="hidden" id="hdnContentCollectionID" value="85dde462-6865-4321-83d4-6d3e1729deae" />
+    <input type="hidden" id="hdnWorkingCopyID" value="00000000-0000-0000-0000-000000000000" />
+    <input type="hidden" id="hdnThemeID" value="14" />
+    <input type="hidden" id="pageIsFrontEnd" value="true" />
+    <input type="hidden" id="pageModuleID" />
+    <input type="hidden" id="pagePageID" value="121" />
+
+    <div id="stickyPlaceholder"></div>
+    <div id="outer-wrap" class="outer-wrap">
+        <div id="inner-wrap" class="inner-wrap">
+                <div id="divToolbars" class="cpToolbars newCP mui-fixed" style="">
+                    
+
+
+
+                </div>
+            <div id="bodyWrapper">
+                <div id="mainNavHolderMobile" class="mainNavHolderMobile"></div>
+                
+<div data-cpRole="structuralContainer" id="bodyContainerTS">
+<!-- Header Container --><header data-cpRole="structuralContainer" id="headerContainerTS" class="fixedTopTS"><div class="inner">
+<div class="siteWrap" id="flexHeaderTS"><div data-cpRole="banner" id="bannerLogoTS" class="bannerLogoTS empty">
+
+
+
+
+				<a id="bannerLogoTS-38" style="			display: block; text-align: center;
+" class="bannerObject" href="/" target="_self"><img alt="Northfield MN Homepage" class="bannerObject" height="88" src="/ImageRepository/Document?documentID=21195" width="367" /></a>
+</div><nav data-cpRole="nav" id="mainNav" class="siteNav mainNav" role="navigation">
+<ol id="mainNavMenu" data-parent="1" class="rootNavMenu" role="menu"><!--
+--><li id="MainItem96" class="topMenuItem" role="none" data-pageid="96" data-displaymegamenu="True"><!--
+			--><!--
+			--> <a role = "menuitem"  aria-haspopup=true aria-expanded='false' aria-controls="mainNavMegaMenu96" id = "mainNavGovernment" class="navMainItem mainNavItem mainNavItem1 " href="/96/Government" target = "_self" >   Government  </a>			<!--
+			--><!--
+			--></li><!----><li id="MainItem128" class="topMenuItem" role="none" data-pageid="128" data-displaymegamenu="True"><!--
+			--><!--
+			--> <a role = "menuitem"  aria-haspopup=true aria-expanded='false' aria-controls="mainNavMegaMenu128" id = "mainNavCityServices" class="navMainItem mainNavItem mainNavItem2 " href="/128/City-Services" target = "_self" >   City Services  </a>			<!--
+			--><!--
+			--></li><!----><li id="MainItem1483" class="topMenuItem" role="none" data-pageid="1483" data-displaymegamenu="True"><!--
+			--><!--
+			--> <a role = "menuitem"  aria-haspopup=true aria-expanded='false' aria-controls="mainNavMegaMenu1483" id = "mainNavHomeYard" class="navMainItem mainNavItem mainNavItem3 " href="/1483/Home-Yard" target = "_self" >   Home &amp; Yard  </a>			<!--
+			--><!--
+			--></li><!----><li id="MainItem159" class="topMenuItem" role="none" data-pageid="159" data-displaymegamenu="True"><!--
+			--><!--
+			--> <a role = "menuitem"  aria-haspopup=true aria-expanded='false' aria-controls="mainNavMegaMenu159" id = "mainNavDoingBusiness" class="navMainItem mainNavItem mainNavItem4 " href="/159/Doing-Business" target = "_self" >   Doing Business  </a>			<!--
+			--><!--
+			--></li><!----><li id="MainItem416" class="topMenuItem" role="none" data-pageid="416" data-displaymegamenu="True"><!--
+			--><!--
+			--> <a role = "menuitem"  aria-haspopup=true aria-expanded='false' aria-controls="mainNavMegaMenu416" id = "mainNavOurCommunity" class="navMainItem mainNavItem mainNavItem5 " href="/416/Our-Community" target = "_self" >   Our Community  </a>			<!--
+			--><!--
+			--></li><!----><li id="MainItem407" class="topMenuItem" role="none" data-pageid="407" data-displaymegamenu="True"><!--
+			--><!--
+			--> <a role = "menuitem"  aria-haspopup=true aria-expanded='false' aria-controls="mainNavMegaMenu407" id = "mainNavHowDoI" class="navMainItem mainNavItem mainNavItem6 " href="/407/How-Do-I" target = "_self" >   How Do I...  </a>			<!--
+			--><!--
+			--></li><!---->
+</ol>
+
+
+	<script type="text/javascript">
+		(function () {
+			function setupMenu() {
+				const menuID = 'mainNavMenu';
+				const menuType = MAIN_MENU;
+
+				//setup menu manager properties for main menu
+				if (!menuManager.mobileMainNav && true)
+					menuManager.adjustMainItemsWidth('#' + menuID);
+				menuManager.isMainMenuEditable = false;
+				menuManager.mainMenuMaxSubMenuLevels = 4;
+				menuManager.setMOMMode(2, menuType);
+
+				//Init main menu
+				const setupDraggable = menuManager.isMainMenuEditable;
+				const urlToGetHiddenMenus = '/Pages/MenuMain/HiddenMainSubMenus?pageID=1&moduleID=&themeID=14&menuContainerID=mainNav';
+
+				menuManager.setupMenu(menuID, 'mainNav', menuType, setupDraggable, urlToGetHiddenMenus);
+				menuManager.mainMenuInit = true;
+				menuManager.mainMenuTextResizer = true;
+				if (1.00 > 0)
+					menuManager.mainMenuTextResizerRatio = 1.00;
+				if (window.isResponsiveEnabled)
+					menuManager.mainMenuReady.resolve();
+
+			}
+
+			if (document.readyState === "complete"
+				|| document.readyState === "loaded"
+				|| document.readyState === "interactive") {
+				setupMenu();
+				return;
+			}
+
+			document.addEventListener("DOMContentLoaded", setupMenu);
+		})();
+	</script>
+
+
+<aside data-cpRole="megaMenu" id="megaMenu" class="megaMenu" style="display: none;"><input type="hidden" id="megaMenuPopupDirection" value="0"><input type="hidden" id="megaMenuWidthReference" value="1"><aside role="menu" data-cpRole="contentContainer" id="mainNavMegaMenu96" class="contentTop mainNavMegaMenu megaMenuContainer pageID_96 hidden" data-orientation="horizontal">	<div id="cc33f0006f-70dd-4b2b-b93d-b12653797ff5" data-containerid="33f0006f-70dd-4b2b-b93d-b12653797ff5" class="pageContent cpGrid cpGrid24">
+				                
+
+
+
+	</div>
+</aside><aside role="menu" data-cpRole="contentContainer" id="mainNavMegaMenu128" class="contentTop mainNavMegaMenu megaMenuContainer pageID_128 hidden" data-orientation="horizontal">	<div id="cca100aae1-1e35-4ca7-befd-313be6cde1c0" data-containerid="a100aae1-1e35-4ca7-befd-313be6cde1c0" class="pageContent cpGrid cpGrid24">
+				                
+
+
+
+	</div>
+</aside><aside role="menu" data-cpRole="contentContainer" id="mainNavMegaMenu1483" class="contentTop mainNavMegaMenu megaMenuContainer pageID_1483 hidden" data-orientation="horizontal">	<div id="cc3d1b1d62-1a28-4835-bf75-76d182873fd2" data-containerid="3d1b1d62-1a28-4835-bf75-76d182873fd2" class="pageContent cpGrid cpGrid24">
+				                
+
+
+
+	</div>
+</aside><aside role="menu" data-cpRole="contentContainer" id="mainNavMegaMenu159" class="contentTop mainNavMegaMenu megaMenuContainer pageID_159 hidden" data-orientation="horizontal">	<div id="cc372f62c7-094d-41cd-9d52-c9cf9ed73aa8" data-containerid="372f62c7-094d-41cd-9d52-c9cf9ed73aa8" class="pageContent cpGrid cpGrid24">
+				                
+
+
+
+	</div>
+</aside><aside role="menu" data-cpRole="contentContainer" id="mainNavMegaMenu416" class="contentTop mainNavMegaMenu megaMenuContainer pageID_416 hidden" data-orientation="horizontal">	<div id="cc85babad2-6040-4a52-9aa8-6575454a0a1f" data-containerid="85babad2-6040-4a52-9aa8-6575454a0a1f" class="pageContent cpGrid cpGrid24">
+				                
+
+
+
+	</div>
+</aside><aside role="menu" data-cpRole="contentContainer" id="mainNavMegaMenu407" class="contentTop mainNavMegaMenu megaMenuContainer pageID_407 hidden" data-orientation="horizontal">	<div id="ccb93b90be-36d6-4d0a-8665-71f54a2f52b5" data-containerid="b93b90be-36d6-4d0a-8665-71f54a2f52b5" class="pageContent cpGrid cpGrid24">
+				                
+
+
+
+	</div>
+</aside></aside></nav></div></div>
+</header><!-- Banner --><div data-cpRole="structuralContainer" id="bannerContainerTS" class="noOverflowTS">
+<div data-cpRole="banner" id="banner1"><div data-cpRole="structuralContainer" id="bannerSizingTS">
+<div data-cpRole="structuralContainer" id="bannerSearchTS">
+<div class="siteWrap2"><div data-cpRole="contentContainer" id="searchTS">	<div id="cc60ee1f23-d9dc-43a0-952c-2b4b9e6524f4" data-containerid="60ee1f23-d9dc-43a0-952c-2b4b9e6524f4" class="pageContent cpGrid cpGrid24 isLockedContainer showInMobile">
+				                
+
+		<div class="row outer wide"><!--
+--><div class="outer col col24 first last" style="" data-widgetcontainerid="c639eb4e-5af9-45d7-8c43-0a120fd2f6cf">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col24 first last ide44c6351-2bbf-4c92-8dc0-9d27ede32a8c" style="" data-widgetcontainerid="e44c6351-2bbf-4c92-8dc0-9d27ede32a8c">	
+<div data-widget-id="7f6d1316-c084-41b2-b1f6-eebcb5b1a047" data-widget-controller-path="/Layout/WidgetSearch">
+	
+	<script defer type="text/javascript" src="/Common/Controls/jquery-ui-1.14.2/jquery-ui.min.js"></script>
+	<script defer src="/Areas/Layout/Assets/Scripts/Search.js" type="text/javascript"></script>
+	<script defer type="text/javascript">
+
+		$(document).ready(function () {
+			try {
+				// Minimum characters required before performing a search/autocomplete
+				var minPrefixLength = 3;
+				var autoCompleteDebounceDelay = 500;
+				var searchFieldSelector = "#searchField" + '7f6d1316-c084-41b2-b1f6-eebcb5b1a047';
+				var checkboxSelector = "#ysnSearchOnlyDept" + '7f6d1316-c084-41b2-b1f6-eebcb5b1a047';
+				var buttonSelector = ".widgetSearchButton" + '7f6d1316-c084-41b2-b1f6-eebcb5b1a047';
+				var autoCompleteCache = {};
+				var autoCompleteCacheKeys = [];
+				var autoCompleteCacheLimit = 25;
+				var currentAutoCompleteRequest = null;
+				var currentAutoCompleteRequestKey = null;
+				var autoCompleteDebounceTimer = null;
+				var autoCompleteDebounceKey = null;
+				var pendingAutoCompleteResponses = [];
+
+				function normalizeAutoCompleteTerm(term) {
+					return $.trim((term || "") + "").replace(/\s+/g, " ");
+				}
+
+				function shouldSearch(term) {
+					return normalizeAutoCompleteTerm(term).length >= minPrefixLength;
+				}
+
+				function getAutoCompleteUrl() {
+					return '/Search/AutoComplete' + ($(checkboxSelector).is(':checked') || false? '?departmentId=0' : '');
+				}
+
+				function getAutoCompleteCacheKey(requestUrl, term) {
+					return requestUrl + "|" + term.toLowerCase();
+				}
+
+				function cacheAutoCompleteResult(cacheKey, data) {
+					if (!Object.prototype.hasOwnProperty.call(autoCompleteCache, cacheKey)) {
+						autoCompleteCacheKeys.push(cacheKey);
+						if (autoCompleteCacheKeys.length > autoCompleteCacheLimit) {
+							delete autoCompleteCache[autoCompleteCacheKeys.shift()];
+						}
+					}
+					autoCompleteCache[cacheKey] = data;
+				}
+
+				function respondToPendingAutoComplete(data) {
+					var responses = pendingAutoCompleteResponses;
+					pendingAutoCompleteResponses = [];
+					for (var i = 0; i < responses.length; i++) {
+						responses[i](data);
+					}
+				}
+
+				function cancelPendingAutoComplete() {
+					clearTimeout(autoCompleteDebounceTimer);
+					autoCompleteDebounceKey = null;
+					if (currentAutoCompleteRequest != null) {
+						currentAutoCompleteRequest.abort();
+						currentAutoCompleteRequest = null;
+					}
+					currentAutoCompleteRequestKey = null;
+					respondToPendingAutoComplete([]);
+				}
+
+				function createWidgetAutoCompleteSource(options) {
+					return function (request, response) {
+						var term = normalizeAutoCompleteTerm(request.term);
+						if (!options.shouldSearch(term)) {
+							response([]);
+							return;
+						}
+
+						var requestUrl = options.url();
+						var cacheKey = getAutoCompleteCacheKey(requestUrl, term);
+						if (Object.prototype.hasOwnProperty.call(autoCompleteCache, cacheKey)) {
+							response(autoCompleteCache[cacheKey]);
+							if (options.success) {
+								options.success(autoCompleteCache[cacheKey]);
+							}
+							return;
+						}
+
+						if (currentAutoCompleteRequestKey === cacheKey || autoCompleteDebounceKey === cacheKey) {
+							pendingAutoCompleteResponses.push(response);
+							return;
+						}
+
+						cancelPendingAutoComplete();
+						autoCompleteDebounceKey = cacheKey;
+						pendingAutoCompleteResponses.push(response);
+						autoCompleteDebounceTimer = setTimeout(function () {
+							autoCompleteDebounceKey = null;
+							currentAutoCompleteRequestKey = cacheKey;
+							currentAutoCompleteRequest = $.ajax({
+								url: requestUrl,
+								dataType: "json",
+								timeout: options.timeout,
+								data: {
+									term: term,
+								},
+								success: function (data) {
+									if (currentAutoCompleteRequestKey === cacheKey) {
+										cacheAutoCompleteResult(cacheKey, data);
+										respondToPendingAutoComplete(data);
+										if (options.success) {
+											options.success(data);
+										}
+									}
+								},
+								error: function (xmlhttprequest, textstatus, message) {
+									if (textstatus === "abort") {
+										return;
+									}
+
+									if (options.error) {
+										options.error(xmlhttprequest, textstatus, message);
+									}
+
+									respondToPendingAutoComplete([]);
+								},
+								complete: function (xmlhttprequest) {
+									if (currentAutoCompleteRequest === xmlhttprequest) {
+										currentAutoCompleteRequest = null;
+										currentAutoCompleteRequestKey = null;
+									}
+								}
+							});
+						}, options.delay);
+					};
+				}
+
+				// click handler for search buttons
+				$(buttonSelector).click(function (e) {
+					e.preventDefault();
+					var $btn = $(this);
+					var $field = $btn.siblings(".widgetSearchBox");
+					var term = $field.val() + "";
+					if (!shouldSearch(term)) {
+						// do nothing until user types enough characters
+						$field.focus();
+						return;
+					}
+
+					if ($(checkboxSelector).is(':checked') || false)
+					{
+						doWidgetSearch($.trim(term), Number(0));
+					}
+					else {
+						doWidgetSearch($.trim(term), 0);
+					}
+				});
+
+				// enter key handler for the search field
+				$(searchFieldSelector).keypress(function (e) {
+					var code = e.which || e.keyCode;
+					if (code === 13) {
+						e.preventDefault();
+						var $this = $(this);
+						var term = $this.val() + "";
+						if (!shouldSearch(term)) {
+							// do nothing until user types enough characters
+							$this.focus();
+							return false;
+						}
+
+						if ($(checkboxSelector).is(':checked') || false) {
+							doWidgetSearch($.trim(term), Number(0));
+						} else {
+							doWidgetSearch($.trim(term), 0);
+						}
+						return false;
+					}
+					return true;
+				});
+
+				// autocomplete: set minLength and guard source
+				if (true) {
+					var $searchField = $(searchFieldSelector).autocomplete({
+						minLength: minPrefixLength,
+						source: createWidgetAutoCompleteSource({
+							delay: autoCompleteDebounceDelay,
+							timeout: 10000,
+							shouldSearch: shouldSearch,
+							url: getAutoCompleteUrl,
+							success: function () {
+								$('.autoCompleteError').remove();
+							},
+							error: function (xmlhttprequest, textstatus, message) {
+								if (textstatus === "timeout") {
+									if ($(searchFieldSelector).siblings('.autoCompleteError').length == 0)
+										$('<span class="autoCompleteError"><p class="alert error">Search autocomplete is currently not responding. Please try again later.</p></span>').insertAfter($(searchFieldSelector));
+								}
+							}
+						}),
+						html: true,
+						delay: 0,
+						select: function (event, ui) {
+							$(this).val(ui.item.value);
+							$(this).next().click();
+						}
+					});
+
+					$searchField.data("ui-autocomplete")._renderItem = function (ul, item) {
+						return $("<li class=\"itemList\"></li>")
+							.data("ui-autocomplete-item", item)
+							.append("<a>" + item.label + "</a>")
+							.appendTo(ul);
+					};
+				}
+
+				// keep searchBtnApplyQuery consistent with prefix rule
+				window.searchBtnApplyQuery = function() {
+					var $field = $(searchFieldSelector);
+					var term = $field.val() + "";
+					if (shouldSearch(term)) {
+						// update href for the icon/button (if present)
+						var btn = document.getElementById("btnSearchIcon");
+						if (btn) btn.href = "/Search?searchPhrase=" + encodeURIComponent($.trim(term));
+					} else {
+						var btn = document.getElementById("btnSearchIcon");
+						if (btn) btn.href = "#";
+					}
+				};
+			}
+			catch(e) {} //we're going to eat this error. Autocomplete won't work but we dont wan't to break anything else on the page.
+		});
+	</script>
+
+	<section id="widgetPreviewSearch" class="widget widgetSearch skin27 widgetOptionSet38" style="display: block;" aria-label="Search">
+				<!-- For the button right and inside -->
+		<div class="widgetBody buttonRightInside">
+			<input class="widgetSearchBox widgetSearchBox7f6d1316-c084-41b2-b1f6-eebcb5b1a047" cp5ph="true" id="searchField7f6d1316-c084-41b2-b1f6-eebcb5b1a047" name="searchField" onchange="searchBtnApplyQuery();" placeholder="Search…" type="text" value="" />
+						<a href="/Search/Results" id="btnSearchIcon" class="widgetSearchButton widgetSearchButton7f6d1316-c084-41b2-b1f6-eebcb5b1a047" role="button"><img alt="Go to Site Search" class="imageHover" data-hover="/ImageRepository/Document?documentID=21201" data-image="/ImageRepository/Document?documentID=21202" src="/ImageRepository/Document?documentID=21202" /></a>
+
+			<label class="searchLabel" aria-hidden="true" for="searchField7f6d1316-c084-41b2-b1f6-eebcb5b1a047">Search</label>
+		</div>
+
+	</section>
+
+
+<style scoped>
+	  
+		.widgetSearch ::-webkit-input-placeholder {
+		color: rgba(40, 45, 114, 1);
+	  }
+		.widgetSearch :-moz-placeholder { /* Firefox 18- */
+	   color: rgba(40, 45, 114, 1);
+	}
+		.widgetSearch ::-moz-placeholder {  /* Firefox 19+ */
+	   color: rgba(40, 45, 114, 1);
+	}
+	.widgetSearch :-ms-input-placeholder {
+	   color: rgba(40, 45, 114, 1);
+	}
+	
+
+	.widgetSearch .widgetBody .widgetSearchBox7f6d1316-c084-41b2-b1f6-eebcb5b1a047
+	{
+		color: rgba(40, 45, 114, 1);
+		background: rgba(255, 255, 255, 1);
+border: 0;
+box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+border-radius: 20px;
+height: 80px;
+padding: 0 100px 0 20px;
+font-family: Poppins;
+font-size: 1em;
+	}
+	.widgetSearch .widgetBody .widgetSearchButton7f6d1316-c084-41b2-b1f6-eebcb5b1a047
+	{
+		margin: 6px 6px 0 0;
+	}
+	.widgetSearch .widgetSearch-onlyDept7f6d1316-c084-41b2-b1f6-eebcb5b1a047
+	{
+		display: inline-block;
+		color: #333;
+		
+		
+		 padding-top: 10px;
+	}
+	#ysnSearchOnlyDept7f6d1316-c084-41b2-b1f6-eebcb5b1a047
+	{
+		position: relative;
+		top: .125em;
+	}
+
+</style>
+
+<link rel="stylesheet" href="/Common/Controls/jquery-ui-1.14.2/jquery-ui.min.css">
+<link rel="stylesheet" href="/Common/Controls/jquery-ui-1.14.2/jquery-ui.theme.min.css">
+
+
+
+<script type="text/javascript">
+	//Updates search icons href to have the correct queryString
+	function searchBtnApplyQuery() {
+		document.getElementById("btnSearchIcon").href = "/Search?searchPhrase=" + document.getElementById("searchField7f6d1316-c084-41b2-b1f6-eebcb5b1a047").value;
+	}
+</script>
+
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+	</div>
+</div></div>
+</div>
+</div>
+
+
+
+
+		<div id="bannerImagesJSON37" class="hidden"></div>
+		<div id="bannerSlideshowControls_banner1" class="bannerSlideshowControlsNew none " style="display:none">
+			<a id="arrowPrev_banner1" tabindex="0" class="arrowNew prev" aria-label="Banner Arrow Previous"><svg style=" " class=""><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#iconSlideshowArrowLeft"></use></svg></a>
+			<a id="arrowNext_banner1" tabindex="0" class="arrowNew next" aria-label="Banner Arrow Next"><svg style=" " class=""><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#iconSlideshowArrowRight"></use></svg></a>
+		</div>
+			<script type="text/javascript">
+				$(window).on("load", function () {
+					$.when(window.Pages.rwdSetupComplete)
+						.done(function () {
+							renderExternalBannerSlideshow('banner1',
+								{"BannerOptionID":37,"ThemeID":14,"SlotName":"banner1","Name":"Default","IsDefault":true,"BannerMode":2,"SlideShowSlideTiming":"5","SlideshowTransition":0,"SlideShowTransitionTiming":"1","ImageScale":true,"ImageAlignment":1,"ImageScroll":true,"MuteSound":true,"VideoType":0,"Status":40,"SlideshowControlsPosition":0,"SlideshowControlsAlignment":0,"SlideshowBannerControlsColorScheme":0,"DisplayVideoPauseButton":false,"VideoPauseButtonAlignment":1,"VideoPauseButtonControlsAlignment":0,"VideoPauseButtonStyle":"#FFFFFF","VideoPauseButtonBackgroundStyle":"#000000","VideoPauseButtonAlignmentClass":"alignRight viewport","DisplaySlideshowPauseButton":false,"SlideshowControlsColor":"#FFFFFF","SlideshowControlsBackgroundColor":"#000000","SlideshowPauseButtonClass":"isHidden","BannerImages":[{"BannerImageID":131,"BannerOptionID":37,"FileName":"/ImageRepository/Document?documentID=21192","Height":300,"Width":2200,"StartingOn":null,"StoppingOn":null,"IsLink":false,"LinkAddress":null,"Sequence":1,"RecordStatus":0,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/","AltText":""},{"BannerImageID":129,"BannerOptionID":37,"FileName":"/ImageRepository/Document?documentID=21194","Height":300,"Width":2200,"StartingOn":null,"StoppingOn":null,"IsLink":false,"LinkAddress":null,"Sequence":2,"RecordStatus":0,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/","AltText":""},{"BannerImageID":130,"BannerOptionID":37,"FileName":"/ImageRepository/Document?documentID=21193","Height":300,"Width":2200,"StartingOn":null,"StoppingOn":null,"IsLink":false,"LinkAddress":null,"Sequence":3,"RecordStatus":0,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/","AltText":""},{"BannerImageID":132,"BannerOptionID":37,"FileName":"/ImageRepository/Document?documentID=21191","Height":300,"Width":2200,"StartingOn":null,"StoppingOn":null,"IsLink":false,"LinkAddress":null,"Sequence":4,"RecordStatus":0,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/","AltText":""}],"BannerVideos":[{"BannerVideoID":15,"BannerOptionID":37,"VideoFileName":"","ImageFileName":"EmptyBannerBkg202408261033204556.png","IsLink":false,"LinkAddress":null,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/","VideoFileID":"00000000-0000-0000-0000-000000000000","ImageFileID":"00000000-0000-0000-0000-000000000000","VideoWidth":0,"VideoHeight":0,"ImageWidth":0,"ImageHeight":0,"LinkedVideoUrl":"","RecordStatus":0,"AltText":null}],"RecordStatus":0,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/"},
+								'/App_Themes/Interior/Images/',
+								'Rotating');
+						});
+				});
+			</script>
+
+</div>
+</div><!-- Content container --><div data-cpRole="structuralContainer" id="mainContainerTS">
+<div class="siteWrap2"><div data-cpRole="structuralContainer" id="mainWrapTS" class="mainWrap" role="main">
+<div data-cpRole="structuralContainer" id="siteSidebarTS" class="siteSidebar">
+<aside data-cpRole="contentContainer" id="sidebarContainer1TS">	<div id="ccff4c53a9-4d95-46c6-a1c4-302ec655a9a8" data-containerid="ff4c53a9-4d95-46c6-a1c4-302ec655a9a8" class="pageContent cpGrid cpGrid24 showInMobile">
+				                
+
+
+
+	</div>
+</aside><nav data-cpRole="nav" id="secondaryNav" class="siteNav secondaryNav">
+
+
+
+
+
+	<ol role="menu" id="secondaryMenusecondaryNav" data-parent="120" class="rootNavMenu accordionNav">
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="0" id="SideItem121" data-pageid="121">
+		<div class="accordionNavItem">
+			<a href="/121/Absentee-and-Early-Voting" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">Absentee and Early Voting</a>
+		</div>
+			</li>
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem122" data-pageid="122">
+		<div class="accordionNavItem">
+			<a href="/122/Candidate-Filing-Information" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">Candidate Filing Information</a>
+		</div>
+			</li>
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem125" data-pageid="125">
+		<div class="accordionNavItem">
+			<a href="/125/Polling-Locations" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">Polling Locations</a>
+		</div>
+			</li>
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem126" data-pageid="126">
+		<div class="accordionNavItem">
+			<a href="/126/Registering-to-Vote" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">Registering to Vote</a>
+		</div>
+			</li>
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem127" data-pageid="127">
+		<div class="accordionNavItem">
+			<a href="/127/Serving-as-an-Election-Judge" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">Serving as an Election Judge</a>
+		</div>
+			</li>
+
+	</ol>
+
+
+	<script type="text/javascript">
+		(function () {
+			function setupSecondaryMenuProperties() {
+				//setup menu manager properties for secondary menu
+				menuManager.isSideMenuEditable = false;
+				menuManager.sideMenuMaxSubMenuLevels = 4;
+				menuManager.sideMenuHasCustomLinks = false;
+			}
+
+			if (document.readyState === "loading") {
+				document.addEventListener("DOMContentLoaded", setupSecondaryMenuProperties, { once: true });
+				return;
+			}
+
+			setupSecondaryMenuProperties();
+		})();
+	</script>
+
+	<script type="text/javascript">
+		(function () {
+			function setupAccordionSecondaryNav() {
+				var $menuContainer = $('#secondaryNav');
+
+				$menuContainer.find('*[id^="SideItem"]').each(function () {
+					var ids = $('[id="' + this.id + '"]');
+					if (ids.length > 1)
+						$.each(ids, function (index, value) {
+							value.id = value.id + '_' + index;
+						});
+				});
+
+				$menuContainer.find('.hasAccordionChildren .openAccordionNav').off('click.secondaryNav').on('click.secondaryNav', function (e) {
+					e.preventDefault();
+					showHideAccordionMenuForSecondaryNav($(this));
+				});
+
+				$menuContainer.find(".grippy").each(function () {
+					menuManager.setupDraggableElement($(this), SIDE_MENU, '#secondaryNav');
+				});
+
+				$menuContainer.find("li").each(function () {
+					menuManager.setupDroppableAccordionElement($(this), SIDE_MENU);
+				});
+			}
+
+			if (document.readyState === "loading") {
+				document.addEventListener("DOMContentLoaded", setupAccordionSecondaryNav, { once: true });
+				return;
+			}
+
+			setupAccordionSecondaryNav();
+		})();
+	</script>
+
+
+
+</nav><aside data-cpRole="contentContainer" id="sidebarContainer2TS">	<div id="cc59e07eda-842b-4015-a5c1-5e73a809cca2" data-containerid="59e07eda-842b-4015-a5c1-5e73a809cca2" class="pageContent cpGrid cpGrid24 showInMobile">
+				                
+
+
+
+	</div>
+</aside>
+</div><div data-cpRole="structuralContainer" id="outerContentWrapTS" class="outerContentWrap">
+<div data-cpRole="structuralContainer" id="contentWrapTS" class="contentWrap">
+<div data-cpRole="breadCrumbs" id="breadCrumbs" class="breadCrumbContainer">		<ol class="semanticList breadCrumbs">
+			<li><a class="breadCrumb" href="/">Home</a></li><li><a class="breadCrumb" href="/96/Government">Government</a></li><li><a class="breadCrumb" href="/120/Elections-Voter-Information">Elections & Voter Information</a></li><li id="currentBCPage" data-pageid="121"><a href class="breadCrumb" aria-current="page">Absentee and Early Voting</a></li>
+		</ol>
+	<div class="contentTools">
+					<ol class="semanticList cpTextResizer">
+				<li><a href="#" id="makeTextSmaller" title="Make text smaller">A</a></li>			
+				<li><a href="#" id="makeTextBigger" title="Make text bigger">A</a></li>
+			</ol>
+	</div>
+
+	   
+    
+</div><div data-cpRole="mainContentContainer" id="moduleContent">
+	
+	<div id="page" class="moduleContentNew">
+		
+
+	<input id="hdnPageID" name="hdnPageID" type="hidden" value="121" />
+	<input id="hdnParentID" name="hdnParentID" type="hidden" value="120" />
+	<input id="hdnVersionID" name="hdnVersionID" type="hidden" value="28548" />
+	<input id="pageMenuTitle" name="pageMenuTitle" type="hidden" value="Absentee and Early Voting" />
+	<input id="pageShowFeatureColumn" name="pageShowFeatureColumn" type="hidden" value="True" />
+	<input id="hdnIsLayoutPage" name="hdnIsLayoutPage" type="hidden" value="False" />
+	<input id="hdnPageStatus" name="hdnPageStatus" type="hidden" value="Published" />
+
+				<h1 id="versionHeadLine" class="headline">
+
+Absentee and Early Voting		</h1>
+	
+		<div id="cc934ab78c-c0b1-4fe6-9c44-de9759a17df9" data-containerid="934ab78c-c0b1-4fe6-9c44-de9759a17df9" class="pageContent cpGrid cpGrid24"  data-contentcontainerbreakpoint="30" >
+			
+
+		<div class="row outer wide"><!--
+--><div class="outer col col24 first last" style="" data-widgetcontainerid="23ae0546-cc85-4a2f-85a7-a84cf7380f21">				
+	<div class="row nest first wide">
+	
+	<div class="inner col col24 first last id97fe657a-4407-475f-8904-708869ea3c66" style="" data-widgetcontainerid="97fe657a-4407-475f-8904-708869ea3c66">	
+    <div data-widget-id="2b827673-26bc-4240-bf02-3ab5db1ec4af" data-widget-controller-path="/InfoAdvanced/Widget">
+
+
+
+
+
+	<section id="divInfoAdv2b827673-26bc-4240-bf02-3ab5db1ec4af" class="widget widgetInfoAdvanced skin27 widgetOptionSet5 wide" data-modulewidgettype="infoAdv" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' aria-label="Info Advanced">
+			<header class="widgetHeader" id="header2b827673-26bc-4240-bf02-3ab5db1ec4af">
+		<div class="">
+								</div>
+	</header>
+	<div class="widgetBody  cpGrid cpGrid1 ">
+		<div class="row  wide">
+					<div class="col col1 first last">
+						<ol class="pageStyles semanticList">
+
+<li class="InfoAdvanced widgetItem fr-view">
+	<h2 class="subhead1">Election results</h2><p><a href="https://electionresults.sos.mn.gov/20260811" target="_blank" rel="noopener">View primary election results</a></p>
+</li>						</ol>
+					</div>
+		</div>
+	</div>
+	<div class="widgetFooter">
+
+	</div>
+
+	</section>
+
+
+
+<script type="text/javascript">
+	//Render slideshow if info advacned items contain one.
+	$(document).ready(function (e) {
+		$('#divInfoAdv2b827673-26bc-4240-bf02-3ab5db1ec4af .InfoAdvanced.widgetItem').each(function () {
+			renderSlideshowIfApplicable($(this));		
+		});
+	});
+</script></div>
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+	<div class="row nest last wide">
+	
+	<div class="inner col col24 first last idf7c9b3ad-e62d-4324-8bef-b53dc7679d33" style="" data-widgetcontainerid="f7c9b3ad-e62d-4324-8bef-b53dc7679d33">	
+<div class="widget editor pageStyles narrow" id="divEditoraa89f68e-39d1-4a1c-8bb3-3d9626299eed" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}'>
+	    <div class="fr-view">
+
+
+        <p>Minnesota offers two convenient ways to vote before Election Day: absentee voting and early voting.</p><p>Both options are available to all eligible Minnesota voters&mdash;no excuse is required. Whether you choose absentee voting or early voting, your vote is secure and counted the same as if you voted on Election Day.</p><h2 class="subhead1">What is absentee voting?</h2><p>Absentee voting is available beginning 46 days before an election. Voters may vote by mail or in person at an absentee voting location. Absentee ballots are placed in a secure envelope and are processed after Election Day according to Minnesota law.</p><p>PLEASE NOTE: &nbsp;Rice County absentee ballots cannot be returned to the City of Northfield. Mailed absentee ballots must be returned by mail or in person to the Rice County Government Services Building in Faribault.</p><h2 class="subhead1">What is early voting?</h2><p>Early voting is available during the 18 days immediately before an election at designated early voting locations. When voting early in person, your ballot is inserted directly into a tabulator, similar to voting on Election Day. This allows your vote to be securely counted without the absentee ballot envelope process.</p><h2 class="subhead1 ">2026 election dates</h2><ul><li>November 3, 2026 - General Election Day</li></ul><h2 class="subhead1 ">Absentee balloting</h2><ul><li>September 18 to November 2 (General Election)</li></ul><h2 class="subhead1">Early voting</h2><ul><li>October 16 to November 2 (General Election)</li><li><strong>One-Day Temporary Location - Carleton College</strong><br>Great Hall in Severance Hall, 205 College St N, Northfield<br><em>Only Thursday, October 22, 9:00 a.m. to 2:00 p.m.</em></li></ul><h2 class="subhead1">Where to vote for in person absentee voting or early voting</h2><p>Northfield City Hall - 2nd Floor Training Room<br>801 Washington Street<br>Northfield, MN 55057</p><h2 class="subhead1">Sample ballots for General Election</h2><p><a href="/DocumentCenter/View/26724/NORTHFIELD-CITY-W-1-P-1-SAMPLE" target="_blank" rel="noopener">Ward 1, Precinct 1</a></p><p><a href="/DocumentCenter/View/26725/NORTHFIELD-CITY-W-1-P-2-SAMPLE" target="_blank" rel="noopener">Ward 1, Precinct 2</a></p><p><a href="/DocumentCenter/View/26718/NORTHFIELD-CITY-W-2-P-1-SAMPLE" target="_blank" rel="noopener">Ward 2, Precinct 1</a></p><p><a href="/DocumentCenter/View/26719/NORTHFIELD-CITY-W-2-P-2-SAMPLE" target="_blank" rel="noopener">Ward 2, Precinct 2</a></p><p><a href="/DocumentCenter/View/26720/NORTHFIELD-CITY-W-3-P-1-SAMPLE" target="_blank" rel="noopener">Ward 3, Precinct 1</a></p><p><a href="/DocumentCenter/View/26721/NORTHFIELD-CITY-W-3-P-2-SAMPLE" target="_blank" rel="noopener">Ward 3, Precinct 2</a></p><p><a href="/DocumentCenter/View/26722/NORTHFIELD-CITY-W-4-P-1-SAMPLE" target="_blank" rel="noopener">Ward 4, Precinct 1</a></p><p><a href="/DocumentCenter/View/26723/NORTHFIELD-CITY-W-4-P-2-SAMPLE" target="_blank" rel="noopener">Ward 4, Precinct 2</a></p><h2 class="subhead1">Absentee and early voting hours</h2><p>Located in City Hall, 2nd Floor Training Room, 801 Washington Street.</p><h3 class="subhead2">General Election</h3><p>September 18 through November 2. 2026 (see schedule above for absentee option versus early voting option)</p><table style="width: 100%;" class="fr-table-left-align fr-alternate-rows"><colgroup>
+<col style="width: 50.00%;">
+<col style="width: 50.00%;">
+</colgroup><thead><tr><th>Day of week</th><th>Hours</th></tr></thead><tbody><tr><td>Monday</td><td>8:00 a.m. to 3:30 p.m.</td></tr><tr><td>Tuesday</td><td>8:00 a.m. to 3:30 p.m.</td></tr><tr><td>Wednesday</td><td>8:00 a.m. to 3:30 p.m.</td></tr><tr><td>Thursday</td><td>8:00 a.m. to 3:30 p.m.</td></tr><tr><td>Friday</td><td>8:00 a.m. to 11:00 a.m.</td></tr></tbody></table><p>* Must arrive 15 minute before closing.</p><p>Absentee/early voting locations are also required to be open the two Saturdays and the Sunday prior to the General Election and longer hours the Tuesday and Monday before the General Election:</p><ul><li>Saturday, October 24, 9:00 a.m. to 3:00 p.m.</li><li>Tuesday, October 27, 8:00 a.m. to 7:00 p.m.</li><li>Saturday, October 31, 9:00 a.m. to 3:00 p.m.</li><li>Sunday, November 1, 9:00 a.m. to 3:00 p.m.</li><li>Monday, November 2, 8:00 a.m. to 5:00 p.m.</li></ul><h2 class="subhead1">What to expect when voting absentee/early in person</h2><p>Arrive at the city offices during one of the above-designated times. Please be sure to arrive at least 15 minutes before the closing time so that you have time to complete the required paperwork and cast your vote.</p><p>The election official will provide you with absentee ballot application to complete. You will need your MN ID or drivers license number if you have one and the last four digits of your social security number.</p><p>If you are not already registered to vote under your current name and at your current address, you will need to fill out a voter registration application and show proof of residence.</p><p><a href="/126/Registering-to-Vote">See the Registering to Vote page for information about proof of residence.</a></p><h2 class="subhead1">Additional locations</h2><p>Additional absentee/early voting locations are available in both <a aria-label="Rice County Opens in new window" href="https://www.co.rice.mn.us/566/Elections" rel="noopener" target="_blank">Rice County</a> and <a href="http://www.co.dakota.mn.us/Government/VotingElections/Pages/default.aspx" target="_blank" title="Dakota County">Dakota County</a>.</p><p>The City of Northfield absentee/early location serves as the Northern Service Center for Rice County. In addition to ballots for all City of Northfield residents, ballots are available for all Rice County precincts.</p><h2 class="subhead1 ">Voting absentee by mail</h2><p>Voters may have an absentee ballot mailed to them by requesting an absentee ballot online or by completing the paper application and returning it to your respective County.</p><p><a href="https://mnvotes.sos.mn.gov/abrequest/index" target="_blank" rel="noopener">Request an online absentee ballot</a></p><p><a href="/DocumentCenter/View/26342/AbsenteeApplicationGeneral" target="_blank" rel="noopener">Absentee Ballot Application (pdf)</a></p><p>Rice County Government Services Center<br>Attn: Elections<br>320 NW Third Street<br>Faribault, MN 55021<br>507-332-6104 or 507-645-9576<br>Additional Information can be obtained from <a aria-label="Rice County Elections Opens in new window" href="https://www.co.rice.mn.us/566/Elections" rel="noopener" target="_blank" title="Rice County Elections">Rice County Elections</a>.</p><p>Dakota County Administration Center<br>Attn: Elections<br>1590 Highway 55<br>Hastings, MN 55033-2343<br>651-438-4305<br>Additional Information can be obtained from <a aria-label="Dakota County Elections Opens in new window" href="https://www.co.dakota.mn.us/Government/VotingElections/Pages/default.aspx" rel="noopener" target="_blank">Dakota County Elections</a>.</p><h2 class="subhead1">Returning your absentee ballot</h2><h3 class="subhead2">Options for returning your ballot</h3><ol><li>All mailed absentee ballots are sent from and processed by the county you live in (Rice or Dakota). The ballots come with a self-addressed, postage-paid envelope and instructions for completing and returning ballots. Voters can choose to return ballots via package delivery service (such as FedEx or UPS) to the County that sent the ballot, at the voter&apos;s expense so that the ballot would arrive by Election Day.</li><li>Dakota County Ballots may be dropped off at the Absentee Voting Office at Northfield City Hall (2nd floor training room) through Monday, November 4 (general election) no later than 4:45 p.m. Ballots cannot be dropped off in any other office at City Hall. Rice County ballots can only be dropped off at Rice County offices in Faribault. &nbsp;Northfield is unable to accept Rice County mailed ballots at City Hall. Please note that there is <strong>not</strong> a drop box for ballots at Northfield City Hall. Ballots need to be returned to the county (Rice or Dakota) from which they were sent. Staff will deliver to Dakota County if dropped off in the Absentee Voting Office no later than 4:45 p.m. on Monday, November 4 (general election). Staff recommends returning as soon as possible. There will be long lines, please plan accordingly.</li><li>If you are returning ballots other than your own, you will be required to complete a delivery log, which includes showing your ID, providing your name, address and signature and the name and address of the voter(s) you are returning ballots for. An individual cannot be an agent of more than three voters in an election.</li><li><strong>Ballots may be dropped off at the County Elections Office that sent them to you</strong>, Rice County Government Services Building in Faribault or Dakota County Administration Center in Hastings <strong>until 8:00 p.m. on Election Day</strong>.<ul><li>Rice County Government Services Building, 320 Third Street NW, Faribault.</li><li>Dakota County Administration Center, 1590 Highway 55, Hastings.</li></ul></li><li><strong>Absentee ballots cannot be dropped off at Northfield City Hall or at any polling location on Election Day.</strong></li></ol><h3 class="subhead2"><strong>Agent delivery - returning ballots for others</strong></h3><p>Agent delivery is available through 8:00 p.m. on Election Day for Northfield City residents. &nbsp;Dakota County residents in Ward 3, Precinct 2 can complete this process at Northfield City Hall. &nbsp;Rice County residents will need to complete this process with Rice County Elections in Faribault.</p><ul><li>In special situations, voters may ask an agent to pick up and return an absentee ballot for them. There are a list of reasons that would qualify a voter for use of agent delivery. These include being sick, having recent close contact with a person with COVID-19, having tested positive for COVID-19, and/or are within a quarantine period. All of these reasons would qualify under the &quot;unable to go to the polling place due to incapacitating health reasons or disability&quot;.</li><li>An individual cannot be an agent of more than three voters in an election.</li><li>Your agent must be at least 18 years old, have a pre-existing relationship with you and cannot be a candidate.</li><li>The agent must show identification with their name, address and signature when returning a ballot.</li><li>Give your agent a completed <a href="/DocumentCenter/View/14098/AB-Application-Northfield-" rel="noopener" target="_blank" class="docaccess-activated" data-docaccess-source-url="https://www.northfieldmn.gov/DocumentCenter/View/14098/AB-Application-Northfield-" data-url-hash="f5d6188b04a2b694a2d03f1c10f3339bc6d579c5c9092c5b5a44feb450872bd6" data-url-status="disabled">absentee ballot application</a> and a <a href="http://www.sos.state.mn.us/media/1915/request-for-agent-delivery-of-absentee-ballot.pdf" rel="noopener" target="_blank" title="Request-for-Agent-Delivery-of-Absentee-Ballot.pdf" class="docaccess-activated" data-docaccess-source-url="http://www.sos.state.mn.us/media/1915/request-for-agent-delivery-of-absentee-ballot.pdf" data-url-hash="d6eb66973c0c33ba8e512f112cca02e2804fc7eb85de9f0934b3afcdd2edd4a6" data-url-status="disabled">request for agent delivery of absentee ballot</a> form. Have your agent take both forms to the local election office (Northfield City Hall Absentee Voting Office for City residents) to receive your ballot.</li><li>Please note that your agent can pick up your ballot starting seven days before the election until 8:00 p.m. on Election Day (November 5 - General) at Northfield City Hall in the Absentee Voting Room for Dakota County. &nbsp;Rice County residents will need to initiate the agent delivery process directly with Rice County Elections Staff. &nbsp; The agent must bring the completed absentee ballot application and a request for agent delivery form noted above.</li><li>Your agent must return your ballot no later than 8:00 p.m. on Election Day. If returning a ballot on Election Day (November 5), it must be returned to Rice County Elections, 320 Third Street NW in Faribault or Dakota County Administration Center in Hastings no later than 8:00 p.m.</li><li>You cannot return a ballot to the polls or to Northfield City Hall on Election Day.</li></ul><p><a aria-label="See more information on agent delivery Opens in new window" href="https://www.sos.state.mn.us/elections-voting/other-ways-to-vote/have-an-agent-pick-up-your-ballot-agent-delivery/" rel="noopener" tabindex="-1" target="_blank">See more information on agent delivery</a></p><h2 class="subhead1">Tracking the status of your absentee ballot</h2><p>You can track the status of your absentee ballot throughout the process on the Secretary of State&rsquo;s website:</p><p><a aria-label="Track the status of my absentee ballot Opens in new window" href="https://mnvotes.sos.state.mn.us/AbsenteeBallotStatus.aspx" rel="noopener" target="_blank">Track the status of my absentee ballot</a></p><h2 class="subhead1 ">Military / overseas absentee voting</h2><p>Voters in the military and citizens living outside the United States use a different process to vote absentee. Voters serving in the military or those outside of the U.S. should visit the state&rsquo;s Military and Overseas Voter Service to complete your absentee ballot request.</p><p><a aria-label="Military and Overseas Voter Service Opens in new window" href="http://www.sos.state.mn.us/elections-voting/other-ways-to-vote/vote-from-military-or-abroad/" target="_blank" title="Military and Overseas Voter Service">Military and Overseas Voter Service</a></p>
+    </div>
+
+<script type="text/javascript">
+	$(document).ready(function (e) {		
+	    renderSlideshowIfApplicable($('#divEditor' + 'aa89f68e-39d1-4a1c-8bb3-3d9626299eed'));
+	});
+</script>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+		</div>
+
+	</div>
+
+	
+	<div class="newCP">
+
+	</div>
+</div>
+</div><aside data-cpRole="contentContainer" id="featureColumn" class="secondaryContent">	<div id="cc44b0af79-4a05-4d9f-ad72-8da044fbaa4b" data-containerid="44b0af79-4a05-4d9f-ad72-8da044fbaa4b" class="pageContent cpGrid cpGrid24 showInMobile">
+				                
+
+		<div class="row outer wide"><!--
+--><div class="outer col col24 first last" style="" data-widgetcontainerid="944ea062-83ff-4c8c-b47a-d7647324c633">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col24 first last idbe4fc2e2-7372-4057-b7da-48de4bc978af" style="" data-widgetcontainerid="be4fc2e2-7372-4057-b7da-48de4bc978af">	
+
+
+
+
+
+
+
+
+<div data-widget-id="80a6bc7c-6865-48c4-b3e7-c3658d032741" data-moduleWidgetType="cityDirectory" data-widget-controller-path="/CityDirectory/Widget">
+	<div id="cityDirectoryWidget80a6bc7c-6865-48c4-b3e7-c3658d032741" class="widget widgetStaffDirectory skin28 wide" >
+			<div class="widgetHeader">
+					<h3><a style="" href= /m/directory>Contact us</a></h3>
+							</div>
+						<ol class="semanticList">
+			<li class="widgetItem h-card">
+
+					<img src="/ImageRepository/Document?documentID=23225" alt="Lynette Peterson" title="Lynette Peterson" class="field u-photo" />
+
+				<h4 class="widgetTitle field p-name">
+					Lynette Peterson
+					
+				</h4>
+				<div class="field p-job-title">City Clerk</div>
+								<div class="field u-email"><a href="/formcenter/City-Clerk-6/Email-Lynette-Peterson-452">Email Lynette Peterson</a></div>
+
+
+					<div class="field p-tel">Phone: <a href="tel:5076453001">507-645-3001</a></div>
+
+
+
+				<br />
+			</li>
+		<li class="widgetItem h-card">
+
+				<h4 class="widgetTitle field p-name">City Clerk</h4>
+
+
+
+				<div class="field h-adr">
+					<strong>Physical Address</strong>
+					<br />
+					<span class="p-street-address">801 Washington Street</span><br />
+					<span class="locality">Northfield</span>, <span class="p-region">MN</span> <span class="p-postal-code">55057</span>
+
+				</div>
+				<br />
+
+
+
+									
+				<div class="field p-note">
+
+					<h2 class="subhead1">Hours</h2><p>Monday, 7:30 a.m. to 4:30 p.m.</p><p>Tuesday, 7:30 a.m. to 6:00 p.m.</p><p>Wednesday, 7:30 a.m. to 4:30 p.m.</p><p>Thursday, 7:30 a.m. to 4:30 p.m.</p><p>Friday, 7:30 a.m. to 12:00 p.m.</p>
+				</div>
+				<br />
+
+
+		</li>
+									</ol>
+	</div>
+</div>
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+		<div class="row outer wide"><!--
+--><div class="outer col col24 first last" style="" data-widgetcontainerid="a2cb43a2-ddb0-4567-873b-2c66c24be4eb">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col24 first last idf21552fa-aefd-47e6-8d4d-b5b4549757f0" style="" data-widgetcontainerid="f21552fa-aefd-47e6-8d4d-b5b4549757f0">	
+<div data-widget-id="3d561f2f-347d-445d-adfc-56d4b68c4f85" data-widget-controller-path="/Calendar/Widget">
+	<script src="/Areas/Calendar/Assets/Scripts/Calendar.js"></script>
+
+
+
+
+
+
+
+
+ 
+	<script type="text/javascript">
+		function openCalendarPublicSubmissionModal(calendarID, eventID, isCopy, order, updatePanelID, isSubmit) {
+			var title = null;
+			var className = null;
+
+			if (isSubmit) {
+				title = ' Event Submission';
+				className = 'submitEvent';
+			} else
+				className = 'liveEdit calendar';
+
+			var url = '/common/modules/Calendar/calendarLiveEdit.aspx?calendarID=' + calendarID + '&eventID=' + eventID + '&order=' + order + '&updatePanelID=' + updatePanelID;
+
+			if (isSubmit)
+				url = url + '&submit=1';
+			if (isCopy)
+				url = url + '&strPage=itemCopy';
+			else
+				url = url + '&strPage=itemForm';
+
+			openCpModal({
+				title: title,
+				className: className,
+				isFrontEnd: true,
+				useIframe: true,
+				draggable: true,
+				url: url
+			});
+		}
+
+		$(document).ready(function (e) {
+			if (typeof $ !== 'undefined') {
+				$(document).ready(function (e) {
+					//Bind the submit event click handler.
+					$('.widgetPublicSubmit').unbind('click').click(function (e) {
+						openCalendarPublicSubmissionModal(0, 0, false, 0, '', true);
+						return false;
+					});
+				});
+			}
+		});
+	</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="widgetCalendar3d561f2f-347d-445d-adfc-56d4b68c4f85" class="widget widgetCalendar skin28 widgetOptionSet33 narrow" data-modulewidgettype="calendar" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn'>
+		<div class="widgetHeader ">
+			<div class="">
+							<h3 id="calendarHeader3d561f2f-347d-445d-adfc-56d4b68c4f85"><a  style="" href="/calendar.aspx?CID=32" >Calendar</a></h3>
+
+			</div>
+					</div>
+	<div class="widgetBody cpGrid cpGrid1  ">
+				<div class="calendarInnerWrapper">
+					
+
+
+
+
+
+
+
+<div class="row   narrow" data-event-list-row="true" style="">
+	
+
+<script src="/Scripts/jquery.urlToLink.min.js"></script>
+<input type="hidden" value="[&quot;2026-10-13&quot;,&quot;2026-10-14&quot;,&quot;2026-10-15&quot;]" name="day-list" />
+
+				<div class="col col1 first last">
+					<ol class="semanticList">
+
+
+
+
+
+
+
+
+
+
+
+<li class="widgetItem  " data-event-i-d="9101" >
+
+
+		<h4 class="widgetTitle">Tue, Oct 13  </h4>
+		<div style="display:inline;" class="widgetDesc">
+					<strong><a href="/Calendar.aspx?EID=9101">Absentee voting for General Election</a></strong>
+
+		</div>
+	</li>
+
+
+
+
+
+
+
+
+
+
+
+<li class="widgetItem  " data-event-i-d="9102" >
+
+
+		<h4 class="widgetTitle">Wed, Oct 14  </h4>
+		<div style="display:inline;" class="widgetDesc">
+					<strong><a href="/Calendar.aspx?EID=9102">Absentee voting for General Election</a></strong>
+
+		</div>
+	</li>
+
+
+
+
+
+
+
+
+
+
+
+<li class="widgetItem  " data-event-i-d="9146" >
+
+
+		<h4 class="widgetTitle">Thu, Oct 15  </h4>
+		<div style="display:inline;" class="widgetDesc">
+					<strong><a href="/Calendar.aspx?EID=9146">Absentee voting for General Election</a></strong>
+
+		</div>
+	</li>
+					</ol>
+				</div>
+
+</div>
+									</div>
+		        <a id="calendarViewAll3d561f2f-347d-445d-adfc-56d4b68c4f85" class="widgetViewAll alignLeft" style="" href="/calendar.aspx?CID=32">View All Events</a>
+					</div>
+	<div class="widgetFooter">
+		
+	</div>
+	<div class="addItemModal hidden">
+		<div class="url hidden">/Calendar.aspx</div>
+	</div>
+</div>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+	</div>
+</aside>
+</div>
+</div></div>
+</div><!-- GBs --><div data-cpRole="structuralContainer" id="gbsContainerTS">
+<div class="siteWrap2"><div data-cpRole="contentContainer" id="gbsTS"><div class="inner">	<div id="cc148cfd6d-5132-4071-827b-f49844ccca85" data-containerid="148cfd6d-5132-4071-827b-f49844ccca85" class="pageContent cpGrid cpGrid24 isLockedContainer showInMobile" data-contentcontainerbreakpoint="30">
+				                
+
+		<div class="row outer wide"><!--
+--><div class="outer col col8 first" style="" data-widgetcontainerid="18863661-e867-4f28-8688-e4a8b504f8ed">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col8 first last id3c4f4776-00ec-4b2c-8d72-ff8ce98988ae" style="" data-widgetcontainerid="3c4f4776-00ec-4b2c-8d72-ff8ce98988ae">	
+<div data-widget-id="6387f2d6-ca57-4ea8-9aec-769e3b6ec250" data-widget-controller-path="/GraphicLinks/Widget">
+
+
+
+
+<div id="graphicLinkWidget6387f2d6-ca57-4ea8-9aec-769e3b6ec250" class="widget widgetGraphicLinks skin29 widgetOptionSet4 wide" data-elementqueryclasses='{"wide-narrow":"min-width:20em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' data-modulewidgettype="graphicLinks">
+	<div class="widgetHeader">
+		<div class="">
+				</div>
+	</div>
+	<div class="widgetBody cpGrid cpGrid2 ">
+		<nav class="widgetGraphicLinksNav" aria-labelledby="GraphicLinkHeaderText">
+				<div class="row   wide">
+					<!--
+--><div class="col col1 first "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="/list.aspx" target="_self" class="fancyButton fancyButton608 " >
+		<span>
+			<span><span class="text">Notifications</span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton608.fancyButton:link,.fancyButton608.fancyButton:visited, .fancyButton608div.fancyButton{
+	padding-bottom: 10px;
+	background-image: url('/ImageRepository/Document?documentID=21219');
+	background-repeat: no-repeat;
+	background-position: center top;
+position: relative;
+}
+
+.fancyButton608::after { 
+content: "";
+position: absolute;
+left: 50%;
+top: 95px;
+transform: translateX(-50%);
+width: 50px;
+height: 4px;
+background: rgba(40, 45, 114, 1);
+border-radius: 4px;
+transition: all .2s ease-in-out;}
+.fancyButton608.fancyButton:hover,.fancyButton608.fancyButton:focus,.fancyButton608.fancyButton:active,.fancyButton608.fancyButton.hover{
+}
+
+.fancyButton608:is(:hover,:focus,:active)::after {
+width: 100px;}
+.fancyButton608.fancyButton:link > span,.fancyButton608.fancyButton:visited > span, .fancyButton608div.fancyButton > span{
+}
+.fancyButton608.fancyButton:hover > span,.fancyButton608.fancyButton:focus > span,.fancyButton608.fancyButton:active > span,.fancyButton608.fancyButton.hover > span{
+}
+.fancyButton608.fancyButton .text{
+	color: rgb(40, 45, 114);
+	font-size: 1.2em;
+	font-family: "Poppins";
+	padding-top: 110px;
+	font-weight: 700;
+	text-decoration: none;
+	padding-top: 110px;
+	background-repeat: no-repeat;
+	background-position: left top;
+line-height: 1.2;
+}
+.fancyButton608.fancyButton:hover .text,.fancyButton608.fancyButton:focus .text,.fancyButton608.fancyButton:active .text,.fancyButton608.fancyButton.hover .text{
+	text-decoration: underline;
+	background-repeat: no-repeat;
+	background-position: left top;
+
+
+}
+</style>
+
+ </li><!--
+--></ul></div><!----><div class="col col1  last"><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="https://www.governmentjobs.com/careers/northfieldmn" target="_blank" class="fancyButton fancyButton609 "  aria-label="Jobs Opens in new window">
+		<span>
+			<span><span class="text">Jobs</span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton609.fancyButton:link,.fancyButton609.fancyButton:visited, .fancyButton609div.fancyButton{
+	padding-bottom: 10px;
+	background-image: url('/ImageRepository/Document?documentID=21218');
+	background-repeat: no-repeat;
+	background-position: center top;
+position: relative;
+}
+
+.fancyButton609::after { 
+content: "";
+position: absolute;
+left: 50%;
+top: 95px;
+transform: translateX(-50%);
+width: 50px;
+height: 4px;
+background: rgba(40, 45, 114, 1);
+border-radius: 4px;
+transition: all .2s ease-in-out;}
+.fancyButton609.fancyButton:hover,.fancyButton609.fancyButton:focus,.fancyButton609.fancyButton:active,.fancyButton609.fancyButton.hover{
+}
+
+.fancyButton609:is(:hover,:focus,:active)::after {
+width: 100px;}
+.fancyButton609.fancyButton:link > span,.fancyButton609.fancyButton:visited > span, .fancyButton609div.fancyButton > span{
+}
+.fancyButton609.fancyButton:hover > span,.fancyButton609.fancyButton:focus > span,.fancyButton609.fancyButton:active > span,.fancyButton609.fancyButton.hover > span{
+}
+.fancyButton609.fancyButton .text{
+	color: rgb(40, 45, 114);
+	font-size: 1.2em;
+	font-family: "Poppins";
+	padding-top: 110px;
+	font-weight: 700;
+	text-decoration: none;
+	padding-top: 110px;
+	background-repeat: no-repeat;
+	background-position: left top;
+line-height: 1.2;
+}
+.fancyButton609.fancyButton:hover .text,.fancyButton609.fancyButton:focus .text,.fancyButton609.fancyButton:active .text,.fancyButton609.fancyButton.hover .text{
+	text-decoration: underline;
+	background-repeat: no-repeat;
+	background-position: left top;
+
+
+}
+</style>
+
+ </li><!--
+--></ul></div><!--				-->
+				</div>
+			</nav>
+		</div>
+	<div class="widgetFooter">
+			</div>
+</div>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col8" style="" data-widgetcontainerid="e5b97ce6-42e7-4e89-a0e3-6ab0c99ed62d">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col8 first last idc6865a7c-07a8-48d9-94f8-cb85188228b2" style="" data-widgetcontainerid="c6865a7c-07a8-48d9-94f8-cb85188228b2">	
+<div data-widget-id="ed7a3897-4232-4d42-9a92-977b393c5e3a" data-widget-controller-path="/GraphicLinks/Widget">
+
+
+
+
+<div id="graphicLinkWidgeted7a3897-4232-4d42-9a92-977b393c5e3a" class="widget widgetGraphicLinks skin29 widgetOptionSet4 wide" data-elementqueryclasses='{"wide-narrow":"min-width:20em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' data-modulewidgettype="graphicLinks">
+	<div class="widgetHeader">
+		<div class="">
+				</div>
+	</div>
+	<div class="widgetBody cpGrid cpGrid2 ">
+		<nav class="widgetGraphicLinksNav" aria-labelledby="GraphicLinkHeaderText">
+				<div class="row   wide">
+					<!--
+--><div class="col col1 first "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="/1470/Pay" target="_self" class="fancyButton fancyButton615 " >
+		<span>
+			<span><span class="text">Pay</span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton615.fancyButton:link,.fancyButton615.fancyButton:visited, .fancyButton615div.fancyButton{
+	padding-bottom: 10px;
+	background-image: url('/ImageRepository/Document?documentID=21220');
+	background-repeat: no-repeat;
+	background-position: center top;
+position: relative;
+}
+
+.fancyButton615::after { 
+content: "";
+position: absolute;
+left: 50%;
+top: 95px;
+transform: translateX(-50%);
+width: 50px;
+height: 4px;
+background: rgba(40, 45, 114, 1);
+border-radius: 4px;
+transition: all .2s ease-in-out;}
+.fancyButton615.fancyButton:hover,.fancyButton615.fancyButton:focus,.fancyButton615.fancyButton:active,.fancyButton615.fancyButton.hover{
+}
+
+.fancyButton615:is(:hover,:focus,:active)::after {
+width: 100px;}
+.fancyButton615.fancyButton:link > span,.fancyButton615.fancyButton:visited > span, .fancyButton615div.fancyButton > span{
+}
+.fancyButton615.fancyButton:hover > span,.fancyButton615.fancyButton:focus > span,.fancyButton615.fancyButton:active > span,.fancyButton615.fancyButton.hover > span{
+}
+.fancyButton615.fancyButton .text{
+	color: rgb(40, 45, 114);
+	font-size: 1.2em;
+	font-family: "Poppins";
+	padding-top: 110px;
+	font-weight: 700;
+	text-decoration: none;
+	padding-top: 110px;
+	background-repeat: no-repeat;
+	background-position: left top;
+line-height: 1.2;
+}
+.fancyButton615.fancyButton:hover .text,.fancyButton615.fancyButton:focus .text,.fancyButton615.fancyButton:active .text,.fancyButton615.fancyButton.hover .text{
+	text-decoration: underline;
+	background-repeat: no-repeat;
+	background-position: left top;
+
+
+}
+</style>
+
+ </li><!--
+--></ul></div><!----><div class="col col1  last"><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="https://northfield.legistar.com/Calendar.aspx" target="_blank" class="fancyButton fancyButton616 "  aria-label="Agendas &amp; Minutes Opens in new window">
+		<span>
+			<span><span class="text">Agendas &amp; Minutes</span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton616.fancyButton:link,.fancyButton616.fancyButton:visited, .fancyButton616div.fancyButton{
+	padding-bottom: 10px;
+	background-image: url('/ImageRepository/Document?documentID=21216');
+	background-repeat: no-repeat;
+	background-position: center top;
+position: relative;
+}
+
+.fancyButton616::after { 
+content: "";
+position: absolute;
+left: 50%;
+top: 95px;
+transform: translateX(-50%);
+width: 50px;
+height: 4px;
+background: rgba(40, 45, 114, 1);
+border-radius: 4px;
+transition: all .2s ease-in-out;}
+.fancyButton616.fancyButton:hover,.fancyButton616.fancyButton:focus,.fancyButton616.fancyButton:active,.fancyButton616.fancyButton.hover{
+}
+
+.fancyButton616:is(:hover,:focus,:active)::after {
+width: 100px;}
+.fancyButton616.fancyButton:link > span,.fancyButton616.fancyButton:visited > span, .fancyButton616div.fancyButton > span{
+}
+.fancyButton616.fancyButton:hover > span,.fancyButton616.fancyButton:focus > span,.fancyButton616.fancyButton:active > span,.fancyButton616.fancyButton.hover > span{
+}
+.fancyButton616.fancyButton .text{
+	color: rgb(40, 45, 114);
+	font-size: 1.2em;
+	font-family: "Poppins";
+	padding-top: 110px;
+	font-weight: 700;
+	text-decoration: none;
+	padding-top: 110px;
+	background-repeat: no-repeat;
+	background-position: left top;
+line-height: 1.2;
+}
+.fancyButton616.fancyButton:hover .text,.fancyButton616.fancyButton:focus .text,.fancyButton616.fancyButton:active .text,.fancyButton616.fancyButton.hover .text{
+	text-decoration: underline;
+	background-repeat: no-repeat;
+	background-position: left top;
+
+
+}
+</style>
+
+ </li><!--
+--></ul></div><!--				-->
+				</div>
+			</nav>
+		</div>
+	<div class="widgetFooter">
+			</div>
+</div>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col8 last" style="" data-widgetcontainerid="3090e554-4bdb-4a7a-b402-ceb7f2f76145">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col8 first last id63f5de7a-531e-4239-8038-ea986b43b005" style="" data-widgetcontainerid="63f5de7a-531e-4239-8038-ea986b43b005">	
+<div data-widget-id="f478351c-5b31-4221-a377-4f1f71cbf519" data-widget-controller-path="/GraphicLinks/Widget">
+
+
+
+
+<div id="graphicLinkWidgetf478351c-5b31-4221-a377-4f1f71cbf519" class="widget widgetGraphicLinks skin29 widgetOptionSet4 wide" data-elementqueryclasses='{"wide-narrow":"min-width:20em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' data-modulewidgettype="graphicLinks">
+	<div class="widgetHeader">
+		<div class="">
+				</div>
+	</div>
+	<div class="widgetBody cpGrid cpGrid2 ">
+		<nav class="widgetGraphicLinksNav" aria-labelledby="GraphicLinkHeaderText">
+				<div class="row   wide">
+					<!--
+--><div class="col col1 first "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="/bids.aspx" target="_self" class="fancyButton fancyButton617 " >
+		<span>
+			<span><span class="text">Bids</span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton617.fancyButton:link,.fancyButton617.fancyButton:visited, .fancyButton617div.fancyButton{
+	padding-bottom: 10px;
+	background-image: url('/ImageRepository/Document?documentID=21217');
+	background-repeat: no-repeat;
+	background-position: center top;
+position: relative;
+}
+
+.fancyButton617::after { 
+content: "";
+position: absolute;
+left: 50%;
+top: 95px;
+transform: translateX(-50%);
+width: 50px;
+height: 4px;
+background: rgba(40, 45, 114, 1);
+border-radius: 4px;
+transition: all .2s ease-in-out;}
+.fancyButton617.fancyButton:hover,.fancyButton617.fancyButton:focus,.fancyButton617.fancyButton:active,.fancyButton617.fancyButton.hover{
+}
+
+.fancyButton617:is(:hover,:focus,:active)::after {
+width: 100px;}
+.fancyButton617.fancyButton:link > span,.fancyButton617.fancyButton:visited > span, .fancyButton617div.fancyButton > span{
+}
+.fancyButton617.fancyButton:hover > span,.fancyButton617.fancyButton:focus > span,.fancyButton617.fancyButton:active > span,.fancyButton617.fancyButton.hover > span{
+}
+.fancyButton617.fancyButton .text{
+	color: rgb(40, 45, 114);
+	font-size: 1.2em;
+	font-family: "Poppins";
+	padding-top: 110px;
+	font-weight: 700;
+	text-decoration: none;
+	padding-top: 110px;
+	background-repeat: no-repeat;
+	background-position: left top;
+line-height: 1.2;
+}
+.fancyButton617.fancyButton:hover .text,.fancyButton617.fancyButton:focus .text,.fancyButton617.fancyButton:active .text,.fancyButton617.fancyButton.hover .text{
+	text-decoration: underline;
+	background-repeat: no-repeat;
+	background-position: left top;
+
+
+}
+</style>
+
+ </li><!--
+--></ul></div><!----><div class="col col1  last"><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="/requesttracker.aspx" target="_self" class="fancyButton fancyButton618 " >
+		<span>
+			<span><span class="text">Report a Concern</span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton618.fancyButton:link,.fancyButton618.fancyButton:visited, .fancyButton618div.fancyButton{
+	padding-bottom: 10px;
+	background-image: url('/ImageRepository/Document?documentID=21221');
+	background-repeat: no-repeat;
+	background-position: center top;
+position: relative;
+}
+
+.fancyButton618::after { 
+content: "";
+position: absolute;
+left: 50%;
+top: 95px;
+transform: translateX(-50%);
+width: 50px;
+height: 4px;
+background: rgba(40, 45, 114, 1);
+border-radius: 4px;
+transition: all .2s ease-in-out;}
+.fancyButton618.fancyButton:hover,.fancyButton618.fancyButton:focus,.fancyButton618.fancyButton:active,.fancyButton618.fancyButton.hover{
+}
+
+.fancyButton618:is(:hover,:focus,:active)::after {
+width: 100px;}
+.fancyButton618.fancyButton:link > span,.fancyButton618.fancyButton:visited > span, .fancyButton618div.fancyButton > span{
+}
+.fancyButton618.fancyButton:hover > span,.fancyButton618.fancyButton:focus > span,.fancyButton618.fancyButton:active > span,.fancyButton618.fancyButton.hover > span{
+}
+.fancyButton618.fancyButton .text{
+	color: rgb(40, 45, 114);
+	font-size: 1.2em;
+	font-family: "Poppins";
+	padding-top: 110px;
+	font-weight: 700;
+	text-decoration: none;
+	padding-top: 110px;
+	background-repeat: no-repeat;
+	background-position: left top;
+line-height: 1.2;
+}
+.fancyButton618.fancyButton:hover .text,.fancyButton618.fancyButton:focus .text,.fancyButton618.fancyButton:active .text,.fancyButton618.fancyButton.hover .text{
+	text-decoration: underline;
+	background-repeat: no-repeat;
+	background-position: left top;
+
+
+}
+</style>
+
+ </li><!--
+--></ul></div><!--				-->
+				</div>
+			</nav>
+		</div>
+	<div class="widgetFooter">
+			</div>
+</div>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+	</div>
+</div></div></div>
+</div><!-- Footer --><footer data-cpRole="structuralContainer" id="footerContainerTS">
+<div class="siteWrap2"><div data-cpRole="contentContainer" id="footerTS">	<div id="cc854f4440-df99-4d54-bc73-c938836223c7" data-containerid="854f4440-df99-4d54-bc73-c938836223c7" class="pageContent cpGrid cpGrid24 isLockedContainer showInMobile" data-contentcontainerbreakpoint="55">
+				                
+
+		<div class="row outer wide"><!--
+--><div class="outer col col5 first" style="" data-widgetcontainerid="3090da2c-4355-41c6-88c6-3be597e1a9e6">				
+	<div class="row nest first wide">
+	
+	<div class="inner col col5 first last id4d32aa3f-e254-4d9e-8e75-070fd68e1134" style="" data-widgetcontainerid="4d32aa3f-e254-4d9e-8e75-070fd68e1134">	
+    <div data-widget-id="a56368b3-3ced-4bd1-ac36-308db538473b" data-widget-controller-path="/InfoAdvanced/Widget">
+
+
+
+
+
+	<section id="divInfoAdva56368b3-3ced-4bd1-ac36-308db538473b" class="widget widgetInfoAdvanced skin31 widgetOptionSet5 wide" data-modulewidgettype="infoAdv" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' aria-label="Info Advanced">
+			<header class="widgetHeader" id="headera56368b3-3ced-4bd1-ac36-308db538473b">
+		<div class="">
+								</div>
+	</header>
+	<div class="widgetBody  cpGrid cpGrid1 ">
+		<div class="row  wide">
+					<div class="col col1 first last">
+						<ol class="pageStyles semanticList">
+
+<li class="InfoAdvanced widgetItem fr-view">
+	<p><a href="/"><img src="/ImageRepository/Document?documentId=21223" class="fr-dib" alt="Northfield Minnesota Homepage"></a></p>
+</li>						</ol>
+					</div>
+		</div>
+	</div>
+	<div class="widgetFooter">
+
+	</div>
+
+	</section>
+
+
+
+<script type="text/javascript">
+	//Render slideshow if info advacned items contain one.
+	$(document).ready(function (e) {
+		$('#divInfoAdva56368b3-3ced-4bd1-ac36-308db538473b .InfoAdvanced.widgetItem').each(function () {
+			renderSlideshowIfApplicable($(this));		
+		});
+	});
+</script></div>
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+	<div class="row nest last wide">
+	
+	<div class="inner col col5 first last id6f76d252-926a-4287-988d-0c243047348a" style="" data-widgetcontainerid="6f76d252-926a-4287-988d-0c243047348a">	
+<div data-widget-id="5996b45a-fd10-42a9-9470-b64dc0ebdf00" data-widget-controller-path="/GraphicLinks/Widget">
+
+
+
+
+<div id="graphicLinkWidget5996b45a-fd10-42a9-9470-b64dc0ebdf00" class="widget widgetGraphicLinks skin32 widgetOptionSet35 wide" data-elementqueryclasses='{"wide-narrow":"min-width:1em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' data-modulewidgettype="graphicLinks">
+	<div class="widgetHeader">
+		<div class="">
+				</div>
+	</div>
+	<div class="widgetBody cpGrid cpGrid5 ">
+		<nav class="widgetGraphicLinksNav" aria-labelledby="GraphicLinkHeaderText">
+				<div class="row autoWidths center wide">
+					<!--
+--><div class="col col1 first "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks"><a class="widgetDesc widgetGraphicLinksLink" href="https://www.facebook.com/cityofnorthfield/" target="_self">
+
+<img src="/ImageRepository/Document?documentID=21204" 
+     class="graphicButtonLink" alt="Facebook" 
+     onmouseover="this.src='/ImageRepository/Document?documentID=21204'" 
+	onmouseout="this.src='/ImageRepository/Document?documentID=21204'"
+     onfocus="this.src='/ImageRepository/Document?documentID=21204'" 
+	onblur="this.src='/ImageRepository/Document?documentID=21204'"> 
+</a></li><!--
+--></ul></div><!----><div class="col col1  "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks"><a class="widgetDesc widgetGraphicLinksLink" href="https://www.instagram.com/cityofnorthfield/" target="_self">
+
+<img src="/ImageRepository/Document?documentID=21205" 
+     class="graphicButtonLink" alt="Instagram" 
+     onmouseover="this.src='/ImageRepository/Document?documentID=21205'" 
+	onmouseout="this.src='/ImageRepository/Document?documentID=21205'"
+     onfocus="this.src='/ImageRepository/Document?documentID=21205'" 
+	onblur="this.src='/ImageRepository/Document?documentID=21205'"> 
+</a></li><!--
+--></ul></div><!----><div class="col col1  "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks"><a class="widgetDesc widgetGraphicLinksLink" href="https://www.linkedin.com/company/cityofnorthfield/" target="_self">
+
+<img src="/ImageRepository/Document?documentID=21206" 
+     class="graphicButtonLink" alt="Linkedin" 
+     onmouseover="this.src='/ImageRepository/Document?documentID=21206'" 
+	onmouseout="this.src='/ImageRepository/Document?documentID=21206'"
+     onfocus="this.src='/ImageRepository/Document?documentID=21206'" 
+	onblur="this.src='/ImageRepository/Document?documentID=21206'"> 
+</a></li><!--
+--></ul></div><!----><div class="col col1  "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks"><a class="widgetDesc widgetGraphicLinksLink" href="https://www.youtube.com/c/CityofNorthfieldMinnesota" target="_self">
+
+<img src="/ImageRepository/Document?documentID=21215" 
+     class="graphicButtonLink" alt="YouTube" 
+     onmouseover="this.src='/ImageRepository/Document?documentID=21215'" 
+	onmouseout="this.src='/ImageRepository/Document?documentID=21215'"
+     onfocus="this.src='/ImageRepository/Document?documentID=21215'" 
+	onblur="this.src='/ImageRepository/Document?documentID=21215'"> 
+</a></li><!--
+--></ul></div><!----><div class="col col1  last"><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks"><a class="widgetDesc widgetGraphicLinksLink" href="https://member.everbridge.net/453003085612579/login" target="_self">
+
+<img src="/ImageRepository/Document?documentID=21208" 
+     class="graphicButtonLink" alt="Nixle" 
+     onmouseover="this.src='/ImageRepository/Document?documentID=21208'" 
+	onmouseout="this.src='/ImageRepository/Document?documentID=21208'"
+     onfocus="this.src='/ImageRepository/Document?documentID=21208'" 
+	onblur="this.src='/ImageRepository/Document?documentID=21208'"> 
+</a></li><!--
+--></ul></div><!--				-->
+				</div>
+			</nav>
+		</div>
+	<div class="widgetFooter">
+			</div>
+</div>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col5" style="" data-widgetcontainerid="08eefcf0-ea20-4224-a1b4-7c6e03b21a83">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col5 first last id3cced725-dc8b-42e5-91af-67e089d13af8" style="" data-widgetcontainerid="3cced725-dc8b-42e5-91af-67e089d13af8">	
+    <div data-widget-id="b13d2d48-593a-4856-bcda-ea6e987a3327" data-widget-controller-path="/InfoAdvanced/Widget">
+
+
+
+
+
+	<section id="divInfoAdvb13d2d48-593a-4856-bcda-ea6e987a3327" class="widget widgetInfoAdvanced skin30 widgetOptionSet5 wide" data-modulewidgettype="infoAdv" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' aria-labelledby="headerb13d2d48-593a-4856-bcda-ea6e987a3327">
+			<header class="widgetHeader" id="headerb13d2d48-593a-4856-bcda-ea6e987a3327">
+		<div class="">
+					<h3 >Contact us</h3>
+								</div>
+	</header>
+	<div class="widgetBody  cpGrid cpGrid1 ">
+		<div class="row  wide">
+					<div class="col col1 first last">
+						<ol class="pageStyles semanticList">
+
+<li class="InfoAdvanced widgetItem fr-view">
+	<p>City of Northfield</p>
+</li>
+<li class="InfoAdvanced widgetItem fr-view">
+	<p>801 Washington Street</p>
+</li>
+<li class="InfoAdvanced widgetItem fr-view">
+	<p>Northfield, Minnesota 55057</p>
+</li>
+<li class="InfoAdvanced widgetItem fr-view">
+	<p>Phone: <a href="tel:507-645-8833">507-645-8833</a></p>
+</li>
+<li class="InfoAdvanced widgetItem fr-view">
+	<p><a href="/directory.aspx">Staff directory</a></p>
+</li>						</ol>
+					</div>
+		</div>
+	</div>
+	<div class="widgetFooter">
+
+	</div>
+
+	</section>
+
+
+
+<script type="text/javascript">
+	//Render slideshow if info advacned items contain one.
+	$(document).ready(function (e) {
+		$('#divInfoAdvb13d2d48-593a-4856-bcda-ea6e987a3327 .InfoAdvanced.widgetItem').each(function () {
+			renderSlideshowIfApplicable($(this));		
+		});
+	});
+</script></div>
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col5" style="" data-widgetcontainerid="048d4bf2-6074-448a-bc59-b875cea7505d">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col5 first last idceb6dcf3-a11b-48ad-9083-7cc13d14e822" style="" data-widgetcontainerid="ceb6dcf3-a11b-48ad-9083-7cc13d14e822">	
+    <div data-widget-id="4d12e619-6d1d-45df-86c8-5a18035e73fd" data-widget-controller-path="/InfoAdvanced/Widget">
+
+
+
+
+
+	<section id="divInfoAdv4d12e619-6d1d-45df-86c8-5a18035e73fd" class="widget widgetInfoAdvanced skin30 widgetOptionSet5 wide" data-modulewidgettype="infoAdv" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' aria-labelledby="header4d12e619-6d1d-45df-86c8-5a18035e73fd">
+			<header class="widgetHeader" id="header4d12e619-6d1d-45df-86c8-5a18035e73fd">
+		<div class="">
+					<h3 >City Hall hours</h3>
+								</div>
+	</header>
+	<div class="widgetBody  cpGrid cpGrid1 ">
+		<div class="row  wide">
+					<div class="col col1 first last">
+						<ol class="pageStyles semanticList">
+
+<li class="InfoAdvanced widgetItem fr-view">
+	<p>Monday: 7:30 a.m. to 4:30 p.m.</p>
+</li>
+<li class="InfoAdvanced widgetItem fr-view">
+	<p>Tuesday: 7:30 a.m. to 6:00 p.m.</p>
+</li>
+<li class="InfoAdvanced widgetItem fr-view">
+	<p>Wednesday: 7:30 a.m. to 4:30 p.m.</p>
+</li>
+<li class="InfoAdvanced widgetItem fr-view">
+	<p>Thursday: 7:30 a.m. to 4:30 p.m.</p>
+</li>
+<li class="InfoAdvanced widgetItem fr-view">
+	<p>Friday: 7:30 a.m. to 12 p.m.</p>
+</li>
+<li class="InfoAdvanced widgetItem fr-view">
+	<p><a href="/calendar.aspx?CID=48">Holidays</a></p>
+</li>						</ol>
+					</div>
+		</div>
+	</div>
+	<div class="widgetFooter">
+
+	</div>
+
+	</section>
+
+
+
+<script type="text/javascript">
+	//Render slideshow if info advacned items contain one.
+	$(document).ready(function (e) {
+		$('#divInfoAdv4d12e619-6d1d-45df-86c8-5a18035e73fd .InfoAdvanced.widgetItem').each(function () {
+			renderSlideshowIfApplicable($(this));		
+		});
+	});
+</script></div>
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col5" style="" data-widgetcontainerid="38d44606-0476-4a2b-99de-5e9bf907160a">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col5 first last idcc7233e1-9b45-49ae-9f0f-e6368f62cb1a" style="" data-widgetcontainerid="cc7233e1-9b45-49ae-9f0f-e6368f62cb1a">	
+	<div data-widget-id="b3d0a94a-f5d8-477d-8d37-076e4fea6f50" data-widget-controller-path="/QuickLinks/Widget">
+
+
+
+
+
+
+
+
+	<section id="widgetQuicklinkb3d0a94a-f5d8-477d-8d37-076e4fea6f50" class="widget widgetQuickLinks skin30 widgetOptionSet17 narrow" data-modulewidgettype="quickLinks" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' aria-labelledby="quickLinksHeaderb3d0a94a-f5d8-477d-8d37-076e4fea6f50">
+			<header class="widgetHeader" id="quickLinksHeaderb3d0a94a-f5d8-477d-8d37-076e4fea6f50">
+		<div class="">
+					<h3><a  style="" href="/QuickLinks.aspx?CID=169" >Notices and feedback</a></h3>
+						</div>
+	</header>
+	<div class="widgetBody cpGrid cpGrid1 ">
+        <div class="row  narrow">
+				<div class="col col1 first last">
+					<ol class="semanticList">
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/alerts" target="_blank" aria-label="Emergency alerts - Footer - Notices and Feedback opens in new window" rel="noopener">Emergency alerts</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/notify" target="_self" aria-label="Email/text updates - Footer - Notices and Feedback" rel="">Email/text updates</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/comment" target="_blank" aria-label="Comment on City Council items - Footer - Notices and Feedback opens in new window" rel="noopener">Comment on City Council items</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/rss.aspx" target="_self" aria-label="RSS feed - Footer - Notices and Feedback" rel="">RSS feed</a>
+        <div class="widgetMeta"></div>
+    </li>
+					</ol>
+				</div>
+		</div>
+        
+	</div>
+	<div class="widgetFooter">
+	</div>
+	<div class="addItemModal hidden">
+		<div class="url hidden">/QuickLinks.aspx</div>
+	</div>
+
+	</section>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col4 last" style="" data-widgetcontainerid="d6b1761b-e54b-4be8-bebc-a910576b10ac">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col4 first last id42a3513b-b6bf-4d79-b2d8-c8c29cb0fcf5" style="" data-widgetcontainerid="42a3513b-b6bf-4d79-b2d8-c8c29cb0fcf5">	
+	<div data-widget-id="09a4fe64-beff-4b64-a91f-7168199a6b88" data-widget-controller-path="/QuickLinks/Widget">
+
+
+
+
+
+
+
+
+	<section id="widgetQuicklink09a4fe64-beff-4b64-a91f-7168199a6b88" class="widget widgetQuickLinks skin30 widgetOptionSet17 narrow" data-modulewidgettype="quickLinks" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' aria-labelledby="quickLinksHeader09a4fe64-beff-4b64-a91f-7168199a6b88">
+			<header class="widgetHeader" id="quickLinksHeader09a4fe64-beff-4b64-a91f-7168199a6b88">
+		<div class="">
+					<h3><a  style="" href="/QuickLinks.aspx?CID=170" >Site links</a></h3>
+						</div>
+	</header>
+	<div class="widgetBody cpGrid cpGrid1 ">
+        <div class="row  narrow">
+				<div class="col col1 first last">
+					<ol class="semanticList">
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/1387/Employee-Portal" target="_blank" aria-label="Employee portal - Footer - Site Links opens in new window" rel="noopener">Employee portal</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="https://outlook.office.com" target="_blank" aria-label="Employee webmail - Footer - Site Links opens in new window" rel="noopener">Employee webmail</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/accessibility" target="_self" aria-label="Accessibility - Footer - Site Links" rel="">Accessibility</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/site/copyright" target="_self" aria-label="Copyright - Footer - Site Links" rel="">Copyright</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/sitemap" target="_self" aria-label="Site map - Footer - Site Links" rel="">Site map</a>
+        <div class="widgetMeta"></div>
+    </li>
+					</ol>
+				</div>
+		</div>
+        
+	</div>
+	<div class="widgetFooter">
+	</div>
+	<div class="addItemModal hidden">
+		<div class="url hidden">/QuickLinks.aspx</div>
+	</div>
+
+	</section>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+	</div>
+</div></div>
+</footer><!-- Powered By --><div data-cpRole="structuralContainer" id="poweredByContainerTS">
+<div class="siteWrap2"><div data-cpRole="contentContainer" id="poweredByTS">	<div id="cc096fc036-50de-4119-909f-12516e5eda83" data-containerid="096fc036-50de-4119-909f-12516e5eda83" class="pageContent cpGrid cpGrid24 isLockedContainer showInMobile">
+				                
+
+		<div class="row outer wide"><!--
+--><div class="outer col col24 first last" style="" data-widgetcontainerid="243442d9-9206-4cf0-a4d3-b74012b6ff65">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col24 first last id36d62fb4-2171-4012-8be6-5a99e5c8e1f9" style="" data-widgetcontainerid="36d62fb4-2171-4012-8be6-5a99e5c8e1f9">	
+ 
+	<div data-widget-id='75cb8a63-f377-4b45-bfa9-8de12208b7f9' data-moduleName="customHtml" id='widgetCustomHtml75cb8a63-f377-4b45-bfa9-8de12208b7f9' class="widget widgetCustomHtml skin33 narrow" >
+	<div class="widgetBody pageStyles" id="widgetBody75cb8a63-f377-4b45-bfa9-8de12208b7f9">
+		<div id="customHtml75cb8a63-f377-4b45-bfa9-8de12208b7f9"><div><style>
+  /* CP icon */
+  .cpBylineIconTS {
+    color: #fff;
+  }
+  /* CP Text */
+  .cpBylineTextTS,
+  .cpBylineTextTS a:link {
+    color: #fff;
+  }
+
+  .cpBylineTS {
+    text-align: center;
+  }
+  
+  .cpBylineIconTS {
+    fill: currentColor;
+    width: 39px;
+    height: 26px;
+    display: inline;
+    vertical-align: middle;
+  }
+</style>
+
+<div class="widgetItem cpBylineTS">
+  <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 100 100" class="cpBylineIconTS">
+    <path class="c" d="M73.4,23.2h-19v16.7h19c2.8,0,5,2.2,5,5c0,2.8-2.2,5-5,5h-19v28.4h5.5l11.3-11.7h2.2c11.9,0,21.6-9.7,21.6-21.6C95,33,85.3,23.2,73.4,23.2"></path>
+    <path class="p" d="M45.8,66.5H26.6C14.7,66.5,5,56.8,5,44.9C5,33,14.7,23.2,26.6,23.2h19.1v16.7H26.6c-2.8,0-5,2.2-5,5c0,2.8,2.2,5,5,5h19.1V66.5z"></path>
+  </svg>
+  <span class="cpBylineTextTS">Government Websites by <a href="https://connect.civicplus.com/referral">CivicPlus&reg;</a></span>
+</div>
+</div></div>
+	</div>
+
+	</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+	</div>
+</div></div>
+</div>
+</div>
+
+            </div>
+        </div>
+    </div>
+
+<link href="/745732998.css" rel="stylesheet" type="text/css" />
+
+<div id="SplashMessageWrapper" class="cp-Splash-wrapper">
+	<div role="dialog" aria-labelledby="cp-Splash-title" aria-describedby="editorContentDesc" aria-modal="true" tabindex="-1" id="SplashMessage" class="hidden cp-Splash cp-Splash--modal is-open">
+		<div class="cp-Splash-header">
+			<h2 class="cp-Splash-title" id="cp-Splash-title">Loading</h2>
+			<button class="cp-Splash-Btn cp-Splash-close" aria-label="Close this modal" title="Close this window">
+				<svg id="iconClose" viewBox="0 0 25 25">
+					<polygon style="fill:currentcolor"
+							 points="18.806,6.98 18.075,6.248 12.532,11.792 6.989,6.248 6.257,6.98 11.786,12.508 6.212,18.084 6.943,18.815 12.532,13.224 18.12,18.815 18.851,18.084 13.277,12.508"></polygon>
+				</svg>
+			</button>
+		</div>
+		<div class="cp-Splash-body">
+			<div class="cp-Splash-Prose editorContent fr-view" id="editorContentDesc">
+				<!-- Content from the Froala Editor will go here. -->
+				Loading
+			</div>
+		</div>
+		<div class="cp-Splash-footer">
+			<button class="cp-Splash-Btn cp-Splash-Btn--NoShow">Do Not Show Again</button>
+			<button class="cp-Splash-Btn cp-Splash-Btn--Close">Close</button>
+		</div>
+	</div>
+</div>
+
+<script src="/Assets/Scripts/APIClient.js"></script>
+<script src="/Assets/Mystique/Shared/Scripts/Moment/Moment.min.js"></script>
+<script src="/Assets/Scripts/SplashModal/SplashModalRender.js"></script>
+<script>
+
+		$(document).ready(function () {
+			var filter = {
+				targetId: '121',
+				targetType: 1
+			}
+
+			new SplashModalRender().triggerRender(filter);
+		});
+</script>
+
+
+	
+	
+	
+	
+
+
+
+	
+
+
+
+
+
+
+    <script src="/-1442400649.js" type="text/javascript"></script>
+    <!-- Site Improve -->
+<script type="text/javascript">
+/*<![CDATA[*/
+(function() {
+var sz = document.createElement('script'); sz.type = 'text/javascript'; sz.async = true;
+sz.src = '//siteimproveanalytics.com/js/siteanalyze_13862399.js';
+var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(sz, s);
+})();
+/*]]>*/
+</script>
+<!-- End Site Improve -->
+
+<!-- Fixed Nav Adjustment -->
+<script>
+  function getValueTS(elem, attr) {
+    var val = elem.css(attr);
+    if (val === undefined) return undefined;
+    var num = parseInt(val, 10);
+    if (num === NaN) return undefined;
+    return num;
+  }
+
+  function clampTS(number, min, max) {
+    return Math.min(Math.max(number, min), max);
+  }
+
+  function isPageEditingTS() {
+    return (
+      $("#doneEditing").length > 0 || // In live edit
+      typeof DesignCenter !== "undefined" // In theme manager
+    );
+  }
+
+  var bgColorRegexTS = new RegExp("rgba\((\d+), (\d+), (\d+), (\d*\.?\d*)\)");
+
+  function isTransparentTS(elem) {
+    var bg = elem.css('background-color');
+    if (typeof bg !== "string") return false;
+    if (bg === "transparent") return true;
+    if (!bg.startsWith('rgba(')) return false;
+    var matchState = bg.match(bgColorRegexTS);
+    if (!matchState || matchState.length !== 5) return false;
+    var alpha = parseFloat(matchState[4], 10);
+    if (!(alpha >= 0 && alpha < 1)) return false;
+    return true;
+  }
+
+  function iterateLeftpads(cb) {
+    var containersTS = $("[class^='siteWrap'],[class*=' siteWrap']");
+    for (var i = 0; i < containersTS.length; i++) {
+      var containerTS = containersTS[i];
+      // Skip the body container and anything with data-skip-leftpad
+      if (
+        containerTS.id !== "bodyContainerTS" &&
+        containerTS.getAttribute('data-skip-leftpad') === null
+      ) {
+        cb(containerTS);
+      }
+    }
+  }
+
+  function iterateRightpads(cb) {
+    var containersTS = $("[class^='siteWrap'],[class*=' siteWrap']");
+    for (var i = 0; i < containersTS.length; i++) {
+      var containerTS = containersTS[i];
+      // Skip the body container and anything with data-skip-rightpad
+      if (
+        containerTS.id !== "bodyContainerTS" &&
+        containerTS.getAttribute('data-skip-rightpad') === null
+      ) {
+        cb(containerTS);
+      }
+    }
+  }
+
+  var anchor = $("#divToolbars");
+  var headerContainerTS = $("#headerContainerTS");
+  var bodyContainerTS = $("#bodyContainerTS");
+
+  // Outer banner padding (push banner down)
+  var outerSizingTS = $("#bannerContainerTS");
+  // Inner banner padding (push banner content down) - Transparent header OR on attaching headers
+  var innerSizingTS = $("#bannerSizingTS");
+
+  var forceUnfixClassTS = "forceUnfixTS";
+
+  var fixedTopTS = $(".fixedTopTS");
+  var fixedBottomTS = $(".fixedBottomTS");
+  var fixedLeftTS = $(".fixedLeftTS");
+  var fixedRightTS = $(".fixedRightTS");
+
+  var initialTopTS;
+  var topAttachTS;
+  if (fixedTopTS && fixedTopTS.length === 1) {
+    initialTopTS = getValueTS(fixedTopTS, 'top');
+    var attachment = fixedTopTS.attr('data-attach');
+    if (attachment) topAttachTS = $("#" + attachment);
+    if (!topAttachTS || topAttachTS.length !== 1) topAttachTS = undefined;
+  }
+
+  function resizeAdjustmentTS() {
+    var editing = isPageEditingTS();
+
+    // Fixed top script
+    (function () {
+      if (!fixedTopTS || fixedTopTS.length !== 1 || initialTopTS === undefined) return;
+
+      if (editing) {
+        fixedTopTS[0].classList.add(forceUnfixClassTS);
+      } else {
+        fixedTopTS[0].classList.remove(forceUnfixClassTS);
+      }
+
+      var topPosition = fixedTopTS.css('position');
+      if (topPosition === 'fixed') {
+        if (topAttachTS) {
+          scrollAdjustmentTS();
+        } else {
+          var anchorHeight = anchor.outerHeight() - 1;
+          fixedTopTS.css('top', anchorHeight + initialTopTS);
+        }
+      } else {
+        fixedTopTS.css('top', initialTopTS);
+      }
+
+      if (topPosition === 'fixed' || topPosition === 'absolute') {
+        // Bump the banner content down
+        if (isTransparentTS(fixedTopTS)) {
+          innerSizingTS.css('padding-top', initialTopTS + fixedTopTS.outerHeight());
+          outerSizingTS.css('padding-top', '');
+
+          try {
+            window.Pages.onResizeHandlersExecute();
+          } catch (e) {}
+        } else {
+          outerSizingTS.css('padding-top', fixedTopTS.outerHeight() - 1);
+          innerSizingTS.css('padding-top', '');
+        }
+      } else {
+        innerSizingTS.css('padding-top', '');
+        outerSizingTS.css('padding-top', '');
+      }
+    })();
+
+    // Fixed bottom script
+    (function () {
+      if (!fixedBottomTS || fixedBottomTS.length === 0) return;
+
+      // If the widget has gone narrow, force unfix
+      if (editing || fixedBottomTS.outerHeight() > 200) {
+        fixedBottomTS[0].classList.add(forceUnfixClassTS);
+      } else {
+        fixedBottomTS[0].classList.remove(forceUnfixClassTS);
+      }
+
+      if (fixedBottomTS.css('position') === 'fixed') {
+        bodyContainerTS.css('padding-bottom', fixedBottomTS.outerHeight());
+      } else {
+        bodyContainerTS.css('padding-bottom', '');
+      }
+    })();
+
+    // Fixed left script
+    (function () {
+      if (!fixedLeftTS || fixedLeftTS.length === 0) return;
+
+      if (editing) {
+        fixedLeftTS[0].classList.add(forceUnfixClassTS);
+      } else {
+        fixedLeftTS[0].classList.remove(forceUnfixClassTS);
+      }
+
+      if (fixedLeftTS.css('position') === 'fixed') {
+        var headerHeight = headerContainerTS.outerHeight();
+        var anchorHeight = anchor.outerHeight() - 1;
+        fixedLeftTS.css('top', anchorHeight + headerHeight + 90);
+        var leftBoundingTS = fixedLeftTS[0].getBoundingClientRect();
+        iterateLeftpads(function (containerTS) {
+          var containerBoundingTS = containerTS.getBoundingClientRect();
+          if (containerBoundingTS.left <= leftBoundingTS.right) {
+            $(containerTS).css('padding-left', leftBoundingTS.width + 16);
+          } else {
+            $(containerTS).css('padding-left', '');
+          }
+        });
+      } else {
+        fixedLeftTS.css('top', '');
+        iterateLeftpads(function (containerTS) {
+          $(containerTS).css('padding-left', '');
+        });
+      }
+    })();
+
+    // Fixed right script
+    (function () {
+      if (!fixedRightTS || fixedRightTS.length === 0) return;
+
+      if (editing) {
+        fixedRightTS[0].classList.add(forceUnfixClassTS);
+      } else {
+        fixedRightTS[0].classList.remove(forceUnfixClassTS);
+      }
+
+      if (fixedRightTS.css('position') === 'fixed') {
+        var headerHeight = headerContainerTS.outerHeight();
+        var anchorHeight = anchor.outerHeight() - 1;
+        fixedRightTS.css('top', anchorHeight + headerHeight + 90);
+        var rightBoundingTS = fixedRightTS[0].getBoundingClientRect();
+        iterateRightpads(function (containerTS) {
+          var containerBoundingTS = containerTS.getBoundingClientRect();
+          if (containerBoundingTS.right >= rightBoundingTS.left) {
+            $(containerTS).css('padding-right', rightBoundingTS.width + 16);
+          }
+        });
+      } else {
+        fixedRightTS.css('top', '');
+        iterateRightpads(function (containerTS) {
+          $(containerTS).css('padding-right', '');
+        });
+      }
+    })();
+  }
+
+  function scrollAdjustmentTS() {
+    if (!fixedTopTS || fixedTopTS.length !== 1 || !topAttachTS || topAttachTS.length !== 1) return;
+    var topPosition = fixedTopTS.css('position');
+    if (topPosition === 'fixed' || topPosition === 'absolute') {
+      var anchorBounding = anchor[0].getBoundingClientRect();
+      var attachBounding = topAttachTS[0].getBoundingClientRect();
+      var scrollTop = $(window).scrollTop();
+
+      fixedTopTS.css('top', Math.max(anchorBounding.bottom - 1, attachBounding.bottom));
+    } else {
+      fixedTopTS.css('top', initialTopTS);
+    }
+  }
+
+  function alertBar() {
+    if (($('.alertToolbar').length) && ($('#nav-open-btn').width() > 1)) {
+      var mobileHeight = $('#nav-open-btn').height();
+      fixedTopTS.css('padding-top', mobileHeight);
+    } else {
+      fixedTopTS.css('padding-top', 0);
+    }
+  }
+
+  $(window).load(function () {
+    setTimeout(function () {
+      try {
+        resizeAdjustmentTS();
+        alertBar();
+      } catch (e) {
+        console.error(e);
+      }
+    }, 350);
+
+    $(window).scroll(function () {
+      try {
+        scrollAdjustmentTS();
+      } catch (e) {
+        console.error(e);
+      }
+    });
+
+    var adjustTimeoutTS;
+    $(window).resize(function () {
+      clearTimeout(adjustTimeoutTS);
+      adjustTimeoutTS = setTimeout(function () {
+        try {
+          resizeAdjustmentTS();
+          alertBar();
+        } catch (e) {
+          console.error(e);
+        }
+      }, 350);
+    });
+
+    $.when(window.Pages.angularToolbarComplete).done(function () {
+      try {
+        resizeAdjustmentTS();
+        alertBar();
+      } catch (e) {
+        console.error(e);
+      }
+    });
+  });
+</script>
+<!-- End Fixed Nav Adjustment -->
+
+
+<!----------Google Translate (Mobile Friendly)--------->
+
+<style>
+  #google-translate-container {
+    float: right;
+    padding: 3px 5px 0px 0px;
+    position: fixed; 
+    bottom: 16px; 
+    right: 10px; 
+    z-index: 5;
+  }
+  
+  .goog-te-combo, .goog-te-banner *, .goog-te-ftab *, .goog-te-menu *, .goog-te-menu2 *, .goog-te-balloon * {
+    font-family: arial;
+    font-size: 10pt;
+    background-image: url("https://www.gstatic.com/images/branding/product/2x/translate_24dp.png");
+    background-position: 5px 5px;
+    background-size: 18px;
+    background-repeat: no-repeat;
+    text-indent: 16px;
+    background-color: #fff;
+    color: #000 !important;
+  }
+  
+  .goog-logo-link {
+    display: none !important;
+  }
+  
+  .goog-te-gadget {
+    color: transparent !important;
+  }
+  
+  .goog-te-gadget .goog-te-combo {
+    margin: 2px 0 !important;
+    border-radius: 15px !important;
+    }
+  
+  .goog-te-combo{
+    border: 1px solid !important;
+    border-color: #bcc9d7 #96a3b1 #96a3b1 #bcc9d7 !important;
+    border-radius: 50px !important;
+    height:31px !important;
+    padding: 0 1px 0 .25rem !important;
+                width: 156px;
+  }
+
+  #launcher-wrapper {
+    bottom: 50px !important;
+  }
+
+</style>
+
+<div id="google-translate-container">
+  <div id="google_translate_element">
+  </div>
+</div>
+
+<script>
+
+  function googleTranslateElementInit() {
+    var el = document.getElementById("google_translate_element");
+    if (el && el.innerHTML.trim() !== "") {
+        return;
+    }
+
+    new google.translate.TranslateElement({ pageLanguage: "en" }, "google_translate_element");
+    // begin accessibility compliance
+    $('img.goog-te-gadget-icon').attr('alt','Google Translate');
+    $('div#goog-gt-tt div.logo img').attr('alt','translate');
+    $('div#goog-gt-tt .original-text').css('text-align','left');
+    $('.goog-te-gadget-simple .goog-te-menu-value span').css('color','#000000');
+    $('.goog-te-combo').attr('aria-label','google translate languages');
+    $('svg.goog-te-spinner').attr('title','Google Translate Spinner');
+    $('.goog-te-gadget-simple .goog-te-menu-value span').css('color','#000000');
+  }
+
+  $(function() {
+    $.getScript("//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit");
+  });
+
+</script>
+
+<!--------------End Google Translate----------------->
+
+
+<!-- Monsido -->
+<script type="text/javascript">
+
+    window._monsido = window._monsido || {
+
+        token: "S9OtqWk98pE95saaP8r3NA",
+
+        statistics: {
+
+            enabled: true,
+
+            documentTracking: {
+
+                enabled: true,
+
+                documentCls: "monsido_download",
+
+                documentIgnoreCls: "monsido_ignore_download",
+
+                documentExt: ["pdf","doc","ppt","docx","pptx"],
+
+            },
+
+        },
+
+        heatmap: {
+
+            enabled: true,
+
+        },
+
+        pageCorrect: {
+
+            enabled: true,
+
+        },
+
+        pageAssistV2: {
+
+            enabled: true,
+
+            theme: "light",
+
+            mainColor: "#6a2e35",
+
+            textColor: "#ffffff",
+
+            linkColor: "#194f76",
+
+            buttonHoverColor: "#194f76",
+
+            mainDarkColor: "#FFCF4B",
+
+            textDarkColor: "#ffffff",
+
+            linkColorDark: "#FFCF4B",
+
+            buttonHoverDarkColor: "#FFCF4B",
+
+            greeting: "Discover your personalization options",
+
+            direction: "leftbottom",
+
+            coordinates: "unset unset 3 20",
+
+            iconShape: "circle",
+
+            title: "Personalization Options",
+
+            titleText: "Welcome to PageAssist&#8482; toolbar! Adjust the options below to cater the website to your accessibility needs.",
+
+            iconPictureUrl: "logo",
+
+            logoPictureUrl: "",
+
+            logoPictureBase64: "data:image/png;base64,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",
+
+            languages: ["en-US", "es-MX"],
+
+            defaultLanguage: "en-US",
+
+            skipTo: true,
+
+            alwaysOnTop: false,
+
+        },
+
+    };
+
+</script>
+
+<script type="text/javascript" async src="https://app-script.monsido.com/v2/monsido-script.js"></script>
+<!-- End Monsido -->
+
+<!-- Move banner to outer wrap --> 
+<script> 
+function moveBannerToOuterWrap() { 
+    if ($(".fixedBannerTS").length) { 
+		if ($("#bannerDivbanner2").length) { 
+			$("#bannerDivbanner2").appendTo("#outer-wrap"); 
+		} else { 
+			setTimeout(function() { 
+				moveBannerToOuterWrap(); 
+			}, 500); 
+		} 
+	}
+} 
+moveBannerToOuterWrap(); 
+</script> 
+<!-- end move banner to outer wrap -->
+
+
+    <script type="text/javascript">
+        $(function () {
+            document.cookie = "responsiveGhost=0; path=/";
+        });
+        $(window).on("load", function () {
+            $('body').addClass('doneLoading').removeClass('hideContent');
+
+            if ($('#404Content').length > 0)
+                $('div#bodyWrapper').css('padding', '0px');
+        });
+    </script>
+
+    <noscript>
+        <style>
+            body.hideContent {
+                opacity: 1 !important;
+            }
+        </style>
+    </noscript>
+
+        
+<div style="display: none;">
+	<svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
+
+		<symbol id="iconArrow--left" viewbox="0 0 25 25">
+			<title>Arrow Left</title>
+			<polygon style="fill:currentcolor" points="18.044,25 19.498,23.545 8.409,12.454 19.408,1.455 17.954,0 5.502,12.452"></polygon>
+		</symbol>
+
+		<symbol id="iconArrow--right" viewbox="0 0 25 25">
+			<title>Arrow Right</title>
+			<polygon style="fill:currentcolor" points="6.957,0 5.502,1.455 16.591,12.546 5.592,23.545 7.047,25 19.498,12.548"></polygon>
+		</symbol>
+
+	</svg>
+</div>
+    <script type="text/javascript">loadCSS('//fonts.googleapis.com/css?family=Lato:700,regular|Open+Sans:300,300italic,600,600italic,700,700italic,800,800italic,italic,regular|Poppins:500,500italic,600,600italic,700,700italic,italic,regular|');</script>
+    
+
+    <div class="hidden activeWidgetSkinComponentsOnPageJson">[]</div>
+        <div style="display: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                <symbol id="iconSlideshowArrowLeft" viewBox="0 0 22.68 40">
+                    <title>Slideshow Left Arrow</title>
+                    <g>
+                        <path style="fill:currentcolor;" d="M20,40a2.67,2.67,0,0,1-1.9-.79L.79,21.9a2.68,2.68,0,0,1,0-3.79L18.1.79a2.68,2.68,0,1,1,3.79,3.79L6.47,20,21.89,35.42A2.68,2.68,0,0,1,20,40Z"></path>
+                    </g>
+                </symbol>
+                <symbol id="iconSlideshowArrowRight" viewBox="0 0 22.68 40">
+                    <title>Slideshow Right Arrow</title>
+                    <g>
+                        <path style="fill:currentcolor;" d="M2.68,0a2.67,2.67,0,0,1,1.9.79L21.89,18.1a2.68,2.68,0,0,1,0,3.79L4.58,39.21A2.68,2.68,0,0,1,.79,35.42L16.21,20,.79,4.58A2.68,2.68,0,0,1,2.68,0Z"></path>
+                    </g>
+                </symbol>
+            </svg>
+        </div>
+    
+	
+	
+
+    <div id="root-picker-outlet"></div>
+</body>
+</html>

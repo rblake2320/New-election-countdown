@@ -1,0 +1,2394 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+	<meta http-equiv="Content-type" content="text/html; charset=UTF-8" />
+<!-- Google Tag Manager for GA4 -->
+				<script>(function(w,d,s,l,i){w.GAMeasurementID='G-TYY1E3EPEW';w[l]=w[l]||[];w[l].push({'gtm.start':
+				new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+				j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+				'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+				})(window,document,'script','cpDataLayerGA4','GTM-K73C5PS');</script>
+				<!-- End Google Tag Manager for GA4 -->
+				<script type='text/javascript'>
+					var enableTelemetry = 'false'
+					var aiConfig = {
+					instrumentationKey: '1cde048e-3185-4906-aa46-c92a7312b60f'						
+					}
+					var appInsights = window.appInsights || function (a) { function b(a) { c[a] = function () { var b = arguments; c.queue.push(function () { c[a].apply(c, b) }) } } var c = { config: a }, d = document, e = window; setTimeout(function () { var b = d.createElement('script'); b.src = a.url || 'https://js.monitor.azure.com/scripts/a/ai.0.js', d.getElementsByTagName('script')[0].parentNode.appendChild(b) }); try { c.cookie = d.cookie } catch (a) { } c.queue = []; for (var f = ['Event', 'Exception', 'Metric', 'PageView', 'Trace', 'Dependency']; f.length;)b('track' + f.pop()); if (b('setAuthenticatedUserContext'), b('clearAuthenticatedUserContext'), b('startTrackEvent'), b('stopTrackEvent'), b('startTrackPage'), b('stopTrackPage'), b('flush'), !a.disableExceptionTracking) { f = 'onerror', b('_' + f); var g = e[f]; e[f] = function (a, b, d, e, h) { var i = g && g(a, b, d, e, h); return !0 !== i && c['_' + f](a, b, d, e, h), i } } return c }(aiConfig);
+					window.appInsights = appInsights, appInsights.queue && 0 === appInsights.queue.length;
+					// Add telemetry initializer
+					appInsights.queue.push(function() {
+						appInsights.context.addTelemetryInitializer(function(envelope) {
+							var telemetryItem = envelope.data.baseData;
+							// To check the telemetry item’s type:
+							if (!false)
+							{
+								//If the telemetry is not enabled, we still want to capture Google map custom event, so only allow that
+								if (envelope.name.indexOf('.Event') == -1)
+									return false;
+							}
+						});
+					});						
+					appInsights.trackPageView();
+				</script>
+	<script>
+		function populateAntiForgery(token) {
+			var input = document.createElement("input");
+			input.name = "__RequestVerificationToken";
+			input.type = "hidden";
+			input.value = token;
+			var absPat = /^https?:\/\/|^\/\//i;
+			var forms = document.getElementsByTagName("form");
+			for (var i = 0; i < forms.length; i++) {
+				if (forms[i].method == "post" &&
+					!forms[i].querySelector('[name="__RequestVerificationToken"]') &&
+					!absPat.test(forms[i].getAttribute("action"))) {
+					forms[i].appendChild(input.cloneNode());
+				}
+			}
+		}
+
+		function getAntiForgeryToken(callback, error) {
+			var xhr = new XMLHttpRequest();
+			xhr.open("GET", "/antiforgery");
+			xhr.addEventListener("load", function() {
+				try {
+					if (this.status !== 200) {
+						throw Error("Invalid status. Could not retrieve antiforgery token.");
+					}
+					var obj = JSON.parse(this.responseText);
+					callback(obj.token);
+				} catch (e) {
+					typeof error === "function" && error(e);
+				}
+			});
+			xhr.send();
+		}
+
+		getAntiForgeryToken(function(token) {
+			if (document.readyState === "complete"
+				|| document.readyState === "loaded" 
+				|| document.readyState === "interactive") {
+				populateAntiForgery(token);
+				return;
+			}
+			document.addEventListener("DOMContentLoaded", function() {
+				populateAntiForgery(token);
+			}, false);
+		}, console.error);
+	</script>
+			
+
+	<script type="text/javascript">
+		window.departmentHeader = {};
+		window.pageSectionTracker = {};
+		window.isResponsiveEnabled = true;
+		window.isRemoveSetHeights= false;
+		if (window.isRemoveSetHeights) {
+			document.documentElement.className += ' removeSetHeights';
+		}
+		window.mainMenuMediaQuery = 'screen and (max-width: 40em)';
+		window.isMobileBrowserIncludingTablets = false;
+		window.fixedResponsiveMenu = false;
+		window.fullWidthResponsiveMenu = false;
+		window.responsiveMenuHeight = '';
+		window.responsiveMenuFontSize = '';
+		window.isContentAdvisor = false;
+		(function () {
+			window.setSizeCookie = function () {
+				document.cookie = "dpi=" + window.devicePixelRatio + "; path=/";
+				document.cookie = "viewportWidth=" + window.innerWidth + "; path=/";
+				document.cookie = "viewportHeight=" + window.innerHeight + "; path=/";
+				if (screen && screen.width && screen.height) {
+					document.cookie = "screenWidth=" + screen.width + "; path=/";
+					document.cookie = "screenHeight=" + screen.height + "; path=/";
+				}
+				document.cookie = "responsiveGhost=1; path=/";
+			};
+
+			setSizeCookie();
+		}());
+	</script>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<script async src="https://docaccess.com/docbox.js"></script>
+	
+	<meta name="category0" content="Home" />
+<meta name="category1" content="Government" />
+<meta name="category2" content="Elections" />
+<meta name="category3" content="General Election" />
+
+	
+	<meta name="theme-color" content="#0b4e9a">
+	<link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+	<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
+		<title>General Election | Champlin, MN</title>
+
+		<meta name="description" content="General Election Details">
+		<meta name="keywords" content="General Election,November Election">
+			<script src="/Assets/Scripts/jQuery/jquery-3.7.1.min.js"></script>
+	<script src="/Assets/Scripts/jQuery/jquery-migrate-3.6.0.min.js" type="text/javascript"></script>
+	
+
+	<!--[if IE 6]><script language="JavaScript" type="text/javascript"> var isie6 = true; </script><![endif]-->
+	<!--[if IE 7]><script language="JavaScript" type="text/javascript"> var isie7 = true; </script><![endif]-->
+	<!--[if IE 8]><script language="JavaScript" type="text/javascript"> var isie8 = true; </script><![endif]-->
+	<!--[if IE 9]><script language="JavaScript" type="text/javascript"> var isie8 = true; </script><![endif]-->
+	<script type="text/javascript"><!--
+	var intCountryCode = 840;
+	var order = '';
+//--></script>
+	
+	<link href="/-2140275272.css" rel="stylesheet" type="text/css" />	<link href="/1527452478.css" rel="stylesheet" type="text/css" />
+
+	<link rel="stylesheet" type="text/css" href="/Assets/Styles/Print.css" media="print">
+	<script type="text/javascript">
+		window.Pages = window.Pages || {};
+		// FrontEnd RWD initialization
+		window.Pages.rwdReady = $.Deferred();
+		window.Pages.toolBarDeferred = $.Deferred();
+		window.Pages.rwdSetupComplete = $.Deferred();
+		window.Pages.megaMenuLoaded = $.Deferred();
+		window.Pages.angularToolbarComplete = $.Deferred();
+		window.Pages.frontEndToolbarComplete = $.Deferred();
+	</script>
+	<!--CPHeadContent-->
+	<script src="/739942322.js" type="text/javascript"></script>
+	
+	
+	
+	
+
+
+
+
+	<!--[if lte IE 8]><link rel="stylesheet" type="text/css" href="/App_Themes/ie8.css"><![endif]-->
+	<!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="/App_Themes/ie7.css"><![endif]-->
+	<!--[if lte IE 6]><link rel="stylesheet" type="text/css" href="/App_Themes/ie6.css"><![endif]-->
+	<!--[if lt IE 9]><script type="text/javascript" src="/Scripts/html5.js"></script><![endif]-->
+
+	<script type="text/javascript">
+		setEditorVariables(false, 840);
+		function getPrintPreviewType() { return 0; } function printPreview() {pPreview(getPrintPreviewType()); }
+	</script>
+	<script src="/Assets/Scripts/AlpineJS/3.14.1/alpine.min.js" type="text/javascript" defer="defer"></script>
+</head>
+<body class="wide " >
+
+    <script>jQuery(document).click(function (event) {
+	var target = jQuery(event.target);
+	if (target.attr('src') && target.parents('.image').length && target.parents('.widget').length) {
+		var text = target.attr('title');
+		
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Image',
+				eventAction: 'Image - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.is('button') || target.hasClass('button') || target.parents().hasClass('button')) {
+		var text = "";
+		if (target.parents('.button')[0]) {
+			text = target.parents('.button').first().text();
+		} else if (target.text().length) {
+			text = target.text();
+		} else if (target.attr('title').length) {
+			text = target.attr('title');
+		}
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Button',
+				eventAction: 'Button - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.widgetCustomHtml').length) {
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Custom Html',
+				eventAction: 'Custom Html Clicked',
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.editor').length) {
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Editor',
+				eventAction: 'Editor Link Clicked',
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.GraphicLinks').length) {
+		var text = "";
+		var targetGraphicLink = target;
+		if (target.hasClass('widgetGraphicLinksLink')) {
+			targetGraphicLink = jQuery(target.children()[0]);
+		}
+		if (targetGraphicLink.hasClass('text')) {
+			text = targetGraphicLink.text();
+		} else if (targetGraphicLink.attr('src').length) {
+			if (targetGraphicLink.attr('alt').length) {
+				text = targetGraphicLink.attr('alt');
+			} else {
+				text = targetGraphicLink.attr('src');
+			}
+		} else {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Graphic Links',
+				eventAction: 'Graphic Link - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.InfoAdvanced').length) {
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Info Advanced',
+				eventAction: 'Info Advanced Clicked',
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.list').length) {
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'List',
+				eventAction: 'List Clicked',
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.megaMenuItem').length || target.parents('.topMenuItem').length) {
+		var megaMenuText = jQuery('.topMenuItem.mouseover').find('span').text();
+		var breadCrumbs = [];
+		jQuery('.breadCrumbs > li').each(function () {
+			 breadCrumbs.push(this.textContent);
+		});
+		var pageTitle = breadCrumbs.join('>');
+		var subTitleText = target.parents('.megaMenuItem').children('.widgetTitle').children().text();
+		var text = "";
+		if (pageTitle) {
+			text += pageTitle + " | ";
+		} else {
+			text += document.title + ' - ';
+		}
+		if (target.text() == "" && megaMenuText == "") {
+			text += "N/A";
+		} else if (target.text().length && megaMenuText.length) {
+			if (megaMenuText == target.text()) {
+				text += megaMenuText;
+			} else {
+				text += megaMenuText + " - " + subTitleText + " - " + target.text();
+			}
+		} else if (target.text() == "") {
+			text += megaMenuText;
+		} else {
+			text += target.text();
+		}
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Mega Menu',
+				eventAction: 'Mega Menu : ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.widgetNewsFlash').length && target.parents('.widgetItem').length) {
+		var text = jQuery(target.parents('.widgetItem')[0]).find('.widgetTitle').children().text();
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'News Flash',
+				eventAction: 'News Flash - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.hasClass('widgetQuickLinksLink') || target.find('.widgetQuickLinksLink').length) {
+		var text = target.text();
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Quick Links',
+				eventAction: 'Quick Links - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.attr('src') && target.parents('.cpSlideshow').length) {
+		var text = target.attr('title');
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Slideshow',
+				eventAction: 'Slideshow - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.widgetText').length) {
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Text',
+				eventAction: 'Text Link Clicked',
+				eventLabel: window.location.href
+			});
+	}
+});</script>
+	<div id="popoverModal" class="cp-PopOver cp-PopOver--modal cp-AdminWrap" style="position: fixed; display: none;">
+	<div class="cp-PopOver-header">
+		<h3 class="cp-PopOver-title"></h3>
+		<button class="cp-Btn cp-PopOver-close" onclick="closePopOverModal(event)">
+			<svg class="cp-Icon--close" alt="close" title="close">
+				<use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#iconClose"></use>
+			</svg>
+		</button>
+	</div>
+	<div id="cpPopOverBody" class="cp-PopOver-body">
+		<form id="cpPopOverForm" name="cpPopOverForm" novalidate></form>
+	</div>
+	<div id="cpPopOverFooter" class="cp-PopOver-footer">
+		<div class="cp-BtnGroup" id="actionButtons">
+			<!-- Action buttons will be dynamically added here -->
+		</div>
+	</div>
+</div>
+    <div id="fb-root"></div>
+<div id=skipToContentLinks>
+<a href="#cc5f8c90dc-b4cb-431b-90ee-10648f8df655" target="_self" class="skipToContentLink">Skip to Main Content</a>
+</div>
+    <form id="frmReferenceFormForTelerikEditorDialogs"></form>
+
+        <input type="hidden" id="GoogleMapsKey" value="AIzaSyDWUuE-ifkbhxblF920N8MjpBdTg1Wt784" />
+
+
+
+    <input type="hidden" id="cpcDomain" value="https://cp-civicplusuniversity2.civicplus.com">
+    <input type="hidden" id="hdnStructureID" value="1" />
+    <input type="hidden" id="hdnContentCollectionID" value="6ff2e3ad-b1d7-424e-ba00-4ed43b96726a" />
+    <input type="hidden" id="hdnWorkingCopyID" value="00000000-0000-0000-0000-000000000000" />
+    <input type="hidden" id="hdnThemeID" value="1" />
+    <input type="hidden" id="pageIsFrontEnd" value="true" />
+    <input type="hidden" id="pageModuleID" />
+    <input type="hidden" id="pagePageID" value="613" />
+
+    <div id="stickyPlaceholder"></div>
+    <div id="outer-wrap" class="outer-wrap">
+        <div id="inner-wrap" class="inner-wrap">
+                <div id="divToolbars" class="cpToolbars newCP mui-fixed" style="">
+                    
+
+
+
+<!-- Begin Signed Out Bar -->
+<div class="cpToolbar user public">
+    <div class="inner selfClear">
+        <p class="dropdown"><a href="/MyAccount/ProfileCreate" class="myConnections" id="signedOutToolbarCreateProfileButton">Create a Website Account</a> <span class="welcomeMessage">- Manage notification subscriptions, save form progress and more. &nbsp;&nbsp;</span></p>
+        <ul class="nav secondary">
+	        <li><a href="/MyAccount" class="button" id="loggedOutToolbarSignInButton">Website Sign In</a></li>
+        </ul>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#signedOutToolbarCreateProfileButton').click(function (event) {
+            event.preventDefault();
+            window.location.href = '/MyAccount/ProfileCreate?from=url&url=/&dn=' + window.location.origin;
+        });
+
+			
+				$('#loggedOutToolbarSignInButton').click(function (event) {
+					event.preventDefault();
+					window.location.href = '/MyAccount/?from=url&url=' + encodeURIComponent(window.location.href.replace(window.location.origin, '')) + '&dn=' + window.location.host;
+				});
+			
+
+		if ('False' == 'True') {
+            $('#loggedOutToolbarSignInButton').hide();
+		}
+    })
+</script>
+<!-- End Signed Out Bar -->
+
+                </div>
+            <div id="bodyWrapper">
+                <div id="mainNavHolderMobile" class="mainNavHolderMobile"></div>
+                
+<div data-cpRole="structuralContainer" id="bodyContainerTS">
+<!-- Banner --><div data-cpRole="structuralContainer" id="bannerContainerTS">
+<div data-cpRole="banner" id="banner1"><!-- Header Container --><header data-cpRole="structuralContainer" id="headerContainerTS">
+<div data-cpRole="structuralContainer" id="headerUpperTS">
+<div class="siteWrap"><nav data-cpRole="nav" id="mainNav" class="siteNav mainNav" role="navigation">
+<ol id="mainNavMenu" data-parent="1" class="rootNavMenu" role="menu"><!--
+--><li id="MainItem27" class="topMenuItem" role="none" data-pageid="27" data-displaymegamenu="True"><!--
+			--><!--
+			--> <a role = "menuitem"  aria-haspopup=true aria-expanded='false' aria-controls="mainNavMegaMenu27" id = "mainNavGovernment" class="navMainItem mainNavItem mainNavItem1 " href="/27/Government" target = "_self" >   Government  </a>			<!--
+			--><!--
+			--></li><!----><li id="MainItem31" class="topMenuItem" role="none" data-pageid="31" data-displaymegamenu="True"><!--
+			--><!--
+			--> <a role = "menuitem"  aria-haspopup=true aria-expanded='false' aria-controls="mainNavMegaMenu31" id = "mainNavResidents" class="navMainItem mainNavItem mainNavItem2 " href="/31/Residents" target = "_self" >   Residents  </a>			<!--
+			--><!--
+			--></li><!----><li id="MainItem35" class="topMenuItem" role="none" data-pageid="35" data-displaymegamenu="True"><!--
+			--><!--
+			--> <a role = "menuitem"  aria-haspopup=true aria-expanded='false' aria-controls="mainNavMegaMenu35" id = "mainNavServices" class="navMainItem mainNavItem mainNavItem3 " href="/35/Services" target = "_self" >   Services  </a>			<!--
+			--><!--
+			--></li><!----><li id="MainItem9" class="topMenuItem" role="none" data-pageid="9" data-displaymegamenu="True"><!--
+			--><!--
+			--> <a role = "menuitem"  aria-haspopup=true aria-expanded='false' aria-controls="mainNavMegaMenu9" id = "mainNavHowDoI" class="navMainItem mainNavItem mainNavItem4 " href="/9/How-Do-I" target = "_self" >   How Do I...  </a>			<!--
+			--><!--
+			--></li><!---->
+</ol>
+
+
+	<script type="text/javascript">
+		(function () {
+			function setupMenu() {
+				const menuID = 'mainNavMenu';
+				const menuType = MAIN_MENU;
+
+				//setup menu manager properties for main menu
+				if (!menuManager.mobileMainNav && true)
+					menuManager.adjustMainItemsWidth('#' + menuID);
+				menuManager.isMainMenuEditable = false;
+				menuManager.mainMenuMaxSubMenuLevels = 4;
+				menuManager.setMOMMode(2, menuType);
+
+				//Init main menu
+				const setupDraggable = menuManager.isMainMenuEditable;
+				const urlToGetHiddenMenus = '/Pages/MenuMain/HiddenMainSubMenus?pageID=1&moduleID=&themeID=1&menuContainerID=mainNav';
+
+				menuManager.setupMenu(menuID, 'mainNav', menuType, setupDraggable, urlToGetHiddenMenus);
+				menuManager.mainMenuInit = true;
+				menuManager.mainMenuTextResizer = false;
+				if (1.00 > 0)
+					menuManager.mainMenuTextResizerRatio = 1.00;
+				if (window.isResponsiveEnabled)
+					menuManager.mainMenuReady.resolve();
+
+			}
+
+			if (document.readyState === "complete"
+				|| document.readyState === "loaded"
+				|| document.readyState === "interactive") {
+				setupMenu();
+				return;
+			}
+
+			document.addEventListener("DOMContentLoaded", setupMenu);
+		})();
+	</script>
+
+
+<aside data-cpRole="megaMenu" id="megaMenu" class="megaMenu" style="display: none;"><input type="hidden" id="megaMenuPopupDirection" value="0"><input type="hidden" id="megaMenuWidthReference" value="0"><aside role="menu" data-cpRole="contentContainer" id="mainNavMegaMenu27" class="contentTop mainNavMegaMenu megaMenuContainer pageID_27 hidden" data-orientation="horizontal">	<div id="cce7b54e0c-8f9f-46e6-91f3-634a11530853" data-containerid="e7b54e0c-8f9f-46e6-91f3-634a11530853" class="pageContent cpGrid cpGrid24">
+				                
+
+
+
+	</div>
+</aside><aside role="menu" data-cpRole="contentContainer" id="mainNavMegaMenu31" class="contentTop mainNavMegaMenu megaMenuContainer pageID_31 hidden" data-orientation="horizontal">	<div id="cc883ae65f-0160-40a8-9277-121a89a93fa5" data-containerid="883ae65f-0160-40a8-9277-121a89a93fa5" class="pageContent cpGrid cpGrid24">
+				                
+
+
+
+	</div>
+</aside><aside role="menu" data-cpRole="contentContainer" id="mainNavMegaMenu35" class="contentTop mainNavMegaMenu megaMenuContainer pageID_35 hidden" data-orientation="horizontal">	<div id="ccb6a52974-111b-4987-9045-e49220f8ecc6" data-containerid="b6a52974-111b-4987-9045-e49220f8ecc6" class="pageContent cpGrid cpGrid24">
+				                
+
+
+
+	</div>
+</aside><aside role="menu" data-cpRole="contentContainer" id="mainNavMegaMenu9" class="contentTop mainNavMegaMenu megaMenuContainer pageID_9 hidden" data-orientation="horizontal">	<div id="cca1db3b62-f052-48a5-add5-0b427dc69e23" data-containerid="a1db3b62-f052-48a5-add5-0b427dc69e23" class="pageContent cpGrid cpGrid24">
+				                
+
+
+
+	</div>
+</aside></aside></nav></div>
+</div><div data-cpRole="structuralContainer" id="headerLowerTS">
+<div class="siteWrap"><div data-cpRole="banner" id="bannerLogoTS" class="bannerLogoTS empty">
+
+
+
+
+				<a id="bannerLogoTS-57" style="			display: block; text-align: center;
+" class="bannerObject" href="/" target="_self"><img alt="Champlin Home page" class="bannerObject" height="159" src="/ImageRepository/Document?documentID=90" width="289" /></a>
+</div><div data-cpRole="contentContainer" id="searchTS">	<div id="cc71141f8b-1307-4963-8e18-fde44db7bb74" data-containerid="71141f8b-1307-4963-8e18-fde44db7bb74" class="pageContent cpGrid cpGrid24 isLockedContainer showInMobile" data-contentcontainerbreakpoint="22">
+				                
+
+		<div class="row outer wide"><!--
+--><div class="outer col col12 first" style="" data-widgetcontainerid="b7b70be3-7c51-434b-a7ac-d3e0417a911c">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col12 first last ide8c3fda7-1fc2-441c-a420-17d040365af3" style="" data-widgetcontainerid="e8c3fda7-1fc2-441c-a420-17d040365af3">	
+<div data-widget-id="8eb2890b-3b3a-4077-85f8-731913d04302" data-widget-controller-path="/GraphicLinks/Widget">
+
+
+
+
+<div id="graphicLinkWidget8eb2890b-3b3a-4077-85f8-731913d04302" class="widget widgetGraphicLinks skin57 widgetOptionSet26 wide" data-elementqueryclasses='{"wide-narrow":"min-width:1em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' data-modulewidgettype="graphicLinks">
+	<div class="widgetHeader">
+		<div class="">
+				</div>
+	</div>
+	<div class="widgetBody cpGrid cpGrid4 ">
+		<nav class="widgetGraphicLinksNav" aria-labelledby="GraphicLinkHeaderText">
+				<div class="row   wide">
+					<!--
+--><div class="col col1 first "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks"><a class="widgetDesc widgetGraphicLinksLink" href="/facebook" target="_self">
+
+<img src="/ImageRepository/Document?documentID=4419" 
+     class="graphicButtonLink" alt="Facebook Icon" 
+     onmouseover="this.src='/ImageRepository/Document?documentID=4419'" 
+	onmouseout="this.src='/ImageRepository/Document?documentID=4419'"
+     onfocus="this.src='/ImageRepository/Document?documentID=4419'" 
+	onblur="this.src='/ImageRepository/Document?documentID=4419'"> 
+</a></li><!--
+--></ul></div><!----><div class="col col1  "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks"><a class="widgetDesc widgetGraphicLinksLink" href="/twitter" target="_self">
+
+<img src="/ImageRepository/Document?documentID=4422" 
+     class="graphicButtonLink" alt="X Icon" 
+     onmouseover="this.src='/ImageRepository/Document?documentID=4422'" 
+	onmouseout="this.src='/ImageRepository/Document?documentID=4422'"
+     onfocus="this.src='/ImageRepository/Document?documentID=4422'" 
+	onblur="this.src='/ImageRepository/Document?documentID=4422'"> 
+</a></li><!--
+--></ul></div><!----><div class="col col1  "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks"><a class="widgetDesc widgetGraphicLinksLink" href="/instagram" target="_self">
+
+<img src="/ImageRepository/Document?documentID=4420" 
+     class="graphicButtonLink" alt="Instagram Icon" 
+     onmouseover="this.src='/ImageRepository/Document?documentID=4420'" 
+	onmouseout="this.src='/ImageRepository/Document?documentID=4420'"
+     onfocus="this.src='/ImageRepository/Document?documentID=4420'" 
+	onblur="this.src='/ImageRepository/Document?documentID=4420'"> 
+</a></li><!--
+--></ul></div><!----><div class="col col1  last"><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks"><a class="widgetDesc widgetGraphicLinksLink" href="https://www.linkedin.com/company/city-of-champlin-mn-admin" target="_self">
+
+<img src="/ImageRepository/Document?documentID=4427" 
+     class="graphicButtonLink" alt="LinkedIn Icon" 
+     onmouseover="this.src='/ImageRepository/Document?documentID=4427'" 
+	onmouseout="this.src='/ImageRepository/Document?documentID=4427'"
+     onfocus="this.src='/ImageRepository/Document?documentID=4427'" 
+	onblur="this.src='/ImageRepository/Document?documentID=4427'"> 
+</a></li><!--
+--></ul></div><!--				-->
+				</div>
+			</nav>
+		</div>
+	<div class="widgetFooter">
+			</div>
+</div>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col12 last" style="" data-widgetcontainerid="8490bc6c-ba19-445a-9b43-82c55b2ea33d">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col12 first last id9d766fde-b0c9-4cf2-8f67-feea4b73744d" style="" data-widgetcontainerid="9d766fde-b0c9-4cf2-8f67-feea4b73744d">	
+<div data-widget-id="5c099f52-76a4-4099-87b5-d4f074c35c39" data-widget-controller-path="/Layout/WidgetSearch">
+	
+	<script defer type="text/javascript" src="/Common/Controls/jquery-ui-1.14.2/jquery-ui.min.js"></script>
+	<script defer src="/Areas/Layout/Assets/Scripts/Search.js" type="text/javascript"></script>
+	<script defer type="text/javascript">
+
+		$(document).ready(function () {
+			try {
+				// Minimum characters required before performing a search/autocomplete
+				var minPrefixLength = 3;
+				var autoCompleteDebounceDelay = 500;
+				var searchFieldSelector = "#searchField" + '5c099f52-76a4-4099-87b5-d4f074c35c39';
+				var checkboxSelector = "#ysnSearchOnlyDept" + '5c099f52-76a4-4099-87b5-d4f074c35c39';
+				var buttonSelector = ".widgetSearchButton" + '5c099f52-76a4-4099-87b5-d4f074c35c39';
+				var autoCompleteCache = {};
+				var autoCompleteCacheKeys = [];
+				var autoCompleteCacheLimit = 25;
+				var currentAutoCompleteRequest = null;
+				var currentAutoCompleteRequestKey = null;
+				var autoCompleteDebounceTimer = null;
+				var autoCompleteDebounceKey = null;
+				var pendingAutoCompleteResponses = [];
+
+				function normalizeAutoCompleteTerm(term) {
+					return $.trim((term || "") + "").replace(/\s+/g, " ");
+				}
+
+				function shouldSearch(term) {
+					return normalizeAutoCompleteTerm(term).length >= minPrefixLength;
+				}
+
+				function getAutoCompleteUrl() {
+					return '/Search/AutoComplete' + ($(checkboxSelector).is(':checked') || false? '?departmentId=0' : '');
+				}
+
+				function getAutoCompleteCacheKey(requestUrl, term) {
+					return requestUrl + "|" + term.toLowerCase();
+				}
+
+				function cacheAutoCompleteResult(cacheKey, data) {
+					if (!Object.prototype.hasOwnProperty.call(autoCompleteCache, cacheKey)) {
+						autoCompleteCacheKeys.push(cacheKey);
+						if (autoCompleteCacheKeys.length > autoCompleteCacheLimit) {
+							delete autoCompleteCache[autoCompleteCacheKeys.shift()];
+						}
+					}
+					autoCompleteCache[cacheKey] = data;
+				}
+
+				function respondToPendingAutoComplete(data) {
+					var responses = pendingAutoCompleteResponses;
+					pendingAutoCompleteResponses = [];
+					for (var i = 0; i < responses.length; i++) {
+						responses[i](data);
+					}
+				}
+
+				function cancelPendingAutoComplete() {
+					clearTimeout(autoCompleteDebounceTimer);
+					autoCompleteDebounceKey = null;
+					if (currentAutoCompleteRequest != null) {
+						currentAutoCompleteRequest.abort();
+						currentAutoCompleteRequest = null;
+					}
+					currentAutoCompleteRequestKey = null;
+					respondToPendingAutoComplete([]);
+				}
+
+				function createWidgetAutoCompleteSource(options) {
+					return function (request, response) {
+						var term = normalizeAutoCompleteTerm(request.term);
+						if (!options.shouldSearch(term)) {
+							response([]);
+							return;
+						}
+
+						var requestUrl = options.url();
+						var cacheKey = getAutoCompleteCacheKey(requestUrl, term);
+						if (Object.prototype.hasOwnProperty.call(autoCompleteCache, cacheKey)) {
+							response(autoCompleteCache[cacheKey]);
+							if (options.success) {
+								options.success(autoCompleteCache[cacheKey]);
+							}
+							return;
+						}
+
+						if (currentAutoCompleteRequestKey === cacheKey || autoCompleteDebounceKey === cacheKey) {
+							pendingAutoCompleteResponses.push(response);
+							return;
+						}
+
+						cancelPendingAutoComplete();
+						autoCompleteDebounceKey = cacheKey;
+						pendingAutoCompleteResponses.push(response);
+						autoCompleteDebounceTimer = setTimeout(function () {
+							autoCompleteDebounceKey = null;
+							currentAutoCompleteRequestKey = cacheKey;
+							currentAutoCompleteRequest = $.ajax({
+								url: requestUrl,
+								dataType: "json",
+								timeout: options.timeout,
+								data: {
+									term: term,
+								},
+								success: function (data) {
+									if (currentAutoCompleteRequestKey === cacheKey) {
+										cacheAutoCompleteResult(cacheKey, data);
+										respondToPendingAutoComplete(data);
+										if (options.success) {
+											options.success(data);
+										}
+									}
+								},
+								error: function (xmlhttprequest, textstatus, message) {
+									if (textstatus === "abort") {
+										return;
+									}
+
+									if (options.error) {
+										options.error(xmlhttprequest, textstatus, message);
+									}
+
+									respondToPendingAutoComplete([]);
+								},
+								complete: function (xmlhttprequest) {
+									if (currentAutoCompleteRequest === xmlhttprequest) {
+										currentAutoCompleteRequest = null;
+										currentAutoCompleteRequestKey = null;
+									}
+								}
+							});
+						}, options.delay);
+					};
+				}
+
+				// click handler for search buttons
+				$(buttonSelector).click(function (e) {
+					e.preventDefault();
+					var $btn = $(this);
+					var $field = $btn.siblings(".widgetSearchBox");
+					var term = $field.val() + "";
+					if (!shouldSearch(term)) {
+						// do nothing until user types enough characters
+						$field.focus();
+						return;
+					}
+
+					if ($(checkboxSelector).is(':checked') || false)
+					{
+						doWidgetSearch($.trim(term), Number(0));
+					}
+					else {
+						doWidgetSearch($.trim(term), 0);
+					}
+				});
+
+				// enter key handler for the search field
+				$(searchFieldSelector).keypress(function (e) {
+					var code = e.which || e.keyCode;
+					if (code === 13) {
+						e.preventDefault();
+						var $this = $(this);
+						var term = $this.val() + "";
+						if (!shouldSearch(term)) {
+							// do nothing until user types enough characters
+							$this.focus();
+							return false;
+						}
+
+						if ($(checkboxSelector).is(':checked') || false) {
+							doWidgetSearch($.trim(term), Number(0));
+						} else {
+							doWidgetSearch($.trim(term), 0);
+						}
+						return false;
+					}
+					return true;
+				});
+
+				// autocomplete: set minLength and guard source
+				if (true) {
+					var $searchField = $(searchFieldSelector).autocomplete({
+						minLength: minPrefixLength,
+						source: createWidgetAutoCompleteSource({
+							delay: autoCompleteDebounceDelay,
+							timeout: 10000,
+							shouldSearch: shouldSearch,
+							url: getAutoCompleteUrl,
+							success: function () {
+								$('.autoCompleteError').remove();
+							},
+							error: function (xmlhttprequest, textstatus, message) {
+								if (textstatus === "timeout") {
+									if ($(searchFieldSelector).siblings('.autoCompleteError').length == 0)
+										$('<span class="autoCompleteError"><p class="alert error">Search autocomplete is currently not responding. Please try again later.</p></span>').insertAfter($(searchFieldSelector));
+								}
+							}
+						}),
+						html: true,
+						delay: 0,
+						select: function (event, ui) {
+							$(this).val(ui.item.value);
+							$(this).next().click();
+						}
+					});
+
+					$searchField.data("ui-autocomplete")._renderItem = function (ul, item) {
+						return $("<li class=\"itemList\"></li>")
+							.data("ui-autocomplete-item", item)
+							.append("<a>" + item.label + "</a>")
+							.appendTo(ul);
+					};
+				}
+
+				// keep searchBtnApplyQuery consistent with prefix rule
+				window.searchBtnApplyQuery = function() {
+					var $field = $(searchFieldSelector);
+					var term = $field.val() + "";
+					if (shouldSearch(term)) {
+						// update href for the icon/button (if present)
+						var btn = document.getElementById("btnSearchIcon");
+						if (btn) btn.href = "/Search?searchPhrase=" + encodeURIComponent($.trim(term));
+					} else {
+						var btn = document.getElementById("btnSearchIcon");
+						if (btn) btn.href = "#";
+					}
+				};
+			}
+			catch(e) {} //we're going to eat this error. Autocomplete won't work but we dont wan't to break anything else on the page.
+		});
+	</script>
+
+	<section id="widgetPreviewSearch" class="widget widgetSearch skin43 widgetOptionSet15" style="display: block;" aria-label="Search">
+				<!-- For the button right and inside -->
+		<div class="widgetBody buttonRightInside">
+			<input class="widgetSearchBox widgetSearchBox5c099f52-76a4-4099-87b5-d4f074c35c39" cp5ph="true" id="searchField5c099f52-76a4-4099-87b5-d4f074c35c39" name="searchField" onchange="searchBtnApplyQuery();" placeholder="Search..." type="text" value="" />
+						<a href="/Search/Results" id="btnSearchIcon" class="widgetSearchButton widgetSearchButton5c099f52-76a4-4099-87b5-d4f074c35c39" role="button"><img alt="Search" class="imageHover" data-hover="/ImageRepository/Document?documentID=725" data-image="/ImageRepository/Document?documentID=724" src="/ImageRepository/Document?documentID=724" /></a>
+
+			<label class="searchLabel" aria-hidden="true" for="searchField5c099f52-76a4-4099-87b5-d4f074c35c39">Search</label>
+		</div>
+
+	</section>
+
+
+<style scoped>
+	  
+		.widgetSearch ::-webkit-input-placeholder {
+		color: #251C1D;
+	  }
+		.widgetSearch :-moz-placeholder { /* Firefox 18- */
+	   color: #251C1D;
+	}
+		.widgetSearch ::-moz-placeholder {  /* Firefox 19+ */
+	   color: #251C1D;
+	}
+	.widgetSearch :-ms-input-placeholder {
+	   color: #251C1D;
+	}
+	
+
+	.widgetSearch .widgetBody .widgetSearchBox5c099f52-76a4-4099-87b5-d4f074c35c39
+	{
+		color: #251C1D;
+		background: #fff;
+height: 30px;
+padding-left: 1em;
+border: 0 none;
+border-bottom: 2px solid rgba(0, 0, 0, 1);
+font-family: Lato;
+font-size: 14px;
+	}
+	.widgetSearch .widgetBody .widgetSearchButton5c099f52-76a4-4099-87b5-d4f074c35c39
+	{
+		
+	}
+	.widgetSearch .widgetSearch-onlyDept5c099f52-76a4-4099-87b5-d4f074c35c39
+	{
+		display: inline-block;
+		color: #333;
+		
+		
+		 padding-top: 10px;
+	}
+	#ysnSearchOnlyDept5c099f52-76a4-4099-87b5-d4f074c35c39
+	{
+		position: relative;
+		top: .125em;
+	}
+
+</style>
+
+<link rel="stylesheet" href="/Common/Controls/jquery-ui-1.14.2/jquery-ui.min.css">
+<link rel="stylesheet" href="/Common/Controls/jquery-ui-1.14.2/jquery-ui.theme.min.css">
+
+
+
+<script type="text/javascript">
+	//Updates search icons href to have the correct queryString
+	function searchBtnApplyQuery() {
+		document.getElementById("btnSearchIcon").href = "/Search?searchPhrase=" + document.getElementById("searchField5c099f52-76a4-4099-87b5-d4f074c35c39").value;
+	}
+</script>
+
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+	</div>
+</div></div>
+</div>
+</header><div data-cpRole="structuralContainer" id="bannerSizingTS">
+<div class="siteWrap"><div data-cpRole="structuralContainer" id="bannerContentTS">
+<div data-cpRole="contentContainer" id="contentTS">	<div id="cc88b49ccf-08af-4d8d-80f4-052c1b6474ef" data-containerid="88b49ccf-08af-4d8d-80f4-052c1b6474ef" class="pageContent cpGrid cpGrid24 showInMobile">
+				                
+
+
+
+	</div>
+</div>
+</div></div>
+</div>
+
+
+
+
+		<div id="bannerImagesJSON2" class="hidden"></div>
+		<div id="bannerSlideshowControls_banner1" class="bannerSlideshowControlsNew none " style="display:none">
+			<a id="arrowPrev_banner1" tabindex="0" class="arrowNew prev" aria-label="Banner Arrow Previous"><svg style=" " class=""><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#iconSlideshowArrowLeft"></use></svg></a>
+			<a id="arrowNext_banner1" tabindex="0" class="arrowNew next" aria-label="Banner Arrow Next"><svg style=" " class=""><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#iconSlideshowArrowRight"></use></svg></a>
+		</div>
+			<script type="text/javascript">
+				$(window).on("load", function () {
+					$.when(window.Pages.rwdSetupComplete)
+						.done(function () {
+							renderExternalBannerSlideshow('banner1',
+								{"BannerOptionID":2,"ThemeID":1,"SlotName":"banner1","Name":"Default","IsDefault":true,"BannerMode":2,"SlideShowSlideTiming":null,"SlideshowTransition":0,"SlideShowTransitionTiming":null,"ImageScale":true,"ImageAlignment":1,"ImageScroll":true,"MuteSound":true,"VideoType":0,"Status":40,"SlideshowControlsPosition":0,"SlideshowControlsAlignment":0,"SlideshowBannerControlsColorScheme":0,"DisplayVideoPauseButton":false,"VideoPauseButtonAlignment":1,"VideoPauseButtonControlsAlignment":0,"VideoPauseButtonStyle":"#FFFFFF","VideoPauseButtonBackgroundStyle":"#000000","VideoPauseButtonAlignmentClass":"alignRight viewport","DisplaySlideshowPauseButton":true,"SlideshowControlsColor":"#FFFFFF","SlideshowControlsBackgroundColor":"#000000","SlideshowPauseButtonClass":"isHidden","BannerImages":[{"BannerImageID":246,"BannerOptionID":2,"FileName":"/ImageRepository/Document?documentID=3411","Height":1950,"Width":2600,"StartingOn":null,"StoppingOn":null,"IsLink":false,"LinkAddress":null,"Sequence":1,"RecordStatus":0,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/","AltText":""},{"BannerImageID":270,"BannerOptionID":2,"FileName":"/ImageRepository/Document?documentID=4506","Height":948,"Width":2535,"StartingOn":null,"StoppingOn":null,"IsLink":false,"LinkAddress":null,"Sequence":2,"RecordStatus":0,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/","AltText":""},{"BannerImageID":269,"BannerOptionID":2,"FileName":"/ImageRepository/Document?documentID=4499","Height":700,"Width":2048,"StartingOn":null,"StoppingOn":null,"IsLink":false,"LinkAddress":null,"Sequence":3,"RecordStatus":0,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/","AltText":""},{"BannerImageID":153,"BannerOptionID":2,"FileName":"/ImageRepository/Document?documentID=716","Height":701,"Width":2201,"StartingOn":null,"StoppingOn":null,"IsLink":false,"LinkAddress":null,"Sequence":4,"RecordStatus":0,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/","AltText":""}],"BannerVideos":[],"RecordStatus":0,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/"},
+								'/App_Themes/Interior/Images/',
+								'Rotating');
+						});
+				});
+			</script>
+
+</div>
+</div><!-- Content container --><div data-cpRole="structuralContainer" id="mainContainerTS">
+<div class="siteWrap"><div data-cpRole="structuralContainer" id="mainWrapTS" class="mainWrap" role="main">
+<div data-cpRole="structuralContainer" id="outerContentWrapTS" class="outerContentWrap">
+<div data-cpRole="structuralContainer" id="contentWrapTS" class="contentWrap">
+<div data-cpRole="breadCrumbs" id="breadCrumbs" class="breadCrumbContainer">		<ol class="semanticList breadCrumbs">
+			<li><a class="breadCrumb" href="/">Home</a></li><li><a class="breadCrumb" href="/27/Government">Government</a></li><li><a class="breadCrumb" href="/252/Elections">Elections</a></li><li id="currentBCPage" data-pageid="613"><a href class="breadCrumb" aria-current="page">General Election</a></li>
+		</ol>
+
+	   
+    
+</div><div data-cpRole="mainContentContainer" id="moduleContent">
+	
+	<div id="page" class="moduleContentNew">
+		
+
+	<input id="hdnPageID" name="hdnPageID" type="hidden" value="613" />
+	<input id="hdnParentID" name="hdnParentID" type="hidden" value="252" />
+	<input id="hdnVersionID" name="hdnVersionID" type="hidden" value="10558" />
+	<input id="pageMenuTitle" name="pageMenuTitle" type="hidden" value="General Election" />
+	<input id="pageShowFeatureColumn" name="pageShowFeatureColumn" type="hidden" value="True" />
+	<input id="hdnIsLayoutPage" name="hdnIsLayoutPage" type="hidden" value="False" />
+	<input id="hdnPageStatus" name="hdnPageStatus" type="hidden" value="Published" />
+
+				<h1 id="versionHeadLine" class="headline">
+
+General Election		</h1>
+	
+		<div id="cc5f8c90dc-b4cb-431b-90ee-10648f8df655" data-containerid="5f8c90dc-b4cb-431b-90ee-10648f8df655" class="pageContent cpGrid cpGrid24"  data-contentcontainerbreakpoint="40" data-smoothscrolling="True">
+			
+
+		<div class="row outer wide"><!--
+--><div class="outer col col24 first last" style="" data-widgetcontainerid="3408ada5-63ec-4372-9bc3-85cdb8d60f8b">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col24 first last idc97c4b4a-39a9-4079-8948-b6182b261c92" style="" data-widgetcontainerid="c97c4b4a-39a9-4079-8948-b6182b261c92">	
+<div class="widget editor pageStyles narrow" id="divEditorc753b96d-2f26-4db0-8d74-72301a7d1f23" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}'>
+	    <div class="fr-view">
+
+
+        <h2 data-pasted="true">November 3, 2026 - General Election</h2><p>Candidate filing has closed for the November 3, 2026 General Election. The following will appear on the ballot for City offices:</p><div data-pasted="true"><p aria-level="3"><strong>Mayor (two-year term)</strong></p><ul><li data-pasted="true">Ryan Sabas</li><li>Jason L. Schaal</li></ul>Interested in learning more about the candidates running for Mayor?&nbsp;<a href="https://youtu.be/Z15jpxisaV8?si=G6VF1M-6KYTrRzRg" target="_blank" rel="noopener" aria-describedby="audioeye_new_window_message">Watch the Mayor Candidate Forum</a>.<br><br><p><strong>Ward 1 (four-year term)</strong></p><ul><li>Kristofer OBrien</li><li>Patrick Allan Voss</li></ul><p>Interested in learning more about the candiates running for Ward 1? <a href="https://youtu.be/f7sMSCGudGI?si=D_waXqxVYspgF2eX" target="_blank" rel="noopener" aria-describedby="audioeye_new_window_message">Watch the Ward 1 City Council Candidate Forum</a>.</p><p><strong>Ward 2 (four-year term)</strong></p><ul><li>Kristin Elizondo</li><li>Michael Sorvig</li><li>Dan Stone</li></ul><p>Interested in learning more about the candidates running for Ward 2? <a href="https://youtu.be/NsWL08P1kPU?si=Vop3qAZ5RUZP9pqm" target="_blank" rel="noopener" aria-describedby="audioeye_new_window_message">Watch the Ward 2 City Council Candidate Forum</a>.</p><p><strong>Ward 4 (to fill the remaining term through December 31, 2028)</strong></p><ul><li>Charles A. Boakai</li><li>Lorraine Coan</li><li>Ryan Reider</li><li>Samuel Mwangi</li></ul><p>Interested in learning more about the candidates running in the Ward 4 Special Election? <a href="https://youtu.be/C8kGki-xfAE?si=M0B6aelOCDSA0Znp" target="_blank" rel="noopener" aria-describedby="audioeye_new_window_message">Watch the Ward 4 Special Election Candidate Forum</a>.</p><p><em>Residents can learn more about candidates through <a href="https://my.lwv.org/minnesota/anoka-blaine-coon-rapids-area/2026-candidate-forums" target="_blank" rel="noopener" aria-describedby="audioeye_new_window_message">the League of Women Voters (LWV) candidate forums</a>. Thank you to the LWV and QCTV for hosting and recording.</em></p></div><h3 class="subhead2" aria-hidden="true" tabindex="-1" aria-level="2" role="heading"><br>ABSENTEE AND EARLY VOTING<br><br></h3><p><strong>Absentee Voting Begins: Friday, September 18</strong><br>Absentee ballots can be requested from Hennepin County Elections by completing an <a href="/DocumentCenter/View/5480" target="_blank" rel="noopener" aria-describedby="audioeye_new_window_message" data-pasted="true">Absentee Ballot Application (PDF)</a>&nbsp; and submitting it by:</p><ul type="disc"><li><a href="http://hc.vote@hennepin.us" target="_blank" rel="noopener" aria-describedby="audioeye_new_window_message">Email Hennepin County</a></li><li>Fax: 612-348-2151</li><li>Mail:<br>&nbsp;Hennepin County Elections<br>&nbsp;300 South Sixth Street<br>&nbsp;Minneapolis, MN 55487</li></ul><p data-pasted="true">Questions? Contact Hennepin County Elections:</p><ul><li>Call 612-348-5151</li><li><a href="https://www.hennepincounty.gov/services/elections/absentee-early-voting" target="_blank" rel="noopener" aria-describedby="audioeye_new_window_message">Absentee and Early Voting | Hennepin County</a></li></ul><p><strong>Early Voting Begins: Friday, October 16</strong><br>Ballots will be available at City Hall during the following hours:</p><ul type="disc"><li>Monday&ndash;Friday: 8:00 a.m. &ndash; 4:30 p.m.</li><li>Saturday, October 24: &nbsp;9:00 a.m. &ndash; 3:00 p.m.</li><li>Tuesday, October 27: &nbsp;8:00 a.m. &ndash; 7:00 p.m</li><li>Saturday, October 31: 9:00 a.m. &ndash; 3:00 p.m.</li><li>Sunday, November 1: &nbsp;9:00 a.m - 3:00 p.m</li><li>Monday, November 2: 8:00 a.m. &ndash; 5:00 p.m.</li></ul><h3 aria-level="2">REGISTER TO VOTE</h3><ul><li><a href="https://www.ci.champlin.mn.us/534/Register-to-Vote" target="_blank" rel="noopener" aria-describedby="audioeye_new_window_message">View the Register to Vote webpage</a>.</li><li>Check your status or <a href="https://mnvotes.sos.state.mn.us/VoterStatus.aspx" target="_blank" rel="noopener" aria-describedby="audioeye_new_window_message">register to vote</a> on the Secretary of State&apos;s website before election day.</li></ul><h3 aria-level="2">POLLING LOCATIONS</h3><ul><li>Based on your residential address, check <a aria-label="Poll Finder Opens in new window" href="http://pollfinder.sos.state.mn.us/" rel="noopener" target="_blank">Poll Finder</a>.&nbsp;</li><li>Polls will be open from 7 am to 8 pm on Election Day:<ul><li>Ward 1 &ndash; Precinct 1 &ndash; Mississippi Crossings Event Center, 307 E. River Pkwy.</li><li>Ward 2 &ndash; Precinct 1 &ndash; Champlin Ice Forum, 12165 Ensign Avenue N.</li><li>Ward 3 &ndash; Precinct 1 - Servant of Christ Lutheran Church, 740 East Hayden Lake Rd.</li><li>Ward 4 &ndash; Precincts 1 and 2 &ndash; Jackson Middle School, 6000 &ndash; 109<sup>th</sup> Avenue N.</li></ul></li></ul><h3 aria-level="2">POLLING PLACE RULES</h3><ul><li>Only authorized people are allowed inside a polling location during voting hours, such as voters and their minor children, election workers, and someone assisting a voter. &nbsp;</li><li>People may not gather or linger at a polling location.</li><li>Campaigning is prohibited, and political materials cannot be worn or taken into a polling location. No one can campaign inside the polling location or within 100 feet of the building. &nbsp;If the polling place is on public property, no one can campaign on the property, even beyond 100 feet. However, the prohibition of signs and campaign materials within 100 feet does not apply to adjacent private property. &nbsp;</li><li>State law outlines who is authorized to be in a polling location and the rules surrounding activity at or near a polling location. For a complete list, <a href="https://www.revisor.mn.gov/statutes/cite/204C.06#:~:text=204C.06%20CONDUCT%20IN%20AND%20NEAR%20POLLING%20PLACES.%20Subdivision,for%20the%20purpose%20of%20voting%20without%20unlawful%20interference." target="_blank" rel="noopener" aria-describedby="audioeye_new_window_message">view MN Statutes Sec. 204C.06</a>.</li><li>Voters have the right to vote without anyone in the polling location trying to influence them.</li></ul><h3 aria-level="2">WHAT&apos;S ON THE BALLOT?</h3><ul><li><a href="/DocumentCenter/View/5960" target="_blank" rel="noopener" aria-describedby="audioeye_new_window_message">View Ward 1 Sample Ballot (PDF)</a></li><li><a href="/DocumentCenter/View/5961" target="_blank" rel="noopener" aria-describedby="audioeye_new_window_message">View Ward 2 Sample Ballot (PDF)</a></li><li><a href="/DocumentCenter/View/5962" target="_blank" rel="noopener" aria-describedby="audioeye_new_window_message">View Ward 3 Sample Ballot (PDF)</a></li><li><a href="/DocumentCenter/View/5963" target="_blank" rel="noopener" aria-describedby="audioeye_new_window_message">View Ward 4, Precinct 1 Sample Ballot (PDF)</a></li><li><a href="/DocumentCenter/View/5964" target="_blank" rel="noopener" aria-describedby="audioeye_new_window_message">View Ward 4, Precinct 2 Sample Ballot (PDF)</a></li></ul><p>The General Election will be held on November 3, 2026. &nbsp;Your ballot will contain federal, state, and judicial offices. The following will appear on the ballot for local City offices:</p><ul><li data-pasted="true"><strong style="box-sizing: border-box; font-weight: 700;">Mayor</strong><ul style='box-sizing: border-box; margin: 1em 0px 1.4em; padding: 0px 0px 0px 2em; font-family: "Source Sans Pro"; font-style: normal; font-weight: 400; color: rgb(53, 52, 50); line-height: 1.5; display: block; list-style-type: circle; width: inherit;'><li data-pasted="true" style="box-sizing: border-box; margin-bottom: 0.35em; font-style: normal; font-weight: 400;">Ryan Sabas</li><li style="box-sizing: border-box; margin-bottom: 0.35em; font-style: normal; font-weight: 400;">Jason L. Schaal</li></ul></li><li><strong style="box-sizing: border-box; font-weight: 700;">Ward 1</strong><ul style='box-sizing: border-box; margin: 1em 0px 1.4em; padding: 0px 0px 0px 2em; font-family: "Source Sans Pro"; font-style: normal; font-weight: 400; color: rgb(53, 52, 50); line-height: 1.5; display: block; list-style-type: circle; width: inherit;'><li style="box-sizing: border-box; margin-bottom: 0.35em; font-style: normal; font-weight: 400;">Kristofer OBrien</li><li style="box-sizing: border-box; margin-bottom: 0.35em; font-style: normal; font-weight: 400;">Patrick Allan Voss</li></ul></li><li style="box-sizing: border-box; margin-bottom: 0.35em; font-style: normal; font-weight: 400;"><strong style="box-sizing: border-box; font-weight: 700;">Ward 2</strong><ul style='box-sizing: border-box; margin: 1em 0px 1.4em; padding: 0px 0px 0px 2em; font-family: "Source Sans Pro"; font-style: normal; font-weight: 400; color: rgb(53, 52, 50); line-height: 1.5; display: block; list-style-type: circle; width: inherit;'><li style="box-sizing: border-box; margin-bottom: 0.35em; font-style: normal; font-weight: 400;">Kristin Elizondo</li><li style="box-sizing: border-box; margin-bottom: 0.35em; font-style: normal; font-weight: 400;">Michael Sorvig</li><li style="box-sizing: border-box; margin-bottom: 0.35em; font-style: normal; font-weight: 400;">Dan Stone</li></ul></li><li><strong style="box-sizing: border-box; font-weight: 700;">Ward 4</strong><ul style='box-sizing: border-box; margin: 1em 0px 1.4em; padding: 0px 0px 0px 2em; font-family: "Source Sans Pro"; font-style: normal; font-weight: 400; color: rgb(53, 52, 50); line-height: 1.5; display: block; list-style-type: circle; width: inherit;'><li style="box-sizing: border-box; margin-bottom: 0.35em; font-style: normal; font-weight: 400;">Charles A. Boakai</li><li style="box-sizing: border-box; margin-bottom: 0.35em; font-style: normal; font-weight: 400;">Lorraine Coan</li><li style="box-sizing: border-box; margin-bottom: 0.35em; font-style: normal; font-weight: 400;">Ryan Reider</li><li style="box-sizing: border-box; margin-bottom: 0.35em; font-style: normal; font-weight: 400;">Samuel Mwangi</li></ul></li></ul><p><em data-pasted="true">Residents can learn more about candidates through <a href="https://my.lwv.org/minnesota/anoka-blaine-coon-rapids-area/2026-candidate-forums" target="_blank" rel="noopener" aria-describedby="audioeye_new_window_message">the League of Women Voters (LWV) candidate forums</a>. Thank you to the LWV and QCTV for hosting and recording.</em></p><h3 aria-level="2">VOTE</h3><ul><li>Vote early through an absentee ballot on the <a href="https://www.sos.state.mn.us/elections-voting/other-ways-to-vote" rel="noopener" target="_blank" aria-label="Secretary of State's website Opens in new window">Secretary of State&apos;s website</a>.</li><li><a href="https://www.ci.champlin.mn.us/456/Early-Absentee-Voting" rel="noopener" target="_blank" aria-label="Vote early at City Hall Opens in new window">Vote early at City Hall</a>.</li><li>Vote in person at your poll on Election Day from 7 am to 8 pm.</li></ul><p><span style='color: rgb(14, 45, 72); font-family: "Source Sans Pro"; font-size: 1.25em; font-style: normal; font-weight: 600; -webkit-text-size-adjust: 100%;'>ELECTION RESULTS</span></p><ul role="presentation"><li>View General election results on the <a href="https://www.sos.state.mn.us/elections-voting/election-results" rel="noopener" target="_blank" aria-label="Secretary of State's website Opens in new window">Secretary of State&apos;s website</a>.</li></ul><h3 aria-level="2">CHAMPLIN WARD MAP</h3><ul role="presentation"><li>&nbsp;<a href="https://ci.champlin.mn.us/DocumentCenter/View/1170/Ward-Map-With-Poll-Locations" target="_blank" rel="noopener" aria-label="View the map Opens in new window" data-docaccess-source-url="https://www.ci.champlin.mn.us/DocumentCenter/View/1170/Ward-Map-With-Poll-Locations" data-url-hash="2678f5c7a3b98bc4774e69a520e164fc83acfb30349b0945193d74d92937504e" data-url-status="disabled">Champlin Ward Map (PDF)</a><a href="https://ci.champlin.mn.us/DocumentCenter/View/1170/Ward-Map-With-Poll-Locations" target="_blank" rel="noopener" aria-label="A view of the Ward Map of Champlin with Poll Locations. Opens in new window" data-docaccess-source-url="https://www.ci.champlin.mn.us/DocumentCenter/View/1170/Ward-Map-With-Poll-Locations" data-url-hash="2678f5c7a3b98bc4774e69a520e164fc83acfb30349b0945193d74d92937504e" data-url-status="disabled"><img src="/ImageRepository/Document?documentId=1169" alt="A view of the Ward Map of Champlin with Poll Locations. Opens in new window" class="fr-fic fr-dii"></a></li></ul>
+    </div>
+
+<script type="text/javascript">
+	$(document).ready(function (e) {		
+	    renderSlideshowIfApplicable($('#divEditor' + 'c753b96d-2f26-4db0-8d74-72301a7d1f23'));
+	});
+</script>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+		</div>
+
+	</div>
+
+	
+	<div class="newCP">
+
+	</div>
+</div>
+</div><aside data-cpRole="contentContainer" id="featureColumn" class="secondaryContent">	<div id="ccd6923f64-2522-4bce-8783-61ad1b416b69" data-containerid="d6923f64-2522-4bce-8783-61ad1b416b69" class="pageContent cpGrid cpGrid24 showInMobile" data-contentcontainerbreakpoint="40">
+				                
+
+		<div class="row outer wide"><!--
+--><div class="outer col col24 first last" style="" data-widgetcontainerid="3e47a44e-e8fc-4704-a8a8-3fd40215d3d1">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col24 first last id17be5c02-4bd1-48a0-b20f-a4ddf4ec3d8b" style="" data-widgetcontainerid="17be5c02-4bd1-48a0-b20f-a4ddf4ec3d8b">	
+
+
+
+
+
+
+
+
+<div data-widget-id="99b09bd7-7b55-4d50-9e6e-3c7f5a913fed" data-moduleWidgetType="cityDirectory" data-widget-controller-path="/CityDirectory/Widget">
+	<div id="cityDirectoryWidget99b09bd7-7b55-4d50-9e6e-3c7f5a913fed" class="widget widgetStaffDirectory skin49 wide" >
+			<div class="widgetHeader">
+					<h3><a style="" href= /m/directory>Contact Us</a></h3>
+							</div>
+						<ol class="semanticList">
+			<li class="widgetItem h-card">
+
+
+				<h4 class="widgetTitle field p-name">
+					Julie Tembreull
+					
+				</h4>
+				<div class="field p-job-title">Executive Assistant/City Clerk</div>
+						<div class="field u-email"><a href="mailto:jtembreull@champlinmn.gov">Email Julie Tembreull </a></div>
+
+
+					<div class="field p-tel">Phone: <a href="tel:7639237109">763-923-7109</a></div>
+
+
+
+				<br />
+			</li>
+									</ol>
+	</div>
+</div>
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+		<div class="row outer wide"><!--
+--><div class="outer col col24 first last" style="" data-widgetcontainerid="938ba0c6-9c6d-429a-9a79-6fc48d232445">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col24 first last id54b2e99c-6965-4fe1-8d62-725d3c375348" style="" data-widgetcontainerid="54b2e99c-6965-4fe1-8d62-725d3c375348">	
+<div data-widget-id="286b6fdd-35c5-48f0-aa4f-0e275a356beb" data-widget-controller-path="/Faq/Widget">
+
+
+
+
+
+
+
+
+	<section id="widgetFaq286b6fdd-35c5-48f0-aa4f-0e275a356beb" class="widget widgetFAQ skin49 widgetOptionSet1 narrow" data-modulewidgettype="FAQ" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' aria-labelledby="faqHeader286b6fdd-35c5-48f0-aa4f-0e275a356beb">
+		    <header class="widgetHeader" id="faqHeader286b6fdd-35c5-48f0-aa4f-0e275a356beb">
+        <div class="">
+                    <h3><a href="/Faq.aspx?TID=24">FAQs</a></h3>
+                                </div>
+    </header>
+	<div class="widgetBody pageStyles cpGrid cpGrid1 ">
+		<div class="row  narrow">
+						<div class="col col1 first last">
+							<dl class="widgetFAQ--list semanticList bullets">
+
+
+        <dt class="widgetFAQ--question widgetItem">
+            <a aria-role="button" href="#" aria-expanded="false" aria-controls="widgetFAQ(130)944ba2eb-6b69-4d9c-959d-503bc0f6ede2">
+                <span class="widgetFAQ--question__text">Can I vote early if I&#39;m not a registered voter?</span>
+                <span class="widgetFAQ--arrow widgetFAQ--arrow-collapsed" aria-controls="widgetFAQ(130)944ba2eb-6b69-4d9c-959d-503bc0f6ede2"></span>
+            </a>
+        </dt>
+        <dd class="widgetFAQ--answer hidden">
+            <p id="widgetFAQ(130)944ba2eb-6b69-4d9c-959d-503bc0f6ede2">
+                <p>Yes, when you apply for an absentee ballot, you will be provided with the required voter registration materials. &nbsp;Please be prepared to show photo ID and proof of residence. &nbsp;Apply on the <a href="https://www.sos.state.mn.us/elections-voting/" rel="noopener" target="_blank">Secretary of State's website</a>.</p>
+            </p>
+        </dd>
+
+
+        <dt class="widgetFAQ--question widgetItem">
+            <a aria-role="button" href="#" aria-expanded="false" aria-controls="widgetFAQ(239)468f234e-ad24-468c-966b-f964ff387b6d">
+                <span class="widgetFAQ--question__text">What happens when I drop off my ballot at City Hall?</span>
+                <span class="widgetFAQ--arrow widgetFAQ--arrow-collapsed" aria-controls="widgetFAQ(239)468f234e-ad24-468c-966b-f964ff387b6d"></span>
+            </a>
+        </dt>
+        <dd class="widgetFAQ--answer hidden">
+            <p id="widgetFAQ(239)468f234e-ad24-468c-966b-f964ff387b6d">
+                <p data-pasted="true">If you choose to drop off your completed ballot at City Hall, here’s what you can expect:</p><ul type="disc"><li>Inform the front desk you have a ballot to drop off. A trained elections employee will come to the front desk to assist you.</li><li>You will provide your ballot to the Elections staff, who will review your Signature Envelope to ensure it has been completed correctly, including all required information and signatures.</li><li>If you are dropping off a ballot for another Champlin resident, you will be asked to complete a Ballot Drop-Off Log. Minnesota law allows an individual to return ballots for up to three voters.</li><li>Once the signature envelope is verified and/or the Log is completed, your ballot will be entered into the State Voter Registration System. It will then be reviewed by the Absentee Ballot Board for acceptance or rejection.</li><li>Ballots are held in a locked area that is only accessible to trained elections staff.</li><li>Beginning 18 days before Election Day, ballots that have been accepted during the previous 28 days will be forwarded to Hennepin County for processing and tabulation.</li></ul><p><strong>Important Reminders</strong></p><ul type="disc"><li>Absentee ballots may be dropped off at City Hall during normal business hours and until <strong>5:00 p.m. on Election Day</strong>. (Agent Delivery ballots may be accepted until <strong>8:00 p.m. on Election Day</strong>.)</li><li>Absentee ballots <strong>cannot</strong> be returned at a polling place and must be dropped off at City Hall.</li><li>City Hall can only accept ballots for <strong>Champlin residents</strong>.</li><li>An individual may return ballots on behalf of <strong>no more than three voters</strong>.</li></ul><p>Thank you for helping ensure a smooth and secure voting process. Every ballot matters!</p><p><br></p>
+            </p>
+        </dd>
+
+
+        <dt class="widgetFAQ--question widgetItem">
+            <a aria-role="button" href="#" aria-expanded="false" aria-controls="widgetFAQ(192)621aa296-63f1-4c9a-86f1-4637cfd79d99">
+                <span class="widgetFAQ--question__text">What happens after my absentee ballot is returned?</span>
+                <span class="widgetFAQ--arrow widgetFAQ--arrow-collapsed" aria-controls="widgetFAQ(192)621aa296-63f1-4c9a-86f1-4637cfd79d99"></span>
+            </a>
+        </dt>
+        <dd class="widgetFAQ--answer hidden">
+            <p id="widgetFAQ(192)621aa296-63f1-4c9a-86f1-4637cfd79d99">
+                <p id="isPasted">After your absentee ballot is received at the elections office, it is reviewed by an absentee ballot board. This board checks that the signature envelope was filled out correctly. Each envelope is reviewed by at least two members of the board.</p><p><strong>How does the ballot board decide if a ballot is accepted?</strong><br>&nbsp;They look at these things on the signature envelope:</p><ul><li>Ensure the name and address match what was on the absentee application</li><li>Ensure the ID matches what was on the absentee application</li><li>Ensure the voter has signed the envelope</li><li>Ensure a witness has completed the witness portion</li></ul><p>The board will also:</p><ul><li>Ensure the voter is registered, or has included a properly completed voter registration application</li><li>Ensure the voter has not already voted in the election</li></ul><p><strong>What happens after my absentee ballot is accepted?</strong><br>&nbsp;Accepted ballots are set aside in a secure area until one week before the election, separated by precinct. Starting one week before the election, the signature envelopes are opened and the ballot envelopes are removed and set aside so that no one knows whose ballot is whose. Once the ballot envelopes are separated, they are opened, reviewed by election judges, duplicated if necessary, and inserted in the ballot counter. Examples where judges would need to duplicate a ballot include if a ballot was damaged, unreadable by the tabulator, or on the incorrect ballot style for that precinct.</p><p><strong>What happens if my absentee ballot is rejected?</strong><br>&nbsp;If your ballot is rejected more than 5 days before the election, you will be mailed a replacement ballot along with an explanation of why your ballot was rejected. If your ballot is rejected within 5 days of the election, election officials will attempt to contact you to let you know.</p><p><strong>How do they make sure people can’t vote twice?</strong><br>&nbsp;All ballots are tracked individually and linked to a voter in Minnesota’s voter registration database. Once a ballot is accepted, if that voter tries to vote again, the election official or election judge will see that the voter has an accepted ballot. Lists in the polling place are even updated throughout election day as ballots are accepted.</p>
+            </p>
+        </dd>
+
+
+        <dt class="widgetFAQ--question widgetItem">
+            <a aria-role="button" href="#" aria-expanded="false" aria-controls="widgetFAQ(240)f619375b-d6fb-46b6-89e5-cb4349b1748b">
+                <span class="widgetFAQ--question__text">What are the campaign sign placement requirements?</span>
+                <span class="widgetFAQ--arrow widgetFAQ--arrow-collapsed" aria-controls="widgetFAQ(240)f619375b-d6fb-46b6-89e5-cb4349b1748b"></span>
+            </a>
+        </dt>
+        <dd class="widgetFAQ--answer hidden">
+            <p id="widgetFAQ(240)f619375b-d6fb-46b6-89e5-cb4349b1748b">
+                <h3 aria-level="2" style='box-sizing: border-box; margin-top: 0px; margin-bottom: 0px; font-family: "Source Sans Pro"; font-style: normal; font-weight: 600; color: rgb(14, 45, 72); font-size: 1.25em; text-decoration: none; display: block; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255);' data-pasted="true">Campaign Signs</h3><p data-pasted="true" style='box-sizing: border-box; margin-top: 0px; margin-bottom: 1.4em; font-style: normal; font-weight: 400; color: rgb(53, 52, 50); font-family: "Source Sans Pro"; font-size: 15.2px; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;'>Campaign signs of any size may be posted in any number from 46 days before the state primary election, until ten days following the state general election. All campaign signs shall be confined within private property and not in the public right-of-way. For Champlin streets, that is generally 15 feet behind the curb.</p><p style='box-sizing: border-box; margin-top: 0px; margin-bottom: 1.4em; font-style: normal; font-weight: 400; color: rgb(53, 52, 50); font-family: "Source Sans Pro"; font-size: 15.2px; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;'>Signs <strong style="box-sizing: border-box; font-weight: 700;"><span style="box-sizing: border-box; margin: 0px; padding: 0px; border: 0px; font-weight: inherit; font-style: inherit; font-size: 15.2px; font-family: inherit; vertical-align: baseline; outline: 0px; text-decoration: underline;">cannot</span></strong> be:</p><ul style='box-sizing: border-box; margin: 1em 0px 1.4em 28.5px; padding: 0px 0px 0px 2em; font-family: "Source Sans Pro"; font-style: normal; font-weight: 400; color: rgb(53, 52, 50); line-height: 1.5; font-size: 15.2px; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; list-style-type: disc;'><li style="box-sizing: border-box; margin-bottom: 0.35em; font-style: normal; font-weight: 400;">Lit</li><li style="box-sizing: border-box; margin-bottom: 0.35em; font-style: normal; font-weight: 400;">Placed on public property (i.e., park, school, church)</li><li style="box-sizing: border-box; margin-bottom: 0.35em; font-style: normal; font-weight: 400;">Placed within 100 feet of a polling location</li><li style="box-sizing: border-box; margin-bottom: 0.35em; font-style: normal; font-weight: 400;">Placed on Utility Poles or Traffic Control Signs</li><li style="box-sizing: border-box; margin-bottom: 0.35em; font-style: normal; font-weight: 400;">Placed in roundabouts or medians</li><li style="box-sizing: border-box; margin-bottom: 0.35em; font-style: normal; font-weight: 400;">Placed in the Sight Visibility Triangle - The sight visibility triangle is an area described as beginning at the intersection of the curb line of two intersecting streets, then measuring 20 feet back along each curb line, and then diagonally connecting the two points (see illustration below).</li></ul><p style='box-sizing: border-box; margin-top: 0px; margin-bottom: 1.4em; font-style: normal; font-weight: 400; color: rgb(53, 52, 50); font-family: "Source Sans Pro"; font-size: 15.2px; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;'><img data-fr-image-pasted="true" src="https://www.champlinmn.gov/ImageRepository/Document?documentId=5951" alt="Election Signage" style="box-sizing: content-box; border: 1px solid rgb(204, 204, 204); height: auto; max-width: 100%; background: rgb(255, 255, 255); padding: 0.25em; text-align: left; width: 375px;" class="fr-fil fr-dib" data-fr-last-image-pasted="true"></p><ul style='box-sizing: border-box; margin: 1em 0px 1.4em; padding: 0px 0px 0px 2em; font-family: "Source Sans Pro"; font-style: normal; font-weight: 400; color: rgb(53, 52, 50); line-height: 1.5; font-size: 15.2px; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;'><li style="box-sizing: border-box; margin-bottom: 0.35em; font-style: normal; font-weight: 400;"><p data-pasted="true" style="box-sizing: border-box; margin-top: 0px; margin-bottom: 1.4em; font-style: normal; font-weight: 400;">Hennepin County is responsible for signs along <strong style="box-sizing: border-box; font-weight: 700;">County roadways</strong>. The County right-of-way typically extends beyond the actual road surface and includes shoulders and ditches. Hennepin County offers an interactive map that highlights county road and property line information: gis.hennepin.us/property. You can also contact the Transportation Permit Office to find out where a sign can be placed when a specific right-of-way cannot be clearly identified. County staff will remove any unauthorized signage located within the County right-of-way. You will need to contact Hennepin County Dispatch at 612-596-0299 or dispatch@hennepin.us to claim removed signs.</p></li><li style="box-sizing: border-box; margin-bottom: 0.35em; font-style: normal; font-weight: 400;"><p data-pasted="true" style="box-sizing: border-box; margin-top: 0px; margin-bottom: 1.4em; font-style: normal; font-weight: 400;">The Minnesota Department of Transportation is responsible for the <strong style="box-sizing: border-box; font-weight: 700;">trunk highway system</strong>. MNDOT prohibits placing signs, including campaign signs, within trunk highway right-of-way.</p></li></ul>
+            </p>
+        </dd>
+
+
+        <dt class="widgetFAQ--question widgetItem">
+            <a aria-role="button" href="#" aria-expanded="false" aria-controls="widgetFAQ(137)9e6636c1-eae8-4822-aea3-5459408b99f7">
+                <span class="widgetFAQ--question__text">How can I serve as an election judge?</span>
+                <span class="widgetFAQ--arrow widgetFAQ--arrow-collapsed" aria-controls="widgetFAQ(137)9e6636c1-eae8-4822-aea3-5459408b99f7"></span>
+            </a>
+        </dt>
+        <dd class="widgetFAQ--answer hidden">
+            <p id="widgetFAQ(137)9e6636c1-eae8-4822-aea3-5459408b99f7">
+                <p><em data-pasted="true">Thank you for your interest in serving. We appreciate your willingness to help. At this time, all of our positions are filled.</em></p><p id="isPasted">The city hires election workers to assist with each election. &nbsp;If selected, you&apos;ll be placed in one of four polling locations to ensure every eligible ballot is cast and counted. You&apos;ll verify voter eligibility, assist with voter registration, distribute ballots, and certify results. <a href="https://www.ci.champlin.mn.us/454/SERVE-AS-AN-ELECTION-JUDGE" target="_blank" rel="noopener"></a></p>
+            </p>
+        </dd>
+
+
+        <dt class="widgetFAQ--question widgetItem">
+            <a aria-role="button" href="#" aria-expanded="false" aria-controls="widgetFAQ(131)53a036b9-b5f8-469e-9909-aab8a2404e3e">
+                <span class="widgetFAQ--question__text">Can I place my absentee ballot directly into a ballot counter at city hall?</span>
+                <span class="widgetFAQ--arrow widgetFAQ--arrow-collapsed" aria-controls="widgetFAQ(131)53a036b9-b5f8-469e-9909-aab8a2404e3e"></span>
+            </a>
+        </dt>
+        <dd class="widgetFAQ--answer hidden">
+            <p id="widgetFAQ(131)53a036b9-b5f8-469e-9909-aab8a2404e3e">
+                <p data-pasted="true">All eligible Champlin voters can vote early in person by placing the ballot issued to them on-site directly into a ballot counter. This <a href="https://www.champlinmn.gov/456/Early-Absentee-Voting" target="_blank" rel="noopener">early voting</a> period begins 18 days before the Election. Votes are counted immediately, and results are reported after the polls close on Election Day.</p>
+            </p>
+        </dd>
+
+
+        <dt class="widgetFAQ--question widgetItem">
+            <a aria-role="button" href="#" aria-expanded="false" aria-controls="widgetFAQ(132)0edf10a1-0d5a-44ad-a350-34c44483b041">
+                <span class="widgetFAQ--question__text">Where can I return my voted ballot I received through the mail?</span>
+                <span class="widgetFAQ--arrow widgetFAQ--arrow-collapsed" aria-controls="widgetFAQ(132)0edf10a1-0d5a-44ad-a350-34c44483b041"></span>
+            </a>
+        </dt>
+        <dd class="widgetFAQ--answer hidden">
+            <p id="widgetFAQ(132)0edf10a1-0d5a-44ad-a350-34c44483b041">
+                <p id="isPasted">A voter may return their <em>own</em> completed ballot using one of the following options:</p><ul type="disc"><li><strong id="isPasted">Return your ballot to Hennepin County Elections using the self-addressed, stamped envelope provided.</strong></li><li>An alternative is to drop it off in person at City Hall during regular business hours:<ul><li>Mon-Fri, 8 a.m. - 4:30 p.m.<ul><li>We can only accept ballots for Champlin voters.</li><li>You may <em>not</em> return your voted ballot to any polling place on Election Day.</li><li>Ballots received after 5 p.m. on Election Day will <em>NOT</em> be counted.</li></ul></li></ul></li></ul>
+            </p>
+        </dd>
+
+
+        <dt class="widgetFAQ--question widgetItem">
+            <a aria-role="button" href="#" aria-expanded="false" aria-controls="widgetFAQ(134)33c9a391-e0a7-4dd6-a8c5-a22c23461f2c">
+                <span class="widgetFAQ--question__text">How do I know if my absentee ballot has been counted?</span>
+                <span class="widgetFAQ--arrow widgetFAQ--arrow-collapsed" aria-controls="widgetFAQ(134)33c9a391-e0a7-4dd6-a8c5-a22c23461f2c"></span>
+            </a>
+        </dt>
+        <dd class="widgetFAQ--answer hidden">
+            <p id="widgetFAQ(134)33c9a391-e0a7-4dd6-a8c5-a22c23461f2c">
+                <p id="isPasted">You can track the status of your absentee ballot at any point in the process and confirm that it was received and counted at the <a href="https://www.sos.mn.gov/elections-voting/" rel="noopener" target="_blank">secretary of state&rsquo;s website</a>. &nbsp;Please note, in order for the tracker to work you must enter all information exactly the same as what you put on your application. You can also check the status of your ballot by contacting Hennepin County Elections at 612-348-5151.</p><p>Status notations:</p><ul type="disc"><li><strong>Initialized</strong> &ndash; Your ballot application has been received by election officials and is being processed.</li><li><strong>Sent</strong> &ndash; Election officials have verified the information on your ballot application and have issued your ballot materials (either in person or through the mail).</li><li><strong>Received&nbsp;</strong>&ndash; Election officials have received your completed absentee ballot.</li><li><strong>Accepted</strong> &ndash; Your ballot is counted. Election officials have verified that you have met all requirements under state law to have your ballot counted.</li><li><strong>Rejected</strong> &ndash; Your ballot has not been counted because required information was either missing or unverifiable on the ballot envelope you returned to elections officials. Election officials will send you a replacement ballot for completion. If this is within five days of Election Day, a replacement ballot will not be sent through the mail. Election officials will attempt to contact you by telephone or email to notify you that your ballot was rejected and provide you with options for casting a replacement ballot.</li></ul>
+            </p>
+        </dd>
+
+
+        <dt class="widgetFAQ--question widgetItem">
+            <a aria-role="button" href="#" aria-expanded="false" aria-controls="widgetFAQ(133)a7a36218-a736-4845-a34c-fbc294e11df5">
+                <span class="widgetFAQ--question__text">Where can I return a voted ballot for someone else?</span>
+                <span class="widgetFAQ--arrow widgetFAQ--arrow-collapsed" aria-controls="widgetFAQ(133)a7a36218-a736-4845-a34c-fbc294e11df5"></span>
+            </a>
+        </dt>
+        <dd class="widgetFAQ--answer hidden">
+            <p id="widgetFAQ(133)a7a36218-a736-4845-a34c-fbc294e11df5">
+                <p><em id="isPasted">Under current state law, an individual returning a ballot for someone else will be required to show ID and complete an agent delivery log.</em></p><p id="isPasted">A person may return a voted ballot for up to three people in any election, not including their own ballot, using one of the options below:</p><ul><li>&nbsp;In person at City Hall during regular business hours:<ul><li>Mon – Fri, 8 a.m. – 4:30 p.m.</li></ul></li></ul><ul type="disc"><li>An individual can drop ballots for others into a blue USPS box at any time.&nbsp;<ul><li>The limit does not apply to this method of ballot return.</li></ul></li><li>Please note we can only accept ballots for Champlin voters.</li><li id="isPasted">You may <em>NOT</em> return a voted ballot to any polling place on Election Day.</li><li>Ballots received after 8 p.m. on Election Day will <em>NOT</em> be counted.</li></ul>
+            </p>
+        </dd>
+							</dl>
+						</div>
+		</div>
+        <a id="faqViewAll286b6fdd-35c5-48f0-aa4f-0e275a356beb" class="widgetViewAll alignLeft" style="" href="/Faq.aspx?TID=24">View All</a>
+        	</div>
+	<div class="widgetFooter">	
+	</div>
+    <div class="addItemModal hidden">
+        <div class="url hidden">/FAQ.aspx</div>
+    </div>
+
+	</section>
+
+
+<script>
+	function handleExpandCollapse(e) {
+		const element = e.currentTarget;
+		const answer = document.getElementById(element.getAttribute("aria-controls")).parentElement;
+		const expandArrow = element.getElementsByClassName("widgetFAQ--arrow")[0];
+		if (answer.classList.contains("hidden")) {
+			expandArrow.classList.add('widgetFAQ--arrow-expanded');
+			expandArrow.classList.remove('widgetFAQ--arrow-collapsed');
+			answer.classList.remove("hidden");
+			element.setAttribute("aria-expanded", "true");
+		} else {
+			expandArrow.classList.add('widgetFAQ--arrow-collapsed');
+			expandArrow.classList.remove('widgetFAQ--arrow-expanded');
+			answer.classList.add("hidden");
+			element.setAttribute("aria-expanded", "false");
+		}
+		e.preventDefault();
+		e.stopImmediatePropagation();
+		e.stopPropagation();
+	}
+    document.querySelectorAll(".widgetFAQ--question a").forEach(element => {
+        // When the link is clicked, expand or collapse the answer
+		element.addEventListener("click", handleExpandCollapse);
+	});
+</script>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+	</div>
+</aside>
+</div><div data-cpRole="structuralContainer" id="siteSidebarTS" class="siteSidebar">
+<aside data-cpRole="contentContainer" id="sidebarContainer1TS">	<div id="cc32fa0d7c-8d72-4448-a501-6daba340b5de" data-containerid="32fa0d7c-8d72-4448-a501-6daba340b5de" class="pageContent cpGrid cpGrid24 showInMobile">
+				                
+
+
+
+	</div>
+</aside><nav data-cpRole="nav" id="secondaryNav" class="siteNav secondaryNav">
+
+
+
+
+
+	<ol role="menu" id="secondaryMenusecondaryNav" data-parent="252" class="rootNavMenu accordionNav arrowIndicator">
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="0" id="SideItem456" data-pageid="456">
+		<div class="accordionNavItem">
+			<a href="/456/Absentee-and-Early-Voting" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">Absentee and Early Voting</a>
+		</div>
+			</li>
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem612" data-pageid="612">
+		<div class="accordionNavItem">
+			<a href="/612/Special-Election" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">Special Election</a>
+		</div>
+			</li>
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem525" data-pageid="525">
+		<div class="accordionNavItem">
+			<a href="/525/Primary-Election" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">Primary Election</a>
+		</div>
+			</li>
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem613" data-pageid="613">
+		<div class="accordionNavItem">
+			<a href="/613/General-Election" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">General Election</a>
+		</div>
+			</li>
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem534" data-pageid="534">
+		<div class="accordionNavItem">
+			<a href="/534/Register-to-Vote" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">Register to Vote</a>
+		</div>
+			</li>
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem453" data-pageid="453">
+		<div class="accordionNavItem">
+			<a href="/453/FAQs" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">FAQs</a>
+		</div>
+			</li>
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem254" data-pageid="254">
+		<div class="accordionNavItem">
+			<a href="/254/Campaign-Finance-Reports" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">Campaign Finance Reports</a>
+		</div>
+			</li>
+
+	</ol>
+
+
+	<script type="text/javascript">
+		(function () {
+			function setupSecondaryMenuProperties() {
+				//setup menu manager properties for secondary menu
+				menuManager.isSideMenuEditable = false;
+				menuManager.sideMenuMaxSubMenuLevels = 4;
+				menuManager.sideMenuHasCustomLinks = false;
+			}
+
+			if (document.readyState === "loading") {
+				document.addEventListener("DOMContentLoaded", setupSecondaryMenuProperties, { once: true });
+				return;
+			}
+
+			setupSecondaryMenuProperties();
+		})();
+	</script>
+
+	<script type="text/javascript">
+		(function () {
+			function setupAccordionSecondaryNav() {
+				var $menuContainer = $('#secondaryNav');
+
+				$menuContainer.find('*[id^="SideItem"]').each(function () {
+					var ids = $('[id="' + this.id + '"]');
+					if (ids.length > 1)
+						$.each(ids, function (index, value) {
+							value.id = value.id + '_' + index;
+						});
+				});
+
+				$menuContainer.find('.hasAccordionChildren .openAccordionNav').off('click.secondaryNav').on('click.secondaryNav', function (e) {
+					e.preventDefault();
+					showHideAccordionMenuForSecondaryNav($(this));
+				});
+
+				$menuContainer.find(".grippy").each(function () {
+					menuManager.setupDraggableElement($(this), SIDE_MENU, '#secondaryNav');
+				});
+
+				$menuContainer.find("li").each(function () {
+					menuManager.setupDroppableAccordionElement($(this), SIDE_MENU);
+				});
+			}
+
+			if (document.readyState === "loading") {
+				document.addEventListener("DOMContentLoaded", setupAccordionSecondaryNav, { once: true });
+				return;
+			}
+
+			setupAccordionSecondaryNav();
+		})();
+	</script>
+
+
+
+</nav><aside data-cpRole="contentContainer" id="sidebarContainer2TS">	<div id="cc3d467bd1-8d0d-45b2-94de-af0fcba0c577" data-containerid="3d467bd1-8d0d-45b2-94de-af0fcba0c577" class="pageContent cpGrid cpGrid24 showInMobile">
+				                
+
+
+
+	</div>
+</aside>
+</div>
+</div></div>
+</div><!-- GBs --><div data-cpRole="structuralContainer" id="gbsContainerTS">
+<div class="siteWrap"><div data-cpRole="contentContainer" id="gbsTS">	<div id="cc72aefc5c-4484-4dde-abe0-69a95a0b7e76" data-containerid="72aefc5c-4484-4dde-abe0-69a95a0b7e76" class="pageContent cpGrid cpGrid24 isLockedContainer showInMobile" data-contentcontainerbreakpoint="39">
+				                
+
+		<div class="row outer wide"><!--
+--><div class="outer col col8 first" style="" data-widgetcontainerid="93d3863c-a3ce-49a4-ae42-952045d055f7">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col8 first last idf254996d-03ca-4f72-a424-fb4d330b7882" style="" data-widgetcontainerid="f254996d-03ca-4f72-a424-fb4d330b7882">	
+<div data-widget-id="f72b18d7-39e4-461c-96e0-7ee6ba5ef1d1" data-widget-controller-path="/GraphicLinks/Widget">
+
+
+
+
+<div id="graphicLinkWidgetf72b18d7-39e4-461c-96e0-7ee6ba5ef1d1" class="widget widgetGraphicLinks skin45 widgetOptionSet29 wide" data-elementqueryclasses='{"wide-narrow":"min-width:24em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' data-modulewidgettype="graphicLinks">
+	<div class="widgetHeader">
+		<div class="">
+				</div>
+	</div>
+	<div class="widgetBody cpGrid cpGrid2 ">
+		<nav class="widgetGraphicLinksNav" aria-labelledby="GraphicLinkHeaderText">
+				<div class="row   wide">
+					<!--
+--><div class="col col1 first "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="https://www.ci.champlin.mn.us/223/Parks-Recreation" target="_blank" class="fancyButton fancyButton56 "  aria-label="Recreation &amp; Rentals Opens in new window">
+		<span>
+			<span><span class="text">Recreation &amp; Rentals</span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton56.fancyButton:link,.fancyButton56.fancyButton:visited, .fancyButton56div.fancyButton{
+	background-color: #0b4e9a;
+	padding-top: 1em;
+	padding-bottom: 1em;
+	padding-right: 1em;
+	padding-left: 1em;
+	background-repeat: no-repeat;
+	background-position: left top;
+border-radius: 3px;
+transition: all 0.3s ease-in-out;}
+.fancyButton56.fancyButton:hover,.fancyButton56.fancyButton:focus,.fancyButton56.fancyButton:active,.fancyButton56.fancyButton.hover{
+	background-color: #0e2d48;
+	background-repeat: repeat;
+	background-position: left top;
+}
+.fancyButton56.fancyButton:link > span,.fancyButton56.fancyButton:visited > span, .fancyButton56div.fancyButton > span{
+}
+.fancyButton56.fancyButton:hover > span,.fancyButton56.fancyButton:focus > span,.fancyButton56.fancyButton:active > span,.fancyButton56.fancyButton.hover > span{
+}
+.fancyButton56.fancyButton .text{
+	color: #fff;
+	font-size: 1.05em;
+	font-family: "Source Sans Pro";
+	text-align: center;
+	padding-top: 40px;
+	padding-right: .75em;
+	padding-left: .75em;
+	font-style: normal;
+	text-decoration: none;
+	padding-top: 40px;
+	padding-right: .75em;
+	padding-left: .75em;
+	background-image: url('/ImageRepository/Document?documentID=115');
+	background-repeat: no-repeat;
+	background-position: center 18px ;
+	border-top: 3px solid #fff;
+	border-left: 3px solid #fff;
+	border-right: 3px solid #fff;
+	border-bottom: 3px solid #fff;
+height: 153px;
+border-radius: 3px;
+transition: all 0.5s ease-in-out;line-height: 1.2;}
+.fancyButton56.fancyButton:hover .text,.fancyButton56.fancyButton:focus .text,.fancyButton56.fancyButton:active .text,.fancyButton56.fancyButton.hover .text{
+	color: #ffffff;
+	text-decoration: underline;
+	border-top: 3px solid #ffffff;
+	border-left: 3px solid #ffffff;
+	border-right: 3px solid #ffffff;
+	border-bottom: 3px solid #ffffff;
+
+
+}
+</style>
+
+ </li><!--
+--></ul></div><!----><div class="col col1  last"><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="/193/Mississippi-Crossings" target="_self" class="fancyButton fancyButton71 " >
+		<span>
+			<span><span class="text">Mississippi Crossings</span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton71.fancyButton:link,.fancyButton71.fancyButton:visited, .fancyButton71div.fancyButton{
+	background-color: #0b4e9a;
+	padding-top: 1em;
+	padding-bottom: 1em;
+	padding-right: 1em;
+	padding-left: 1em;
+	background-repeat: no-repeat;
+	background-position: left top;
+border-radius: 3px;
+transition: all 0.3s ease-in-out;}
+.fancyButton71.fancyButton:hover,.fancyButton71.fancyButton:focus,.fancyButton71.fancyButton:active,.fancyButton71.fancyButton.hover{
+	background-color: #0e2d48;
+	background-repeat: repeat;
+	background-position: left top;
+}
+.fancyButton71.fancyButton:link > span,.fancyButton71.fancyButton:visited > span, .fancyButton71div.fancyButton > span{
+}
+.fancyButton71.fancyButton:hover > span,.fancyButton71.fancyButton:focus > span,.fancyButton71.fancyButton:active > span,.fancyButton71.fancyButton.hover > span{
+}
+.fancyButton71.fancyButton .text{
+	color: #fff;
+	font-size: 1.05em;
+	font-family: "Source Sans Pro";
+	text-align: center;
+	padding-top: 40px;
+	padding-right: .75em;
+	padding-left: .75em;
+	font-style: normal;
+	text-decoration: none;
+	padding-top: 40px;
+	padding-right: .75em;
+	padding-left: .75em;
+	background-image: url('/ImageRepository/Document?documentID=112');
+	background-repeat: no-repeat;
+	background-position: center 18px ;
+	border-top: 3px solid #fff;
+	border-left: 3px solid #fff;
+	border-right: 3px solid #fff;
+	border-bottom: 3px solid #fff;
+height: 153px;
+border-radius: 3px;
+transition: all 0.5s ease-in-out;line-height: 1.2;}
+.fancyButton71.fancyButton:hover .text,.fancyButton71.fancyButton:focus .text,.fancyButton71.fancyButton:active .text,.fancyButton71.fancyButton.hover .text{
+	color: #ffffff;
+	text-decoration: underline;
+	border-top: 3px solid #ffffff;
+	border-left: 3px solid #ffffff;
+	border-right: 3px solid #ffffff;
+	border-bottom: 3px solid #ffffff;
+
+
+}
+</style>
+
+ </li><!--
+--></ul></div><!--				-->
+				</div>
+			</nav>
+		</div>
+	<div class="widgetFooter">
+			</div>
+</div>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col8" style="" data-widgetcontainerid="4ee2441c-bcbd-4e9e-a406-15624e1fd6c2">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col8 first last id7e4c93a4-547c-4c85-a2d2-e5889f651948" style="" data-widgetcontainerid="7e4c93a4-547c-4c85-a2d2-e5889f651948">	
+<div data-widget-id="f91cdac8-1b7e-47af-af72-e2cebee55e56" data-widget-controller-path="/GraphicLinks/Widget">
+
+
+
+
+<div id="graphicLinkWidgetf91cdac8-1b7e-47af-af72-e2cebee55e56" class="widget widgetGraphicLinks skin45 widgetOptionSet29 wide" data-elementqueryclasses='{"wide-narrow":"min-width:24em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' data-modulewidgettype="graphicLinks">
+	<div class="widgetHeader">
+		<div class="">
+				</div>
+	</div>
+	<div class="widgetBody cpGrid cpGrid2 ">
+		<nav class="widgetGraphicLinksNav" aria-labelledby="GraphicLinkHeaderText">
+				<div class="row   wide">
+					<!--
+--><div class="col col1 first "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="https://www.ci.champlin.mn.us/469/Online-Permits" target="_self" class="fancyButton fancyButton72 " >
+		<span>
+			<span><span class="text">Permits &amp; Licenses</span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton72.fancyButton:link,.fancyButton72.fancyButton:visited, .fancyButton72div.fancyButton{
+	background-color: #0b4e9a;
+	padding-top: 1em;
+	padding-bottom: 1em;
+	padding-right: 1em;
+	padding-left: 1em;
+	background-repeat: no-repeat;
+	background-position: left top;
+border-radius: 3px;
+transition: all 0.3s ease-in-out;}
+.fancyButton72.fancyButton:hover,.fancyButton72.fancyButton:focus,.fancyButton72.fancyButton:active,.fancyButton72.fancyButton.hover{
+	background-color: #0e2d48;
+	background-repeat: repeat;
+	background-position: left top;
+}
+.fancyButton72.fancyButton:link > span,.fancyButton72.fancyButton:visited > span, .fancyButton72div.fancyButton > span{
+}
+.fancyButton72.fancyButton:hover > span,.fancyButton72.fancyButton:focus > span,.fancyButton72.fancyButton:active > span,.fancyButton72.fancyButton.hover > span{
+}
+.fancyButton72.fancyButton .text{
+	color: #fff;
+	font-size: 1.05em;
+	font-family: "Source Sans Pro";
+	text-align: center;
+	padding-top: 40px;
+	padding-right: .75em;
+	padding-left: .75em;
+	font-style: normal;
+	text-decoration: none;
+	padding-top: 40px;
+	padding-right: .75em;
+	padding-left: .75em;
+	background-image: url('/ImageRepository/Document?documentID=114');
+	background-repeat: no-repeat;
+	background-position: center 18px ;
+	border-top: 3px solid #fff;
+	border-left: 3px solid #fff;
+	border-right: 3px solid #fff;
+	border-bottom: 3px solid #fff;
+height: 153px;
+border-radius: 3px;
+transition: all 0.5s ease-in-out;line-height: 1.2;}
+.fancyButton72.fancyButton:hover .text,.fancyButton72.fancyButton:focus .text,.fancyButton72.fancyButton:active .text,.fancyButton72.fancyButton.hover .text{
+	color: #ffffff;
+	text-decoration: underline;
+	border-top: 3px solid #ffffff;
+	border-left: 3px solid #ffffff;
+	border-right: 3px solid #ffffff;
+	border-bottom: 3px solid #ffffff;
+
+
+}
+</style>
+
+ </li><!--
+--></ul></div><!----><div class="col col1  last"><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="/298/Utility-Billing" target="_self" class="fancyButton fancyButton73 " >
+		<span>
+			<span><span class="text">Utility Billing</span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton73.fancyButton:link,.fancyButton73.fancyButton:visited, .fancyButton73div.fancyButton{
+	background-color: #0b4e9a;
+	padding-top: 1em;
+	padding-bottom: 1em;
+	padding-right: 1em;
+	padding-left: 1em;
+	background-repeat: no-repeat;
+	background-position: left top;
+border-radius: 3px;
+transition: all 0.3s ease-in-out;}
+.fancyButton73.fancyButton:hover,.fancyButton73.fancyButton:focus,.fancyButton73.fancyButton:active,.fancyButton73.fancyButton.hover{
+	background-color: #0e2d48;
+	background-repeat: repeat;
+	background-position: left top;
+}
+.fancyButton73.fancyButton:link > span,.fancyButton73.fancyButton:visited > span, .fancyButton73div.fancyButton > span{
+}
+.fancyButton73.fancyButton:hover > span,.fancyButton73.fancyButton:focus > span,.fancyButton73.fancyButton:active > span,.fancyButton73.fancyButton.hover > span{
+}
+.fancyButton73.fancyButton .text{
+	color: #fff;
+	font-size: 1.05em;
+	font-family: "Source Sans Pro";
+	text-align: center;
+	padding-top: 40px;
+	padding-right: .75em;
+	padding-left: .75em;
+	font-style: normal;
+	text-decoration: none;
+	padding-top: 40px;
+	padding-right: .75em;
+	padding-left: .75em;
+	background-image: url('/ImageRepository/Document?documentID=117');
+	background-repeat: no-repeat;
+	background-position: center 18px ;
+	border-top: 3px solid #fff;
+	border-left: 3px solid #fff;
+	border-right: 3px solid #fff;
+	border-bottom: 3px solid #fff;
+height: 153px;
+border-radius: 3px;
+transition: all 0.5s ease-in-out;line-height: 1.2;}
+.fancyButton73.fancyButton:hover .text,.fancyButton73.fancyButton:focus .text,.fancyButton73.fancyButton:active .text,.fancyButton73.fancyButton.hover .text{
+	color: #ffffff;
+	text-decoration: underline;
+	border-top: 3px solid #ffffff;
+	border-left: 3px solid #ffffff;
+	border-right: 3px solid #ffffff;
+	border-bottom: 3px solid #ffffff;
+
+
+}
+</style>
+
+ </li><!--
+--></ul></div><!--				-->
+				</div>
+			</nav>
+		</div>
+	<div class="widgetFooter">
+			</div>
+</div>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col8 last" style="" data-widgetcontainerid="aa96d4d3-09fc-49d4-be2c-4a9cf582e58f">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col8 first last id5e83b08d-5906-4475-9945-42793176d51d" style="" data-widgetcontainerid="5e83b08d-5906-4475-9945-42793176d51d">	
+<div data-widget-id="e153c8ac-490d-46c4-b9be-a13926029c8f" data-widget-controller-path="/GraphicLinks/Widget">
+
+
+
+
+<div id="graphicLinkWidgete153c8ac-490d-46c4-b9be-a13926029c8f" class="widget widgetGraphicLinks skin45 widgetOptionSet29 wide" data-elementqueryclasses='{"wide-narrow":"min-width:24em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' data-modulewidgettype="graphicLinks">
+	<div class="widgetHeader">
+		<div class="">
+				</div>
+	</div>
+	<div class="widgetBody cpGrid cpGrid2 ">
+		<nav class="widgetGraphicLinksNav" aria-labelledby="GraphicLinkHeaderText">
+				<div class="row   wide">
+					<!--
+--><div class="col col1 first "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="https://ci.champlin.mn.us/259/Improvement-Projects" target="_self" class="fancyButton fancyButton74 " >
+		<span>
+			<span><span class="text">Road Projects</span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton74.fancyButton:link,.fancyButton74.fancyButton:visited, .fancyButton74div.fancyButton{
+	background-color: #0b4e9a;
+	padding-top: 1em;
+	padding-bottom: 1em;
+	padding-right: 1em;
+	padding-left: 1em;
+	background-repeat: no-repeat;
+	background-position: left top;
+border-radius: 3px;
+transition: all 0.3s ease-in-out;}
+.fancyButton74.fancyButton:hover,.fancyButton74.fancyButton:focus,.fancyButton74.fancyButton:active,.fancyButton74.fancyButton.hover{
+	background-color: #0e2d48;
+	background-repeat: repeat;
+	background-position: left top;
+}
+.fancyButton74.fancyButton:link > span,.fancyButton74.fancyButton:visited > span, .fancyButton74div.fancyButton > span{
+}
+.fancyButton74.fancyButton:hover > span,.fancyButton74.fancyButton:focus > span,.fancyButton74.fancyButton:active > span,.fancyButton74.fancyButton.hover > span{
+}
+.fancyButton74.fancyButton .text{
+	color: #fff;
+	font-size: 1.05em;
+	font-family: "Source Sans Pro";
+	text-align: center;
+	padding-top: 40px;
+	padding-right: .75em;
+	padding-left: .75em;
+	font-style: normal;
+	text-decoration: none;
+	padding-top: 40px;
+	padding-right: .75em;
+	padding-left: .75em;
+	background-image: url('/ImageRepository/Document?documentID=2953');
+	background-repeat: no-repeat;
+	background-position: center top;
+	border-top: 3px solid #fff;
+	border-left: 3px solid #fff;
+	border-right: 3px solid #fff;
+	border-bottom: 3px solid #fff;
+height: 153px;
+border-radius: 3px;
+transition: all 0.5s ease-in-out;line-height: 1.2;}
+.fancyButton74.fancyButton:hover .text,.fancyButton74.fancyButton:focus .text,.fancyButton74.fancyButton:active .text,.fancyButton74.fancyButton.hover .text{
+	color: #ffffff;
+	text-decoration: underline;
+	border-top: 3px solid #ffffff;
+	border-left: 3px solid #ffffff;
+	border-right: 3px solid #ffffff;
+	border-bottom: 3px solid #ffffff;
+
+
+}
+</style>
+
+ </li><!--
+--></ul></div><!----><div class="col col1  last"><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="/389/Report" target="_self" class="fancyButton fancyButton75 " >
+		<span>
+			<span><span class="text">Report A Concern</span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton75.fancyButton:link,.fancyButton75.fancyButton:visited, .fancyButton75div.fancyButton{
+	background-color: #0b4e9a;
+	padding-top: 1em;
+	padding-bottom: 1em;
+	padding-right: 1em;
+	padding-left: 1em;
+	background-repeat: no-repeat;
+	background-position: left top;
+border-radius: 3px;
+transition: all 0.3s ease-in-out;}
+.fancyButton75.fancyButton:hover,.fancyButton75.fancyButton:focus,.fancyButton75.fancyButton:active,.fancyButton75.fancyButton.hover{
+	background-color: #0e2d48;
+	background-repeat: repeat;
+	background-position: left top;
+}
+.fancyButton75.fancyButton:link > span,.fancyButton75.fancyButton:visited > span, .fancyButton75div.fancyButton > span{
+}
+.fancyButton75.fancyButton:hover > span,.fancyButton75.fancyButton:focus > span,.fancyButton75.fancyButton:active > span,.fancyButton75.fancyButton.hover > span{
+}
+.fancyButton75.fancyButton .text{
+	color: #fff;
+	font-size: 1.05em;
+	font-family: "Source Sans Pro";
+	text-align: center;
+	padding-top: 40px;
+	padding-right: .75em;
+	padding-left: .75em;
+	font-style: normal;
+	text-decoration: none;
+	padding-top: 40px;
+	padding-right: .75em;
+	padding-left: .75em;
+	background-image: url('/ImageRepository/Document?documentID=116');
+	background-repeat: no-repeat;
+	background-position: center 18px ;
+	border-top: 3px solid #fff;
+	border-left: 3px solid #fff;
+	border-right: 3px solid #fff;
+	border-bottom: 3px solid #fff;
+height: 153px;
+border-radius: 3px;
+transition: all 0.5s ease-in-out;line-height: 1.2;}
+.fancyButton75.fancyButton:hover .text,.fancyButton75.fancyButton:focus .text,.fancyButton75.fancyButton:active .text,.fancyButton75.fancyButton.hover .text{
+	color: #ffffff;
+	text-decoration: underline;
+	border-top: 3px solid #ffffff;
+	border-left: 3px solid #ffffff;
+	border-right: 3px solid #ffffff;
+	border-bottom: 3px solid #ffffff;
+
+
+}
+</style>
+
+ </li><!--
+--></ul></div><!--				-->
+				</div>
+			</nav>
+		</div>
+	<div class="widgetFooter">
+			</div>
+</div>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+	</div>
+</div></div>
+</div><!-- Calendar/Carousel --><!-- <div data-cpRole="structuralContainer" id="homeContainer1">
+    <div class="siteWrap">
+      <div data-cpRole="contentContainer" id="homeContent1a"></div>
+    </div>
+  </div> --><!-- Footer --><footer data-cpRole="structuralContainer" id="footerContainerTS">
+<div class="siteWrap"><div data-cpRole="contentContainer" id="footerTS">	<div id="cceec48a2b-afe4-46be-9a29-6a492999ba4d" data-containerid="eec48a2b-afe4-46be-9a29-6a492999ba4d" class="pageContent cpGrid cpGrid24 isLockedContainer showInMobile" data-contentcontainerbreakpoint="60">
+				                
+
+		<div class="row outer wide"><!--
+--><div class="outer col col7 first" style="" data-widgetcontainerid="d3b44ef5-6f81-46f6-9db8-94ef3a9d7e1b">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col7 first last idc81e41c2-359c-4830-b55c-b57d7817558f" style="" data-widgetcontainerid="c81e41c2-359c-4830-b55c-b57d7817558f">	
+    <div data-widget-id="21abe660-04f0-4773-b999-379de3a80480" data-widget-controller-path="/InfoAdvanced/Widget">
+
+
+
+
+
+	<section id="divInfoAdv21abe660-04f0-4773-b999-379de3a80480" class="widget widgetInfoAdvanced skin37 widgetOptionSet5 wide" data-modulewidgettype="infoAdv" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' aria-label="Info Advanced">
+			<header class="widgetHeader" id="header21abe660-04f0-4773-b999-379de3a80480">
+		<div class="">
+								</div>
+	</header>
+	<div class="widgetBody  cpGrid cpGrid1 ">
+		<div class="row  wide">
+					<div class="col col1 first last">
+						<ol class="pageStyles semanticList">
+
+<li class="InfoAdvanced widgetItem fr-view">
+	<p style="text-align: center;"><img src="/ImageRepository/Document?documentId=57" class="fr-fil fr-dib" alt="Our Place To Live"></p>
+</li>						</ol>
+					</div>
+		</div>
+	</div>
+	<div class="widgetFooter">
+
+	</div>
+
+	</section>
+
+
+
+<script type="text/javascript">
+	//Render slideshow if info advacned items contain one.
+	$(document).ready(function (e) {
+		$('#divInfoAdv21abe660-04f0-4773-b999-379de3a80480 .InfoAdvanced.widgetItem').each(function () {
+			renderSlideshowIfApplicable($(this));		
+		});
+	});
+</script></div>
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col1" style="" data-widgetcontainerid="30577e22-4308-46a9-a775-bfd881a6d70b">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col1 first last id58d38ff9-ae07-4dfb-abb5-9cd53de0ec08" style="" data-widgetcontainerid="58d38ff9-ae07-4dfb-abb5-9cd53de0ec08">	
+
+<div class="widget widgetSpacer" id="f555eaa3-6a1a-418c-a62e-92d81f543274"></div>
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col6" style="" data-widgetcontainerid="9d9dc08c-155d-42fd-b50f-89d19be9a313">				
+	<div class="row nest first wide">
+	
+	<div class="inner col col6 first last ida8a68b20-45f4-468a-a669-ca0b190adc14" style="" data-widgetcontainerid="a8a68b20-45f4-468a-a669-ca0b190adc14">	
+    <div data-widget-id="53f4a669-00fa-4e37-b73e-5bb8d687c9bc" data-widget-controller-path="/InfoAdvanced/Widget">
+
+
+
+    <style type="text/css">@media  (min-width: 62em) {
+.widgetOptionSet27 .cpGrid .autoWidths.center {
+text-align: right;
+}
+}
+</style>
+
+
+	<section id="divInfoAdv53f4a669-00fa-4e37-b73e-5bb8d687c9bc" class="widget widgetInfoAdvanced skin37 widgetOptionSet27 wide" data-modulewidgettype="infoAdv" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' aria-labelledby="header53f4a669-00fa-4e37-b73e-5bb8d687c9bc">
+			<header class="widgetHeader" id="header53f4a669-00fa-4e37-b73e-5bb8d687c9bc">
+		<div class="">
+					<h3 >Contact Us</h3>
+								</div>
+	</header>
+	<div class="widgetBody  cpGrid cpGrid1 ">
+		<div class="row  wide">
+					<div class="col col1 first last">
+						<ol class="pageStyles semanticList">
+
+<li class="InfoAdvanced widgetItem fr-view">
+	<p><strong>City of Champlin</strong><br>11955 Champlin Drive<br>Champlin, MN 55316<br>Phone: <a href="tel:763-421-8100">763-421-8100</a></p>
+</li>						</ol>
+					</div>
+		</div>
+	</div>
+	<div class="widgetFooter">
+
+	</div>
+
+	</section>
+
+
+
+<script type="text/javascript">
+	//Render slideshow if info advacned items contain one.
+	$(document).ready(function (e) {
+		$('#divInfoAdv53f4a669-00fa-4e37-b73e-5bb8d687c9bc .InfoAdvanced.widgetItem').each(function () {
+			renderSlideshowIfApplicable($(this));		
+		});
+	});
+</script></div>
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+	<div class="row nest last wide">
+	
+	<div class="inner col col6 first last id5ee0a531-a2ca-4fab-8f10-9d4f259530d4" style="" data-widgetcontainerid="5ee0a531-a2ca-4fab-8f10-9d4f259530d4">	
+<div class="widget editor pageStyles narrow" id="divEditorb82688f1-0396-4bdd-a6bd-15099c6d9390" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}'>
+	
+<script type="text/javascript">
+	$(document).ready(function (e) {		
+	    renderSlideshowIfApplicable($('#divEditor' + 'b82688f1-0396-4bdd-a6bd-15099c6d9390'));
+	});
+</script>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col6" style="" data-widgetcontainerid="29391973-d014-490e-8234-1b58c1c09ec9">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col6 first last idee3c9cf2-217f-403d-9988-2d6563d0a9b0" style="" data-widgetcontainerid="ee3c9cf2-217f-403d-9988-2d6563d0a9b0">	
+	<div data-widget-id="a5117f16-36f9-49cf-8382-5ad193f0981b" data-widget-controller-path="/QuickLinks/Widget">
+
+
+
+
+
+
+
+
+	<section id="widgetQuicklinka5117f16-36f9-49cf-8382-5ad193f0981b" class="widget widgetQuickLinks skin37 widgetOptionSet24 narrow" data-modulewidgettype="quickLinks" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' aria-labelledby="quickLinksHeadera5117f16-36f9-49cf-8382-5ad193f0981b">
+			<header class="widgetHeader" id="quickLinksHeadera5117f16-36f9-49cf-8382-5ad193f0981b">
+		<div class="">
+					<h3><a  style="" href="/QuickLinks.aspx?CID=59" >Quick Links</a></h3>
+						</div>
+	</header>
+	<div class="widgetBody cpGrid cpGrid1 ">
+        <div class="row  narrow">
+				<div class="col col1 first last">
+					<ol class="semanticList">
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="https://champlin.civicweb.net/Portal/" target="_blank" aria-label="Agendas - Home - Bottom Links opens in new window" rel="noopener">Agendas</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="https://champlinmn.gov/calendar.aspx?CID=14" target="_blank" aria-label="Meetings - Home - Bottom Links opens in new window" rel="noopener">Meetings</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/199/Police-Department" target="_blank" aria-label="Police - Home - Bottom Links opens in new window" rel="noopener">Police</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="https://www.anokachamplinfire.org/" target="_blank" aria-label="Fire - Home - Bottom Links opens in new window" rel="noopener">Fire</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="https://www.governmentjobs.com/careers/champlin" target="_blank" aria-label="Employment - Home - Bottom Links opens in new window" rel="noopener">Employment</a>
+        <div class="widgetMeta"></div>
+    </li>
+					</ol>
+				</div>
+		</div>
+        
+	</div>
+	<div class="widgetFooter">
+	</div>
+	<div class="addItemModal hidden">
+		<div class="url hidden">/QuickLinks.aspx</div>
+	</div>
+
+	</section>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col4 last" style="" data-widgetcontainerid="2486d964-b5bd-43ee-b46d-0ea4b7009aba">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col4 first last id673e2780-6dd4-46cc-ab8f-13dfbd06741d" style="" data-widgetcontainerid="673e2780-6dd4-46cc-ab8f-13dfbd06741d">	
+	<div data-widget-id="29d62348-6b89-4aa8-bcad-c94de3312c3d" data-widget-controller-path="/QuickLinks/Widget">
+
+
+
+
+
+
+
+
+	<section id="widgetQuicklink29d62348-6b89-4aa8-bcad-c94de3312c3d" class="widget widgetQuickLinks skin37 widgetOptionSet24 narrow" data-modulewidgettype="quickLinks" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' aria-labelledby="quickLinksHeader29d62348-6b89-4aa8-bcad-c94de3312c3d">
+			<header class="widgetHeader" id="quickLinksHeader29d62348-6b89-4aa8-bcad-c94de3312c3d">
+		<div class="">
+					<h3><a  style="" href="/QuickLinks.aspx?CID=17" >Helpful Links</a></h3>
+						</div>
+	</header>
+	<div class="widgetBody cpGrid cpGrid1 ">
+        <div class="row  narrow">
+				<div class="col col1 first last">
+					<ol class="semanticList">
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/directory.aspx" target="_self" aria-label="Contact Us - Site Links" rel="">Contact Us</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/sitemap" target="_self" aria-label="Site Map - Site Links" rel="">Site Map</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/Accessibility" target="_self" aria-label="Accessibility - Site Links" rel="">Accessibility</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/site/copyright" target="_self" aria-label="Copyright Notices - Site Links" rel="">Copyright Notices</a>
+        <div class="widgetMeta"></div>
+    </li>
+					</ol>
+				</div>
+		</div>
+        
+	</div>
+	<div class="widgetFooter">
+	</div>
+	<div class="addItemModal hidden">
+		<div class="url hidden">/QuickLinks.aspx</div>
+	</div>
+
+	</section>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+	</div>
+</div></div>
+</footer><!-- Powered By --><div data-cpRole="structuralContainer" id="poweredByContainerTS">
+<div class="siteWrap"><div data-cpRole="contentContainer" id="poweredByTS">	<div id="cc23c62c1b-7450-4d07-9517-e362f9164523" data-containerid="23c62c1b-7450-4d07-9517-e362f9164523" class="pageContent cpGrid cpGrid24 isLockedContainer showInMobile">
+				                
+
+		<div class="row outer wide"><!--
+--><div class="outer col col24 first last" style="" data-widgetcontainerid="86e78ae2-b080-4aca-9135-79c073fe8840">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col24 first last id482c42fc-23c6-48b4-8198-90458019abbe" style="" data-widgetcontainerid="482c42fc-23c6-48b4-8198-90458019abbe">	
+ 
+	<div data-widget-id='cccc0788-5f8f-4cc8-a400-101e77d24b4c' data-moduleName="customHtml" id='widgetCustomHtmlcccc0788-5f8f-4cc8-a400-101e77d24b4c' class="widget widgetCustomHtml skin56 narrow" >
+	<div class="widgetBody pageStyles" id="widgetBodycccc0788-5f8f-4cc8-a400-101e77d24b4c">
+		<div id="customHtmlcccc0788-5f8f-4cc8-a400-101e77d24b4c"><div><style>
+
+
+  .cpBylineTS {
+    text-align: center;
+  }
+  
+  .cpBylineIconTS {
+    fill: currentColor;
+    width: 39px;
+    height: 26px;
+    display: inline;
+    vertical-align: middle;
+  }
+</style>
+
+<div class="widgetItem cpBylineTS">
+  <span class="cpBylineTextTS">Government Websites by <a href="https://connect.civicplus.com/referral">CivicPlus&reg;</a></span>
+</div>
+</div></div>
+	</div>
+
+	</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+	</div>
+</div></div>
+</div>
+</div>
+
+            </div>
+        </div>
+    </div>
+
+<link href="/745732998.css" rel="stylesheet" type="text/css" />
+
+<div id="SplashMessageWrapper" class="cp-Splash-wrapper">
+	<div role="dialog" aria-labelledby="cp-Splash-title" aria-describedby="editorContentDesc" aria-modal="true" tabindex="-1" id="SplashMessage" class="hidden cp-Splash cp-Splash--modal is-open">
+		<div class="cp-Splash-header">
+			<h2 class="cp-Splash-title" id="cp-Splash-title">Loading</h2>
+			<button class="cp-Splash-Btn cp-Splash-close" aria-label="Close this modal" title="Close this window">
+				<svg id="iconClose" viewBox="0 0 25 25">
+					<polygon style="fill:currentcolor"
+							 points="18.806,6.98 18.075,6.248 12.532,11.792 6.989,6.248 6.257,6.98 11.786,12.508 6.212,18.084 6.943,18.815 12.532,13.224 18.12,18.815 18.851,18.084 13.277,12.508"></polygon>
+				</svg>
+			</button>
+		</div>
+		<div class="cp-Splash-body">
+			<div class="cp-Splash-Prose editorContent fr-view" id="editorContentDesc">
+				<!-- Content from the Froala Editor will go here. -->
+				Loading
+			</div>
+		</div>
+		<div class="cp-Splash-footer">
+			<button class="cp-Splash-Btn cp-Splash-Btn--NoShow">Do Not Show Again</button>
+			<button class="cp-Splash-Btn cp-Splash-Btn--Close">Close</button>
+		</div>
+	</div>
+</div>
+
+<script src="/Assets/Scripts/APIClient.js"></script>
+<script src="/Assets/Mystique/Shared/Scripts/Moment/Moment.min.js"></script>
+<script src="/Assets/Scripts/SplashModal/SplashModalRender.js"></script>
+<script>
+
+		$(document).ready(function () {
+			var filter = {
+				targetId: '613',
+				targetType: 1
+			}
+
+			new SplashModalRender().triggerRender(filter);
+		});
+</script>
+
+
+	
+	
+	
+	
+
+
+
+	
+
+
+
+
+
+
+    <script src="/-1442400649.js" type="text/javascript"></script>
+    <!----------Google Translate (Mobile Friendly)--------->
+
+<style>#google-translate-container {float: right;padding: 3px 5px 0px 0px;}.goog-te-combo,.goog-te-banner *,.goog-te-ftab *,.goog-te-menu *,.goog-te-menu2 *,.goog-te-balloon * {font-family: arial;font-size: 10pt;background-image: url("https://theme.zdassets.com/theme_assets/958586/bae8aa24db8d43595871692a9d259186f2db3fb4.png");background-position: 3px 4px;background-size: 22px;background-repeat: no-repeat;text-indent: 20px;background-color: #fff;color: #000 !important;}.goog-logo-link {display: none !important;}.goog-te-gadget {color: transparent !important;}.goog-te-gadget .goog-te-combo {margin: 2px 0 !important;border-radius: 15px !important;}.goog-te-combo{border: 1px solid !important;border-color: #bcc9d7 #96a3b1 #96a3b1 #bcc9d7 !important;border-radius: 0 !important;height:32px; !important;padding: 0 1px 0 .25rem !important;}
+
+#launcher-wrapper {bottom: 50px !important;}
+
+</style>
+
+<div id="google-translate-container">
+
+<div id="google_translate_element" style="position:fixed;bottom:0px;right:20px;z-index:5;"></div>
+
+</div>
+
+<script>
+
+function googleTranslateElementInit() {
+
+new google.translate.TranslateElement({ pageLanguage: "en" }, "google_translate_element");
+
+// begin accessibility compliance
+
+$('img.goog-te-gadget-icon').attr('alt','Google Translate');
+
+$('div#goog-gt-tt div.logo img').attr('alt','translate');
+
+$('div#goog-gt-tt .original-text').css('text-align','left');
+
+$('.goog-te-gadget-simple .goog-te-menu-value span').css('color','#000000');
+
+$('.goog-te-combo').attr('aria-label','google translate languages');
+
+$('svg.goog-te-spinner').attr('title','Google Translate Spinner');
+
+$('.goog-te-gadget-simple .goog-te-menu-value span').css('color','#000000');
+
+}
+
+$(function() {
+
+$.getScript("//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit");
+
+});
+
+</script>
+
+<!--------------End Google Translate-----------------><!-- AudioEye --> <script type="text/javascript">!function(){var b=function(){window.__AudioEyeSiteHash="887d7929dea0dadaa160eeb7acc7a0bc";var a=document.createElement("script");a.src="https://wsmcdn.audioeye.com/aem.js";a.type="text/javascript";a.setAttribute("async","");document.getElementsByTagName("body")[0].appendChild(a)};"complete"!==document.readyState?window.addEventListener?window.addEventListener("load",b):window.attachEvent&&window.attachEvent("onload",b):b()}();</script> <!-- End AudioEye -->
+
+
+    <script type="text/javascript">
+        $(function () {
+            document.cookie = "responsiveGhost=0; path=/";
+        });
+        $(window).on("load", function () {
+            $('body').addClass('doneLoading').removeClass('hideContent');
+
+            if ($('#404Content').length > 0)
+                $('div#bodyWrapper').css('padding', '0px');
+        });
+    </script>
+
+    <noscript>
+        <style>
+            body.hideContent {
+                opacity: 1 !important;
+            }
+        </style>
+    </noscript>
+
+        
+<div style="display: none;">
+	<svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
+
+		<symbol id="iconArrow--left" viewbox="0 0 25 25">
+			<title>Arrow Left</title>
+			<polygon style="fill:currentcolor" points="18.044,25 19.498,23.545 8.409,12.454 19.408,1.455 17.954,0 5.502,12.452"></polygon>
+		</symbol>
+
+		<symbol id="iconArrow--right" viewbox="0 0 25 25">
+			<title>Arrow Right</title>
+			<polygon style="fill:currentcolor" points="6.957,0 5.502,1.455 16.591,12.546 5.592,23.545 7.047,25 19.498,12.548"></polygon>
+		</symbol>
+
+	</svg>
+</div>
+    <script type="text/javascript">loadCSS('//fonts.googleapis.com/css?family=Abril+Fatface:regular|Fira+Sans:600,700,regular|Lato:300,300italic,700,700italic,900,900italic,italic,regular|Lora:600,700|Montserrat:200,300,600,600italic,700,700italic,800,900,italic,regular|Source+Sans+Pro:600,700,regular|');</script>
+    
+
+    <div class="hidden activeWidgetSkinComponentsOnPageJson">[]</div>
+        <div style="display: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                <symbol id="iconSlideshowArrowLeft" viewBox="0 0 22.68 40">
+                    <title>Slideshow Left Arrow</title>
+                    <g>
+                        <path style="fill:currentcolor;" d="M20,40a2.67,2.67,0,0,1-1.9-.79L.79,21.9a2.68,2.68,0,0,1,0-3.79L18.1.79a2.68,2.68,0,1,1,3.79,3.79L6.47,20,21.89,35.42A2.68,2.68,0,0,1,20,40Z"></path>
+                    </g>
+                </symbol>
+                <symbol id="iconSlideshowArrowRight" viewBox="0 0 22.68 40">
+                    <title>Slideshow Right Arrow</title>
+                    <g>
+                        <path style="fill:currentcolor;" d="M2.68,0a2.67,2.67,0,0,1,1.9.79L21.89,18.1a2.68,2.68,0,0,1,0,3.79L4.58,39.21A2.68,2.68,0,0,1,.79,35.42L16.21,20,.79,4.58A2.68,2.68,0,0,1,2.68,0Z"></path>
+                    </g>
+                </symbol>
+            </svg>
+        </div>
+    
+	
+	
+
+    <div id="root-picker-outlet"></div>
+</body>
+</html>
