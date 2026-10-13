@@ -207,7 +207,7 @@ export class EventProcessorService {
     eventData: CandidateEventData
   ): Promise<NotificationEvent> {
     try {
-      if (eventData.candidateId !== candidate.id || eventData.electionId !== election.id || !Number.isFinite(new Date(election.date).getTime())) throw new EventProcessorUnavailableError('INVALID_EVENT_CONTEXT', 'Candidate event does not match a valid stored subject and election context');
+      if (eventData.candidateId !== candidate.id || eventData.electionId !== election.id || candidate.electionId === null || candidate.electionId === undefined || candidate.electionId !== election.id || candidate.electionId !== eventData.electionId || !Number.isFinite(new Date(election.date).getTime())) throw new EventProcessorUnavailableError('INVALID_EVENT_CONTEXT', 'Candidate event does not match a valid stored subject and election context');
       console.log(`👤 Processing candidate event: ${eventData.eventType} for ${candidate.name}`);
 
       // Apply event filters

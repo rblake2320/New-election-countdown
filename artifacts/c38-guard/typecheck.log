@@ -1,0 +1,243 @@
+
+> rest-express@1.0.0 check
+> tsc --noEmit --incremental false
+
+server/bot-prevention-service.ts(3,3): error TS2305: Module '"@shared/schema"' has no exported member 'userVerification'.
+server/bot-prevention-service.ts(4,3): error TS2305: Module '"@shared/schema"' has no exported member 'botDetectionLogs'.
+server/bot-prevention-service.ts(5,3): error TS2305: Module '"@shared/schema"' has no exported member 'userBehaviorMetrics'.
+server/bot-prevention-service.ts(6,3): error TS2305: Module '"@shared/schema"' has no exported member 'verificationChallenges'.
+server/bot-prevention-service.ts(8,3): error TS2305: Module '"@shared/schema"' has no exported member 'VERIFICATION_LEVELS'.
+server/bot-prevention-service.ts(9,8): error TS2305: Module '"@shared/schema"' has no exported member 'InsertUserVerification'.
+server/bot-prevention-service.ts(10,8): error TS2305: Module '"@shared/schema"' has no exported member 'InsertBotDetectionLog'.
+server/bot-prevention-service.ts(11,8): error TS2305: Module '"@shared/schema"' has no exported member 'InsertUserBehaviorMetrics'.
+server/bot-prevention-service.ts(12,8): error TS2305: Module '"@shared/schema"' has no exported member 'InsertVerificationChallenge'.
+server/bot-prevention-service.ts(43,18): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+server/bot-prevention-service.ts(50,18): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+server/bot-prevention-service.ts(56,18): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+server/bot-prevention-service.ts(76,28): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+server/bot-prevention-service.ts(82,30): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+server/bot-prevention-service.ts(92,30): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+server/bot-prevention-service.ts(100,28): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+server/bot-prevention-service.ts(107,28): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+server/bot-prevention-service.ts(114,28): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+server/bot-prevention-service.ts(149,18): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+server/bot-prevention-service.ts(155,18): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+server/bot-prevention-service.ts(162,18): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+server/bot-prevention-service.ts(185,18): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+server/bot-prevention-service.ts(192,18): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+server/bot-prevention-service.ts(199,18): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+server/campaign-portal-service.ts(11,8): error TS2724: '"@shared/schema"' has no exported member named 'InsertCampaignAccessLog'. Did you mean 'insertCampaignAccessLogSchema'?
+server/campaign-portal-service.ts(12,8): error TS2724: '"@shared/schema"' has no exported member named 'InsertDataPurchase'. Did you mean 'insertDataPurchaseSchema'?
+server/campaign-portal-service.ts(186,30): error TS2339: Property 'conductedDate' does not exist on type 'PgTableWithColumns<{ name: "polling_results"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "polling_results"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>; ... 10 more ...; createdAt: PgColumn<......'.
+server/campaign-portal-service.ts(187,30): error TS2339: Property 'conductedDate' does not exist on type 'PgTableWithColumns<{ name: "polling_results"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "polling_results"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>; ... 10 more ...; createdAt: PgColumn<......'.
+server/campaign-portal-service.ts(188,29): error TS2339: Property 'isPublic' does not exist on type 'PgTableWithColumns<{ name: "polling_results"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "polling_results"; dataType: "number"; columnType: "PgSerial"; data: number; driverParam: number; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>; ... 10 more ...; createdAt: PgColumn<......'.
+server/campaign-portal-service.ts(197,37): error TS2339: Property 'pollingOrganization' does not exist on type '{ id: number; electionId: number | null; candidateId: number | null; demographicGroup: string | null; geographicArea: string | null; pollingPercentage: string | null; sampleSize: number | null; ... 4 more ...; createdAt: Date | null; }'.
+server/campaign-portal-service.ts(223,10): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { datasetType: string | SQL<unknown> | Placeholder<string, any>; cost: string | SQL<unknown> | Placeholder<string, any>; records: number | SQL<unknown> | Placeholder<...>; id?: number | ... 2 more ... | undefined; campaignId?: number | ... 3 more ... | undefined; purchasedAt?: Date | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'price' does not exist in type '{ datasetType: string | SQL<unknown> | Placeholder<string, any>; cost: string | SQL<unknown> | Placeholder<string, any>; records: number | SQL<unknown> | Placeholder<...>; id?: number | ... 2 more ... | undefined; campaignId?: number | ... 3 more ... | undefined; purchasedAt?: Date | ... 3 more ... | undefined; }'.
+  Overload 2 of 2, '(values: { datasetType: string | SQL<unknown> | Placeholder<string, any>; cost: string | SQL<unknown> | Placeholder<string, any>; records: number | SQL<unknown> | Placeholder<...>; id?: number | ... 2 more ... | undefined; campaignId?: number | ... 3 more ... | undefined; purchasedAt?: Date | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'campaignId' does not exist in type '{ datasetType: string | SQL<unknown> | Placeholder<string, any>; cost: string | SQL<unknown> | Placeholder<string, any>; records: number | SQL<unknown> | Placeholder<...>; id?: number | ... 2 more ... | undefined; campaignId?: number | ... 3 more ... | undefined; purchasedAt?: Date | ... 3 more ... | undefined; }[]'.
+server/campaign-portal-service.ts(251,10): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { endpointAccessed: string | SQL<unknown> | Placeholder<string, any>; datasetType: string | SQL<unknown> | Placeholder<string, any>; id?: number | SQL<...> | Placeholder<...> | undefined; ... 4 more ...; accessedAt?: Date | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Type 'number' is not assignable to type 'string | SQL<unknown> | Placeholder<string, any> | null | undefined'.
+  Overload 2 of 2, '(values: { endpointAccessed: string | SQL<unknown> | Placeholder<string, any>; datasetType: string | SQL<unknown> | Placeholder<string, any>; id?: number | SQL<...> | Placeholder<...> | undefined; ... 4 more ...; accessedAt?: Date | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'campaignId' does not exist in type '{ endpointAccessed: string | SQL<unknown> | Placeholder<string, any>; datasetType: string | SQL<unknown> | Placeholder<string, any>; id?: number | SQL<unknown> | Placeholder<...> | undefined; ... 4 more ...; accessedAt?: Date | ... 3 more ... | undefined; }[]'.
+server/campaign-portal-service.ts(296,73): error TS2339: Property 'engagementScore' does not exist on type '{ id: number; electionId: number | null; state: string; county: string | null; zipCode: string | null; precinct: string | null; voterDensity: number | null; demographicProfile: unknown; politicalLean: string | null; lastUpdated: Date | null; }'.
+server/campaign-portal-service.ts(298,60): error TS2339: Property 'interestLevel' does not exist on type '{ id: number; electionId: number | null; state: string; county: string | null; zipCode: string | null; precinct: string | null; voterDensity: number | null; demographicProfile: unknown; politicalLean: string | null; lastUpdated: Date | null; }'.
+server/campaign-portal-service.ts(321,23): error TS2339: Property 'segmentName' does not exist on type '{ id: number; electionId: number | null; ageGroup: string | null; income: string | null; education: string | null; partyAffiliation: string | null; voterHistory: string | null; count: number; lastUpdated: Date | null; }'.
+server/campaign-portal-service.ts(322,23): error TS2339: Property 'userCount' does not exist on type '{ id: number; electionId: number | null; ageGroup: string | null; income: string | null; education: string | null; partyAffiliation: string | null; voterHistory: string | null; count: number; lastUpdated: Date | null; }'.
+server/campaign-portal-service.ts(323,27): error TS2339: Property 'criteria' does not exist on type '{ id: number; electionId: number | null; ageGroup: string | null; income: string | null; education: string | null; partyAffiliation: string | null; voterHistory: string | null; count: number; lastUpdated: Date | null; }'.
+server/campaign-portal-service.ts(341,15): error TS2304: Cannot find name 'auditLogs'.
+server/campaign-portal-service.ts(344,17): error TS2304: Cannot find name 'auditLogs'.
+server/campaign-portal-service.ts(345,16): error TS2304: Cannot find name 'auditLogs'.
+server/campaign-portal-service.ts(386,27): error TS2304: Cannot find name 'candidates'.
+server/campaign-portal-service.ts(388,15): error TS2304: Cannot find name 'candidates'.
+server/campaign-portal-service.ts(389,34): error TS2304: Cannot find name 'candidates'.
+server/campaign-portal-service.ts(395,18): error TS2304: Cannot find name 'candidates'.
+server/campaign-portal-service.ts(398,15): error TS2304: Cannot find name 'candidates'.
+server/campaign-portal-service.ts(399,34): error TS2304: Cannot find name 'candidates'.
+server/campaign-portal-service.ts(401,18): error TS2304: Cannot find name 'candidates'.
+server/routes.ts(1876,85): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+server/routes.ts(1894,86): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+server/routes/track4-backup-routes.ts(77,82): error TS2345: Argument of type '{ configurationName: string; isEnabled: boolean; notificationChannels: { type: "email" | "sms" | "webhook" | "slack"; target: string; priority: number; escalationLevel: number; }[]; monitoringType: "backup_size" | ... 2 more ... | "backup_completion"; ... 5 more ...; retentionPeriod?: number | undefined; }' is not assignable to parameter of type 'Omit<{ name: string; monitoringType: string; description?: string | null | undefined; alertEmails?: string[] | null | undefined; isEnabled?: boolean | null | undefined; backupTypes?: string[] | null | undefined; ... 12 more ...; alertSeverity?: string | ... 1 more ... | undefined; }, "id">'.
+  Property 'name' is missing in type '{ configurationName: string; isEnabled: boolean; notificationChannels: { type: "email" | "sms" | "webhook" | "slack"; target: string; priority: number; escalationLevel: number; }[]; monitoringType: "backup_size" | ... 2 more ... | "backup_completion"; ... 5 more ...; retentionPeriod?: number | undefined; }' but required in type 'Omit<{ name: string; monitoringType: string; description?: string | null | undefined; alertEmails?: string[] | null | undefined; isEnabled?: boolean | null | undefined; backupTypes?: string[] | null | undefined; ... 12 more ...; alertSeverity?: string | ... 1 more ... | undefined; }, "id">'.
+server/services/alert-engine-service.ts(243,7): error TS2322: Type '{ processedAt: Date | null; campaignId: null; createdAt: Date; eventType: string; eventData: Json; source?: string | null | undefined; metadata?: Json | undefined; ... 6 more ...; id: number; }' is not assignable to type '{ source: string | null; metadata: unknown; id: number; createdAt: Date | null; sourceId: string | null; priority: string | null; campaignId: number | null; eventType: string; eventData: unknown; ... 4 more ...; processedAt: Date | null; }'.
+  Types of property 'source' are incompatible.
+    Type 'string | null | undefined' is not assignable to type 'string | null'.
+      Type 'undefined' is not assignable to type 'string | null'.
+server/services/backup-alert-service.ts(82,7): error TS2353: Object literal may only specify known properties, and 'createdAt' does not exist in type '{ name: string; monitoringType: string; description?: string | null | undefined; alertEmails?: string[] | null | undefined; isEnabled?: boolean | null | undefined; backupTypes?: string[] | null | undefined; ... 12 more ...; alertSeverity?: string | ... 1 more ... | undefined; }'.
+server/services/backup-alert-service.ts(86,85): error TS2339: Property 'configurationName' does not exist on type '{ id: number; name: string; description: string | null; createdAt: Date | null; updatedAt: Date | null; alertEmails: string[] | null; isEnabled: boolean | null; monitoringType: string; ... 13 more ...; alertSeverity: string | null; }'.
+server/services/backup-alert-service.ts(118,9): error TS2353: Object literal may only specify known properties, and 'metricValue' does not exist in type '{ metricDate: Date; metricType: string; riskLevel?: string | null | undefined; totalBackups?: number | null | undefined; successfulBackups?: number | null | undefined; failedBackups?: number | ... 1 more ... | undefined; ... 8 more ...; healthScore?: string | ... 1 more ... | undefined; }'.
+server/services/backup-alert-service.ts(133,11): error TS2353: Object literal may only specify known properties, and 'metricValue' does not exist in type '{ metricDate: Date; metricType: string; riskLevel?: string | null | undefined; totalBackups?: number | null | undefined; successfulBackups?: number | null | undefined; failedBackups?: number | ... 1 more ... | undefined; ... 8 more ...; healthScore?: string | ... 1 more ... | undefined; }'.
+server/services/backup-alert-service.ts(147,9): error TS2353: Object literal may only specify known properties, and 'metricValue' does not exist in type '{ metricDate: Date; metricType: string; riskLevel?: string | null | undefined; totalBackups?: number | null | undefined; successfulBackups?: number | null | undefined; failedBackups?: number | ... 1 more ... | undefined; ... 8 more ...; healthScore?: string | ... 1 more ... | undefined; }'.
+server/services/backup-alert-service.ts(163,9): error TS2353: Object literal may only specify known properties, and 'metricValue' does not exist in type '{ metricDate: Date; metricType: string; riskLevel?: string | null | undefined; totalBackups?: number | null | undefined; successfulBackups?: number | null | undefined; failedBackups?: number | ... 1 more ... | undefined; ... 8 more ...; healthScore?: string | ... 1 more ... | undefined; }'.
+server/services/backup-alert-service.ts(184,17): error TS2339: Property 'alertRules' does not exist on type '{ id: number; name: string; description: string | null; createdAt: Date | null; updatedAt: Date | null; alertEmails: string[] | null; isEnabled: boolean | null; monitoringType: string; ... 13 more ...; alertSeverity: string | null; }'.
+server/services/backup-alert-service.ts(184,38): error TS2339: Property 'alertRules' does not exist on type '{ id: number; name: string; description: string | null; createdAt: Date | null; updatedAt: Date | null; alertEmails: string[] | null; isEnabled: boolean | null; monitoringType: string; ... 13 more ...; alertSeverity: string | null; }'.
+server/services/backup-alert-service.ts(188,31): error TS2339: Property 'alertRules' does not exist on type '{ id: number; name: string; description: string | null; createdAt: Date | null; updatedAt: Date | null; alertEmails: string[] | null; isEnabled: boolean | null; monitoringType: string; ... 13 more ...; alertSeverity: string | null; }'.
+server/services/backup-alert-service.ts(273,13): error TS2339: Property 'backupJobId' does not exist on type '{ title: string; metadata: unknown; id: number; status: string; message: string; createdAt: Date | null; backupOperationId: number | null; severity: string; acknowledgedBy: string | null; ... 13 more ...; affectedMetrics: unknown; }'.
+server/services/backup-alert-service.ts(274,39): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+server/services/backup-alert-service.ts(290,7): error TS2353: Object literal may only specify known properties, and 'details' does not exist in type '{ title: string; status: string; message: string; severity: string; alertId: string; alertType: string; metadata?: Json | undefined; backupOperationId?: number | null | undefined; acknowledgedBy?: string | ... 1 more ... | undefined; ... 11 more ...; affectedMetrics?: Json | undefined; }'.
+server/services/backup-alert-service.ts(293,31): error TS2339: Property 'configurationName' does not exist on type '{ id: number; name: string; description: string | null; createdAt: Date | null; updatedAt: Date | null; alertEmails: string[] | null; isEnabled: boolean | null; monitoringType: string; ... 13 more ...; alertSeverity: string | null; }'.
+server/services/backup-alert-service.ts(307,24): error TS2339: Property 'notificationChannels' does not exist on type '{ id: number; name: string; description: string | null; createdAt: Date | null; updatedAt: Date | null; alertEmails: string[] | null; isEnabled: boolean | null; monitoringType: string; ... 13 more ...; alertSeverity: string | null; }'.
+server/services/backup-alert-service.ts(308,7): error TS2740: Type '{}' is missing the following properties from type 'any[]': length, pop, push, concat, and 35 more.
+server/services/backup-alert-service.ts(338,7): error TS2353: Object literal may only specify known properties, and 'sentAt' does not exist in type 'Partial<{ title: string; metadata: unknown; id: number; status: string; message: string; createdAt: Date | null; backupOperationId: number | null; severity: string; acknowledgedBy: string | null; ... 13 more ...; affectedMetrics: unknown; }>'.
+server/services/backup-monitoring-service.ts(134,90): error TS2339: Property 'operationType' does not exist on type '{ metadata: unknown; type: string; id: number; duration: number | null; status: string; isVerified: boolean | null; createdAt: Date | null; updatedAt: Date | null; tags: string[] | null; ... 26 more ...; triggeredBy: string | null; }'.
+server/services/backup-monitoring-service.ts(301,9): error TS2322: Type 'number' is not assignable to type 'string'.
+server/services/backup-monitoring-service.ts(304,9): error TS2322: Type 'number' is not assignable to type 'string'.
+server/services/backup-monitoring-service.ts(509,62): error TS2339: Property 'operationType' does not exist on type '{ metadata: unknown; type: string; id: number; duration: number | null; status: string; isVerified: boolean | null; createdAt: Date | null; updatedAt: Date | null; tags: string[] | null; ... 26 more ...; triggeredBy: string | null; }'.
+server/services/backup-monitoring-service.ts(513,53): error TS2345: Argument of type 'number | null' is not assignable to parameter of type 'number'.
+  Type 'null' is not assignable to type 'number'.
+server/services/backup-monitoring-service.ts(558,49): error TS2339: Property 'operationType' does not exist on type '{ metadata: unknown; type: string; id: number; duration: number | null; status: string; isVerified: boolean | null; createdAt: Date | null; updatedAt: Date | null; tags: string[] | null; ... 26 more ...; triggeredBy: string | null; }'.
+server/services/backup-monitoring-service.ts(562,45): error TS2339: Property 'operationType' does not exist on type '{ metadata: unknown; type: string; id: number; duration: number | null; status: string; isVerified: boolean | null; createdAt: Date | null; updatedAt: Date | null; tags: string[] | null; ... 26 more ...; triggeredBy: string | null; }'.
+server/services/backup-monitoring-service.ts(565,40): error TS2339: Property 'operationType' does not exist on type '{ metadata: unknown; type: string; id: number; duration: number | null; status: string; isVerified: boolean | null; createdAt: Date | null; updatedAt: Date | null; tags: string[] | null; ... 26 more ...; triggeredBy: string | null; }'.
+server/services/backup-monitoring-service.ts(586,84): error TS2339: Property 'operationType' does not exist on type '{ metadata: unknown; type: string; id: number; duration: number | null; status: string; isVerified: boolean | null; createdAt: Date | null; updatedAt: Date | null; tags: string[] | null; ... 26 more ...; triggeredBy: string | null; }'.
+server/services/backup-monitoring-service.ts(594,60): error TS2339: Property 'operationType' does not exist on type '{ metadata: unknown; type: string; id: number; duration: number | null; status: string; isVerified: boolean | null; createdAt: Date | null; updatedAt: Date | null; tags: string[] | null; ... 26 more ...; triggeredBy: string | null; }'.
+server/services/backup-monitoring-service.ts(598,47): error TS2339: Property 'operationType' does not exist on type '{ metadata: unknown; type: string; id: number; duration: number | null; status: string; isVerified: boolean | null; createdAt: Date | null; updatedAt: Date | null; tags: string[] | null; ... 26 more ...; triggeredBy: string | null; }'.
+server/services/backup-monitoring-service.ts(614,26): error TS2339: Property 'sizeBytes' does not exist on type '{ metadata: unknown; type: string; id: number; duration: number | null; status: string; isVerified: boolean | null; createdAt: Date | null; updatedAt: Date | null; tags: string[] | null; ... 26 more ...; triggeredBy: string | null; }'.
+server/services/backup-monitoring-service.ts(624,45): error TS2339: Property 'operationType' does not exist on type '{ metadata: unknown; type: string; id: number; duration: number | null; status: string; isVerified: boolean | null; createdAt: Date | null; updatedAt: Date | null; tags: string[] | null; ... 26 more ...; triggeredBy: string | null; }'.
+server/services/backup-monitoring-service.ts(634,57): error TS2339: Property 'sizeBytes' does not exist on type '{ metadata: unknown; type: string; id: number; duration: number | null; status: string; isVerified: boolean | null; createdAt: Date | null; updatedAt: Date | null; tags: string[] | null; ... 26 more ...; triggeredBy: string | null; }'.
+server/services/backup-monitoring-service.ts(642,58): error TS2339: Property 'operationType' does not exist on type '{ metadata: unknown; type: string; id: number; duration: number | null; status: string; isVerified: boolean | null; createdAt: Date | null; updatedAt: Date | null; tags: string[] | null; ... 26 more ...; triggeredBy: string | null; }'.
+server/services/backup-monitoring-service.ts(643,101): error TS2339: Property 'sizeBytes' does not exist on type '{ metadata: unknown; type: string; id: number; duration: number | null; status: string; isVerified: boolean | null; createdAt: Date | null; updatedAt: Date | null; tags: string[] | null; ... 26 more ...; triggeredBy: string | null; }'.
+server/services/backup-monitoring-service.ts(646,49): error TS2339: Property 'operationType' does not exist on type '{ metadata: unknown; type: string; id: number; duration: number | null; status: string; isVerified: boolean | null; createdAt: Date | null; updatedAt: Date | null; tags: string[] | null; ... 26 more ...; triggeredBy: string | null; }'.
+server/services/backup-monitoring-service.ts(648,41): error TS2339: Property 'sizeBytes' does not exist on type '{ metadata: unknown; type: string; id: number; duration: number | null; status: string; isVerified: boolean | null; createdAt: Date | null; updatedAt: Date | null; tags: string[] | null; ... 26 more ...; triggeredBy: string | null; }'.
+server/services/backup-monitoring-service.ts(651,42): error TS2339: Property 'sizeBytes' does not exist on type '{ metadata: unknown; type: string; id: number; duration: number | null; status: string; isVerified: boolean | null; createdAt: Date | null; updatedAt: Date | null; tags: string[] | null; ... 26 more ...; triggeredBy: string | null; }'.
+server/services/backup-monitoring-service.ts(783,68): error TS2339: Property 'operationType' does not exist on type '{ metadata: unknown; type: string; id: number; duration: number | null; status: string; isVerified: boolean | null; createdAt: Date | null; updatedAt: Date | null; tags: string[] | null; ... 26 more ...; triggeredBy: string | null; }'.
+server/services/backup-monitoring-service.ts(787,49): error TS2339: Property 'operationType' does not exist on type '{ metadata: unknown; type: string; id: number; duration: number | null; status: string; isVerified: boolean | null; createdAt: Date | null; updatedAt: Date | null; tags: string[] | null; ... 26 more ...; triggeredBy: string | null; }'.
+server/services/backup-monitoring-service.ts(860,66): error TS2345: Argument of type '{ id: number; name: string; description: string | null; createdAt: Date | null; updatedAt: Date | null; alertEmails: string[] | null; isEnabled: boolean | null; monitoringType: string; ... 13 more ...; alertSeverity: string | null; } | null | undefined' is not assignable to parameter of type '{ id: number; name: string; description: string | null; createdAt: Date | null; updatedAt: Date | null; alertEmails: string[] | null; isEnabled: boolean | null; monitoringType: string; ... 13 more ...; alertSeverity: string | null; } | null'.
+  Type 'undefined' is not assignable to type '{ id: number; name: string; description: string | null; createdAt: Date | null; updatedAt: Date | null; alertEmails: string[] | null; isEnabled: boolean | null; monitoringType: string; ... 13 more ...; alertSeverity: string | null; } | null'.
+server/services/backup-monitoring-service.ts(864,55): error TS2345: Argument of type '{ id: number; name: string; description: string | null; createdAt: Date | null; updatedAt: Date | null; alertEmails: string[] | null; isEnabled: boolean | null; monitoringType: string; ... 13 more ...; alertSeverity: string | null; } | null | undefined' is not assignable to parameter of type '{ id: number; name: string; description: string | null; createdAt: Date | null; updatedAt: Date | null; alertEmails: string[] | null; isEnabled: boolean | null; monitoringType: string; ... 13 more ...; alertSeverity: string | null; } | null'.
+  Type 'undefined' is not assignable to type '{ id: number; name: string; description: string | null; createdAt: Date | null; updatedAt: Date | null; alertEmails: string[] | null; isEnabled: boolean | null; monitoringType: string; ... 13 more ...; alertSeverity: string | null; } | null'.
+server/services/backup-monitoring-service.ts(868,50): error TS2345: Argument of type '{ id: number; name: string; description: string | null; createdAt: Date | null; updatedAt: Date | null; alertEmails: string[] | null; isEnabled: boolean | null; monitoringType: string; ... 13 more ...; alertSeverity: string | null; } | null | undefined' is not assignable to parameter of type '{ id: number; name: string; description: string | null; createdAt: Date | null; updatedAt: Date | null; alertEmails: string[] | null; isEnabled: boolean | null; monitoringType: string; ... 13 more ...; alertSeverity: string | null; } | null'.
+  Type 'undefined' is not assignable to type '{ id: number; name: string; description: string | null; createdAt: Date | null; updatedAt: Date | null; alertEmails: string[] | null; isEnabled: boolean | null; monitoringType: string; ... 13 more ...; alertSeverity: string | null; } | null'.
+server/services/backup-monitoring-service.ts(912,11): error TS2353: Object literal may only specify known properties, and 'alertId' does not exist in type '{ campaignId?: number | undefined; userId?: string | undefined; subscriptionId?: number | undefined; templateId?: number | undefined; eventId?: number | undefined; }'.
+server/services/backup-monitoring-service.ts(940,11): error TS2353: Object literal may only specify known properties, and 'alertId' does not exist in type '{ campaignId?: number | undefined; userId?: string | undefined; subscriptionId?: number | undefined; templateId?: number | undefined; eventId?: number | undefined; }'.
+server/services/backup-monitoring-service.ts(958,9): error TS2322: Type '"webhook"' is not assignable to type 'NotificationChannel'.
+server/services/backup-monitoring-service.ts(962,11): error TS2353: Object literal may only specify known properties, and 'alert' does not exist in type '{ subject?: string | undefined; message: string; html?: string | undefined; templateData?: Record<string, any> | undefined; }'.
+server/services/backup-monitoring-service.ts(973,11): error TS2353: Object literal may only specify known properties, and 'alertId' does not exist in type '{ campaignId?: number | undefined; userId?: string | undefined; subscriptionId?: number | undefined; templateId?: number | undefined; eventId?: number | undefined; }'.
+server/services/backup-monitoring-service.ts(1047,66): error TS2339: Property 'sizeBytes' does not exist on type '{ metadata: unknown; type: string; id: number; duration: number | null; status: string; isVerified: boolean | null; createdAt: Date | null; updatedAt: Date | null; tags: string[] | null; ... 26 more ...; triggeredBy: string | null; }'.
+server/services/backup-monitoring-service.ts(1068,28): error TS2339: Property 'operationType' does not exist on type '{ metadata: unknown; type: string; id: number; duration: number | null; status: string; isVerified: boolean | null; createdAt: Date | null; updatedAt: Date | null; tags: string[] | null; ... 26 more ...; triggeredBy: string | null; }'.
+server/services/backup-monitoring-service.ts(1068,81): error TS2339: Property 'operationType' does not exist on type '{ metadata: unknown; type: string; id: number; duration: number | null; status: string; isVerified: boolean | null; createdAt: Date | null; updatedAt: Date | null; tags: string[] | null; ... 26 more ...; triggeredBy: string | null; }'.
+server/services/backup-monitoring-service.ts(1095,22): error TS2339: Property 'operationType' does not exist on type '{ metadata: unknown; type: string; id: number; duration: number | null; status: string; isVerified: boolean | null; createdAt: Date | null; updatedAt: Date | null; tags: string[] | null; ... 26 more ...; triggeredBy: string | null; }'.
+server/services/backup-monitoring-service.ts(1096,32): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+server/services/backup-monitoring-service.ts(1096,83): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+server/services/backup-monitoring-service.ts(1098,46): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+server/services/backup-monitoring-service.ts(1132,26): error TS2339: Property 'operationType' does not exist on type '{ metadata: unknown; type: string; id: number; duration: number | null; status: string; isVerified: boolean | null; createdAt: Date | null; updatedAt: Date | null; tags: string[] | null; ... 26 more ...; triggeredBy: string | null; }'.
+server/services/backup-monitoring-service.ts(1133,23): error TS2339: Property 'operationType' does not exist on type '{ metadata: unknown; type: string; id: number; duration: number | null; status: string; isVerified: boolean | null; createdAt: Date | null; updatedAt: Date | null; tags: string[] | null; ... 26 more ...; triggeredBy: string | null; }'.
+server/services/backup-monitoring-service.ts(1135,21): error TS2339: Property 'operationType' does not exist on type '{ metadata: unknown; type: string; id: number; duration: number | null; status: string; isVerified: boolean | null; createdAt: Date | null; updatedAt: Date | null; tags: string[] | null; ... 26 more ...; triggeredBy: string | null; }'.
+server/services/backup-monitoring-service.ts(1136,56): error TS2339: Property 'operationType' does not exist on type '{ metadata: unknown; type: string; id: number; duration: number | null; status: string; isVerified: boolean | null; createdAt: Date | null; updatedAt: Date | null; tags: string[] | null; ... 26 more ...; triggeredBy: string | null; }'.
+server/services/backup-monitoring-service.ts(1137,53): error TS2339: Property 'operationType' does not exist on type '{ metadata: unknown; type: string; id: number; duration: number | null; status: string; isVerified: boolean | null; createdAt: Date | null; updatedAt: Date | null; tags: string[] | null; ... 26 more ...; triggeredBy: string | null; }'.
+server/services/delivery-tracking-service.ts(84,13): error TS2322: Type '{ createdAt: Date; updatedAt: Date; content: string; channel: string; recipient: string; status?: string | undefined; userId?: string | null | undefined; clickedAt?: Date | null | undefined; ... 17 more ...; id: number; }' is not assignable to type '{ id: number; content: string; status: string; createdAt: Date | null; updatedAt: Date | null; userId: string | null; clickedAt: Date | null; campaignId: number | null; ... 17 more ...; providerResponse: unknown; }'.
+  Types of property 'status' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+server/services/delivery-tracking-service.ts(140,11): error TS2322: Type 'string | undefined' is not assignable to type 'string | null'.
+  Type 'undefined' is not assignable to type 'string | null'.
+server/services/delivery-tracking-service.ts(141,11): error TS2322: Type 'string | undefined' is not assignable to type 'string | null'.
+  Type 'undefined' is not assignable to type 'string | null'.
+server/services/delivery-tracking-service.ts(145,11): error TS2322: Type 'string | undefined' is not assignable to type 'string | null'.
+  Type 'undefined' is not assignable to type 'string | null'.
+server/services/delivery-tracking-service.ts(146,11): error TS2322: Type 'string | undefined' is not assignable to type 'string | null'.
+  Type 'undefined' is not assignable to type 'string | null'.
+server/services/delivery-tracking-service.ts(195,41): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+server/services/delivery-tracking-service.ts(275,41): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+server/services/delivery-tracking-service.ts(291,31): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+server/services/delivery-tracking-service.ts(463,24): error TS18046: 'data' is of type 'unknown'.
+server/services/delivery-tracking-service.ts(502,18): error TS18046: 'data' is of type 'unknown'.
+server/services/delivery-tracking-service.ts(503,21): error TS18046: 'data' is of type 'unknown'.
+server/services/delivery-tracking-service.ts(513,24): error TS18046: 'data' is of type 'unknown'.
+server/services/delivery-tracking-service.ts(527,13): error TS18046: 'data' is of type 'unknown'.
+server/services/delivery-tracking-service.ts(540,18): error TS18046: 'data' is of type 'unknown'.
+server/services/delivery-tracking-service.ts(541,21): error TS18046: 'data' is of type 'unknown'.
+server/services/delivery-tracking-service.ts(543,24): error TS18046: 'data' is of type 'unknown'.
+server/services/delivery-tracking-service.ts(569,24): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+server/services/runbook-management-service.ts(255,11): error TS2322: Type 'number' is not assignable to type 'string'.
+server/services/runbook-management-service.ts(336,58): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+server/services/runbook-management-service.ts(931,7): error TS2322: Type 'Date | null' is not assignable to type 'Date | undefined'.
+  Type 'null' is not assignable to type 'Date | undefined'.
+server/services/runbook-management-service.ts(932,7): error TS2322: Type 'string | number' is not assignable to type 'number'.
+  Type 'string' is not assignable to type 'number'.
+server/services/runbook-management-service.ts(1151,9): error TS2353: Object literal may only specify known properties, and 'contactId' does not exist in type '{ campaignId?: number | undefined; userId?: string | undefined; subscriptionId?: number | undefined; templateId?: number | undefined; eventId?: number | undefined; }'.
+server/services/runbook-management-service.ts(1174,9): error TS2353: Object literal may only specify known properties, and 'contactId' does not exist in type '{ campaignId?: number | undefined; userId?: string | undefined; subscriptionId?: number | undefined; templateId?: number | undefined; eventId?: number | undefined; }'.
+server/services/runbook-management-service.ts(1248,11): error TS2353: Object literal may only specify known properties, and 'runbookId' does not exist in type '{ campaignId?: number | undefined; userId?: string | undefined; subscriptionId?: number | undefined; templateId?: number | undefined; eventId?: number | undefined; }'.
+server/services/s3-backup-service.ts(22,22): error TS2724: '"crypto"' has no exported member named 'createCipher'. Did you mean 'createCipheriv'?
+server/services/s3-backup-service.ts(22,36): error TS2724: '"crypto"' has no exported member named 'createDecipher'. Did you mean 'createDecipheriv'?
+server/services/s3-backup-service.ts(148,28): error TS2554: Expected 2-3 arguments, but got 0.
+server/services/s3-backup-service.ts(149,9): error TS2740: Type 'WritableStream' is missing the following properties from type 'ReadStream': close, bytesRead, path, pending, and 41 more.
+server/services/s3-backup-service.ts(149,42): error TS2345: Argument of type 'void' is not assignable to parameter of type 'WritableStream'.
+server/services/s3-backup-service.ts(191,11): error TS2322: Type '{ Tagging?: string | undefined; ServerSideEncryption?: string | undefined; SSEKMSKeyId?: string | undefined; Bucket: string; Key: string; Body: ReadStream; ContentType: string; StorageClass: string | undefined; Metadata: { ...; }; }' is not assignable to type 'PutObjectCommandInput & Partial<CreateMultipartUploadCommandInput & UploadPartCommandInput & CompleteMultipartUploadCommandInput>'.
+  Type '{ Tagging?: string | undefined; ServerSideEncryption?: string | undefined; SSEKMSKeyId?: string | undefined; Bucket: string; Key: string; Body: ReadStream; ContentType: string; StorageClass: string | undefined; Metadata: { ...; }; }' is not assignable to type 'PutObjectCommandInput'.
+    Types of property 'ServerSideEncryption' are incompatible.
+      Type 'string | undefined' is not assignable to type 'ServerSideEncryption | undefined'.
+        Type 'string' is not assignable to type 'ServerSideEncryption | undefined'.
+server/services/s3-backup-service.ts(206,46): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(input: PutObjectCommandInput): PutObjectCommand', gave the following error.
+    Argument of type '{ Tagging?: string | undefined; ServerSideEncryption?: string | undefined; SSEKMSKeyId?: string | undefined; Bucket: string; Key: string; Body: ReadStream; ContentType: string; StorageClass: string | undefined; Metadata: { ...; }; }' is not assignable to parameter of type 'PutObjectCommandInput'.
+      Types of property 'ServerSideEncryption' are incompatible.
+        Type 'string | undefined' is not assignable to type 'ServerSideEncryption | undefined'.
+          Type 'string' is not assignable to type 'ServerSideEncryption | undefined'.
+  Overload 2 of 2, '(input: PutObjectCommandInput): PutObjectCommand', gave the following error.
+    Argument of type '{ Tagging?: string | undefined; ServerSideEncryption?: string | undefined; SSEKMSKeyId?: string | undefined; Bucket: string; Key: string; Body: ReadStream; ContentType: string; StorageClass: string | undefined; Metadata: { ...; }; }' is not assignable to parameter of type 'PutObjectCommandInput'.
+      Types of property 'ServerSideEncryption' are incompatible.
+        Type 'string | undefined' is not assignable to type 'ServerSideEncryption | undefined'.
+          Type 'string' is not assignable to type 'ServerSideEncryption | undefined'.
+server/services/s3-backup-service.ts(291,30): error TS2554: Expected 2-3 arguments, but got 0.
+server/services/s3-backup-service.ts(292,9): error TS2740: Type 'WritableStream' is missing the following properties from type 'ReadableStream': readable, read, setEncoding, pause, and 7 more.
+server/services/s3-backup-service.ts(292,46): error TS2345: Argument of type 'void' is not assignable to parameter of type 'WritableStream'.
+server/services/s3-backup-service.ts(598,5): error TS2322: Type 'boolean | null' is not assignable to type 'boolean | undefined'.
+  Type 'null' is not assignable to type 'boolean | undefined'.
+server/services/synthetic-drill-service.ts(8,18): error TS2307: Cannot find module 'node-cron' or its corresponding type declarations.
+server/services/synthetic-drill-service.ts(276,7): error TS2322: Type '{ metadata: unknown; id: number; duration: number | null; status: string; failureReason: string | null; startedAt: Date | null; completedAt: Date | null; errorMessage: string | null; ... 18 more ...; testEnvironmentId: string | null; } | undefined' is not assignable to type '{ metadata: unknown; id: number; duration: number | null; status: string; failureReason: string | null; startedAt: Date | null; completedAt: Date | null; errorMessage: string | null; ... 18 more ...; testEnvironmentId: string | null; } | null'.
+  Type 'undefined' is not assignable to type '{ metadata: unknown; id: number; duration: number | null; status: string; failureReason: string | null; startedAt: Date | null; completedAt: Date | null; errorMessage: string | null; ... 18 more ...; testEnvironmentId: string | null; } | null'.
+server/services/synthetic-drill-service.ts(685,13): error TS2322: Type 'number' is not assignable to type 'string'.
+server/services/synthetic-drill-service.ts(769,9): error TS2322: Type 'number' is not assignable to type 'string'.
+server/services/synthetic-drill-service.ts(1062,15): error TS2353: Object literal may only specify known properties, and 'drillExecutionId' does not exist in type '{ campaignId?: number | undefined; userId?: string | undefined; subscriptionId?: number | undefined; templateId?: number | undefined; eventId?: number | undefined; }'.
