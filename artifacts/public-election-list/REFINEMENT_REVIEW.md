@@ -1,0 +1,11 @@
+Final bounded refinement after parent/D review; original packet unchanged.
+
+Missing-candidates accepts only a single base10 integer1..120, default60. Invalid text, empty, zero,121,fractions, repeated/bracket arrays return400 invalid_query before storage. Exact candidateCount must be a nonnegative safe integer. One strict grouped read supplies all counts; zero alone is missing. No per-race candidate queries remain. Undefined/null/negative/fractional/nonfinite/string counts refuse503 rather than invent0.
+
+Counts now compare each date to the existing electionCalendarDay(now, election.timezone): known timezone metadata is honoured; absent/unknown uses the existing UTC-11 calendar fallback. Actual Nov4 05:30Z control keeps unknown/Adak Nov3 upcoming and NY past. No new timezone inference. Known Primary/General/Special case/space variants contribute to canonical aliases without discarding uppercase data. Exact unknown type keys are retained in a null-prototype map, including __proto__/constructor, and JSON serialization preserves them.
+
+Worked:42 targeted tests;1026 whole-suite tests;fresh full typecheck0;production build0. Compiled native PostgreSQL retake27 scenarios preserves the prior15 checks and adds malformed-window/no-query controls, exact zero/one counts with one actual query, pinned election-night counts, mixed-case/unknown key counts. Original25 artifact hashes remain exact. Early refined runs are retained separately; final compiled artifact is compiled/refined-receiving.js and hashes match final native receipt. Original compiled/receiving.js remains unchanged.
+
+The first full retake failed1023/3 due repetitive native transform child processes in the test harness, which caused an own timeout/read counter leak and timing contention in an existing B performance test. Cached compilation of the two actual source registration bodies fixes the harness; no test thresholds or configuration were relaxed. Final full run passes all1026.
+
+Reproduce with the unchanged commands in REVIEW.md; the updated builder/runner uses the distinct refined compiled artifact. D owns the full production entrypoint/image retake. Only dedicated labelled, internal, no-exposed-port synthetic PostgreSQL fixtures were mutated by these checks. No shared database or D database change, no schema/package edit, and no source-manifest change.

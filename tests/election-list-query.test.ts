@@ -58,14 +58,14 @@ describe('HTTP listing contract', () => {
   it('rejects invalid filters before reading storage', async () => {
     let reads = 0;
     const app = express();
-    app.get('/api/elections', electionListHandler({ getElections: async () => { reads++; return []; } }, () => now));
+    app.get('/api/elections', electionListHandler({ getElectionsStrict: async () => { reads++; return []; } }, () => now));
     await request(app).get('/api/elections?timeframe=typo').expect(400);
     expect(reads).toBe(0);
   });
   it('reports a storage exception as unavailable instead of returning a healthy empty list', async () => {
     const app = express();
-    app.get('/api/elections', electionListHandler({ getElections: async () => { throw new Error('private connection detail'); } }, () => now));
+    app.get('/api/elections', electionListHandler({ getElectionsStrict: async () => { throw new Error('private connection detail'); } }, () => now));
     const result = await request(app).get('/api/elections').expect(503);
-    expect(result.body).toEqual({ error: 'Election listing temporarily unavailable' });
+    expect(result.body).toEqual({ error: 'Election listing temporarily unavailable', code: 'listing_unavailable' });
   });
 });

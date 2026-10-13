@@ -1,0 +1,32 @@
+{
+  "outcome": "Worked",
+  "runtimeHead": "ad40e2326b11d4bba0f3d17e1f37e5bc08416bec",
+  "basePreconditionHead": "7d5500a8be741e95fa730db3feab45360ef6ab03",
+  "targeted": {
+    "passed": 42,
+    "failed": 0
+  },
+  "wholeSuite": {
+    "passed": 1026,
+    "failed": 0
+  },
+  "fullTypecheckExit": 0,
+  "productionBuildExit": 0,
+  "nativeCompiled": {
+    "scenarios": 27,
+    "exitCodes": [
+      0,
+      0
+    ],
+    "sha256": "07d875d7748a9493d1bc377afb550437fadaf13eccdc198775a57ff8e4536d95"
+  },
+  "original25ArtifactHashesUnchanged": true,
+  "productionEntrypointRetakeOwner": "D",
+  "dbWrites": "only dedicated internal zero-port synthetic fixture; shared and D targets untouched",
+  "oldControls": [
+    "refinement-old-7d5500a-red.json:7 pass18 fail",
+    "type-count-old-red.json:25 pass1 fail",
+    "unknown-type-key-old-red.json:25 pass1 fail"
+  ],
+  "initialFullRetakeFailure": "1023 pass3 fail retained; native esbuild transform child invocations repeated perrequest caused own timeout/readcounter leak and unrelated timing threshold contention. Registration source compiles once permodule aftercache repair; final full suite1026/0 passed without thresholds/config changes."
+}

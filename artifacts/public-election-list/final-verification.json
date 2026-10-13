@@ -1,0 +1,62 @@
+{
+  "outcome": "Worked",
+  "baseHead": "a7435eb307bcde715e3e04286cc233da390c2f02",
+  "physicalNpmCi": true,
+  "dependencyJunction": false,
+  "typecheckExit": 0,
+  "buildExit": 0,
+  "targetedPassed": 22,
+  "fullPassed": 1006,
+  "fullFailed": 0,
+  "nativePostgresScenarios": 15,
+  "files": [
+    {
+      "path": "server/election-list-handler.ts",
+      "workingBytesSha256": "d516756066abd0d89f06d07c244601c465b3aeb130af99fdf7b8b9a53f34950d"
+    },
+    {
+      "path": "server/routes.ts",
+      "workingBytesSha256": "38ebbebd3dd4f34ece81149549037c9648b8353a1116df633558272c2b413801"
+    },
+    {
+      "path": "server/routes/elections.ts",
+      "workingBytesSha256": "690ed947ea61a40e41ce5ab64e3c1b48ca868817d8d230b212fb3b5c11a145c6"
+    },
+    {
+      "path": "tests/admin-lookup-real-storage.test.ts",
+      "workingBytesSha256": "b6b042cfc8666c5f86aabbc535ce58903afc63de83b20ec3e462d55be8f746ca"
+    },
+    {
+      "path": "tests/election-list-query.test.ts",
+      "workingBytesSha256": "41dcd8c08dc6bc2f28e7408c1442199cdee6adebb55c850bc6806db7bfbe4d70"
+    },
+    {
+      "path": "tests/public-election-list-real-storage.test.ts",
+      "workingBytesSha256": "f1af81461cccc74938a520790c4a6e0ea27f70349f13b9a219783a2086077da2"
+    },
+    {
+      "path": "tests/public-election-list-sweep.test.ts",
+      "workingBytesSha256": "5ae54914eba0899126ff04ce207f4de851a1f75796ac6386b6c9886df7565009"
+    },
+    {
+      "path": "scripts/build_public_election_list_receiving.mjs",
+      "workingBytesSha256": "700ff747f00d5834b6e57fe1df4f6cc10aa33009b5521d4d543ac96aa6234c0f"
+    },
+    {
+      "path": "scripts/run_public_election_list_receiving.py",
+      "workingBytesSha256": "3333d82d38df496dd4768368664a6da7eb4a9b6bf9ff82fcc00c0df66a4b7a2f"
+    },
+    {
+      "path": "scripts/verify_public_election_list.template.ts",
+      "workingBytesSha256": "dc9fe943d0b1fd3a87761d699fb2476972640bd87fd905738b26d54fe09b378e"
+    }
+  ],
+  "scope": [
+    "public main election list",
+    "search",
+    "by-location",
+    "counts",
+    "missing-candidates"
+  ],
+  "sharedDatabaseTouched": false
+}
