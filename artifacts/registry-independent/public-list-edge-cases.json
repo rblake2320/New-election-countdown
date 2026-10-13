@@ -1,0 +1,44 @@
+{
+  "head": "62511ac",
+  "counts": {
+    "status": 200,
+    "body": {
+      "total": 5,
+      "upcoming": 5,
+      "past": 0,
+      "byType": {
+        "Primary": 1,
+        "primary": 1,
+        "General": 1,
+        "general": 1,
+        "Special": 0
+      }
+    }
+  },
+  "expectedCaseInsensitive": {
+    "Primary": 2,
+    "General": 2,
+    "Special": 1
+  },
+  "candidateFailure": {
+    "status": 503,
+    "body": {
+      "code": "listing_unavailable"
+    }
+  },
+  "validEmpty": {
+    "status": 200,
+    "body": {
+      "window_days": 60,
+      "missing": [
+        {
+          "id": 1,
+          "title": "fixture",
+          "state": "WA",
+          "date": "2026-10-13T20:28:28.659Z",
+          "candidate_count": 0
+        }
+      ]
+    }
+  }
+}
