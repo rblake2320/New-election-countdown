@@ -1,0 +1,11 @@
+# Actual mixed-source HTTPS receiving
+
+Worked on production image `sha256:4fd2c2f8427c1271b3502824dce782006257b0f77a3d88524ecc936867f403f1` in a new internal-only app/PostgreSQL/proxy/browser fixture. No host ports, production credentials, shared DB access, or 5094 changes. All disposable resources removed.
+
+Firefox and WebKit at 1280 and 390 each retain 505 healthy cards plus the NC24 source error during a controlled 150-second health-row failure, then recover to 506 healthy cards. Four requests per browser/window correlate by unique RID to actual server304s during the controller's failed interval. Request and response ETags stay fixed; WebKit-observed200 bodies have identical SHA256/length throughout that interval; Firefox304 has no body. The changed body and ETag correlate specifically to the same RID's server200 AFTER the controller's recorded recovery, before the UI recovery observation. This is correlation evidence; the browser/server status discrepancy's underlying cause is not established.
+
+Mandatory strict results are `wire-strict-summary.json` and each browser's `wire-strict-verification.json`, using root `wire-app-timestamped.log`. Earlier `wire-verification.json` files were emitted by the already-running process's weaker verifier and are retained unchanged, not used as the final temporal gate. Reproduce strict audit: `node scripts/audit-mixed-browser-wire.mjs docs/evidence/et6/mixed-browser-internal/155624-654a31f1`. Fifteen verifier tests include real retained replays and negative evidence mutations: `node --test scripts/verify-browser-wire.test.mjs`.
+
+TLS14 controls pass; original HTML/CSP/security headers retained. No browser writes. Exact controlled health rows removed; protected result/profile/health digests and source-only seven-table digest769c35bb remain unchanged. Old run146988-68fd49ce stays Failed for its uncorrelated WebKit304 observation gap. No runtime/cache/security change made to pass this gate. Deployment and shared health DDL remain held.
+
+Independent adversarial review found three verifier-only false greens (cross-engine substitution, browser500, empty UI recovery). Exact engine/width/sequence, browser200/valid body identity, and506healthy recovery are now enforced; all three have refusal tests. Actual retained four-run strict results remain Worked after repair.

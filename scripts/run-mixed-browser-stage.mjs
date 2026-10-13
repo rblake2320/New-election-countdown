@@ -1,6 +1,7 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import {createHash} from 'node:crypto';
+import {verifyBrowserWire} from './verify-browser-wire.mjs';
 // Root owns the fixture. This stage owns only four exact browser container names.
 export async function runMixedBrowserStage(opts) {
   const { docker, exec, env, names, network, label, runId, dir, bundle, prep, caFile, browserImage, base, check, save, report } = opts;
@@ -52,6 +53,16 @@ export async function runMixedBrowserStage(opts) {
         return { engine, width, exit: result.exit, outDir };
       }));
       check('both mixed browsers passed ' + width, round.browsers.every(r => r.exit === 0));
+      controllerResult=await controller;
+      round.controller=JSON.parse(controllerResult.stdout.trim().split(/\r?\n/).at(-1));
+      check('controller recovered before wire join '+width,controllerResult.exit===0&&round.controller.outcome==='Worked');
+      const appLog=await docker('logs','--timestamps',names.app);await writeFile(resolve(widthDir,'wire-app.log'),appLog);
+      for(const b of round.browsers){
+        const requests=JSON.parse(await readFile(resolve(b.outDir,'requests.json'),'utf8'));
+        const timeline=JSON.parse(await readFile(resolve(b.outDir,'timeline.json'),'utf8'));
+        b.wire=verifyBrowserWire(requests.resultPolls,timeline,appLog,round.controller,{engine:b.engine,width});
+        await writeFile(resolve(b.outDir,'wire-verification.json'),JSON.stringify(b.wire,null,2));
+      }
     } catch (error) { caught = error; }
     finally {
       if (controller) {

@@ -1,0 +1,74 @@
+{
+ "playwright": "1.64.0",
+ "engine": "firefox",
+ "width": 1280,
+ "expectErrId": 24,
+ "results": [
+  {
+   "name": "first sample: >= MIN_HEALTHY healthy cards + exactly one error card with the expected id + no date-level alert",
+   "ok": true,
+   "detail": {
+    "cards": 506,
+    "errCards": [
+     24
+    ],
+    "loading": 0,
+    "healthy": 505,
+    "dateAlerts": 0
+   }
+  },
+  {
+   "name": "persistence: error + healthy cards unchanged on every sample across >= 2 /api/results poll cycles while the error was shown",
+   "ok": true,
+   "detail": {
+    "pollCyclesWhileFailing": 5
+   }
+  },
+  {
+   "name": "every /api/results poll carries an outgoing X-Request-Id (join key for the original app.log / proxy status)",
+   "ok": true,
+   "detail": {
+    "polls": 6
+   }
+  },
+  {
+   "name": "browser-observed conditional outcome recorded (informational; wire 304 is established by D joining X-Request-Id to the app log)",
+   "ok": true,
+   "detail": {
+    "browser304WithIfNoneMatch": 4,
+    "browser200WithIfNoneMatch": 1,
+    "browser200WithoutIfNoneMatch": 1
+   }
+  },
+  {
+   "name": "recovery: the error card cleared without a reload and every card is healthy",
+   "ok": true,
+   "detail": {
+    "recoveredAt": 152
+   }
+  },
+  {
+   "name": "recovery came from a reset poll: a 200 whose body hash differs from the first (failing-state) body",
+   "ok": true,
+   "detail": {
+    "distinctBodies": 2
+   }
+  },
+  {
+   "name": "no mutation attempted (rejected count 0; this page needs no sign-in)",
+   "ok": true,
+   "detail": 0
+  },
+  {
+   "name": "no page errors",
+   "ok": true,
+   "detail": []
+  },
+  {
+   "name": "every retained cookie is Secure (none is also acceptable on this public page)",
+   "ok": true,
+   "detail": 0
+  }
+ ],
+ "failing": 0
+}

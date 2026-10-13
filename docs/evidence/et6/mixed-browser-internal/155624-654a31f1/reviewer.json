@@ -1,0 +1,67 @@
+{
+  "reviewedAt": "2026-10-13T22:37:42.650Z",
+  "reviewer": "Astra independent orange_review subagent",
+  "outcome": "Worked",
+  "scope": "Read-only strict wire verifier review and retained-evidence replay; no runtime/DB/browser action",
+  "verifierSha256": "c5868250cfae9d8211ca71cc4aaf1513f7281eb76f6db133018135fcfad31145",
+  "testsSha256": "97ad9e347f0613a9b5164e74a9612617cecfaf0e1548f65c173554d83fa832b2",
+  "timestampedLogSha256": "5eea32ee3b5611d1970517e3db543b9b843e74ee461fb184fc97244abb1ab3c0",
+  "tests": {
+    "command": "node --test scripts/verify-browser-wire.test.mjs",
+    "passed": 15,
+    "failed": 0,
+    "exit": 0
+  },
+  "resolvedFindings": [
+    "Exact expected engine/width/sequence RID binding",
+    "Browser status200 with SHA256 and positive body length required for changed recovery",
+    "Recovery requires506cards/506healthy/zeroerrors/zerodatealerts"
+  ],
+  "replays": [
+    {
+      "engine": "firefox",
+      "width": 1280,
+      "outcome": "Worked",
+      "wire304Count": 4,
+      "changed200Count": 1,
+      "controllerRecoveryAt": "2026-10-13T22:32:46.001Z",
+      "changedServerTimes": [
+        "2026-10-13T22:32:54.788289908Z"
+      ]
+    },
+    {
+      "engine": "webkit",
+      "width": 1280,
+      "outcome": "Worked",
+      "wire304Count": 4,
+      "changed200Count": 1,
+      "controllerRecoveryAt": "2026-10-13T22:32:46.001Z",
+      "changedServerTimes": [
+        "2026-10-13T22:32:53.077955030Z"
+      ]
+    },
+    {
+      "engine": "firefox",
+      "width": 390,
+      "outcome": "Worked",
+      "wire304Count": 4,
+      "changed200Count": 1,
+      "controllerRecoveryAt": "2026-10-13T22:35:30.086Z",
+      "changedServerTimes": [
+        "2026-10-13T22:35:37.696383443Z"
+      ]
+    },
+    {
+      "engine": "webkit",
+      "width": 390,
+      "outcome": "Worked",
+      "wire304Count": 4,
+      "changed200Count": 1,
+      "controllerRecoveryAt": "2026-10-13T22:35:30.086Z",
+      "changedServerTimes": [
+        "2026-10-13T22:35:35.878493022Z"
+      ]
+    }
+  ],
+  "conclusion": "All four regenerated strict receipts equal independent replay. Each has four real failed-window server304 joins with stable validator/body identity and changed server200 at or after controller recovery. Correlation only; no cache-cause attribution."
+}
