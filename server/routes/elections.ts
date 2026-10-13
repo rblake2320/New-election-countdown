@@ -7,6 +7,7 @@ import { VotingIntentionsService } from "../voting-intentions";
 import { pool } from "../db";
 import { isAuthenticated } from "../auth";
 import { projectOfficialResultsForElection } from '../../shared/official-results';
+import { candidateSourceMarkers } from '../candidate-source-markers';
 
 export const electionsRouter = Router();
 
@@ -31,14 +32,6 @@ function candidateExternalIds(c: any) {
     votesmart_id: c?.votesmartId ?? c?.votesmart_id ?? null,
     fec_id: c?.fecCandidateId ?? c?.fec_candidate_id ?? null,
     bioguide_id: c?.bioguideId ?? c?.bioguide_id ?? null,
-  };
-}
-function candidateSourceMarkers(c: any) {
-  return {
-    data_source: c?.dataSource ?? c?.data_source ?? null,
-    source_status: c?.sourceStatus ?? c?.source_status ?? null,
-    ballot_status: c?.ballotStatus ?? c?.ballot_status ?? null,
-    fec_status: c?.fecStatus ?? c?.fec_status ?? null,
   };
 }
 
@@ -140,14 +133,12 @@ electionsRouter.get("/:id", async (req, res) => {
 
     const candidates = await storage.getCandidatesByElection(id);
 
+    // Same row the list returns (poll hours and their provenance included), so a race page
+    // opened directly does not lose what the card showed. `candidates` stays for older callers.
     res.json({
-      id: election.id,
-      title: election.title,
-      date: election.date,
-      state: election.state,
-      level: election.level,
-      type: election.type,
+      ...election,
       ...projectOfficialResultsForElection(election),
+      candidateCount: candidates.length,
       candidates: candidates.length
     });
   } catch (error) {

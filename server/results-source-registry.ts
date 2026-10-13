@@ -68,14 +68,14 @@ export class ResultsSourceRegistry {
     return [...this.sources.values()].filter((s) => !state || s.state === state).sort((a, b) => a.state.localeCompare(b.state) || a.id.localeCompare(b.id));
   }
 
-  /** Sources admitted to poll this race: explicit election id, or same state + same election day (+ phase when given). */
+  /** Every declared constraint must match; explicit IDs narrow the state/date/phase scope. */
   admittedFor(election: AdmissionTarget): RegisteredSource[] {
     const day = dayOf(election.date);
     return this.list().filter((s) => {
-      if (s.electionIds?.includes(election.id)) return true;
-      if (!s.electionDate || s.electionDate !== day) return false;
+      if (s.electionIds !== undefined && !s.electionIds.includes(election.id)) return false;
       if (s.state !== (election.state ?? '')) return false;
-      return !s.phase || s.phase === election.type;
+      if (s.electionDate !== undefined && s.electionDate !== day) return false;
+      return s.phase === undefined || s.phase === election.type;
     });
   }
 
