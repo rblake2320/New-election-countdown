@@ -1,7 +1,6 @@
 // scripts/parse_official_source_packet.ts
-import { createHash as createHash7 } from "node:crypto";
-import { readFileSync, realpathSync, statSync } from "node:fs";
-import { dirname, isAbsolute, relative, resolve, sep as sep2 } from "node:path";
+import { readFileSync as readFileSync2, statSync as statSync2 } from "node:fs";
+import { resolve as resolve2 } from "node:path";
 import { pathToFileURL } from "node:url";
 
 // node_modules/zod/lib/index.mjs
@@ -4381,6 +4380,11 @@ function requireContext(actual, expected) {
   }
 }
 
+// server/official-result-adapters/packet.ts
+import { createHash as createHash7 } from "node:crypto";
+import { readFileSync, realpathSync, statSync } from "node:fs";
+import { dirname, isAbsolute, relative, resolve, sep as sep2 } from "node:path";
+
 // server/official-result-adapters/bridge.ts
 import { createHash } from "node:crypto";
 var text2 = z.string().trim().min(1).max(512);
@@ -8704,7 +8708,7 @@ async function readXlsxWorkbook(bytes) {
       if (relationships.has(id2)) refuse2("Duplicate relationship");
       relationships.set(id2, rel);
     }
-    const resolve2 = (rel) => {
+    const resolve3 = (rel) => {
       const target = string(rel["@_Target"]);
       if (rel["@_TargetMode"] === "External" || target.includes("\\") || target.includes(":") || target.includes("?") || target.includes("#")) refuse2("External workbook relationship");
       const path = target.startsWith("/") ? target.slice(1) : posix.normalize("xl/" + target);
@@ -8714,7 +8718,7 @@ async function readXlsxWorkbook(bytes) {
     let strings = [];
     for (const rel of relationships.values()) if (rel["@_Type"] === "http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings") {
       if (strings.length) refuse2("Duplicate shared strings");
-      const sst = object(xml(files, resolve2(rel)).sst);
+      const sst = object(xml(files, resolve3(rel)).sst);
       if (sst["@_xmlns"] !== mainNs) refuse2("Unsupported string namespace");
       strings = list(sst.si).map(richText);
       if (strings.length > limits.cells) refuse2("Too many shared strings");
@@ -8725,7 +8729,7 @@ async function readXlsxWorkbook(bytes) {
       const spec = object(rawSheet), name = string(spec["@_name"]), rel = relationships.get(string(spec["@_r:id"]));
       if (sheetNames.has(name) || !rel || rel["@_Type"] !== "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet") refuse2("Invalid worksheet relationship");
       sheetNames.add(name);
-      const sheet = object(xml(files, resolve2(rel)).worksheet);
+      const sheet = object(xml(files, resolve3(rel)).worksheet);
       if (sheet["@_xmlns"] !== mainNs) refuse2("Unsupported worksheet namespace");
       const rows2 = [], seenRows = /* @__PURE__ */ new Set();
       for (const rawRow of list(object(sheet.sheetData).row)) {
@@ -9215,7 +9219,7 @@ function parseLaOfficialResults(votesRaw, rosterRaw, scope) {
   return result.data;
 }
 
-// scripts/parse_official_source_packet.ts
+// server/official-result-adapters/packet.ts
 var sha = z.string().regex(/^[a-f0-9]{64}$/);
 var token3 = z.string().min(1).max(256);
 var officialSourcePacketSchema = z.object({
@@ -9249,19 +9253,25 @@ function packetFile(root, path) {
   if (within === "" || within === ".." || within.startsWith(".." + sep2) || isAbsolute(within)) refuse6("PATH_REFUSED", "Packet file resolves outside packet directory");
   return actual;
 }
-async function parseOfficialSourcePacket(packetPath, expectedManifestSha256, targetInput) {
+function loadReviewedPacketBytes(packetPath, expectedManifestSha256) {
   const manifestPath = realpathSync(packetPath), root = realpathSync(dirname(manifestPath));
   const bytes = boundedFile(manifestPath, 256 * 1024);
   if (digest4(bytes) !== sha.parse(expectedManifestSha256)) refuse6("MANIFEST_HASH_MISMATCH", "Packet manifest does not match reviewed SHA256");
   const packet = officialSourcePacketSchema.parse(JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes)));
-  const target = officialTargetBindingSchema.parse(targetInput);
-  const roles = /* @__PURE__ */ new Map();
-  for (const file of packet.files) {
+  const roles = /* @__PURE__ */ new Set();
+  const files = packet.files.map((file) => {
     if (roles.has(file.role)) refuse6("DUPLICATE_ROLE", "Packet has ambiguous file roles");
-    const raw = boundedFile(packetFile(root, file.path), 32 * 1024 * 1024);
+    roles.add(file.role);
+    const resolvedPath = packetFile(root, file.path), raw = boundedFile(resolvedPath, 32 * 1024 * 1024);
     if (digest4(raw) !== file.sha256) refuse6("RAW_HASH_MISMATCH", `Raw ${file.role} differs from reviewed bytes`);
-    roles.set(file.role, { bytes: raw, url: file.url, sha256: file.sha256 });
-  }
+    return { ...file, resolvedPath, bytes: raw };
+  });
+  return { packet, manifestSha256: digest4(bytes), files };
+}
+async function parseOfficialSourcePacket(packetPath, expectedManifestSha256, targetInput) {
+  const loaded = loadReviewedPacketBytes(packetPath, expectedManifestSha256), packet = loaded.packet;
+  const target = officialTargetBindingSchema.parse(targetInput);
+  const roles = new Map(loaded.files.map((file) => [file.role, file]));
   const required = (role) => {
     const file = roles.get(role);
     if (!file) refuse6("ROLE_MISSING", `Raw ${role} absent`);
@@ -9305,25 +9315,36 @@ async function parseOfficialSourcePacket(packetPath, expectedManifestSha256, tar
   if (packet.sourceContestId !== null && parsed.sourceContestId !== packet.sourceContestId) refuse6("SOURCE_CONTEST_MISMATCH", "Actual parsed contest differs from reviewed source contest key");
   if (parsed.totalVotes !== packet.expectedTotals.totalVotes || parsed.options.length !== packet.expectedTotals.optionCount) refuse6("EXPECTED_TOTAL_MISMATCH", "Actual parsed vote/option counts differ from independently reviewed expected totals");
   const input = bridgeOfficialContest(parsed, { publisher: packet.publisher, retrievedAt, target, reviewedTarget: packet.targetBinding, reviewedContext: packet.context, reviewedBinding: packet.reviewedBinding, rawPayload: payload.bytes, rawCertificates: certificate2?.url ? [{ url: certificate2.url, sha256: certificate2.sha256, bytes: certificate2.bytes }] : [], reviewedCertification: packet.reviewedCertification });
-  return { outcome: "Worked", mode: "dry_run_only", manifestSha256: digest4(bytes), files: packet.files.map((file) => ({ role: file.role, sha256: file.sha256 })), targetBinding: target, sourceContext: parsed.context, asOfRaw: parsed.asOfRaw, identifierBasis: parsed.options.map((option) => ({ sourceLabel: option.name, basis: option.identifierBasis, optionKind: option.optionKind })), publisherMetrics: parsed.publisherMetrics, certificationEvidence: parsed.certificationEvidence, input };
+  return { outcome: "Worked", mode: "dry_run_only", manifestSha256: loaded.manifestSha256, files: packet.files.map((file) => ({ role: file.role, sha256: file.sha256 })), targetBinding: target, sourceContext: parsed.context, asOfRaw: parsed.asOfRaw, identifierBasis: parsed.options.map((option) => ({ sourceLabel: option.name, basis: option.identifierBasis, optionKind: option.optionKind })), publisherMetrics: parsed.publisherMetrics, certificationEvidence: parsed.certificationEvidence, input };
+}
+
+// scripts/parse_official_source_packet.ts
+function refuse7(code, message) {
+  throw new OfficialResultParseError(code, message);
+}
+function boundedFile2(path, limit) {
+  const info = statSync2(path);
+  if (!info.isFile() || info.size < 1 || info.size > limit) refuse7("FILE_BOUND", "Target file is missing, empty or oversized");
+  return readFileSync2(path);
 }
 async function main() {
   try {
     const args = process.argv.slice(2), get = (flag) => {
       const index = args.indexOf(flag);
-      if (index < 0 || !args[index + 1]) refuse6("CLI_ARGUMENT", "Required " + flag + " absent");
-      return args[index + 1] ?? refuse6("CLI_ARGUMENT", "Missing argument");
+      if (index < 0 || !args[index + 1]) refuse7("CLI_ARGUMENT", "Required " + flag + " absent");
+      return args[index + 1] ?? refuse7("CLI_ARGUMENT", "Missing argument");
     };
-    if (args.length !== 6 || new Set(args.filter((_, i) => i % 2 === 0)).size !== 3) refuse6("CLI_ARGUMENT", "Use --packet --sha256 --target only; no post/apply mode");
-    const target = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(boundedFile(resolve(get("--target")), 256 * 1024)));
-    console.log(JSON.stringify(await parseOfficialSourcePacket(resolve(get("--packet")), get("--sha256"), target), null, 2));
+    if (args.length !== 6 || new Set(args.filter((_, i) => i % 2 === 0)).size !== 3) refuse7("CLI_ARGUMENT", "Use --packet --sha256 --target only; no post/apply mode");
+    const target = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(boundedFile2(resolve2(get("--target")), 256 * 1024)));
+    console.log(JSON.stringify(await parseOfficialSourcePacket(resolve2(get("--packet")), get("--sha256"), target), null, 2));
   } catch (error) {
     console.log(JSON.stringify({ outcome: "Refused", mode: "dry_run_only", code: error instanceof OfficialResultParseError ? error.code : "INVALID_INPUT", message: error instanceof Error ? error.message : "Invalid input" }, null, 2));
     process.exitCode = 1;
   }
 }
-if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) await main();
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve2(process.argv[1])).href) await main();
 export {
+  loadReviewedPacketBytes,
   officialSourcePacketSchema,
   parseOfficialSourcePacket
 };

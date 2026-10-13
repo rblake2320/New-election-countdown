@@ -1,6 +1,6 @@
 {
   "outcome": "Worked",
-  "runtimeHead": "554cbef13bf1d48cedea41af030a60614da14846",
+  "runtimeHead": "608dce3d40d8f5f6cb968e10c66a53c6054f645a",
   "unitTests": 30,
   "fullTests": 929,
   "ownedStrictErrors": 0,
@@ -10,9 +10,9 @@
   "sources": [
     {
       "path": "server/official-result-adapters/bridge.ts",
-      "gitBlob": "d5030ee59e181d90104d8b465c6ada83eca561af",
-      "sha256": "6bb4452de8080dbebdf0906ec757bc6eec15b82abf1df6936e5e686fa5d62f85",
-      "bytes": 5883
+      "gitBlob": "857e28e3c4903da9a125ea01d01b2cdcfeb7db15",
+      "sha256": "d9b10c2783432732f2d0fb3dea99f9deae447013152ba36a6634a6c7a8955c8a",
+      "bytes": 5915
     },
     {
       "path": "scripts/parse_official_source_packet.ts",
@@ -70,9 +70,9 @@
     },
     {
       "path": "tests/official-source-packet.test.ts",
-      "gitBlob": "096c4c0884fd11c9127ba62b9654e09b1698056f",
-      "sha256": "005a66d9f406f0d89c7a0c8b62ff98da899fdf652dff2dda8f54c74fc6c2cb1d",
-      "bytes": 11967
+      "gitBlob": "3b0f91949aeafd8933653f584ba4f72e2672869e",
+      "sha256": "bc164566deab4dfc827da9ffb7f7f854a3b81d091049f3d06bf03c68ba7a6f8c",
+      "bytes": 12255
     }
   ],
   "packets": [
@@ -141,10 +141,10 @@
     },
     {
       "path": "artifacts/source-packet/la-manual/packet.json",
-      "sha256": "3b025a115b3e0a8e12905b2e78ba17a727291ee7da3d26df65e990bfd4474aa9",
+      "sha256": "919f6d611fffed08635eba006d7932f2f3bd7d551bed70db6d66ba1311d93354",
       "parser": "la_official",
       "sourceKind": "admin_manual",
-      "sourceId": "LA",
+      "sourceId": "admin_manual:LA",
       "targetFixtureId": 4242405,
       "context": {
         "state": "LA",
@@ -162,10 +162,10 @@
     },
     {
       "path": "artifacts/source-packet/nc-house-manual/packet.json",
-      "sha256": "32e70d9fdf4e824f0dbcbcde3dd9f96cddf46419ddc96172f6edc42aa0e6d626",
+      "sha256": "c53f3c65e9c509dc687f24c7abc25f8b02279163bc0dc09fa59b601d19777afc",
       "parser": "nc_official",
       "sourceKind": "admin_manual",
-      "sourceId": "NC",
+      "sourceId": "admin_manual:NC",
       "targetFixtureId": 4242406,
       "context": {
         "state": "NC",
@@ -183,10 +183,10 @@
     },
     {
       "path": "artifacts/source-packet/nc-manual/packet.json",
-      "sha256": "e06fbb2420621085a4b2af3b0710e5d472cd9ff5e85823f8c04616f252ddacc7",
+      "sha256": "9decfcbe3a24da3ae155928c9c03772bfc6b53abbd69fde4165d2097afdc6cca",
       "parser": "nc_official",
       "sourceKind": "admin_manual",
-      "sourceId": "NC",
+      "sourceId": "admin_manual:NC",
       "targetFixtureId": 4242404,
       "context": {
         "state": "NC",
@@ -227,12 +227,12 @@
   "artifacts": [
     {
       "path": "artifacts/source-packet/bridge-unit-results.json",
-      "sha256": "5af0eefc3c4d84940a422011f1cfefcb8f417733e2ca47fc20f4745c88c25515",
-      "bytes": 10737
+      "sha256": "20ef6d49f4205ec20b15c83680f4959f05ad8f25a448fa64da39c4c670e8b36c",
+      "bytes": 10748
     },
     {
       "path": "artifacts/source-packet/build.txt",
-      "sha256": "f387a7f18af840fd130d91bbb28fb4c9105f7cceb64f63e7f92d76008d928229",
+      "sha256": "4dd91acee78e8095c2e9f2669df29818bbfe21a1d2d9e89bd241cd6d792c619f",
       "bytes": 3735
     },
     {
@@ -267,13 +267,13 @@
     },
     {
       "path": "artifacts/source-packet/compiled-cli-receipt.json",
-      "sha256": "7d630b328fbcba310486966cb1135492f67234a7f259654f998d7bbc802b6c0f",
+      "sha256": "142df7e4a7bc3ffdd3bee5718c6330c13db954755ed0813d0e871f0ac960c439",
       "bytes": 1928
     },
     {
       "path": "artifacts/source-packet/full-unit-results.json",
-      "sha256": "3c5ff9d89c78f54cdb1cacd5fc02d9718b6f6b3d3528c3ff4863bd8afbcab39d",
-      "bytes": 354646
+      "sha256": "1a48e15abdb147fe0d3b392f7d3e26258a371fc5c4820971b3c223bd345cf33c",
+      "bytes": 354703
     },
     {
       "path": "artifacts/source-packet/full-unit-results.txt",
@@ -282,8 +282,8 @@
     },
     {
       "path": "artifacts/source-packet/la-manual/packet.json",
-      "sha256": "3b025a115b3e0a8e12905b2e78ba17a727291ee7da3d26df65e990bfd4474aa9",
-      "bytes": 2171
+      "sha256": "919f6d611fffed08635eba006d7932f2f3bd7d551bed70db6d66ba1311d93354",
+      "bytes": 2184
     },
     {
       "path": "artifacts/source-packet/la-manual/raw/LA-Jun27-races.raw.json",
@@ -307,8 +307,8 @@
     },
     {
       "path": "artifacts/source-packet/la-manual/v1-receipt.json",
-      "sha256": "c942b6cab5582039d82e7a3c75ca9cb43fb8ef48841f491a8ca6f098d96d6ae6",
-      "bytes": 3043
+      "sha256": "d1e1ed7e8f7c22883ec3172e97f3fc18fcbcbbd1b1008a145278e64fe60d2837",
+      "bytes": 3056
     },
     {
       "path": "artifacts/source-packet/linux-errors.txt",
@@ -322,13 +322,38 @@
     },
     {
       "path": "artifacts/source-packet/linux-receipt.json",
-      "sha256": "5540f60371e11be4a04c8920021e34963cbc2f76ffb6ec62d5a54d3d3b3c210b",
+      "sha256": "a5066e47114a78712ad8d4bc721f2cf5c377184d005dd96182caec0f6cbb49df",
       "bytes": 2045
     },
     {
+      "path": "artifacts/source-packet/manual-id-fix/old-LA.packet.json",
+      "sha256": "3b025a115b3e0a8e12905b2e78ba17a727291ee7da3d26df65e990bfd4474aa9",
+      "bytes": 2171
+    },
+    {
+      "path": "artifacts/source-packet/manual-id-fix/old-NC.packet.json",
+      "sha256": "e06fbb2420621085a4b2af3b0710e5d472cd9ff5e85823f8c04616f252ddacc7",
+      "bytes": 1984
+    },
+    {
+      "path": "artifacts/source-packet/manual-id-fix/old-runtime.mjs",
+      "sha256": "f5648981cac090a402d7757f6924759dbc8b931b4afd96f25361e5e07f42b7a1",
+      "bytes": 340029
+    },
+    {
+      "path": "artifacts/source-packet/manual-id-fix/retest.mjs",
+      "sha256": "275701a86fca451a820dd195be6ffbe2611586c430ce04ed578c5ca0fd1e1043",
+      "bytes": 2696
+    },
+    {
+      "path": "artifacts/source-packet/manual-id-fix/same-input-receipt.json",
+      "sha256": "b3c9339992ae20ad13a6f4e0bc73b1de1e04a0c70b3d5e079eca5c3be52a5447",
+      "bytes": 1947
+    },
+    {
       "path": "artifacts/source-packet/nc-house-manual/packet.json",
-      "sha256": "32e70d9fdf4e824f0dbcbcde3dd9f96cddf46419ddc96172f6edc42aa0e6d626",
-      "bytes": 2003
+      "sha256": "c53f3c65e9c509dc687f24c7abc25f8b02279163bc0dc09fa59b601d19777afc",
+      "bytes": 2016
     },
     {
       "path": "artifacts/source-packet/nc-house-manual/raw/NC-primary-counties.txt",
@@ -352,13 +377,13 @@
     },
     {
       "path": "artifacts/source-packet/nc-house-manual/v1-receipt.json",
-      "sha256": "b7274b563683e58f6ae3424a59368bad423d713d34823693dbba18026cf124e5",
-      "bytes": 3880
+      "sha256": "2c310ac58afc27cf728ce8664a5db63aa47c9b276cb18d9bdd33abc7ab41cc3d",
+      "bytes": 3893
     },
     {
       "path": "artifacts/source-packet/nc-manual/packet.json",
-      "sha256": "e06fbb2420621085a4b2af3b0710e5d472cd9ff5e85823f8c04616f252ddacc7",
-      "bytes": 1984
+      "sha256": "9decfcbe3a24da3ae155928c9c03772bfc6b53abbd69fde4165d2097afdc6cca",
+      "bytes": 1997
     },
     {
       "path": "artifacts/source-packet/nc-manual/raw/NC-primary-counties.txt",
@@ -382,23 +407,23 @@
     },
     {
       "path": "artifacts/source-packet/nc-manual/v1-receipt.json",
-      "sha256": "e87a654b0cca79f5fd07fef48f31b362802ab60ec9ffb0191ef99038dd102bc4",
-      "bytes": 4205
+      "sha256": "abce2e57c952ed4a5669982ad02a562eef729c973956c13a091c059302cf511e",
+      "bytes": 4218
     },
     {
       "path": "artifacts/source-packet/parse_official_source_packet.mjs",
-      "sha256": "f5648981cac090a402d7757f6924759dbc8b931b4afd96f25361e5e07f42b7a1",
-      "bytes": 340029
+      "sha256": "0c99f5a0439efa942827a95a1a513067ac5c5c5d44c57c03b1bf0858b8863a64",
+      "bytes": 340061
     },
     {
       "path": "artifacts/source-packet/REGISTRY.md",
-      "sha256": "f37378fe3d7daf46d442dfce9d4ae15c3a8c7aa21a10cefbde15f7667144bbfc",
-      "bytes": 814
+      "sha256": "748cd58634b753275a38b9065026747997860c24863af73f8106f936764f18ed",
+      "bytes": 1480
     },
     {
       "path": "artifacts/source-packet/REVIEW.md",
-      "sha256": "e967a971ed82eb62f211f4dc1193560bd48f38b63301a62345e40db593bc1384",
-      "bytes": 5422
+      "sha256": "e4a09a241daa8f727a17de3285af6935a021ba4ca317e7c89d5c51244c4c0fbb",
+      "bytes": 6320
     },
     {
       "path": "artifacts/source-packet/scoped-types.txt",
