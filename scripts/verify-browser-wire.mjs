@@ -24,6 +24,12 @@ export function verifyBrowserWire(polls,timeline,log,controller,expected){
  if(Date.parse(initial.wireAt)<start||Date.parse(initial.wireAt)>=recovery)throw Error('Original snapshot outside fault window');
  const held=joined.filter(p=>Date.parse(p.wireAt)>=start&&Date.parse(p.wireAt)<recovery&&p.wireStatus===304);
  if(held.length!==4)throw Error('Expected exactly four correlated wire304s during fault window; found '+held.length);
+ // Browser-relative times share the poll clock. Anchor the first failed UI
+ // between the initial failed snapshot and its first unchanged held poll.
+ // Every recorded state before recovery must preserve the exact partial UI.
+ const failedStates=timeline.filter(row=>row.t<recovered.t);
+ const exactFailed=row=>row.cards===506&&row.healthy===505&&row.loading===0&&row.dateAlerts===0&&Array.isArray(row.errCards)&&row.errCards.length===1&&row.errCards[0]===24;
+ if(!failedStates.length||!failedStates.every(exactFailed)||failedStates[0].t<initial.t||failedStates[0].t>held[0].t)throw Error('Missing or incorrect failed UI during held window');
  for(const p of held){
   if(p.t>=recovered.t||p.ifNoneMatch!=='sent'||p.ifNoneMatchValue!==initial.responseEtag||p.responseEtag!==initial.responseEtag)throw Error('Unstable failed-window validator');
   if(p.status===200?(p.bodySha256!==initial.bodySha256||p.bodyBytes!==initial.bodyBytes):(p.status!==304||p.bodySha256!==null))throw Error('Unstable failed-window body identity');

@@ -19,3 +19,12 @@ test('reject recovered body joined to server304',()=>{const p=packet();const rid
 test('reject cross-engine RID substitution',()=>{const p=packet('firefox');p[0][1]=packet('webkit')[0][1];assert.throws(()=>verifyBrowserWire(...p),/Wrong engine/);});
 test('reject recovered browser500',()=>{const p=packet();p[0].at(-1).status=500;assert.throws(()=>verifyBrowserWire(...p),/changed wire200/);});
 test('reject empty UI as recovery',()=>{const p=packet();p[1].at(-1).cards=0;p[1].at(-1).healthy=0;assert.throws(()=>verifyBrowserWire(...p),/No browser recovery/);});
+
+for(const [name,mutate] of [
+ ['never observed failed UI',row=>{row.healthy=506;row.errCards=[];}],
+ ['wrong failed race',row=>{row.errCards=[25];}],
+ ['wrong failed healthy count',row=>{row.healthy=504;}],
+ ['wrong failed total count',row=>{row.cards=505;}],
+ ['loading instead of failed UI',row=>{row.loading=1;}],
+ ['failed UI observed after hold polls',row=>{row.t=130;}],
+])test('reject '+name,()=>{const p=packet();mutate(p[1][0]);assert.throws(()=>verifyBrowserWire(...p),/failed UI/);});
