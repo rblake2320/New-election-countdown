@@ -2,7 +2,10 @@ import { Router } from "express";
 import { storage, type IStorage } from "../storage";
 import { civicAggregatorService } from "../civic-aggregator-service";
 import { voteSmartService, type VoteSmartBio, type VoteSmartPosition, type VoteSmartVotingRecord, type VoteSmartRating } from "../services/votesmart-service";
-import { calculateAdvancedPoliticalLeaning } from "../lib/political-analysis.js";
+import { registerElectionIntegrityRoutes } from "../election-integrity-routes";
+import { VotingIntentionsService } from "../voting-intentions";
+import { pool } from "../db";
+import { isAuthenticated } from "../auth";
 import { projectOfficialResultsForElection } from '../../shared/official-results';
 import { candidateSourceMarkers } from '../candidate-source-markers';
 
@@ -12,81 +15,15 @@ export const electionsRouter = Router();
 // POLITICAL ANALYSIS ENDPOINTS
 // =============================================================================
 
-// Get political analysis for an election
-electionsRouter.get("/:id/political-analysis", async (req, res) => {
-  try {
-    const id = Number(req.params.id);
-    if (!Number.isInteger(id) || id <= 0) {
-      return res.status(400).json({ error: "Invalid election ID" });
-    }
-
-    // Get election data
-    const election = await storage.getElection(id);
-    if (!election) {
-      return res.status(404).json({ error: "Election not found" });
-    }
-
-    // Get candidates
-    const candidatesData = await storage.getCandidatesByElection(id);
-
-    // For now, simulate polling and momentum data since database tables aren't available yet
-    // This will be replaced with real data once the database is properly configured
-    let currentPolling = undefined;
-    let momentum = undefined;
-    let userIntentions = undefined;
-
-    // TODO: Replace with actual database queries once tables are created
-    // In the future, this will pull from pollingData, politicalMomentum, and userVotingIntentions tables
-
-    // Calculate political analysis using baseline + candidate data
-    const analysis = calculateAdvancedPoliticalLeaning(
-      election.state,
-      candidatesData,
-      currentPolling,
-      momentum,
-      userIntentions
-    );
-
-    res.json({
-      ...analysis,
-      lastUpdated: new Date(),
-    });
-  } catch (error) {
-    console.error('Political analysis error:', error);
-    res.status(500).json({ error: "Failed to calculate political analysis" });
-  }
+registerElectionIntegrityRoutes(electionsRouter, {
+  getElection: id => storage.getElection(id),
+  authenticate: isAuthenticated,
+  actor: req => { const id: unknown = Reflect.get(req, "userId"); return typeof id === "string" && id.length > 0 ? id : null; },
+  intentions: new VotingIntentionsService(pool),
 });
 
-// Submit user voting intention (stores in memory for now)
-electionsRouter.post("/:id/voting-intention", async (req, res) => {
-  try {
-    const id = Number(req.params.id);
-    if (!Number.isInteger(id) || id <= 0) {
-      return res.status(400).json({ error: "Invalid election ID" });
-    }
+// Existing election and candidate readers
 
-    const { candidateId, partyPreference, confidence = 'medium' } = req.body;
-
-    // Validate election exists
-    const election = await storage.getElection(id);
-    if (!election) {
-      return res.status(404).json({ error: "Election not found" });
-    }
-
-    // For now, just acknowledge the intention
-    // TODO: Store in userVotingIntentions table once database is configured
-    console.log(`Voting intention received for election ${id}: ${partyPreference}`);
-
-    res.json({ success: true, message: "Voting intention recorded successfully" });
-  } catch (error) {
-    console.error('Voting intention error:', error);
-    res.status(500).json({ error: "Failed to record voting intention" });
-  }
-});
-
-// =============================================================================
-// EXISTING ENDPOINTS
-// =============================================================================
 
 // Candidate rows come from Drizzle (camelCase) or raw SQL (snake_case); read both so
 // FEC identity and source markers survive the enrichment projection.
