@@ -1,0 +1,207 @@
+{
+  "pin": "ad40e23",
+  "worked": true,
+  "mixedCase": {
+    "status": 200,
+    "body": {
+      "total": 5,
+      "upcoming": 5,
+      "past": 0,
+      "byType": {
+        "Primary": 2,
+        "primary": 1,
+        "General": 2,
+        "general": 1,
+        "Special": 1
+      }
+    },
+    "strictReads": 1,
+    "candidateReads": 0
+  },
+  "calendar": {
+    "status": 200,
+    "body": {
+      "total": 3,
+      "upcoming": 2,
+      "past": 1,
+      "byType": {
+        "general": 3,
+        "Primary": 0,
+        "General": 3,
+        "Special": 0
+      }
+    },
+    "strictReads": 1,
+    "candidateReads": 0
+  },
+  "invalid": [
+    {
+      "status": 400,
+      "body": {
+        "error": "window must be a single integer from 1 to 120",
+        "code": "invalid_query"
+      },
+      "strictReads": 0,
+      "candidateReads": 0
+    },
+    {
+      "status": 400,
+      "body": {
+        "error": "window must be a single integer from 1 to 120",
+        "code": "invalid_query"
+      },
+      "strictReads": 0,
+      "candidateReads": 0
+    },
+    {
+      "status": 400,
+      "body": {
+        "error": "window must be a single integer from 1 to 120",
+        "code": "invalid_query"
+      },
+      "strictReads": 0,
+      "candidateReads": 0
+    },
+    {
+      "status": 400,
+      "body": {
+        "error": "window must be a single integer from 1 to 120",
+        "code": "invalid_query"
+      },
+      "strictReads": 0,
+      "candidateReads": 0
+    },
+    {
+      "status": 400,
+      "body": {
+        "error": "window must be a single integer from 1 to 120",
+        "code": "invalid_query"
+      },
+      "strictReads": 0,
+      "candidateReads": 0
+    },
+    {
+      "status": 400,
+      "body": {
+        "error": "window must be a single integer from 1 to 120",
+        "code": "invalid_query"
+      },
+      "strictReads": 0,
+      "candidateReads": 0
+    },
+    {
+      "status": 400,
+      "body": {
+        "error": "window must be a single integer from 1 to 120",
+        "code": "invalid_query"
+      },
+      "strictReads": 0,
+      "candidateReads": 0
+    },
+    {
+      "status": 400,
+      "body": {
+        "error": "window must be a single integer from 1 to 120",
+        "code": "invalid_query"
+      },
+      "strictReads": 0,
+      "candidateReads": 0
+    },
+    {
+      "status": 400,
+      "body": {
+        "error": "window must be a single integer from 1 to 120",
+        "code": "invalid_query"
+      },
+      "strictReads": 0,
+      "candidateReads": 0
+    },
+    {
+      "status": 400,
+      "body": {
+        "error": "window must be a single integer from 1 to 120",
+        "code": "invalid_query"
+      },
+      "strictReads": 0,
+      "candidateReads": 0
+    }
+  ],
+  "singleQuery": {
+    "status": 200,
+    "body": {
+      "window_days": 60,
+      "missing": [
+        {
+          "id": 1,
+          "title": "fixture",
+          "state": "WA",
+          "date": "2026-11-04T05:30:00.000Z",
+          "candidate_count": 0
+        }
+      ]
+    },
+    "strictReads": 1,
+    "candidateReads": 0
+  },
+  "boundaries": [
+    {
+      "status": 200,
+      "body": {
+        "window_days": 1,
+        "missing": [
+          {
+            "id": 1,
+            "title": "fixture",
+            "state": "WA",
+            "date": "2026-11-04T05:30:00.000Z",
+            "candidate_count": 0
+          }
+        ]
+      },
+      "strictReads": 1,
+      "candidateReads": 0
+    },
+    {
+      "status": 200,
+      "body": {
+        "window_days": 120,
+        "missing": [
+          {
+            "id": 1,
+            "title": "fixture",
+            "state": "WA",
+            "date": "2026-11-04T05:30:00.000Z",
+            "candidate_count": 0
+          }
+        ]
+      },
+      "strictReads": 1,
+      "candidateReads": 0
+    },
+    {
+      "status": 200,
+      "body": {
+        "window_days": 60,
+        "missing": [
+          {
+            "id": 1,
+            "title": "fixture",
+            "state": "WA",
+            "date": "2026-11-04T05:30:00.000Z",
+            "candidate_count": 0
+          }
+        ]
+      },
+      "strictReads": 1,
+      "candidateReads": 0
+    }
+  ],
+  "invalidCount": {
+    "status": 503,
+    "body": {
+      "code": "listing_unavailable"
+    },
+    "strictReads": 1,
+    "candidateReads": 0
+  }
+}
