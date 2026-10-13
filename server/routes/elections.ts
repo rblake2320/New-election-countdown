@@ -7,6 +7,7 @@ import { projectOfficialResultsForElection } from '../../shared/official-results
 import { candidateSourceMarkers } from '../candidate-source-markers';
 
 import { sendElectionListingUnavailable } from '../election-list-handler';
+import { electionCalendarDay } from '../election-list-filters';
 
 export const electionsRouter = Router();
 
@@ -168,16 +169,23 @@ electionsRouter.get("/counts", async (req, res) => {
     // Calculate upcoming/past from all elections
     const now = new Date();
     const allElections = await storage.getElectionsStrict();
-    const upcoming = allElections.filter(e => new Date(e.date) >= now).length;
-    const past = allElections.filter(e => new Date(e.date) < now).length;
+    const upcoming = allElections.filter(e => new Date(e.date) >= electionCalendarDay(now, e.timezone)).length;
+    const past = allElections.length - upcoming;
 
-    const byType: Record<string, number> = {};
-    for (const election of allElections) byType[election.type] = (byType[election.type] ?? 0) + 1;
+    const byType: Record<string, number> = Object.create(null);
+    const standardTypes: Record<'Primary' | 'General' | 'Special', number> = { Primary: 0, General: 0, Special: 0 };
+    for (const election of allElections) {
+      byType[election.type] = (byType[election.type] ?? 0) + 1;
+      const type = election.type.trim().toLowerCase();
+      if (type === 'primary') standardTypes.Primary++;
+      else if (type === 'general') standardTypes.General++;
+      else if (type === 'special') standardTypes.Special++;
+    }
     res.json({
       total: allElections.length,
       upcoming: upcoming,
       past: past,
-      byType: { ...byType, Primary: byType.primary ?? 0, General: byType.general ?? 0, Special: byType.special ?? 0 }
+      byType: { ...byType, ...standardTypes }
     });
   } catch (error) {
     console.error("Error fetching election counts:", error);
@@ -188,7 +196,12 @@ electionsRouter.get("/counts", async (req, res) => {
 // List elections in next X days missing candidates
 electionsRouter.get('/missing-candidates', async (req, res) => {
   try {
-    const window = Math.max(1, Math.min(120, Number(req.query.window ?? 60)));
+    const rawWindow = req.query.window;
+    if (Object.keys(req.query).some(key => key.startsWith('window[')) ||
+        (rawWindow !== undefined && (typeof rawWindow !== 'string' || !/^[1-9]\d{0,2}$/.test(rawWindow) || Number(rawWindow) > 120))) {
+      return res.status(400).json({ error: 'window must be a single integer from 1 to 120', code: 'invalid_query' });
+    }
+    const window = rawWindow === undefined ? 60 : Number(rawWindow);
 
     // Get all elections and filter by date range
     const allElections = await storage.getElectionsStrict();
@@ -201,11 +214,13 @@ electionsRouter.get('/missing-candidates', async (req, res) => {
       return electionDate >= startDate && electionDate <= endDate;
     });
 
-    // Check each election for candidates
+    // The strict grouped listing already contains exact all-candidate counts.
     const missingCandidates: Array<{ id: number; title: string; state: string; date: Date; candidate_count: number }> = [];
     for (const election of electionsInWindow) {
-      const candidates = await storage.getCandidatesByElection(election.id);
-      if (candidates.length === 0) {
+      if (!Number.isSafeInteger(election.candidateCount) || election.candidateCount < 0) {
+        throw new Error('Election candidate count is unavailable');
+      }
+      if (election.candidateCount === 0) {
         missingCandidates.push({
           id: election.id,
           title: election.title,

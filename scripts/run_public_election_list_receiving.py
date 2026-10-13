@@ -19,10 +19,10 @@ try:
  assert inspect['Config']['Labels']['org.electiontracker.owner']=='sol-c-public-list-fault-20261013'
  results=[]
  for mode,port in [('fault-recovery','5432'),('refusal','1')]:
-  args=['docker','run','--rm','--network',net,'--entrypoint','node','-e',f'DATABASE_URL=postgresql://sol_fixture@{db}:{port}/sol_public_list_fixture','-e',f'OWNED_LIST_FIXTURE_HOST={db}','-e','OWNED_LIST_FIXTURE_LABEL=sol-c-public-list-fault-20261013','--mount',f'type=bind,source={e / "compiled/receiving.js"},target=/app/list-receiving.js,readonly','--mount',f'type=bind,source={e},target=/evidence',image,'/app/list-receiving.js']
-  r=run(args,False);(e/(mode+'-runtime.log')).write_text(r.stdout+'\n'+r.stderr,encoding='utf8');results.append({'mode':mode,'exitCode':r.returncode})
+  args=['docker','run','--rm','--network',net,'--entrypoint','node','-e',f'DATABASE_URL=postgresql://sol_fixture@{db}:{port}/sol_public_list_fixture','-e',f'OWNED_LIST_FIXTURE_HOST={db}','-e','OWNED_LIST_FIXTURE_LABEL=sol-c-public-list-fault-20261013','--mount',f'type=bind,source={e / "compiled/refined-receiving.js"},target=/app/list-receiving.js,readonly','--mount',f'type=bind,source={e},target=/evidence',image,'/app/list-receiving.js']
+  r=run(args,False);(e/('refined-'+mode+'-runtime.log')).write_text(r.stdout+'\n'+r.stderr,encoding='utf8');results.append({'mode':mode,'exitCode':r.returncode})
   if r.returncode:raise RuntimeError('compiled receiving '+mode+' failed; retained runtime log')
- (e/'owned-postgres-run.json').write_text(json.dumps({'outcome':'Worked','imageId':image,'nativePostgresImage':inspect['Image'],'databaseName':'sol_public_list_fixture','ownerLabel':'sol-c-public-list-fault-20261013','hostPortsExposed':False,'sharedDatabaseTouched':False,'compiledSha256':hashlib.sha256((e/'compiled/receiving.js').read_bytes()).hexdigest(),'runs':results},indent=2)+'\n',encoding='utf8')
+ (e/'refined-owned-postgres-run.json').write_text(json.dumps({'outcome':'Worked','imageId':image,'nativePostgresImage':inspect['Image'],'databaseName':'sol_public_list_fixture','ownerLabel':'sol-c-public-list-fault-20261013','hostPortsExposed':False,'sharedDatabaseTouched':False,'compiledSha256':hashlib.sha256((e/'compiled/refined-receiving.js').read_bytes()).hexdigest(),'runs':results},indent=2)+'\n',encoding='utf8')
  print(json.dumps({'outcome':'Worked','runs':results,'hostPortsExposed':False}))
 finally:
  if created:
