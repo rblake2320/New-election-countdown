@@ -9,6 +9,8 @@ import { isAuthenticated } from "../auth";
 import { projectOfficialResultsForElection } from '../../shared/official-results';
 import { candidateSourceMarkers } from '../candidate-source-markers';
 
+import { sendElectionListingUnavailable } from '../election-list-handler';
+
 export const electionsRouter = Router();
 
 // =============================================================================
@@ -100,23 +102,68 @@ electionsRouter.get("/candidates-by-ids", async (req, res) => {
 // Add counts endpoint first
 electionsRouter.get("/counts", async (req, res) => {
   try {
-    const stats = await storage.getElectionStats();
-
     // Calculate upcoming/past from all elections
     const now = new Date();
-    const allElections = await storage.getElections();
+    const allElections = await storage.getElectionsStrict();
     const upcoming = allElections.filter(e => new Date(e.date) >= now).length;
     const past = allElections.filter(e => new Date(e.date) < now).length;
 
+    const byType: Record<string, number> = {};
+    for (const election of allElections) byType[election.type] = (byType[election.type] ?? 0) + 1;
     res.json({
-      total: stats.total,
+      total: allElections.length,
       upcoming: upcoming,
       past: past,
-      byType: stats.byType
+      byType: { ...byType, Primary: byType.primary ?? 0, General: byType.general ?? 0, Special: byType.special ?? 0 }
     });
   } catch (error) {
     console.error("Error fetching election counts:", error);
-    res.status(500).json({ error: "Failed to fetch counts" });
+    sendElectionListingUnavailable(res);
+  }
+});
+
+// List elections in next X days missing candidates
+electionsRouter.get('/missing-candidates', async (req, res) => {
+  try {
+    const window = Math.max(1, Math.min(120, Number(req.query.window ?? 60)));
+
+    // Get all elections and filter by date range
+    const allElections = await storage.getElectionsStrict();
+    const now = new Date();
+    const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // 7 days ago
+    const endDate = new Date(now.getTime() + window * 24 * 60 * 60 * 1000); // window days from now
+
+    const electionsInWindow = allElections.filter(election => {
+      const electionDate = new Date(election.date);
+      return electionDate >= startDate && electionDate <= endDate;
+    });
+
+    // Check each election for candidates
+    const missingCandidates: Array<{ id: number; title: string; state: string; date: Date; candidate_count: number }> = [];
+    for (const election of electionsInWindow) {
+      const candidates = await storage.getCandidatesByElection(election.id);
+      if (candidates.length === 0) {
+        missingCandidates.push({
+          id: election.id,
+          title: election.title,
+          state: election.state,
+          date: election.date,
+          candidate_count: 0
+        });
+      }
+    }
+
+    // Sort by date ASC, then state ASC
+    missingCandidates.sort((a, b) => {
+      const dateComparison = new Date(a.date).getTime() - new Date(b.date).getTime();
+      if (dateComparison !== 0) return dateComparison;
+      return a.state.localeCompare(b.state);
+    });
+
+    res.json({ window_days: window, missing: missingCandidates });
+  } catch (error) {
+    console.error("Error fetching missing candidates:", error);
+    sendElectionListingUnavailable(res);
   }
 });
 
@@ -508,47 +555,3 @@ electionsRouter.get("/:electionId/candidates/:candidateId", async (req, res) => 
   }
 });
 
-// List elections in next X days missing candidates
-electionsRouter.get('/missing-candidates', async (req, res) => {
-  try {
-    const window = Math.max(1, Math.min(120, Number(req.query.window ?? 60)));
-
-    // Get all elections and filter by date range
-    const allElections = await storage.getElections();
-    const now = new Date();
-    const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // 7 days ago
-    const endDate = new Date(now.getTime() + window * 24 * 60 * 60 * 1000); // window days from now
-
-    const electionsInWindow = allElections.filter(election => {
-      const electionDate = new Date(election.date);
-      return electionDate >= startDate && electionDate <= endDate;
-    });
-
-    // Check each election for candidates
-    const missingCandidates: Array<{ id: number; title: string; state: string; date: Date; candidate_count: number }> = [];
-    for (const election of electionsInWindow) {
-      const candidates = await storage.getCandidatesByElection(election.id);
-      if (candidates.length === 0) {
-        missingCandidates.push({
-          id: election.id,
-          title: election.title,
-          state: election.state,
-          date: election.date,
-          candidate_count: 0
-        });
-      }
-    }
-
-    // Sort by date ASC, then state ASC
-    missingCandidates.sort((a, b) => {
-      const dateComparison = new Date(a.date).getTime() - new Date(b.date).getTime();
-      if (dateComparison !== 0) return dateComparison;
-      return a.state.localeCompare(b.state);
-    });
-
-    res.json({ window_days: window, missing: missingCandidates });
-  } catch (error) {
-    console.error("Error fetching missing candidates:", error);
-    res.status(500).json({ error: "Failed to fetch missing candidates" });
-  }
-});

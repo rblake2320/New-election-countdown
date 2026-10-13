@@ -1,0 +1,11 @@
+import {build} from 'esbuild';
+import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
+const source=readFileSync('server/routes.ts','utf8');
+const registration=(start)=>{const at=source.indexOf(start);return source.slice(at,source.indexOf('\n  });',at)+8);};
+const old=execFileSync('git',['show','a7435eb307bcde715e3e04286cc233da390c2f02:server/election-list-handler.ts'],{encoding:'utf8'});
+const oldFunction=old.slice(old.indexOf('export function')).replace('export function electionListHandler','function oldElectionListHandler');
+const input=readFileSync('scripts/verify_public_election_list.template.ts','utf8').replace('/* ACTUAL_SEARCH_REGISTRATION */',registration('  // Enhanced election search with AI')).replace('/* ACTUAL_LOCATION_REGISTRATION */',registration('  app.get("/api/elections-by-location"')).replace('/* IMMUTABLE_OLD_HANDLER */',oldFunction);
+mkdirSync('artifacts/public-election-list/compiled',{recursive:true});
+writeFileSync('scripts/.verify_public_election_list.generated.ts',input);
+await build({entryPoints:['scripts/.verify_public_election_list.generated.ts'],outfile:'artifacts/public-election-list/compiled/receiving.js',platform:'node',packages:'external',bundle:true,format:'esm',define:{'process.env.NODE_ENV':'"production"'},tsconfigRaw:{compilerOptions:{target:'ES2022',useDefineForClassFields:true,baseUrl:'.',paths:{'@shared/*':['shared/*']}}}});
