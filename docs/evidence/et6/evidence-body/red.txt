@@ -1,0 +1,98 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.3 [39m[90m/app[39m
+
+[90mstdout[2m | tests/unit/results-evidence-body.test.ts[2m > [22m[2mproduction body parsers composed with the evidence route over HTTP[2m > [22m[2mretains the exact official JSON bytes and hash, and repeats idempotently
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-evidence-body.test.ts[2m > [22m[2mproduction body parsers composed with the evidence route over HTTP[2m > [22m[2muses the same case-insensitive and optional-trailing-slash route matching as Express
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-evidence-body.test.ts[2m > [22m[2mproduction body parsers composed with the evidence route over HTTP[2m > [22m[2maccepts JSON evidence above the normal JSON parser limit up to exactly 10 MB
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-evidence-body.test.ts[2m > [22m[2mproduction body parsers composed with the evidence route over HTTP[2m > [22m[2mkeeps media and empty-body errors, without storing rejected bytes
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-evidence-body.test.ts[2m > [22m[2mproduction body parsers composed with the evidence route over HTTP[2m > [22m[2mstill applies authentication, admin authorization, and the real database write guard
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+[90mstdout[2m | tests/unit/results-evidence-body.test.ts[2m > [22m[2mproduction body parsers composed with the evidence route over HTTP[2m > [22m[2mstill applies authentication, admin authorization, and the real database write guard
+[22m[39m🚫 Blocked POST /admin/results-evidence - Database unhealthy
+
+[90mstdout[2m | tests/unit/results-evidence-body.test.ts[2m > [22m[2mproduction body parsers composed with the evidence route over HTTP[2m > [22m[2mpreserves normal JSON parsing, webhook rawBody, urlencoded forms and the ordinary JSON limit
+[22m[39mMemStorage initialized empty (failover cache; database is source of truth)
+
+ [31m❯[39m tests/unit/results-evidence-body.test.ts [2m([22m[2m6 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[33m 449[2mms[22m[39m
+   [31m❯[39m production body parsers composed with the evidence route over HTTP [2m(6)[22m
+[31m     [31m×[31m retains the exact official JSON bytes and hash, and repeats idempotently[39m[32m 139[2mms[22m[39m
+[31m     [31m×[31m uses the same case-insensitive and optional-trailing-slash route matching as Express[39m[32m 33[2mms[22m[39m
+[31m     [31m×[31m accepts JSON evidence above the normal JSON parser limit up to exactly 10 MB[39m[32m 172[2mms[22m[39m
+     [32m✓[39m keeps media and empty-body errors, without storing rejected bytes[32m 18[2mms[22m[39m
+     [32m✓[39m still applies authentication, admin authorization, and the real database write guard[32m 27[2mms[22m[39m
+     [32m✓[39m preserves normal JSON parsing, webhook rawBody, urlencoded forms and the ordinary JSON limit[32m 23[2mms[22m[39m
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/results-evidence-body.test.ts > production body parsers composed with the evidence route over HTTP > retains the exact official JSON bytes and hash, and repeats idempotently
+AssertionError: {"error":"Empty evidence body","code":"empty_evidence"}: expected 400 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 400
+
+ ❯ tests/unit/results-evidence-body.test.ts:55:70
+     53|     expect(createHash('sha256').update(official).digest('hex')).toBe(s…
+     54|     const first = await post(official);
+     55|     expect(first.status, JSON.stringify(await first.clone().json())).t…
+       |                                                                      ^
+     56|     expect(await first.json()).toMatchObject({ sha256: sha, size: 6321…
+     57|     expect(persist).toHaveBeenCalledWith(official, 'application/json',…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/unit/results-evidence-body.test.ts > production body parsers composed with the evidence route over HTTP > uses the same case-insensitive and optional-trailing-slash route matching as Express
+AssertionError: expected 400 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 400
+
+ ❯ tests/unit/results-evidence-body.test.ts:62:119
+     60|
+     61|   it('uses the same case-insensitive and optional-trailing-slash route…
+     62|     expect((await post(official, 'application/json; charset=utf-8', '/…
+       |                                                                                                                       ^
+     63|   });
+     64|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/unit/results-evidence-body.test.ts > production body parsers composed with the evidence route over HTTP > accepts JSON evidence above the normal JSON parser limit up to exactly 10 MB
+AssertionError: expected 413 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 413
+
+ ❯ tests/unit/results-evidence-body.test.ts:68:29
+
+     66|     const bytes = Buffer.concat([official, Buffer.alloc(EVIDENCE_MAX_B…
+     67|     const accepted = await post(bytes);
+     68|     expect(accepted.status).toBe(201);
+       |                             ^
+     69|     expect((await accepted.json()).size).toBe(EVIDENCE_MAX_BYTES);
+     70|     const refused = await post(Buffer.concat([bytes, Buffer.from(' ')]…
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m3 failed[39m[22m[2m | [22m[1m[32m3 passed[39m[22m[90m (6)[39m
+[2m   Start at [22m 17:14:35
+[2m   Duration [22m 3.42s[2m (import 35%, environment 23%, transform 19%, tests 15%, setup 8%, worker 1%)[22m
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
