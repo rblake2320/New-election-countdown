@@ -59,6 +59,16 @@ describe('NC real official raw JSON', () => {
   it.each(['-1','NaN','1.2','9007199254740992'])('refuses hostile vote count %s',value=>{const raw=mutate(ncVotes,v=>v.find((r:any)=>r.gid==='2147'&&r.lid==='2147').vct=value);refuses(()=>parseNcOfficialResults(raw,ncCounty,{...ncScope,resultsSha256:hash(raw)}),'INVALID_COUNT');});
   it('refuses inconsistent vote-method totals',()=>{const raw=mutate(ncVotes,v=>v.find((r:any)=>r.gid==='2147'&&r.lid==='2147').evc='1');refuses(()=>parseNcOfficialResults(raw,ncCounty,{...ncScope,resultsSha256:hash(raw)}),'VOTE_TOTAL_MISMATCH');});
   it('does not reuse statewide reporting percent for actual House district',()=>{const result=parseNcOfficialResults(ncVotes,ncCounty,{...ncScope,sourceContestId:'2107',localContestId:'2107',context:{...ncScope.context,office:'U.S. House',district:'01',party:'REP'}});expect(result.reporting?.precinctsTotal).toBe(292);expect(result.reporting?.percent).toBeNull();});
+  it('actual House01 five choices match independently retained25county original ZIP sums',()=>{
+    const csv=fixture('NC-20260303-House01-REP-county-totals.csv').toString('utf8').trim().split(/\r?\n/).slice(1);
+    const sums=new Map<string,number>(),counties=new Set<string>();
+    for(const line of csv){const fields=line.split(',');expect(fields).toHaveLength(3);counties.add(fields[0]);sums.set(fields[1],(sums.get(fields[1])??0)+Number(fields[2]));}
+    expect(counties.size).toBe(25);expect(csv).toHaveLength(125);
+    const result=parseNcOfficialResults(ncVotes,ncCounty,{...ncScope,sourceContestId:'2107',localContestId:'2107',context:{...ncScope.context,office:'U.S. House',district:'01',party:'REP'}});
+    expect(result.options).toHaveLength(5);expect(result.totalVotes).toBe(67376);
+    expect(Object.fromEntries(result.options.map(r=>[r.name,r.votes]))).toEqual(Object.fromEntries(sums));
+    const proof=JSON.parse(fixture('NC-House01-independent-proof.json').toString('utf8'));expect(proof.sourceRowsAggregated).toBe(1735);expect(proof.noNoisyPrecinctSort).toBe(true);expect(hash(fixture('NC-20260303-House01-REP-county-totals.csv'))).toBe(proof.countyCSVsha256);
+  });
 });
 describe('LA real official anonymous graphical blobs',()=>{
   it('matches independently summed64parish DEM total, retains publisher voter denominator separately',()=>{
