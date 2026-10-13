@@ -71,6 +71,12 @@ describe('Bounded XLSX trust boundary (isolated adversarial controls)', () => {
   });
   it('refuses truncated ZIP and oversized input', async () => { await expect(readXlsxWorkbook(workbook.subarray(0,workbook.length-1))).rejects.toThrow(); await expect(readXlsxWorkbook(Buffer.alloc(16*1024*1024+1))).rejects.toThrow(/size/); });
   it('refuses excessive entry count before inflation', async () => { const zip = new JSZip();for(let n=0;n<257;n++)zip.file(`x${n}`,'x'); await expect(readXlsxWorkbook(await zip.generateAsync({type:'nodebuffer'}))).rejects.toThrow(/directory/); });
+  it('bounds sparse grid allocation separately from nonempty cell count', async () => {
+    const zip=await JSZip.loadAsync(await fixture(''));
+    const rows=Array.from({length:1000},(_,i)=>`<row r="${i+1}"><c r="SR${i+1}"><v>1</v></c></row>`).join('');
+    zip.file('xl/worksheets/sheet1.xml',`<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>${rows}</sheetData></worksheet>`);
+    await expect(readXlsxWorkbook(await zip.generateAsync({type:'nodebuffer',compression:'DEFLATE'}))).rejects.toThrow(/allocation/);
+  });
   it('bounds real inflation when forged directory lies about expanded length', async () => {
     const zip = new JSZip();zip.file('bomb',Buffer.alloc(1024*1024,65));const bytes=await zip.generateAsync({type:'nodebuffer',compression:'DEFLATE'});
     const central=bytes.indexOf(Buffer.from([0x50,0x4b,0x01,0x02]));bytes.writeUInt32LE(1,22);bytes.writeUInt32LE(1,central+24);
