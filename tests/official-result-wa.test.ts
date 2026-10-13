@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import { describe, it, expect } from 'vitest';
 import JSZip from 'jszip';
 import { readXlsxWorkbook } from '../server/official-result-adapters/xlsx';
-import { parseWashingtonLandsRecount, WA_LANDS_CONTEXT } from '../server/official-result-adapters/wa';
+import { parseWashingtonLandsRecount, parseWashingtonSenatePrimary, WA_LANDS_CONTEXT, WA_SENATE_CONTEXT } from '../server/official-result-adapters/wa';
 const raw = (name: string) => readFileSync(resolve('artifacts/wa-adapter/raw', name));
 const workbook = raw('wa-2024-recount-all-candidates.xlsx');
 const beforePdf = raw('wa-2024-original-certification.pdf'), afterPdf = raw('wa-2024-recount-certification.pdf');
@@ -16,6 +16,19 @@ async function fixture(cells: string, additions?: Record<string, string>): Promi
   return zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
 }
 describe('Actual WA official primary full-contest bytes', () => {
+  it('parses actual federal Senate12-option totals across600 county/CD parts', async()=>{
+    const result=await parseWashingtonSenatePrimary(raw('wa-2024-congressional-results.xlsx'),{context:WA_SENATE_CONTEXT,certificationBytes:beforePdf});
+    expect(result.options.map(o=>o.votes)).toEqual([86956,431182,17561,1114327,21055,110701,7840,111386,17433,10587,16826,2862]);
+    expect(result.totalVotes).toBe(1948716);expect(result.options.map(o=>o.name)).toEqual(['Mel Ram','Dr Raul Garcia','David Tilton','Maria Cantwell','Chuck Jackson','Isaac A Holyk','Henry Clay Dennison','Scott Nazarino','Paul Lawrence Giesick','Thor Amundson','Goodspaceguy','WRITE-IN']);
+    expect(result.sourceContestId).toBe('2005');expect(result.context.district).toBeNull();expect(result.options.every(o=>!o.isWinner&&o.party===null&&o.sourceCandidateId===null)).toBe(true);
+  });
+  it('refuses presenting congressional geography as a USHouse contest',async()=>{
+    await expect(parseWashingtonSenatePrimary(raw('wa-2024-congressional-results.xlsx'),{context:{...WA_SENATE_CONTEXT,office:'U.S. House',district:'01'},certificationBytes:beforePdf})).rejects.toThrow(/office/);
+  });
+  it('refuses primary Senate values under2026 date or amended lands certification',async()=>{
+    await expect(parseWashingtonSenatePrimary(raw('wa-2024-congressional-results.xlsx'),{context:{...WA_SENATE_CONTEXT,electionDate:'2026-11-03'},certificationBytes:beforePdf})).rejects.toThrow(/electionDate/);
+    await expect(parseWashingtonSenatePrimary(raw('wa-2024-congressional-results.xlsx'),{context:WA_SENATE_CONTEXT,certificationBytes:afterPdf})).rejects.toThrow(/Certification/);
+  });
   it('parses all39 counties and original certified8-option counts', async () => {
     const result = await parseWashingtonLandsRecount(workbook, { context: WA_LANDS_CONTEXT, snapshot: 'initial', certificationBytes: beforePdf });
     expect(result.options.map(o => o.votes)).toEqual([194114,419297,396300,396249,267924,84351,143170,1668]);
