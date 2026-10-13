@@ -40,6 +40,8 @@ export interface IStorage {
 
   // Elections
   getElections(filters?: ElectionQueryFilters): Promise<ElectionListing[]>;
+  /** Same rows as getElections, but a database failure THROWS (no fallback to []) and degraded in-memory storage is refused: for lookups where an empty list would be read as "no such race". */
+  getElectionsStrict(filters?: ElectionQueryFilters): Promise<ElectionListing[]>;
   getElection(id: number): Promise<Election | undefined>;
   createElection(election: InsertElection): Promise<Election>;
   deleteElection(id: number): Promise<void>;
@@ -555,6 +557,11 @@ export class DatabaseStorage implements IStorage {
       [],
       'getElections'
     );
+  }
+
+  async getElectionsStrict(filters?: ElectionQueryFilters): Promise<ElectionListing[]> {
+    const rows = await buildElectionListQuery(db, filters);
+    return rows.filter(election => validateNotMockData(election).ok).map(projectElectionResultsRow);
   }
 
   async getElection(id: number): Promise<Election | undefined> {

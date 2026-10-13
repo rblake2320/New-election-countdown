@@ -47,7 +47,7 @@ beforeAll(async () => {
   const app = express();
   const guard: express.RequestHandler = (_q, res, next) => (allow ? next() : res.status(403).json({ error: 'Admin only' }));
   app.get('/api/admin/elections', guard, adminElectionLookupHandler({
-    getElections: async f => { if (failing) throw new Error('db down'); return mem.getElections(f); },
+    getElectionsStrict: async f => { if (failing) throw new Error('db down'); return mem.getElectionsStrict(f); },
   }));
   app.use('/api/elections', electionsRouter);
   app.use('/api/candidates', candidatesRouter);

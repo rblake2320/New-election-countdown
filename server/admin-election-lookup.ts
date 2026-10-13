@@ -21,7 +21,7 @@ function parseDay(value: unknown): Date | null {
  * 30-day window. Inclusive election dates; no past/future cutoff. Guards (isAuthenticated, requireAdmin)
  * are applied where the route is mounted. A storage failure is a 503, never an empty list.
  */
-export function adminElectionLookupHandler(storage: { getElections(filters: ElectionQueryFilters): Promise<ElectionListing[]> }): RequestHandler {
+export function adminElectionLookupHandler(storage: { getElectionsStrict(filters: ElectionQueryFilters): Promise<ElectionListing[]> }): RequestHandler {
   return async (req, res) => {
     const invalid = (error: string) => res.status(400).json({ error, code: 'invalid_query' });
     const { from: fromRaw, to: toRaw, q, state } = req.query;
@@ -35,7 +35,7 @@ export function adminElectionLookupHandler(storage: { getElections(filters: Elec
       return res.status(422).json({ error: `Range is longer than ${ADMIN_LOOKUP_MAX_DAYS} days`, code: 'range_too_large' });
     }
     try {
-      const rows = await storage.getElections({
+      const rows = await storage.getElectionsStrict({
         minDate: from,
         maxDate: new Date(to.getTime() + DAY_MS),
         ...(state ? { state: state.toUpperCase() } : {}),
