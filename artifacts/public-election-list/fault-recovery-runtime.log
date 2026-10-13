@@ -1,0 +1,152 @@
+MemStorage initialized empty (failover cache; database is source of truth)
+ℹ️ No replica configurations found - running with primary database only
+✅ Database connection established
+✅ Primary database connection restored { latency: '15ms', attempts: 0, consecutiveFailures: 0 }
+🔄 Orchestrating failover: memory → database { trigger: 'automatic', reason: 'Primary database restored' }
+✅ Failover completed: memory → database (0ms) {
+  trigger: 'automatic',
+  reason: 'Primary database restored',
+  readOnlyMode: false
+}
+✅ Restore Validation Service initialized {
+  timeoutSeconds: 3600,
+  rtoTarget: '300s',
+  validationQueries: 3,
+  benchmarkQueries: 3
+}
+✅ Schema Drift Detection Service initialized
+✅ Disaster Recovery Coordinator initialized {
+  scheduledBackups: true,
+  automaticValidation: true,
+  schemaDriftMonitoring: true
+}
+🔌 Database connection removed from pool
+✅ Database connection established
+🔌 Database connection removed from pool
+✅ Database connection established
+🔌 Database connection removed from pool
+✅ Database connection established
+🔌 Database connection removed from pool
+✅ Database connection established
+🔌 Database connection removed from pool
+✅ Database connection established
+🔌 Database connection removed from pool
+✅ Database connection established
+MemStorage initialized empty (failover cache; database is source of truth)
+{"outcome":"Worked","scenarios":14,"mode":"fault-recovery"}
+🔌 Database connection removed from pool
+
+VOTESMART_API_KEY not found - VoteSmart features will be unavailable
+Missing API keys: PROPUBLICA_API_KEY, GOOGLE_CIVIC_API_KEY, OPENFEC_API_KEY, OPENSTATES_API_KEY, VOTESMART_API_KEY. Some features may be limited.
+Neon snapshot service disabled (NEON_API_KEY/NEON_PROJECT_ID not set — using pg-based backups instead)
+Election listing unavailable: Failed query: select "elections"."id", "elections"."title", "elections"."subtitle", "elections"."location", "elections"."state", "elections"."date", "elections"."type", "elections"."level", "elections"."offices", "elections"."description", "elections"."polls_open", "elections"."polls_close", "elections"."timezone", "elections"."poll_close_kind", "elections"."poll_hours_basis", "elections"."poll_hours_source", "elections"."official_results_url", "elections"."official_results_source", "elections"."is_active", to_char("elections"."date", 'YYYY-MM-DD"T"HH24:MI:SS.US'), count("candidates"."id") from "elections" left join "candidates" on "candidates"."election_id" = "elections"."id" where ("elections"."is_active" = $1 and "elections"."date" >= $2) group by "elections"."id" order by "elections"."date", "elections"."id"
+params: true,2026-09-13T00:00:00.000Z
+Error fetching election counts: DrizzleQueryError: Failed query: select "elections"."id", "elections"."title", "elections"."subtitle", "elections"."location", "elections"."state", "elections"."date", "elections"."type", "elections"."level", "elections"."offices", "elections"."description", "elections"."polls_open", "elections"."polls_close", "elections"."timezone", "elections"."poll_close_kind", "elections"."poll_hours_basis", "elections"."poll_hours_source", "elections"."official_results_url", "elections"."official_results_source", "elections"."is_active", to_char("elections"."date", 'YYYY-MM-DD"T"HH24:MI:SS.US'), count("candidates"."id") from "elections" left join "candidates" on "candidates"."election_id" = "elections"."id" where "elections"."is_active" = $1 group by "elections"."id" order by "elections"."date", "elections"."id"
+params: true
+    at NodePgPreparedQuery.queryWithCache (file:///app/node_modules/drizzle-orm/pg-core/session.js:41:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:117:22
+    at async DatabaseStorage.getElectionsStrict (file:///app/list-receiving.js:13789:22)
+    at async file:///app/list-receiving.js:17903:26 {
+  query: `select "elections"."id", "elections"."title", "elections"."subtitle", "elections"."location", "elections"."state", "elections"."date", "elections"."type", "elections"."level", "elections"."offices", "elections"."description", "elections"."polls_open", "elections"."polls_close", "elections"."timezone", "elections"."poll_close_kind", "elections"."poll_hours_basis", "elections"."poll_hours_source", "elections"."official_results_url", "elections"."official_results_source", "elections"."is_active", to_char("elections"."date", 'YYYY-MM-DD"T"HH24:MI:SS.US'), count("candidates"."id") from "elections" left join "candidates" on "candidates"."election_id" = "elections"."id" where "elections"."is_active" = $1 group by "elections"."id" order by "elections"."date", "elections"."id"`,
+  params: [ true ],
+  cause: error: relation "elections" does not exist
+      at /app/node_modules/pg-pool/index.js:45:11
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:124:18
+      at async NodePgPreparedQuery.queryWithCache (file:///app/node_modules/drizzle-orm/pg-core/session.js:39:16)
+      at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:117:22
+      at async DatabaseStorage.getElectionsStrict (file:///app/list-receiving.js:13789:22)
+      at async file:///app/list-receiving.js:17903:26 {
+    length: 109,
+    severity: 'ERROR',
+    code: '42P01',
+    detail: undefined,
+    hint: undefined,
+    position: '589',
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'parse_relation.c',
+    line: '1449',
+    routine: 'parserOpenTable'
+  }
+}
+Error fetching missing candidates: DrizzleQueryError: Failed query: select "elections"."id", "elections"."title", "elections"."subtitle", "elections"."location", "elections"."state", "elections"."date", "elections"."type", "elections"."level", "elections"."offices", "elections"."description", "elections"."polls_open", "elections"."polls_close", "elections"."timezone", "elections"."poll_close_kind", "elections"."poll_hours_basis", "elections"."poll_hours_source", "elections"."official_results_url", "elections"."official_results_source", "elections"."is_active", to_char("elections"."date", 'YYYY-MM-DD"T"HH24:MI:SS.US'), count("candidates"."id") from "elections" left join "candidates" on "candidates"."election_id" = "elections"."id" where "elections"."is_active" = $1 group by "elections"."id" order by "elections"."date", "elections"."id"
+params: true
+    at NodePgPreparedQuery.queryWithCache (file:///app/node_modules/drizzle-orm/pg-core/session.js:41:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:117:22
+    at async DatabaseStorage.getElectionsStrict (file:///app/list-receiving.js:13789:22)
+    at async file:///app/list-receiving.js:17922:26 {
+  query: `select "elections"."id", "elections"."title", "elections"."subtitle", "elections"."location", "elections"."state", "elections"."date", "elections"."type", "elections"."level", "elections"."offices", "elections"."description", "elections"."polls_open", "elections"."polls_close", "elections"."timezone", "elections"."poll_close_kind", "elections"."poll_hours_basis", "elections"."poll_hours_source", "elections"."official_results_url", "elections"."official_results_source", "elections"."is_active", to_char("elections"."date", 'YYYY-MM-DD"T"HH24:MI:SS.US'), count("candidates"."id") from "elections" left join "candidates" on "candidates"."election_id" = "elections"."id" where "elections"."is_active" = $1 group by "elections"."id" order by "elections"."date", "elections"."id"`,
+  params: [ true ],
+  cause: error: relation "elections" does not exist
+      at /app/node_modules/pg-pool/index.js:45:11
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:124:18
+      at async NodePgPreparedQuery.queryWithCache (file:///app/node_modules/drizzle-orm/pg-core/session.js:39:16)
+      at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:117:22
+      at async DatabaseStorage.getElectionsStrict (file:///app/list-receiving.js:13789:22)
+      at async file:///app/list-receiving.js:17922:26 {
+    length: 109,
+    severity: 'ERROR',
+    code: '42P01',
+    detail: undefined,
+    hint: undefined,
+    position: '589',
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'parse_relation.c',
+    line: '1449',
+    routine: 'parserOpenTable'
+  }
+}
+Elections by location error: DrizzleQueryError: Failed query: select "elections"."id", "elections"."title", "elections"."subtitle", "elections"."location", "elections"."state", "elections"."date", "elections"."type", "elections"."level", "elections"."offices", "elections"."description", "elections"."polls_open", "elections"."polls_close", "elections"."timezone", "elections"."poll_close_kind", "elections"."poll_hours_basis", "elections"."poll_hours_source", "elections"."official_results_url", "elections"."official_results_source", "elections"."is_active", to_char("elections"."date", 'YYYY-MM-DD"T"HH24:MI:SS.US'), count("candidates"."id") from "elections" left join "candidates" on "candidates"."election_id" = "elections"."id" where ("elections"."is_active" = $1 and "elections"."state" = $2 and lower(trim("elections"."level")) in ($3, $4, $5)) group by "elections"."id" order by "elections"."date", "elections"."id"
+params: true,CO,local,state,federal
+    at NodePgPreparedQuery.queryWithCache (file:///app/node_modules/drizzle-orm/pg-core/session.js:41:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:117:22
+    at async DatabaseStorage.getElectionsStrict (file:///app/list-receiving.js:13789:22)
+    at async file:///app/list-receiving.js:18322:28 {
+  query: `select "elections"."id", "elections"."title", "elections"."subtitle", "elections"."location", "elections"."state", "elections"."date", "elections"."type", "elections"."level", "elections"."offices", "elections"."description", "elections"."polls_open", "elections"."polls_close", "elections"."timezone", "elections"."poll_close_kind", "elections"."poll_hours_basis", "elections"."poll_hours_source", "elections"."official_results_url", "elections"."official_results_source", "elections"."is_active", to_char("elections"."date", 'YYYY-MM-DD"T"HH24:MI:SS.US'), count("candidates"."id") from "elections" left join "candidates" on "candidates"."election_id" = "elections"."id" where ("elections"."is_active" = $1 and "elections"."state" = $2 and lower(trim("elections"."level")) in ($3, $4, $5)) group by "elections"."id" order by "elections"."date", "elections"."id"`,
+  params: [ true, 'CO', 'local', 'state', 'federal' ],
+  cause: error: relation "elections" does not exist
+      at /app/node_modules/pg-pool/index.js:45:11
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:124:18
+      at async NodePgPreparedQuery.queryWithCache (file:///app/node_modules/drizzle-orm/pg-core/session.js:39:16)
+      at async file:///app/node_modules/drizzle-orm/node-postgres/session.js:117:22
+      at async DatabaseStorage.getElectionsStrict (file:///app/list-receiving.js:13789:22)
+      at async file:///app/list-receiving.js:18322:28 {
+    length: 109,
+    severity: 'ERROR',
+    code: '42P01',
+    detail: undefined,
+    hint: undefined,
+    position: '589',
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'parse_relation.c',
+    line: '1449',
+    routine: 'parserOpenTable'
+  }
+}
+Election listing unavailable: database unavailable (degraded in-memory storage)
