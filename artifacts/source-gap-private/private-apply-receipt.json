@@ -1,0 +1,547 @@
+{
+  "version": 1,
+  "database": "et_sol_data_6c78a3148c6b",
+  "mode": "private-apply-repeat-rollback",
+  "manifestSha": "0877a940f63bae7c9a9f459c8d38c673096a6365e40dbd0ebd82d4ce7aabbe75",
+  "nomineeCoreSha": "96fdb295fc7bd4747a3409f9451e306bea4b988d112fa5aa864321ea8faaa091",
+  "rollbackCoreSha": "2461a51c089401d8fb56109660baac3594b8df1c8154c25a01044be1a97482d2",
+  "startedAt": "2026-10-13T18:56:21.812Z",
+  "beforeHash": "1322b3367130f43557be09f22033d9481b087d66d54f2bb74ada567f16c88eb2",
+  "beforeCounts": {
+    "elections": 537,
+    "candidates": 3444,
+    "candidate_source_records": 3856,
+    "general_candidate_list_snapshots": 500,
+    "candidate_ingest_runs": 2,
+    "election_catalog_correction_runs": 1,
+    "official_results_sync_runs": 1
+  },
+  "plan": {
+    "actions": 12,
+    "unresolved": [],
+    "candidateInserts": 0,
+    "sourceChanges": 0,
+    "auditId": null,
+    "rows": [
+      {
+        "state": "SC",
+        "district": "02",
+        "name": "Zyon Khalifa",
+        "partyRaw": "Democratic",
+        "normalizedParty": "D",
+        "electionId": 423,
+        "candidateId": null
+      },
+      {
+        "state": "SC",
+        "district": "02",
+        "name": "Dayna Alane Smith",
+        "partyRaw": "Workers",
+        "normalizedParty": "Workers",
+        "electionId": 423,
+        "candidateId": null
+      },
+      {
+        "state": "SC",
+        "district": "02",
+        "name": "Joe Wilson",
+        "partyRaw": "Republican",
+        "normalizedParty": "R",
+        "electionId": 423,
+        "candidateId": null
+      },
+      {
+        "state": "SC",
+        "district": "03",
+        "name": "Sheri Biggs",
+        "partyRaw": "Republican",
+        "normalizedParty": "R",
+        "electionId": 424,
+        "candidateId": 10562
+      },
+      {
+        "state": "SC",
+        "district": "03",
+        "name": "Brian Corriea",
+        "partyRaw": "Libertarian",
+        "normalizedParty": "L",
+        "electionId": 424,
+        "candidateId": null
+      },
+      {
+        "state": "SC",
+        "district": "03",
+        "name": "Eunice Lehmacher",
+        "partyRaw": "Democratic",
+        "normalizedParty": "D",
+        "electionId": 424,
+        "candidateId": 11801
+      },
+      {
+        "state": "SC",
+        "district": "04",
+        "name": "Jessica Ethridge",
+        "partyRaw": "Libertarian",
+        "normalizedParty": "L",
+        "electionId": 425,
+        "candidateId": null
+      },
+      {
+        "state": "SC",
+        "district": "04",
+        "name": "Courtney McClain",
+        "partyRaw": "Democratic",
+        "normalizedParty": "D",
+        "electionId": 425,
+        "candidateId": 11802
+      },
+      {
+        "state": "SC",
+        "district": "04",
+        "name": "William Timmons",
+        "partyRaw": "Republican",
+        "normalizedParty": "R",
+        "electionId": 425,
+        "candidateId": null
+      },
+      {
+        "state": "SC",
+        "district": "05",
+        "name": "Wes Climer",
+        "partyRaw": "Republican",
+        "normalizedParty": "R",
+        "electionId": 426,
+        "candidateId": 11807
+      },
+      {
+        "state": "SC",
+        "district": "05",
+        "name": "Mallory Dittmer",
+        "partyRaw": "Democratic",
+        "normalizedParty": "D",
+        "electionId": 426,
+        "candidateId": 11809
+      },
+      {
+        "state": "FL",
+        "district": "10",
+        "name": "Maxwell Alejandro Frost",
+        "partyRaw": "DEM",
+        "normalizedParty": "D",
+        "electionId": 171,
+        "candidateId": 10211
+      }
+    ]
+  },
+  "dryRunUnchanged": true,
+  "targetBefore": [
+    {
+      "id": 171,
+      "state": "FL",
+      "title": "U.S. House Election - FL-10",
+      "date": "2026-11-03T00:00:00",
+      "phase": "general",
+      "profiles": [
+        {
+          "id": 10211,
+          "name": "Maxwell Alejandro Frost",
+          "party": "D"
+        }
+      ],
+      "currentGeneralRows": 0
+    },
+    {
+      "id": 423,
+      "state": "SC",
+      "title": "U.S. House Election - SC-02",
+      "date": "2026-11-03T00:00:00",
+      "phase": "general",
+      "profiles": [
+        {
+          "id": 10330,
+          "name": "Joe The Hon. Wilson",
+          "party": "R"
+        },
+        {
+          "id": 10563,
+          "name": "Hampton Redmond",
+          "party": "R"
+        },
+        {
+          "id": 11799,
+          "name": "Roger Keith Pruitt",
+          "party": "D"
+        },
+        {
+          "id": 11800,
+          "name": "Samuel Luther Mr. Iv Gibbons",
+          "party": "R"
+        }
+      ],
+      "currentGeneralRows": 0
+    },
+    {
+      "id": 424,
+      "state": "SC",
+      "title": "U.S. House Election - SC-03",
+      "date": "2026-11-03T00:00:00",
+      "phase": "general",
+      "profiles": [
+        {
+          "id": 10562,
+          "name": "Sheri Biggs",
+          "party": "R"
+        },
+        {
+          "id": 11801,
+          "name": "Eunice Lehmacher",
+          "party": "D"
+        }
+      ],
+      "currentGeneralRows": 0
+    },
+    {
+      "id": 425,
+      "state": "SC",
+      "title": "U.S. House Election - SC-04",
+      "date": "2026-11-03T00:00:00",
+      "phase": "general",
+      "profiles": [
+        {
+          "id": 11802,
+          "name": "Courtney Mcclain",
+          "party": "D"
+        },
+        {
+          "id": 11803,
+          "name": "David Michael Atchley",
+          "party": "R"
+        },
+        {
+          "id": 11804,
+          "name": "Robert Eugene Lee",
+          "party": "R"
+        },
+        {
+          "id": 12225,
+          "name": "William R Iv Timmons",
+          "party": "R"
+        }
+      ],
+      "currentGeneralRows": 0
+    },
+    {
+      "id": 426,
+      "state": "SC",
+      "title": "U.S. House Election - SC-05",
+      "date": "2026-11-03T00:00:00",
+      "phase": "general",
+      "profiles": [
+        {
+          "id": 11805,
+          "name": "Alex Harper",
+          "party": "D"
+        },
+        {
+          "id": 11806,
+          "name": "Andrew Clough",
+          "party": "D"
+        },
+        {
+          "id": 11807,
+          "name": "Wes Climer",
+          "party": "R"
+        },
+        {
+          "id": 11808,
+          "name": "Bill Bledsoe",
+          "party": "R"
+        },
+        {
+          "id": 11809,
+          "name": "Mallory Dittmer",
+          "party": "D"
+        },
+        {
+          "id": 12226,
+          "name": "Ralph W. Jr. Norman",
+          "party": "R"
+        }
+      ],
+      "currentGeneralRows": 0
+    }
+  ],
+  "apply": {
+    "actions": 12,
+    "unresolved": [],
+    "candidateInserts": 6,
+    "sourceChanges": 12,
+    "auditId": 13,
+    "rows": [
+      {
+        "state": "SC",
+        "district": "02",
+        "name": "Zyon Khalifa",
+        "partyRaw": "Democratic",
+        "normalizedParty": "D",
+        "electionId": 423,
+        "candidateId": 13369
+      },
+      {
+        "state": "SC",
+        "district": "02",
+        "name": "Dayna Alane Smith",
+        "partyRaw": "Workers",
+        "normalizedParty": "Workers",
+        "electionId": 423,
+        "candidateId": 13370
+      },
+      {
+        "state": "SC",
+        "district": "02",
+        "name": "Joe Wilson",
+        "partyRaw": "Republican",
+        "normalizedParty": "R",
+        "electionId": 423,
+        "candidateId": 13371
+      },
+      {
+        "state": "SC",
+        "district": "03",
+        "name": "Sheri Biggs",
+        "partyRaw": "Republican",
+        "normalizedParty": "R",
+        "electionId": 424,
+        "candidateId": 10562
+      },
+      {
+        "state": "SC",
+        "district": "03",
+        "name": "Brian Corriea",
+        "partyRaw": "Libertarian",
+        "normalizedParty": "L",
+        "electionId": 424,
+        "candidateId": 13372
+      },
+      {
+        "state": "SC",
+        "district": "03",
+        "name": "Eunice Lehmacher",
+        "partyRaw": "Democratic",
+        "normalizedParty": "D",
+        "electionId": 424,
+        "candidateId": 11801
+      },
+      {
+        "state": "SC",
+        "district": "04",
+        "name": "Jessica Ethridge",
+        "partyRaw": "Libertarian",
+        "normalizedParty": "L",
+        "electionId": 425,
+        "candidateId": 13373
+      },
+      {
+        "state": "SC",
+        "district": "04",
+        "name": "Courtney McClain",
+        "partyRaw": "Democratic",
+        "normalizedParty": "D",
+        "electionId": 425,
+        "candidateId": 11802
+      },
+      {
+        "state": "SC",
+        "district": "04",
+        "name": "William Timmons",
+        "partyRaw": "Republican",
+        "normalizedParty": "R",
+        "electionId": 425,
+        "candidateId": 13374
+      },
+      {
+        "state": "SC",
+        "district": "05",
+        "name": "Wes Climer",
+        "partyRaw": "Republican",
+        "normalizedParty": "R",
+        "electionId": 426,
+        "candidateId": 11807
+      },
+      {
+        "state": "SC",
+        "district": "05",
+        "name": "Mallory Dittmer",
+        "partyRaw": "Democratic",
+        "normalizedParty": "D",
+        "electionId": 426,
+        "candidateId": 11809
+      },
+      {
+        "state": "FL",
+        "district": "10",
+        "name": "Maxwell Alejandro Frost",
+        "partyRaw": "DEM",
+        "normalizedParty": "D",
+        "electionId": 171,
+        "candidateId": 10211
+      }
+    ]
+  },
+  "afterHash": "1afcfbd8e5fda24c3c7f1c13306d741a73c8c969ccd3dd4a53ef87f82de77c53",
+  "allOriginalProfilesPreserved": true,
+  "outsideReceivingScopesUnchanged": true,
+  "targetAfter": [
+    {
+      "electionId": 423,
+      "profiles": 7,
+      "currentGeneralRows": 3
+    },
+    {
+      "electionId": 424,
+      "profiles": 3,
+      "currentGeneralRows": 3
+    },
+    {
+      "electionId": 425,
+      "profiles": 6,
+      "currentGeneralRows": 3
+    },
+    {
+      "electionId": 426,
+      "profiles": 6,
+      "currentGeneralRows": 2
+    },
+    {
+      "electionId": 171,
+      "profiles": 1,
+      "currentGeneralRows": 1
+    }
+  ],
+  "repeat": {
+    "actions": 12,
+    "unresolved": [],
+    "candidateInserts": 0,
+    "sourceChanges": 0,
+    "auditId": 14,
+    "rows": [
+      {
+        "state": "SC",
+        "district": "02",
+        "name": "Zyon Khalifa",
+        "partyRaw": "Democratic",
+        "normalizedParty": "D",
+        "electionId": 423,
+        "candidateId": 13369
+      },
+      {
+        "state": "SC",
+        "district": "02",
+        "name": "Dayna Alane Smith",
+        "partyRaw": "Workers",
+        "normalizedParty": "Workers",
+        "electionId": 423,
+        "candidateId": 13370
+      },
+      {
+        "state": "SC",
+        "district": "02",
+        "name": "Joe Wilson",
+        "partyRaw": "Republican",
+        "normalizedParty": "R",
+        "electionId": 423,
+        "candidateId": 13371
+      },
+      {
+        "state": "SC",
+        "district": "03",
+        "name": "Sheri Biggs",
+        "partyRaw": "Republican",
+        "normalizedParty": "R",
+        "electionId": 424,
+        "candidateId": 10562
+      },
+      {
+        "state": "SC",
+        "district": "03",
+        "name": "Brian Corriea",
+        "partyRaw": "Libertarian",
+        "normalizedParty": "L",
+        "electionId": 424,
+        "candidateId": 13372
+      },
+      {
+        "state": "SC",
+        "district": "03",
+        "name": "Eunice Lehmacher",
+        "partyRaw": "Democratic",
+        "normalizedParty": "D",
+        "electionId": 424,
+        "candidateId": 11801
+      },
+      {
+        "state": "SC",
+        "district": "04",
+        "name": "Jessica Ethridge",
+        "partyRaw": "Libertarian",
+        "normalizedParty": "L",
+        "electionId": 425,
+        "candidateId": 13373
+      },
+      {
+        "state": "SC",
+        "district": "04",
+        "name": "Courtney McClain",
+        "partyRaw": "Democratic",
+        "normalizedParty": "D",
+        "electionId": 425,
+        "candidateId": 11802
+      },
+      {
+        "state": "SC",
+        "district": "04",
+        "name": "William Timmons",
+        "partyRaw": "Republican",
+        "normalizedParty": "R",
+        "electionId": 425,
+        "candidateId": 13374
+      },
+      {
+        "state": "SC",
+        "district": "05",
+        "name": "Wes Climer",
+        "partyRaw": "Republican",
+        "normalizedParty": "R",
+        "electionId": 426,
+        "candidateId": 11807
+      },
+      {
+        "state": "SC",
+        "district": "05",
+        "name": "Mallory Dittmer",
+        "partyRaw": "Democratic",
+        "normalizedParty": "D",
+        "electionId": 426,
+        "candidateId": 11809
+      },
+      {
+        "state": "FL",
+        "district": "10",
+        "name": "Maxwell Alejandro Frost",
+        "partyRaw": "DEM",
+        "normalizedParty": "D",
+        "electionId": 171,
+        "candidateId": 10211
+      }
+    ]
+  },
+  "rollback": {
+    "hash": "1322b3367130f43557be09f22033d9481b087d66d54f2bb74ada567f16c88eb2",
+    "restoredRows": 8341,
+    "deletedInsertedRows": 25
+  },
+  "restoredHash": "1322b3367130f43557be09f22033d9481b087d66d54f2bb74ada567f16c88eb2",
+  "rollbackExact": true,
+  "outcome": "Worked",
+  "finishedAt": "2026-10-13T18:56:33.260Z"
+}
