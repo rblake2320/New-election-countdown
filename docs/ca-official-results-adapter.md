@@ -1,0 +1,19 @@
+# California official result parser
+
+`parseCaliforniaGovernorSov(bytes, expectedContext, certificateBytes?)` parses the exact reviewed official June 2, 2026 primary Governor XLSX. The exported context is CA / 2026-06-02 / primary / state / Governor / district null / party null. California's all-party primary is one contest; party labels are the publisher's voter-nominated preference, not separate partisan races.
+
+The workbook itself has no election-date field. Its exact SHA is bound to the SOS Statement of Vote landing page and Governor download. Any different workbook bytes or outer source context are refused before producing counts. This is intentionally one reviewed source version, not a blanket admission of every future CA XLSX. A new source version needs its actual date/context and evidence review.
+
+All 68 option columns are reconciled across the 58 distinct county rows against the one State Totals row. Percent/blank rows are excluded. totalVotes is the sum of actual option-vote totals, not ballots cast; no percent/reporting/winner is inferred. The parser returns null sourceCandidateId with printed_label basis because the workbook has no publisher candidate IDs. The reviewed document key 2026-primary:sov:19-gov is scoped by the exact context and source digest; it is not an alleged publisher numeric ID. Only CRLF/CR/LF layout breaks are replaced with spaces for display. Original header strings and their digest remain in reviewed-proof.json, including correct Solórzano Unicode. Raw party preference labels and all seven (W/I) markers remain intact.
+
+The signed Secretary certificate is attached only when its exact raw PDF bytes are supplied and match the reviewed SHA, and only to that June 2 primary context. dateRaw is July 10, 2026; certifiedAt is null because the source provides no time/offset. Root's reviewed binding decides report status. An absent certificate leaves certificationEvidence empty. The parser never decides a winner.
+
+`refuseCaliforniaGeneralStaging(bytes, expectedContext)` accepts no positive result. The actual retained V26GG header is October 9 despite the official index labelling November 3 general and the original fetch returning HTTP200/nonzero values. It throws SOURCE_NOT_PUBLISHED. Later-looking headers throw UNREVIEWED_FORMAT pending separate election-night schema/publication review. The retained TXT fixture is only the original receipt's sampled header/first records joined as UTF8 LF, not the entire original file; both the original whole-source SHA and fragment SHA are retained. The exact official JSON fragment also retains the actual October9 timestamp and 21,865/22,103 values solely as refused staging evidence. No November general count is admitted.
+
+Source artifacts are pinned from d3f00a8c93e97e53afd2178a6ec2c56319cd4060. Source URLs and raw workbook/PDF/certificate hashes are in tests/fixtures/official-result-adapters/ca. Independent published primary PDF totals are Becerra 2,591,857; Hilton 2,277,318; Steyer 2,110,707. Real parser tests cover all columns/county sums, exact context, Unicode/preferences/write-ins, source tampering, missing/wrong certificate and actual staging refusal. All numerical positive fixtures are real official primary counts. Isolated malformed/future-header controls contain no invented positive results.
+
+One-command compiled verification (offline; physical npm ci dependencies):
+
+    node scripts/verify_ca_official_results.mjs
+
+Optional first receipt filename argument uses exclusive creation to preserve previous evidence. The harness bundles the actual parser as Node ESM and exercises raw fixtures without network or database calls. Unit tests: npx vitest run tests/unit/official-results-ca.test.ts. Retained receipts: artifacts/ca-adapter. Parent owns integration/transport/storage receiving; this change adds no database, routes, package or production polling registration.

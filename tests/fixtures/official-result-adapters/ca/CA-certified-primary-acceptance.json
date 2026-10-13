@@ -1,0 +1,33 @@
+{
+  "outcome": "Worked",
+  "state": "CA",
+  "electionDate": "2026-06-02",
+  "phase": "primary",
+  "officeRaw": "Governor",
+  "candidateCount": 68,
+  "countyCount": 58,
+  "validCandidateVotesTotal": 9262468,
+  "certificate": {
+    "url": "https://elections.cdn.sos.ca.gov/sov/2026-primary/sov/18-sov-certificate.pdf",
+    "sha256": "3ffb90f022e448d84ea77cfccc2baa54ad87669a0aaa0575c7a08df66c460d77",
+    "observedPage": 1,
+    "certifiedAt": "2026-07-10",
+    "electionDate": "2026-06-02",
+    "phase": "primary",
+    "exactCertificationExcerpt": "result of the official canvass of the returns of the June 2, 2026, Primary Election.",
+    "readMethod": "Visual inspection of actual publisher PDF; no text layer"
+  },
+  "expectedCountsIndependentPDF": {
+    "Xavier Becerra": 2591857,
+    "Steve Hilton": 2277318,
+    "Tom Steyer": 2110707
+  },
+  "mappingRequirements": [
+    "Party labels are voter-nominated party preference; DEM/REP/NPP and(W/I) retained exactly.",
+    "No stable candidate ID in XLSX; bind office/date/district and exact source header plus reviewed candidate identity. Do not infer from FEC.",
+    "County totals must not be added to State Totals a second time. Percentage rows/blank lines are not votes.",
+    "This certified2026Jun2primary recording must never be published as2026Nov3general."
+  ],
+  "rawWorkbookSha256": "2c3f509d9b144dff74d2d68ae7be124e697cf6e6bd7e50291cbd1393532980d1",
+  "rawPdfSha256": "5722d7e4042a00bc894775f3ea022e734eb9a3b0382c522eae50318e024bbaa0"
+}
