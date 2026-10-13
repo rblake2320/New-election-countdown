@@ -15,7 +15,7 @@ Deployment remains held. This checklist prepares a reviewable release; it does n
 
 ## Remaining receiving and external inputs
 
-1. B/D historical admin browser receiving: pinned Playwright 1.64.0 in the same new internal-only application/PostgreSQL network, no host ports, synthetic fixture admin, real retained NC/LA reports. Check both widths, exact report hydration, public-list exclusion and no mutations after login. Existing 5094 stays untouched.
+1. B/D historical admin browser receiving: pinned Playwright 1.64.0 in the same new internal-only application/PostgreSQL network, no host ports, synthetic fixture admin, real retained NC/LA reports. Use an internal HTTPS proxy and an ephemeral fixture CA trusted only in the disposable browser container; preserve CSP and Secure-cookie behavior. Do not strip response headers, ignore certificate errors or change host trust. Check both widths, exact report hydration, public-list exclusion and no mutations after login. Existing 5094 stays untouched.
 2. B owns remaining Firefox/WebKit receiving on the same isolated fixture. Preserve failure/304/recovery controls and original evidence.
 3. Portable 506-payload regression PR91 was reviewed and merged at exact green head `730b1d7`. Further changes get their own checks.
 4. AZ08/KY03 official printed rosters remain unavailable after additional official-source checks. Keep honest unknown state; do not turn primary filings, an absent write-in row or a challenge page into a general roster.
