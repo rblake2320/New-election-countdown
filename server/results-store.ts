@@ -117,6 +117,14 @@ const EVIDENCE_REQUIRED_KINDS = new Set(['admin_manual', 'official_state_page'])
 export function sha256Hex(bytes: Buffer): string { return createHash('sha256').update(bytes).digest('hex'); }
 export function adminManualSourceId(state: string): string { return `admin_manual:${state}`; }
 
+/** Exact state-board delegation, including historical manual reports that have no live adapter.
+ * NCSBE's Election Results page explicitly links https://er.ncsbe.gov/ (retained NC-0 receipt
+ * under data/official-results/source-reviews/remaining-36-receipts). This admits that host only
+ * for NC manual reports; it does not register a live source or claim publication/certification. */
+const REVIEWED_MANUAL_RESULTS_HOSTS: Readonly<Partial<Record<string, readonly string[]>>> = {
+  NC: ['er.ncsbe.gov'],
+};
+
 interface ManifestSourceRow { election_id: number; state: string; publisher: string; route_type: string; government_url: string; status?: string | null }
 function kindForRoute(routeType: string): ResultSource['kind'] {
   if (/county/i.test(routeType)) return 'official_county';
@@ -152,7 +160,7 @@ function assertSourceRegistered(input: ResultReportInput, state: string, manifes
   const src = input.source;
   if (src.kind === 'admin_manual') {
     if (src.id !== adminManualSourceId(state)) throw new ResultReportError(422, 'unknown_source', `admin_manual source id must be ${adminManualSourceId(state)}`);
-    const hosts = new Set<string>();
+    const hosts = new Set<string>(REVIEWED_MANUAL_RESULTS_HOSTS[state] ?? []);
     for (const m of manifestForState) { try { hosts.add(new URL(m.government_url).host.toLowerCase()); } catch { /* unusable manifest url */ } }
     for (const r of resultsSourceRegistry.list(state)) { for (const h of r.allowedHosts ?? []) hosts.add(h); for (const u of r.allowedUrls ?? []) { try { hosts.add(new URL(u).host.toLowerCase()); } catch { /* validated at registration */ } } }
     if (hosts.size) {
