@@ -12,6 +12,7 @@ const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(value => {
 const stateCode = z.string().refine(value => states.has(value), 'Expected a US state');
 const access = z.enum(['printed','write_in','not_specified']);
 export const ARIZONA_PIMA_GENERAL_URL='https://content.civicplus.com/api/assets/az-pimacounty/d2c310c3-ade7-484e-a6f0-1ddaebec0799';
+export const ARIZONA_PIMA_WRITE_IN_URL='https://content.civicplus.com/api/assets/az-pimacounty/b54c9e42-8520-4201-be8d-10b859da80df';
 export const ARIZONA_CCEC_PARTY_IDENTITY_URL='https://storageccec.blob.core.usgovcloudapi.net/public/docs/1509-1497AllDistrictWebEnglishv2.pdf';
 const ARIZONA_CCEC_SHA256='67bc4e66b68a5883f6f68a4fa165d807eb4bbf5a78a3640bd3eac9b08273b5fb';
 const officialSourceUrl=z.string().url().refine(value=>{
@@ -27,7 +28,7 @@ const officialSourceUrl=z.string().url().refine(value=>{
   const montanaReviewedBallot=u.hostname==='missoulacounty.sharepoint.com'
     && u.pathname==='/administration/elect/Public/Forms/AllItems.aspx'
     && u.searchParams.get('id')==='/administration/elect/Public/Sample Ballots/20261103 Federal General Sample Ballots/01-BONN92.pdf';
-  return u.protocol==='https:' && !u.username && !u.password && (!u.port || u.port==='443') && (u.hostname.endsWith('.gov') || /\.state\.[a-z]{2}\.us$/i.test(u.hostname) || ncOfficialBucket || floridaOfficialPortal || michiganOfficialPortal || tennesseeOfficialFiles || oregonOfficialDirective || montanaReviewedBallot || value===ARIZONA_PIMA_GENERAL_URL);
+  return u.protocol==='https:' && !u.username && !u.password && (!u.port || u.port==='443') && (u.hostname.endsWith('.gov') || /\.state\.[a-z]{2}\.us$/i.test(u.hostname) || ncOfficialBucket || floridaOfficialPortal || michiganOfficialPortal || tennesseeOfficialFiles || oregonOfficialDirective || montanaReviewedBallot || value===ARIZONA_PIMA_GENERAL_URL || value===ARIZONA_PIMA_WRITE_IN_URL);
   } catch { return false; }
 },'Expected an official government HTTPS source');
 // Government-linked OCPF filing proves this person's name/office only.
@@ -47,7 +48,7 @@ const sourceSchema = z.object({
   let host:string;try{host=new URL(source.url).hostname;}catch{return;}
   const expected=host==='mi-boe.entellitrak.com'?'MI':host==='dos.elections.myflorida.com'?'FL':host==='s3.amazonaws.com'?'NC':host==='sos-prod.tnsosgovfiles.com'?'TN':['multco.us','www.multco.us'].includes(host)?'OR':host==='missoulacounty.sharepoint.com'?'MT':null;
   if(expected&&source.state!==expected)ctx.addIssue({code:z.ZodIssueCode.custom,message:'Delegated source does not match its government authority state',path:['state']});
-  if(source.url===ARIZONA_PIMA_GENERAL_URL&&source.state!=='AZ')ctx.addIssue({code:z.ZodIssueCode.custom,message:'Reviewed Pima general source must belong to Arizona',path:['state']});
+  if([ARIZONA_PIMA_GENERAL_URL,ARIZONA_PIMA_WRITE_IN_URL].includes(source.url)&&source.state!=='AZ')ctx.addIssue({code:z.ZodIssueCode.custom,message:'Reviewed Pima general source must belong to Arizona',path:['state']});
 });
 const rowSchema = z.object({
   sourceId:z.string(),state:stateCode,office:z.enum(['H','S','G']),district:z.string().regex(/^\d{2}$/),date:day,

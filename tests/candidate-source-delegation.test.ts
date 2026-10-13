@@ -3,6 +3,12 @@ import {describe,it,expect} from 'vitest';
 import {parseNomineeManifest} from '../server/candidate-nominee-sync';
 const raw=()=>JSON.parse(readFileSync('tests/fixtures/source-delegation/az-pima-ccec.json','utf8'));
 describe('actual county ballot source with separately bound identity/party guide',()=>{
+ it('admits the separately delegated official write-in file and preserves its exact H06 printed office/name',()=>{
+  const d=JSON.parse(readFileSync('tests/fixtures/source-delegation/az-pima-write-in.json','utf8'));
+  const m=parseNomineeManifest(d);expect(m.candidates).toHaveLength(1);expect(m.candidates[0]).toMatchObject({name:'MICHAEL DORLAND',office:'H',district:'06',ballotAccessType:'write_in',partyRaw:'IND'});
+  const changed=structuredClone(d);changed.sources[0].url+='?unreviewed=1';expect(()=>parseNomineeManifest(changed)).toThrow();
+  changed.sources[0].url=d.sources[0].url;changed.sources[0].state='CA';expect(()=>parseNomineeManifest(changed)).toThrow(/Pima/);
+ });
  it('admits the exact government-delegated Pima list and four guide identities without promoting guide eligibility',()=>{
   const m=parseNomineeManifest(raw());expect(m.candidates).toHaveLength(12);
   expect(m.sources).toHaveLength(2);expect(m.sources.some(s=>s.url.includes('blob.core'))).toBe(false);
