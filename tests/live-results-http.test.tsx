@@ -174,10 +174,10 @@ describe('ET-6 client against the real results routes (real HTTP, real schema)',
 
     const r2 = liveElectionResultsSchema.parse(await getReal(`/api/elections/${real.election.id}/results`));
     expect(r2.revision).not.toBe(r1.revision);
-    // Real behaviour: the server's history lists every report for the race, the current one included.
-    expect(r2.history.map(h => h.reportId)).toEqual([r2.reportId, r1.reportId]);
+    // Contract (lane A #57): history lists EARLIER reports only; the current one is the payload itself.
+    expect(r2.history.map(h => h.reportId)).toEqual([r1.reportId]);
     expect(r2.history.every(h => h.contextMatch)).toBe(true);
-    // The client must still call only the other one "earlier".
+    // The client shows exactly those as "earlier" (and still ignores the current report if a server ever lists it).
     const view = render(<LiveResultView result={r2} showHistory />);
     expect(view.getByText('Earlier reports (1)')).toBeInTheDocument();
     view.unmount();
