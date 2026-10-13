@@ -6,7 +6,7 @@ def make(folder,kind,context,target,sourceid,localid,payload,companion,capture,p
     root=repo/'artifacts/source-packet'/folder;(root/'raw').mkdir(parents=True,exist_ok=True);files=[]
     for role,source,url in [('payload',fixtures/payload,payloadurl),('companion',fixtures/companion,companionurl),('capture_receipt',proofs/capture,None)]:
         dest=root/'raw'/source.name;shutil.copyfile(source,dest);files.append({'role':role,'path':'raw/'+source.name,'sha256':hashlib.sha256(dest.read_bytes()).hexdigest(),'url':url})
-    packet={'version':1,'purpose':'dry_run_only','parser':kind,'context':context,'targetBinding':target,'reviewedBinding':{'target':target,'sourceContext':context},'publisher':{'id':context['state'],'kind':'admin_manual','name':name,'url':payloadurl},'files':files,'reviewedCertification':False,'sourceContestId':sourceid,'localContestId':localid,'expectedTotals':{'totalVotes':total,'optionCount':count}}
+    packet={'version':1,'purpose':'dry_run_only','parser':kind,'context':context,'targetBinding':target,'reviewedBinding':{'target':target,'sourceContext':context},'publisher':{'id':'admin_manual:'+context['state'],'kind':'admin_manual','name':name,'url':payloadurl},'files':files,'reviewedCertification':False,'sourceContestId':sourceid,'localContestId':localid,'expectedTotals':{'totalVotes':total,'optionCount':count}}
     for name,value in [('packet.json',packet),('target-binding.json',target)]: (root/name).write_bytes((json.dumps(value,indent=2)+'\n').encode())
     print(folder,hashlib.sha256((root/'packet.json').read_bytes()).hexdigest())
 context={'state':'NC','electionDate':'2026-03-03','phase':'primary','level':'federal','office':'U.S. Senate','district':None,'party':'DEM'}

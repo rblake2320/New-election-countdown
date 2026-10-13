@@ -18,6 +18,7 @@ for folder,total,optionCount,kind,status in [('wa-senate',1948716,12,'official_s
     value=json.loads(run.stdout);assert run.returncode==0 and value['outcome']=='Worked'
     assert value['input']['totalVotes']==total and len(value['input']['candidates'])==optionCount
     assert value['input']['source']['kind']==kind and value['input']['status']==status and value['input']['asOf'] is None
+    if kind=='admin_manual':assert value['input']['source']['id']=='admin_manual:'+value['sourceContext']['state']
     assert all(row['candidateId'] is None and row['isWinner'] is False for row in value['input']['candidates'])
     (directory/'v1-receipt.json').write_bytes(run.stdout);others.append({'folder':folder,'totalVotes':total,'candidateCount':optionCount,'kind':kind,'status':status,'manifestSha256':sha,'retrievedAt':value['input']['retrievedAt']})
 actual=json.loads((packet/'target-binding.json').read_bytes()); actual['id']+=1

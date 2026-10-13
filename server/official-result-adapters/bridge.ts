@@ -31,7 +31,7 @@ export function bridgeOfficialContest(parsedInput:unknown,input:OfficialBridgeIn
   if(target.state!==parsed.context.state||target.date!==parsed.context.electionDate||target.level!==parsed.context.level)refuse('TARGET_CONTEXT_MISMATCH','Target state/date/level differs from actual source context');
   const phaseTypes:Record<OfficialContestContext['phase'],string[]>= {general:['general'],primary:['primary'],runoff:['runoff'],primary_runoff:['primary runoff','primaryrunoff','primary_runoff'],other:['other','special']};
   if(!phaseTypes[parsed.context.phase].includes(target.type.toLowerCase()))refuse('TARGET_CONTEXT_MISMATCH','Target type differs from reviewed source phase');
-  if(publisher.kind==='admin_manual'&&(publisher.id!==parsed.context.state||input.reviewedCertification===true))refuse('MANUAL_SOURCE_REFUSED','Manual source requires exact state ID and unofficial status');
+  if(publisher.kind==='admin_manual'&&(publisher.id!==`admin_manual:${target.state}`||input.reviewedCertification===true))refuse('MANUAL_SOURCE_REFUSED','Manual source requires exact admin_manual:<target state> ID and unofficial status');
   if(hash(input.rawPayload)!==parsed.sourcePayloadSha256)refuse('PAYLOAD_HASH_MISMATCH','Parsed result does not bind actual raw payload bytes');
   const retrievedAt=resultsTimestamp.parse(input.retrievedAt);
   let certification:LiveResultReportInput['certification']=null;
