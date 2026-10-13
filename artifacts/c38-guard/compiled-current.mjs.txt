@@ -1,0 +1,352 @@
+globalThis.__guardAlerts=[];globalThis.setInterval=()=>({unref(){}});
+
+// fixture:alerts
+var alertEngineService = { processEvent: async (...args) => {
+  globalThis.__guardAlerts.push(args);
+  return void 0;
+} };
+
+// server/services/event-processor-service.ts
+var EventProcessorUnavailableError = class extends Error {
+  constructor(code, message) {
+    super(message);
+    this.code = code;
+    this.name = "EventProcessorUnavailableError";
+  }
+};
+var EventProcessorService = class {
+  constructor() {
+    this.processingQueue = /* @__PURE__ */ new Map();
+    this.eventFilters = /* @__PURE__ */ new Map();
+    this.isProcessing = false;
+    this.initializeEventFilters();
+    this.startProcessingLoop();
+    console.log("\u2705 Event Processor Service initialized");
+  }
+  /**
+   * Initialize event filters to prevent spam
+   */
+  initializeEventFilters() {
+    this.eventFilters.set("election_status_duplicate", (event2) => {
+      if (event2.eventType !== "status_change") return true;
+      const key = `election_${event2.electionId}_status`;
+      const lastEvent = this.processingQueue.get(key);
+      if (lastEvent && lastEvent.newStatus === event2.newStatus) {
+        return false;
+      }
+      this.processingQueue.set(key, event2);
+      return true;
+    });
+    this.eventFilters.set("candidate_update_rate_limit", (event2) => {
+      const key = `candidate_${event2.candidateId}_updates`;
+      const now = Date.now();
+      const recentUpdates = this.processingQueue.get(key) || [];
+      const filteredUpdates = recentUpdates.filter(
+        (timestamp) => now - timestamp < 60 * 60 * 1e3
+      );
+      if (event2.updateType === "minor" && filteredUpdates.length >= 5) {
+        return false;
+      }
+      filteredUpdates.push(now);
+      this.processingQueue.set(key, filteredUpdates);
+      return true;
+    });
+    this.eventFilters.set("breaking_news_verification", (event2) => {
+      if (event2.urgency === "urgent" && !event2.verified) {
+        console.warn("Blocking unverified urgent breaking news:", event2.headline);
+        return false;
+      }
+      return true;
+    });
+  }
+  /**
+   * Process election-related events
+   */
+  async processElectionEvent(election2, eventData) {
+    try {
+      if (eventData.electionId !== election2.id || !Number.isFinite(new Date(election2.date).getTime())) throw new EventProcessorUnavailableError("INVALID_EVENT_CONTEXT", "Election event does not match a valid stored election context");
+      console.log(`\u{1F5F3}\uFE0F Processing election event: ${eventData.eventType} for ${election2.title}`);
+      if (!this.applyFilters("election", eventData)) {
+        console.log("Event filtered out:", eventData.eventType);
+        throw new Error("Event filtered out");
+      }
+      const enhancedData = {
+        ...eventData,
+        electionTitle: election2.title,
+        electionDate: election2.date,
+        electionLevel: election2.level,
+        electionType: election2.type,
+        timestamp: (/* @__PURE__ */ new Date()).toISOString()
+      };
+      let alertEventType = "election_update";
+      let priority = "normal";
+      switch (eventData.eventType) {
+        case "results_update":
+          alertEventType = "election_result";
+          priority = "high";
+          break;
+        case "deadline_approaching":
+          alertEventType = "deadline_reminder";
+          priority = eventData.deadline && eventData.deadline.daysUntil <= 1 ? "high" : "normal";
+          break;
+        case "voting_started":
+        case "voting_ended":
+          alertEventType = "election_update";
+          priority = "high";
+          break;
+        case "status_change":
+          alertEventType = "election_update";
+          priority = "normal";
+          break;
+      }
+      return await alertEngineService.processEvent(
+        alertEventType,
+        enhancedData,
+        {
+          election: election2,
+          timestamp: /* @__PURE__ */ new Date(),
+          source: "election_processor",
+          metadata: {
+            originalEventType: eventData.eventType,
+            processingTime: (/* @__PURE__ */ new Date()).toISOString()
+          }
+        }
+      );
+    } catch (error) {
+      console.error("Failed to process election event:", error);
+      throw error;
+    }
+  }
+  /**
+   * Process candidate-related events
+   */
+  async processCandidateEvent(candidate, election2, eventData) {
+    try {
+      if (eventData.candidateId !== candidate.id || eventData.electionId !== election2.id || candidate.electionId === null || candidate.electionId === void 0 || candidate.electionId !== election2.id || candidate.electionId !== eventData.electionId || !Number.isFinite(new Date(election2.date).getTime())) throw new EventProcessorUnavailableError("INVALID_EVENT_CONTEXT", "Candidate event does not match a valid stored subject and election context");
+      console.log(`\u{1F464} Processing candidate event: ${eventData.eventType} for ${candidate.name}`);
+      if (!this.applyFilters("candidate", eventData)) {
+        console.log("Event filtered out:", eventData.eventType);
+        throw new Error("Event filtered out");
+      }
+      const enhancedData = {
+        ...eventData,
+        candidateName: candidate.name,
+        candidateParty: candidate.party,
+        electionTitle: election2.title,
+        electionDate: election2.date,
+        timestamp: (/* @__PURE__ */ new Date()).toISOString()
+      };
+      let priority = "normal";
+      if (eventData.updateType === "critical" || eventData.importance >= 9) {
+        priority = "urgent";
+      } else if (eventData.updateType === "major" || eventData.importance >= 7) {
+        priority = "high";
+      }
+      return await alertEngineService.processEvent(
+        "candidate_update",
+        enhancedData,
+        {
+          candidate,
+          election: election2,
+          timestamp: /* @__PURE__ */ new Date(),
+          source: "candidate_processor",
+          metadata: {
+            originalEventType: eventData.eventType,
+            updateType: eventData.updateType,
+            importance: eventData.importance,
+            verified: eventData.verified
+          }
+        }
+      );
+    } catch (error) {
+      console.error("Failed to process candidate event:", error);
+      throw error;
+    }
+  }
+  /**
+   * Process breaking news events
+   */
+  async processBreakingNewsEvent(eventData) {
+    try {
+      console.log(`\u{1F4E2} Processing breaking news: ${eventData.headline}`);
+      if (!this.applyFilters("breaking_news", eventData)) {
+        console.log("Breaking news filtered out:", eventData.headline);
+        throw new Error("Event filtered out");
+      }
+      let relatedElection;
+      let relatedCandidate;
+      if (eventData.relatedElectionIds && eventData.relatedElectionIds.length > 0) {
+      }
+      if (eventData.relatedCandidateIds && eventData.relatedCandidateIds.length > 0) {
+      }
+      const enhancedData = {
+        ...eventData,
+        timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+        category: eventData.category,
+        verified: eventData.verified
+      };
+      return await alertEngineService.processEvent(
+        "breaking_news",
+        enhancedData,
+        {
+          election: relatedElection,
+          candidate: relatedCandidate,
+          timestamp: /* @__PURE__ */ new Date(),
+          source: "breaking_news_processor",
+          metadata: {
+            category: eventData.category,
+            urgency: eventData.urgency,
+            verified: eventData.verified,
+            sourceUrl: eventData.sourceUrl,
+            expiresAt: eventData.expiresAt?.toISOString()
+          }
+        }
+      );
+    } catch (error) {
+      console.error("Failed to process breaking news event:", error);
+      throw error;
+    }
+  }
+  /**
+   * Process system/platform events
+   */
+  async processSystemEvent(eventData) {
+    try {
+      console.log(`\u2699\uFE0F Processing system event: ${eventData.eventType}`);
+      if (eventData.severity !== "critical" && eventData.severity !== "error") {
+        console.log("System event not critical enough for notifications");
+        throw new Error("Event not critical enough");
+      }
+      const enhancedData = {
+        ...eventData,
+        timestamp: (/* @__PURE__ */ new Date()).toISOString()
+      };
+      const priority = eventData.severity === "critical" ? "urgent" : "high";
+      return await alertEngineService.processEvent(
+        "system_alert",
+        enhancedData,
+        {
+          timestamp: /* @__PURE__ */ new Date(),
+          source: "system_processor",
+          metadata: {
+            severity: eventData.severity,
+            actionRequired: eventData.actionRequired,
+            affectedServices: eventData.affectedServices,
+            estimatedDuration: eventData.estimatedDuration
+          }
+        }
+      );
+    } catch (error) {
+      console.error("Failed to process system event:", error);
+      throw error;
+    }
+  }
+  /**
+   * Schedule deadline reminders
+   */
+  async scheduleDeadlineReminders(_election) {
+    throw new EventProcessorUnavailableError("SCHEDULER_UNAVAILABLE", "Deadline reminders require a configured durable scheduler and reviewed jurisdiction-specific deadlines");
+  }
+  /**
+   * Apply event filters
+   */
+  applyFilters(eventType, eventData) {
+    for (const [filterName, filterFn] of this.eventFilters.entries()) {
+      if (filterName.includes(eventType.toLowerCase())) {
+        if (!filterFn(eventData)) {
+          console.log(`Event filtered by ${filterName}`);
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+  /**
+   * Start background processing loop
+   */
+  startProcessingLoop() {
+    const timer = setInterval(async () => {
+      if (this.isProcessing) return;
+      this.isProcessing = true;
+      try {
+        await this.cleanupExpiredEvents();
+      } catch (error) {
+        console.error("Processing loop error:", error);
+      } finally {
+        this.isProcessing = false;
+      }
+    }, 3e4);
+    timer.unref?.();
+  }
+  /**
+   * Clean up expired events
+   */
+  async cleanupExpiredEvents() {
+    const now = Date.now();
+    const cutoff = now - 2 * 60 * 60 * 1e3;
+    for (const [key, value] of this.processingQueue.entries()) {
+      if (Array.isArray(value)) {
+        const filtered = value.filter((timestamp) => timestamp > cutoff);
+        if (filtered.length === 0) {
+          this.processingQueue.delete(key);
+        } else {
+          this.processingQueue.set(key, filtered);
+        }
+      }
+    }
+  }
+  /**
+   * Get processing statistics
+   */
+  getProcessingStats() {
+    return {
+      queueSize: this.processingQueue.size,
+      filtersActive: this.eventFilters.size,
+      isProcessing: this.isProcessing,
+      // No durable processing timestamp is recorded by this cache service.
+      lastProcessingTime: null
+    };
+  }
+  /**
+   * Add custom event filter
+   */
+  addEventFilter(name, filterFn) {
+    this.eventFilters.set(name, filterFn);
+    console.log(`\u2705 Added event filter: ${name}`);
+  }
+  /**
+   * Remove event filter
+   */
+  removeEventFilter(name) {
+    const removed = this.eventFilters.delete(name);
+    if (removed) {
+      console.log(`\u274C Removed event filter: ${name}`);
+    }
+    return removed;
+  }
+};
+var eventProcessorService = new EventProcessorService();
+
+// c38-guard-harness.ts
+import { writeFileSync } from "node:fs";
+var alerts = globalThis.__guardAlerts;
+var rows = [];
+var election = { id: 1, title: "Isolated guard receiver", date: /* @__PURE__ */ new Date("2026-11-03T00:00:00Z"), state: "CA", type: "general", level: "state" };
+var event = { candidateId: 7, electionId: 1, eventType: "position_change", updateType: "minor", importance: 1, verified: true };
+for (const [name, electionId] of [["foreign", 999], ["null", null], ["missing", void 0], ["valid", 1]]) {
+  alerts.length = 0;
+  const service = new EventProcessorService();
+  let code = null;
+  try {
+    await service.processCandidateEvent({ id: 7, name: "Isolated subject", party: "I", electionId }, election, event);
+  } catch (error) {
+    code = error.code ?? null;
+  }
+  const alertCalls = alerts.length, queueSize = service.getProcessingStats().queueSize;
+  const okay = name === "valid" ? alertCalls === 1 && queueSize === 1 : code === "INVALID_EVENT_CONTEXT" && alertCalls === 0 && queueSize === 0;
+  rows.push({ scenario: name, storedCandidateElectionId: electionId ?? null, missingField: name === "missing", outcome: okay ? "Worked" : "Failed", code, alertCalls, queueSize });
+}
+var result = { mode: "current", oldHead: "626f02d11d1503a9b498ef3005425c251c09e0ae", execution: "Actual bundled event processor; only timer/alert boundary fixtures; no DB or message delivery", rows };
+writeFileSync(process.argv[2], JSON.stringify(result, null, 2) + String.fromCharCode(10), { flag: "wx" });
+console.log(JSON.stringify(result));
+if (rows.some((row) => row.outcome === "Failed")) process.exitCode = 1;
