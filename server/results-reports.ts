@@ -9,6 +9,8 @@
 import { z } from 'zod';
 import { createHash } from 'node:crypto';
 import {sourceHealthCacheKey} from './results-source-health';
+import{ResultReportError}from'./results-errors';
+export{ResultReportError}from'./results-errors';
 import {
   liveResultReportInputSchema, liveResultSourceKinds, liveResultReportingBases, liveResultAsOfBases,
   type LiveElectionResultsResponse, type LiveResultReportInput,
@@ -194,12 +196,6 @@ export function etagFor(payload: ResultsPayload): string {
 }
 
 /** Errors the writer raises; routes map `status`/`publicCode` straight to HTTP. */
-export class ResultReportError extends Error {
-  constructor(public readonly status: number, public readonly publicCode: string, message: string, public readonly details?: unknown) {
-    super(message);
-  }
-}
-
 /** Server-only sanity the DTO leaves to the writer: nothing is retrieved from the future. */
 export function assertNotFuture(input: ResultReportInput, now = Date.now()): void {
   if (new Date(input.retrievedAt).getTime() > now + 5 * 60 * 1000) {

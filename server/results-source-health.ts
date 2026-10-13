@@ -1,5 +1,7 @@
 import type {Pool,PoolClient} from 'pg';
-import {ResultReportError,stableStringify,type ElectionContext,type ResultsPayload} from './results-reports';
+import {stableStringify,type ElectionContext,type ResultsPayload} from './results-reports';
+import{ResultReportError}from'./results-errors';
+import type{LiveResultReadError}from'@shared/live-election-results';
 
 export const AUTOMATIC_RESULTS_TTL_SECONDS=90;
 export type SourceHealthOutcome='success'|'failed'|'not_published';
@@ -10,16 +12,20 @@ export interface SourceHealthRow {
 }
 export interface HealthRead {electionId:number;sourceIds:string[];context:ElectionContext}
 export const healthCacheVersion=Symbol('source-health-cache-version');
-export function sourceHealthCacheKey(payload:ResultsPayload):string {return (payload as ResultsPayload&{[healthCacheVersion]?:string})[healthCacheVersion]??'untracked';}
+export function sourceHealthCacheKey(payload:ResultsPayload|LiveResultReadError):string {return (payload as (ResultsPayload|LiveResultReadError)&{[healthCacheVersion]?:string})[healthCacheVersion]??'untracked';}
 export function assertResultsNotAborted(signal?:AbortSignal):void {if(signal?.aborted)throw new ResultReportError(503,'ingestion_aborted','Result ingestion was intentionally stopped');}
 const stamp=(v:Date|string)=>new Date(v).toISOString();
-export function decorateSourceHealth(payload:ResultsPayload,health:SourceHealthRow|null,automaticFallback=false,now=Date.now()):ResultsPayload {
+export class SourceUnavailableError extends ResultReportError{
+ constructor(public readonly readError:LiveResultReadError){super(503,'source_unavailable',readError.message,readError);}
+}
+export function decorateSourceHealth(payload:ResultsPayload,health:SourceHealthRow|null,automaticFallback=false,now=Date.now(),context?:ElectionContext):ResultsPayload {
  let staleSince=health?.stale_since?stamp(health.stale_since):null;
- if(!payload.reportId&&health?.outcome==='failed')throw new ResultReportError(503,'source_unavailable','The admitted official results source is unavailable',{electionId:payload.electionId,sourceId:health.source_id});
+ const unavailable=(message:string,since:string):never=>{if(!context)throw new ResultReportError(503,'source_unavailable',message);const row:LiveResultReadError={electionId:payload.electionId,code:'source_unavailable',message,sourceId:health?.source_id??null,failedSince:since,electionContext:context};Object.defineProperty(row,healthCacheVersion,{value:String(health?.health_version??0),enumerable:false});throw new SourceUnavailableError(row);};
+ if(!payload.reportId&&health?.outcome==='failed')unavailable('The admitted official results source is unavailable',staleSince??stamp(health.last_attempt_at));
  const automatic=health?.automatic??automaticFallback;
  const last=health?.last_success_at??(health?.outcome==='not_published'?health.last_attempt_at:null)??payload.retrievedAt;
  if(automatic&&last){const expires=new Date(last).getTime()+(health?.ttl_seconds??AUTOMATIC_RESULTS_TTL_SECONDS)*1000;if(now>=expires){const ttlSince=new Date(expires).toISOString();if(!staleSince||ttlSince<staleSince)staleSince=ttlSince;}}
- if(!payload.reportId&&staleSince)throw new ResultReportError(503,'source_unavailable','The admitted source observation expired before any official result was recorded',{electionId:payload.electionId,sourceId:health?.source_id??null});
+ if(!payload.reportId&&staleSince)unavailable('The admitted source observation expired before any official result was recorded',staleSince);
  const decorated={...payload,stale:staleSince!==null,staleSince};
  Object.defineProperty(decorated,healthCacheVersion,{value:`${health?.health_version??0}:${automatic?'automatic':'manual'}:${staleSince??'fresh'}`,enumerable:false});
  return decorated;
@@ -35,7 +41,7 @@ export async function writeSourceHealth(q:Pick<PoolClient,'query'>,event:SourceH
  ON CONFLICT(election_id,source_id,context_state,context_election_date,context_type,context_level,context_office) DO UPDATE SET
  outcome=EXCLUDED.outcome,automatic=EXCLUDED.automatic,ttl_seconds=EXCLUDED.ttl_seconds,last_attempt_at=EXCLUDED.last_attempt_at,
  last_success_at=CASE WHEN EXCLUDED.outcome='success' THEN EXCLUDED.last_success_at ELSE result_source_health.last_success_at END,
- stale_since=CASE WHEN EXCLUDED.outcome='success' THEN NULL WHEN EXCLUDED.stale_since IS NOT NULL THEN coalesce(result_source_health.stale_since,EXCLUDED.stale_since) ELSE result_source_health.stale_since END,
+ stale_since=CASE WHEN EXCLUDED.outcome='success' OR (EXCLUDED.outcome='not_published' AND EXCLUDED.stale_since IS NULL) THEN NULL WHEN EXCLUDED.stale_since IS NOT NULL THEN coalesce(result_source_health.stale_since,EXCLUDED.stale_since) ELSE result_source_health.stale_since END,
  health_version=result_source_health.health_version+CASE WHEN result_source_health.outcome<>EXCLUDED.outcome OR result_source_health.automatic<>EXCLUDED.automatic OR (result_source_health.stale_since IS NOT NULL AND EXCLUDED.outcome='success') OR (EXCLUDED.outcome='success' AND result_source_health.automatic AND result_source_health.last_success_at+result_source_health.ttl_seconds*INTERVAL '1 second'<=EXCLUDED.last_attempt_at) THEN 1 ELSE 0 END`,
  [event.electionId,event.sourceId,c.state,c.electionDate,c.type,c.level,c.office,event.outcome,event.automatic,AUTOMATIC_RESULTS_TTL_SECONDS]);
  if(outcome.rowCount!==1)throw new ResultReportError(409,'health_context_changed','Race context changed before source health was recorded');
@@ -57,7 +63,7 @@ export class MemSourceHealth {
  private key(e:Pick<SourceHealthEvent,'electionId'|'sourceId'|'context'>):string{return stableStringify([e.electionId,e.sourceId,e.context]);}
  write(event:SourceHealthEvent,hasReport:boolean):void{
   assertResultsNotAborted(event.signal);const key=this.key(event),old=this.rows.get(key),at=new Date().toISOString(),c=event.context;
-  const stale=event.outcome==='success'?null:event.outcome==='failed'||hasReport?old?.stale_since??at:old?.stale_since??null;
+  const stale=event.outcome==='success'?null:event.outcome==='failed'||hasReport?old?.stale_since??at:null;
   const expiredRecovery=old?.automatic&&old.last_success_at&&event.outcome==='success'&&Date.now()>=new Date(old.last_success_at).getTime()+old.ttl_seconds*1000;
   this.rows.set(key,{election_id:event.electionId,source_id:event.sourceId,context_state:c.state,context_election_date:c.electionDate,context_type:c.type,context_level:c.level,context_office:c.office,outcome:event.outcome,automatic:event.automatic,ttl_seconds:AUTOMATIC_RESULTS_TTL_SECONDS,last_attempt_at:at,last_success_at:event.outcome==='success'?at:old?.last_success_at??null,stale_since:stale,health_version:old?Number(old.health_version)+(old.outcome!==event.outcome||old.automatic!==event.automatic||old.stale_since!==null&&event.outcome==='success'||expiredRecovery?1:0):1});
  }
