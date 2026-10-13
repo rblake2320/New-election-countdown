@@ -1,0 +1,131 @@
+
+ RUN  v5.0.3 D:/projects/et-wt/yellow-pr69-review
+
+················xxxx·
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/yellow-pr69-regressions.test.ts > yellow independent cancellation and source scope > yellow refuses an already cancelled adapter success before writing
+AssertionError: expected [ Array(1) ] to have a length of +0 but got 1
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/unit/yellow-pr69-regressions.test.ts:198:21
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  tests/unit/yellow-pr69-regressions.test.ts > yellow independent cancellation and source scope > yellow bounds stop even when scheduled adapter ignores abort
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/unit/yellow-pr69-regressions.test.ts:206:76
+    204|    const start=svc.startPolling(); await began; let stopped=false; con…
+    205|    await vi.advanceTimersByTimeAsync(10001); const bounded=stopped;
+    206|    release(); await start; await stop; vi.useRealTimers(); expect(boun…
+       |                                                                            ^
+    207|  });
+    208|  it('yellow writer refuses source registered only for a different phas…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  tests/unit/yellow-pr69-regressions.test.ts > yellow independent cancellation and source scope > yellow writer refuses source registered only for a different phase and day
+AssertionError: promise resolved "{ payload: { …(20) }, created: true }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "created": true,
++   "payload": {
++     "asOf": "2024-03-06T03:00:00.000Z",
++     "asOfBasis": "source_timestamp",
++     "candidates": [
++       {
++         "candidateId": null,
++         "isWinner": false,
++         "name": "A",
++         "party": "D",
++         "percent": 100,
++         "sourceCandidateId": "c1",
++         "votes": 10,
++       },
++     ],
++     "certification": null,
++     "electionContext": {
++       "electionDate": "2023-11-07",
++       "level": "federal",
++       "office": "US Senate",
++       "state": "NC",
++       "type": "general",
++     },
++     "electionId": 99,
++     "history": [],
++     "reportId": 1,
++     "reporting": {
++       "basis": "precincts",
++       "percent": 50,
++       "precinctsReporting": 1,
++       "precinctsTotal": 2,
++     },
++     "retrievedAt": "2024-03-06T03:01:00.000Z",
++     "revision": "r1-dff175bb",
++     "schemaVersion": 1,
++     "source": {
++       "id": "nc-sbe-2024p",
++       "kind": "official_state_enr",
++       "name": "NC SBE",
++       "sourceContestId": "US-SEN",
++       "url": "https://results.enr.clarityelections.com/NC/US-SEN",
++     },
++     "sourcePayloadSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
++     "stale": false,
++     "staleSince": null,
++     "status": "unofficial",
++     "supersedesReportId": null,
++     "totalVotes": 10,
++     "winnerCalledBy": null,
++   },
+  }
+
+ ❯ tests/unit/yellow-pr69-regressions.test.ts:210:118
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  tests/unit/yellow-pr69-regressions.test.ts > yellow late adapter cancellation > yellow prevents write when in-flight adapter resolves after stop
+AssertionError: expected [ Array(1) ] to have a length of +0 but got 1
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/unit/yellow-pr69-regressions.test.ts:221:21
+    219|    svc.registerAdapter('nc-sbe-2024p',async()=>{began();return await n…
+    220|    const cycle=svc.ingestResults(); await started; const stop=svc.stop…
+    221|    expect(recorded).toHaveLength(0); expect(result[0]).toMatchObject({…
+       |                     ^
+    222|  });
+    223|  it('yellow accepts actual independently pinned WA workbook signature'…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  4 failed | 17 passed (21)
+   Start at  12:36:15
+   Duration  1.49s (environment 50%, import 15%, setup 14%, transform 12%, tests 8%, worker 1%)
+
