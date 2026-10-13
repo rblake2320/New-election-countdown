@@ -15,7 +15,7 @@ const receipt = JSON.parse(await readFile(input, 'utf8'));
 const runId = `${process.pid}-${randomBytes(4).toString('hex')}`;
 const evidence = resolve(dirname(input), `load-${runId}`);
 await mkdir(evidence, { recursive: true });
-const report = { outcome: 'Failed', input, runId, evidence, sourceReplay: false,
+const report = { outcome: 'Running', startedAt: new Date().toISOString(), input, runId, evidence, sourceReplay: false,
   scope: 'Read-only private compiled application; actual current results, not official-feed replay',
   workload: { clients: 10, phasesRps: [20, 40], durationSecondsEach: 60, timeoutMs: 5000, maxScheduleLatenessMs: 100 },
   identities: [], phases: [], cleanup: [] };
@@ -152,7 +152,7 @@ try {
     requireThat(phase.passed, `${rps} RPS acceptance failed; inspect per-request evidence`);
   }
   report.outcome = 'Worked';
-} catch (error) { report.error = error.message; process.exitCode = 1; }
+} catch (error) { report.outcome = 'Failed'; report.error = error.message; process.exitCode = 1; }
 finally {
   for (const name of clients) {
     try {
@@ -165,6 +165,7 @@ finally {
       report.cleanup.push({ name, outcome: 'removed' });
     } catch (error) { report.cleanup.push({ name, outcome: 'Failed', error: error.message }); report.outcome = 'Failed'; process.exitCode = 1; }
   }
+  report.completedAt = new Date().toISOString();
   await save();
 }
 console.log(JSON.stringify({ receipt: resolve(evidence, 'receipt.json'), outcome: report.outcome, phases: report.phases, error: report.error }, null, 2));

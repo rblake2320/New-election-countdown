@@ -68,7 +68,7 @@ if (process.argv[2] === '--cleanup') {
   const databaseURL = `postgresql://${role}:${password}@${db}:5432/${database}`;
   const redact = value => secrets.reduce((s, secret) => s.replaceAll(secret, '[redacted]'), String(value));
   const report = {
-    outcome: 'Failed', image, builder, resources, resourcesRetained: false,
+    outcome: 'Running', startedAt: new Date().toISOString(), image, builder, resources, resourcesRetained: false,
     url: `http://127.0.0.1:${port}`, networkScope: 'owned private bridge; application published on loopback only; database has no published port',
     checks: [], sourceReplay: { outcome: 'Blocked', reason: 'C historical source adapter/packet not yet provided; no official result fixtures fabricated' },
     fixture: { email: 'et6-admin@example.test', passwordEnvironment: 'ET6_FIXTURE_PASSWORD', scope: 'Disposable private admin identity only' },
@@ -156,6 +156,7 @@ if (process.argv[2] === '--cleanup') {
       try { report.cleanup = await cleanup(resources, docker); }
       catch (error) { report.cleanupError = redact(error.message); report.outcome = 'Failed'; process.exitCode = 1; }
     }
+    report.completedAt = new Date().toISOString();
     await writeJson(receiptPath, report);
   }
   console.log(JSON.stringify({ receipt: receiptPath, ...report }));
