@@ -38,6 +38,18 @@ describe('Actual raw packet→V1 bridge',()=>{
     const receipt=await parseOfficialSourcePacket(path,sha(readFileSync(path)),actualTarget);
     expect(receipt.input.totalVotes).toBe(total);expect(receipt.input.candidates.length).toBe(count);expect(receipt.input.status).toBe('certified');expect(receipt.input.asOf).toBeNull();expect(receipt.input.candidates.every(c=>c.candidateId===null&&!c.isWinner)).toBe(true);
   });
+  for(const [folder,total,count,state] of [['nc-manual',827755,6,'NC'],['nc-house-manual',67376,5,'NC'],['la-manual',196212,2,'LA']] as const)it(`calls actual ${folder} raw parser and emits truthful manual provenance`,async()=>{
+    const dir=resolve('artifacts/source-packet',folder),path=join(dir,'packet.json'),actualTarget=JSON.parse(readFileSync(join(dir,'target-binding.json'),'utf8'));
+    const receipt=await parseOfficialSourcePacket(path,sha(readFileSync(path)),actualTarget);
+    expect(receipt.input.totalVotes).toBe(total);expect(receipt.input.candidates.length).toBe(count);expect(receipt.input.status).toBe('unofficial');expect(receipt.input.source?.kind).toBe('admin_manual');expect(receipt.input.source?.id).toBe(state);
+    expect(receipt.input.asOf).toBeNull();expect(receipt.input.certification).toBeNull();expect(receipt.input.candidates.every(c=>c.candidateId===null&&!c.isWinner)).toBe(true);
+    if(state==='LA')expect(receipt.input.candidates.map(c=>c.sourceCandidateId)).toEqual(['124648','124649']);
+  });
+  it('refuses claiming manual source certified or using another state ID',()=>{
+    const publisher={...base.publisher,kind:'admin_manual' as const,id:'WA'};
+    expect(()=>bridgeOfficialContest(parsed,{...base,publisher,reviewedCertification:true})).toThrow(/unofficial status/);
+    expect(()=>bridgeOfficialContest(parsed,{...base,publisher:{...publisher,id:'NC'}})).toThrow(/exact state ID/);
+  });
   it('keeps original/amended actual returns on SAME source contest with different counts and keys',async()=>{
     const before=await parseOfficialSourcePacket(packetPath,sha(readFileSync(packetPath)),target),afterPath=join(root,'recount.packet.json'),after=await parseOfficialSourcePacket(afterPath,sha(readFileSync(afterPath)),target);
     expect(before.input.source?.sourceContestId).toBe(after.input.source?.sourceContestId);expect(before.input.electionId).toBe(after.input.electionId);
