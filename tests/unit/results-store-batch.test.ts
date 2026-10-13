@@ -10,6 +10,7 @@ describe('PostgreSQL results batch without reports', () => {
     // Real LEFT JOIN shape: r.* includes a null election_id when no report exists.
     // The election identity must have a distinct projection and be read from it.
     const query = vi.fn(async (sql: string) => {
+      if(sql.includes('result_source_health'))return{rows:[]};
       expect(sql).toMatch(/e\.id\s+AS\s+e_id\b/i);
       return {
         rows: [1, 2, 3].map((id) => ({
@@ -34,6 +35,6 @@ describe('PostgreSQL results batch without reports', () => {
       expect(result).toMatchObject({ status: 'none', reportId: null, candidates: [] });
     }
     // No report IDs means no candidate query is needed.
-    expect(query).toHaveBeenCalledTimes(1);
+    expect(query).toHaveBeenCalledTimes(2); // One bounded health query, including no-report races.
   });
 });

@@ -43,6 +43,7 @@ COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
 # Offline source proofs and the separately operated C6 migration/CLI.
 COPY --from=builder --chown=nodejs:nodejs /app/data/official-results ./data/official-results
 COPY --from=builder --chown=nodejs:nodejs /app/migrations/20261011_official_results_routes.sql ./migrations/20261011_official_results_routes.sql
+COPY --from=builder --chown=nodejs:nodejs /app/migrations/20261013_result_source_health.sql ./migrations/20261013_result_source_health.sql
 
 # Services create retention/log directories at boot while running as nodejs.
 RUN mkdir -p /app/artifacts /app/backups /app/logs /app/infrastructure && \

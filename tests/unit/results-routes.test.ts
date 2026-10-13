@@ -114,7 +114,7 @@ describe('ET-6 results contract (v1.2)', () => {
       expect(res.status).toBe(200);
       const body = await res.json();
       expect(body).toMatchObject({ schemaVersion: 1, electionId: h.e.id, status: 'none', reportId: null, source: null, asOf: null, retrievedAt: null, totalVotes: null, candidates: [], history: [], electionContext: null });
-      expect(res.headers.get('etag')).toBe(`W/"${h.e.id}-none"`);
+      expect(res.headers.get('etag')).toMatch(new RegExp(`^W/"${h.e.id}-none-[a-f0-9]{24}"$`));
       expect((await h.get('/api/elections/99999/results')).status).toBe(404);
       expect((await h.get(`/api/elections/${h.e.id}/live-results`)).status).toBe(200); // alias
     } finally { await h.close(); }

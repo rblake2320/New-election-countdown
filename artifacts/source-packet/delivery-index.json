@@ -1,0 +1,559 @@
+{
+  "outcome": "Worked",
+  "runtimeHead": "696da4ac0148f7a887cd8f54d8f6858f61525adf",
+  "unitTests": 33,
+  "fullTests": 932,
+  "ownedStrictErrors": 0,
+  "actualWindowsCliCases": 8,
+  "actualLinuxPositiveCases": 7,
+  "actualLinuxSymlinkEscape": "Refused",
+  "actualBundledImportRegression": "old CLI import exit1; new canonical pure library exit0",
+  "sources": [
+    {
+      "path": "server/official-result-adapters/bridge.ts",
+      "gitBlob": "857e28e3c4903da9a125ea01d01b2cdcfeb7db15",
+      "sha256": "d9b10c2783432732f2d0fb3dea99f9deae447013152ba36a6634a6c7a8955c8a",
+      "bytes": 5915
+    },
+    {
+      "path": "server/official-result-adapters/packet.ts",
+      "gitBlob": "e2ccb4de659c5b04b47ab4aca76ad86e6dbc0466",
+      "sha256": "e939eb611b1b0626224e66f51bef95bb7f1e4267c9eaa4fe2717062d2fb975ea",
+      "bytes": 8075
+    },
+    {
+      "path": "scripts/parse_official_source_packet.ts",
+      "gitBlob": "e5c2feb3d627664f7ef5d53a4e650ad16aa7cb86",
+      "sha256": "a18c592ea1e52da287a6e981be6fc55f93687a22c2a325c08c0df71552456246",
+      "bytes": 1865
+    },
+    {
+      "path": "server/official-result-adapters/types.ts",
+      "gitBlob": "f879edcbe6afb6863c6aa318d0fbb06668267595",
+      "sha256": "e114b7ac25a407e10d34d61d1181dde8733b1100437ccb4646eaeaf853f6d9a1",
+      "bytes": 3819
+    },
+    {
+      "path": "server/official-result-adapters/xlsx.ts",
+      "gitBlob": "bdbd23f7ba93d908cde695f0ce3a231c532f494e",
+      "sha256": "84d5d878ee37581f7cf384c4db2934a7ba26bccd1483dd038fa8acf5a30f90fe",
+      "bytes": 12179
+    },
+    {
+      "path": "server/official-result-adapters/wa.ts",
+      "gitBlob": "d7b6866888c741a3644ee9ae0fbec523d1671d47",
+      "sha256": "dc794e785fa94d232baf96ad357dfe437704d2313709f1688112f4bbbb6c22e6",
+      "bytes": 9315
+    },
+    {
+      "path": "server/official-result-adapters/ca.ts",
+      "gitBlob": "4566ad77cc405a22919e8c8ea20e1794b10b7756",
+      "sha256": "edb24bdc84e422c88138f8489766511bc84fd9081254296be52a582b57376a09",
+      "bytes": 7915
+    },
+    {
+      "path": "server/official-result-adapters/nc.ts",
+      "gitBlob": "e91fc051a2ceff3f613c86843c0cdbd5564e4046",
+      "sha256": "dba6a801c9054e229211df6bfce2e78d25192a4605eac20bff050ade5d20a79e",
+      "bytes": 9461
+    },
+    {
+      "path": "server/official-result-adapters/la.ts",
+      "gitBlob": "b8a60ba9597f845bbe9c61485c81426c6b7f83e4",
+      "sha256": "0e513b08c3ed69f2253592f78a743d37321f4a0c91fcb91ac1c06a704222ca0e",
+      "bytes": 10259
+    },
+    {
+      "path": "shared/live-election-results.ts",
+      "gitBlob": "afc2054935098d85e97a75bf5f174a7742774aaf",
+      "sha256": "66523ca97a680177d6e87b3646f4069ba1ced282873c89b07c8b1034abcc91b6",
+      "bytes": 10698
+    },
+    {
+      "path": "shared/official-results.ts",
+      "gitBlob": "539106ae63481e2c3834bcc4ecb9a547e54e332c",
+      "sha256": "a0329d592679740738f81e8165e616f5f4dee4ffca8aa3cccd149d1ee64722c0",
+      "bytes": 8251
+    },
+    {
+      "path": "tests/official-source-packet.test.ts",
+      "gitBlob": "8089d12e2e4f73a38cdbbf2faa556ed2b491c932",
+      "sha256": "71dc2218e765b9dc009dcc4c4116c4d2b2a88f0bcea44c2484a8f1dbf02a3761",
+      "bytes": 12835
+    },
+    {
+      "path": "tests/official-source-library-boot.test.ts",
+      "gitBlob": "156bfb4ed588930c77bd18e8ddcd934f0ae99ae9",
+      "sha256": "e1f710417f7084f2ae3cc244b0dc278b99c7b4ea187d06a0fb4e95391e5620c1",
+      "bytes": 1600
+    }
+  ],
+  "packets": [
+    {
+      "path": "artifacts/source-packet/wa/initial.packet.json",
+      "sha256": "c829680c33da6d5e1eb8a4caf1b3ac489d2906d5284aade91d1bf24bea747660",
+      "parser": "wa_lands_initial",
+      "sourceKind": "official_state_page",
+      "sourceId": "wa-sos-2024-primary-lands",
+      "targetFixtureId": 4242401,
+      "context": {
+        "state": "WA",
+        "electionDate": "2024-08-06",
+        "phase": "primary",
+        "level": "state",
+        "office": "Commissioner of Public Lands",
+        "district": null,
+        "party": null
+      },
+      "expectedTotals": {
+        "totalVotes": 1903073,
+        "optionCount": 8
+      }
+    },
+    {
+      "path": "artifacts/source-packet/wa/recount.packet.json",
+      "sha256": "637e7671bc1cbc71c859e160aac2393c26a646342f9c81f292be0d838066bff2",
+      "parser": "wa_lands_recount",
+      "sourceKind": "official_state_page",
+      "sourceId": "wa-sos-2024-primary-lands",
+      "targetFixtureId": 4242401,
+      "context": {
+        "state": "WA",
+        "electionDate": "2024-08-06",
+        "phase": "primary",
+        "level": "state",
+        "office": "Commissioner of Public Lands",
+        "district": null,
+        "party": null
+      },
+      "expectedTotals": {
+        "totalVotes": 1903115,
+        "optionCount": 8
+      }
+    },
+    {
+      "path": "artifacts/source-packet/ca/packet.json",
+      "sha256": "6a91dcfeaf6a83918cd2a3217d3ac334a82c8f975a7d949ab46455db01f0a74e",
+      "parser": "ca_governor_primary",
+      "sourceKind": "official_state_page",
+      "sourceId": "ca-sos-2026-primary-governor",
+      "targetFixtureId": 4242403,
+      "context": {
+        "state": "CA",
+        "electionDate": "2026-06-02",
+        "phase": "primary",
+        "level": "state",
+        "office": "Governor",
+        "district": null,
+        "party": null
+      },
+      "expectedTotals": {
+        "totalVotes": 9262468,
+        "optionCount": 68
+      }
+    },
+    {
+      "path": "artifacts/source-packet/la-manual/packet.json",
+      "sha256": "919f6d611fffed08635eba006d7932f2f3bd7d551bed70db6d66ba1311d93354",
+      "parser": "la_official",
+      "sourceKind": "admin_manual",
+      "sourceId": "admin_manual:LA",
+      "targetFixtureId": 4242405,
+      "context": {
+        "state": "LA",
+        "electionDate": "2026-06-27",
+        "phase": "primary_runoff",
+        "level": "federal",
+        "office": "U.S. Senate",
+        "district": null,
+        "party": "DEM"
+      },
+      "expectedTotals": {
+        "totalVotes": 196212,
+        "optionCount": 2
+      }
+    },
+    {
+      "path": "artifacts/source-packet/nc-house-manual/packet.json",
+      "sha256": "c53f3c65e9c509dc687f24c7abc25f8b02279163bc0dc09fa59b601d19777afc",
+      "parser": "nc_official",
+      "sourceKind": "admin_manual",
+      "sourceId": "admin_manual:NC",
+      "targetFixtureId": 4242406,
+      "context": {
+        "state": "NC",
+        "electionDate": "2026-03-03",
+        "phase": "primary",
+        "level": "federal",
+        "office": "U.S. House",
+        "district": "01",
+        "party": "REP"
+      },
+      "expectedTotals": {
+        "totalVotes": 67376,
+        "optionCount": 5
+      }
+    },
+    {
+      "path": "artifacts/source-packet/nc-manual/packet.json",
+      "sha256": "9decfcbe3a24da3ae155928c9c03772bfc6b53abbd69fde4165d2097afdc6cca",
+      "parser": "nc_official",
+      "sourceKind": "admin_manual",
+      "sourceId": "admin_manual:NC",
+      "targetFixtureId": 4242404,
+      "context": {
+        "state": "NC",
+        "electionDate": "2026-03-03",
+        "phase": "primary",
+        "level": "federal",
+        "office": "U.S. Senate",
+        "district": null,
+        "party": "DEM"
+      },
+      "expectedTotals": {
+        "totalVotes": 827755,
+        "optionCount": 6
+      }
+    },
+    {
+      "path": "artifacts/source-packet/wa-senate/packet.json",
+      "sha256": "53bbf16f29747778e55307ac6446c7c2fc9944ff0976934cff967a54eca43aa4",
+      "parser": "wa_senate_primary",
+      "sourceKind": "official_state_page",
+      "sourceId": "wa-sos-2024-primary-senate",
+      "targetFixtureId": 4242402,
+      "context": {
+        "state": "WA",
+        "electionDate": "2024-08-06",
+        "phase": "primary",
+        "level": "federal",
+        "office": "U.S. Senate",
+        "district": null,
+        "party": null
+      },
+      "expectedTotals": {
+        "totalVotes": 1948716,
+        "optionCount": 12
+      }
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "artifacts/source-packet/bridge-unit-results.json",
+      "sha256": "581ad1f502680afd599b8471efa888ef67261db93bf9eba90d4604a577d706cd",
+      "bytes": 12184
+    },
+    {
+      "path": "artifacts/source-packet/build.txt",
+      "sha256": "b4e8fce9bdc428204ace2d279520dcd6cb89d13dcb819383b78aa4c6a1d816e8",
+      "bytes": 3735
+    },
+    {
+      "path": "artifacts/source-packet/ca/packet.json",
+      "sha256": "6a91dcfeaf6a83918cd2a3217d3ac334a82c8f975a7d949ab46455db01f0a74e",
+      "bytes": 1999
+    },
+    {
+      "path": "artifacts/source-packet/ca/raw/CA-primary-certificate.pdf",
+      "sha256": "3ffb90f022e448d84ea77cfccc2baa54ad87669a0aaa0575c7a08df66c460d77",
+      "bytes": 842458
+    },
+    {
+      "path": "artifacts/source-packet/ca/raw/CA-primary-gov-receipt.json",
+      "sha256": "68163e1eaaaa26aaa0c6cd8e3c271b267ed8ed8e69c9d9d4609b1ec767021e4a",
+      "bytes": 9618
+    },
+    {
+      "path": "artifacts/source-packet/ca/raw/CA-primary-gov.xlsx",
+      "sha256": "2c3f509d9b144dff74d2d68ae7be124e697cf6e6bd7e50291cbd1393532980d1",
+      "bytes": 59839
+    },
+    {
+      "path": "artifacts/source-packet/ca/target-binding.json",
+      "sha256": "b7c7ad23f18ccbce32ffb374d51b1e064d1cfce071d270bcb3f2dc007527d10b",
+      "bytes": 144
+    },
+    {
+      "path": "artifacts/source-packet/ca/v1-receipt.json",
+      "sha256": "0046f7e99afb15ed1da5f33d608c594adf070a6f0af6bbe8119c6efe6734ec57",
+      "bytes": 25888
+    },
+    {
+      "path": "artifacts/source-packet/compiled-cli-receipt.json",
+      "sha256": "51ed02dcd8f166b702067ded0ed920b19cc06202ca3c395a12c3d103746183ab",
+      "bytes": 1928
+    },
+    {
+      "path": "artifacts/source-packet/full-unit-results.json",
+      "sha256": "420b5c65fe30335a23f461c315a3a85aad5ff276111e7aebb50ca296258504d7",
+      "bytes": 355986
+    },
+    {
+      "path": "artifacts/source-packet/full-unit-results.txt",
+      "sha256": "dd054abc1e98d124a6b52a5bff675cf3321244ae419290502c1fa67ddd15eab1",
+      "bytes": 245
+    },
+    {
+      "path": "artifacts/source-packet/la-manual/packet.json",
+      "sha256": "919f6d611fffed08635eba006d7932f2f3bd7d551bed70db6d66ba1311d93354",
+      "bytes": 2184
+    },
+    {
+      "path": "artifacts/source-packet/la-manual/raw/LA-Jun27-races.raw.json",
+      "sha256": "cf1e6a52f5554f0bb4959f6b9ad7cc583e53f70e57ca28b62346f7c8c01be637",
+      "bytes": 6321
+    },
+    {
+      "path": "artifacts/source-packet/la-manual/raw/LA-Jun27-votes-raw-proof.json",
+      "sha256": "aed4c472684da5f76d0d796a17a51a0ccda797b43dbc27a0716bc2249791523d",
+      "bytes": 567
+    },
+    {
+      "path": "artifacts/source-packet/la-manual/raw/LA-Jun27-votes.raw.json",
+      "sha256": "8207fef79e8ef25d665671fb5e8ce796164b7dc1513430ea1eac214106dabc31",
+      "bytes": 2405
+    },
+    {
+      "path": "artifacts/source-packet/la-manual/target-binding.json",
+      "sha256": "f1fb43dacd165f7b4f81e7411ad2ad6dcd6c4cd4e21617812443721095961eb8",
+      "bytes": 173
+    },
+    {
+      "path": "artifacts/source-packet/la-manual/v1-receipt.json",
+      "sha256": "d1e1ed7e8f7c22883ec3172e97f3fc18fcbcbbd1b1008a145278e64fe60d2837",
+      "bytes": 3056
+    },
+    {
+      "path": "artifacts/source-packet/library-boot-receipt.json",
+      "sha256": "3806e6540f18a60b75036e30d350e6bca6678ccb4edabe608ab117d2b7211be4",
+      "bytes": 647
+    },
+    {
+      "path": "artifacts/source-packet/linux-errors.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "artifacts/source-packet/linux-probe.mjs",
+      "sha256": "32760af752fa926b29e28e071c327e10f410c9be74fd89faef79d87b703638cf",
+      "bytes": 2180
+    },
+    {
+      "path": "artifacts/source-packet/linux-receipt.json",
+      "sha256": "ac4292a74e3f99b5be78026452acbe332f1ce6c43be7cf56289567680790c8ed",
+      "bytes": 2045
+    },
+    {
+      "path": "artifacts/source-packet/manual-id-fix/old-LA.packet.json",
+      "sha256": "3b025a115b3e0a8e12905b2e78ba17a727291ee7da3d26df65e990bfd4474aa9",
+      "bytes": 2171
+    },
+    {
+      "path": "artifacts/source-packet/manual-id-fix/old-NC.packet.json",
+      "sha256": "e06fbb2420621085a4b2af3b0710e5d472cd9ff5e85823f8c04616f252ddacc7",
+      "bytes": 1984
+    },
+    {
+      "path": "artifacts/source-packet/manual-id-fix/old-runtime.mjs",
+      "sha256": "f5648981cac090a402d7757f6924759dbc8b931b4afd96f25361e5e07f42b7a1",
+      "bytes": 340029
+    },
+    {
+      "path": "artifacts/source-packet/manual-id-fix/retest.mjs",
+      "sha256": "57ebdbe29d16eea79b7d62be582e6abe53efc6b95d9d1e1374f0ad5858a1abca",
+      "bytes": 2729
+    },
+    {
+      "path": "artifacts/source-packet/manual-id-fix/same-input-receipt.json",
+      "sha256": "b8a692245338387f5762d03187e81781d50aef84b3b57f1ca4f44e467fc132d0",
+      "bytes": 1980
+    },
+    {
+      "path": "artifacts/source-packet/nc-house-manual/packet.json",
+      "sha256": "c53f3c65e9c509dc687f24c7abc25f8b02279163bc0dc09fa59b601d19777afc",
+      "bytes": 2016
+    },
+    {
+      "path": "artifacts/source-packet/nc-house-manual/raw/NC-primary-counties.txt",
+      "sha256": "3f75a12a2c49d6c089fc612ff431e10ce9f6e0a70c0c41d1eba21804f58097b0",
+      "bytes": 26243
+    },
+    {
+      "path": "artifacts/source-packet/nc-house-manual/raw/NC-primary-results-proof.json",
+      "sha256": "f7b92b33d39d59bd090fcc8a4e137800c20e9e05c0a2e1b499d803074bb52f1f",
+      "bytes": 357
+    },
+    {
+      "path": "artifacts/source-packet/nc-house-manual/raw/NC-primary-results.txt",
+      "sha256": "a1adde2cbace4018e482d7fdc12297dac32595e7e2a175e0f6fcf87c05e3154c",
+      "bytes": 82579
+    },
+    {
+      "path": "artifacts/source-packet/nc-house-manual/target-binding.json",
+      "sha256": "bdf8132bab79ce75b7608bf7c925d6db0ee9a860f1245f1d533a07854f1b4a61",
+      "bytes": 175
+    },
+    {
+      "path": "artifacts/source-packet/nc-house-manual/v1-receipt.json",
+      "sha256": "2c310ac58afc27cf728ce8664a5db63aa47c9b276cb18d9bdd33abc7ab41cc3d",
+      "bytes": 3893
+    },
+    {
+      "path": "artifacts/source-packet/nc-manual/packet.json",
+      "sha256": "9decfcbe3a24da3ae155928c9c03772bfc6b53abbd69fde4165d2097afdc6cca",
+      "bytes": 1997
+    },
+    {
+      "path": "artifacts/source-packet/nc-manual/raw/NC-primary-counties.txt",
+      "sha256": "3f75a12a2c49d6c089fc612ff431e10ce9f6e0a70c0c41d1eba21804f58097b0",
+      "bytes": 26243
+    },
+    {
+      "path": "artifacts/source-packet/nc-manual/raw/NC-primary-results-proof.json",
+      "sha256": "f7b92b33d39d59bd090fcc8a4e137800c20e9e05c0a2e1b499d803074bb52f1f",
+      "bytes": 357
+    },
+    {
+      "path": "artifacts/source-packet/nc-manual/raw/NC-primary-results.txt",
+      "sha256": "a1adde2cbace4018e482d7fdc12297dac32595e7e2a175e0f6fcf87c05e3154c",
+      "bytes": 82579
+    },
+    {
+      "path": "artifacts/source-packet/nc-manual/target-binding.json",
+      "sha256": "03de0d7a125b1f942508323b902d411de11925858c6a173f1c91aa27cbe67773",
+      "bytes": 164
+    },
+    {
+      "path": "artifacts/source-packet/nc-manual/v1-receipt.json",
+      "sha256": "abce2e57c952ed4a5669982ad02a562eef729c973956c13a091c059302cf511e",
+      "bytes": 4218
+    },
+    {
+      "path": "artifacts/source-packet/parse_official_source_packet.mjs",
+      "sha256": "8eca4e28d963db6540addb23a25ccee32e87a36da46e7b14e4c735607b5345c4",
+      "bytes": 340983
+    },
+    {
+      "path": "artifacts/source-packet/probe-library-boot.mjs",
+      "sha256": "7b4a57674e42b44f375af5c025a8518551a0ddc29b953f7f38ce80441dc34628",
+      "bytes": 339630
+    },
+    {
+      "path": "artifacts/source-packet/probe-library-boot.ts",
+      "sha256": "2131607528313f430981fae2cb2d544837b6ec0aeb789c2b933443cbf8a2dc4e",
+      "bytes": 503
+    },
+    {
+      "path": "artifacts/source-packet/probe-old-library-boot.mjs",
+      "sha256": "264e1eb73ecd7d71f276eee5bea170d172d26a7e857532ad34cf79efd538946d",
+      "bytes": 338229
+    },
+    {
+      "path": "artifacts/source-packet/probe-old-library-boot.ts",
+      "sha256": "f433a48b99ce18de6177dbf4c07698ac3f22b93afcbf300f6c7d2d01915b4c10",
+      "bytes": 281
+    },
+    {
+      "path": "artifacts/source-packet/REGISTRY.md",
+      "sha256": "a1c0404abd8c3ba0a1ebe2ff690a9b49b632ffe975ebcfdb57406e579e6e285b",
+      "bytes": 2113
+    },
+    {
+      "path": "artifacts/source-packet/REVIEW.md",
+      "sha256": "2e38fe8481af0147a78157755a14fad915a717a87b362d7fd006897e47d3c4bd",
+      "bytes": 7295
+    },
+    {
+      "path": "artifacts/source-packet/scoped-types.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "artifacts/source-packet/wa/initial-v1-receipt.json",
+      "sha256": "b17f07b01fdc4132eac30cc56b22c243f167bdb8bc60fca83d04b4319a21ce4a",
+      "bytes": 5896
+    },
+    {
+      "path": "artifacts/source-packet/wa/initial.packet.json",
+      "sha256": "c829680c33da6d5e1eb8a4caf1b3ac489d2906d5284aade91d1bf24bea747660",
+      "bytes": 2184
+    },
+    {
+      "path": "artifacts/source-packet/wa/raw/capture-receipt.json",
+      "sha256": "29bfff72856d6dc0df98c1107479dcaab897182a40027b1e651abede63f96890",
+      "bytes": 3178
+    },
+    {
+      "path": "artifacts/source-packet/wa/raw/wa-2024-original-certification.pdf",
+      "sha256": "f75e558434a6633786614cc3b2696916bf81d651c79d4a0868104ca8546849ac",
+      "bytes": 1376836
+    },
+    {
+      "path": "artifacts/source-packet/wa/raw/wa-2024-recount-all-candidates.xlsx",
+      "sha256": "1d11cc471c4e6bfb62f690cbfd8a248cd649989acc3d479273809316d8f3d466",
+      "bytes": 28776
+    },
+    {
+      "path": "artifacts/source-packet/wa/raw/wa-2024-recount-certification.pdf",
+      "sha256": "f9b03babc54a1f108c13bab5a02a565d5bac7fa6a7a11a4f43cd7f0ec02d7949",
+      "bytes": 168277
+    },
+    {
+      "path": "artifacts/source-packet/wa/recount-v1-receipt.json",
+      "sha256": "152291467e317a8739e7046eacfffd60315a85b7e23bc30f9e3862bb6a229712",
+      "bytes": 5942
+    },
+    {
+      "path": "artifacts/source-packet/wa/recount.packet.json",
+      "sha256": "637e7671bc1cbc71c859e160aac2393c26a646342f9c81f292be0d838066bff2",
+      "bytes": 2200
+    },
+    {
+      "path": "artifacts/source-packet/wa/target-binding.json",
+      "sha256": "1b46f7b89d493a133eaf08209c4e8103e58a8e3186ce957dadaee929dc7d33df",
+      "bytes": 164
+    },
+    {
+      "path": "artifacts/source-packet/wa/wrong-target-refusal.json",
+      "sha256": "c50b76db0394688ce757f5b0469d83ed4285574fdf37928a831d3fb4cc00c8bf",
+      "bytes": 152
+    },
+    {
+      "path": "artifacts/source-packet/wa-senate/packet.json",
+      "sha256": "53bbf16f29747778e55307ac6446c7c2fc9944ff0976934cff967a54eca43aa4",
+      "bytes": 2120
+    },
+    {
+      "path": "artifacts/source-packet/wa-senate/raw/capture-receipt.json",
+      "sha256": "29bfff72856d6dc0df98c1107479dcaab897182a40027b1e651abede63f96890",
+      "bytes": 3178
+    },
+    {
+      "path": "artifacts/source-packet/wa-senate/raw/wa-2024-congressional-results.xlsx",
+      "sha256": "380e54147db4068f16d1f1339ae274c680bfbb8bc2699b77d27d12386ddd8a5b",
+      "bytes": 306125
+    },
+    {
+      "path": "artifacts/source-packet/wa-senate/raw/wa-2024-original-certification.pdf",
+      "sha256": "f75e558434a6633786614cc3b2696916bf81d651c79d4a0868104ca8546849ac",
+      "bytes": 1376836
+    },
+    {
+      "path": "artifacts/source-packet/wa-senate/target-binding.json",
+      "sha256": "d1644799d691083e62bda08d5b3e57982cfe91a620a8c92295121c1da53f4109",
+      "bytes": 149
+    },
+    {
+      "path": "artifacts/source-packet/wa-senate/v1-receipt.json",
+      "sha256": "bd723fd1a903bf2f1559572e25710a861879b9166ad71de3a6798c7d56fb48c2",
+      "bytes": 6871
+    },
+    {
+      "path": "artifacts/source-packet/windows-file-symlink-red.json",
+      "sha256": "e86d7ff7f968759b3c3b75b832bac2cc3d523cc667e98bf183d210f4b0c181ee",
+      "bytes": 19493
+    }
+  ],
+  "noDbWrites": true,
+  "noNetworkAtParsing": true
+}

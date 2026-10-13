@@ -44,21 +44,21 @@ describe("confidence is unknown, not zero (C null contract)", () => {
   it("a position with null confidence and null source is stated as unrecorded", () => {
     render(<PolicyComparisonResults data={data({ confidence: null, source: null })} isLoading={false} error={null} onRetry={() => {}} />);
     expect(screen.getByText("Confidence not recorded")).toBeInTheDocument();
-    expect(screen.getByText("Source not recorded")).toBeInTheDocument();
+    expect(screen.getByText(/^Source not recorded/)).toBeInTheDocument();
     expect(screen.queryByText(/%/)).toBeNull();
     expect(screen.queryByText(/Source: null|undefined/)).toBeNull();
   });
 
   it("a recorded position shows its verified source and confidence", () => {
     render(<PolicyComparisonResults data={data({})} isLoading={false} error={null} onRetry={() => {}} />);
-    expect(screen.getByText("Source: Candidate website, retrieved 2026-10-01")).toBeInTheDocument();
+    expect(screen.getByText(/^Source: Candidate website, retrieved 2026-10-01/)).toBeInTheDocument();
     expect(screen.getByText("82%")).toBeInTheDocument();
   });
 
   it("a failed request is an error with retry; an empty result says none are recorded", () => {
     const retry = vi.fn();
     const { rerender } = render(<PolicyComparisonResults data={undefined} isLoading={false} error={new Error("HTTP 503")} onRetry={retry} />);
-    expect(screen.getByRole("alert")).toHaveTextContent("Policy positions could not be loaded (HTTP 503). This does not mean none are recorded.");
+    expect(screen.getByRole("alert")).toHaveTextContent("The positions service is temporarily unavailable. This does not mean none are recorded.");
     fireEvent.click(screen.getByRole("button", { name: "Try again" }));
     expect(retry).toHaveBeenCalledTimes(1);
     rerender(<PolicyComparisonResults data={[]} isLoading={false} error={null} onRetry={retry} />);

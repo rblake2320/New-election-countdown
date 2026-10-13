@@ -8,6 +8,9 @@
  */
 import { z } from 'zod';
 import { createHash } from 'node:crypto';
+import {sourceHealthCacheKey} from './results-source-health';
+import{ResultReportError}from'./results-errors';
+export{ResultReportError}from'./results-errors';
 import {
   liveResultReportInputSchema, liveResultSourceKinds, liveResultReportingBases, liveResultAsOfBases,
   type LiveElectionResultsResponse, type LiveResultReportInput,
@@ -79,11 +82,15 @@ export interface ElectionContext {
   level: string;
   office: string;
 }
+export function resultElectionDay(value:Date|string):string{
+  // PostgreSQL calendar/timestamp-without-zone text is a civil date, not a host-zone instant.
+  return typeof value==='string'&&/^\d{4}-\d{2}-\d{2}(?:$|[ T])/.test(value)?value.slice(0,10):new Date(value).toISOString().slice(0,10);
+}
 export function electionContextOf(e: { state: string; date: Date | string; type: string; level: string; title: string }): ElectionContext {
-  return { state: e.state, electionDate: new Date(e.date).toISOString().slice(0, 10), type: e.type, level: e.level, office: e.title };
+  return { state: e.state, electionDate: resultElectionDay(e.date), type: e.type, level: e.level, office: e.title };
 }
 export function reportContextOf(r: ResultReportRow): ElectionContext {
-  return { state: r.context_state, electionDate: new Date(r.context_election_date).toISOString().slice(0, 10), type: r.context_type, level: r.context_level, office: r.context_office };
+  return { state: r.context_state, electionDate: resultElectionDay(r.context_election_date), type: r.context_type, level: r.context_level, office: r.context_office };
 }
 export function contextMatches(a: ElectionContext, b: ElectionContext): boolean {
   return a.state === b.state && a.electionDate === b.electionDate && a.type === b.type && a.level === b.level && a.office === b.office;
@@ -175,17 +182,20 @@ export function canonicalInputHash(input: ResultReportInput): string {
   const { note: _n, supersedesReportId: _s, ...rest } = input;
   return createHash('sha256').update(stableStringify(rest)).digest('hex');
 }
+/** Same published facts across fresh captures and database timestamp spellings. */
+export function publishedContentHash(input:ResultReportInput|ResultsPayload):string{
+ const time=(value:string|null)=>value===null?null:new Date(value).toISOString();
+ const normalized={schemaVersion:input.schemaVersion,electionId:input.electionId,status:input.status,source:input.source,sourcePayloadSha256:input.sourcePayloadSha256,asOf:time(input.asOf),asOfBasis:input.asOfBasis,reporting:input.reporting,totalVotes:input.totalVotes,
+ candidates:[...input.candidates].sort((a,b)=>a.sourceCandidateId<b.sourceCandidateId?-1:a.sourceCandidateId>b.sourceCandidateId?1:0),
+ winnerCalledBy:input.winnerCalledBy?{...input.winnerCalledBy,at:time(input.winnerCalledBy.at)}:null,certification:input.certification?{...input.certification,certifiedAt:time(input.certification.certifiedAt)}:null};
+ return createHash('sha256').update(stableStringify(normalized)).digest('hex');
+}
 export function etagFor(payload: ResultsPayload): string {
-  return `W/"${payload.electionId}-${payload.revision ?? 'none'}"`;
+  const state=createHash('sha256').update(stableStringify([payload,sourceHealthCacheKey(payload)])).digest('hex').slice(0,24);
+  return `W/"${payload.electionId}-${payload.revision ?? 'none'}-${state}"`;
 }
 
 /** Errors the writer raises; routes map `status`/`publicCode` straight to HTTP. */
-export class ResultReportError extends Error {
-  constructor(public readonly status: number, public readonly publicCode: string, message: string, public readonly details?: unknown) {
-    super(message);
-  }
-}
-
 /** Server-only sanity the DTO leaves to the writer: nothing is retrieved from the future. */
 export function assertNotFuture(input: ResultReportInput, now = Date.now()): void {
   if (new Date(input.retrievedAt).getTime() > now + 5 * 60 * 1000) {

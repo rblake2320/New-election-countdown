@@ -182,6 +182,11 @@ export class ReplicaStorage implements IStorage {
     return this.executeQuery(async () => (await query).filter(election => validateNotMockData(election).ok).map(projectElectionResultsRow), 'getElections');
   }
 
+  // executeQuery already throws on failure; there is no fallback to relax.
+  getElectionsStrict(filters?: ElectionQueryFilters): Promise<ElectionListing[]> {
+    return this.getElections(filters);
+  }
+
   async getElection(id: number): Promise<Election | undefined> {
     return this.executeQuery(async () => {
       const results = await this.db.select({ ...getTableColumns(schema.elections), resultsCatalogTimestamp })
@@ -235,6 +240,7 @@ export class ReplicaStorage implements IStorage {
   }
 
   async recordResultReport(..._args: unknown[]): Promise<never> { return this.readOnly('recordResultReport'); }
+  async recordResultSourceHealth(..._args:unknown[]):Promise<never>{return this.readOnly('recordResultSourceHealth');}
   async getResultsPayload(..._args: unknown[]): Promise<never> { return this.readOnly('getResultsPayload'); }
   async listResultsPayloads(..._args: unknown[]): Promise<never> { return this.readOnly('listResultsPayloads'); }
   async storeResultEvidence(..._args: unknown[]): Promise<never> { return this.readOnly('storeResultEvidence'); }

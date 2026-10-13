@@ -4,6 +4,7 @@ import type { campaignAccounts as _campaignAccountsTable } from '@shared/schema'
 type CampaignAccount = typeof _campaignAccountsTable.$inferSelect;
 import { PgResultReportStore, type EvidenceRecord, type RecordContext, type RecordOutcome, type ResultSource, type ResultsListPayload, type ResultsListQuery } from './results-store';
 import type { ResultReportInput, ResultsPayload } from './results-reports';
+import type {SourceHealthEvent} from './results-source-health';
 import { BackgroundWork } from './background-work';
 import type { ElectionListing, ElectionQueryFilters } from "./election-list-filters";
 import { recommendationCache, userRecommendationAnalytics, electionRecommendations, elections, candidates, congressMembers, congressBills, congressCommittees, users, sessions, watchlist, electionResults, electionCycles, campaignAccounts, candidateAccounts, candidateProfiles, candidateDataSources, candidatePositions, candidateQA, notificationPreferences, notificationConsents, notificationSubscriptions, notificationTemplates, notificationCampaigns, notificationDeliveries, notificationEvents, notificationWebhooks, userPreferences, congressionalDistricts, backupStorageLocations, backupRetentionPolicies, backupOperations, schemaVersions, restoreValidations, backupSystemConfig, failoverDrillConfigurations, drillExecutions, drillSteps, backupMonitoringConfigurations, backupAlerts, backupHealthMetrics, rtoRpoTargets, rtoRpoMeasurements, performanceBenchmarks, incidentRunbooks, runbookSteps, runbookContacts, contactEscalationTrees, runbookExecutions, artifactStorage, deploymentHistory, environmentConfigurations, platformContinuityEvents, secretsRotationHistory, secretsVault, type Election, type InsertElection, type Candidate, type InsertCandidate, type ElectionFilters, type CongressMember, type InsertCongressMember, type User, type UpsertUser, type WatchlistItem, type InsertWatchlistItem, type UserPreferences, type InsertUserPreferences, type UpdateUserPreferences, type CongressionalDistrict, type InsertCongressionalDistrict, type CandidateAccount, type InsertCandidateAccount, type CandidateProfile, type InsertCandidateProfile, type CandidateDataSource, type InsertCandidateDataSource, type CandidatePosition, type InsertCandidatePosition, type CandidateQA, type InsertCandidateQA, type NotificationPreferences, type InsertNotificationPreferences, type NotificationConsent, type InsertNotificationConsent, type NotificationSubscription, type InsertNotificationSubscription, type NotificationTemplate, type InsertNotificationTemplate, type NotificationCampaign, type InsertNotificationCampaign, type NotificationDelivery, type InsertNotificationDelivery, type NotificationEvent, type InsertNotificationEvent, type NotificationWebhook, type InsertNotificationWebhook, type BackupStorageLocation, type InsertBackupStorageLocation, type BackupRetentionPolicy, type InsertBackupRetentionPolicy, type BackupOperation, type InsertBackupOperation, type SchemaVersion, type InsertSchemaVersion, type RestoreValidation, type InsertRestoreValidation, type BackupSystemConfig, type InsertBackupSystemConfig, type FailoverDrillConfiguration, type InsertFailoverDrillConfiguration, type DrillExecution, type InsertDrillExecution, type DrillStep, type InsertDrillStep, type BackupMonitoringConfiguration, type InsertBackupMonitoringConfiguration, type BackupAlert, type InsertBackupAlert, type BackupHealthMetric, type InsertBackupHealthMetric, type RtoRpoTarget, type InsertRtoRpoTarget, type RtoRpoMeasurement, type InsertRtoRpoMeasurement, type PerformanceBenchmark, type InsertPerformanceBenchmark, type IncidentRunbook, type InsertIncidentRunbook, type RunbookStep, type InsertRunbookStep, type RunbookContact, type InsertRunbookContact, type ContactEscalationTree, type InsertContactEscalationTree, type RunbookExecution, type InsertRunbookExecution } from "@shared/schema";
@@ -40,6 +41,8 @@ export interface IStorage {
 
   // Elections
   getElections(filters?: ElectionQueryFilters): Promise<ElectionListing[]>;
+  /** Same rows as getElections, but a database failure THROWS (no fallback to []) and degraded in-memory storage is refused: for lookups where an empty list would be read as "no such race". */
+  getElectionsStrict(filters?: ElectionQueryFilters): Promise<ElectionListing[]>;
   getElection(id: number): Promise<Election | undefined>;
   createElection(election: InsertElection): Promise<Election>;
   deleteElection(id: number): Promise<void>;
@@ -63,6 +66,7 @@ export interface IStorage {
   getElectionResults(electionId: number): Promise<any>;
   // ET-6 live official results (contract v1.2): the one writer + reads
   recordResultReport(electionId: number, input: ResultReportInput, ctx: RecordContext): Promise<RecordOutcome>;
+  recordResultSourceHealth(event:SourceHealthEvent):Promise<void>;
   getResultsPayload(electionId: number): Promise<ResultsPayload | null>;
   listResultsPayloads(query: ResultsListQuery): Promise<ResultsListPayload>;
   storeResultEvidence(bytes: Buffer, contentType: string, filename: string | null, uploadedBy: string): Promise<EvidenceRecord>;
@@ -557,6 +561,11 @@ export class DatabaseStorage implements IStorage {
     );
   }
 
+  async getElectionsStrict(filters?: ElectionQueryFilters): Promise<ElectionListing[]> {
+    const rows = await buildElectionListQuery(db, filters);
+    return rows.filter(election => validateNotMockData(election).ok).map(projectElectionResultsRow);
+  }
+
   async getElection(id: number): Promise<Election | undefined> {
     const [election] = await db.select({ ...getTableColumns(elections), resultsCatalogTimestamp }).from(elections).where(eq(elections.id, id));
     return election ? projectElectionResultsRow(election) : undefined;
@@ -653,6 +662,7 @@ export class DatabaseStorage implements IStorage {
 
   private readonly resultReports = new PgResultReportStore(pool);
   recordResultReport(electionId: number, input: ResultReportInput, ctx: RecordContext) { return this.resultReports.recordResultReport(electionId, input, ctx); }
+  recordResultSourceHealth(event:SourceHealthEvent) {return this.resultReports.recordResultSourceHealth(event);}
   getResultsPayload(electionId: number) { return this.resultReports.getResultsPayload(electionId); }
   listResultsPayloads(query: ResultsListQuery) { return this.resultReports.listResultsPayloads(query); }
   storeResultEvidence(bytes: Buffer, contentType: string, filename: string | null, uploadedBy: string) { return this.resultReports.storeResultEvidence(bytes, contentType, filename, uploadedBy); }

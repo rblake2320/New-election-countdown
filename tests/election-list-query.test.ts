@@ -25,6 +25,17 @@ describe('database listing query contract', () => {
     expect(params).toContain('federal');
     expect(params).toContain('democratic');
   });
+  it('admin lookup bounds: minDate/maxDate compile to inclusive-from, exclusive-to parameters with no 30-day rule', () => {
+    const { sql, params } = buildElectionListQuery(database, { minDate: new Date('2026-03-03T00:00:00Z'), maxDate: new Date('2026-06-28T00:00:00Z'), state: 'NC' }, now).toSQL();
+    expect(sql).toContain('"elections"."date" >= $');
+    expect(sql).toContain('"elections"."date" < $');
+    expect(params).toContain('2026-03-03T00:00:00.000Z');
+    expect(params).toContain('2026-06-28T00:00:00.000Z');
+    expect(params).toContain('NC');
+  });
+  it('a non-Date maxDate (public query string) is ignored, not trusted', () => {
+    expect(normalizeElectionFilters({ maxDate: '2020-01-01' }, now).until).toBeUndefined();
+  });
   it('keeps injected search text in parameters and treats wildcard input literally', () => {
     const term = "x%' OR 1=1 --";
     const query = buildElectionListQuery(database, { search: term }, now).toSQL();

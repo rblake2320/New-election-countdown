@@ -6,6 +6,7 @@ import { getPerplexityService } from '../perplexity-service';
 import { db } from '../db';
 import { candidates, candidateBiography, candidatePositions } from '@shared/schema';
 import { ilike, eq } from 'drizzle-orm';
+import { candidateSourceMarkers } from '../candidate-source-markers';
 
 const router = Router();
 
@@ -116,6 +117,7 @@ router.get('/:id', async (req, res) => {
         name: candidate.name,
         party: candidate.party,
         election_id: candidate.electionId,
+        source: candidateSourceMarkers(candidate),
         incumbent: candidate.isIncumbent,
         verified: candidate.isVerified,
         profile_image_url: candidate.profileImageUrl,
@@ -225,6 +227,7 @@ router.get('/:id', async (req, res) => {
         id: candidate.id,
         name: candidate.name,
         party: candidate.party,
+        source: candidateSourceMarkers(candidate),
         incumbent: candidate.isIncumbent,
         profile_image_url: candidate.profileImageUrl,
         data_issues: [`Data enrichment temporarily unavailable: ${enrichmentError instanceof Error ? enrichmentError.message : 'Unknown error'}`]

@@ -4,6 +4,7 @@ import type { campaignAccounts as _campaignAccountsTable } from '@shared/schema'
 type CampaignAccount = typeof _campaignAccountsTable.$inferSelect;
 import { MemResultReportStore, type RecordContext, type ResultsListQuery } from './results-store';
 import { electionContextOf, type ResultReportInput } from './results-reports';
+import type {SourceHealthEvent} from './results-source-health';
 import { projectOfficialResultsForElection } from '../shared/official-results';
 import { type Election, type InsertElection, type Candidate, type InsertCandidate, type ElectionFilters, type CongressMember, type InsertCongressMember, type User, type UpsertUser, type WatchlistItem, type InsertWatchlistItem, type CandidateAccount, type InsertCandidateAccount, type CandidateProfile, type InsertCandidateProfile, type CandidateDataSource, type InsertCandidateDataSource, type CandidatePosition, type InsertCandidatePosition, type CandidateQA, type InsertCandidateQA, type NotificationPreferences, type InsertNotificationPreferences, type NotificationSubscription, type NotificationDelivery, type InsertNotificationDelivery, type UpdateUserPreferences, type UserPreferences } from "@shared/schema";
 import { IStorage } from "./storage";
@@ -122,6 +123,10 @@ export class MemStorage implements IStorage {
       return true;
     }).sort((a, b) => a.date.getTime() - b.date.getTime() || a.id - b.id)
       .map(election => ({ ...election, ...projectOfficialResultsForElection(election), candidateCount: counts.get(election.id) ?? 0 }));
+  }
+
+  getElectionsStrict(filters: ElectionQueryFilters = {}): Promise<ElectionListing[]> {
+    return this.getElections(filters);
   }
 
   async getElection(id: number): Promise<Election | undefined> {
@@ -264,6 +269,7 @@ export class MemStorage implements IStorage {
       .map((e) => ({ election_id: e.id, state: e.state, publisher: (e.officialResultsSource as any).publisher, route_type: (e.officialResultsSource as any).routeType, government_url: (e.officialResultsSource as any).governmentUrl })),
   );
   recordResultReport(electionId: number, input: ResultReportInput, ctx: RecordContext) { return this.resultReports.recordResultReport(electionId, input, ctx); }
+  recordResultSourceHealth(event:SourceHealthEvent) {return this.resultReports.recordResultSourceHealth(event);}
   getResultsPayload(electionId: number) { return this.resultReports.getResultsPayload(electionId); }
   listResultsPayloads(query: ResultsListQuery) { return this.resultReports.listResultsPayloads(query); }
   storeResultEvidence(bytes: Buffer, contentType: string, filename: string | null, uploadedBy: string) { return this.resultReports.storeResultEvidence(bytes, contentType, filename, uploadedBy); }

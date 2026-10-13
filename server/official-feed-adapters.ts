@@ -9,6 +9,7 @@
  * URLs/hosts, real election date/phase or explicit election ids) and every adapter by that source id;
  * nothing here manufactures a publication status or relabels a historical recording as Nov 2026.
  */
+import { registerReviewedOfficialResults } from './official-result-bootstrap';
 import type { ResultsIngestionService } from './results-ingestion-service';
 import type { ResultsSourceRegistry } from './results-source-registry';
 
@@ -28,8 +29,8 @@ export interface OfficialFeedBootReceipt {
  * LANE C fills this in (one PR per source family, each with its parser receipts). Keep it a plain function:
  * no network, no fetch, no file reads at boot — only registry/adapter registration.
  */
-export function registerOfficialFeedSources(_ingestion: ResultsIngestionService, _registry: ResultsSourceRegistry): void {
-  // No official-feed sources or adapters are registered yet. Admin posting (admin_manual:<ST>) is unaffected.
+export function registerOfficialFeedSources(ingestion: ResultsIngestionService, registry: ResultsSourceRegistry): void {
+  registerReviewedOfficialResults(ingestion, registry);
 }
 
 export type OfficialFeedRegistrationBody = (ingestion: ResultsIngestionService, registry: ResultsSourceRegistry) => void;

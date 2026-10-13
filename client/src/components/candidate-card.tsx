@@ -8,6 +8,8 @@ interface CandidateCardProps {
   candidate: Candidate;
   onClick: (candidateId: number) => void;
   className?: string;
+  /** What the record establishes (e.g. "FEC registration \u00b7 ballot status not confirmed"); omitted when nothing to add. */
+  qualification?: string | null;
 }
 
 const partyColors = {
@@ -18,7 +20,7 @@ const partyColors = {
   Green: "bg-green-600",
 } as const;
 
-export function CandidateCard({ candidate, onClick, className }: CandidateCardProps) {
+export function CandidateCard({ candidate, onClick, className, qualification }: CandidateCardProps) {
   const partyKey = candidate.party as keyof typeof partyColors;
   const partyColor = partyColors[partyKey] || "bg-gray-500";
 
@@ -64,6 +66,7 @@ export function CandidateCard({ candidate, onClick, className }: CandidateCardPr
             >
               {candidate.party}
             </Badge>
+            {qualification && <p className="text-xs text-muted-foreground" data-testid={`qualification-${candidate.id}`}>{qualification}</p>}
           </div>
 
           {/* Incumbent Badge at Bottom */}

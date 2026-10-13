@@ -41,7 +41,27 @@ const recorded2 = liveElectionResultsSchema.parse({
   ],
 });
 
+const recordedNC = liveElectionResultsSchema.parse({
+  ...noLiveElectionResults(4242404), reportId: 1, revision: 'r1-7b3789fb', status: 'unofficial',
+  electionContext: { state: 'NC', electionDate: '2026-03-03', type: 'primary', level: 'federal', office: 'North Carolina U.S. Senate Democratic Primary' },
+  reporting: { percent: 100, basis: 'precincts', precinctsReporting: 2633, precinctsTotal: 2633 },
+  source: { id: 'admin_manual:NC', kind: 'admin_manual', name: 'Manual entry from an official NC page', url: 'https://www.ncsbe.gov/results-data', sourceContestId: 'NC:2026-03-03:primary:US-SEN-D' },
+  sourcePayloadSha256: 'c'.repeat(64), asOf: null, asOfBasis: 'not_provided', retrievedAt: '2026-10-12T04:00:00Z', totalVotes: 827755,
+  candidates: [
+    { candidateId: null, sourceCandidateId: 'Option A', name: 'Option A', party: 'DEM', votes: 500000, percent: null, isWinner: false },
+    { candidateId: null, sourceCandidateId: 'Option B', name: 'Option B', party: 'DEM', votes: 327755, percent: null, isWinner: false },
+  ],
+});
 let posted: unknown[] = [];
+let adminElectionRequests: URLSearchParams[] = [];
+// D's real manual posts (NC/LA) are PAST races: not in the public list, only reachable through the admin lookup.
+const pastRaces = [
+  { id: 4242404, title: 'North Carolina U.S. Senate Democratic Primary', state: 'NC', date: '2026-03-03T00:00:00.000Z', type: 'primary', level: 'federal', location: 'North Carolina' },
+  { id: 4242405, title: 'Louisiana U.S. Senate Democratic Primary Runoff', state: 'LA', date: '2026-06-27T00:00:00.000Z', type: 'runoff', level: 'federal', location: 'Louisiana' },
+];
+const racesFor = (p: URLSearchParams) => [...alaska, ...pastRaces]
+  .filter((e: any) => e.date.slice(0, 10) >= p.get('from')! && e.date.slice(0, 10) <= p.get('to')!)
+  .filter((e: any) => !p.get('q') || e.title.toLowerCase().includes(p.get('q')!.toLowerCase()));
 let uploads: { type: string | null; filename: string | null; size: number }[] = [];
 const sourceList = { sources: [
   { id: 'ak-doe-enr', kind: 'official_state_enr', name: 'Alaska Division of Elections', url: 'https://www.elections.alaska.gov/results/26GENR/', state: 'AK' },
@@ -53,7 +73,9 @@ const sourceList = { sources: [
 const digestOf = async (buf: ArrayBuffer) => [...new Uint8Array(await crypto.subtle.digest('SHA-256', buf))].map(b => b.toString(16).padStart(2, '0')).join('');
 const server = setupServer(
   http.get('/api/auth/me', () => HttpResponse.json({ user: { id: 'admin-1', email: 'ops@example.org', role: 'admin' } })),
-  http.get('/api/elections', () => HttpResponse.json(alaska)),
+  http.get('/api/admin/elections', ({ request }) => { const p = new URL(request.url).searchParams; adminElectionRequests.push(p); return HttpResponse.json(racesFor(p)); }),
+  http.get('/api/elections/4242404/candidates', () => HttpResponse.json([])),
+  http.get('/api/elections/4242404/results', () => HttpResponse.json(recordedNC)),
   http.get('/api/elections/2/candidates', () => new HttpResponse(candidates2, { headers: { 'Content-Type': 'application/json' } })),
   http.get('/api/elections/:id/candidates', () => HttpResponse.json([])),
   http.get('/api/elections/2/results', () => HttpResponse.json(recorded2, { headers: { ETag: 'W/"2-r7"' } })),
@@ -72,7 +94,7 @@ beforeAll(() => {
   vi.useFakeTimers({ toFake: ['Date'] });
   vi.setSystemTime(new Date('2026-11-04T05:20:00Z'));
 });
-afterEach(() => { server.resetHandlers(); posted = []; uploads = []; });
+afterEach(() => { server.resetHandlers(); posted = []; uploads = []; adminElectionRequests = []; });
 afterAll(() => { server.close(); vi.useRealTimers(); });
 
 const renderForm = () => render(<QueryClientProvider client={new QueryClient({ defaultOptions: appQueryClient.getDefaultOptions() })}><AdminResultsEntry /></QueryClientProvider>);
@@ -250,6 +272,83 @@ describe('admin results entry (ET-6 v1.2)', () => {
     await screen.findByText(/Stored: ok\.html/);
     fireEvent.click(screen.getByTestId('button-post-report'));
     expect(await screen.findByText(/The source's type or web address does not match what is registered for it/)).toBeInTheDocument();
+  });
+
+  it('the race picker asks the admin endpoint for today-7..today+7 by default (the public list is not used)', async () => {
+    renderForm();
+    await chooseRace(/U\.S\. Senate Election - Alaska/);
+    await screen.findByTestId('line-0');
+    expect(adminElectionRequests).toHaveLength(1);
+    expect(adminElectionRequests[0].get('from')).toBe('2026-10-28');
+    expect(adminElectionRequests[0].get('to')).toBe('2026-11-11');
+    expect(adminElectionRequests[0].has('q')).toBe(false);
+    expect(screen.getByText(/Races from 2026-10-28 to 2026-11-11/)).toBeInTheDocument();
+  });
+
+  it('an older real race (NC Mar 3, LA Jun 27) is selectable through the lookup and its report hydrates', async () => {
+    renderForm();
+    await screen.findByRole('combobox', { name: 'Race' });
+    fireEvent.click(screen.getByText(/Look up older races/));
+    fireEvent.change(screen.getByLabelText('From'), { target: { value: '2026-03-01' } });
+    fireEvent.change(screen.getByLabelText('To'), { target: { value: '2026-07-01' } });
+    fireEvent.click(screen.getByTestId('button-lookup'));
+    await waitFor(() => expect(adminElectionRequests.at(-1)!.get('from')).toBe('2026-03-01'));
+    expect(adminElectionRequests.at(-1)!.get('to')).toBe('2026-07-01');
+    const trigger = screen.getByRole('combobox', { name: 'Race' });
+    await waitFor(() => expect(trigger).not.toBeDisabled());
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' });
+    expect(await screen.findByRole('option', { name: /Louisiana U\.S\. Senate Democratic Primary Runoff/ })).toBeInTheDocument();
+    fireEvent.click(await screen.findByRole('option', { name: /North Carolina U\.S\. Senate Democratic Primary/ }));
+    expect(await screen.findByText('Revision r1-7b3789fb')).toBeInTheDocument();
+    expect(within(await screen.findByTestId('line-0')).getByLabelText('Votes')).toHaveValue('500000');
+    expect(screen.getByText(/Races from 2026-03-01 to 2026-07-01/)).toBeInTheDocument();
+  });
+
+  it('a title search is sent as q, and "This week" returns to the default window', async () => {
+    renderForm();
+    await screen.findByRole('combobox', { name: 'Race' });
+    fireEvent.click(screen.getByText(/Look up older races/));
+    fireEvent.change(screen.getByLabelText('From'), { target: { value: '2026-03-01' } });
+    fireEvent.change(screen.getByLabelText('To'), { target: { value: '2026-07-01' } });
+    fireEvent.change(screen.getByLabelText('Title contains'), { target: { value: 'louisiana' } });
+    fireEvent.click(screen.getByTestId('button-lookup'));
+    await waitFor(() => expect(adminElectionRequests.at(-1)!.get('q')).toBe('louisiana'));
+    expect(screen.getByText(/matching "louisiana"/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'This week' }));
+    // The default window is already cached (app-wide staleTime), so no new request: the admin sees the default window again.
+    expect(await screen.findByText(/Races from 2026-10-28 to 2026-11-11$/)).toBeInTheDocument();
+    expect(screen.queryByText(/matching "louisiana"/)).toBeNull();
+    expect(screen.getByLabelText('Title contains')).toHaveValue('');
+    const trigger = screen.getByRole('combobox', { name: 'Race' });
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' });
+    expect(await screen.findByRole('option', { name: /U\.S\. Senate Election - Alaska/ })).toBeInTheDocument();
+  });
+
+  it('bad ranges are refused in the form without a request; the server refusals and failures are explained', async () => {
+    renderForm();
+    await screen.findByRole('combobox', { name: 'Race' });
+    await waitFor(() => expect(adminElectionRequests).toHaveLength(1));
+    fireEvent.click(screen.getByText(/Look up older races/));
+    fireEvent.change(screen.getByLabelText('From'), { target: { value: '2026-07-01' } });
+    fireEvent.change(screen.getByLabelText('To'), { target: { value: '2026-03-01' } });
+    fireEvent.click(screen.getByTestId('button-lookup'));
+    expect(screen.getByText('From must be on or before To.')).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('From'), { target: { value: '2024-01-01' } });
+    fireEvent.change(screen.getByLabelText('To'), { target: { value: '2026-07-01' } });
+    fireEvent.click(screen.getByTestId('button-lookup'));
+    expect(screen.getByText('Choose a range of at most 400 days.')).toBeInTheDocument();
+    expect(adminElectionRequests).toHaveLength(1); // nothing was sent for either
+
+    server.use(http.get('/api/admin/elections', () => HttpResponse.json({ error: 'too many', code: 'range_too_large' }, { status: 422 })));
+    fireEvent.change(screen.getByLabelText('From'), { target: { value: '2026-03-01' } });
+    fireEvent.click(screen.getByTestId('button-lookup'));
+    expect(await screen.findByText(/That range is too large \(more than 400 days or 600 races\)\. Narrow it\./)).toBeInTheDocument();
+
+    server.use(http.get('/api/admin/elections', () => HttpResponse.json({ error: 'down' }, { status: 503 })));
+    fireEvent.change(screen.getByLabelText('To'), { target: { value: '2026-06-01' } });
+    fireEvent.click(screen.getByTestId('button-lookup'));
+    const alert = (await screen.findByText(/The list of races could not be loaded \(503\)\./)).closest('[role=alert]') as HTMLElement;
+    expect(within(alert).getByRole('button', { name: 'Try again' })).toBeInTheDocument();
   });
 
   it('renders access denied, then the form, as the admin check resolves (no hook-order crash)', async () => {
