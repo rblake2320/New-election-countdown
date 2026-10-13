@@ -1,0 +1,37 @@
+{
+  "mode": "old",
+  "oldSourceHead": "8c0f45af0490e0b0a341bce2b97c8878d420bb71",
+  "execution": "Actual bundled modules; isolated DB/storage/alert/timer boundary fixtures, no real PG or delivery claim",
+  "networkCalls": 0,
+  "checks": [
+    {
+      "scenario": "No party, tenure, committee or website-derived policy",
+      "outcome": "Failed",
+      "reason": "Expected behavior absent"
+    },
+    {
+      "scenario": "Position source outage is explicit typed unavailable",
+      "outcome": "Failed",
+      "reason": "Expected behavior absent"
+    },
+    {
+      "scenario": "Michigan unsupported legacy names are refused",
+      "outcome": "Failed",
+      "reason": "Expected behavior absent"
+    },
+    {
+      "scenario": "Stored date survives actual election-event projection",
+      "outcome": "Failed",
+      "reason": "Expected behavior absent"
+    },
+    {
+      "scenario": "Missing scheduler is explicit refusal, no invented deadlines",
+      "outcome": "Failed",
+      "reason": "Expected behavior absent"
+    },
+    {
+      "scenario": "No empty simulated enhanced source is presented as a position",
+      "outcome": "Worked"
+    }
+  ]
+}

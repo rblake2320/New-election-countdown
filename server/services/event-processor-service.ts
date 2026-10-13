@@ -60,6 +60,11 @@ export interface SystemEventData {
   metadata?: Record<string, any>;
 }
 
+export class EventProcessorUnavailableError extends Error {
+  constructor(public readonly code: 'SCHEDULER_UNAVAILABLE' | 'INVALID_EVENT_CONTEXT', message: string) {
+    super(message); this.name = 'EventProcessorUnavailableError';
+  }
+}
 export class EventProcessorService {
   private processingQueue: Map<string, any> = new Map();
   private eventFilters: Map<string, (event: any) => boolean> = new Map();
@@ -130,6 +135,7 @@ export class EventProcessorService {
     eventData: ElectionEventData
   ): Promise<NotificationEvent> {
     try {
+      if (eventData.electionId !== election.id || !Number.isFinite(new Date(election.date).getTime())) throw new EventProcessorUnavailableError('INVALID_EVENT_CONTEXT', 'Election event does not match a valid stored election context');
       console.log(`🗳️ Processing election event: ${eventData.eventType} for ${election.title}`);
 
       // Apply event filters
@@ -142,7 +148,7 @@ export class EventProcessorService {
       const enhancedData = {
         ...eventData,
         electionTitle: election.title,
-        electionDate: election.electionDate,
+        electionDate: election.date,
         electionLevel: election.level,
         electionType: election.type,
         timestamp: new Date().toISOString()
@@ -155,7 +161,7 @@ export class EventProcessorService {
       switch (eventData.eventType) {
         case 'results_update':
           alertEventType = 'election_result';
-          priority = election.status === 'final' ? 'urgent' : 'high';
+          priority = 'high';
           break;
         case 'deadline_approaching':
           alertEventType = 'deadline_reminder';
@@ -168,7 +174,7 @@ export class EventProcessorService {
           break;
         case 'status_change':
           alertEventType = 'election_update';
-          priority = election.status === 'final' ? 'urgent' : 'normal';
+          priority = 'normal';
           break;
       }
 
@@ -201,6 +207,7 @@ export class EventProcessorService {
     eventData: CandidateEventData
   ): Promise<NotificationEvent> {
     try {
+      if (eventData.candidateId !== candidate.id || eventData.electionId !== election.id || !Number.isFinite(new Date(election.date).getTime())) throw new EventProcessorUnavailableError('INVALID_EVENT_CONTEXT', 'Candidate event does not match a valid stored subject and election context');
       console.log(`👤 Processing candidate event: ${eventData.eventType} for ${candidate.name}`);
 
       // Apply event filters
@@ -215,7 +222,7 @@ export class EventProcessorService {
         candidateName: candidate.name,
         candidateParty: candidate.party,
         electionTitle: election.title,
-        electionDate: election.electionDate,
+        electionDate: election.date,
         timestamp: new Date().toISOString()
       };
 
@@ -357,51 +364,10 @@ export class EventProcessorService {
   /**
    * Schedule deadline reminders
    */
-  async scheduleDeadlineReminders(election: Election): Promise<void> {
-    try {
-      const now = new Date();
-      const electionDate = new Date(election.electionDate);
-      
-      // Calculate important dates
-      const registrationDeadline = new Date(electionDate);
-      registrationDeadline.setDate(electionDate.getDate() - 30); // 30 days before
-
-      const earlyVotingStart = new Date(electionDate);
-      earlyVotingStart.setDate(electionDate.getDate() - 15); // 15 days before
-
-      const deadlines = [
-        {
-          type: 'registration' as const,
-          date: registrationDeadline,
-          reminderDays: [30, 14, 7, 3, 1] // Days before to send reminders
-        },
-        {
-          type: 'early_voting_start' as const,
-          date: earlyVotingStart,
-          reminderDays: [7, 1, 0] // Day of early voting start
-        },
-        {
-          type: 'election_day' as const,
-          date: electionDate,
-          reminderDays: [7, 3, 1, 0] // Election day reminders
-        }
-      ];
-
-      for (const deadline of deadlines) {
-        for (const daysBefore of deadline.reminderDays) {
-          const reminderDate = new Date(deadline.date);
-          reminderDate.setDate(deadline.date.getDate() - daysBefore);
-
-          // Only schedule future reminders
-          if (reminderDate > now) {
-            // In real implementation, schedule these in a job queue
-            console.log(`📅 Scheduled ${deadline.type} reminder for ${election.title} on ${reminderDate.toISOString()}`);
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Failed to schedule deadline reminders:', error);
-    }
+  async scheduleDeadlineReminders(_election: Election): Promise<never> {
+    // No persisted scheduler or verified registration/early-voting deadline
+    // source is configured here. Never guess deadlines or claim queued work.
+    throw new EventProcessorUnavailableError('SCHEDULER_UNAVAILABLE', 'Deadline reminders require a configured durable scheduler and reviewed jurisdiction-specific deadlines');
   }
 
   /**
@@ -423,27 +389,19 @@ export class EventProcessorService {
    * Start background processing loop
    */
   private startProcessingLoop() {
-    setInterval(async () => {
+    const timer = setInterval(async () => {
       if (this.isProcessing) return;
       
       this.isProcessing = true;
       try {
-        await this.processScheduledEvents();
         await this.cleanupExpiredEvents();
       } catch (error) {
         console.error('Processing loop error:', error);
       } finally {
         this.isProcessing = false;
       }
-    }, 30000); // Every 30 seconds
-  }
-
-  /**
-   * Process scheduled events (like deadline reminders)
-   */
-  private async processScheduledEvents(): Promise<void> {
-    // In real implementation, check database for scheduled events
-    // and process any that are due
+    }, 30000); // Cache maintenance only; no durable deadline scheduler.
+    timer.unref?.();
   }
 
   /**
@@ -474,7 +432,8 @@ export class EventProcessorService {
       queueSize: this.processingQueue.size,
       filtersActive: this.eventFilters.size,
       isProcessing: this.isProcessing,
-      lastProcessingTime: new Date().toISOString()
+      // No durable processing timestamp is recorded by this cache service.
+      lastProcessingTime: null
     };
   }
 
