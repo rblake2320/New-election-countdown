@@ -47,6 +47,7 @@ describe('CA real reviewed primary Statement of Vote and actual pre-election sta
   it('reconciles every option over all 58 actual county rows, excluding percent rows and duplicate state aggregation', async () => {
     const book = await readXlsxWorkbook(workbook);
     const rows = book.sheets.find(sheet => sheet.name === 'SOV Statewide Contest Details')!.rows;
+    expect(rows[0].slice(1)).toEqual(proof.rawHeaderTexts);
     const counties = rows.filter(row => typeof row[0] === 'string' && row[0] !== 'State Totals' && row[0].trim() !== 'Percent' && typeof row[1] === 'number');
     expect(counties).toHaveLength(58);
     const actual = await parseCaliforniaGovernorSov(workbook, CA_GOVERNOR_PRIMARY_CONTEXT);
