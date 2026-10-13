@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "purpose": "dry_run_only",
+  "parser": "wa_senate_primary",
+  "context": {
+    "state": "WA",
+    "electionDate": "2024-08-06",
+    "phase": "primary",
+    "level": "federal",
+    "office": "U.S. Senate",
+    "district": null,
+    "party": null
+  },
+  "targetBinding": {
+    "id": 4242402,
+    "state": "WA",
+    "date": "2024-08-06",
+    "type": "Primary",
+    "level": "federal",
+    "title": "Washington U.S. Senate Primary"
+  },
+  "publisher": {
+    "id": "wa-sos-2024-primary-senate",
+    "kind": "official_state_page",
+    "name": "Washington Secretary of State",
+    "url": "https://www.sos.wa.gov/sites/default/files/2024-09/2024Pri%20Results%20by%20Congressional%20District.xlsx"
+  },
+  "files": [
+    {
+      "role": "payload",
+      "path": "raw/wa-2024-congressional-results.xlsx",
+      "sha256": "380e54147db4068f16d1f1339ae274c680bfbb8bc2699b77d27d12386ddd8a5b",
+      "url": "https://www.sos.wa.gov/sites/default/files/2024-09/2024Pri%20Results%20by%20Congressional%20District.xlsx"
+    },
+    {
+      "role": "certificate",
+      "path": "raw/wa-2024-original-certification.pdf",
+      "sha256": "f75e558434a6633786614cc3b2696916bf81d651c79d4a0868104ca8546849ac",
+      "url": "https://www.sos.wa.gov/sites/default/files/2024-08/Certification%20of%20Results%20-%202024%20Primary.pdf"
+    },
+    {
+      "role": "capture_receipt",
+      "path": "raw/capture-receipt.json",
+      "sha256": "29bfff72856d6dc0df98c1107479dcaab897182a40027b1e651abede63f96890",
+      "url": null
+    }
+  ],
+  "reviewedCertification": true,
+  "sourceContestId": "2005",
+  "localContestId": null,
+  "expectedTotals": {
+    "totalVotes": 1948716,
+    "optionCount": 12
+  }
+}
