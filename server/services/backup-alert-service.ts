@@ -10,6 +10,8 @@ import type {
   InsertBackupHealthMetric
 } from '@shared/schema';
 
+export class BackupMonitoringConfigurationError extends Error {}
+
 export interface AlertChannel {
   type: 'email' | 'sms' | 'webhook' | 'slack';
   target: string;
@@ -386,16 +388,16 @@ Triggered: ${new Date().toISOString()}
   /**
    * Validate monitoring configuration
    */
-  private validateMonitoringConfiguration(config: InsertBackupMonitoringConfiguration): void {
-    if (!config.name?.trim()) throw new Error('Configuration name is required');
+  validateMonitoringConfiguration(config: Pick<InsertBackupMonitoringConfiguration, 'name' | 'monitoringType' | 'alertChannels' | 'alertEmails'>): void {
+    if (!config.name?.trim()) throw new BackupMonitoringConfigurationError('Configuration name is required');
     if (!['all_backups', 'backup_type'].includes(config.monitoringType)) {
-      throw new Error('Event alerts support all_backups or backup_type monitoring');
+      throw new BackupMonitoringConfigurationError('Event alerts support all_backups or backup_type monitoring');
     }
     if ((config.alertChannels ?? []).some(channel => !['email', 'dashboard'].includes(channel))) {
-      throw new Error('Event alerts support dashboard and configured email delivery');
+      throw new BackupMonitoringConfigurationError('Event alerts support dashboard and configured email delivery');
     }
     if (config.alertChannels?.includes('email') && !config.alertEmails?.length) {
-      throw new Error('Email alerts require configured recipients');
+      throw new BackupMonitoringConfigurationError('Email alerts require configured recipients');
     }
   }
 

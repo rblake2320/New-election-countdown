@@ -34,6 +34,7 @@ describe('S3 backup stream integrity (local transport fixture)', () => {
   let destination: string;
   let payload = Buffer.alloc(0);
   let metadata: Record<string, string> = {};
+  let headMetadata: Record<string, string> | undefined;
   let sends: ReturnType<typeof vi.spyOn>;
   let oldKey: string | undefined;
   const config = { bucket: 'fixture', region: 'us-east-1', accessKeyId: 'fixture', secretAccessKey: 'fixture' };
@@ -45,7 +46,7 @@ describe('S3 backup stream integrity (local transport fixture)', () => {
     source = join(directory, 'source.sql');
     destination = join(directory, 'restored.sql');
     await writeFile(source, 'CREATE TABLE fixture(id integer);\n'.repeat(2000));
-    payload = Buffer.alloc(0); metadata = {};
+    payload = Buffer.alloc(0); metadata = {}; headMetadata = undefined;
     sends = vi.spyOn(S3Client.prototype, 'send').mockImplementation(async command => {
       if (command instanceof PutObjectCommand) {
         if (!(command.input.Body instanceof Readable)) throw new Error('Expected readable payload');
@@ -55,8 +56,8 @@ describe('S3 backup stream integrity (local transport fixture)', () => {
         metadata = Object.fromEntries(Object.entries(command.input.Metadata ?? {}).map(([k, v]) => [k.toLowerCase(), v]));
         return {};
       }
-      if (command instanceof HeadObjectCommand) return { ContentLength: payload.length, Metadata: metadata };
-      if (command instanceof GetObjectCommand) return { Body: Readable.from([payload]) };
+      if (command instanceof HeadObjectCommand) return { ContentLength: payload.length, Metadata: headMetadata ?? metadata };
+      if (command instanceof GetObjectCommand) return { Body: Readable.from([payload]), Metadata: metadata };
       throw new Error('Unexpected S3 command');
     });
   });
@@ -76,8 +77,28 @@ describe('S3 backup stream integrity (local transport fixture)', () => {
     const restarted = new S3BackupService({ ...config, enableCompression: compression });
     const result = await restarted.downloadBackup({ key: 'fixture', localPath: destination, verifyChecksum: true });
     expect(result.verified).toBe(true);
-    expect(await readFile(destination)).toEqual(await readFile(source));
+    expect((await readFile(destination)).equals(await readFile(source))).toBe(true);
     expect((await readdir(directory)).filter(name => name.startsWith('.backup-restore-'))).toEqual([]);
+  });
+
+  it.each([true, false])('uses body-version metadata when stale HEAD describes plaintext, compression=%s', async compression => {
+    const service = new S3BackupService({ ...config, enableCompression: compression });
+    await service.uploadBackup(source, { key: 'fixture' });
+    headMetadata = { encrypted: 'false', compressed: 'false' };
+    sends.mockClear();
+    await service.downloadBackup({ key: 'fixture', localPath: destination });
+    expect((await readFile(destination)).equals(await readFile(source))).toBe(true);
+    expect(sends.mock.calls.some(([command]) => command instanceof HeadObjectCommand)).toBe(false);
+  });
+
+  it('authenticates ciphertext despite stale plaintext HEAD when checksum is omitted', async () => {
+    const service = new S3BackupService({ ...config, enableCompression: false });
+    await service.uploadBackup(source, { key: 'fixture' });
+    headMetadata = { encrypted: 'false', compressed: 'false' };
+    payload[0] ^= 1;
+    await writeFile(destination, 'previous verified restore');
+    await expect(service.downloadBackup({ key: 'fixture', localPath: destination })).rejects.toThrow();
+    expect(await readFile(destination, 'utf8')).toBe('previous verified restore');
   });
 
   it('refuses ephemeral encryption keys before any upload', async () => {

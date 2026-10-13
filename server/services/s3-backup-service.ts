@@ -260,17 +260,6 @@ export class S3BackupService {
     let stagingDirectory: string | undefined;
 
     try {
-      // Get object metadata first
-      const headResult = await this.s3Client.send(new HeadObjectCommand({
-        Bucket: this.config.bucket,
-        Key: options.key
-      }));
-
-      const metadata = headResult.Metadata || {};
-      const originalChecksum = metadata.checksum;
-      const isCompressed = metadata.compressed === 'true';
-      const isEncrypted = metadata.encrypted === 'true';
-
       // Download the object
       const getCommand = new GetObjectCommand({
         Bucket: this.config.bucket,
@@ -278,6 +267,13 @@ export class S3BackupService {
       });
 
       const response = await this.s3Client.send(getCommand);
+      // Metadata and bytes must come from the same object version. A separate
+      // HEAD followed by an unpinned GET can silently change encryption modes.
+      const metadata = response.Metadata ?? {};
+      const originalChecksum = metadata.checksum;
+      const isCompressed = metadata.compressed === 'true';
+      const isEncrypted = metadata.encrypted === 'true';
+
       
       if (!response.Body) {
         throw new Error('No data received from S3');

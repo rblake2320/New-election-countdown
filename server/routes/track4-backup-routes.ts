@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { storage } from '../storage';
-import { BackupAlertService } from '../services/backup-alert-service';
+import { BackupAlertService, BackupMonitoringConfigurationError } from '../services/backup-alert-service';
 import { 
   insertBackupMonitoringConfigurationSchema,
   BackupMonitoringConfiguration,
@@ -64,6 +64,10 @@ router.post('/monitoring/configurations', isAuthenticated, async (req, res) => {
   } catch (error) {
     console.error('[Track4BackupRoutes] Error creating monitoring configuration:', error);
     
+    if (error instanceof BackupMonitoringConfigurationError) {
+      return res.status(400).json({ success: false, error: error.message });
+    }
+
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
@@ -111,6 +115,11 @@ router.put('/monitoring/configurations/:id', isAuthenticated, async (req, res) =
     const id = parseInt(req.params.id);
     const updates = createMonitoringConfigSchema.partial().parse(req.body);
     
+    const existing = await storage.getBackupMonitoringConfiguration(id);
+    if (!existing) {
+      return res.status(404).json({ success: false, error: 'Configuration not found' });
+    }
+    backupAlertService.validateMonitoringConfiguration({ ...existing, ...updates });
     const configuration = await storage.updateBackupMonitoringConfiguration(id, updates);
     
     res.json({
@@ -121,6 +130,10 @@ router.put('/monitoring/configurations/:id', isAuthenticated, async (req, res) =
   } catch (error) {
     console.error('[Track4BackupRoutes] Error updating configuration:', error);
     
+    if (error instanceof BackupMonitoringConfigurationError) {
+      return res.status(400).json({ success: false, error: error.message });
+    }
+
     if (error instanceof z.ZodError) {
       return res.status(400).json({
         success: false,
