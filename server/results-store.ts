@@ -120,9 +120,13 @@ export function adminManualSourceId(state: string): string { return `admin_manua
 /** Exact state-board delegation, including historical manual reports that have no live adapter.
  * NCSBE's Election Results page explicitly links https://er.ncsbe.gov/ (retained NC-0 receipt
  * under data/official-results/source-reviews/remaining-36-receipts). This admits that host only
- * for NC manual reports; it does not register a live source or claim publication/certification. */
+ * for NC manual reports. LA SOS's live newsroom delegates its Voter Portal to the exact
+ * voterportal.sos.la.gov host, which publishes its own election-results API example (retained
+ * artifacts/la-source-host/official-host-proof.json). No broken --environment-- href is rewritten.
+ * These admit manual report hosts only, not live sources or publication/certification claims. */
 const REVIEWED_MANUAL_RESULTS_HOSTS: Readonly<Partial<Record<string, readonly string[]>>> = {
   NC: ['er.ncsbe.gov'],
+  LA: ['voterportal.sos.la.gov'],
 };
 
 interface ManifestSourceRow { election_id: number; state: string; publisher: string; route_type: string; government_url: string; status?: string | null }
