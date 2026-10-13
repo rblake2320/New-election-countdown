@@ -24,6 +24,10 @@ jobs:
           # This unittest compares the immutable pre-correction snapshot.
           git fetch --no-tags --depth=1 origin c343237594bde7a2e3bd837fceaaae6abad9a072
           python3 -m unittest discover -s tests -p 'test_congress_member_names.py' -v
+      - name: Verify recorded browser wire recovery (21 controls)
+        run: |
+          node --test scripts/verify-browser-wire.node.mjs
+          node scripts/audit-mixed-browser-wire.mjs
       - run: npm ci
       - run: npm test
       - name: Verify legacy Congress restore entrypoints refuse
