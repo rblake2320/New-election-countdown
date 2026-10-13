@@ -1,0 +1,36 @@
+{
+  "outcome": "Worked",
+  "reviewType": "immutable source review; no new runtime tests or PG runner",
+  "composed": "4230570",
+  "source": "9b152daaf2949c08c882044e5343179b07349857",
+  "hashes": {
+    "server/results-errors.ts": {
+      "composedSha256": "f9bd1e20138c0c4f2c8344e1c7edba9534eed5af7c2a61b969adb3ae7fe31c5c",
+      "identicalToC9b152": true
+    },
+    "server/results-reports.ts": {
+      "composedSha256": "4584a6e021a3fb2c6069467ba3b96d994f5af15bcc3498284d7e2169b1b6ef5a",
+      "identicalToC9b152": true
+    },
+    "server/results-source-health.ts": {
+      "composedSha256": "1daf33f887b294c0c1e1d96f1ccc8191d7c982e80f6b1b8bc31cdadb78bd9f9f",
+      "identicalToC9b152": true
+    },
+    "server/results-store.ts": {
+      "composedSha256": "cda8a755336e8318133dabb2dcaf85289fdbe1e2a0d2d3d6096e592384ee1790",
+      "identicalToC9b152": true
+    },
+    "server/results-ingestion-service.ts": {
+      "composedSha256": "70400930090f1fda5e6dffc386ed02135300f63bbe21c9327e52500337cafcdd",
+      "identicalToC9b152": false
+    }
+  },
+  "findings": [
+    "Standalone error class and compatibility re-export retain cycle repair",
+    "Only SourceUnavailableError is converted to per-race batch errors; database/read failures propagate",
+    "Captured context is constructed before awaited adapter execution and reused for report expectedContext and failure health",
+    "PG and Mem check expectedContext before any report or health mutation",
+    "Only composition difference in reviewed five files is already-reviewed manifest registry intersection in ingestion"
+  ],
+  "mustFixes": []
+}

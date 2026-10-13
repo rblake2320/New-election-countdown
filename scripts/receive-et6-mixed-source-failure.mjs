@@ -4,6 +4,8 @@ const url=new URL(process.env.DATABASE_URL??'');
 if(url.hostname!=='et6-prod-109656-3a740d1d-db'||url.port!=='5432'||url.pathname!=='/et6_receiving'||url.search||url.hash)throw Error('Wrong private receiving destination');
 const pool=new pg.Pool({connectionString:process.env.DATABASE_URL});
 const receipt={at:new Date().toISOString(),scope:'Private controlled first-source-failure receiving; no external outage claim',outcome:'Running'};
+const holdSeconds=Number(process.env.ET6_RECEIVING_HOLD_SECONDS??0);
+if(!Number.isInteger(holdSeconds)||holdSeconds<0||holdSeconds>180)throw Error('Receiving hold must be 0..180 seconds');
 let inserted;
 const request=async(path,headers={})=>{const r=await fetch('http://127.0.0.1:5000'+path,{headers});const text=await r.text();return{status:r.status,etag:r.headers.get('etag'),body:text?JSON.parse(text):null};};
 try{
@@ -19,10 +21,17 @@ try{
   receipt.dateBatch=await request('/api/results?date=2026-11-03');
   const mixed=receipt.failed.body;
   receipt.checks={mixed200:receipt.failed.status===200,oneHealthy:mixed?.results?.length===1&&mixed.results[0].electionId===4242401&&mixed.results[0].totalVotes===1903115,oneError:mixed?.errors?.length===1&&mixed.errors[0].electionId===24&&mixed.errors[0].code==='source_unavailable',single503:receipt.singleFailed.status===503,conditional304:receipt.cached.status===304,dateScope:receipt.dateBatch.status===200&&receipt.dateBatch.body.results.length===505&&receipt.dateBatch.body.errors?.length===1};
+  if(holdSeconds){
+    if(!Object.values(receipt.checks).every(Boolean))throw Error('Refuse browser hold after failed HTTP acceptance');
+    receipt.browserWindow={startedAt:new Date().toISOString(),holdSeconds};
+    console.error(JSON.stringify({phase:'failure-visible',...receipt.browserWindow,electionId:24}));
+    await new Promise(resolve=>setTimeout(resolve,holdSeconds*1000));
+  }
 }catch(error){receipt.error=error.message;}
 finally{
   if(inserted){const restored=await pool.query('DELETE FROM result_source_health WHERE election_id=$1 AND source_id=$2 AND last_attempt_at=$3::timestamptz RETURNING election_id',[inserted.election_id,inserted.source_id,inserted.last_attempt_at]);receipt.restored=restored.rowCount===1;}
   receipt.after=await request('/api/results?ids=24,4242401');
+  if(receipt.browserWindow)receipt.browserWindow.recoveredAt=new Date().toISOString();
   receipt.outcome=!receipt.error&&receipt.restored&&Object.values(receipt.checks??{}).every(Boolean)&&receipt.after.status===200?'Worked':'Failed';
   await pool.end();console.log(JSON.stringify(receipt));if(receipt.outcome!=='Worked')process.exitCode=1;
 }
