@@ -1,0 +1,31 @@
+
+ RUN  v5.0.3 D:/projects/et-wt/yellow-pr69-review
+
+······························stdout | tests/unit/results-evidence-body.test.ts > production body parsers composed with the evidence route over HTTP > retains the exact official JSON bytes and hash, and repeats idempotently
+MemStorage initialized empty (failover cache; database is source of truth)
+
+stdout | tests/unit/results-evidence-body.test.ts > production body parsers composed with the evidence route over HTTP > uses the same case-insensitive and optional-trailing-slash route matching as Express
+MemStorage initialized empty (failover cache; database is source of truth)
+
+stdout | tests/unit/results-evidence-body.test.ts > production body parsers composed with the evidence route over HTTP > accepts JSON evidence above the normal JSON parser limit up to exactly 10 MB
+MemStorage initialized empty (failover cache; database is source of truth)
+
+··stdout | tests/unit/results-evidence-body.test.ts > production body parsers composed with the evidence route over HTTP > keeps media and empty-body errors, without storing rejected bytes
+MemStorage initialized empty (failover cache; database is source of truth)
+
+stdout | tests/unit/results-evidence-body.test.ts > production body parsers composed with the evidence route over HTTP > still applies authentication, admin authorization, and the real database write guard
+MemStorage initialized empty (failover cache; database is source of truth)
+
+stdout | tests/unit/results-evidence-body.test.ts > production body parsers composed with the evidence route over HTTP > still applies authentication, admin authorization, and the real database write guard
+🚫 Blocked POST /admin/results-evidence - Database unhealthy
+
+stdout | tests/unit/results-evidence-body.test.ts > production body parsers composed with the evidence route over HTTP > preserves normal JSON parsing, webhook rawBody, urlencoded forms and the ordinary JSON limit
+MemStorage initialized empty (failover cache; database is source of truth)
+
+····
+
+ Test Files  6 passed (6)
+      Tests  36 passed (36)
+   Start at  12:45:57
+   Duration  2.68s (environment 35%, import 31%, setup 13%, transform 13%, tests 8%, worker 1%)
+

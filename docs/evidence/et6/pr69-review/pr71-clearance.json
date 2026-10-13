@@ -1,0 +1,12 @@
+{
+  "outcome": "Worked",
+  "redHead": "c87468377acd2af5514794826461377dafe14723",
+  "greenHead": "86a8a262c6ef027f303a7b0ccb7bab333103c203",
+  "unchangedRegressionSha256": "6d3aa9de7a4131f214e2cb40b72865e03e73226eaad3b8d7136a4cb67e5278bd",
+  "redAssertions": 4,
+  "greenTests": 36,
+  "greenFiles": 6,
+  "sourceFix": "8868daa",
+  "command": "npx vitest run tests/unit/results-ingestion-v13.test.ts tests/unit/yellow-pr69-regressions.test.ts tests/unit/results-ingestion-adapter-election.test.ts tests/unit/results-evidence-body.test.ts tests/unit/results-coverage.test.ts tests/unit/results-store-batch.test.ts --reporter=dot",
+  "scope": "Same unmodified four red assertions now pass. Cancellation uses module double/fake clock for timeout; real in-memory writer for scope; local HTTP tests. No PostgreSQL, Docker runtime or build run."
+}
