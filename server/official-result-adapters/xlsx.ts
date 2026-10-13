@@ -107,7 +107,7 @@ export async function readXlsxWorkbook(bytes: Buffer): Promise<XlsxWorkbook> {
       const sst = object(xml(files, resolve(rel)).sst); if (sst['@_xmlns'] !== mainNs) refuse('Unsupported string namespace');
       strings = list(sst.si).map(richText); if (strings.length > limits.cells) refuse('Too many shared strings');
     }
-    let cells = 0; const sheets: XlsxSheet[] = [], sheetNames = new Set<string>();
+    let cells = 0, allocatedCells = 0; const sheets: XlsxSheet[] = [], sheetNames = new Set<string>();
     for (const rawSheet of list(object(book.sheets).sheet)) {
       const spec = object(rawSheet), name = string(spec['@_name']), rel = relationships.get(string(spec['@_r:id']));
       if (sheetNames.has(name) || !rel || rel['@_Type'] !== 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet') refuse('Invalid worksheet relationship');
@@ -124,7 +124,9 @@ export async function readXlsxWorkbook(bytes: Buffer): Promise<XlsxWorkbook> {
           const coordinate = string(cell['@_r']).match(/^([A-Z]+)([1-9]\d*)$/); if (!coordinate || Number(coordinate[2]) !== rowNumber) refuse('Invalid cell coordinate');
           let column = 0; for (const letter of coordinate[1] ?? '') column = column * 26 + letter.charCodeAt(0) - 64;
           if (column < 1 || column > limits.columns || seen.has(column)) refuse('Duplicate or oversized cell coordinate');
-          seen.add(column); while (values.length < column) values.push(null);
+          seen.add(column); allocatedCells += Math.max(0, column - values.length);
+          if (allocatedCells > limits.cells) refuse('Sparse cell allocation exceeds bound');
+          while (values.length < column) values.push(null);
           let value: XlsxCell = null; const type = cell['@_t'];
           if (cell.f !== undefined && cell.v === undefined) refuse('Formula has no cached value');
           if (type === 'inlineStr') value = richText(cell.is);
