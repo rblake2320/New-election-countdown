@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { z } from 'zod';
 import targetBindings from '../data/official-results/live/2026-nc-la-target-bindings.json';
+import privateTargetData from '../data/official-results/live/replay/private-targets.json';
 import waInitial from '../data/official-results/live/replay/wa/initial.packet.json';
 import waRecount from '../data/official-results/live/replay/wa/recount.packet.json';
 import { storage } from './storage';
@@ -34,24 +35,33 @@ export function reviewedDefaultLiveDefinitions(): LiveSourceDefinition[] {
   });
 }
 
+export const privateDestinationSchema = z.object({ id: z.string().regex(/^[a-z0-9-]{1,128}$/), host: z.string().min(1).max(256), port: z.string().regex(/^[1-9]\d{0,4}$/), database: z.string().regex(/^[a-z0-9_]{1,128}$/), reviewedContainerLabel: z.string().min(1).max(512), authority: z.string().min(1).max(512) }).strict();
+export type ReviewedPrivateDestination = z.infer<typeof privateDestinationSchema>;
+const approvedPrivateTargets = z.object({ version: z.literal(1), sourceSnapshotSha256: z.literal('99d76b1c02ac17d106aa3534e43493d70f8f5e3095cbe75e5127c896584be673'), destinations: z.array(privateDestinationSchema).min(1).max(10) }).strict().parse(privateTargetData).destinations;
 const replayCatalog = [
   { key: 'wa/initial.packet.json', sha256: 'c829680c33da6d5e1eb8a4caf1b3ac489d2906d5284aade91d1bf24bea747660', metadata: waInitial },
   { key: 'wa/recount.packet.json', sha256: '637e7671bc1cbc71c859e160aac2393c26a646342f9c81f292be0d838066bff2', metadata: waRecount },
 ];
 export function privateReplayTargetFingerprint(configuredUrl: string): string {
   const url = new URL(configuredUrl);
-  if (!['postgres:','postgresql:'].includes(url.protocol)) throw new Error('Private replay database protocol is invalid');
-  const value = { host: url.hostname.toLowerCase(), port: url.port || '5432', database: decodeURIComponent(url.pathname.slice(1)) };
-  if (!value.database || (['localhost','127.0.0.1','[::1]'].includes(value.host) && ['5432','5433','5434'].includes(value.port))) throw new Error('Private replay cannot target shared local database services');
+  // pg-connection-string honours target overrides in URL query options. Only
+  // explicit unambiguous host/port/database tuples are allowed in replay mode.
+  if (!['postgres:','postgresql:'].includes(url.protocol) || url.search || url.hash || !url.hostname || !url.port || Number(url.port) < 1) throw new Error('Private replay requires a simple explicit host/port/database URL without connection options');
+  const host = new URL('http://' + decodeURIComponent(url.hostname)).hostname.toLowerCase().replace(/\.$/, '');
+  const value = { host, port: url.port, database: decodeURIComponent(url.pathname.slice(1)) };
+  if (!value.database || value.database.includes('/') || (['localhost','127.0.0.1','[::1]','host.docker.internal','gateway.docker.internal'].includes(value.host) && ['5432','5433','5434'].includes(value.port))) throw new Error('Private replay cannot target shared local database services');
   return createHash('sha256').update(stableStringify(value)).digest('hex');
 }
-function replayPlan(env: NodeJS.ProcessEnv, deps: LiveAdapterDependencies): { source: RegisteredSource; adapter: ResultsAdapter } | null {
+
+function replayPlan(env: NodeJS.ProcessEnv, deps: LiveAdapterDependencies, destinations: ReviewedPrivateDestination[]): { source: RegisteredSource; adapter: ResultsAdapter } | null {
   const requested = env.OFFICIAL_RESULTS_SOURCE_PACKET;
   if (!requested) {
     if (env.OFFICIAL_RESULTS_REPLAY === 'private_fixture') throw new Error('Private replay requires an explicitly selected reviewed packet');
     return null;
   }
   if (env.OFFICIAL_RESULTS_REPLAY !== 'private_fixture' || !env.DATABASE_URL || !env.OFFICIAL_RESULTS_REPLAY_TARGET_SHA256 || privateReplayTargetFingerprint(env.DATABASE_URL) !== env.OFFICIAL_RESULTS_REPLAY_TARGET_SHA256) throw new Error('Source replay requires an explicit matching private fixture database target');
+  const destination = destinations.find(item => item.id === env.OFFICIAL_RESULTS_REPLAY_TARGET_ID);
+  if (!destination || privateReplayTargetFingerprint(`postgres://fixture@${destination.host}:${destination.port}/${destination.database}`) !== env.OFFICIAL_RESULTS_REPLAY_TARGET_SHA256) throw new Error('Private replay destination identifier/tuple is not in the reviewed fixture allowlist');
   const selected = replayCatalog.find(item => requested === item.key || resolve(requested) === fileURLToPath(new URL('../data/official-results/live/replay/' + item.key, import.meta.url)));
   if (!selected || env.OFFICIAL_RESULTS_SOURCE_PACKET_SHA256 !== selected.sha256) throw new Error('Source replay packet path/SHA is not an explicitly reviewed packaged recording');
   const packet = officialSourcePacketSchema.parse(selected.metadata);
@@ -84,10 +94,11 @@ export function officialResultsBootstrapHealth() { return [...health].map(([id, 
 
 /** Pure registration at boot. JSON metadata is bundled inline; all raw reads,
  * HTTP requests and evidence persistence are deferred until a matched poll. */
-export function registerReviewedOfficialResults(ingestion: ResultsIngestionService, registry: ResultsSourceRegistry, options?: { dependencies?: LiveAdapterDependencies; env?: NodeJS.ProcessEnv }): void {
+export function registerReviewedOfficialResults(ingestion: ResultsIngestionService, registry: ResultsSourceRegistry, options?: { dependencies?: LiveAdapterDependencies; env?: NodeJS.ProcessEnv; privateDestinations?: ReviewedPrivateDestination[] }): void {
   const deps = options?.dependencies ?? { evidence: (bytes, contentType, filename, uploadedBy) => storage.storeResultEvidence(bytes, contentType, filename, uploadedBy), current: id => storage.getResultsPayload(id) };
   const env = options?.env ?? process.env;
-  const replay = replayPlan(env, deps);
+  const destinations = options?.privateDestinations ? z.array(privateDestinationSchema).parse(options.privateDestinations) : approvedPrivateTargets;
+  const replay = replayPlan(env, deps, destinations);
   if (env.OFFICIAL_RESULTS_NETWORK_ENABLED === 'false' && !replay) throw new Error('Disabling official network adapters requires explicit private replay mode');
   const pool = createLiveTransportPool();
   const plans = env.OFFICIAL_RESULTS_NETWORK_ENABLED === 'false' ? [] : reviewedDefaultLiveDefinitions().map(def => {

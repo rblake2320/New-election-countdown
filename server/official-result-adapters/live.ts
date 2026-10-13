@@ -64,15 +64,26 @@ export function authoritativeTarget(election: AdapterElection): OfficialTargetBi
 export function requireAuthoritativeTarget(actual: OfficialTargetBinding, expected: OfficialTargetBinding): void {
   for (const key of ['id','state','date','type','level','title'] as const) if (actual[key] !== expected[key]) refused('official_target_mismatch', 'Authoritative election differs from its reviewed source tuple');
 }
+function candidateIdentityOrder(a: ResultReportInput['candidates'][number], b: ResultReportInput['candidates'][number]): number {
+  return a.sourceCandidateId < b.sourceCandidateId ? -1 : a.sourceCandidateId > b.sourceCandidateId ? 1 : 0;
+}
 export function preserveAcceptedCaptureClock(input: ResultReportInput, prior: LiveElectionResultsResponse | null, target: OfficialTargetBinding): ResultReportInput {
-  if (!prior || prior.status === 'none' || !prior.electionContext || !prior.source || !prior.retrievedAt) return input;
+  // Normalise the FIRST submitted order to match the store's votesDESC view,
+  // with a stable exact source-identity tie-break. Never drop/merge any option.
+  const normalized = resultReportInputSchema.parse({ ...input, candidates: [...input.candidates].sort((a, b) => b.votes - a.votes || candidateIdentityOrder(a, b)) });
+  if (!prior || prior.status === 'none' || !prior.electionContext || !prior.source || !prior.retrievedAt) return normalized;
   const c = prior.electionContext;
-  if (c.state !== target.state || c.electionDate !== target.date || c.type !== target.type || c.level !== target.level || c.office !== target.title) return input;
-  const fields = ['status','reporting','source','sourcePayloadSha256','asOf','asOfBasis','totalVotes','candidates','winnerCalledBy','certification'] as const;
+  if (c.state !== target.state || c.electionDate !== target.date || c.type !== target.type || c.level !== target.level || c.office !== target.title) return normalized;
+  const fields = ['status','reporting','source','sourcePayloadSha256','asOf','asOfBasis','totalVotes','winnerCalledBy','certification'] as const;
   const a: Record<string, unknown> = {}, b: Record<string, unknown> = {};
-  for (const field of fields) { a[field] = input[field]; b[field] = prior[field]; }
-  if (stableStringify(a) !== stableStringify(b)) return input;
-  return resultReportInputSchema.parse({ ...input, retrievedAt: prior.retrievedAt });
+  for (const field of fields) { a[field] = normalized[field]; b[field] = prior[field]; }
+  // Every candidate field participates; source ID disambiguates equal names.
+  // The count/array is preserved so duplicate/missing identities cannot vanish.
+  a.candidates = [...normalized.candidates].sort(candidateIdentityOrder);
+  b.candidates = [...prior.candidates].sort(candidateIdentityOrder);
+  if (stableStringify(a) !== stableStringify(b)) return normalized;
+  // Match the actual accepted receiving order and original capture instant.
+  return resultReportInputSchema.parse({ ...normalized, candidates: prior.candidates, retrievedAt: prior.retrievedAt });
 }
 
 /** One shared, bounded, cancellable capture per state definition. Each waiter
@@ -194,5 +205,11 @@ export function createOfficialLiveAdapter(definition: LiveSourceDefinition, deps
   };
   return { adapter, health: capture.health };
 }
-export const createNcLiveAdapter = createOfficialLiveAdapter;
-export const createLaLiveAdapter = createOfficialLiveAdapter;
+export function createNcLiveAdapter(definition: LiveSourceDefinition, deps: LiveAdapterDependencies, pool = createLiveTransportPool()) {
+  if (definition.state !== 'NC') return refused('official_source_invalid', 'NC factory requires a reviewed NC source');
+  return createOfficialLiveAdapter(definition, deps, pool);
+}
+export function createLaLiveAdapter(definition: LiveSourceDefinition, deps: LiveAdapterDependencies, pool = createLiveTransportPool()) {
+  if (definition.state !== 'LA') return refused('official_source_invalid', 'LA factory requires a reviewed LA source');
+  return createOfficialLiveAdapter(definition, deps, pool);
+}
