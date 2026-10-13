@@ -1,0 +1,965 @@
+{
+  "outcome": "Worked",
+  "sourceSha": "8a357ae79f4574056135c9ba749eddaeb7598366",
+  "privateIdentity": {
+    "database": "et_sol_data_6c78a3148c6b",
+    "port": 5432
+  },
+  "compiledSha256": "d403b72ffda0788819017410dc6117072ebb709f3d1cf470d67f3965244be1ab",
+  "mockCount": 0,
+  "realHttp": true,
+  "realAuthSessionValidation": true,
+  "realPg": true,
+  "checks": [
+    {
+      "scenario": "actual verified-source zero comparison is truthful empty",
+      "outcome": "Worked",
+      "status": 200,
+      "verifiedSourceRows": 0
+    },
+    {
+      "scenario": "local positions without VoteSmart key empty",
+      "outcome": "Worked",
+      "status": 200
+    },
+    {
+      "scenario": "unverified local statement excluded",
+      "outcome": "Worked",
+      "status": 200
+    },
+    {
+      "scenario": "actual verified row exposed with exact source and unknown confidence",
+      "outcome": "Worked",
+      "status": 200,
+      "actualPositionRowId": 2
+    },
+    {
+      "scenario": "actual local comparison exact source statement",
+      "outcome": "Worked",
+      "status": 200
+    },
+    {
+      "scenario": "policy category substring never creates inferred position",
+      "outcome": "Worked",
+      "status": 200
+    },
+    {
+      "scenario": "strict positions identifier 1.5",
+      "outcome": "Worked",
+      "status": 400
+    },
+    {
+      "scenario": "strict positions identifier 1abc",
+      "outcome": "Worked",
+      "status": 400
+    },
+    {
+      "scenario": "strict positions identifier 0",
+      "outcome": "Worked",
+      "status": 400
+    },
+    {
+      "scenario": "strict positions identifier 2147483648",
+      "outcome": "Worked",
+      "status": 400
+    },
+    {
+      "scenario": "strict comparison identifier",
+      "outcome": "Worked",
+      "status": 400
+    },
+    {
+      "scenario": "political analysis typed503 no invented score",
+      "outcome": "Worked",
+      "status": 503
+    },
+    {
+      "scenario": "no cookie401",
+      "outcome": "Worked",
+      "status": 401
+    },
+    {
+      "scenario": "foreign origin403",
+      "outcome": "Worked",
+      "status": 403
+    },
+    {
+      "scenario": "foreign same-site fetch metadata403",
+      "outcome": "Worked",
+      "status": 403
+    },
+    {
+      "scenario": "foreign candidate422",
+      "outcome": "Worked",
+      "status": 422
+    },
+    {
+      "scenario": "forged actor/session body422",
+      "outcome": "Worked",
+      "status": 422
+    },
+    {
+      "scenario": "bad JWT signature401",
+      "outcome": "Worked",
+      "status": 401
+    },
+    {
+      "scenario": "signed JWT without auth_sessions row401",
+      "outcome": "Worked",
+      "status": 401
+    },
+    {
+      "scenario": "all pre-write refusals preserve zero preference rows",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "actual201 committed row unknown valuesNULL",
+      "outcome": "Worked",
+      "status": 201,
+      "storedConfidence": null,
+      "storedLikelyVoter": null
+    },
+    {
+      "scenario": "actual200 cross-process repeat stable id xmin bytes",
+      "outcome": "Worked",
+      "status": 200,
+      "firstXmin": "6198",
+      "repeatXmin": "6198"
+    },
+    {
+      "scenario": "actual200 changed preference updates same row",
+      "outcome": "Worked",
+      "status": 200,
+      "beforeXmin": "6198",
+      "afterXmin": "6200"
+    },
+    {
+      "scenario": "explicit low confidence is preserved",
+      "outcome": "Worked",
+      "status": 200,
+      "storedConfidence": "low"
+    },
+    {
+      "scenario": "omitted confidence clears prior low toNULL",
+      "outcome": "Worked",
+      "status": 200,
+      "storedConfidence": null
+    },
+    {
+      "scenario": "twelve retries across two real processes create one current row",
+      "outcome": "Worked",
+      "statuses": [
+        200,
+        201,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "rows": 1
+    },
+    {
+      "scenario": "different authenticated subject gets own single row",
+      "outcome": "Worked",
+      "status": 201
+    },
+    {
+      "scenario": "native PostgreSQL lock failure typed503 no acknowledgement",
+      "outcome": "Worked",
+      "status": 503,
+      "durationMs": 2027.1622999999997,
+      "actualFault": "private access-exclusive lock triggers service2s lock_timeout"
+    },
+    {
+      "scenario": "native PostgreSQL failure preserves previous row",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "signed JWT expired database session401",
+      "outcome": "Worked",
+      "status": 401
+    },
+    {
+      "scenario": "revoked auth_sessions JWT401",
+      "outcome": "Worked",
+      "status": 401
+    },
+    {
+      "scenario": "unknown likelihood on legacy-default current row remains honestNULL",
+      "outcome": "Worked",
+      "status": 200,
+      "storedConfidence": null,
+      "storedLikelyVoter": null
+    },
+    {
+      "scenario": "exact preference equality clears legacytrue once",
+      "outcome": "Worked",
+      "status": 200,
+      "beforeXmin": "6222",
+      "afterXmin": "6223"
+    },
+    {
+      "scenario": "next repaired equality retry keeps xmin bytes stable",
+      "outcome": "Worked",
+      "status": 200,
+      "beforeXmin": "6223",
+      "afterXmin": "6223"
+    },
+    {
+      "scenario": "actual auth pool unavailability fails closed503",
+      "outcome": "Worked",
+      "status": 503
+    },
+    {
+      "scenario": "actual election reader outage no fabricated score503",
+      "outcome": "Worked",
+      "status": 503
+    },
+    {
+      "scenario": "actual local position store outage typed503",
+      "outcome": "Worked",
+      "status": 503
+    },
+    {
+      "scenario": "compiled worker stopped with no provider calls",
+      "outcome": "Worked",
+      "pid": 138708,
+      "outboundCalls": 0
+    },
+    {
+      "scenario": "compiled worker stopped with no provider calls",
+      "outcome": "Worked",
+      "pid": 138164,
+      "outboundCalls": 0
+    },
+    {
+      "scenario": "original complete rows and xmin preserved after fixture cleanup",
+      "outcome": "Worked",
+      "before": {
+        "users": {
+          "count": 7,
+          "rowandxmindigest": "4076e64a6440d79edb916dce52ac7c1d"
+        },
+        "auth_sessions": {
+          "count": 14,
+          "rowandxmindigest": "d3de0a024621ddb0e88ae9d34a23d778"
+        },
+        "candidate_profiles": {
+          "count": 0,
+          "rowandxmindigest": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "candidates": {
+          "count": 3444,
+          "rowandxmindigest": "320b9dbb6edbf9d6d1b4df91280c16aa"
+        },
+        "candidate_positions": {
+          "count": 0,
+          "rowandxmindigest": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "elections": {
+          "count": 537,
+          "rowandxmindigest": "42235781d3a2d102e005c61763b283ef"
+        },
+        "user_voting_intentions": {
+          "count": 0,
+          "rowandxmindigest": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      },
+      "after": {
+        "users": {
+          "count": 7,
+          "rowandxmindigest": "4076e64a6440d79edb916dce52ac7c1d"
+        },
+        "auth_sessions": {
+          "count": 14,
+          "rowandxmindigest": "d3de0a024621ddb0e88ae9d34a23d778"
+        },
+        "candidate_profiles": {
+          "count": 0,
+          "rowandxmindigest": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "candidates": {
+          "count": 3444,
+          "rowandxmindigest": "320b9dbb6edbf9d6d1b4df91280c16aa"
+        },
+        "candidate_positions": {
+          "count": 0,
+          "rowandxmindigest": "d41d8cd98f00b204e9800998ecf8427e"
+        },
+        "elections": {
+          "count": 537,
+          "rowandxmindigest": "42235781d3a2d102e005c61763b283ef"
+        },
+        "user_voting_intentions": {
+          "count": 0,
+          "rowandxmindigest": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      }
+    }
+  ],
+  "responses": [
+    {
+      "path": "/api/civic/compare?candidateIds=190010011,190010012&policyCategories=healthcare,economy",
+      "method": "GET",
+      "status": 200,
+      "body": [
+        {
+          "category": "healthcare",
+          "positions": []
+        },
+        {
+          "category": "economy",
+          "positions": []
+        }
+      ],
+      "durationMs": 36.107099999999946
+    },
+    {
+      "path": "/api/candidates/190010011/positions",
+      "method": "GET",
+      "status": 200,
+      "body": [],
+      "durationMs": 3.679600000000164
+    },
+    {
+      "path": "/api/candidates/190010011/positions",
+      "method": "GET",
+      "status": 200,
+      "body": [],
+      "durationMs": 19.674800000000005
+    },
+    {
+      "path": "/api/candidates/190010011/positions",
+      "method": "GET",
+      "status": 200,
+      "body": [
+        {
+          "category": "private-unit-policy",
+          "position": "PRIVATE VERIFIED UNIT STATEMENT - NOT A CAMPAIGN POLICY",
+          "confidence": null,
+          "sources": [
+            {
+              "type": "Candidate Portal",
+              "sourcePositionId": 2,
+              "description": "PRIVATE VERIFIED UNIT STATEMENT - NOT A CAMPAIGN POLICY",
+              "confidence": null,
+              "url": "https://example.invalid/private-unit-source",
+              "date": "2026-10-13T20:09:41.370Z"
+            }
+          ]
+        }
+      ],
+      "durationMs": 3.3776000000000295
+    },
+    {
+      "path": "/api/civic/compare?candidateIds=190010011&policyCategories=private-unit-policy",
+      "method": "GET",
+      "status": 200,
+      "body": [
+        {
+          "category": "private-unit-policy",
+          "positions": [
+            {
+              "candidateId": "190010011",
+              "candidateName": "PRIVATE UNIT CANDIDATE 1 - NOT A REAL PERSON",
+              "position": "PRIVATE VERIFIED UNIT STATEMENT - NOT A CAMPAIGN POLICY",
+              "details": "PRIVATE VERIFIED UNIT STATEMENT - NOT A CAMPAIGN POLICY",
+              "source": "Candidate Portal",
+              "confidence": null,
+              "sourcePositionId": 2,
+              "sourceUrl": "https://example.invalid/private-unit-source",
+              "recordedDate": "2026-10-13T20:09:41.370Z"
+            }
+          ]
+        }
+      ],
+      "durationMs": 9.471300000000156
+    },
+    {
+      "path": "/api/civic/compare?candidateIds=190010011&policyCategories=unit",
+      "method": "GET",
+      "status": 200,
+      "body": [
+        {
+          "category": "unit",
+          "positions": []
+        }
+      ],
+      "durationMs": 15.126400000000103
+    },
+    {
+      "path": "/api/candidates/1.5/positions",
+      "method": "GET",
+      "status": 400,
+      "body": {
+        "code": "INVALID_CANDIDATE_ID",
+        "error": "A complete positive candidate identifier is required"
+      },
+      "durationMs": 13.48090000000002
+    },
+    {
+      "path": "/api/candidates/1abc/positions",
+      "method": "GET",
+      "status": 400,
+      "body": {
+        "code": "INVALID_CANDIDATE_ID",
+        "error": "A complete positive candidate identifier is required"
+      },
+      "durationMs": 15.81029999999987
+    },
+    {
+      "path": "/api/candidates/0/positions",
+      "method": "GET",
+      "status": 400,
+      "body": {
+        "code": "INVALID_CANDIDATE_ID",
+        "error": "A complete positive candidate identifier is required"
+      },
+      "durationMs": 15.388400000000047
+    },
+    {
+      "path": "/api/candidates/2147483648/positions",
+      "method": "GET",
+      "status": 400,
+      "body": {
+        "code": "INVALID_CANDIDATE_ID",
+        "error": "A complete positive candidate identifier is required"
+      },
+      "durationMs": 15.487300000000005
+    },
+    {
+      "path": "/api/civic/compare?candidateIds=1.5&policyCategories=healthcare",
+      "method": "GET",
+      "status": 400,
+      "body": {
+        "code": "INVALID_CANDIDATE_IDS",
+        "error": "Candidate identifiers must be complete positive integers"
+      },
+      "durationMs": 14.954300000000103
+    },
+    {
+      "path": "/api/elections/190010001/political-analysis",
+      "method": "GET",
+      "status": 503,
+      "body": {
+        "code": "political_analysis_unavailable",
+        "error": "A sourced political analysis has not been recorded for this election",
+        "electionId": 190010001,
+        "source": null,
+        "asOf": null
+      },
+      "durationMs": 17.16840000000002
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 401,
+      "body": {
+        "error": "unauthorized"
+      },
+      "durationMs": 19.745299999999816
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 403,
+      "body": {
+        "code": "foreign_origin",
+        "error": "Voting preferences must be submitted from this application"
+      },
+      "durationMs": 13.046299999999974
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 403,
+      "body": {
+        "code": "foreign_origin",
+        "error": "Voting preferences must be submitted from this application"
+      },
+      "durationMs": 14.276399999999967
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 422,
+      "body": {
+        "code": "candidate_not_in_election",
+        "error": "The candidate is not recorded for this election"
+      },
+      "durationMs": 19.930599999999913
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 422,
+      "body": {
+        "code": "invalid_intention",
+        "error": "Choose a valid candidate or party preference and confidence"
+      },
+      "durationMs": 10.279199999999946
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 401,
+      "body": {
+        "error": "unauthorized"
+      },
+      "durationMs": 14.904400000000123
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 401,
+      "body": {
+        "error": "unauthorized"
+      },
+      "durationMs": 15.71490000000017
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 201,
+      "body": {
+        "success": true,
+        "intention": {
+          "id": 5,
+          "electionId": 190010001,
+          "candidateId": 190010011,
+          "partyPreference": null,
+          "confidence": null,
+          "createdAt": "2026-10-14T01:09:41.616Z",
+          "updatedAt": "2026-10-14T01:09:41.616Z"
+        }
+      },
+      "durationMs": 23.58719999999994
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 200,
+      "body": {
+        "success": true,
+        "intention": {
+          "id": 5,
+          "electionId": 190010001,
+          "candidateId": 190010011,
+          "partyPreference": null,
+          "confidence": null,
+          "createdAt": "2026-10-14T01:09:41.616Z",
+          "updatedAt": "2026-10-14T01:09:41.616Z"
+        }
+      },
+      "durationMs": 28.258299999999963
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 200,
+      "body": {
+        "success": true,
+        "intention": {
+          "id": 5,
+          "electionId": 190010001,
+          "candidateId": 190010012,
+          "partyPreference": "R",
+          "confidence": "high",
+          "createdAt": "2026-10-14T01:09:41.616Z",
+          "updatedAt": "2026-10-14T01:09:41.664Z"
+        }
+      },
+      "durationMs": 16.360400000000027
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 200,
+      "body": {
+        "success": true,
+        "intention": {
+          "id": 5,
+          "electionId": 190010001,
+          "candidateId": 190010012,
+          "partyPreference": "R",
+          "confidence": "low",
+          "createdAt": "2026-10-14T01:09:41.616Z",
+          "updatedAt": "2026-10-14T01:09:41.679Z"
+        }
+      },
+      "durationMs": 12.387699999999995
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 200,
+      "body": {
+        "success": true,
+        "intention": {
+          "id": 5,
+          "electionId": 190010001,
+          "candidateId": 190010012,
+          "partyPreference": "R",
+          "confidence": null,
+          "createdAt": "2026-10-14T01:09:41.616Z",
+          "updatedAt": "2026-10-14T01:09:41.696Z"
+        }
+      },
+      "durationMs": 16.419599999999946
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 201,
+      "body": {
+        "success": true,
+        "intention": {
+          "id": 6,
+          "electionId": 190010001,
+          "candidateId": 190010011,
+          "partyPreference": null,
+          "confidence": null,
+          "createdAt": "2026-10-14T01:09:41.711Z",
+          "updatedAt": "2026-10-14T01:09:41.711Z"
+        }
+      },
+      "durationMs": 23.153099999999995
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 200,
+      "body": {
+        "success": true,
+        "intention": {
+          "id": 6,
+          "electionId": 190010001,
+          "candidateId": 190010011,
+          "partyPreference": null,
+          "confidence": null,
+          "createdAt": "2026-10-14T01:09:41.711Z",
+          "updatedAt": "2026-10-14T01:09:41.711Z"
+        }
+      },
+      "durationMs": 29.265300000000025
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 200,
+      "body": {
+        "success": true,
+        "intention": {
+          "id": 6,
+          "electionId": 190010001,
+          "candidateId": 190010011,
+          "partyPreference": null,
+          "confidence": null,
+          "createdAt": "2026-10-14T01:09:41.711Z",
+          "updatedAt": "2026-10-14T01:09:41.711Z"
+        }
+      },
+      "durationMs": 35.3304999999998
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 200,
+      "body": {
+        "success": true,
+        "intention": {
+          "id": 6,
+          "electionId": 190010001,
+          "candidateId": 190010011,
+          "partyPreference": null,
+          "confidence": null,
+          "createdAt": "2026-10-14T01:09:41.711Z",
+          "updatedAt": "2026-10-14T01:09:41.711Z"
+        }
+      },
+      "durationMs": 40.82310000000007
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 200,
+      "body": {
+        "success": true,
+        "intention": {
+          "id": 6,
+          "electionId": 190010001,
+          "candidateId": 190010011,
+          "partyPreference": null,
+          "confidence": null,
+          "createdAt": "2026-10-14T01:09:41.711Z",
+          "updatedAt": "2026-10-14T01:09:41.711Z"
+        }
+      },
+      "durationMs": 45.68290000000002
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 200,
+      "body": {
+        "success": true,
+        "intention": {
+          "id": 6,
+          "electionId": 190010001,
+          "candidateId": 190010011,
+          "partyPreference": null,
+          "confidence": null,
+          "createdAt": "2026-10-14T01:09:41.711Z",
+          "updatedAt": "2026-10-14T01:09:41.711Z"
+        }
+      },
+      "durationMs": 50.51299999999992
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 200,
+      "body": {
+        "success": true,
+        "intention": {
+          "id": 6,
+          "electionId": 190010001,
+          "candidateId": 190010011,
+          "partyPreference": null,
+          "confidence": null,
+          "createdAt": "2026-10-14T01:09:41.711Z",
+          "updatedAt": "2026-10-14T01:09:41.711Z"
+        }
+      },
+      "durationMs": 55.58609999999999
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 200,
+      "body": {
+        "success": true,
+        "intention": {
+          "id": 6,
+          "electionId": 190010001,
+          "candidateId": 190010011,
+          "partyPreference": null,
+          "confidence": null,
+          "createdAt": "2026-10-14T01:09:41.711Z",
+          "updatedAt": "2026-10-14T01:09:41.711Z"
+        }
+      },
+      "durationMs": 62.376399999999876
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 200,
+      "body": {
+        "success": true,
+        "intention": {
+          "id": 6,
+          "electionId": 190010001,
+          "candidateId": 190010011,
+          "partyPreference": null,
+          "confidence": null,
+          "createdAt": "2026-10-14T01:09:41.711Z",
+          "updatedAt": "2026-10-14T01:09:41.711Z"
+        }
+      },
+      "durationMs": 67.5331000000001
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 200,
+      "body": {
+        "success": true,
+        "intention": {
+          "id": 6,
+          "electionId": 190010001,
+          "candidateId": 190010011,
+          "partyPreference": null,
+          "confidence": null,
+          "createdAt": "2026-10-14T01:09:41.711Z",
+          "updatedAt": "2026-10-14T01:09:41.711Z"
+        }
+      },
+      "durationMs": 73.79819999999995
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 200,
+      "body": {
+        "success": true,
+        "intention": {
+          "id": 6,
+          "electionId": 190010001,
+          "candidateId": 190010011,
+          "partyPreference": null,
+          "confidence": null,
+          "createdAt": "2026-10-14T01:09:41.711Z",
+          "updatedAt": "2026-10-14T01:09:41.711Z"
+        }
+      },
+      "durationMs": 79.3742000000002
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 200,
+      "body": {
+        "success": true,
+        "intention": {
+          "id": 6,
+          "electionId": 190010001,
+          "candidateId": 190010011,
+          "partyPreference": null,
+          "confidence": null,
+          "createdAt": "2026-10-14T01:09:41.711Z",
+          "updatedAt": "2026-10-14T01:09:41.711Z"
+        }
+      },
+      "durationMs": 84.55939999999987
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 201,
+      "body": {
+        "success": true,
+        "intention": {
+          "id": 7,
+          "electionId": 190010001,
+          "candidateId": null,
+          "partyPreference": "Undecided",
+          "confidence": null,
+          "createdAt": "2026-10-14T01:09:41.802Z",
+          "updatedAt": "2026-10-14T01:09:41.802Z"
+        }
+      },
+      "durationMs": 18.121799999999894
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 503,
+      "body": {
+        "code": "intention_store_unavailable",
+        "error": "Voting preference storage is unavailable"
+      },
+      "durationMs": 2027.1622999999997
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 401,
+      "body": {
+        "error": "unauthorized"
+      },
+      "durationMs": 7.1850000000004
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 401,
+      "body": {
+        "error": "unauthorized"
+      },
+      "durationMs": 13.228900000000067
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 200,
+      "body": {
+        "success": true,
+        "intention": {
+          "id": 8,
+          "electionId": 190010001,
+          "candidateId": 190010012,
+          "partyPreference": null,
+          "confidence": null,
+          "createdAt": "2026-10-14T01:09:43.870Z",
+          "updatedAt": "2026-10-14T01:09:43.885Z"
+        }
+      },
+      "durationMs": 22.644000000000233
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 200,
+      "body": {
+        "success": true,
+        "intention": {
+          "id": 8,
+          "electionId": 190010001,
+          "candidateId": 190010012,
+          "partyPreference": null,
+          "confidence": null,
+          "createdAt": "2026-10-14T01:09:43.870Z",
+          "updatedAt": "2026-10-14T01:09:43.917Z"
+        }
+      },
+      "durationMs": 26.140400000000227
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 200,
+      "body": {
+        "success": true,
+        "intention": {
+          "id": 8,
+          "electionId": 190010001,
+          "candidateId": 190010012,
+          "partyPreference": null,
+          "confidence": null,
+          "createdAt": "2026-10-14T01:09:43.870Z",
+          "updatedAt": "2026-10-14T01:09:43.917Z"
+        }
+      },
+      "durationMs": 11.829499999999825
+    },
+    {
+      "path": "/api/elections/190010001/voting-intention",
+      "method": "POST",
+      "status": 503,
+      "body": {
+        "error": "session_store_unavailable"
+      },
+      "durationMs": 4.196899999999914
+    },
+    {
+      "path": "/api/elections/190010001/political-analysis",
+      "method": "GET",
+      "status": 503,
+      "body": {
+        "code": "election_store_unavailable",
+        "error": "Election records are unavailable"
+      },
+      "durationMs": 16.698899999999412
+    },
+    {
+      "path": "/api/candidates/190010011/positions",
+      "method": "GET",
+      "status": 503,
+      "body": {
+        "code": "POSITION_SOURCE_UNAVAILABLE",
+        "error": "Verified candidate position records are unavailable"
+      },
+      "durationMs": 15.421199999999772
+    }
+  ],
+  "fixtureScope": "Private labelled unit actors and synthetic races/candidates only; never real voter intentions or official results",
+  "originalPreserved": true,
+  "cleanupWorked": true
+}
