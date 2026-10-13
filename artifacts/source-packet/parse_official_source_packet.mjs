@@ -4386,7 +4386,8 @@ import { createHash } from "node:crypto";
 var text2 = z.string().trim().min(1).max(512);
 var token2 = text2.max(256);
 var officialTargetBindingSchema = z.object({ id: z.number().int().positive().safe(), state: z.string().regex(/^[A-Z]{2}$/), date: officialContestContextSchema.shape.electionDate, type: token2, level: token2, title: text2 }).strict();
-var reviewedPublisherSchema = z.object({ id: token2, kind: z.enum(["official_state_enr", "official_state_page", "official_county"]), name: text2, url: httpsResultsUrl }).strict();
+var reviewedPublisherSchema = z.object({ id: token2, kind: z.enum(["official_state_enr", "official_state_page", "official_county", "admin_manual"]), name: text2, url: httpsResultsUrl }).strict();
+var reviewedSourceTargetBindingSchema = z.object({ target: officialTargetBindingSchema, sourceContext: officialContestContextSchema }).strict();
 function refuse(code, message) {
   throw new OfficialResultParseError(code, message);
 }
@@ -4396,11 +4397,14 @@ function hash(bytes) {
 function bridgeOfficialContest(parsedInput, input) {
   const parsed = parsedOfficialContestSchema.parse(parsedInput), publisher = reviewedPublisherSchema.parse(input.publisher);
   const target = officialTargetBindingSchema.parse(input.target), reviewed = officialTargetBindingSchema.parse(input.reviewedTarget);
+  const mapping = reviewedSourceTargetBindingSchema.parse(input.reviewedBinding);
+  requireContext(parsed.context, mapping.sourceContext);
   requireContext(parsed.context, officialContestContextSchema.parse(input.reviewedContext));
-  for (const key of ["id", "state", "date", "type", "level", "title"]) if (target[key] !== reviewed[key]) refuse("TARGET_MISMATCH", `Authoritative target ${key} differs from reviewed binding`);
+  for (const key of ["id", "state", "date", "type", "level", "title"]) if (target[key] !== reviewed[key] || target[key] !== mapping.target[key]) refuse("TARGET_MISMATCH", `Authoritative target ${key} differs from reviewed binding`);
   if (target.state !== parsed.context.state || target.date !== parsed.context.electionDate || target.level !== parsed.context.level) refuse("TARGET_CONTEXT_MISMATCH", "Target state/date/level differs from actual source context");
-  const phaseTypes = { general: ["General"], primary: ["Primary"], runoff: ["Runoff"], primary_runoff: ["Primary Runoff", "PrimaryRunoff"], other: ["Other", "Special"] };
-  if (!phaseTypes[parsed.context.phase].includes(target.type)) refuse("TARGET_CONTEXT_MISMATCH", "Target type differs from reviewed source phase");
+  const phaseTypes = { general: ["general"], primary: ["primary"], runoff: ["runoff"], primary_runoff: ["primary runoff", "primaryrunoff", "primary_runoff"], other: ["other", "special"] };
+  if (!phaseTypes[parsed.context.phase].includes(target.type.toLowerCase())) refuse("TARGET_CONTEXT_MISMATCH", "Target type differs from reviewed source phase");
+  if (publisher.kind === "admin_manual" && (publisher.id !== parsed.context.state || input.reviewedCertification === true)) refuse("MANUAL_SOURCE_REFUSED", "Manual source requires exact state ID and unofficial status");
   if (hash(input.rawPayload) !== parsed.sourcePayloadSha256) refuse("PAYLOAD_HASH_MISMATCH", "Parsed result does not bind actual raw payload bytes");
   const retrievedAt = resultsTimestamp.parse(input.retrievedAt);
   let certification = null;
@@ -4408,7 +4412,7 @@ function bridgeOfficialContest(parsedInput, input) {
     if (parsed.certificationEvidence.length === 0) refuse("CERTIFICATION_MISSING", "Reviewed certification requires actual parser proof");
     for (const proof2 of parsed.certificationEvidence) {
       requireContext(proof2.context, parsed.context);
-      const raw = input.rawCertificates.filter((item) => item.url === proof2.url && hash(item.bytes) === proof2.sha256);
+      const raw = input.rawCertificates.filter((item) => item.url === proof2.url && item.sha256 === proof2.sha256 && hash(item.bytes) === item.sha256);
       if (raw.length !== 1) refuse("CERTIFICATION_HASH_MISMATCH", "Exact contest certification bytes are missing or ambiguous");
     }
     const proof = parsed.certificationEvidence[0];
@@ -9221,6 +9225,7 @@ var officialSourcePacketSchema = z.object({
   context: officialContestContextSchema,
   targetBinding: officialTargetBindingSchema,
   publisher: reviewedPublisherSchema,
+  reviewedBinding: reviewedSourceTargetBindingSchema,
   files: z.array(z.object({ role: z.enum(["payload", "companion", "certificate", "capture_receipt"]), path: z.string().min(1).max(512), sha256: sha, url: httpsResultsUrl.nullable() }).strict()).min(2).max(8),
   reviewedCertification: z.boolean().default(false),
   sourceContestId: token3.nullable(),
@@ -9268,7 +9273,9 @@ async function parseOfficialSourcePacket(packetPath, expectedManifestSha256, tar
   const captureRows = z.array(z.record(z.unknown())).parse(Array.isArray(captureValue) ? captureValue : [captureValue]);
   const matches = captureRows.filter((row2) => row2.url === payload.url && row2.sha256 === payload.sha256 && (row2.status === 200 || row2.httpStatus === 200));
   if (matches.length !== 1) refuse6("CAPTURE_RECEIPT_MISMATCH", "No unique actual successful payload capture receipt");
-  const retrievedAt = resultsTimestamp.parse(matches[0]?.checkedAt);
+  const captureClock = matches[0];
+  if (captureClock?.checkedAt !== void 0 && captureClock?.retrievedAt !== void 0 && captureClock.checkedAt !== captureClock.retrievedAt) refuse6("CAPTURE_RECEIPT_MISMATCH", "Capture receipt clocks disagree");
+  const retrievedAt = resultsTimestamp.parse(captureClock?.checkedAt ?? captureClock?.retrievedAt);
   const certificate2 = roles.get("certificate");
   let parsed;
   switch (packet.parser) {
@@ -9297,7 +9304,7 @@ async function parseOfficialSourcePacket(packetPath, expectedManifestSha256, tar
   }
   if (packet.sourceContestId !== null && parsed.sourceContestId !== packet.sourceContestId) refuse6("SOURCE_CONTEST_MISMATCH", "Actual parsed contest differs from reviewed source contest key");
   if (parsed.totalVotes !== packet.expectedTotals.totalVotes || parsed.options.length !== packet.expectedTotals.optionCount) refuse6("EXPECTED_TOTAL_MISMATCH", "Actual parsed vote/option counts differ from independently reviewed expected totals");
-  const input = bridgeOfficialContest(parsed, { publisher: packet.publisher, retrievedAt, target, reviewedTarget: packet.targetBinding, reviewedContext: packet.context, rawPayload: payload.bytes, rawCertificates: certificate2?.url ? [{ url: certificate2.url, bytes: certificate2.bytes }] : [], reviewedCertification: packet.reviewedCertification });
+  const input = bridgeOfficialContest(parsed, { publisher: packet.publisher, retrievedAt, target, reviewedTarget: packet.targetBinding, reviewedContext: packet.context, reviewedBinding: packet.reviewedBinding, rawPayload: payload.bytes, rawCertificates: certificate2?.url ? [{ url: certificate2.url, sha256: certificate2.sha256, bytes: certificate2.bytes }] : [], reviewedCertification: packet.reviewedCertification });
   return { outcome: "Worked", mode: "dry_run_only", manifestSha256: digest4(bytes), files: packet.files.map((file) => ({ role: file.role, sha256: file.sha256 })), targetBinding: target, identifierBasis: parsed.options.map((option) => ({ sourceLabel: option.name, basis: option.identifierBasis, optionKind: option.optionKind })), publisherMetrics: parsed.publisherMetrics, certificationEvidence: parsed.certificationEvidence, input };
 }
 async function main() {

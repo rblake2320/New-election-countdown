@@ -1,0 +1,95 @@
+{
+  "outcome": "Worked",
+  "mode": "dry_run_only",
+  "manifestSha256": "3b025a115b3e0a8e12905b2e78ba17a727291ee7da3d26df65e990bfd4474aa9",
+  "files": [
+    {
+      "role": "payload",
+      "sha256": "8207fef79e8ef25d665671fb5e8ce796164b7dc1513430ea1eac214106dabc31"
+    },
+    {
+      "role": "companion",
+      "sha256": "cf1e6a52f5554f0bb4959f6b9ad7cc583e53f70e57ca28b62346f7c8c01be637"
+    },
+    {
+      "role": "capture_receipt",
+      "sha256": "aed4c472684da5f76d0d796a17a51a0ccda797b43dbc27a0716bc2249791523d"
+    }
+  ],
+  "targetBinding": {
+    "id": 4242405,
+    "state": "LA",
+    "date": "2026-06-27",
+    "type": "primary_runoff",
+    "level": "federal",
+    "title": "Louisiana U.S. Senate Democratic Primary Runoff"
+  },
+  "identifierBasis": [
+    {
+      "sourceLabel": "Gary Crockett",
+      "basis": "publisher_id",
+      "optionKind": "named"
+    },
+    {
+      "sourceLabel": "\"Jamie\" Davis",
+      "basis": "publisher_id",
+      "optionKind": "named"
+    }
+  ],
+  "publisherMetrics": {
+    "VoterCountVoted": 202767,
+    "VoterCountQualified": 1815202,
+    "NumAbsenteeReporting": 64,
+    "NumAbsenteeExpected": 64
+  },
+  "certificationEvidence": [],
+  "input": {
+    "schemaVersion": 1,
+    "electionId": 4242405,
+    "status": "unofficial",
+    "reporting": {
+      "percent": null,
+      "basis": "precincts",
+      "precinctsReporting": 3722,
+      "precinctsTotal": 3722
+    },
+    "source": {
+      "id": "LA",
+      "kind": "admin_manual",
+      "name": "Manual ingest of official Louisiana Secretary of State raw data",
+      "url": "https://voterportal.sos.la.gov/ElectionResults/ElectionResults/Data?blob=20260627/Votes_Multiparish.htm",
+      "sourceContestId": "70156"
+    },
+    "sourcePayloadSha256": "8207fef79e8ef25d665671fb5e8ce796164b7dc1513430ea1eac214106dabc31",
+    "asOf": null,
+    "asOfBasis": "not_provided",
+    "retrievedAt": "2026-10-12T05:05:48.518325+00:00",
+    "totalVotes": 196212,
+    "candidates": [
+      {
+        "candidateId": null,
+        "sourceCandidateId": "124648",
+        "name": "Gary Crockett",
+        "party": "DEM",
+        "votes": 39423,
+        "percent": null,
+        "isWinner": false
+      },
+      {
+        "candidateId": null,
+        "sourceCandidateId": "124649",
+        "name": "\"Jamie\" Davis",
+        "party": "DEM",
+        "votes": 156789,
+        "percent": null,
+        "isWinner": false
+      }
+    ],
+    "winnerCalledBy": null,
+    "certification": null,
+    "supersedesReportId": null,
+    "expectedRevision": null,
+    "idempotencyKey": "sourcepacket:9a70bfd8f2a068940fb9b805dff8e22eda7c57bd21ebe154ee2b47aebdb01d88",
+    "note": "Identifiers are exact publisher IDs when provided, otherwise exact source printed labels scoped to the source contest; all candidateId null; no winners inferred."
+  }
+}
