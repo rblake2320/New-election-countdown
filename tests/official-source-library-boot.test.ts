@@ -7,7 +7,11 @@ import { describe, it, expect } from 'vitest';
 function actualBundle(name:string){
   const scratch=mkdtempSync(join(tmpdir(),'sol-packet-library-boot-'));
   const output=join(scratch,'entry.mjs');
-  const build=spawnSync(process.execPath,[resolve('node_modules/esbuild/bin/esbuild'),resolve('artifacts/source-packet',name+'.ts'),'--bundle','--platform=node','--format=esm',`--outfile=${output}`],{encoding:'utf8',timeout:5000});
+  // npm may install bin/esbuild as a native executable (Linux) or JS launcher
+  // (Windows). Load its JS API in the child instead of asking Node to parse ELF.
+  const build=spawnSync(process.execPath,['--input-type=module','-e',
+    "import { buildSync } from 'esbuild'; buildSync({ entryPoints: [process.argv[1]], bundle: true, platform: 'node', format: 'esm', outfile: process.argv[2] });",
+    resolve('artifacts/source-packet',name+'.ts'),output],{encoding:'utf8',timeout:5000});
   if(build.error||build.status!==0)throw new Error(`Actual esbuild CLI failed: ${build.stderr}`);
   return spawnSync(process.execPath,[output],{cwd:scratch,encoding:'utf8',timeout:5000});
 }
