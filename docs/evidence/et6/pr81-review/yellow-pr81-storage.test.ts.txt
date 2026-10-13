@@ -1,0 +1,18 @@
+import {describe,it,expect,vi} from 'vitest';
+import express from 'express';import request from 'supertest';
+vi.mock('../server/db',()=>({db:{},pool:{}}));
+vi.mock('../server/storage-factory',()=>({storageFactory:{}}));
+vi.mock('../server/google-civic-service',()=>({getGoogleCivicService:()=>null}));
+vi.mock('../server/congress-bill-service',()=>({getCongressBillService:()=>null}));
+vi.mock('../server/perplexity-service',()=>({getPerplexityService:()=>null}));
+vi.mock('../server/census-service',()=>({censusService:{}}));
+vi.mock('../server/election-list-query',()=>({buildElectionListQuery:()=>Promise.reject(new Error('The endpoint has been disabled')),projectElectionResultsRow:(x:unknown)=>x,resultsCatalogTimestamp:null}));
+import {DatabaseStorage} from '../server/storage';
+import {adminElectionLookupHandler} from '../server/admin-election-lookup';
+describe('yellow real database storage failure boundary',()=>{
+ it('returns503 for the supported endpoint-disabled database error rather than200empty',async()=>{
+  const app=express();app.get('/lookup',adminElectionLookupHandler(new DatabaseStorage()));
+  const response=await request(app).get('/lookup?from=2026-03-03&to=2026-03-03');
+  expect(response.status).toBe(503);expect(response.body.code).toBe('lookup_unavailable');
+ });
+});

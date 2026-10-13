@@ -1,0 +1,49 @@
+
+ RUN  v5.0.3 D:/projects/et-wt/yellow-pr69-review
+
+stdout | tests/server-election-lookup-http.test.ts
+MemStorage initialized empty (failover cache; database is source of truth)
+
+····················stdout | tests/yellow-pr81-storage.test.ts > yellow real database storage failure boundary > returns503 for the supported endpoint-disabled database error rather than200empty
+getElections error: Error: The endpoint has been disabled
+    at buildElectionListQuery (D:/projects/et-wt/yellow-pr69-review/tests/yellow-pr81-storage.test.ts:9:89)
+    at DatabaseStorage.getElections (D:/projects/et-wt/yellow-pr69-review/server/storage.ts:552:19)
+    at D:/projects/et-wt/yellow-pr69-review/server/admin-election-lookup.ts:38:34
+    at Layer.handle [as handle_request] (D:\projects\et-wt\astra-type-contracts\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\projects\et-wt\astra-type-contracts\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (D:\projects\et-wt\astra-type-contracts\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (D:\projects\et-wt\astra-type-contracts\node_modules\express\lib\router\layer.js:95:5)
+    at D:\projects\et-wt\astra-type-contracts\node_modules\express\lib\router\index.js:284:15
+    at router.process_params (D:\projects\et-wt\astra-type-contracts\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\projects\et-wt\astra-type-contracts\node_modules\express\lib\router\index.js:280:10)
+Database temporarily unavailable - returning fallback for getElections
+
+x
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/yellow-pr81-storage.test.ts > yellow real database storage failure boundary > returns503 for the supported endpoint-disabled database error rather than200empty
+AssertionError: expected 200 to be 503 // Object.is equality
+
+- Expected
++ Received
+
+- 503
++ 200
+
+ ❯ tests/yellow-pr81-storage.test.ts:16:27
+     14|   const app=express();app.get('/lookup',adminElectionLookupHandler(new…
+     15|   const response=await request(app).get('/lookup?from=2026-03-03&to=20…
+     16|   expect(response.status).toBe(503);expect(response.body.code).toBe('l…
+       |                           ^
+     17|  });
+     18| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 20 passed (21)
+   Start at  14:36:25
+   Duration  3.65s (import 73%, environment 11%, transform 7%, tests 5%, setup 4%)
+
