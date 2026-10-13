@@ -1,0 +1,10 @@
+# Candidate lessons for the engineering registry
+
+These project-scoped entries are proposed for parent deduplication into the canonical registry; no constitution rules are changed.
+
+| id | title | rule | rationale | origin | scope | severity | enforcement | status |
+|---|---|---|---|---|---|---|---|---|
+| ET-C-SD-20261013-01 | Lock before SERIALIZABLE snapshot | Acquire nonblocking writer admission before BEGIN and table locks before any snapshot-acquiring statement when guarding a source preimage. | Actual waiting advisory-lock statement froze an old snapshot and accepted committed source drift. | Private nominee source gate, immutable 9e10c4c red/72f7e8e green, 2026-10-13 | project:ElectionTracker | critical | real advisory and plain-table contention probes; source-pin gate | candidate |
+| ET-C-SD-20261013-02 | Observe uncached lock facts | Use pg_locks for transaction-contained wait probes, or explicitly refresh activity snapshots before treating pg_stat_activity as current. | Initial activity monitoring hid an actual wait and blocked instrumentation. | advisory-instrumentation-blocked.json, 2026-10-13 | project:ElectionTracker | required | real waitObserved assertions | candidate |
+| ET-C-SD-20261013-03 | Bind historical proof to actual code | Reject runtime byte drift before a receipt labels an immutable source head. | Rebuilding historical probe source against a repaired runtime would otherwise carry a false old-head label. | source-gap provenance controls, 2026-10-13 | project:ElectionTracker | required | seven-module hash pin; tamper negative control | candidate |
+| ET-C-SD-20261013-04 | Separate planner and actual insert counts | Derive actual insert counts from before/after IDs rather than nullable planner IDs after importer mutation. | Importer binds IDs during apply; post-apply unbound counts are zero even when profiles were inserted. | actual 36-profile apply and snapshot derivation, 2026-10-13 | project:ElectionTracker | required | full protected-row before/after comparison | candidate |
