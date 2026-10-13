@@ -15,7 +15,7 @@ vi.mock('../../server/storage', () => ({ storage: { getElections: vi.fn(async ()
 import { ResultsIngestionService } from '../../server/results-ingestion-service';
 import { registerResultsCoverageRoute } from '../../server/results-coverage-routes';
 
-describe('ET-6 results coverage: automatic only with published manifest + registered adapter', () => {
+describe('ET-6 results coverage: automatic only with an admitted source (worked route or registry) + registered adapter', () => {
   it('classifies every race on the date with a reason and never counts an unregistered publisher as automatic', async () => {
     const svc = new ResultsIngestionService();
     svc.registerAdapter('ak-doe', async () => null);
@@ -24,8 +24,8 @@ describe('ET-6 results coverage: automatic only with published manifest + regist
     expect(c.races.map((r) => [r.electionId, r.mode, r.reason])).toEqual([
       [1, 'automatic', 'adapter_registered'],
       [2, 'manual_only', 'no_adapter'],
-      [3, 'manual_only', 'manifest_not_published'],
-      [4, 'manual_only', 'no_manifest'],
+      [3, 'manual_only', 'no_adapter'],
+      [4, 'manual_only', 'no_source'],
     ]);
     expect(c.races.find((r) => r.electionId === 5)).toBeUndefined();
     expect((await svc.coverage()).counts.total).toBe(5);
