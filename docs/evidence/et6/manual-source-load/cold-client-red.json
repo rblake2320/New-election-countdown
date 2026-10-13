@@ -1,0 +1,177 @@
+{
+  "outcome": "Failed",
+  "startedAt": "2026-10-13T17:42:57.925Z",
+  "input": "D:\\projects\\et-wt\\astra-et6-composed\\test-results\\et6-prod-80276-ba94c9db\\receipt.json",
+  "runId": "85448-a2d8d074",
+  "evidence": "D:\\projects\\et-wt\\astra-et6-composed\\test-results\\et6-prod-80276-ba94c9db\\load-85448-a2d8d074",
+  "sourceReplay": false,
+  "scope": "Read-only private compiled application; actual current results, not official-feed replay",
+  "selection": {
+    "date": "2026-03-03",
+    "electionId": 4242404,
+    "paths": {
+      "batch": "/api/results?date=2026-03-03",
+      "single": "/api/elections/4242404/results"
+    }
+  },
+  "workload": {
+    "clients": 10,
+    "phasesRps": [
+      20,
+      40
+    ],
+    "durationSecondsEach": 60,
+    "timeoutMs": 5000,
+    "maxScheduleLatenessMs": 100
+  },
+  "identities": [
+    {
+      "name": "et6-load-85448-a2d8d074-0",
+      "ip": "192.168.176.4"
+    },
+    {
+      "name": "et6-load-85448-a2d8d074-1",
+      "ip": "192.168.176.5"
+    },
+    {
+      "name": "et6-load-85448-a2d8d074-2",
+      "ip": "192.168.176.6"
+    },
+    {
+      "name": "et6-load-85448-a2d8d074-3",
+      "ip": "192.168.176.7"
+    },
+    {
+      "name": "et6-load-85448-a2d8d074-4",
+      "ip": "192.168.176.8"
+    },
+    {
+      "name": "et6-load-85448-a2d8d074-5",
+      "ip": "192.168.176.9"
+    },
+    {
+      "name": "et6-load-85448-a2d8d074-6",
+      "ip": "192.168.176.10"
+    },
+    {
+      "name": "et6-load-85448-a2d8d074-7",
+      "ip": "192.168.176.11"
+    },
+    {
+      "name": "et6-load-85448-a2d8d074-8",
+      "ip": "192.168.176.12"
+    },
+    {
+      "name": "et6-load-85448-a2d8d074-9",
+      "ip": "192.168.176.13"
+    }
+  ],
+  "phases": [
+    {
+      "rps": 20,
+      "durationSeconds": 60,
+      "startAt": 1791913396077,
+      "endScheduledAt": 1791913456077,
+      "scheduled": 1200,
+      "observedSlots": 1200,
+      "completed": 1198,
+      "missed": 2,
+      "workerErrors": [],
+      "valid": 1198,
+      "statuses": {
+        "200": 798,
+        "304": 400
+      },
+      "bytes": 1422435,
+      "timeouts": 0,
+      "p50Ms": 4.07,
+      "p95Ms": 7.008,
+      "p99Ms": 165.666,
+      "passed": false
+    }
+  ],
+  "cleanup": [
+    {
+      "name": "et6-load-85448-a2d8d074-0",
+      "outcome": "removed"
+    },
+    {
+      "name": "et6-load-85448-a2d8d074-1",
+      "outcome": "removed"
+    },
+    {
+      "name": "et6-load-85448-a2d8d074-2",
+      "outcome": "removed"
+    },
+    {
+      "name": "et6-load-85448-a2d8d074-3",
+      "outcome": "removed"
+    },
+    {
+      "name": "et6-load-85448-a2d8d074-4",
+      "outcome": "removed"
+    },
+    {
+      "name": "et6-load-85448-a2d8d074-5",
+      "outcome": "removed"
+    },
+    {
+      "name": "et6-load-85448-a2d8d074-6",
+      "outcome": "removed"
+    },
+    {
+      "name": "et6-load-85448-a2d8d074-7",
+      "outcome": "removed"
+    },
+    {
+      "name": "et6-load-85448-a2d8d074-8",
+      "outcome": "removed"
+    },
+    {
+      "name": "et6-load-85448-a2d8d074-9",
+      "outcome": "removed"
+    }
+  ],
+  "image": "electiontracker:et6-d-main63-evidence-20261013",
+  "imageId": "sha256:0466da959df3ec845bb3527ce91ac6d0adf69705846633b0fd23fb0c808f8c4b",
+  "target": {
+    "app": "et6-prod-80276-ba94c9db-app",
+    "network": "et6-prod-80276-ba94c9db",
+    "appIp": "192.168.176.3",
+    "parentRunId": "80276-ba94c9db"
+  },
+  "baseline": {
+    "count": 1,
+    "ids": [
+      4242404
+    ],
+    "etag": "W/\"results-2026-03-03-7c701afb3dfb5cf2fd2c32ad\"",
+    "single": {
+      "electionId": 4242404,
+      "status": "unofficial",
+      "reportId": 1,
+      "totalVotes": 827755,
+      "revision": "r1-7b3789fb"
+    },
+    "context": {
+      "electionContext": {
+        "state": "NC",
+        "electionDate": "2026-03-03",
+        "type": "primary",
+        "level": "federal",
+        "office": "North Carolina U.S. Senate Democratic Primary"
+      },
+      "source": {
+        "id": "admin_manual:NC",
+        "kind": "admin_manual",
+        "name": "Manual ingest of official North Carolina State Board of Elections raw data",
+        "url": "https://er.ncsbe.gov/enr/20260303/data/results_0.txt",
+        "sourceContestId": "2147"
+      },
+      "asOf": null,
+      "retrievedAt": "2026-10-12T04:25:43.651Z"
+    }
+  },
+  "error": "20 RPS acceptance failed; inspect per-request evidence",
+  "completedAt": "2026-10-13T17:44:36.406Z"
+}
