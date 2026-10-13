@@ -1,0 +1,48 @@
+--- scripts/seat_send.py.before
++++ scripts/seat_send.py
+@@ -51,11 +51,34 @@
+     return binding["hwnd"], binding["pid"]
+ 
+ 
++def stable_title(title: str) -> str:
++    # Only activity prefixes actually observed on the selected Codex seat.
++    # Do not trim, case-fold, strip arbitrary punctuation or reduce to a role.
++    return title[2:] if title[:2] in ("\u25d0 ", "\u25d1 ", "\u2733 ") else title
++
++
++def assert_current_binding(binding: dict) -> str:
++    title = stable_title(binding["title"])
++    if not title:
++        raise RuntimeError("Empty target title refused")
++    rows = json.loads(shim("windows", "--json"))
++    current = [row for row in rows if row["hwnd"] == binding["hwnd"]]
++    if len(current) != 1 or any(
++        current[0][key] != binding[key] for key in ("pid", "exe_name", "class_name")
++    ) or stable_title(current[0]["title"]) != title:
++        raise RuntimeError("Fresh exact target identity changed")
++    if len([row for row in rows if stable_title(row["title"]) == title]) != 1:
++        raise RuntimeError("Fresh normalized target title is not unique")
++    return title
++
++
+ def guard_args(binding: dict) -> list[str]:
++    title = assert_current_binding(binding)
+     args = ["--hwnd", str(binding["hwnd"]), "--expect-pid", str(binding["pid"]),
+             "--expect-exe", binding["exe_name"], "--expect-class", binding["class_name"],
+-            "--expect-title", binding["title"]]
+-    if not json.loads(shim("guard", *args)).get("ok"):
++            "--expect-title", title]
++    guarded = json.loads(shim("guard", *args))
++    if not guarded.get("ok") or stable_title(guarded.get("title", "")) != title:
+         raise RuntimeError("Target identity guard refused input")
+     return args
+ 
+@@ -85,7 +108,7 @@
+ def uia_text(binding: dict) -> str:
+     guard_args(binding)
+     value = json.loads(shim("read", "--hwnd", str(binding["hwnd"])))
+-    if value.get("hwnd") != binding["hwnd"] or value.get("title") != binding["title"]:
++    if value.get("hwnd") != binding["hwnd"] or stable_title(value.get("title", "")) != stable_title(binding["title"]):
+         raise RuntimeError("Readback target changed")
+     return value.get("text", "")
+ 

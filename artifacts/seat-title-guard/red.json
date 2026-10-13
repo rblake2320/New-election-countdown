@@ -1,0 +1,88 @@
+{
+  "helper": "seat_send.before.py",
+  "sha256": "6033333a0841bca3f525d5eb3b493ce85e9b19a49b617baa88e64cf990022e3f",
+  "testsRun": 12,
+  "success": false,
+  "failures": [
+    {
+      "test": "test_duplicate_window_at_action_refuses_before_input (__main__.TitleGuards.test_duplicate_window_at_action_refuses_before_input)",
+      "traceback": "Traceback (most recent call last):\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\verify_title_guard.py\", line 105, in test_duplicate_window_at_action_refuses_before_input\n    with self.assertRaises(RuntimeError):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: RuntimeError not raised\n"
+    },
+    {
+      "test": "test_empty_title_refuses (__main__.TitleGuards.test_empty_title_refuses)",
+      "traceback": "Traceback (most recent call last):\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\verify_title_guard.py\", line 145, in test_empty_title_refuses\n    with self.assertRaises(RuntimeError):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: RuntimeError not raised\n"
+    },
+    {
+      "test": "test_guard_observation_base_change_refuses_before_input (__main__.TitleGuards.test_guard_observation_base_change_refuses_before_input)",
+      "traceback": "Traceback (most recent call last):\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\verify_title_guard.py\", line 98, in test_guard_observation_base_change_refuses_before_input\n    with self.assertRaises(RuntimeError):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: RuntimeError not raised\n"
+    },
+    {
+      "test": "test_hostile_base_prefix_refuses_before_input (__main__.TitleGuards.test_hostile_base_prefix_refuses_before_input)",
+      "traceback": "Traceback (most recent call last):\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\verify_title_guard.py\", line 91, in test_hostile_base_prefix_refuses_before_input\n    with self.assertRaises(RuntimeError):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: RuntimeError not raised\n"
+    },
+    {
+      "test": "test_hostile_base_suffix_refuses_before_input (__main__.TitleGuards.test_hostile_base_suffix_refuses_before_input)",
+      "traceback": "Traceback (most recent call last):\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\verify_title_guard.py\", line 85, in test_hostile_base_suffix_refuses_before_input\n    with self.assertRaises(RuntimeError):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: RuntimeError not raised\n"
+    },
+    {
+      "test": "test_narrow_normalization_preserves_unobserved_glyph_space_and_case (__main__.TitleGuards.test_narrow_normalization_preserves_unobserved_glyph_space_and_case)",
+      "traceback": "Traceback (most recent call last):\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\verify_title_guard.py\", line 140, in test_narrow_normalization_preserves_unobserved_glyph_space_and_case\n    self.assertEqual(normalize(\"\\u25d0  \" + BASE), \" \" + BASE)\nAssertionError: '\u25d0  Site design tool access review' != ' Site design tool access review'\n- \u25d0  Site design tool access review\n? --\n+  Site design tool access review\n\n"
+    },
+    {
+      "test": "test_prefix_only_change_all_observed_pairs_allowed (__main__.TitleGuards.test_prefix_only_change_all_observed_pairs_allowed) (original='\u25d0 ', current='\u25d0 ')",
+      "traceback": "Traceback (most recent call last):\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\verify_title_guard.py\", line 73, in test_prefix_only_change_all_observed_pairs_allowed\n    self.assertEqual(args[args.index(\"--expect-title\") + 1], BASE)\nAssertionError: '\u25d0 Site design tool access review' != 'Site design tool access review'\n- \u25d0 Site design tool access review\n? --\n+ Site design tool access review\n\n"
+    },
+    {
+      "test": "test_prefix_only_change_all_observed_pairs_allowed (__main__.TitleGuards.test_prefix_only_change_all_observed_pairs_allowed) (original='\u25d1 ', current='\u25d1 ')",
+      "traceback": "Traceback (most recent call last):\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\verify_title_guard.py\", line 73, in test_prefix_only_change_all_observed_pairs_allowed\n    self.assertEqual(args[args.index(\"--expect-title\") + 1], BASE)\nAssertionError: '\u25d1 Site design tool access review' != 'Site design tool access review'\n- \u25d1 Site design tool access review\n? --\n+ Site design tool access review\n\n"
+    },
+    {
+      "test": "test_prefix_only_change_all_observed_pairs_allowed (__main__.TitleGuards.test_prefix_only_change_all_observed_pairs_allowed) (original='\u2733 ', current='\u2733 ')",
+      "traceback": "Traceback (most recent call last):\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\verify_title_guard.py\", line 73, in test_prefix_only_change_all_observed_pairs_allowed\n    self.assertEqual(args[args.index(\"--expect-title\") + 1], BASE)\nAssertionError: '\u2733 Site design tool access review' != 'Site design tool access review'\n- \u2733 Site design tool access review\n? --\n+ Site design tool access review\n\n"
+    }
+  ],
+  "errors": [
+    {
+      "test": "test_prefix_only_change_all_observed_pairs_allowed (__main__.TitleGuards.test_prefix_only_change_all_observed_pairs_allowed) (original='\u25d0 ', current='')",
+      "traceback": "Traceback (most recent call last):\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\verify_title_guard.py\", line 70, in test_prefix_only_change_all_observed_pairs_allowed\n    helper.send_guarded(tx.binding, \"probe\")\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\seat_send.before.py\", line 64, in send_guarded\n    args = [\"send\", *guard_args(binding), \"--allow-input\", \"--text=\" + text]\n                     ^^^^^^^^^^^^^^^^^^^\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\seat_send.before.py\", line 59, in guard_args\n    raise RuntimeError(\"Target identity guard refused input\")\nRuntimeError: Target identity guard refused input\n"
+    },
+    {
+      "test": "test_prefix_only_change_all_observed_pairs_allowed (__main__.TitleGuards.test_prefix_only_change_all_observed_pairs_allowed) (original='\u25d0 ', current='\u25d1 ')",
+      "traceback": "Traceback (most recent call last):\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\verify_title_guard.py\", line 70, in test_prefix_only_change_all_observed_pairs_allowed\n    helper.send_guarded(tx.binding, \"probe\")\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\seat_send.before.py\", line 64, in send_guarded\n    args = [\"send\", *guard_args(binding), \"--allow-input\", \"--text=\" + text]\n                     ^^^^^^^^^^^^^^^^^^^\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\seat_send.before.py\", line 59, in guard_args\n    raise RuntimeError(\"Target identity guard refused input\")\nRuntimeError: Target identity guard refused input\n"
+    },
+    {
+      "test": "test_prefix_only_change_all_observed_pairs_allowed (__main__.TitleGuards.test_prefix_only_change_all_observed_pairs_allowed) (original='\u25d0 ', current='\u2733 ')",
+      "traceback": "Traceback (most recent call last):\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\verify_title_guard.py\", line 70, in test_prefix_only_change_all_observed_pairs_allowed\n    helper.send_guarded(tx.binding, \"probe\")\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\seat_send.before.py\", line 64, in send_guarded\n    args = [\"send\", *guard_args(binding), \"--allow-input\", \"--text=\" + text]\n                     ^^^^^^^^^^^^^^^^^^^\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\seat_send.before.py\", line 59, in guard_args\n    raise RuntimeError(\"Target identity guard refused input\")\nRuntimeError: Target identity guard refused input\n"
+    },
+    {
+      "test": "test_prefix_only_change_all_observed_pairs_allowed (__main__.TitleGuards.test_prefix_only_change_all_observed_pairs_allowed) (original='\u25d1 ', current='')",
+      "traceback": "Traceback (most recent call last):\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\verify_title_guard.py\", line 70, in test_prefix_only_change_all_observed_pairs_allowed\n    helper.send_guarded(tx.binding, \"probe\")\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\seat_send.before.py\", line 64, in send_guarded\n    args = [\"send\", *guard_args(binding), \"--allow-input\", \"--text=\" + text]\n                     ^^^^^^^^^^^^^^^^^^^\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\seat_send.before.py\", line 59, in guard_args\n    raise RuntimeError(\"Target identity guard refused input\")\nRuntimeError: Target identity guard refused input\n"
+    },
+    {
+      "test": "test_prefix_only_change_all_observed_pairs_allowed (__main__.TitleGuards.test_prefix_only_change_all_observed_pairs_allowed) (original='\u25d1 ', current='\u25d0 ')",
+      "traceback": "Traceback (most recent call last):\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\verify_title_guard.py\", line 70, in test_prefix_only_change_all_observed_pairs_allowed\n    helper.send_guarded(tx.binding, \"probe\")\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\seat_send.before.py\", line 64, in send_guarded\n    args = [\"send\", *guard_args(binding), \"--allow-input\", \"--text=\" + text]\n                     ^^^^^^^^^^^^^^^^^^^\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\seat_send.before.py\", line 59, in guard_args\n    raise RuntimeError(\"Target identity guard refused input\")\nRuntimeError: Target identity guard refused input\n"
+    },
+    {
+      "test": "test_prefix_only_change_all_observed_pairs_allowed (__main__.TitleGuards.test_prefix_only_change_all_observed_pairs_allowed) (original='\u25d1 ', current='\u2733 ')",
+      "traceback": "Traceback (most recent call last):\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\verify_title_guard.py\", line 70, in test_prefix_only_change_all_observed_pairs_allowed\n    helper.send_guarded(tx.binding, \"probe\")\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\seat_send.before.py\", line 64, in send_guarded\n    args = [\"send\", *guard_args(binding), \"--allow-input\", \"--text=\" + text]\n                     ^^^^^^^^^^^^^^^^^^^\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\seat_send.before.py\", line 59, in guard_args\n    raise RuntimeError(\"Target identity guard refused input\")\nRuntimeError: Target identity guard refused input\n"
+    },
+    {
+      "test": "test_prefix_only_change_all_observed_pairs_allowed (__main__.TitleGuards.test_prefix_only_change_all_observed_pairs_allowed) (original='\u2733 ', current='')",
+      "traceback": "Traceback (most recent call last):\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\verify_title_guard.py\", line 70, in test_prefix_only_change_all_observed_pairs_allowed\n    helper.send_guarded(tx.binding, \"probe\")\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\seat_send.before.py\", line 64, in send_guarded\n    args = [\"send\", *guard_args(binding), \"--allow-input\", \"--text=\" + text]\n                     ^^^^^^^^^^^^^^^^^^^\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\seat_send.before.py\", line 59, in guard_args\n    raise RuntimeError(\"Target identity guard refused input\")\nRuntimeError: Target identity guard refused input\n"
+    },
+    {
+      "test": "test_prefix_only_change_all_observed_pairs_allowed (__main__.TitleGuards.test_prefix_only_change_all_observed_pairs_allowed) (original='\u2733 ', current='\u25d0 ')",
+      "traceback": "Traceback (most recent call last):\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\verify_title_guard.py\", line 70, in test_prefix_only_change_all_observed_pairs_allowed\n    helper.send_guarded(tx.binding, \"probe\")\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\seat_send.before.py\", line 64, in send_guarded\n    args = [\"send\", *guard_args(binding), \"--allow-input\", \"--text=\" + text]\n                     ^^^^^^^^^^^^^^^^^^^\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\seat_send.before.py\", line 59, in guard_args\n    raise RuntimeError(\"Target identity guard refused input\")\nRuntimeError: Target identity guard refused input\n"
+    },
+    {
+      "test": "test_prefix_only_change_all_observed_pairs_allowed (__main__.TitleGuards.test_prefix_only_change_all_observed_pairs_allowed) (original='\u2733 ', current='\u25d1 ')",
+      "traceback": "Traceback (most recent call last):\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\verify_title_guard.py\", line 70, in test_prefix_only_change_all_observed_pairs_allowed\n    helper.send_guarded(tx.binding, \"probe\")\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\seat_send.before.py\", line 64, in send_guarded\n    args = [\"send\", *guard_args(binding), \"--allow-input\", \"--text=\" + text]\n                     ^^^^^^^^^^^^^^^^^^^\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\seat_send.before.py\", line 59, in guard_args\n    raise RuntimeError(\"Target identity guard refused input\")\nRuntimeError: Target identity guard refused input\n"
+    },
+    {
+      "test": "test_uia_prefix_only_change_allowed (__main__.TitleGuards.test_uia_prefix_only_change_allowed)",
+      "traceback": "Traceback (most recent call last):\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\verify_title_guard.py\", line 81, in test_uia_prefix_only_change_allowed\n    self.assertEqual(helper.uia_text(tx.binding), \"ACK nonce\")\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\projects\\et-wt\\sol-seat-title-guard\\artifacts\\seat-title-guard\\seat_send.before.py\", line 89, in uia_text\n    raise RuntimeError(\"Readback target changed\")\nRuntimeError: Readback target changed\n"
+    }
+  ],
+  "nativeInput": false,
+  "transport": "isolated synthetic boundary only"
+}
