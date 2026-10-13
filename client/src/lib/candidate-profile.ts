@@ -11,6 +11,9 @@ const pick = (c: AnyCandidate, ...keys: string[]): string | undefined => {
   return undefined;
 };
 
+/** Provenance markers: flat on /api/candidates/:id, nested under `source` on /api/elections/:id/candidates. */
+const pickSource = (c: AnyCandidate, ...keys: string[]): string | undefined => pick(c, ...keys) ?? pick(c?.source ?? {}, ...keys);
+
 export interface ProfileSummary {
   text: string;
   /** Who wrote it, shown beside the text. Only claimed when the record proves it. */
@@ -39,14 +42,14 @@ export function profileSummary(c: AnyCandidate): ProfileSummary | null {
  * access, so it is never presented as "certified" (owner rule).
  */
 export function provenanceLabel(c: AnyCandidate): string {
-  const ballot = pick(c, "ballotStatus", "ballot_status");
+  const ballot = pickSource(c, "ballotStatus", "ballot_status");
   if (ballot === "certified") {
-    const by = pick(c, "ballotSourceName", "ballot_source_name");
+    const by = pickSource(c, "ballotSourceName", "ballot_source_name");
     return by ? `On certified ballot (${by})` : "On certified ballot";
   }
   if (ballot === "withdrawn") return "Withdrawn";
   if (ballot === "disqualified") return "Disqualified";
-  switch (pick(c, "sourceStatus", "source_status")) {
+  switch (pickSource(c, "sourceStatus", "source_status")) {
     case "fec_registered": return "FEC-registered (not ballot certification)";
     case "editorial_verified": return "Editorially verified";
   }
