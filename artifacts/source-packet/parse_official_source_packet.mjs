@@ -4427,8 +4427,7 @@ function bridgeOfficialContest(parsedInput, input) {
   }));
   const basisNote = "Identifiers are exact publisher IDs when provided, otherwise exact source printed labels scoped to the source contest; all candidateId null; no winners inferred.";
   const certificateNote = certification ? ` Certification raw SHA256: ${parsed.certificationEvidence.map((proof) => proof.sha256).join(",")}.` : "";
-  const identity = hash(Buffer.from(JSON.stringify({ publisher, target, context: parsed.context, sourceContestId: parsed.sourceContestId, payload: parsed.sourcePayloadSha256, options: parsed.options, status, certification, expectedRevision: input.expectedRevision ?? null, supersedesReportId: input.supersedesReportId ?? null })));
-  return liveResultReportInputSchema.parse({
+  const body3 = {
     schemaVersion: 1,
     electionId: target.id,
     status,
@@ -4444,9 +4443,10 @@ function bridgeOfficialContest(parsedInput, input) {
     certification,
     supersedesReportId: input.supersedesReportId ?? null,
     expectedRevision: input.expectedRevision ?? null,
-    idempotencyKey: `sourcepacket:${identity}`,
     note: basisNote + certificateNote
-  });
+  };
+  const identity = hash(Buffer.from(JSON.stringify(body3)));
+  return liveResultReportInputSchema.parse({ ...body3, idempotencyKey: `sourcepacket:${identity}` });
 }
 
 // server/official-result-adapters/wa.ts
@@ -8776,6 +8776,7 @@ async function readXlsxWorkbook(bytes) {
 // server/official-result-adapters/wa.ts
 var WA_LANDS_CONTEXT = { state: "WA", electionDate: "2024-08-06", phase: "primary", level: "state", office: "Commissioner of Public Lands", district: null, party: null };
 var WA_LANDS_WORKBOOK_SHA256 = "1d11cc471c4e6bfb62f690cbfd8a248cd649989acc3d479273809316d8f3d466";
+var WA_LANDS_SOURCE_CONTEST_ID = "WA:2024-08-06:primary:state:Commissioner of Public Lands";
 var WA_SENATE_CONTEXT = { state: "WA", electionDate: "2024-08-06", phase: "primary", level: "federal", office: "U.S. Senate", district: null, party: null };
 var WA_CONGRESSIONAL_WORKBOOK_SHA256 = "380e54147db4068f16d1f1339ae274c680bfbb8bc2699b77d27d12386ddd8a5b";
 var certificate = {
@@ -8835,7 +8836,7 @@ async function parseWashingtonLandsRecount(bytes, input) {
   if (totalVotes + overvote + undervote !== ballotTotal) refuse3("Ballot counts do not conserve option counts");
   return parsedOfficialContestSchema.parse({
     context,
-    sourceContestId: `Sheet1:Commissioner of Public Lands:${input.snapshot === "initial" ? "Initial" : "Recount"}`,
+    sourceContestId: WA_LANDS_SOURCE_CONTEST_ID,
     sourcePayloadSha256: book.sha256,
     asOf: null,
     asOfBasis: "not_provided",
@@ -9294,9 +9295,10 @@ async function parseOfficialSourcePacket(packetPath, expectedManifestSha256, tar
       break;
     }
   }
+  if (packet.sourceContestId !== null && parsed.sourceContestId !== packet.sourceContestId) refuse6("SOURCE_CONTEST_MISMATCH", "Actual parsed contest differs from reviewed source contest key");
   if (parsed.totalVotes !== packet.expectedTotals.totalVotes || parsed.options.length !== packet.expectedTotals.optionCount) refuse6("EXPECTED_TOTAL_MISMATCH", "Actual parsed vote/option counts differ from independently reviewed expected totals");
   const input = bridgeOfficialContest(parsed, { publisher: packet.publisher, retrievedAt, target, reviewedTarget: packet.targetBinding, reviewedContext: packet.context, rawPayload: payload.bytes, rawCertificates: certificate2?.url ? [{ url: certificate2.url, bytes: certificate2.bytes }] : [], reviewedCertification: packet.reviewedCertification });
-  return { outcome: "Worked", mode: "dry_run_only", manifestSha256: digest4(bytes), files: packet.files.map((file) => ({ role: file.role, sha256: file.sha256 })), targetBinding: target, identifierBasis: parsed.options.map((option) => ({ sourceLabel: option.name, basis: option.identifierBasis, optionKind: option.optionKind })), publisherMetrics: parsed.publisherMetrics, input };
+  return { outcome: "Worked", mode: "dry_run_only", manifestSha256: digest4(bytes), files: packet.files.map((file) => ({ role: file.role, sha256: file.sha256 })), targetBinding: target, identifierBasis: parsed.options.map((option) => ({ sourceLabel: option.name, basis: option.identifierBasis, optionKind: option.optionKind })), publisherMetrics: parsed.publisherMetrics, certificationEvidence: parsed.certificationEvidence, input };
 }
 async function main() {
   try {

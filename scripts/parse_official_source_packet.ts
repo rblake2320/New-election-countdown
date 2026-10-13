@@ -55,9 +55,10 @@ export async function parseOfficialSourcePacket(packetPath:string,expectedManife
       const companion=required('companion');if(!packet.sourceContestId||!payload.url||!companion.url)refuse('SCOPE_MISSING','LA source/companion ID or URLs absent');
       parsed=parseLaOfficialResults(payload.bytes,companion.bytes,{context:packet.context,sourceContestId:packet.sourceContestId,votesUrl:payload.url,rosterUrl:companion.url,votesSha256:payload.sha256,rosterSha256:companion.sha256});break;}
   }
+  if(packet.sourceContestId!==null&&parsed.sourceContestId!==packet.sourceContestId)refuse('SOURCE_CONTEST_MISMATCH','Actual parsed contest differs from reviewed source contest key');
   if(parsed.totalVotes!==packet.expectedTotals.totalVotes||parsed.options.length!==packet.expectedTotals.optionCount)refuse('EXPECTED_TOTAL_MISMATCH','Actual parsed vote/option counts differ from independently reviewed expected totals');
   const input=bridgeOfficialContest(parsed,{publisher:packet.publisher,retrievedAt,target,reviewedTarget:packet.targetBinding,reviewedContext:packet.context,rawPayload:payload.bytes,rawCertificates:certificate?.url?[{url:certificate.url,bytes:certificate.bytes}]:[],reviewedCertification:packet.reviewedCertification});
-  return {outcome:'Worked',mode:'dry_run_only',manifestSha256:digest(bytes),files:packet.files.map(file=>({role:file.role,sha256:file.sha256})),targetBinding:target,identifierBasis:parsed.options.map(option=>({sourceLabel:option.name,basis:option.identifierBasis,optionKind:option.optionKind})),publisherMetrics:parsed.publisherMetrics,input};
+  return {outcome:'Worked',mode:'dry_run_only',manifestSha256:digest(bytes),files:packet.files.map(file=>({role:file.role,sha256:file.sha256})),targetBinding:target,identifierBasis:parsed.options.map(option=>({sourceLabel:option.name,basis:option.identifierBasis,optionKind:option.optionKind})),publisherMetrics:parsed.publisherMetrics,certificationEvidence:parsed.certificationEvidence,input};
 }
 async function main(){
   try{
