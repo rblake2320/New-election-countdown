@@ -1,0 +1,29 @@
+{
+  "outcome": "Worked",
+  "canonicalPath": "C:\\Users\\techai\\PKA testing\\scripts\\seat_send.py",
+  "beforeSha256": "c0b585eb6bffbbf97a27966dad469a630b63c73d3177e6e66f3896842ee9f2d5",
+  "afterSha256": "6033333a0841bca3f525d5eb3b493ce85e9b19a49b617baa88e64cf990022e3f",
+  "recipientBinding": {
+    "hwnd": 2100690,
+    "pid": 8632,
+    "exe": "WindowsTerminal.exe",
+    "class": "CASCADIA_HOSTING_WINDOW_CLASS",
+    "title": "Provide your HWND | techai"
+  },
+  "requiredPeerAck": "C-TRANSCRIPTRECOVERED-D13",
+  "processedAckReceipt": "d-final-processed-ack.json",
+  "nativeDraftAppend": "native-append-receipt.json",
+  "unitCases": 15,
+  "realAgentTurnSubmitted": 1,
+  "extraOwnProbeTurnsSubmitted": 0,
+  "priorOwnDraftValuePreserved": true,
+  "initialCaretOrderingDefectRetained": "Initial UPDATE inserted before existing value because caret was at start; subsequent native End/suffix receiving probe repaired and passed",
+  "failedControls": [
+    "CtrlT WM_CHAR did not close transcript",
+    "test parser assumed model footer rather than active draft queue footer",
+    "first character lost after handled background Home",
+    "dash-leading payload rejected by separate argv token"
+  ],
+  "scope": "Only canonical seat_send.py changed in PKA; unrelated working tree untouched; own C worktree retains patch/proofs",
+  "noDisplayModelCreditChanges": true
+}

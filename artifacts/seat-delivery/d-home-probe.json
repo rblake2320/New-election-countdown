@@ -1,0 +1,98 @@
+{
+  "accessibility": {
+    "available": true,
+    "count": 0,
+    "elements": [],
+    "ok": true,
+    "requested": false,
+    "text_assessment": {
+      "characters": 0,
+      "nonempty_lines": 0,
+      "reason": "empty",
+      "sufficient": false
+    },
+    "used_for_adaptive_ocr": false
+  },
+  "degraded": false,
+  "degraded_reasons": [],
+  "elapsed_ms": 1509.5,
+  "hwnd": 2100690,
+  "observation_id": "4cc85c044d56674556df22273163d0bd",
+  "observed_at": "2026-10-13T19:37:25.124173+00:00",
+  "ocr": {
+    "attempted": true,
+    "characters": 2196,
+    "error": "",
+    "mode": "always",
+    "ok": true,
+    "sha256": "2da89427d2b47c15ac49d4564eb08928ac79397484a6b26126da3f7c228eb6e3",
+    "text": "2D Q Provide your HWND|tect X = + = @a\n\nif (same) {\nif (same.election_id electionId) throw new ResultReportError(422, \u2018contest_key_conflict', \u201csource contest $f{i\n\nnput.source.sourceContestId} is already bound to election ${same.election_id}\");\n- fresh();return { payload: (await this.getResultsPayload(electionId))!, created: false };\n+ if(!contextMatches(reportContextOf(same),current))throw new ResultReportError(409, 'report_context_changed', 'Idemp\notent report belongs to an earlier race context');\n+ replayHealth(same);return { payload: (await this.getResultsPayload(electionId))!, created: false };\n\n+\n\nconst other = this.reports.find((r) => r.source_id input.source.id && r.source_contest_id input .source.sour\nceContestId && r.election_id electionId);\nif (other) throw new ResultReportError(422, 'contest_key_conflict', \u201csource contest ${input.source.sourceContestId}\nis already bound to election ${other.election_id}*, { boundElectionId: other.election_id });\nconst previous=this. reports. filter(r=>r.election_id===electionId&&r. source_id===input . source. id&&r. source_contest_i\ninput . source . sourceContest Id&&contextMatches(reportContextOf(r) , current)).sort((a,b)=>b.id-a.id) [0];\n- if (previous&&canonicalInputHash({...input,retrievedAt:new Date(previous.retrieved_at) .toISOString()}):\nput_sha256) {fresh() ;return{payload: (await this.getResultsPayload(electionId))! , created: false} ;}\n+ if(previous&&publishedContentHash (input ubLishedContentHash(buildResultsPayload(eLectionId, previous, this.lines.\nget (previous. id)??[],[],current))){fresh() ;return{payload: (await this.getResultsPayload(electionId))! , created: false} ;}\nconst latest = this.reports.filter((r) => r.election_id electionId).sort((a, b) => b.id - a.id)[0] ?? null;\naif (ctx.enforceRevision && (ctx.expectedRevision ?? null) Clatest?.revision ?? null)) {\n\nprevious.in\n\nthrow new ResultReportError(409, 'stale_revision', \u2018expectedRevision does not match the current revision\u2019, { curr\nentRevision: latest?.revision ?? null });\nv + 357ms\nWorking (14m 17s * esc to interrupt) - 1 background terminal running - /ps to view - /stop to close\n\n>\u00bb EAD-C-D13-OWNDRAFT\n\ntab to queue message 49% context left\n",
+    "truncated": false
+  },
+  "ok": true,
+  "screenshot": {
+    "capture_attempted": true,
+    "capture_route": "selfconnect_native_capture",
+    "captured": true,
+    "crop": true,
+    "error": "",
+    "fallback_attempted": false,
+    "fallback_reason": "",
+    "fallback_used": false,
+    "foreground_hwnd": 0,
+    "minimized": false,
+    "path": "",
+    "primary_quality": {
+      "height": 627,
+      "low_information": false,
+      "luminance_max": 255,
+      "luminance_mean": 31.488,
+      "luminance_min": 0,
+      "luminance_stddev": 49.363,
+      "mode": "RGB",
+      "near_black": false,
+      "sha256": "2d5ff4ba6c3fc161b48550b8e831dd1c1b1459d8c01b22781e4b28a22a99896c",
+      "width": 1113
+    },
+    "quality": {
+      "height": 627,
+      "low_information": false,
+      "luminance_max": 255,
+      "luminance_mean": 31.488,
+      "luminance_min": 0,
+      "luminance_stddev": 49.363,
+      "mode": "RGB",
+      "near_black": false,
+      "sha256": "2d5ff4ba6c3fc161b48550b8e831dd1c1b1459d8c01b22781e4b28a22a99896c",
+      "width": 1113
+    },
+    "requested": false,
+    "saved": false
+  },
+  "surface": "conpty",
+  "target_stable": true,
+  "text": {
+    "characters": 2196,
+    "children": [],
+    "content": "2D Q Provide your HWND|tect X = + = @a\n\nif (same) {\nif (same.election_id electionId) throw new ResultReportError(422, \u2018contest_key_conflict', \u201csource contest $f{i\n\nnput.source.sourceContestId} is already bound to election ${same.election_id}\");\n- fresh();return { payload: (await this.getResultsPayload(electionId))!, created: false };\n+ if(!contextMatches(reportContextOf(same),current))throw new ResultReportError(409, 'report_context_changed', 'Idemp\notent report belongs to an earlier race context');\n+ replayHealth(same);return { payload: (await this.getResultsPayload(electionId))!, created: false };\n\n+\n\nconst other = this.reports.find((r) => r.source_id input.source.id && r.source_contest_id input .source.sour\nceContestId && r.election_id electionId);\nif (other) throw new ResultReportError(422, 'contest_key_conflict', \u201csource contest ${input.source.sourceContestId}\nis already bound to election ${other.election_id}*, { boundElectionId: other.election_id });\nconst previous=this. reports. filter(r=>r.election_id===electionId&&r. source_id===input . source. id&&r. source_contest_i\ninput . source . sourceContest Id&&contextMatches(reportContextOf(r) , current)).sort((a,b)=>b.id-a.id) [0];\n- if (previous&&canonicalInputHash({...input,retrievedAt:new Date(previous.retrieved_at) .toISOString()}):\nput_sha256) {fresh() ;return{payload: (await this.getResultsPayload(electionId))! , created: false} ;}\n+ if(previous&&publishedContentHash (input ubLishedContentHash(buildResultsPayload(eLectionId, previous, this.lines.\nget (previous. id)??[],[],current))){fresh() ;return{payload: (await this.getResultsPayload(electionId))! , created: false} ;}\nconst latest = this.reports.filter((r) => r.election_id electionId).sort((a, b) => b.id - a.id)[0] ?? null;\naif (ctx.enforceRevision && (ctx.expectedRevision ?? null) Clatest?.revision ?? null)) {\n\nprevious.in\n\nthrow new ResultReportError(409, 'stale_revision', \u2018expectedRevision does not match the current revision\u2019, { curr\nentRevision: latest?.revision ?? null });\nv + 357ms\nWorking (14m 17s * esc to interrupt) - 1 background terminal running - /ps to view - /stop to close\n\n>\u00bb EAD-C-D13-OWNDRAFT\n\ntab to queue message 49% context left\n",
+    "method": "ocr",
+    "requested": false,
+    "sha256": "2da89427d2b47c15ac49d4564eb08928ac79397484a6b26126da3f7c228eb6e3",
+    "truncated": false
+  },
+  "title_changed": false,
+  "window": {
+    "class_name": "CASCADIA_HOSTING_WINDOW_CLASS",
+    "exe_name": "WindowsTerminal.exe",
+    "hwnd": 2100690,
+    "pid": 8632,
+    "title": "Provide your HWND | techai"
+  },
+  "window_after": {
+    "class_name": "CASCADIA_HOSTING_WINDOW_CLASS",
+    "exe_name": "WindowsTerminal.exe",
+    "hwnd": 2100690,
+    "pid": 8632,
+    "title": "Provide your HWND | techai"
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "actual": {
+    "class_name": "CASCADIA_HOSTING_WINDOW_CLASS",
+    "exe_name": "WindowsTerminal.exe",
+    "hwnd": 2100690,
+    "pid": 8632,
+    "title": "Provide your HWND | techai"
+  },
+  "checks": [
+    {
+      "actual": 8632,
+      "expected": 8632,
+      "field": "pid",
+      "ok": true
+    },
+    {
+      "actual": "WindowsTerminal.exe",
+      "expected": "WindowsTerminal.exe",
+      "field": "exe_name",
+      "ok": true
+    },
+    {
+      "actual": "CASCADIA_HOSTING_WINDOW_CLASS",
+      "expected": "CASCADIA_HOSTING_WINDOW_CLASS",
+      "field": "class_name",
+      "ok": true
+    },
+    {
+      "actual": "Provide your HWND | techai",
+      "expected_contains": "Provide",
+      "field": "title",
+      "ok": true
+    }
+  ],
+  "class": "CASCADIA_HOSTING_WINDOW_CLASS",
+  "errors": [],
+  "exe": "WindowsTerminal.exe",
+  "expected": {
+    "allow_classes": [
+      "CASCADIA_HOSTING_WINDOW_CLASS",
+      "ConsoleWindowClass",
+      "PseudoConsoleWindow",
+      "mintty"
+    ],
+    "class_name": "CASCADIA_HOSTING_WINDOW_CLASS",
+    "exe_name": "WindowsTerminal.exe",
+    "pid": 8632,
+    "title_contains": "Provide"
+  },
+  "hwnd": 2100690,
+  "is_self": false,
+  "is_terminal": true,
+  "ok": true,
+  "own_pid": null,
+  "pid": 8632,
+  "reasons": [],
+  "session_id": 1,
+  "title": "Provide your HWND | techai",
+  "valid": true,
+  "visible": true
+}

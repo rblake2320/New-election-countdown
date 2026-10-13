@@ -1,0 +1,31 @@
+import importlib.util,json,re,time
+from pathlib import Path
+canonical=Path('C:/Users/techai/PKA testing/scripts/seat_send.py')
+spec=importlib.util.spec_from_file_location('seat_send',canonical);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+binding=module.resolve_binding('2100690')
+def composer():
+ text=module.uia_text(binding);matches=list(re.finditer(r'(?m)^[ \t]*\u203a[ \t]+(.*)$',text));assert matches,'No actual composer visible'
+ tail=text[matches[-1].start():];lines=tail.splitlines();field=[]
+ for line in lines[1:]:
+  if 'GPT-6-Astra' in line or 'tab to queue message' in line or '% context left' in line:break
+  field.append(line)
+ else:raise AssertionError('Composer status footer absent; may be truncated')
+ return module.squash(matches[-1].group(1)+''.join(field))
+receipt={'target':binding,'submitted':False,'checks':[]};prefix='C-D13-OWNDRAFT';head='HEAD-';tail='-TAIL';owned=[]
+with module.FileLock(module.LOCK_TARGET,retries=1200,delay=.25):
+ baseline=composer();assert baseline=='AskCodextodoanything',f'Existing draft present; refusal (length {len(baseline)})'
+ try:
+  module.send_guarded(binding,prefix);owned.append(prefix);time.sleep(.2);assert composer()==prefix
+  module.move_composer_key(binding,'home');module.send_guarded(binding,head);owned.append(head);time.sleep(.2)
+  actualHome=composer();receipt['checks'].append({'scenario':'background SDK Home on actual composer','outcome':'Worked' if actualHome==head+prefix else 'Failed','actualOwnText':actualHome})
+  if actualHome!=head+prefix:raise AssertionError('Home navigation failed')
+  module.move_composer_key(binding,'end');module.send_guarded(binding,tail);owned.append(tail);time.sleep(.2)
+  actualEnd=composer();receipt['checks'].append({'scenario':'background SDK End followed by suffix append','outcome':'Worked' if actualEnd==head+prefix+tail else 'Failed','actualOwnText':actualEnd})
+  assert actualEnd==head+prefix+tail,'End append failed'
+ finally:
+  # Only our own confirmed bytes are removed; no Ctrl+U, submit or user draft.
+  current=composer();allowed={prefix,prefix+head,head+prefix,head+prefix+tail,head+tail+prefix}
+  assert current in allowed,'Composer changed; cleanup refused'
+  module.move_composer_key(binding,'end');module.send_guarded(binding,'\b'*len(current));time.sleep(.2)
+  restored=composer();receipt['restoredOriginalEmptyComposer']=restored==baseline;assert restored==baseline,'Own test draft restoration failed'
+Path('D:/projects/et-wt/sol-live-bootstrap/artifacts/seat-delivery/native-append-receipt.json').write_text(json.dumps(receipt,indent=2)+'\n');print(json.dumps(receipt))

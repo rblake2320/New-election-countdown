@@ -1,0 +1,50 @@
+import importlib.util,json,unittest
+from pathlib import Path
+from unittest.mock import patch
+canonical=Path('C:/Users/techai/PKA testing/scripts/seat_send.py')
+spec=importlib.util.spec_from_file_location('seat',canonical);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+oldpath=Path(__file__).parent/'seat_send-before.py.txt'
+from importlib.machinery import SourceFileLoader
+oldspec=importlib.util.spec_from_loader('oldseat',SourceFileLoader('oldseat',str(oldpath)));old=importlib.util.module_from_spec(oldspec);oldspec.loader.exec_module(old)
+binding={'hwnd':2100690,'pid':8632,'title':'Provide your HWND | techai','exe_name':'WindowsTerminal.exe','class_name':'CASCADIA_HOSTING_WINDOW_CLASS'}
+viewer='Window title\n/TRANSCRIPT////////\nold body\nq close - f3 find - esc browse prompts'
+finder=viewer+'\nFind: '+('unsubmitted message nonce C-long-unique-prefix '*2)+'\nNo matches - full transcript - esc cancel'
+class Cases(unittest.TestCase):
+ def test_old_fuzzy_search_echo_red_current_refused(self):
+  msg='unsubmitted message nonce C-long-unique-prefix '*2
+  self.assertTrue(old.seen(finder,msg));self.assertFalse(m.seen(finder,msg))
+ def test_viewer_echo_is_refused(self):self.assertFalse(m.seen(viewer+'\n'+'message'*10,'message'*10))
+ def test_plain_historical_mention_not_viewer(self):self.assertFalse(m.transcript_open('Window title\nC: docs mention TRANSCRIPT; no header\nMain composer'))
+ def test_spaced_actual_header(self):self.assertTrue(m.transcript_open('Window title\n/T R A N S C R I P T/////\nq close'))
+ def test_recovery_escape_then_observed_q(self):
+  record={}
+  with patch.object(m,'send_guarded') as send,patch.object(m,'seat_text',side_effect=[viewer,'Main composer existing draft']),patch.object(m.time,'sleep'):
+   self.assertEqual(m.recover_view(binding,finder,record),'Main composer existing draft');self.assertEqual([c.args[1] for c in send.call_args_list],['\u001b','q'])
+  self.assertTrue(record['cleared_transcript_find']);self.assertTrue(record['cleared_transcript_view'])
+ def test_unchanged_finder_no_letters(self):
+  with patch.object(m,'send_guarded') as send,patch.object(m,'seat_text',return_value=finder),patch.object(m.time,'sleep'):
+   with self.assertRaises(RuntimeError):m.recover_view(binding,finder,{})
+   self.assertEqual([c.args[1] for c in send.call_args_list],['\u001b'])
+ def test_exact_ack_response(self):self.assertTrue(m.processed_ack('Window\nACK unique-D13\nMain composer','unique-D13'))
+ def test_wrapped_ack_request_not_response(self):self.assertFalse(m.processed_ack('Window\nACK unique-D13 after reading.\nMain composer','unique-D13'))
+ def test_inline_ack_request_not_response(self):self.assertFalse(m.processed_ack('Reply a new line ACK unique-D13 after reading','unique-D13'))
+ def test_finder_ack_echo_refused(self):self.assertFalse(m.processed_ack(finder+'\nACK unique-D13','unique-D13'))
+ def test_uia_scrolled_ack_positive_not_native_input(self):
+  with patch.object(m,'uia_text',return_value='ACK unique-D13\n$ source followup'),patch.object(m,'send_guarded') as send:
+   result=m.ack_readback(binding,'unique-D13','Main visible latest output');self.assertEqual(result['method'],'native_uia_exact_response_line');send.assert_not_called()
+ def test_numeric_hwnd_no_pid_or_title_collision(self):
+  rows=[binding,{**binding,'hwnd':17,'pid':2100690,'title':'2100690 other'}]
+  with patch.object(m,'shim',return_value=json.dumps(rows)):self.assertEqual(m.resolve_binding('2100690'),binding)
+ def test_ambiguous_title_refuses(self):
+  with patch.object(m,'shim',return_value=json.dumps([binding,{**binding,'hwnd':17}])):
+   with self.assertRaises(RuntimeError):m.resolve_binding('Provide')
+ def test_guard_all_fields_and_refusal(self):
+  with patch.object(m,'shim',return_value=json.dumps({'ok':False})) as shim:
+   with self.assertRaises(RuntimeError):m.guard_args(binding)
+   args=shim.call_args.args;self.assertIn('--expect-pid',args);self.assertIn('--expect-exe',args);self.assertIn('--expect-class',args);self.assertIn('--expect-title',args)
+ def test_dash_payload_is_single_structured_argument(self):
+  with patch.object(m,'guard_args',return_value=[]),patch.object(m,'shim',return_value=json.dumps({'ok':True})) as shim:
+   m.send_guarded(binding,'-TAIL');self.assertIn('--text=-TAIL',shim.call_args.args)
+result=unittest.TextTestRunner(verbosity=1).run(unittest.defaultTestLoader.loadTestsFromTestCase(Cases))
+receipt={'outcome':'Worked' if result.wasSuccessful() else 'Failed','cases':result.testsRun,'failed':len(result.failures),'errors':len(result.errors),'nativeActionsMocked':True,'oldNegative':'old fuzzy seen accepts finder echo; current refuses','canonicalSha256':__import__('hashlib').sha256(canonical.read_bytes()).hexdigest()}
+(Path(__file__).parent/'helper-unit-receipt.json').write_text(json.dumps(receipt,indent=2)+'\n');print(json.dumps(receipt));raise SystemExit(0 if result.wasSuccessful() else 1)
