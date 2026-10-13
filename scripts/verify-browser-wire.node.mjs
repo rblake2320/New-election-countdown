@@ -1,8 +1,24 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {spawnSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+import {tmpdir} from 'node:os';
 import {verifyBrowserWire} from './verify-browser-wire.mjs';
 import {loadReplay} from './audit-mixed-browser-wire.mjs';
 const replay=loadReplay();
+const cli=fileURLToPath(new URL('./audit-mixed-browser-wire.mjs',import.meta.url));
+const repo=fileURLToPath(new URL('../',import.meta.url));
+for(const [name,cwd] of [['repository',repo],['unrelated directory',tmpdir()]])test('real CLI no-argument replay from '+name,()=>{
+ const result=spawnSync(process.execPath,[cli],{cwd,encoding:'utf8',timeout:10000});
+ assert.ifError(result.error);assert.equal(result.status,0);assert.equal(result.stderr,'');
+ const body=JSON.parse(result.stdout);assert.equal(body.outcome,'Worked');assert.equal(body.results.length,4);
+ assert.ok(body.results.every(row=>row.outcome==='Worked'&&row.wire304Count===4&&row.changed200Count===1));
+});
+for(const arg of ['C:/__et_audit_input_that_does_not_exist__','--help',''])test('real CLI refuses unexpected argument '+JSON.stringify(arg),()=>{
+ const result=spawnSync(process.execPath,[cli,arg],{cwd:tmpdir(),encoding:'utf8',timeout:10000});
+ assert.ifError(result.error);assert.equal(result.status,2);assert.equal(result.stdout,'');
+ assert.match(result.stderr,/accepts no arguments/);
+});
 function packet(engine='webkit',width=1280){
  const p=structuredClone(replay.packets.find(p=>p.expected.engine===engine&&p.expected.width===width));
  return [p.polls,p.timeline,replay.wireLog,p.controller,p.expected];
