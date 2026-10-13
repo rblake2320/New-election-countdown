@@ -1,0 +1,92 @@
+{
+  "outcome": "Failed",
+  "startedAt": "2026-10-13T21:56:20.899Z",
+  "runId": "160516-a760a147",
+  "image": "sha256:7129b0452bce956e21d07266db649a66c2502106b8705c01853f1b67464da1c2",
+  "builder": "sha256:47a73be6f6faeb9693308805c85acb721b673d7e261863f7534acb8251ebf3b0",
+  "network": "et6-prod-160516-a760a147",
+  "names": {
+    "db": "et6-prod-160516-a760a147-db",
+    "schema": "et6-prod-160516-a760a147-schema",
+    "restore": "et6-prod-160516-a760a147-restore",
+    "app": "et6-prod-160516-a760a147-app"
+  },
+  "scope": "New disposable internal Docker network, no host ports; source-only pinned copy and synthetic auth",
+  "checks": [
+    {
+      "name": "immutable production image exists",
+      "worked": true
+    },
+    {
+      "name": "immutable builder image exists",
+      "worked": true
+    },
+    {
+      "name": "pinned source-only snapshot",
+      "worked": true
+    },
+    {
+      "name": "network has no external route",
+      "worked": true
+    },
+    {
+      "name": "fresh private PG ready",
+      "worked": true
+    },
+    {
+      "name": "source-only full-row digest restored",
+      "worked": true
+    },
+    {
+      "name": "no host ports et6-prod-160516-a760a147-db",
+      "worked": true
+    },
+    {
+      "name": "no host ports et6-prod-160516-a760a147-app",
+      "worked": true
+    },
+    {
+      "name": "actual production entrypoint ready",
+      "worked": true
+    },
+    {
+      "name": "new synthetic auth fixture registered",
+      "worked": true
+    },
+    {
+      "name": "historical-posts.json exit and outcome",
+      "worked": false
+    }
+  ],
+  "cleanup": [
+    {
+      "name": "et6-prod-160516-a760a147-browser",
+      "outcome": "absent"
+    },
+    {
+      "name": "et6-prod-160516-a760a147-schema",
+      "outcome": "absent"
+    },
+    {
+      "name": "et6-prod-160516-a760a147-app",
+      "outcome": "removed"
+    },
+    {
+      "name": "et6-prod-160516-a760a147-restore",
+      "outcome": "removed"
+    },
+    {
+      "name": "et6-prod-160516-a760a147-db",
+      "outcome": "removed"
+    },
+    {
+      "name": "et6-prod-160516-a760a147",
+      "outcome": "removed or absent"
+    }
+  ],
+  "registration": {
+    "status": 201
+  },
+  "error": "historical-posts.json exit and outcome",
+  "completedAt": "2026-10-13T21:56:52.134Z"
+}

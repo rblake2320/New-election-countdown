@@ -1,0 +1,5 @@
+D historical browser gate 2026-10-13: first ownedfixture160516-a760a147 Failed before ANY browser. ActualNC evidence201 and bytes exact, reportPOST422 unknown_source because er.ncsbe.gov not allowed (onlywww.ncsbe.gov). All created resources removed; original5094 untouched. C owns registry repair. Do not rewrite source URL or bypass writer. Receipt docs/evidence/et6/historical-browser-internal/160516-a760a147/.
+
+TLS directive incorporated: B removed WebKit CSP rewriting, bundle head hashb40016fd. D preparing NEWinternalHTTPS Caddy proxy with exactSAN et6-fixture.internal, ephemeral CA private material only container tmpfs, trust only disposable browser container. No ignoreHTTPSerrors/hosttrust/realkeys. OfficialPW1.64.0 image06a993 pinned; browserCA compatibility research active. Six engine/width tests only after exactsource repair+trust setup. HTTP/CSP-altered run is not release clearance.
+
+Checklist e408fe6 review saved msg/20261013-D-checklist-review.md: updatePR91merged, label exact prior image scopes, six historical HTTPS runs and separate mixedFF/WebKit acceptance. Deploy/migration/rollback holds correct. No sharedDDL/deploy.
