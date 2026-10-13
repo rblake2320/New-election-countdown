@@ -45,6 +45,27 @@ try{
   outcomes.push({scenario:'healthy compiled native-PG listing excludes inactive row',response:first});
   const stats=await store.getElectionStats();const counts=await get('/api/elections/counts');assert.equal(counts.status,200);assert.equal(counts.body.total,stats.total);assert.deepEqual(counts.body.byType,stats.byType);
   outcomes.push({scenario:'count derivation equals existing real-PG active-row stats',counts:counts.body,stats:{total:stats.total,byType:stats.byType}});
+  // Observe the actual native driver query count; no fabricated query result.
+  const originalQuery=pool.query;let queryReads=0;
+  Object.defineProperty(pool,'query',{value:function(...args:unknown[]){queryReads++;return Reflect.apply(originalQuery,pool,args);},configurable:true});
+  for(const query of ['garbage','0','121','1.5','','60&window=60','60&window=70']){
+    queryReads=0;const r=await get('/api/elections/missing-candidates?window='+query);assert.equal(r.status,400);assert.equal(r.body.code,'invalid_query');assert.equal(queryReads,0);outcomes.push({scenario:'strict malformed window '+query,response:r,nativeQueries:queryReads});
+  }
+  queryReads=0;const arrayWindow=await get('/api/elections/missing-candidates?window[]=60');assert.equal(arrayWindow.status,400);assert.equal(queryReads,0);outcomes.push({scenario:'array window refused before native query',response:arrayWindow,nativeQueries:queryReads});
+  queryReads=0;const exactZero=await get('/api/elections/missing-candidates');assert.deepEqual(exactZero.body.missing.map((e:any)=>e.id),[1]);assert.equal(queryReads,1);outcomes.push({scenario:'native candidateCount zero, one grouped query',response:exactZero,nativeQueries:queryReads});
+  await pool.query("insert into candidates(id,election_id,party) values(10,1,'D')");
+  queryReads=0;const exactOne=await get('/api/elections/missing-candidates');assert.deepEqual(exactOne.body.missing,[]);assert.equal(queryReads,1);outcomes.push({scenario:'native candidateCount one excludes race, one grouped query',response:exactOne,nativeQueries:queryReads});
+  await pool.query('delete from candidates where id=10');
+  const actualDate=globalThis.Date;
+  globalThis.Date=new Proxy(actualDate,{construct(target,args){return Reflect.construct(target,args.length?args:['2026-11-04T05:30:00Z']);}});
+  try{
+    await pool.query("insert into elections(id,title,location,state,date,type,level,timezone,is_active) values(3,'U.S. Senate Election - Alaska','Alaska','AK','2026-11-03','general','federal','America/Adak',true),(4,'U.S. Senate Election - New York','New York','NY','2026-11-03','general','federal','America/New_York',true)");
+    const night=await get('/api/elections/counts');assert.equal(night.status,200);assert.deepEqual([night.body.total,night.body.upcoming,night.body.past],[3,2,1]);outcomes.push({scenario:'actual native Nov3 unknown/Adak vsNY at pinnedNov4 05:30Z',response:night});
+    await pool.query('delete from elections where id in(3,4)');
+  }finally{globalThis.Date=actualDate;}
+  await pool.query("insert into elections(id,title,location,state,date,type,level,is_active) values(3,'Colorado Primary A','Colorado','CO','2026-11-03','Primary','federal',true),(4,'Colorado Primary B','Colorado','CO','2026-11-03','primary','federal',true),(5,'Colorado General A','Colorado','CO','2026-11-03','General','federal',true),(6,'Colorado General B','Colorado','CO','2026-11-03','general','federal',true),(7,'Colorado Special','Colorado','CO','2026-11-03','Special','federal',true),(8,'Colorado Referendum','Colorado','CO','2026-11-03','Referendum','federal',true),(9,'Colorado Unknown A','Colorado','CO','2026-11-03','__proto__','federal',true),(10,'Colorado Unknown B','Colorado','CO','2026-11-03','constructor','federal',true)");
+  const typeCounts=await get('/api/elections/counts');assert.equal(typeCounts.status,200);assert.deepEqual([typeCounts.body.byType.Primary,typeCounts.body.byType.General,typeCounts.body.byType.Special,typeCounts.body.byType.Referendum],[2,3,1,1]);assert.equal(Object.hasOwn(typeCounts.body.byType,'__proto__'),true);assert.equal(typeCounts.body.byType.__proto__,1);assert.equal(typeCounts.body.byType.constructor,1);outcomes.push({scenario:'actual native mixed-case known types aggregate, unknown key preserved (includes baseline general row)',response:typeCounts});
+  await pool.query('delete from elections where id between 3 and 10');
   const empty=await get('/api/elections?state=NY');assert.deepEqual(empty,{status:200,body:[]});outcomes.push({scenario:'legitimate filtered empty200[]',response:empty});
   const bad=await get('/api/elections?timeframe=bad');assert.equal(bad.status,400);outcomes.push({scenario:'invalid filter400',response:bad});
   for(const path of ['/api/elections/search?query=Colorado','/api/elections/missing-candidates','/api/elections-by-location?address=Denver']){const r=await get(path);assert.equal(r.status,200);outcomes.push({scenario:'healthy actual reserved route '+path,response:r});}
@@ -59,5 +80,5 @@ try{
   outcomes.push({scenario:'real factory degraded memory immutable-old200[] / current typed503',old,current});
  }
  const receipt={outcome:'Worked',compiled:true,actualNativePg:true,syntheticOwnedDatabase:true,hostPortsExposed:false,sharedDatabaseTouched:false,outcomes};
- writeFileSync('/evidence/'+(url.port==='1'?'native-refusal.json':'native-fault-recovery.json'),JSON.stringify(receipt,null,2));console.log(JSON.stringify({outcome:'Worked',scenarios:outcomes.length,mode:url.port==='1'?'refusal':'fault-recovery'}));
+ writeFileSync('/evidence/'+(url.port==='1'?'refined-native-refusal.json':'refined-native-fault-recovery.json'),JSON.stringify(receipt,null,2));console.log(JSON.stringify({outcome:'Worked',scenarios:outcomes.length,mode:url.port==='1'?'refusal':'fault-recovery'}));
 }finally{await new Promise<void>(r=>server.close(()=>r()));await pool.end();}
