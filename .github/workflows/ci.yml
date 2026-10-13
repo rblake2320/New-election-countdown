@@ -26,7 +26,7 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_congress_member_names.py' -v
       - name: Verify recorded browser wire recovery (15 controls)
         run: |
-          node --test scripts/verify-browser-wire.test.mjs
+          node --test scripts/verify-browser-wire.node.mjs
           node scripts/audit-mixed-browser-wire.mjs
       - run: npm ci
       - run: npm test

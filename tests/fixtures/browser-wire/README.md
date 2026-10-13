@@ -4,4 +4,4 @@ This compact fixture is a projection of actual production-image receiving run 15
 
 Original evidence: docs/evidence/et6/mixed-browser-internal/155624-654a31f1/ at that commit; B-independent-signoff.md records independent joins. Old run 146988 remains RED. WebKit browser200/server304 discrepancy is reproduced but its cause remains unproven.
 
-Run from any working directory with Node 24: node <repo>/scripts/audit-mixed-browser-wire.mjs. CI also runs node --test scripts/verify-browser-wire.test.mjs (four actual replays plus 11 altered-evidence refusal controls). These are offline verifier regression checks, not a new browser/runtime/DB run or deployment clearance.
+Run from any working directory with Node 24: node <repo>/scripts/audit-mixed-browser-wire.mjs. CI also runs node --test scripts/verify-browser-wire.node.mjs (four actual replays plus 11 altered-evidence refusal controls). These are offline verifier regression checks, not a new browser/runtime/DB run or deployment clearance.
