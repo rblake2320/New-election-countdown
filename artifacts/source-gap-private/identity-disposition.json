@@ -1,0 +1,80 @@
+{
+  "outcome": "Reviewed proposal, dry-run only",
+  "manifestSha256": "39bf7e06f36c4f175a8eecc6ae60e767f040e8ba35486d7f45fb42a3a5dc0082",
+  "aliases": [
+    {
+      "ballotName": "Joe Wilson",
+      "partyRaw": "Republican",
+      "district": "02",
+      "reviewedAlias": "Joe The Hon. Wilson",
+      "existingProfileId": 10330,
+      "currentFecCandidateId": "H2SC02059",
+      "SCForm": {
+        "url": "https://vrems.scvotes.sc.gov/Candidate/ViewCandidateDocument?candidateId=23673&documentTypeSid=SICPledge",
+        "sha256": "413086101158981df6448d4fa0d96be6bd3e8590e25307410e7084af36abc2f5",
+        "page": 1
+      },
+      "FECForm2": {
+        "url": "https://docquery.fec.gov/pdf/917/202504219756338917/202504219756338917.pdf",
+        "sha256": "91a97c81a0d33479f155497ffb7d1ac302b8ccf4daf4ca19af0286d142adfdf1",
+        "page": 1
+      },
+      "disposition": "EXPLICIT_AUTHORITY_BOUND_ALIAS",
+      "genericNormalizationApplied": false
+    },
+    {
+      "ballotName": "William Timmons",
+      "partyRaw": "Republican",
+      "district": "04",
+      "reviewedAlias": "William R Iv Timmons",
+      "existingProfileId": 12225,
+      "currentFecCandidateId": "H8SC04250",
+      "SCForm": {
+        "url": "https://vrems.scvotes.sc.gov/Candidate/ViewCandidateDocument?candidateId=24234&documentTypeSid=SICPledge",
+        "sha256": "36260d768d72c4fde0590e62de3e8208e173a58138a16834666344233a487979",
+        "page": 1
+      },
+      "FECForm2": {
+        "url": "https://docquery.fec.gov/pdf/971/202502209753753971/202502209753753971.pdf",
+        "sha256": "8c2dfb4a6b0d6b59fbca34efdc73bd35aff58db48d84c9c9e90d18e790c0660c",
+        "page": 1
+      },
+      "disposition": "EXPLICIT_AUTHORITY_BOUND_ALIAS",
+      "genericNormalizationApplied": false
+    }
+  ],
+  "remaining": [
+    {
+      "name": "Zyon Khalifa",
+      "disposition": "AMBIGUOUS_FEC_IDS",
+      "candidateIds": [
+        "H6SC02159",
+        "H6SC02167"
+      ],
+      "action": "Retain independent official general profile; refuse choosing either FEC ID"
+    },
+    {
+      "name": "Jessica Ethridge",
+      "disposition": "NO_EXISTING_PROFILE_FEC_STATUS_N",
+      "candidateIds": [
+        "H6SC04197"
+      ],
+      "action": "Official Active general profile justified; do not silently broaden C/F registration importer or assign N as current registration"
+    },
+    {
+      "name": "Dayna Alane Smith",
+      "disposition": "NO_FEC_SC02_2026_RECORD",
+      "candidateIds": [],
+      "action": "Retain Workers-labelled official general profile, no FEC ID inferred"
+    },
+    {
+      "name": "Brian Corriea",
+      "disposition": "NO_FEC_SC03_2026_RECORD",
+      "candidateIds": [],
+      "action": "Retain Libertarian-labelled official general profile, no FEC ID inferred"
+    }
+  ],
+  "noSharedWrites": true,
+  "noFuzzyNameMerge": true,
+  "rawBallotNamesPreserved": true
+}
