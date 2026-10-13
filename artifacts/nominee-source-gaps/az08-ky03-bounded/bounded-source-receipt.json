@@ -1,0 +1,253 @@
+{
+  "version": 1,
+  "boundedResearchDate": "2026-10-13T20:56:50.004660+00:00",
+  "startingInventoryHead": "be18aad4b73500bd13bf870f79e3336b6aec1770",
+  "pathLimitPerState": 3,
+  "actualUniqueNewPathsPerState": {
+    "AZ": 3,
+    "KY": 3
+  },
+  "scopeResults": [
+    {
+      "state": "AZ",
+      "office": "H",
+      "district": "08",
+      "date": "2026-11-03",
+      "outcome": "Blocked",
+      "admittedRows": 0,
+      "candidateListCompletenessClaim": false
+    },
+    {
+      "state": "KY",
+      "office": "H",
+      "district": "03",
+      "date": "2026-11-03",
+      "outcome": "Blocked",
+      "admittedRows": 0,
+      "candidateListCompletenessClaim": false
+    }
+  ],
+  "attempts": [
+    {
+      "state": "AZ",
+      "office": "H",
+      "district": "08",
+      "targetElectionDate": "2026-11-03",
+      "discoveryBasis": "observed official published Running for Office index",
+      "classification": "official_county_nonpartisan_filing_index",
+      "nativeAttempt": {
+        "requestedUrl": "https://elections.maricopa.gov/candidates/running-for-office.html",
+        "startedAt": "2026-10-13T20:55:47.149994+00:00",
+        "retrievedAt": "2026-10-13T20:55:47.363507+00:00",
+        "client": "native curl default user agent; no browser/CAPTCHA/proxy changes",
+        "exitCode": 0,
+        "status": 403,
+        "url": "https://elections.maricopa.gov/candidates/running-for-office.html",
+        "bytes": 5525,
+        "contentType": "text/html; charset=UTF-8",
+        "outcome": "Blocked",
+        "error": null,
+        "transportResponseSha256": "d78c347a444bd322a6f56a3508ec3e8f2c3651bb3150f594bda1da714d14aaa0",
+        "documentSha256": null
+      },
+      "webRead": {
+        "outcome": "Worked web-only page read",
+        "documentSha256": null,
+        "readback": {
+          "title": "Running For Office",
+          "section": "2026 Candidate Lists / General Election Candidate List",
+          "finding": "Scope explicitly Non-Partisan County offices; includes withdrawn/removed filers. Separate county candidates/judicial retention links do not identify federal CD08 general nominees."
+        },
+        "quotedScope": "Non-Partisan County office"
+      },
+      "admissibleGeneralSource": false,
+      "outcome": "Blocked",
+      "reason": "Readable official page, but federal House08 general eligibility is not established."
+    },
+    {
+      "state": "AZ",
+      "office": "H",
+      "district": "08",
+      "targetElectionDate": "2026-11-03",
+      "discoveryBasis": "observed official statewide Candidates index",
+      "classification": "official_navigation_index",
+      "nativeAttempt": {
+        "requestedUrl": "https://azsos.gov/elections/candidates",
+        "startedAt": "2026-10-13T20:55:47.364201+00:00",
+        "retrievedAt": "2026-10-13T20:55:47.601858+00:00",
+        "client": "native curl default user agent; no browser/CAPTCHA/proxy changes",
+        "exitCode": 0,
+        "status": 403,
+        "url": "https://azsos.gov/elections/candidates",
+        "bytes": 5406,
+        "contentType": "text/html; charset=UTF-8",
+        "outcome": "Blocked",
+        "error": null,
+        "transportResponseSha256": "c9ba789b3cc91450b1bd1ea39a5a9f3af66ed10c457f4e867f8b73b3bd072756",
+        "documentSha256": null
+      },
+      "webRead": {
+        "outcome": "Worked web-only page read",
+        "documentSha256": null,
+        "readback": {
+          "title": "Candidates",
+          "section": "2026 Candidate Filing / 2026 Election Information / Candidate Portal / Candidate Legal Challenges",
+          "finding": "Links and calendar navigation, not a dated certified General House08 candidate list."
+        }
+      },
+      "admissibleGeneralSource": false,
+      "outcome": "Blocked",
+      "reason": "Navigation/index does not establish any candidate general-election eligibility; previously held/403 portal was not retried."
+    },
+    {
+      "state": "AZ",
+      "office": "H",
+      "district": "08",
+      "targetElectionDate": "2026-11-03",
+      "discoveryBasis": "observed official statewide Candidate Legal Challenges index",
+      "classification": "official_primary_nomination_challenges",
+      "nativeAttempt": {
+        "requestedUrl": "https://azsos.gov/elections/candidates/candidate-legal-challenges",
+        "startedAt": "2026-10-13T20:55:47.602860+00:00",
+        "retrievedAt": "2026-10-13T20:55:47.765118+00:00",
+        "client": "native curl default user agent; no browser/CAPTCHA/proxy changes",
+        "exitCode": 0,
+        "status": 403,
+        "url": "https://azsos.gov/elections/candidates/candidate-legal-challenges",
+        "bytes": 5530,
+        "contentType": "text/html; charset=UTF-8",
+        "outcome": "Blocked",
+        "error": null,
+        "transportResponseSha256": "7b6eaa8f3f26eff7f5681595091f9d7b7c29d3cc159da966d50828fd67428e7a",
+        "documentSha256": null
+      },
+      "webRead": {
+        "outcome": "Worked web-only page read",
+        "documentSha256": null,
+        "readback": {
+          "title": "Candidate Legal Challenges",
+          "section": "2026 Challenges & Withdrawals",
+          "deadlineRaw": "April 6, 2026 at 5:00 p.m.",
+          "relevantRows": [
+            {
+              "nameRaw": "Martines, Jessie",
+              "raceRaw": "CD8",
+              "dateRaw": "2026 Apr 09",
+              "statusRaw": "Withdrawn Candidates"
+            },
+            {
+              "caseRaw": "Thaler v. Martines",
+              "raceRaw": "CD8",
+              "dateRaw": "2026 Apr 06",
+              "statusRaw": "Withdrawal"
+            }
+          ],
+          "finding": "April primary-nomination challenge/withdrawal context, not a November3 general roster. General calendar banner is not candidate eligibility context."
+        }
+      },
+      "admissibleGeneralSource": false,
+      "outcome": "Blocked",
+      "reason": "No General House08 positive names/party/date-scoped roster found. April nomination outcomes cannot be promoted to General."
+    },
+    {
+      "state": "KY",
+      "office": "H",
+      "district": "03",
+      "targetElectionDate": "2026-11-03",
+      "discoveryBasis": "single publication hypothesis derived from observed SOS 2026 Primary Election Ballot Positions PDF filename; General document existence unverified",
+      "classification": "candidate_publication_unverified",
+      "nativeAttempt": {
+        "requestedUrl": "https://www.sos.ky.gov/Documents/2026%20General%20Election%20Ballot%20Positions.pdf",
+        "startedAt": "2026-10-13T20:55:47.765118+00:00",
+        "retrievedAt": "2026-10-13T20:55:48.051395+00:00",
+        "client": "native curl default user agent; no browser/CAPTCHA/proxy changes",
+        "exitCode": 0,
+        "status": 403,
+        "url": "https://www.sos.ky.gov/Documents/2026%20General%20Election%20Ballot%20Positions.pdf",
+        "bytes": 1484,
+        "contentType": "text/html",
+        "outcome": "Blocked",
+        "error": null,
+        "transportResponseSha256": "04e32ed5cc8ea6f1dec9a0feeb69af21708a9c44ac8e8fbbeefad0b80ce48120",
+        "documentSha256": null
+      },
+      "webRead": {
+        "outcome": "Blocked web-tool Internal Error",
+        "documentSha256": null,
+        "readback": null
+      },
+      "admissibleGeneralSource": false,
+      "outcome": "Blocked",
+      "reason": "Native403 and web-tool Internal Error. Neither document existence nor content established; no source candidacy inferred."
+    },
+    {
+      "state": "KY",
+      "office": "H",
+      "district": "03",
+      "targetElectionDate": "2026-11-03",
+      "discoveryBasis": "state SOS public document-library index path",
+      "classification": "official_document_library_unreadable",
+      "nativeAttempt": {
+        "requestedUrl": "https://www.sos.ky.gov/Documents/Forms/AllItems.aspx",
+        "startedAt": "2026-10-13T20:55:48.052395+00:00",
+        "retrievedAt": "2026-10-13T20:55:48.331689+00:00",
+        "client": "native curl default user agent; no browser/CAPTCHA/proxy changes",
+        "exitCode": 0,
+        "status": 403,
+        "url": "https://www.sos.ky.gov/Documents/Forms/AllItems.aspx",
+        "bytes": 1484,
+        "contentType": "text/html",
+        "outcome": "Blocked",
+        "error": null,
+        "transportResponseSha256": "e5ab0ea709444ae21d724987173e8d4b896b4233bc36087d40c1d7f1cfcf55b9",
+        "documentSha256": null
+      },
+      "webRead": {
+        "outcome": "Blocked web-tool Internal Error",
+        "documentSha256": null,
+        "readback": null
+      },
+      "admissibleGeneralSource": false,
+      "outcome": "Blocked",
+      "reason": "Native403 and web-tool Internal Error; no statewide General certification/ballot-order document accessible from this library attempt."
+    },
+    {
+      "state": "KY",
+      "office": "H",
+      "district": "03",
+      "targetElectionDate": "2026-11-03",
+      "discoveryBasis": "state SOS news/publication index path",
+      "classification": "official_news_index_unreadable",
+      "nativeAttempt": {
+        "requestedUrl": "https://www.sos.ky.gov/Pages/News.aspx",
+        "startedAt": "2026-10-13T20:55:48.332694+00:00",
+        "retrievedAt": "2026-10-13T20:55:48.540504+00:00",
+        "client": "native curl default user agent; no browser/CAPTCHA/proxy changes",
+        "exitCode": 0,
+        "status": 403,
+        "url": "https://www.sos.ky.gov/Pages/News.aspx",
+        "bytes": 1484,
+        "contentType": "text/html",
+        "outcome": "Blocked",
+        "error": null,
+        "transportResponseSha256": "f3708b6279107f9e01483f7643d7afa997aa7972382fd41f967af0682c3474e7",
+        "documentSha256": null
+      },
+      "webRead": {
+        "outcome": "Blocked web-tool Internal Error",
+        "documentSha256": null,
+        "readback": null
+      },
+      "admissibleGeneralSource": false,
+      "outcome": "Blocked",
+      "reason": "Native403 and web-tool Internal Error; no published statewide General House03 roster or certification verified."
+    }
+  ],
+  "proposedManifest": null,
+  "heldJeffersonResourceRequests": 0,
+  "repeatedPriorBlockedPublicationPaths": 0,
+  "primaryFilingsOrFecPromoted": false,
+  "browserProxyCaptchaActions": false,
+  "dbOrAppWrites": false,
+  "rawContactFilesCommitted": false
+}
