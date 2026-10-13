@@ -111,10 +111,12 @@ export class ResultsIngestionService {
   async stopPolling(): Promise<void> {
     this.isRunning = false;
     this.abort?.abort();
-    await this.pollingWork.stop();
-    if (this.inFlight) {
-      await Promise.race([this.inFlight, new Promise<void>((r) => { const t = setTimeout(r, STOP_DRAIN_MS); t.unref?.(); })]);
-    }
+    // Both the timer owner's drain and the in-flight cycle are bounded by ONE deadline; an adapter that ignores
+    // the abort cannot hold shutdown beyond STOP_DRAIN_MS. Its late result is discarded by the abort checks in ingestOne.
+    const drain = Promise.allSettled([this.pollingWork.stop(), this.inFlight ?? Promise.resolve()]).then(() => undefined);
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const deadline = new Promise<void>((r) => { timer = setTimeout(r, STOP_DRAIN_MS); timer.unref?.(); });
+    try { await Promise.race([drain, deadline]); } finally { if (timer) clearTimeout(timer); }
   }
 
   /** One cycle over every admitted election. A cycle that starts while another is in flight is skipped (counted), never overlapped. */
@@ -152,8 +154,11 @@ export class ResultsIngestionService {
   /** Ingest one admitted race through one adapter. Exposed for tests and D's replay harness. */
   async ingestOne(election: AdapterElection, source: AdmittedSource, adapter: ResultsAdapter, signal: AbortSignal = new AbortController().signal): Promise<IngestOutcome> {
     const sourceId = source.id;
+    const abortedOutcome = (): IngestOutcome => ({ electionId: election.id, outcome: 'failed', sourceId, message: 'ingestion aborted before the snapshot was written', aborted: true });
+    if (signal.aborted) return abortedOutcome(); // never call a source after stop
     try {
       const raw = await adapter(election, { signal, source });
+      if (signal.aborted) return abortedOutcome(); // a late or abort-ignoring adapter result is discarded, never written
       if (raw === null) return { electionId: election.id, outcome: 'not_published', sourceId, publication: source.publication };
       // Delta 5: the adapter's output must name THIS race and THIS source; a mismatch is refused, never overwritten.
       const claimedElection = (raw as { electionId?: unknown }).electionId;
@@ -168,6 +173,7 @@ export class ResultsIngestionService {
       if (input.source.kind === 'ap' && process.env.RESULTS_ALLOW_AP !== 'true') {
         return { electionId: election.id, outcome: 'refused', sourceId, code: 'ap_disabled', message: 'AP results are disabled by the owner' };
       }
+      if (signal.aborted) return abortedOutcome();
       const result = await storage.recordResultReport(election.id, input, { postedBy: `ingest:${sourceId}`, idempotencyKey: null });
       if (!result.created) return { electionId: election.id, outcome: 'unchanged', sourceId };
       return { electionId: election.id, outcome: 'recorded', sourceId, reportId: result.payload.reportId!, revision: result.payload.revision! };
