@@ -16,6 +16,7 @@ vi.mock('../server/civic-aggregator-service', () => ({ civicAggregatorService: {
 vi.mock('../server/services/votesmart-service', () => ({ voteSmartService: null }));
 import { electionsRouter } from '../server/routes/elections';
 import { storage } from '../server/storage';
+import {GeocoderUnavailableError,GeocoderInputError,validGeocodeAddress,parseGeocodeCoordinates} from '../server/mapquest-service';
 import { sendElectionListingUnavailable } from '../server/election-list-handler';
 const source=readFileSync('server/routes.ts','utf8');
 const registrationCache=new Map<string,string>();
@@ -27,7 +28,7 @@ function app(){
  if(searchBeforeRouter)search();
  a.use('/api/elections',electionsRouter);
  if(!searchBeforeRouter)search();
- new Function('app','storage','mapQuestService','sendElectionListingUnavailable',registration('  app.get("/api/elections-by-location"','  // Congress API endpoints from your list'))(a,storage,{geocodeAddress:async()=>({state:'CO',city:'Denver',county:'Denver'})},sendElectionListingUnavailable);
+ new Function('app','storage','mapQuestService','sendElectionListingUnavailable','GeocoderUnavailableError','GeocoderInputError','validGeocodeAddress','parseGeocodeCoordinates',registration('  app.get("/api/elections-by-location"','  // Congress API endpoints from your list'))(a,storage,{geocodeAddress:async()=>({state:'CO',city:'Denver',county:'Denver'})},sendElectionListingUnavailable,GeocoderUnavailableError,GeocoderInputError,validGeocodeAddress,parseGeocodeCoordinates);
  return a;
 }
 beforeEach(()=>{h.error=true;h.rows=[];h.strictReads=0;h.candidateReads=0;});

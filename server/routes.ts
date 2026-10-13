@@ -18,7 +18,7 @@ import { requireAdmin } from "./middleware/require-admin";
 import { adminElectionLookupHandler } from "./admin-election-lookup";
 import { verifySendGridWebhook, verifyTwilioWebhook } from "./webhook-verify";
 import { deliveryTrackingService } from "./services/delivery-tracking-service";
-import { mapQuestService } from "./mapquest-service";
+import { mapQuestService, GeocoderUnavailableError, GeocoderInputError, validGeocodeAddress, parseGeocodeCoordinates } from "./mapquest-service";
 import { realTimeMonitor } from "./real-time-monitor";
 import { electionScraper } from "./web-scraper";
 import { aiValidationService } from "./ai-validation-service";
@@ -789,7 +789,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { address } = req.query;
 
-      if (!address || typeof address !== 'string') {
+      if (!validGeocodeAddress(address)) {
         return res.status(400).json({ error: "Address parameter is required" });
       }
 
@@ -801,6 +801,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(location);
     } catch (error) {
+      if (error instanceof GeocoderUnavailableError) return res.status(503).json({ error: error.message, code: error.code });
+      if (error instanceof GeocoderInputError) return res.status(400).json({ error: error.message, code: error.code });
       console.error('Geocoding error:', error);
       res.status(500).json({ error: "Failed to geocode address" });
     }
@@ -810,16 +812,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { lat, lng } = req.query;
 
-      if (!lat || !lng) {
-        return res.status(400).json({ error: "Latitude and longitude parameters are required" });
-      }
-
-      const latitude = parseFloat(lat as string);
-      const longitude = parseFloat(lng as string);
-
-      if (isNaN(latitude) || isNaN(longitude)) {
-        return res.status(400).json({ error: "Invalid latitude or longitude" });
-      }
+      const coordinates = parseGeocodeCoordinates(lat, lng);
+      if (!coordinates) return res.status(400).json({ error: "Invalid latitude or longitude", code: 'invalid_query' });
+      const { latitude, longitude } = coordinates;
 
       const location = await mapQuestService.reverseGeocode(latitude, longitude);
 
@@ -829,6 +824,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(location);
     } catch (error) {
+      if (error instanceof GeocoderUnavailableError) return res.status(503).json({ error: error.message, code: error.code });
+      if (error instanceof GeocoderInputError) return res.status(400).json({ error: error.message, code: error.code });
       console.error('Reverse geocoding error:', error);
       res.status(500).json({ error: "Failed to reverse geocode location" });
     }
@@ -838,13 +835,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { address } = req.query;
 
-      if (!address || typeof address !== 'string') {
+      if (!validGeocodeAddress(address)) {
         return res.status(400).json({ error: "Address parameter is required" });
       }
 
       const validation = await mapQuestService.validateAddress(address);
       res.json(validation);
     } catch (error) {
+      if (error instanceof GeocoderUnavailableError) return res.status(503).json({ error: error.message, code: error.code });
+      if (error instanceof GeocoderInputError) return res.status(400).json({ error: error.message, code: error.code });
       console.error('Address validation error:', error);
       res.status(500).json({ error: "Failed to validate address" });
     }
@@ -1011,22 +1010,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { address, lat, lng } = req.query;
 
+      const hasAddress = address !== undefined;
+      const coordinates = parseGeocodeCoordinates(lat, lng);
+      if ((hasAddress && !validGeocodeAddress(address)) || (!hasAddress && !coordinates)) {
+        return res.status(400).json({ error: "Valid address or coordinates required", code: 'invalid_query' });
+      }
       let location;
-
-      if (address && typeof address === 'string') {
-        location = await mapQuestService.geocodeAddress(address);
-      } else if (lat && lng) {
-        const latitude = parseFloat(lat as string);
-        const longitude = parseFloat(lng as string);
-
-        if (!isNaN(latitude) && !isNaN(longitude)) {
-          location = await mapQuestService.reverseGeocode(latitude, longitude);
-        }
-      }
-
-      if (!location) {
-        return res.status(400).json({ error: "Valid address or coordinates required" });
-      }
+      if (validGeocodeAddress(address)) location = await mapQuestService.geocodeAddress(address);
+      else if (coordinates) location = await mapQuestService.reverseGeocode(coordinates.latitude, coordinates.longitude);
+      else return res.status(400).json({ error: "Valid address or coordinates required", code: 'invalid_query' });
+      if (!location) return res.status(400).json({ error: "Address or coordinates not found", code: 'location_not_found' });
 
       // Get elections for the location's state, prioritizing local elections
       const stateElections = await storage.getElectionsStrict({
@@ -1095,6 +1088,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         searchPriority: localElections.length > 0 ? 'local' : 'state'
       });
     } catch (error) {
+      if (error instanceof GeocoderUnavailableError) return res.status(503).json({ error: error.message, code: error.code });
+      if (error instanceof GeocoderInputError) return res.status(400).json({ error: error.message, code: error.code });
       console.error('Elections by location error:', error);
       sendElectionListingUnavailable(res);
     }
