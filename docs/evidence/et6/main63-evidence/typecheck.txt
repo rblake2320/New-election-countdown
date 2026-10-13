@@ -1,0 +1,38 @@
+server/candidate-position-api.ts(77,20): error TS2345: Argument of type '{ type: string; description: string; confidence: number; url: string | undefined; date: Date; }' is not assignable to parameter of type 'never'.
+server/candidate-position-api.ts(86,22): error TS2345: Argument of type '{ type: string; description: string; confidence: number; url: string; date: Date; }' is not assignable to parameter of type 'never'.
+server/candidate-position-api.ts(97,20): error TS2345: Argument of type '{ type: string; description: string; confidence: number; date: Date; }' is not assignable to parameter of type 'never'.
+server/candidate-position-api.ts(107,20): error TS2345: Argument of type '{ type: string; description: string; confidence: number; url: any; date: Date; }' is not assignable to parameter of type 'never'.
+server/candidate-position-api.ts(122,41): error TS2339: Property 'confidence' does not exist on type 'never'.
+server/candidate-position-api.ts(122,56): error TS2339: Property 'confidence' does not exist on type 'never'.
+server/enhanced-position-service.ts(92,20): error TS2345: Argument of type '{ type: "candidate_portal"; description: string; confidence: number; url: string | undefined; date: Date; }' is not assignable to parameter of type 'never'.
+server/enhanced-position-service.ts(101,22): error TS2345: Argument of type '{ type: "voting_record"; description: string; confidence: number; url: string; date: Date; }' is not assignable to parameter of type 'never'.
+server/enhanced-position-service.ts(114,22): error TS2345: Argument of type '{ type: "legislative_sponsorship"; description: string; confidence: number; url: string; date: Date; }' is not assignable to parameter of type 'never'.
+server/enhanced-position-service.ts(122,20): error TS2345: Argument of type '{ type: "official_statement"; description: string; confidence: number; url: any; date: Date; }' is not assignable to parameter of type 'never'.
+server/enhanced-position-service.ts(137,41): error TS2339: Property 'confidence' does not exist on type 'never'.
+server/enhanced-position-service.ts(137,56): error TS2339: Property 'confidence' does not exist on type 'never'.
+server/enhanced-position-service.ts(192,48): error TS2339: Property 'position' does not exist on type 'never'.
+server/enhanced-position-service.ts(192,72): error TS2339: Property 'position' does not exist on type 'never'.
+server/enhanced-position-service.ts(193,47): error TS2339: Property 'position' does not exist on type 'never'.
+server/enhanced-position-service.ts(193,70): error TS2339: Property 'position' does not exist on type 'never'.
+server/enhanced-position-service.ts(220,20): error TS2339: Property 'billType' does not exist on type 'never'.
+server/enhanced-position-service.ts(220,34): error TS2339: Property 'billNumber' does not exist on type 'never'.
+server/enhanced-position-service.ts(221,21): error TS2339: Property 'position' does not exist on type 'never'.
+server/enhanced-position-service.ts(222,26): error TS2339: Property 'voteDate' does not exist on type 'never'.
+server/enhanced-position-service.ts(223,24): error TS2339: Property 'title' does not exist on type 'never'.
+server/enhanced-position-service.ts(223,35): error TS2339: Property 'summary' does not exist on type 'never'.
+server/enhanced-position-service.ts(234,35): error TS2339: Property 'voteDate' does not exist on type 'never'.
+server/enhanced-position-service.ts(278,35): error TS2339: Property 'introducedDate' does not exist on type 'never'.
+server/michigan-candidate-service.ts(36,23): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+server/michigan-candidate-service.ts(40,23): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+server/michigan-candidate-service.ts(44,23): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+server/michigan-candidate-service.ts(48,23): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+server/michigan-candidate-service.ts(76,27): error TS2345: Argument of type '{ name: any; party: string; office: string; isIncumbent: boolean; fecId: any; source: string; }' is not assignable to parameter of type 'never'.
+server/michigan-candidate-service.ts(109,23): error TS2345: Argument of type '{ source: string; name: string; party: string; office: string; isIncumbent: boolean; }' is not assignable to parameter of type 'never'.
+server/michigan-candidate-service.ts(133,25): error TS2345: Argument of type '{ source: string; name: string; party: string; office: string; isIncumbent: boolean; }' is not assignable to parameter of type 'never'.
+server/michigan-candidate-service.ts(158,25): error TS2345: Argument of type '{ source: string; name: string; party: string; office: string; isIncumbent: boolean; }' is not assignable to parameter of type 'never'.
+server/michigan-candidate-service.ts(178,21): error TS2345: Argument of type '{ name: any; party: any; electionId: number; isIncumbent: any; description: string; pollingSupport: null; pollingSource: null; lastPollingUpdate: null; isVerified: boolean; website: null; votesReceived: null; votePercentage: null; isWinner: boolean; isProjectedWinner: boolean; }' is not assignable to parameter of type 'never'.
+server/services/event-processor-service.ts(145,32): error TS2339: Property 'electionDate' does not exist on type '{ title: string; type: string; id: number; location: string; date: Date; description: string | null; state: string; subtitle: string | null; officialResultsUrl: string | null; officialResultsSource: { ...; } | null; ... 8 more ...; isActive: boolean | null; }'.
+server/services/event-processor-service.ts(158,31): error TS2339: Property 'status' does not exist on type '{ title: string; type: string; id: number; location: string; date: Date; description: string | null; state: string; subtitle: string | null; officialResultsUrl: string | null; officialResultsSource: { ...; } | null; ... 8 more ...; isActive: boolean | null; }'.
+server/services/event-processor-service.ts(171,31): error TS2339: Property 'status' does not exist on type '{ title: string; type: string; id: number; location: string; date: Date; description: string | null; state: string; subtitle: string | null; officialResultsUrl: string | null; officialResultsSource: { ...; } | null; ... 8 more ...; isActive: boolean | null; }'.
+server/services/event-processor-service.ts(218,32): error TS2339: Property 'electionDate' does not exist on type '{ title: string; type: string; id: number; location: string; date: Date; description: string | null; state: string; subtitle: string | null; officialResultsUrl: string | null; officialResultsSource: { ...; } | null; ... 8 more ...; isActive: boolean | null; }'.
+server/services/event-processor-service.ts(363,46): error TS2339: Property 'electionDate' does not exist on type '{ title: string; type: string; id: number; location: string; date: Date; description: string | null; state: string; subtitle: string | null; officialResultsUrl: string | null; officialResultsSource: { ...; } | null; ... 8 more ...; isActive: boolean | null; }'.

@@ -1,0 +1,114 @@
+{
+  "head": "c0cdcb5f42950c2625f80e9e5d387f02224eca81",
+  "cases": [
+    {
+      "name": "initial",
+      "exit": 0,
+      "outcome": "Worked",
+      "code": null
+    },
+    {
+      "name": "recount",
+      "exit": 0,
+      "outcome": "Worked",
+      "code": null
+    },
+    {
+      "name": "wrong-context",
+      "exit": 1,
+      "outcome": "Refused",
+      "code": "TARGET_MISMATCH"
+    },
+    {
+      "name": "path-escape",
+      "exit": 1,
+      "outcome": "Refused",
+      "code": "PATH_REFUSED"
+    },
+    {
+      "name": "real-Windows-junction-escape",
+      "exit": 1,
+      "outcome": "Refused",
+      "code": "PATH_REFUSED"
+    }
+  ],
+  "rawPins": [
+    {
+      "snapshot": "initial",
+      "role": "payload",
+      "sha256": "1d11cc471c4e6bfb62f690cbfd8a248cd649989acc3d479273809316d8f3d466"
+    },
+    {
+      "snapshot": "initial",
+      "role": "certificate",
+      "sha256": "f75e558434a6633786614cc3b2696916bf81d651c79d4a0868104ca8546849ac"
+    },
+    {
+      "snapshot": "initial",
+      "role": "capture_receipt",
+      "sha256": "29bfff72856d6dc0df98c1107479dcaab897182a40027b1e651abede63f96890"
+    },
+    {
+      "snapshot": "recount",
+      "role": "payload",
+      "sha256": "1d11cc471c4e6bfb62f690cbfd8a248cd649989acc3d479273809316d8f3d466"
+    },
+    {
+      "snapshot": "recount",
+      "role": "certificate",
+      "sha256": "f9b03babc54a1f108c13bab5a02a565d5bac7fa6a7a11a4f43cd7f0ec02d7949"
+    },
+    {
+      "snapshot": "recount",
+      "role": "capture_receipt",
+      "sha256": "29bfff72856d6dc0df98c1107479dcaab897182a40027b1e651abede63f96890"
+    }
+  ],
+  "independentXml": {
+    "totalsRow": {
+      "A42": "Total",
+      "B42": "194114",
+      "C42": "194118",
+      "D42": "4",
+      "E42": "419297",
+      "F42": "419309",
+      "G42": "12",
+      "H42": "396300",
+      "I42": "396304",
+      "J42": "4",
+      "K42": "396249",
+      "L42": "396255",
+      "M42": "6",
+      "N42": "267924",
+      "O42": "267944",
+      "P42": "20",
+      "Q42": "84351",
+      "R42": "84353",
+      "S42": "2",
+      "T42": "143170",
+      "U42": "143174",
+      "V42": "4",
+      "W42": "1668",
+      "X42": "1658",
+      "Y42": "-10",
+      "Z42": "1205",
+      "AA42": "1166",
+      "AB42": "-39",
+      "AC42": "89818",
+      "AD42": "89818",
+      "AE42": "0",
+      "AF42": "1994096",
+      "AG42": "1994099",
+      "AH42": "3"
+    },
+    "optionTotals": [
+      1903073,
+      1903115
+    ],
+    "ballotTotals": [
+      1994096,
+      1994099
+    ],
+    "method": "Python standard library ZIP/XML, sum eight named/write-in total columns"
+  }
+}
