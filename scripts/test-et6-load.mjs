@@ -37,6 +37,12 @@ async function worker(config) {
   const os = await import('node:os');
   const addresses = Object.values(os.networkInterfaces()).flat().filter(x => x && !x.internal && x.family === 'IPv4').map(x => x.address);
   if (!addresses.includes(config.ip)) throw new Error('Client interface identity mismatch');
+  // Warm this worker's actual HTTP client before the unchanged timed schedule.
+  const warmStartedAt = Date.now();
+  const health = await fetch(config.base + '/api/health', { signal: AbortSignal.timeout(5000), redirect: 'error' });
+  await health.arrayBuffer();
+  const warmup = { name: config.name, status: health.status, startedAt: warmStartedAt, completedAt: Date.now() };
+  if (health.status !== 200 || warmup.completedAt >= config.startAt) throw new Error('Client warmup failed or exceeded scheduled start');
   const records = [];
   const tasks = [];
   const interval = 1000 * config.clients / config.rps;
@@ -90,7 +96,7 @@ async function worker(config) {
   }
   await Promise.all(tasks);
   await wait(config.startAt + config.seconds * 1000 - Date.now());
-  return { name: config.name, ip: config.ip, addresses, scheduled: count, records: records.sort((a, b) => a.sequence - b.sequence) };
+  return { name: config.name, ip: config.ip, addresses, warmup, scheduled: count, records: records.sort((a, b) => a.sequence - b.sequence) };
 }
 
 try {
@@ -133,9 +139,10 @@ try {
       return docker('exec', name, 'node', '--input-type=module', '-e', `const out=await (${worker.toString()})(${JSON.stringify(config)});console.log(JSON.stringify(out));`).then(JSON.parse);
     }));
     const records = [];
+    const warmups = [];
     const workerErrors = [];
     outcomes.forEach((result, index) => {
-      if (result.status === 'fulfilled') records.push(...result.value.records);
+      if (result.status === 'fulfilled') { records.push(...result.value.records); warmups.push(result.value.warmup); }
       else workerErrors.push({ name: clients[index], error: result.reason.message });
     });
     await writeFile(resolve(evidence, `${rps}rps-requests.jsonl`), records.map(x => JSON.stringify(x)).join('\n') + '\n');
@@ -143,7 +150,7 @@ try {
     const latencies = completed.map(x => x.latencyMs);
     const phase = { rps, durationSeconds: 60, startAt, endScheduledAt: startAt + 60000, scheduled: rps * 60,
       observedSlots: records.length, completed: completed.length, missed: records.filter(x => x.missed).length + rps * 60 - records.length,
-      workerErrors, valid: completed.filter(x => x.valid).length, statuses: {}, bytes: completed.reduce((n, x) => n + x.bytes, 0),
+      workerErrors, warmups, valid: completed.filter(x => x.valid).length, statuses: {}, bytes: completed.reduce((n, x) => n + x.bytes, 0),
       timeouts: completed.filter(x => x.error === 'timeout').length, p50Ms: percentile(latencies, .5), p95Ms: percentile(latencies, .95), p99Ms: percentile(latencies, .99) };
     for (const record of completed) phase.statuses[record.status ?? 'transport_error'] = (phase.statuses[record.status ?? 'transport_error'] ?? 0) + 1;
     phase.passed = phase.workerErrors.length === 0 && phase.missed === 0 && phase.completed === phase.scheduled && phase.valid === phase.scheduled && phase.timeouts === 0 && !phase.statuses[429] && !Object.keys(phase.statuses).some(x => /^5\d\d$/.test(x)) && phase.p95Ms <= 2000;
