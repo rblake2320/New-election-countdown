@@ -17,14 +17,14 @@ Deployment remains held. This checklist prepares a reviewable release; it does n
 
 1. B/D historical admin browser receiving: pinned Playwright 1.64.0 in the same new internal-only application/PostgreSQL network, no host ports, synthetic fixture admin, real retained NC/LA reports. Check both widths, exact report hydration, public-list exclusion and no mutations after login. Existing 5094 stays untouched.
 2. B owns remaining Firefox/WebKit receiving on the same isolated fixture. Preserve failure/304/recovery controls and original evidence.
-3. Portable 506-payload regression is PR91; review and merge exact green head. Further changes get their own checks.
+3. Portable 506-payload regression PR91 was reviewed and merged at exact green head `730b1d7`. Further changes get their own checks.
 4. AZ08/KY03 official printed rosters remain unavailable after additional official-source checks. Keep honest unknown state; do not turn primary filings, an absent write-in row or a challenge page into a general roster.
 5. The approved application configuration has no MapQuest key. Actual missing configuration returns 503. Configured positive geocoding needs an authorized valid key; boundary fixtures do not replace that acceptance.
 6. Owner-relayed decision: retain test keys while testing. Any rotation/key swap belongs to the deployment step after testing is green. No rotation during these tests.
 
 ## Deploy ordering when the owner releases the hold
 
-1. Freeze final main SHA and runtime/builder image digests. Retest any executable difference from the independently received image. Generate the release artifact inventory/SBOM and retain its provenance; do not substitute a source-build log for the actual image.
+1. Freeze final main SHA and runtime/builder image digests. Retest any executable difference from the independently received image. Generate the release artifact inventory/SBOM, sign and verify the release artifact with the approved release identity, and retain its provenance; do not substitute a source-build log for the actual image.
 2. Preserve a fresh protected full PostgreSQL backup and verify a private restore against current data. The source increment's DPAPI backup and exact source rollback are retained separately; do not overwrite their historical receipts.
 3. Run required schema migrations before switching the application. In particular `migrations/20261013_result_source_health.sql` is shipped in the image and must exist before the new result health reader runs. It has not been applied to shared data in this session. Do not apply it implicitly at boot.
 4. Load only the approved production secrets. Keep credentials out of command arguments, receipts, images and source control. Complete the owner-directed key swap at this stage.
