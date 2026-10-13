@@ -1,0 +1,11 @@
+This is a source-only proposal packet for 11 assigned November 3, 2026 races. No application, importer, schema, shared data, or database changes were made.
+
+Seven races have newly captured official source bytes and scoped drafts: Arkansas House 01/02/04, Arizona Governor/House06/07, and Illinois Governor. The Arizona Governor role proof comes from the separate actual CCEC 2026 general guide. Party and ballot eligibility remain bound to the official Pima general list. Illinois has six physical active general rows forming three affiliate tickets; each admitted Governor identity has a separate state-board Governor/2026-GE role record. Neither primary winners nor financing registration establishes general eligibility. Contact fields and biographies are excluded from retained projections.
+
+Arizona House02/05 have actual government November3 sample PDFs read through the web tool. Native local byte fetches return403. Those drafts explicitly retain sha256:null and are separate from byte-captured sources. No403 response hash is represented as the ballot PDF hash.
+
+Arizona House06 additionally has one published write-in, Michael Dorland (IND), with the actual Pima document stating that only listed names will count. Governor write-ins already present in the Mohave draft are corroborated but not duplicated in this addon.
+
+Two races remain Blocked after the recorded checks: AZ-H08 has a403 SOS-linked general portal and authenticated county sample ballots; KY-H03 has a403 state ballot-position page, a held Jefferson lookup, and only accessible filing records. The saved Jefferson resource restriction was preserved. Zero result reports, primary lists, FEC filings, and unofficial guides were not promoted to general-ballot eligibility.
+
+Root owns reviewing delegated exact URL admission, identity and party-code normalization, combining the drafts, and actual private receiving validation. Raw Congressman prefixes remain in the Arkansas ballot names. Actual Arizona source codes GRN/LBT/NOL remain exact; the current importer recognises GRE/LIB and may need a reviewed partyValue mapping to prevent identity conflicts. No automatic source acceptance or database apply is part of this packet.

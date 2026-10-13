@@ -1,0 +1,119 @@
+{
+  "version": 1,
+  "checkedAt": "2026-10-13T19:11:03.855055+00:00",
+  "sourceOnly": true,
+  "noDatabaseOrApplicationChanges": true,
+  "branches": {
+    "sourcePacket": "lane-c/source-gaps-ar-az-il-ky",
+    "base": "583057c"
+  },
+  "races": [
+    {
+      "state": "AR",
+      "office": "H",
+      "district": "01",
+      "outcome": "Worked",
+      "evidence": "ar-general-three-gaps-draft.json",
+      "capturedDocumentBytes": true
+    },
+    {
+      "state": "AR",
+      "office": "H",
+      "district": "02",
+      "outcome": "Worked",
+      "evidence": "ar-general-three-gaps-draft.json",
+      "capturedDocumentBytes": true
+    },
+    {
+      "state": "AR",
+      "office": "H",
+      "district": "04",
+      "outcome": "Worked",
+      "evidence": "ar-general-three-gaps-draft.json",
+      "capturedDocumentBytes": true
+    },
+    {
+      "state": "AZ",
+      "office": "G",
+      "district": "00",
+      "outcome": "Worked",
+      "evidence": "az-general-gov-h06-h07-draft.json",
+      "capturedDocumentBytes": true,
+      "rootAdmissionHold": "Exact delegated document URL schema exception must be reviewed"
+    },
+    {
+      "state": "AZ",
+      "office": "H",
+      "district": "06",
+      "outcome": "Worked",
+      "evidence": "az-general-gov-h06-h07-draft.json",
+      "capturedDocumentBytes": true,
+      "rootAdmissionHold": "Exact delegated document URL schema exception must be reviewed"
+    },
+    {
+      "state": "AZ",
+      "office": "H",
+      "district": "07",
+      "outcome": "Worked",
+      "evidence": "az-general-gov-h06-h07-draft.json",
+      "capturedDocumentBytes": true,
+      "rootAdmissionHold": "Exact delegated document URL schema exception must be reviewed"
+    },
+    {
+      "state": "IL",
+      "office": "G",
+      "district": "00",
+      "outcome": "Worked",
+      "evidence": "il-general-governor-draft.json",
+      "capturedDocumentBytes": true,
+      "rawHtmlContactsNotCommitted": true
+    },
+    {
+      "state": "AZ",
+      "office": "H",
+      "district": "02",
+      "outcome": "PDF text reviewed; local byte capture Blocked",
+      "evidence": "az-h02-h05-web-reviewed-draft.json",
+      "capturedDocumentBytes": false,
+      "documentSha256": null,
+      "rootAdmissionHold": "Nullable hash explicit, native403 receipt retained"
+    },
+    {
+      "state": "AZ",
+      "office": "H",
+      "district": "05",
+      "outcome": "PDF text reviewed; local byte capture Blocked",
+      "evidence": "az-h02-h05-web-reviewed-draft.json",
+      "capturedDocumentBytes": false,
+      "documentSha256": null,
+      "rootAdmissionHold": "Nullable hash explicit, native403 receipt retained"
+    },
+    {
+      "state": "AZ",
+      "office": "H",
+      "district": "08",
+      "outcome": "Blocked",
+      "attemptedOfficialUrls": [
+        "https://apps.arizona.vote/electioninfo/Election/69",
+        "https://elections.maricopa.gov/candidates/what-is-on-my-ballot.html"
+      ],
+      "reason": "SOS-linked General Candidate Listing endpoint returns403. Maricopa sample ballots require voter dashboard sign-in. County General Zero Report exposes programmed names but is not adopted as ballot eligibility, and primary/FEC names are not substituted.",
+      "requiredEvidence": "Accessible official November3 general candidate list or printed public ballot for District8"
+    },
+    {
+      "state": "KY",
+      "office": "H",
+      "district": "03",
+      "outcome": "Blocked",
+      "attemptedOfficialUrls": [
+        "https://www.sos.ky.gov/elections/Pages/Ballot-Positions.aspx",
+        "https://web.sos.ky.gov/electionballots/",
+        "https://web.sos.ky.gov/CandidateFilings/Default.aspx?id=4"
+      ],
+      "reason": "State Ballot Positions page403. State sample index directs Jefferson to held election lookup; that resource was not fetched. Current SOS General filing list has district3 rows but contains no ballot qualification/certification field, so remains filing-only.",
+      "requiredEvidence": "Distinct accessible statewide official general certification/candidate/ballot-order publication covering H03; no heldJefferson workaround"
+    }
+  ],
+  "addon": "az-h06-write-in-addon-draft.json",
+  "transportDiagnosis": "Python urllib received Cloudflare1010 on some URLs; ordinary native curl default useragent captured IL/Pima/AR bytes. No browser, CAPTCHA, proxy or denial-route workaround used."
+}
