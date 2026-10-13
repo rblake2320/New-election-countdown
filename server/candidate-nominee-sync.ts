@@ -11,7 +11,11 @@ const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(value => {
 }, 'Invalid calendar date');
 const stateCode = z.string().refine(value => states.has(value), 'Expected a US state');
 const access = z.enum(['printed','write_in','not_specified']);
+export const ARIZONA_PIMA_GENERAL_URL='https://content.civicplus.com/api/assets/az-pimacounty/d2c310c3-ade7-484e-a6f0-1ddaebec0799';
+export const ARIZONA_CCEC_PARTY_IDENTITY_URL='https://storageccec.blob.core.usgovcloudapi.net/public/docs/1509-1497AllDistrictWebEnglishv2.pdf';
+const ARIZONA_CCEC_SHA256='67bc4e66b68a5883f6f68a4fa165d807eb4bbf5a78a3640bd3eac9b08273b5fb';
 const officialSourceUrl=z.string().url().refine(value=>{
+  try {
   const u=new URL(value);
   const ncOfficialBucket=u.hostname==='s3.amazonaws.com' && u.pathname.startsWith('/dl.ncsbe.gov/Elections/2026/');
   const floridaOfficialPortal=u.hostname==='dos.elections.myflorida.com' && u.pathname.startsWith('/candidates/');
@@ -23,12 +27,14 @@ const officialSourceUrl=z.string().url().refine(value=>{
   const montanaReviewedBallot=u.hostname==='missoulacounty.sharepoint.com'
     && u.pathname==='/administration/elect/Public/Forms/AllItems.aspx'
     && u.searchParams.get('id')==='/administration/elect/Public/Sample Ballots/20261103 Federal General Sample Ballots/01-BONN92.pdf';
-  return u.protocol==='https:' && !u.username && !u.password && (!u.port || u.port==='443') && (u.hostname.endsWith('.gov') || /\.state\.[a-z]{2}\.us$/i.test(u.hostname) || ncOfficialBucket || floridaOfficialPortal || michiganOfficialPortal || tennesseeOfficialFiles || oregonOfficialDirective || montanaReviewedBallot);
+  return u.protocol==='https:' && !u.username && !u.password && (!u.port || u.port==='443') && (u.hostname.endsWith('.gov') || /\.state\.[a-z]{2}\.us$/i.test(u.hostname) || ncOfficialBucket || floridaOfficialPortal || michiganOfficialPortal || tennesseeOfficialFiles || oregonOfficialDirective || montanaReviewedBallot || value===ARIZONA_PIMA_GENERAL_URL);
+  } catch { return false; }
 },'Expected an official government HTTPS source');
 // Government-linked OCPF filing proves this person's name/office only.
 // It cannot serve as a general-list source or party evidence.
 export const MASSACHUSETTS_JAMES_IDENTITY_URL='https://ocpf2.blob.core.windows.net/pdf/filers/19010/19010-cpf101-1-030325.pdf';
-const identityEvidenceUrl=z.union([officialSourceUrl,z.literal(MASSACHUSETTS_JAMES_IDENTITY_URL)]);
+const partyEvidenceUrl=z.union([officialSourceUrl,z.literal(ARIZONA_CCEC_PARTY_IDENTITY_URL)]);
+const identityEvidenceUrl=z.union([officialSourceUrl,z.literal(MASSACHUSETTS_JAMES_IDENTITY_URL),z.literal(ARIZONA_CCEC_PARTY_IDENTITY_URL)]);
 const scopeSchema = z.object({ office:z.enum(['H','S','G']), district:z.string().regex(/^\d{2}$/), partyRaw:z.string().optional(),ballotAccessType:access.optional(),expectedCount:z.number().int().nonnegative() }).strict();
 const sourceSchema = z.object({
   id:z.string().min(1), state:stateCode, kind:z.literal('official_general_candidate_list'),
@@ -38,9 +44,10 @@ const sourceSchema = z.object({
   electionDate:day.refine(value=>value.startsWith('2026-'), 'Expected 2026 source'),
   completeScopes:z.array(scopeSchema), expectedRowCount:z.number().int().nonnegative(),
 }).strict().superRefine((source,ctx)=>{
-  const host=new URL(source.url).hostname;
+  let host:string;try{host=new URL(source.url).hostname;}catch{return;}
   const expected=host==='mi-boe.entellitrak.com'?'MI':host==='dos.elections.myflorida.com'?'FL':host==='s3.amazonaws.com'?'NC':host==='sos-prod.tnsosgovfiles.com'?'TN':['multco.us','www.multco.us'].includes(host)?'OR':host==='missoulacounty.sharepoint.com'?'MT':null;
   if(expected&&source.state!==expected)ctx.addIssue({code:z.ZodIssueCode.custom,message:'Delegated source does not match its government authority state',path:['state']});
+  if(source.url===ARIZONA_PIMA_GENERAL_URL&&source.state!=='AZ')ctx.addIssue({code:z.ZodIssueCode.custom,message:'Reviewed Pima general source must belong to Arizona',path:['state']});
 });
 const rowSchema = z.object({
   sourceId:z.string(),state:stateCode,office:z.enum(['H','S','G']),district:z.string().regex(/^\d{2}$/),date:day,
@@ -48,7 +55,7 @@ const rowSchema = z.object({
   partyBasis:z.enum(['preference','registration','filing_method','source_label']).optional(),
   partyValue:z.string().trim().max(100).optional(),
   partyLabels:z.array(z.string().trim().min(1).max(100)).min(1).optional(),
-  partyEvidence:z.object({url:officialSourceUrl,sha256:z.string().regex(/^[a-f0-9]{64}$/).nullable(),sourcePage:z.number().int().positive().optional(),title:z.string().min(1)}).strict().optional(),
+  partyEvidence:z.object({url:partyEvidenceUrl,sha256:z.string().regex(/^[a-f0-9]{64}$/).nullable(),sourcePage:z.number().int().positive().optional(),title:z.string().min(1)}).strict().optional(),
   identityEvidence:z.object({url:identityEvidenceUrl,sha256:z.string().regex(/^[a-f0-9]{64}$/).nullable(),sourcePage:z.number().int().positive().optional(),title:z.string().min(1)}).strict().optional(),
   sourcePage:z.number().int().positive().optional(),ticketText:z.string().optional(),raceTitle:z.string().optional(),ballotAccessType:access.optional(),
   aliases:z.array(z.string().min(1).max(200)).optional(),ballotName:z.string().min(1).max(200).optional(),
@@ -86,6 +93,12 @@ export function parseNomineeManifest(raw:unknown):NomineeManifest {
     const source=m.sources.find(s=>s.id===r.sourceId);
     if(!source || source.state!==r.state || source.electionDate!==r.date)throw new Error('candidate does not match its source state/date');
     if(r.identityEvidence?.url===MASSACHUSETTS_JAMES_IDENTITY_URL && (r.state!=='MA'||r.office!=='G'||r.name!=='Andrea Corinne James'))throw new Error('Reviewed OCPF name identity does not match this candidate and office');
+    for(const evidence of [r.partyEvidence,r.identityEvidence]){
+      if(evidence?.url!==ARIZONA_CCEC_PARTY_IDENTITY_URL)continue;
+      const reviewed:Record<string,{page:number,party:string,value?:string}>={'Katie Hobbs':{page:20,party:'DEM'},'Andy Biggs':{page:20,party:'REP'},'Risa Lombardo':{page:21,party:'GRN',value:'G'},'Teri Ann Hourihan':{page:21,party:'NOL'}};
+      const identity=reviewed[r.name];
+      if(r.state!=='AZ'||r.office!=='G'||r.district!=='00'||r.date!=='2026-11-03'||!identity||evidence.sha256!==ARIZONA_CCEC_SHA256||evidence.sourcePage!==identity.page||r.partyRaw!==identity.party||(r.partyValue!==undefined&&r.partyValue!==identity.value))throw new Error('Reviewed CCEC evidence does not match its exact candidate, office, party, page and document');
+    }
     if(r.office!=='H' && r.district!=='00')throw new Error('Statewide office must use district 00');
     if(r.partyBasis==='filing_method' && r.partyValue)throw new Error('A filing method cannot establish party affiliation');
     if(r.partyLabels && !r.partyLabels.includes(r.partyRaw))throw new Error('Primary raw party label must be one of the actual ballot lines');
