@@ -2,9 +2,12 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 const phase = process.argv[2];
 if (!['default','initial','recount'].includes(phase)) throw Error('Expected default, initial or recount');
+const receiptKey=process.argv[3]??phase;
+if(!/^[a-z0-9-]+$/.test(receiptKey))throw Error('Invalid receipt key');
 const app='et6-prod-109656-3a740d1d-app', db='et6-prod-109656-3a740d1d-db', network='et6-prod-109656-3a740d1d';
 const label='org.electiontracker.et6-receiving', runId='109656-3a740d1d';
-const image='sha256:5dd7b582980963dc1d7f246877c9b186a5777947c562563c7cfc7cad1c1ffd99';
+const image=process.env.ET6_RECEIVING_IMAGE??'sha256:5dd7b582980963dc1d7f246877c9b186a5777947c562563c7cfc7cad1c1ffd99';
+if(!/^sha256:[a-f0-9]{64}$/.test(image))throw Error('Immutable image ID required');
 const docker=(args,env=process.env)=>{try{return execFileSync('docker',args,{encoding:'utf8',env,timeout:180000,maxBuffer:8*1024*1024}).trim();}catch{throw Error('Docker operation failed: '+args[0]);}};
 const old=JSON.parse(docker(['inspect',app]))[0], database=JSON.parse(docker(['inspect',db]))[0];
 if(old.Config.Labels[label]!==runId||database.Config.Labels[label]!==runId||database.HostConfig.PortBindings?.['5432/tcp']?.length)throw Error('Ownership/isolation mismatch');
@@ -22,7 +25,7 @@ if(phase!=='default')Object.assign(env,{
 });
 const args=['run','-d','--name',app,'--label',`${label}=${runId}`,'--network',network,'-p','127.0.0.1:5094:5000'];
 for(const key of ['DATABASE_URL','JWT_SECRET','CANDIDATE_JWT_SECRET','ET6_FIXTURE_PASSWORD','APP_ORIGIN',...Object.keys(env).filter(k=>k.startsWith('OFFICIAL_RESULTS_'))])if(env[key])args.push('-e',key);
-docker(['stop',app]); docker(['rename',app,`${app}-before-${phase}`]);
+docker(['stop',app]); docker(['rename',app,`${app}-before-${receiptKey}`]);
 docker([...args,image],env);
 for(let i=0;i<40;i++){try{const r=await fetch('http://127.0.0.1:5094/api/health');if(r.status===200&&(await r.json()).ok)break;}catch{}if(i===39)throw Error('Health timeout');await new Promise(r=>setTimeout(r,1000));}
 const code=String.raw`
@@ -70,6 +73,6 @@ const dir='docs/evidence/et6/wa-production';mkdirSync(dir,{recursive:true});
 let output;
 try{output=execFileSync('docker',['exec',app,'node','--input-type=module','-e',code,phase],{encoding:'utf8',timeout:180000,maxBuffer:8*1024*1024});}
 catch(e){output=e.stdout||JSON.stringify({outcome:'Failed',error:'Receiving execution failed'});process.exitCode=1;}
-writeFileSync(`${dir}/${phase}.json`,output);
-writeFileSync(`${dir}/${phase}-runtime.json`,JSON.stringify({phase,image,app,db,port:5094,at:new Date().toISOString()},null,2));
+writeFileSync(`${dir}/${receiptKey}.json`,output);
+writeFileSync(`${dir}/${receiptKey}-runtime.json`,JSON.stringify({phase,image,app,db,port:5094,at:new Date().toISOString()},null,2));
 const summary=JSON.parse(output);console.log(JSON.stringify({phase,outcome:summary.outcome,error:summary.error,completedAt:summary.completedAt}));
