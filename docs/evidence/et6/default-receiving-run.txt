@@ -1,0 +1,12 @@
+file:///D:/projects/et-wt/astra-et6-final-production/scripts/receive-reviewed-private-replay.mjs:8
+const docker=(args,env=process.env)=>{try{return execFileSync('docker',args,{encoding:'utf8',env,timeout:180000,maxBuffer:8*1024*1024}).trim();}catch{throw Error('Docker operation failed: '+args[0]);}};
+                                                                                                                                                            ^
+
+Error: Docker operation failed: run
+    at docker (file:///D:/projects/et-wt/astra-et6-final-production/scripts/receive-reviewed-private-replay.mjs:8:157)
+    at file:///D:/projects/et-wt/astra-et6-final-production/scripts/receive-reviewed-private-replay.mjs:26:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:633:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.17.0
