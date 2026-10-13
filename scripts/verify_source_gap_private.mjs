@@ -8,8 +8,9 @@ import {createHash,randomUUID} from 'node:crypto';
 const database='et_sol_data_6c78a3148c6b';
 const artifact=resolve('artifacts/source-gap-private');
 const sha=v=>createHash('sha256').update(v).digest('hex');
-const body=readFileSync(join(artifact,'reviewed-supplement.json'));
-const manifestSha='0877a940f63bae7c9a9f459c8d38c673096a6365e40dbd0ebd82d4ce7aabbe75';
+const useAliases=process.argv.includes('--reviewed-aliases');
+const body=readFileSync(join(artifact,useAliases?'reviewed-supplement-aliases.json':'reviewed-supplement.json'));
+const manifestSha=useAliases?'39bf7e06f36c4f175a8eecc6ae60e767f040e8ba35486d7f45fb42a3a5dc0082':'0877a940f63bae7c9a9f459c8d38c673096a6365e40dbd0ebd82d4ce7aabbe75';
 if(sha(body)!==manifestSha)throw new Error('Supplement byte pin changed');
 const {parseNomineeManifest,runNomineeRefresh}=await import(pathToFileURL(join(artifact,'nominee-core.mjs')).href);
 const {guard,snapshot,sourceHash,createPrivateDirectory,savePrivateSnapshot,rollbackSourceRows}=await import(pathToFileURL(join(artifact,'rollback-core.mjs')).href);
@@ -60,6 +61,6 @@ try{
  }catch(e){result.failureRollbackError={code:e.code??null,message:e.message};}}
  process.exitCode=1;
 }finally{
- result.finishedAt=new Date().toISOString();writeFileSync(join(artifact,process.argv.includes('--apply')?'private-apply-receipt.json':'read-only-plan.json'),JSON.stringify(result,null,2)+'\n');
+ result.finishedAt=new Date().toISOString();writeFileSync(join(artifact,(useAliases?'alias-':'')+(process.argv.includes('--apply')?'private-apply-receipt.json':'read-only-plan.json')),JSON.stringify(result,null,2)+'\n');
  console.log(JSON.stringify({outcome:result.outcome,beforeHash:result.beforeHash,actions:result.plan?.actions,newProfiles:result.plan?.rows.filter(r=>r.candidateId===null).length,unresolved:result.plan?.unresolved,applied:result.apply?{inserts:result.apply.candidateInserts,sourceChanges:result.apply.sourceChanges}:null,repeat:result.repeat?{inserts:result.repeat.candidateInserts,sourceChanges:result.repeat.sourceChanges}:null,rollbackExact:result.rollbackExact??false,failure:result.failure??null}));await pool.end();
 }
