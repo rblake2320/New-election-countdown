@@ -1,0 +1,38 @@
+{
+  "outcome": "Worked",
+  "currentSourceSha256": "70eacf4f2b7ad279a94f6735e1e93015bdf3f9fc1b1655f09027f1d0c3a294df",
+  "currentApiSha256": "bf8c28528ec31ec5a3726d3f4f6ea02a638b8214a309dcf023630d7273547d01",
+  "scopeCounts": [
+    {
+      "office": "S",
+      "district": "00",
+      "ballotAccessType": "printed",
+      "expectedCount": 4
+    },
+    {
+      "office": "H",
+      "district": "03",
+      "ballotAccessType": "printed",
+      "expectedCount": 2
+    },
+    {
+      "office": "G",
+      "district": "00",
+      "ballotAccessType": "printed",
+      "expectedCount": 3
+    }
+  ],
+  "rawBlocks": {
+    "S00": "Rebecca Whiting\nLibertarian\nPeggy Flanagan\nDemocratic-Farmer-Labor\nMichele Tafoya\nRepublican\nMarisa Simonetti\nIndependent\n",
+    "H03": "Kelly Morrison\nDemocratic-Farmer-Labor\nTyler Bass\nRepublican\n",
+    "G00": "Steven Young and\nJane Kirby\nGreen\nAmy Klobuchar and\nBen Schierer\nDemocratic-Farmer-Labor\nLisa Demuth and\nRyan Wilson\nRepublican\n"
+  },
+  "namedFactComparisons": 9,
+  "namedFactMismatches": 0,
+  "literalPartyCaseChangesOnly": true,
+  "oldSourceUnmodified": true,
+  "oldNullSourceShaNotRewritten": true,
+  "receivingPlan": "Separate nine-row proposal. Root must explicitly resolve overlapping scopes/source refresh; never blindly append old+new to strict combined manifest.",
+  "governorProjection": "Source explicitly labels Governor and Lieutenant Governor, in that order. First printed person is name; complete publisher ticket retained in ticketText. Exact current team strings match prior manifest.",
+  "independentConservation": "PyMuPDF roles and ordered PDF text; pypdf exact non-whitespace character conservation; original separately fetched SOS JSON named set and count agreement"
+}

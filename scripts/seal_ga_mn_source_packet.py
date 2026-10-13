@@ -1,7 +1,7 @@
 import pathlib,json,hashlib,re,subprocess,datetime
 repo=pathlib.Path(__file__).resolve().parents[1];root=repo/'artifacts/ga-mn-general'
 gaps=json.loads(pathlib.Path('D:/projects/et-wt/astra-et6-composed/docs/evidence/et6/source-copy-506/official-list-not-recorded-races.json').read_bytes());wanted=[g for g in gaps if g['state'] in ['GA','MN']]
-drafts=[json.loads((root/'drafts'/(s+'-2026-general-incremental.json')).read_bytes()) for s in ['ga','mn']]
+drafts=[json.loads((root/'drafts'/s).read_bytes()) for s in ['ga-2026-general-incremental.json','mn-2026-general-incremental.json','mn-2026-general-current-sgh03.json']]
 sources={s['id']:s for d in drafts for s in d['sources']};coverage=[]
 for g in wanted:
  district=re.search(r'-(\d\d)$',g['title']).group(1)
@@ -16,8 +16,13 @@ for d in drafts:
  for s in d['sources']:
   matching=[p for p in (root/'raw').iterdir() if hashlib.sha256(p.read_bytes()).hexdigest()==s['sha256']];assert matching,(s['id'],'actual raw source unavailable')
   assert s['publishedAt'] is None
- for r in d['candidates']:assert r['incumbent'] is None and not set(r)-{'sourceId','state','office','district','date','name','partyRaw','incumbent','sourcePage','ballotAccessType'}
+ for r in d['candidates']:assert r['incumbent'] is None and not set(r)-{'sourceId','state','office','district','date','name','partyRaw','incumbent','sourcePage','ballotAccessType','ticketText'}
 proof=dict(outcome='Worked',originalMissingGaMnRaces=17,sourceCoveredOriginalGaps=17,coverage=coverage,sourceCount=len(sources),draftRowCount=sum(len(d['candidates']) for d in drafts),independentScopeRowConservation=True,actualRawShaBinding=True,noContactFields=True,noInferredIncumbency=True,noDBWrites=True,certificationNotClaimed=True)
+proof['printedCoverage']={state:sorted({r['office']+r['district'] for d in drafts for r in d['candidates'] if r['state']==state}) for state in ['GA','MN']}
+assert proof['printedCoverage']['GA']==['G00']+['H'+str(i).zfill(2) for i in range(1,15)]+['S00']
+assert proof['printedCoverage']['MN']==['G00']+['H'+str(i).zfill(2) for i in range(1,9)]+['S00']
+proof['allPrintedFederalGovernorScoped']=True
+proof['overlappingHistoricalMnSourceRequiresRootReview']=True
 (root/'receipts/source-scope-review.json').write_bytes((json.dumps(proof,indent=2)+'\n').encode())
 files=[]
 for p in sorted(root.rglob('*')):

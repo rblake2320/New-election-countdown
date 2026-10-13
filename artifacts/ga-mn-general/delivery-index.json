@@ -1,8 +1,8 @@
 {
   "version": 1,
   "branch": "lane-c/ga-mn-general-source-increment",
-  "sourceCheckpoint": "9a233bee7e475f52139aa8deacc5e42b775b63a2",
-  "sealedAt": "2026-10-13T19:33:44.703872+00:00",
+  "sourceCheckpoint": "30d9d02d16e4d8af3ae75ee0e2b001dab2d572f9",
+  "sealedAt": "2026-10-13T19:38:35.446701+00:00",
   "outcome": "Worked",
   "scope": {
     "outcome": "Worked",
@@ -231,14 +231,48 @@
         ]
       }
     ],
-    "sourceCount": 14,
-    "draftRowCount": 41,
+    "sourceCount": 18,
+    "draftRowCount": 56,
     "independentScopeRowConservation": true,
     "actualRawShaBinding": true,
     "noContactFields": true,
     "noInferredIncumbency": true,
     "noDBWrites": true,
-    "certificationNotClaimed": true
+    "certificationNotClaimed": true,
+    "printedCoverage": {
+      "GA": [
+        "G00",
+        "H01",
+        "H02",
+        "H03",
+        "H04",
+        "H05",
+        "H06",
+        "H07",
+        "H08",
+        "H09",
+        "H10",
+        "H11",
+        "H12",
+        "H13",
+        "H14",
+        "S00"
+      ],
+      "MN": [
+        "G00",
+        "H01",
+        "H02",
+        "H03",
+        "H04",
+        "H05",
+        "H06",
+        "H07",
+        "H08",
+        "S00"
+      ]
+    },
+    "allPrintedFederalGovernorScoped": true,
+    "overlappingHistoricalMnSourceRequiresRootReview": true
   },
   "files": [
     {
@@ -248,8 +282,13 @@
     },
     {
       "path": "artifacts/ga-mn-general/drafts/ga-2026-general-incremental.json",
-      "bytes": 14312,
-      "sha256": "7bb7b7508d556998eeb42d1bb396fec771b5a6a91c7edf907d7c5de6cce0b3b4"
+      "bytes": 18383,
+      "sha256": "d01af1b3246ba080ad38ea41b60ee626e32d0b1f2c76cc00258627e090d855a0"
+    },
+    {
+      "path": "artifacts/ga-mn-general/drafts/mn-2026-general-current-sgh03.json",
+      "bytes": 4205,
+      "sha256": "4f7e9b90ff85716c167d1be2b878506ca72a51126af4401f7bc18e5e78660bfa"
     },
     {
       "path": "artifacts/ga-mn-general/drafts/mn-2026-general-incremental.json",
@@ -397,6 +436,16 @@
       "sha256": "7d4ca2784d23eaf23886adabc3bed35bad695453344af9491e7956ea5bd6c27b"
     },
     {
+      "path": "artifacts/ga-mn-general/raw/ga-gordon-ballot.pdf",
+      "bytes": 46401,
+      "sha256": "d1b1097d606994561df5eb63890c9a73761cf94d8bad56a72496529a67698d24"
+    },
+    {
+      "path": "artifacts/ga-mn-general/raw/ga-gordon.html",
+      "bytes": 101615,
+      "sha256": "6b32d528813db9b8a00dfae6631c4fbaec975a35e701c92f4ccb0e6b2b55dd52"
+    },
+    {
       "path": "artifacts/ga-mn-general/raw/ga-houston-ballot.pdf",
       "bytes": 700596,
       "sha256": "53e33d988b92d0e5b72a09f7a5d22ea2aeb5e871249094d2b9cadbd419092143"
@@ -415,6 +464,26 @@
       "path": "artifacts/ga-mn-general/raw/ga-meriwether.html",
       "bytes": 123284,
       "sha256": "55ff5902c1e63510352d60801f42944c362fca6cf1ada14eea5ca7ae8df78e45"
+    },
+    {
+      "path": "artifacts/ga-mn-general/raw/ga-morgan-ballot.pdf",
+      "bytes": 612277,
+      "sha256": "79bd0b7084541245ac91b5bd56f54af89233bcdbe4f5185398befa7f422c6497"
+    },
+    {
+      "path": "artifacts/ga-mn-general/raw/ga-morgan.html",
+      "bytes": 91935,
+      "sha256": "edcfccf5f3b62677e84cec7bf5b0a18b43fca77bdd38d3666205d52a4e3b9b54"
+    },
+    {
+      "path": "artifacts/ga-mn-general/raw/ga-walker-ballot-correct.pdf",
+      "bytes": 230730,
+      "sha256": "125ac8117b00eacc003bf02ab48e582cd4af805e062b441d623d999f51644481"
+    },
+    {
+      "path": "artifacts/ga-mn-general/raw/ga-walker.html",
+      "bytes": 168464,
+      "sha256": "ad771a423810662cddbefda0731d65b53f086400c9483936f366f2db3535034e"
     },
     {
       "path": "artifacts/ga-mn-general/raw/ga-white-ballot.pdf",
@@ -515,6 +584,16 @@
       "path": "artifacts/ga-mn-general/raw/mn-grant.html",
       "bytes": 114966,
       "sha256": "5f8275a20b95c88d206e2bcf902b787e7e0635ab0f0c50386acae0df82a5ec28"
+    },
+    {
+      "path": "artifacts/ga-mn-general/raw/mn-h03-pdf.pdf",
+      "bytes": 88802,
+      "sha256": "70eacf4f2b7ad279a94f6735e1e93015bdf3f9fc1b1655f09027f1d0c3a294df"
+    },
+    {
+      "path": "artifacts/ga-mn-general/raw/mn-h03-retry.json",
+      "bytes": 28917,
+      "sha256": "bf8c28528ec31ec5a3726d3f4f6ea02a638b8214a309dcf023630d7273547d01"
     },
     {
       "path": "artifacts/ga-mn-general/raw/mn-h03.html",
@@ -682,6 +761,11 @@
       "sha256": "0f2b8f9265fb658b034b6ec6314efdbd33c4782417fe15ba34bf80e8d80d5f6b"
     },
     {
+      "path": "artifacts/ga-mn-general/receipts/fifth-extraction-proof.json",
+      "bytes": 4049,
+      "sha256": "3dc26038cfe6cf1206229a3eaf080a3cbd0ae1e3f8525f0631a075aff45b063d"
+    },
+    {
       "path": "artifacts/ga-mn-general/receipts/first-extraction-proof.json",
       "bytes": 3487,
       "sha256": "eaea24400b3c80382c1ef4219253ef6e7bffed161c3d25f4f82436582b1ec7a1"
@@ -777,6 +861,16 @@
       "sha256": "1aa64a229ef7e467baf4d97c72e2b470661e7355e5df99cf87e75799a2c599fb"
     },
     {
+      "path": "artifacts/ga-mn-general/receipts/ga-gordon-ballot.json",
+      "bytes": 536,
+      "sha256": "acfeccb7c7f41b03419e443a16613d09914d4f383198fd353beaf21adcfa48db"
+    },
+    {
+      "path": "artifacts/ga-mn-general/receipts/ga-gordon.json",
+      "bytes": 484,
+      "sha256": "dd3ba42cf34445c207dd29d3360c44480641a28e6de071ec088227d491df0e16"
+    },
+    {
       "path": "artifacts/ga-mn-general/receipts/ga-houston-ballot.json",
       "bytes": 549,
       "sha256": "0be3c7106e2f884fa59904ba43325859c533f1a7a4e82796af75810740486043"
@@ -797,6 +891,16 @@
       "sha256": "9e0827be95f9dfb66e28dadce8895710fe160aff4cb65569ae7e18e098b9067e"
     },
     {
+      "path": "artifacts/ga-mn-general/receipts/ga-morgan-ballot.json",
+      "bytes": 476,
+      "sha256": "a680fa6e9d5aa63a7875bbbb79de73deed506e48302a9f96820744fc6a270693"
+    },
+    {
+      "path": "artifacts/ga-mn-general/receipts/ga-morgan.json",
+      "bytes": 453,
+      "sha256": "288b23c53f12256d33dd3670fa96288639836e378f74e3132d150e9de0b3ea4a"
+    },
+    {
       "path": "artifacts/ga-mn-general/receipts/ga-mvp-qualified.json",
       "bytes": 239,
       "sha256": "1209b7b7dcec59e0dcccd3755f334defbd2339d9acf9f3035118d408e21fee62"
@@ -810,6 +914,21 @@
       "path": "artifacts/ga-mn-general/receipts/ga-qualified.json",
       "bytes": 198,
       "sha256": "67b33d8e2185e88b40019c69cabd3e988b97e85f1804289c02a175c59f33001d"
+    },
+    {
+      "path": "artifacts/ga-mn-general/receipts/ga-walker-ballot-correct.json",
+      "bytes": 541,
+      "sha256": "e739929870f64bcd8193fd3e444ea67c905be8dc8d7a134a44cea1ee80526e0c"
+    },
+    {
+      "path": "artifacts/ga-mn-general/receipts/ga-walker-ballot.json",
+      "bytes": 260,
+      "sha256": "8dd4301dee476c1f4cf96fb6af6bf4492dcda9eb28cd3ea7595ba9734fb18e3c"
+    },
+    {
+      "path": "artifacts/ga-mn-general/receipts/ga-walker.json",
+      "bytes": 492,
+      "sha256": "3814aefcfeb7c584e22c6034f0daeb3e56ce76ebd2a868c746b66b4d2e417ebf"
     },
     {
       "path": "artifacts/ga-mn-general/receipts/ga-white-ballot.json",
@@ -872,6 +991,11 @@
       "sha256": "b1f63ff10bd2142b78e20d0a3d2c319f200525157daa72fa66a144e0fbb6a8b2"
     },
     {
+      "path": "artifacts/ga-mn-general/receipts/mn-current-sgh03-comparison.json",
+      "bytes": 1745,
+      "sha256": "ab8ddd3316cfda9c81fcadb41a5253df125f0dfeaf9575efe34188f2de3a4f4d"
+    },
+    {
       "path": "artifacts/ga-mn-general/receipts/mn-douglas.json",
       "bytes": 466,
       "sha256": "9ecdfbe8d9dd05ee03c29c805e2ca48318c039e593bde492d7f7df7a6f6be3ab"
@@ -920,6 +1044,21 @@
       "path": "artifacts/ga-mn-general/receipts/mn-h03-api.json",
       "bytes": 487,
       "sha256": "8bc389721147ecbe50224cc21017af311bc65730dca844985e5367abe31b385a"
+    },
+    {
+      "path": "artifacts/ga-mn-general/receipts/mn-h03-live.json",
+      "bytes": 512,
+      "sha256": "44d1d621dead70697381a3fde78b113cbcb1a54410d1425199dbe7b7b6f5564d"
+    },
+    {
+      "path": "artifacts/ga-mn-general/receipts/mn-h03-pdf.json",
+      "bytes": 608,
+      "sha256": "46a6c30192e86ec6fc7a036744cf40d5d99a9541cb3de97fd54352bf9f39bddb"
+    },
+    {
+      "path": "artifacts/ga-mn-general/receipts/mn-h03-retry.json",
+      "bytes": 622,
+      "sha256": "ef557a5b3e9925958dd75f7746678a491a382c4b46cd9f576ff507fe3515b2a9"
     },
     {
       "path": "artifacts/ga-mn-general/receipts/mn-h03.json",
@@ -1083,8 +1222,13 @@
     },
     {
       "path": "artifacts/ga-mn-general/receipts/source-scope-review.json",
-      "bytes": 5767,
-      "sha256": "db94b4e565e126c445c503088f23a3750415398a31190aa6431fe9684e7198e0"
+      "bytes": 6270,
+      "sha256": "198124ff0d9891538f83ef9e9b05f6e52ff7a99fb0ec79267d9eac57c0b30808"
+    },
+    {
+      "path": "artifacts/ga-mn-general/receipts/strict-expanded-ga-mn-controls.jsonl",
+      "bytes": 3715,
+      "sha256": "cab456ce5a65a49cc3a5824d683a083970c8bdbf7fd745e72184a2d100cd7672"
     },
     {
       "path": "artifacts/ga-mn-general/receipts/strict-manifest-negative-controls.jsonl",
@@ -1108,8 +1252,8 @@
     },
     {
       "path": "artifacts/ga-mn-general/REVIEW.md",
-      "bytes": 3120,
-      "sha256": "385ce39e345ba043e252adf4fb0160938f74eadbe4741adf701780aae7acb35c"
+      "bytes": 4602,
+      "sha256": "f91e531916d191891f0fa3d86aede5de4b776f9d67f37bf4231d240cdc26b3b1"
     },
     {
       "path": "artifacts/ga-mn-general/text/ga-dekalb-ballot.txt",
@@ -1133,8 +1277,13 @@
     },
     {
       "path": "artifacts/ga-mn-general/verify-increment.mjs",
-      "bytes": 135148,
-      "sha256": "8eee0e38c32af9e5b030471cf6ea4e2611275810ef8a7c2e9518fc56b6eb7c4e"
+      "bytes": 135261,
+      "sha256": "61ae2c19f695bec787774afdbc15fd708431f192000944ef5337d3f3321e78ce"
+    },
+    {
+      "path": "scripts/extract_fifth_general_ballots.py",
+      "bytes": 2682,
+      "sha256": "e1b67fed212ddfc6d29b1a861a08d2367cc6e9c5f2d6063d32a11a8058c70d43"
     },
     {
       "path": "scripts/extract_first_general_ballots.py",
