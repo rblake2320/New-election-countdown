@@ -2,7 +2,7 @@
 
 Worked: all 17 GA/MN races in D's retained 33-race `not_recorded` list now have directly fetched official November 3, 2026 general ballot evidence. Two draft manifests contain 41 named printed rows across 14 sources: GA26, MN15. GA adds the ten missing House scopes plus S/G/H13 printed scopes; MN adds its seven missing House scopes. Root owns combining manifests, conflict review and actual DB application.
 
-Every source SHA binds original fetched PDF bytes. `source-scope-review.json` independently conserves all 17 receiving IDs and each complete printed scope. `strict-manifest-validation.jsonl` records the actual current `parseNomineeManifest` validation. `first` through `fourth-extraction-proof.json` retain role, name, party and date checks.
+Every source SHA binds original fetched PDF bytes. `source-scope-review.json` independently conserves all 17 receiving IDs and each complete printed scope. `strict-manifest-validation.jsonl` records the actual current `parseNomineeManifest` validation. Eight actual importer negative controls refused wrong row counts, mismatched state/date and incorrect complete-scope counts. `first` through `fourth-extraction-proof.json` retain role, name, party and date checks.
 
 Fayette GA03 requires OCR because its PDF has no text layer. CPU Tesseract output, per-word confidence, original rendered PNG hashes and page mapping are retained. The candidate names/parties and district were independently read from the Fayette AND Carroll page images. Carroll OCR's `Democat` was rejected; the actual page prints `Democrat`. Generic write-in slots are excluded. Source `(I)` markers are not guessed into incumbency: every row keeps `incumbent:null`.
 
