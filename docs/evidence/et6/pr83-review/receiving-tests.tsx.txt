@@ -1,0 +1,128 @@
+/**
+ * C's mixed-batch amendment (a28d490, nonce C-batch-errors-B13): one race's failed source read used to turn the
+ * whole date batch into 503 and hide the healthy races. The batch now carries `errors[]` beside `results[]`
+ * (one outcome per election). Happening Now must show each healthy race's snapshot AND a per-race, honest
+ * "could not be read" state for the failed one, never "no results" and never an error for the whole date.
+ * Bodies are contract examples validated with C's own schema; the real route is D's receiving.
+ */
+import { describe, it, expect, beforeAll, afterAll, afterEach, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { render, screen, within } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { setupServer } from 'msw/node';
+import HappeningNow from '../client/src/pages/happening-now';
+import { queryClient as appQueryClient } from '../client/src/lib/queryClient';
+import { batchOutcomeFor } from '../client/src/lib/live-results';
+import { liveElectionResultsSchema, liveResultsBatchSchema, noLiveElectionResults } from '../shared/live-election-results';
+
+globalThis.ResizeObserver ??= class { observe() {} unobserve() {} disconnect() {} } as any;
+
+const alaska = JSON.parse(readFileSync(resolve(process.cwd(), 'tests/fixtures/results-current/elections.body.json'), 'utf8')).filter((e: { state: string }) => e.state === 'AK');
+const SHA = 'a'.repeat(64);
+const context = { state: 'AK', electionDate: '2026-11-03', type: 'general', level: 'federal', office: 'U.S. Senate' };
+const unofficial = () => liveElectionResultsSchema.parse({
+  ...noLiveElectionResults(2), reportId: 118, revision: 'r118-abcdef12', status: 'unofficial', electionContext: context,
+  reporting: { percent: null, basis: 'source_unspecified', precinctsReporting: null, precinctsTotal: null },
+  source: { id: 'ak-doe-enr', kind: 'official_state_enr', name: 'Alaska Division of Elections', url: 'https://www.elections.alaska.gov/results/26GENR/', sourceContestId: 'US-SEN' },
+  sourcePayloadSha256: SHA, asOf: null, asOfBasis: 'not_provided', retrievedAt: '2026-11-04T05:13:10Z', totalVotes: 119140,
+  candidates: [
+    { candidateId: 2, sourceCandidateId: 'peltola', name: 'Mary Peltola', party: 'D', votes: 58140, percent: 48.8, isWinner: false },
+    { candidateId: 1, sourceCandidateId: 'sullivan', name: 'Dan Sullivan', party: 'R', votes: 61000, percent: 51.2, isWinner: false },
+  ],
+});
+const failure = (electionId: number, over: Record<string, unknown> = {}) => ({
+  electionId, code: 'source_unavailable', message: 'The state results page did not answer.', sourceId: 'ak-doe-enr',
+  failedSince: '2026-11-04T04:50:00Z', electionContext: { ...context, office: 'Governor' }, ...over,
+});
+const mixed = (over: Record<string, unknown> = {}) => liveResultsBatchSchema.parse({
+  schemaVersion: 1, date: '2026-11-03', results: [unofficial(), noLiveElectionResults(506)], errors: [failure(37)], cursor: 'c1', reset: true, ...over,
+});
+
+const server = setupServer(
+  http.get('/api/elections', () => HttpResponse.json(alaska)),
+  http.get('/api/results', () => HttpResponse.json(mixed())),
+);
+beforeAll(() => { server.listen({ onUnhandledRequest: 'bypass' }); vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date('2026-11-04T05:20:00Z')); });
+afterEach(() => server.resetHandlers());
+afterAll(() => { server.close(); vi.useRealTimers(); });
+const renderPage = () => render(<QueryClientProvider client={new QueryClient({ defaultOptions: appQueryClient.getDefaultOptions() })}><HappeningNow /></QueryClientProvider>);
+
+describe('mixed batch: healthy races stay visible, the failed race says so', () => {
+  it('shows the healthy snapshot, the none race, and a per-race source failure; no date-wide error', async () => {
+    renderPage();
+    const healthy = await screen.findByTestId('card-election-2');
+    expect(await within(healthy).findByText('Mary Peltola')).toBeInTheDocument();
+    expect(within(healthy).queryByRole('alert')).toBeNull();
+    expect(within(screen.getByTestId('card-election-506')).getByText(/No results reported yet/)).toBeInTheDocument();
+    const failed = screen.getByTestId('card-election-37');
+    const alert = within(failed).getByTestId('result-error-37');
+    expect(alert).toHaveTextContent('The official source for this race could not be read since');
+    expect(alert).toHaveTextContent('The state results page did not answer.');
+    expect(alert).toHaveTextContent('This does not mean no results were reported.');
+    expect(within(failed).queryByText(/No results reported yet|not in the results feed/)).toBeNull();
+    // Only the failed race carries the alert: nothing at date level.
+    expect(screen.getAllByRole('alert')).toHaveLength(1);
+  });
+
+  it('a failure whose sourceId is null (nullable in the contract) is still stated', async () => {
+    server.use(http.get('/api/results', () => HttpResponse.json(mixed({ errors: [failure(37, { sourceId: null })] }))));
+    renderPage();
+    expect(await screen.findByTestId('result-error-37')).toHaveTextContent('could not be read');
+  });
+
+  it('a batch where every race failed shows one failure per race and no results', async () => {
+    server.use(http.get('/api/results', () => HttpResponse.json(mixed({ results: [], errors: [failure(2), failure(37), failure(506)] }))));
+    renderPage();
+    expect(await screen.findByTestId('result-error-2')).toBeInTheDocument();
+    expect(screen.getByTestId('result-error-37')).toBeInTheDocument();
+    expect(screen.getByTestId('result-error-506')).toBeInTheDocument();
+    expect(screen.queryByText('Mary Peltola')).toBeNull();
+  });
+
+  it('a body listing one election as both a result and an error fails the contract and shows nothing as results', async () => {
+    const bad = { schemaVersion: 1, date: '2026-11-03', results: [unofficial()], errors: [failure(2)], cursor: 'c1', reset: true };
+    server.use(http.get('/api/results', () => HttpResponse.json(bad)));
+    renderPage();
+    expect(await screen.findByText(/failed validation/)).toBeInTheDocument();
+    expect(screen.queryByText('Mary Peltola')).toBeNull();
+  });
+});
+
+describe('batchOutcomeFor', () => {
+  it('looks up result, error and absent per election id', () => {
+    const b = mixed();
+    expect(batchOutcomeFor(b, 2).kind).toBe('result');
+    expect(batchOutcomeFor(b, 37).kind).toBe('error');
+    expect(batchOutcomeFor(b, 999).kind).toBe('absent');
+    expect(batchOutcomeFor(undefined, 2).kind).toBe('absent');
+  });
+});
+
+
+import { renderHook, act, waitFor } from '@testing-library/react';
+import { useLiveResultsBatch } from '../client/src/lib/live-results';
+describe('yellow batch schema and cache receiving',()=>{
+ it('rejects duplicate failure IDs, foreign date, and mixed outcome overflow',()=>{
+  expect(liveResultsBatchSchema.safeParse({...mixed(),errors:[failure(37),failure(37)]}).success).toBe(false);
+  expect(liveResultsBatchSchema.safeParse({...mixed(),errors:[failure(37,{electionContext:{...context,electionDate:'2024-08-06'}})]}).success).toBe(false);
+  expect(liveResultsBatchSchema.safeParse({...mixed(),results:Array.from({length:2000},(_,i)=>noLiveElectionResults(i+1000)),errors:[failure(37)]}).success).toBe(false);
+ });
+ it('preserves mixed outcomes on304 and replaces errors on new reset snapshots',async()=>{
+  let step=0;let seenConditional:string|null=null;
+  server.use(http.get('/api/results',({request})=>{
+   seenConditional=request.headers.get('if-none-match');step++;
+   if(step===2)return new HttpResponse(null,{status:304});
+   if(step===3)return HttpResponse.json(mixed({results:[unofficial(),noLiveElectionResults(37)],errors:[],cursor:'recovery'}),{headers:{ETag:'"recovered"'}});
+   if(step===4)return HttpResponse.json(mixed({results:[],errors:[],cursor:'empty'}),{headers:{ETag:'"empty"'}});
+   return HttpResponse.json(mixed(),{headers:{ETag:'"mixed"'}});
+  }));
+  const qc=new QueryClient({defaultOptions:{queries:{retry:false}}});const wrapper=({children}:any)=><QueryClientProvider client={qc}>{children}</QueryClientProvider>;
+  const hook=renderHook(()=>useLiveResultsBatch('2026-11-03',false),{wrapper});await waitFor(()=>expect(hook.result.current.isSuccess).toBe(true));
+  expect(batchOutcomeFor(hook.result.current.data?.data,37).kind).toBe('error');expect(batchOutcomeFor(hook.result.current.data?.data,2).kind).toBe('result');
+  await act(async()=>{await hook.result.current.refetch()});expect(seenConditional).toBe('"mixed"');expect(batchOutcomeFor(hook.result.current.data?.data,37).kind).toBe('error');
+  await act(async()=>{await hook.result.current.refetch()});await waitFor(()=>expect(batchOutcomeFor(hook.result.current.data?.data,37).kind).toBe('result'));expect(hook.result.current.data?.data.errors).toEqual([]);
+  await act(async()=>{await hook.result.current.refetch()});await waitFor(()=>expect(batchOutcomeFor(hook.result.current.data?.data,2).kind).toBe('absent'));expect(batchOutcomeFor(hook.result.current.data?.data,37).kind).toBe('absent');qc.clear();
+ });
+});
