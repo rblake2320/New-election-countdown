@@ -1,0 +1,81 @@
+{
+  "outcome": "Failed",
+  "scope": "D owned private historical source receiving",
+  "startedAt": "2026-10-13T21:56:43.059Z",
+  "races": [
+    {
+      "target": {
+        "id": 4242404,
+        "title": "North Carolina U.S. Senate Democratic Primary",
+        "state": "NC",
+        "date": "2026-03-03",
+        "type": "primary",
+        "level": "federal"
+      },
+      "fixtureInserted": 1,
+      "before": {
+        "status": 200,
+        "etag": "W/\"results-ids-a23934defc28-7d0128834bf6b0c6cebcc755\"",
+        "body": {
+          "schemaVersion": 1,
+          "date": null,
+          "cursor": "7d0128834bf6b0c6cebcc755",
+          "reset": true,
+          "results": [
+            {
+              "schemaVersion": 1,
+              "electionId": 4242404,
+              "reportId": null,
+              "revision": null,
+              "status": "none",
+              "reporting": null,
+              "source": null,
+              "sourcePayloadSha256": null,
+              "asOf": null,
+              "asOfBasis": null,
+              "retrievedAt": null,
+              "totalVotes": null,
+              "candidates": [],
+              "winnerCalledBy": null,
+              "certification": null,
+              "supersedesReportId": null,
+              "stale": false,
+              "staleSince": null,
+              "electionContext": null,
+              "history": []
+            }
+          ]
+        }
+      },
+      "evidence": {
+        "status": 201,
+        "etag": "W/\"73-n/eHndiuKRQk0RanBMV4pD9hYJE\"",
+        "body": {
+          "sha256": "a1adde2cbace4018e482d7fdc12297dac32595e7e2a175e0f6fcf87c05e3154c",
+          "size": 82579,
+          "contentType": "text/csv"
+        }
+      },
+      "sourceIdMapping": {
+        "packet": "admin_manual:NC",
+        "api": "admin_manual:NC"
+      },
+      "post": {
+        "status": 422,
+        "etag": "W/\"a6-QUD1ETftd2kEA5vsg7pNquVGrqU\"",
+        "body": {
+          "error": "admin_manual URL host er.ncsbe.gov is not one of the registered official hosts for NC",
+          "code": "unknown_source",
+          "details": {
+            "allowedHosts": [
+              "www.ncsbe.gov"
+            ]
+          }
+        }
+      },
+      "postedAt": "2026-10-13T21:56:43.275Z"
+    }
+  ],
+  "error": "Report post failed {\"status\":422,\"etag\":\"W/\\\"a6-QUD1ETftd2kEA5vsg7pNquVGrqU\\\"\",\"body\":{\"error\":\"admin_manual URL host er.ncsbe.gov is not one of the registered official hosts for NC\",\"code\":\"unknown_source\",\"details\":{\"allowedHosts\":[\"www.ncsbe.gov\"]}}}",
+  "completedAt": "2026-10-13T21:56:43.275Z"
+}
