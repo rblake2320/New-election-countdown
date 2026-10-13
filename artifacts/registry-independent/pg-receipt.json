@@ -1,0 +1,141 @@
+{
+  "outcome": "Worked",
+  "cases": [
+    {
+      "name": "id",
+      "refusal": {
+        "status": 422,
+        "code": "source_mismatch"
+      },
+      "unchanged": true,
+      "worked": true
+    },
+    {
+      "name": "state",
+      "refusal": {
+        "status": 422,
+        "code": "unknown_source"
+      },
+      "unchanged": true,
+      "worked": true
+    },
+    {
+      "name": "date",
+      "refusal": {
+        "status": 422,
+        "code": "source_mismatch"
+      },
+      "unchanged": true,
+      "worked": true
+    },
+    {
+      "name": "phase",
+      "refusal": {
+        "status": 422,
+        "code": "source_mismatch"
+      },
+      "unchanged": true,
+      "worked": true
+    },
+    {
+      "name": "valid-control",
+      "created": true,
+      "worked": true
+    }
+  ],
+  "rollback": true,
+  "before": {
+    "elections": {
+      "count": 537,
+      "sha256": "87b73e764877b0cac83c7c1d217931358941a8a765f09c9c7b4c231544e6aa95"
+    },
+    "candidates": {
+      "count": 3444,
+      "sha256": "fe1114a99dcb618232423ed0688287b84e70e0b859a759a193b0bc7447d6a96e"
+    },
+    "candidate_source_records": {
+      "count": 3856,
+      "sha256": "1601384998f86b291bf5802793856e0255bd7f6da9ead7f1149f6164868661c3"
+    },
+    "general_candidate_list_snapshots": {
+      "count": 500,
+      "sha256": "3aef0013c5f615af5a39c34f68c43490a75ea0c69bd6a8980901c4cb8eaca927"
+    },
+    "candidate_ingest_runs": {
+      "count": 2,
+      "sha256": "6125cadafaf84178fb2f76709b1e7ef931924eee4100f90a491b5224db9cf910"
+    },
+    "election_catalog_correction_runs": {
+      "count": 1,
+      "sha256": "c64b454179d0c8f0df975775cda78a0d63e3c39fc867096b5ee3577ceacb03bd"
+    },
+    "official_results_sync_runs": {
+      "count": 1,
+      "sha256": "4cc388bd4e01dfe2c20e3d9faa3831ee9589d9f8df4889cdd7c0d483b6c2c0f9"
+    },
+    "election_result_reports": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "candidate_result_lines": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "result_evidence_blobs": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "election_results": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "after": {
+    "elections": {
+      "count": 537,
+      "sha256": "87b73e764877b0cac83c7c1d217931358941a8a765f09c9c7b4c231544e6aa95"
+    },
+    "candidates": {
+      "count": 3444,
+      "sha256": "fe1114a99dcb618232423ed0688287b84e70e0b859a759a193b0bc7447d6a96e"
+    },
+    "candidate_source_records": {
+      "count": 3856,
+      "sha256": "1601384998f86b291bf5802793856e0255bd7f6da9ead7f1149f6164868661c3"
+    },
+    "general_candidate_list_snapshots": {
+      "count": 500,
+      "sha256": "3aef0013c5f615af5a39c34f68c43490a75ea0c69bd6a8980901c4cb8eaca927"
+    },
+    "candidate_ingest_runs": {
+      "count": 2,
+      "sha256": "6125cadafaf84178fb2f76709b1e7ef931924eee4100f90a491b5224db9cf910"
+    },
+    "election_catalog_correction_runs": {
+      "count": 1,
+      "sha256": "c64b454179d0c8f0df975775cda78a0d63e3c39fc867096b5ee3577ceacb03bd"
+    },
+    "official_results_sync_runs": {
+      "count": 1,
+      "sha256": "4cc388bd4e01dfe2c20e3d9faa3831ee9589d9f8df4889cdd7c0d483b6c2c0f9"
+    },
+    "election_result_reports": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "candidate_result_lines": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "result_evidence_blobs": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "election_results": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "unchanged": true,
+  "sequenceCaveat": "PostgreSQL result sequence increments are not transactional; source table rows are unchanged."
+}

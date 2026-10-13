@@ -195,6 +195,10 @@ export class ResultsIngestionService {
       if (adapter) return { admitted: true, adapter, source: { id: reg.id, kind: reg.kind, via: 'registry', publication: manifest?.publisher === reg.id ? manifest.status : 'none', registered: reg } };
     }
     if (manifest) {
+      // A manifest cannot broaden a reviewed source's explicit race constraints.
+      if (resultsSourceRegistry.get(manifest.publisher) && !registered.some((s) => s.id === manifest.publisher)) {
+        return { admitted: false, reason: 'route_blocked', sourceId: manifest.publisher, manifestStatus };
+      }
       if (manifest.routeVerification !== 'worked') return { admitted: false, reason: 'route_blocked', sourceId: manifest.publisher, manifestStatus };
       const adapter = this.adapters.get(manifest.publisher);
       if (adapter) return { admitted: true, adapter, source: { id: manifest.publisher, kind: 'manifest', via: 'manifest', publication: manifest.status, registered: resultsSourceRegistry.get(manifest.publisher) ?? null } };

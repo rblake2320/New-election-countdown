@@ -1,0 +1,295 @@
+
+ RUN  v5.0.3 D:/projects/et-wt/astra-registry-intersection
+
+ ❯ tests/unit/results-registry-intersection.test.ts (11 tests | 9 failed) 19ms
+   ❯ reviewed registry constraints intersect (11)
+     × refuses a mismatched ID even when other constraints match 6ms
+     × refuses a mismatched state even when other constraints match 1ms
+     × refuses a mismatched missing state even when other constraints match 1ms
+     × refuses a mismatched date even when other constraints match 1ms
+     × refuses a mismatched phase even when other constraints match 1ms
+     × supports state/date registrations and ID-only registrations without weakening declared constraints 1ms
+     × writer independently refuses mismatched ID without storing a report 2ms
+     × writer independently refuses mismatched date without storing a report 2ms
+     × writer independently refuses mismatched phase without storing a report 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/results-registry-intersection.test.ts > reviewed registry constraints intersect > refuses a mismatched ID even when other constraints match
+ FAIL  tests/unit/results-registry-intersection.test.ts > reviewed registry constraints intersect > refuses a mismatched state even when other constraints match
+ FAIL  tests/unit/results-registry-intersection.test.ts > reviewed registry constraints intersect > refuses a mismatched missing state even when other constraints match
+ FAIL  tests/unit/results-registry-intersection.test.ts > reviewed registry constraints intersect > refuses a mismatched date even when other constraints match
+ FAIL  tests/unit/results-registry-intersection.test.ts > reviewed registry constraints intersect > refuses a mismatched phase even when other constraints match
+AssertionError: expected [ { id: 'nc-exact', …(8) } ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   {
++     "allowedHosts": [],
++     "allowedUrls": [
++       "https://www.ncsbe.gov/results",
++     ],
++     "electionDate": "2024-03-05",
++     "electionIds": [
++       24,
++     ],
++     "id": "nc-exact",
++     "kind": "official_state_enr",
++     "name": "NC",
++     "phase": "primary",
++     "state": "NC",
++   },
++ ]
+
+ ❯ tests/unit/results-registry-intersection.test.ts:18:60
+     16|     const registry = new ResultsSourceRegistry(); registry.register(so…
+     17|     expect(registry.admittedFor(target).map(s => s.id)).toEqual([sourc…
+     18|     expect(registry.admittedFor({ ...target, ...change })).toEqual([]);
+       |                                                            ^
+     19|   });
+     20|   it('supports state/date registrations and ID-only registrations with…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  tests/unit/results-registry-intersection.test.ts > reviewed registry constraints intersect > supports state/date registrations and ID-only registrations without weakening declared constraints
+AssertionError: expected [ { id: 'nc-exact', …(8) } ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   {
++     "allowedHosts": [],
++     "allowedUrls": [
++       "https://www.ncsbe.gov/results",
++     ],
++     "electionDate": undefined,
++     "electionIds": [
++       24,
++     ],
++     "id": "nc-exact",
++     "kind": "official_state_enr",
++     "name": "NC",
++     "phase": undefined,
++     "state": "NC",
++   },
++ ]
+
+ ❯ tests/unit/results-registry-intersection.test.ts:26:62
+     24|     registry.register({ ...source, electionDate: undefined, phase: und…
+     25|     expect(registry.admittedFor({ ...target, date: '2020-01-01', type:…
+     26|     expect(registry.admittedFor({ ...target, state: 'LA' })).toEqual([…
+       |                                                              ^
+     27|     expect(registry.admittedFor({ ...target, id: 25 })).toEqual([]);
+     28|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  tests/unit/results-registry-intersection.test.ts > reviewed registry constraints intersect > writer independently refuses mismatched ID without storing a report
+AssertionError: promise resolved "{ payload: { …(20) }, created: true }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "created": true,
++   "payload": {
++     "asOf": null,
++     "asOfBasis": "not_provided",
++     "candidates": [
++       {
++         "candidateId": null,
++         "isWinner": false,
++         "name": "Test-only boundary fixture",
++         "party": null,
++         "percent": null,
++         "sourceCandidateId": "test",
++         "votes": 1,
++       },
++     ],
++     "certification": null,
++     "electionContext": {
++       "electionDate": "2024-03-05",
++       "level": "federal",
++       "office": "Senate",
++       "state": "NC",
++       "type": "primary",
++     },
++     "electionId": 25,
++     "history": [],
++     "reportId": 1,
++     "reporting": null,
++     "retrievedAt": "2024-03-07T00:00:00.000Z",
++     "revision": "r1-00d7b7b5",
++     "schemaVersion": 1,
++     "source": {
++       "id": "nc-exact",
++       "kind": "official_state_enr",
++       "name": "NC",
++       "sourceContestId": "test",
++       "url": "https://www.ncsbe.gov/results",
++     },
++     "sourcePayloadSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
++     "stale": false,
++     "staleSince": null,
++     "status": "unofficial",
++     "supersedesReportId": null,
++     "totalVotes": 1,
++     "winnerCalledBy": null,
++   },
+  }
+
+ ❯ tests/unit/results-registry-intersection.test.ts:41:112
+     39|       winnerCalledBy: null, certification: null, note: null, supersede…
+     40|     };
+     41|     await expect(store.recordResultReport(race.id, input, { postedBy: …
+       |                                                                                                                ^
+     42|     expect((await store.getResultsPayload(race.id))?.reportId).toBeNul…
+     43|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  tests/unit/results-registry-intersection.test.ts > reviewed registry constraints intersect > writer independently refuses mismatched date without storing a report
+AssertionError: promise resolved "{ payload: { …(20) }, created: true }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "created": true,
++   "payload": {
++     "asOf": null,
++     "asOfBasis": "not_provided",
++     "candidates": [
++       {
++         "candidateId": null,
++         "isWinner": false,
++         "name": "Test-only boundary fixture",
++         "party": null,
++         "percent": null,
++         "sourceCandidateId": "test",
++         "votes": 1,
++       },
++     ],
++     "certification": null,
++     "electionContext": {
++       "electionDate": "2024-03-06",
++       "level": "federal",
++       "office": "Senate",
++       "state": "NC",
++       "type": "primary",
++     },
++     "electionId": 24,
++     "history": [],
++     "reportId": 1,
++     "reporting": null,
++     "retrievedAt": "2024-03-07T00:00:00.000Z",
++     "revision": "r1-95ee1c76",
++     "schemaVersion": 1,
++     "source": {
++       "id": "nc-exact",
++       "kind": "official_state_enr",
++       "name": "NC",
++       "sourceContestId": "test",
++       "url": "https://www.ncsbe.gov/results",
++     },
++     "sourcePayloadSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
++     "stale": false,
++     "staleSince": null,
++     "status": "unofficial",
++     "supersedesReportId": null,
++     "totalVotes": 1,
++     "winnerCalledBy": null,
++   },
+  }
+
+ ❯ tests/unit/results-registry-intersection.test.ts:41:112
+     39|       winnerCalledBy: null, certification: null, note: null, supersede…
+     40|     };
+     41|     await expect(store.recordResultReport(race.id, input, { postedBy: …
+       |                                                                                                                ^
+     42|     expect((await store.getResultsPayload(race.id))?.reportId).toBeNul…
+     43|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  tests/unit/results-registry-intersection.test.ts > reviewed registry constraints intersect > writer independently refuses mismatched phase without storing a report
+AssertionError: promise resolved "{ payload: { …(20) }, created: true }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "created": true,
++   "payload": {
++     "asOf": null,
++     "asOfBasis": "not_provided",
++     "candidates": [
++       {
++         "candidateId": null,
++         "isWinner": false,
++         "name": "Test-only boundary fixture",
++         "party": null,
++         "percent": null,
++         "sourceCandidateId": "test",
++         "votes": 1,
++       },
++     ],
++     "certification": null,
++     "electionContext": {
++       "electionDate": "2024-03-05",
++       "level": "federal",
++       "office": "Senate",
++       "state": "NC",
++       "type": "general",
++     },
++     "electionId": 24,
++     "history": [],
++     "reportId": 1,
++     "reporting": null,
++     "retrievedAt": "2024-03-07T00:00:00.000Z",
++     "revision": "r1-95ee1c76",
++     "schemaVersion": 1,
++     "source": {
++       "id": "nc-exact",
++       "kind": "official_state_enr",
++       "name": "NC",
++       "sourceContestId": "test",
++       "url": "https://www.ncsbe.gov/results",
++     },
++     "sourcePayloadSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
++     "stale": false,
++     "staleSince": null,
++     "status": "unofficial",
++     "supersedesReportId": null,
++     "totalVotes": 1,
++     "winnerCalledBy": null,
++   },
+  }
+
+ ❯ tests/unit/results-registry-intersection.test.ts:41:112
+     39|       winnerCalledBy: null, certification: null, note: null, supersede…
+     40|     };
+     41|     await expect(store.recordResultReport(race.id, input, { postedBy: …
+       |                                                                                                                ^
+     42|     expect((await store.getResultsPayload(race.id))?.reportId).toBeNul…
+     43|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  9 failed | 2 passed (11)
+   Start at  14:27:51
+   Duration  665ms (environment 57%, setup 22%, transform 13%, tests 4%, import 3%, worker 1%)
+
