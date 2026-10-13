@@ -1,5 +1,5 @@
 """Read-only normal-TLS official source capture; no candidate inference."""
-import pathlib,urllib.request,urllib.error,hashlib,json,datetime,sys
+import pathlib,urllib.request,urllib.error,urllib.parse,hashlib,json,datetime,sys
 root=pathlib.Path(__file__).resolve().parents[1]/'artifacts/ga-mn-general'
 (root/'raw').mkdir(parents=True,exist_ok=True);(root/'receipts').mkdir(exist_ok=True)
 for key,url in [
@@ -16,5 +16,11 @@ for key,url in [
         if len(b)>8*1024*1024:raise ValueError('body exceeds bound')
         path=root/'raw'/(key+'.html');path.write_bytes(b)
         receipt.update(outcome='Worked',httpStatus=r.status,finalUrl=r.url,sha256=hashlib.sha256(b).hexdigest(),bytes=len(b),contentType=r.headers.get('Content-Type'),file=str(path.relative_to(root)))
+        host=urllib.parse.urlparse(r.url).hostname
+        if not host or not host.endswith('.gov'):
+            receipt.pop('finalUrl',None)
+            receipt.update(outcome='Blocked',transportOutcome='Worked',finalHost=host,reason='Redirected to access/bot challenge; no bypass attempted')
+        elif b'<app-root' in b and b'U.S. Representative' not in b:
+            receipt.update(outcome='Blocked',transportOutcome='Worked',reason='Angular application shell contains no candidate data')
     except Exception as e:receipt.update(outcome='Blocked',reason=str(e))
     (root/'receipts'/(key+'.json')).write_bytes((json.dumps(receipt,indent=2)+'\n').encode());print(key,json.dumps(receipt))

@@ -1,0 +1,2762 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+	<meta http-equiv="Content-type" content="text/html; charset=UTF-8" />
+<!-- Google Tag Manager for GA4 -->
+				<script>(function(w,d,s,l,i){w.GAMeasurementID='G-TEZ9YXJWEV';w[l]=w[l]||[];w[l].push({'gtm.start':
+				new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+				j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+				'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+				})(window,document,'script','cpDataLayerGA4','GTM-K73C5PS');</script>
+				<!-- End Google Tag Manager for GA4 -->
+				<script type='text/javascript'>
+					var enableTelemetry = 'false'
+					var aiConfig = {
+					instrumentationKey: '1cde048e-3185-4906-aa46-c92a7312b60f'						
+					}
+					var appInsights = window.appInsights || function (a) { function b(a) { c[a] = function () { var b = arguments; c.queue.push(function () { c[a].apply(c, b) }) } } var c = { config: a }, d = document, e = window; setTimeout(function () { var b = d.createElement('script'); b.src = a.url || 'https://js.monitor.azure.com/scripts/a/ai.0.js', d.getElementsByTagName('script')[0].parentNode.appendChild(b) }); try { c.cookie = d.cookie } catch (a) { } c.queue = []; for (var f = ['Event', 'Exception', 'Metric', 'PageView', 'Trace', 'Dependency']; f.length;)b('track' + f.pop()); if (b('setAuthenticatedUserContext'), b('clearAuthenticatedUserContext'), b('startTrackEvent'), b('stopTrackEvent'), b('startTrackPage'), b('stopTrackPage'), b('flush'), !a.disableExceptionTracking) { f = 'onerror', b('_' + f); var g = e[f]; e[f] = function (a, b, d, e, h) { var i = g && g(a, b, d, e, h); return !0 !== i && c['_' + f](a, b, d, e, h), i } } return c }(aiConfig);
+					window.appInsights = appInsights, appInsights.queue && 0 === appInsights.queue.length;
+					// Add telemetry initializer
+					appInsights.queue.push(function() {
+						appInsights.context.addTelemetryInitializer(function(envelope) {
+							var telemetryItem = envelope.data.baseData;
+							// To check the telemetry item’s type:
+							if (!false)
+							{
+								//If the telemetry is not enabled, we still want to capture Google map custom event, so only allow that
+								if (envelope.name.indexOf('.Event') == -1)
+									return false;
+							}
+						});
+					});						
+					appInsights.trackPageView();
+				</script>
+	<script>
+		function populateAntiForgery(token) {
+			var input = document.createElement("input");
+			input.name = "__RequestVerificationToken";
+			input.type = "hidden";
+			input.value = token;
+			var absPat = /^https?:\/\/|^\/\//i;
+			var forms = document.getElementsByTagName("form");
+			for (var i = 0; i < forms.length; i++) {
+				if (forms[i].method == "post" &&
+					!forms[i].querySelector('[name="__RequestVerificationToken"]') &&
+					!absPat.test(forms[i].getAttribute("action"))) {
+					forms[i].appendChild(input.cloneNode());
+				}
+			}
+		}
+
+		function getAntiForgeryToken(callback, error) {
+			var xhr = new XMLHttpRequest();
+			xhr.open("GET", "/antiforgery");
+			xhr.addEventListener("load", function() {
+				try {
+					if (this.status !== 200) {
+						throw Error("Invalid status. Could not retrieve antiforgery token.");
+					}
+					var obj = JSON.parse(this.responseText);
+					callback(obj.token);
+				} catch (e) {
+					typeof error === "function" && error(e);
+				}
+			});
+			xhr.send();
+		}
+
+		getAntiForgeryToken(function(token) {
+			if (document.readyState === "complete"
+				|| document.readyState === "loaded" 
+				|| document.readyState === "interactive") {
+				populateAntiForgery(token);
+				return;
+			}
+			document.addEventListener("DOMContentLoaded", function() {
+				populateAntiForgery(token);
+			}, false);
+		}, console.error);
+	</script>
+			
+
+	<script type="text/javascript">
+		window.departmentHeader = {};
+		window.pageSectionTracker = {};
+		window.isResponsiveEnabled = true;
+		window.isRemoveSetHeights= true;
+		if (window.isRemoveSetHeights) {
+			document.documentElement.className += ' removeSetHeights';
+		}
+		window.mainMenuMediaQuery = 'screen and (max-width: 40em)';
+		window.isMobileBrowserIncludingTablets = false;
+		window.fixedResponsiveMenu = false;
+		window.fullWidthResponsiveMenu = false;
+		window.responsiveMenuHeight = '';
+		window.responsiveMenuFontSize = '';
+		window.isContentAdvisor = false;
+		(function () {
+			window.setSizeCookie = function () {
+				document.cookie = "dpi=" + window.devicePixelRatio + "; path=/";
+				document.cookie = "viewportWidth=" + window.innerWidth + "; path=/";
+				document.cookie = "viewportHeight=" + window.innerHeight + "; path=/";
+				if (screen && screen.width && screen.height) {
+					document.cookie = "screenWidth=" + screen.width + "; path=/";
+					document.cookie = "screenHeight=" + screen.height + "; path=/";
+				}
+				document.cookie = "responsiveGhost=1; path=/";
+			};
+
+			setSizeCookie();
+		}());
+	</script>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<script async src="https://docaccess.com/docbox.js"></script>
+	
+	<meta name="category0" content="Home" />
+<meta name="category1" content="Services" />
+<meta name="category2" content="City Clerk&#39;s Office" />
+<meta name="category3" content="Elections" />
+<meta name="category4" content="Sample Ballots" />
+
+	
+	<meta name="theme-color" content="#387d7a">
+	<link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+	<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
+		<title>2026 State General Sample Ballots | Maplewood, MN</title>
+
+		<meta name="description" content="2026 State Primary Sample Ballots">
+		<meta name="keywords" content="Sample Ballots">
+			<script src="/Assets/Scripts/jQuery/jquery-3.7.1.min.js"></script>
+	<script src="/Assets/Scripts/jQuery/jquery-migrate-3.6.0.min.js" type="text/javascript"></script>
+	
+
+	<!--[if IE 6]><script language="JavaScript" type="text/javascript"> var isie6 = true; </script><![endif]-->
+	<!--[if IE 7]><script language="JavaScript" type="text/javascript"> var isie7 = true; </script><![endif]-->
+	<!--[if IE 8]><script language="JavaScript" type="text/javascript"> var isie8 = true; </script><![endif]-->
+	<!--[if IE 9]><script language="JavaScript" type="text/javascript"> var isie8 = true; </script><![endif]-->
+	<script type="text/javascript"><!--
+	var intCountryCode = 840;
+	var order = '';
+//--></script>
+	
+<link href="/-681783051.css" rel="stylesheet" type="text/css" />	<link href="/-2140275272.css" rel="stylesheet" type="text/css" />	<link href="/1899918085.css" rel="stylesheet" type="text/css" />
+
+	<link rel="stylesheet" type="text/css" href="/Assets/Styles/Print.css" media="print">
+	<script type="text/javascript">
+		window.Pages = window.Pages || {};
+		// FrontEnd RWD initialization
+		window.Pages.rwdReady = $.Deferred();
+		window.Pages.toolBarDeferred = $.Deferred();
+		window.Pages.rwdSetupComplete = $.Deferred();
+		window.Pages.megaMenuLoaded = $.Deferred();
+		window.Pages.angularToolbarComplete = $.Deferred();
+		window.Pages.frontEndToolbarComplete = $.Deferred();
+	</script>
+	<!--CPHeadContent-->
+	<script src="/739942322.js" type="text/javascript"></script>
+	
+	
+	
+	
+
+
+
+
+	<!--[if lte IE 8]><link rel="stylesheet" type="text/css" href="/App_Themes/ie8.css"><![endif]-->
+	<!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="/App_Themes/ie7.css"><![endif]-->
+	<!--[if lte IE 6]><link rel="stylesheet" type="text/css" href="/App_Themes/ie6.css"><![endif]-->
+	<!--[if lt IE 9]><script type="text/javascript" src="/Scripts/html5.js"></script><![endif]-->
+
+	<script type="text/javascript">
+		setEditorVariables(false, 840);
+		function getPrintPreviewType() { return 0; } function printPreview() {pPreview(getPrintPreviewType()); }
+	</script>
+	<script src="/Assets/Scripts/AlpineJS/3.14.1/alpine.min.js" type="text/javascript" defer="defer"></script>
+</head>
+<body class="wide " >
+
+    <script>jQuery(document).click(function (event) {
+	var target = jQuery(event.target);
+	if (target.attr('src') && target.parents('.image').length && target.parents('.widget').length) {
+		var text = target.attr('title');
+		
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Image',
+				eventAction: 'Image - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.is('button') || target.hasClass('button') || target.parents().hasClass('button')) {
+		var text = "";
+		if (target.parents('.button')[0]) {
+			text = target.parents('.button').first().text();
+		} else if (target.text().length) {
+			text = target.text();
+		} else if (target.attr('title').length) {
+			text = target.attr('title');
+		}
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Button',
+				eventAction: 'Button - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.widgetCustomHtml').length) {
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Custom Html',
+				eventAction: 'Custom Html Clicked',
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.editor').length) {
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Editor',
+				eventAction: 'Editor Link Clicked',
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.GraphicLinks').length) {
+		var text = "";
+		var targetGraphicLink = target;
+		if (target.hasClass('widgetGraphicLinksLink')) {
+			targetGraphicLink = jQuery(target.children()[0]);
+		}
+		if (targetGraphicLink.hasClass('text')) {
+			text = targetGraphicLink.text();
+		} else if (targetGraphicLink.attr('src').length) {
+			if (targetGraphicLink.attr('alt').length) {
+				text = targetGraphicLink.attr('alt');
+			} else {
+				text = targetGraphicLink.attr('src');
+			}
+		} else {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Graphic Links',
+				eventAction: 'Graphic Link - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.InfoAdvanced').length) {
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Info Advanced',
+				eventAction: 'Info Advanced Clicked',
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.list').length) {
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'List',
+				eventAction: 'List Clicked',
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.megaMenuItem').length || target.parents('.topMenuItem').length) {
+		var megaMenuText = jQuery('.topMenuItem.mouseover').find('span').text();
+		var breadCrumbs = [];
+		jQuery('.breadCrumbs > li').each(function () {
+			 breadCrumbs.push(this.textContent);
+		});
+		var pageTitle = breadCrumbs.join('>');
+		var subTitleText = target.parents('.megaMenuItem').children('.widgetTitle').children().text();
+		var text = "";
+		if (pageTitle) {
+			text += pageTitle + " | ";
+		} else {
+			text += document.title + ' - ';
+		}
+		if (target.text() == "" && megaMenuText == "") {
+			text += "N/A";
+		} else if (target.text().length && megaMenuText.length) {
+			if (megaMenuText == target.text()) {
+				text += megaMenuText;
+			} else {
+				text += megaMenuText + " - " + subTitleText + " - " + target.text();
+			}
+		} else if (target.text() == "") {
+			text += megaMenuText;
+		} else {
+			text += target.text();
+		}
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Mega Menu',
+				eventAction: 'Mega Menu : ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.widgetNewsFlash').length && target.parents('.widgetItem').length) {
+		var text = jQuery(target.parents('.widgetItem')[0]).find('.widgetTitle').children().text();
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'News Flash',
+				eventAction: 'News Flash - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.hasClass('widgetQuickLinksLink') || target.find('.widgetQuickLinksLink').length) {
+		var text = target.text();
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Quick Links',
+				eventAction: 'Quick Links - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.attr('src') && target.parents('.cpSlideshow').length) {
+		var text = target.attr('title');
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Slideshow',
+				eventAction: 'Slideshow - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.widgetText').length) {
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Text',
+				eventAction: 'Text Link Clicked',
+				eventLabel: window.location.href
+			});
+	}
+});</script>
+	<div id="popoverModal" class="cp-PopOver cp-PopOver--modal cp-AdminWrap" style="position: fixed; display: none;">
+	<div class="cp-PopOver-header">
+		<h3 class="cp-PopOver-title"></h3>
+		<button class="cp-Btn cp-PopOver-close" onclick="closePopOverModal(event)">
+			<svg class="cp-Icon--close" alt="close" title="close">
+				<use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#iconClose"></use>
+			</svg>
+		</button>
+	</div>
+	<div id="cpPopOverBody" class="cp-PopOver-body">
+		<form id="cpPopOverForm" name="cpPopOverForm" novalidate></form>
+	</div>
+	<div id="cpPopOverFooter" class="cp-PopOver-footer">
+		<div class="cp-BtnGroup" id="actionButtons">
+			<!-- Action buttons will be dynamically added here -->
+		</div>
+	</div>
+</div>
+    <div id="fb-root"></div>
+<div id=skipToContentLinks>
+<a href="#cc08ca202d-3a22-4573-aafa-e35c9e8fbd93" target="_self" class="skipToContentLink">Skip to Main Content</a>
+</div>
+    <form id="frmReferenceFormForTelerikEditorDialogs"></form>
+
+        <input type="hidden" id="GoogleMapsKey" value="AIzaSyDWUuE-ifkbhxblF920N8MjpBdTg1Wt784" />
+
+
+
+    <input type="hidden" id="cpcDomain" value="https://cp-civicplusuniversity2.civicplus.com">
+    <input type="hidden" id="hdnStructureID" value="5" />
+    <input type="hidden" id="hdnContentCollectionID" value="45b1aed9-72be-4251-8aa3-62ddea396022" />
+    <input type="hidden" id="hdnWorkingCopyID" value="00000000-0000-0000-0000-000000000000" />
+    <input type="hidden" id="hdnThemeID" value="10" />
+    <input type="hidden" id="pageIsFrontEnd" value="true" />
+    <input type="hidden" id="pageModuleID" />
+    <input type="hidden" id="pagePageID" value="658" />
+
+    <div id="stickyPlaceholder"></div>
+    <div id="outer-wrap" class="outer-wrap">
+        <div id="inner-wrap" class="inner-wrap">
+                <div id="divToolbars" class="cpToolbars newCP mui-fixed" style="">
+                    
+
+
+
+<!-- Begin Signed Out Bar -->
+<div class="cpToolbar user public">
+    <div class="inner selfClear">
+        <p class="dropdown"><a href="/MyAccount/ProfileCreate" class="myConnections" id="signedOutToolbarCreateProfileButton">Create a Website Account</a> <span class="welcomeMessage">- Manage notification subscriptions, save form progress and more. &nbsp;&nbsp;</span></p>
+        <ul class="nav secondary">
+	        <li><a href="/MyAccount" class="button" id="loggedOutToolbarSignInButton">Website Sign In</a></li>
+        </ul>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#signedOutToolbarCreateProfileButton').click(function (event) {
+            event.preventDefault();
+            window.location.href = '/MyAccount/ProfileCreate?from=url&url=/&dn=' + window.location.origin;
+        });
+
+			
+				$('#loggedOutToolbarSignInButton').click(function (event) {
+					event.preventDefault();
+					window.location.href = '/MyAccount/?from=url&url=' + encodeURIComponent(window.location.href.replace(window.location.origin, '')) + '&dn=' + window.location.host;
+				});
+			
+
+		if ('False' == 'True') {
+            $('#loggedOutToolbarSignInButton').hide();
+		}
+    })
+</script>
+<!-- End Signed Out Bar -->
+
+                </div>
+            <div id="bodyWrapper">
+                <div id="mainNavHolderMobile" class="mainNavHolderMobile"></div>
+                
+<div data-cpRole="structuralContainer" id="bodyContainerTS">
+<!-- Header Container --><header data-cpRole="structuralContainer" id="headerContainerTS">
+<div class="siteWrap"><div data-cpRole="banner" id="bannerLogoTS" class="bannerLogoTS empty">
+
+
+
+
+				<a id="bannerLogoTS-18" style="			display: block; text-align: left;
+" class="bannerObject" href="/" target="_self"><img alt="Home page" class="bannerObject" src="/ImageRepository/Document?documentID=24710" /></a>
+</div><nav data-cpRole="nav" id="mainNav" class="siteNav mainNav" role="navigation">
+<ol id="mainNavMenu" data-parent="1" class="rootNavMenu" role="menu"><!--
+--><li id="MainItem9" class="topMenuItem" role="none" data-pageid="9" data-displaymegamenu="True"><!--
+			--><!--
+			--> <a role = "menuitem"  aria-haspopup=true aria-expanded='false' aria-controls="mainNavMegaMenu9" id = "mainNavCityHall" class="navMainItem mainNavItem mainNavItem1 " href="/9/City-Hall" target = "_self" >   City Hall  </a>			<!--
+			--><!--
+			--></li><!----><li id="MainItem35" class="topMenuItem" role="none" data-pageid="35" data-displaymegamenu="True"><!--
+			--><!--
+			--> <a role = "menuitem"  aria-haspopup=true aria-expanded='false' aria-controls="mainNavMegaMenu35" id = "mainNavServices" class="navMainItem mainNavItem mainNavItem2 " href="/35/Services" target = "_self" >   Services  </a>			<!--
+			--><!--
+			--></li><!----><li id="MainItem8" class="topMenuItem" role="none" data-pageid="8" data-displaymegamenu="True"><!--
+			--><!--
+			--> <a role = "menuitem"  aria-haspopup=true aria-expanded='false' aria-controls="mainNavMegaMenu8" id = "mainNavIWantTo" class="navMainItem mainNavItem mainNavItem3 " href="/8/I-Want-To" target = "_self" >   I Want To  </a>			<!--
+			--><!--
+			--></li><!---->
+</ol>
+
+
+	<script type="text/javascript">
+		(function () {
+			function setupMenu() {
+				const menuID = 'mainNavMenu';
+				const menuType = MAIN_MENU;
+
+				//setup menu manager properties for main menu
+				if (!menuManager.mobileMainNav && true)
+					menuManager.adjustMainItemsWidth('#' + menuID);
+				menuManager.isMainMenuEditable = false;
+				menuManager.mainMenuMaxSubMenuLevels = 4;
+				menuManager.setMOMMode(2, menuType);
+
+				//Init main menu
+				const setupDraggable = menuManager.isMainMenuEditable;
+				const urlToGetHiddenMenus = '/Pages/MenuMain/HiddenMainSubMenus?pageID=1&moduleID=&themeID=10&menuContainerID=mainNav';
+
+				menuManager.setupMenu(menuID, 'mainNav', menuType, setupDraggable, urlToGetHiddenMenus);
+				menuManager.mainMenuInit = true;
+				menuManager.mainMenuTextResizer = false;
+				if (1.00 > 0)
+					menuManager.mainMenuTextResizerRatio = 1.00;
+				if (window.isResponsiveEnabled)
+					menuManager.mainMenuReady.resolve();
+
+			}
+
+			if (document.readyState === "complete"
+				|| document.readyState === "loaded"
+				|| document.readyState === "interactive") {
+				setupMenu();
+				return;
+			}
+
+			document.addEventListener("DOMContentLoaded", setupMenu);
+		})();
+	</script>
+
+
+<aside data-cpRole="megaMenu" id="megaMenu" class="megaMenu" style="display: none;"><input type="hidden" id="megaMenuPopupDirection" value="0"><input type="hidden" id="megaMenuWidthReference" value="0"><aside role="menu" data-cpRole="contentContainer" id="mainNavMegaMenu9" class="contentTop mainNavMegaMenu megaMenuContainer pageID_9 hidden" data-orientation="horizontal">	<div id="ccfc2dd7a2-0ffb-4fd2-b32b-7fbb71f21c11" data-containerid="fc2dd7a2-0ffb-4fd2-b32b-7fbb71f21c11" class="pageContent cpGrid cpGrid24">
+				                
+
+
+
+	</div>
+</aside><aside role="menu" data-cpRole="contentContainer" id="mainNavMegaMenu35" class="contentTop mainNavMegaMenu megaMenuContainer pageID_35 hidden" data-orientation="horizontal">	<div id="cc43b494ba-7909-4d46-94c3-816713b32133" data-containerid="43b494ba-7909-4d46-94c3-816713b32133" class="pageContent cpGrid cpGrid24">
+				                
+
+
+
+	</div>
+</aside><aside role="menu" data-cpRole="contentContainer" id="mainNavMegaMenu8" class="contentTop mainNavMegaMenu megaMenuContainer pageID_8 hidden" data-orientation="horizontal">	<div id="cc94d37c63-8bf1-4efc-a003-0f84ef83071e" data-containerid="94d37c63-8bf1-4efc-a003-0f84ef83071e" class="pageContent cpGrid cpGrid24">
+				                
+
+
+
+	</div>
+</aside></aside></nav></div>
+</header><!-- Banner --><div data-cpRole="structuralContainer" id="bannerContainerTS">
+<div data-cpRole="banner" id="banner1"><div data-cpRole="structuralContainer" id="bannerSizingTS">
+<div class="siteWrap"><div data-cpRole="structuralContainer" id="bannerContentTS">
+<div data-cpRole="contentContainer" id="searchTS">	<div id="cc0f45eb90-3a72-4275-ae3d-59ef95c08df1" data-containerid="0f45eb90-3a72-4275-ae3d-59ef95c08df1" class="pageContent cpGrid cpGrid24 isLockedContainer showInMobile">
+				                
+
+		<div class="row outer wide"><!--
+--><div class="outer col col24 first last" style="" data-widgetcontainerid="45db69c7-6a63-4612-bc8f-d1b65c0934e1">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col24 first last id44bcbde4-f284-45e9-919b-637eab4b0f66" style="" data-widgetcontainerid="44bcbde4-f284-45e9-919b-637eab4b0f66">	
+<div data-widget-id="ec030a37-353e-46ca-9fc9-0b8701bc1ec4" data-widget-controller-path="/Layout/WidgetSearch">
+	
+	<script defer type="text/javascript" src="/Common/Controls/jquery-ui-1.14.2/jquery-ui.min.js"></script>
+	<script defer src="/Areas/Layout/Assets/Scripts/Search.js" type="text/javascript"></script>
+	<script defer type="text/javascript">
+
+		$(document).ready(function () {
+			try {
+				// Minimum characters required before performing a search/autocomplete
+				var minPrefixLength = 3;
+				var autoCompleteDebounceDelay = 500;
+				var searchFieldSelector = "#searchField" + 'ec030a37-353e-46ca-9fc9-0b8701bc1ec4';
+				var checkboxSelector = "#ysnSearchOnlyDept" + 'ec030a37-353e-46ca-9fc9-0b8701bc1ec4';
+				var buttonSelector = ".widgetSearchButton" + 'ec030a37-353e-46ca-9fc9-0b8701bc1ec4';
+				var autoCompleteCache = {};
+				var autoCompleteCacheKeys = [];
+				var autoCompleteCacheLimit = 25;
+				var currentAutoCompleteRequest = null;
+				var currentAutoCompleteRequestKey = null;
+				var autoCompleteDebounceTimer = null;
+				var autoCompleteDebounceKey = null;
+				var pendingAutoCompleteResponses = [];
+
+				function normalizeAutoCompleteTerm(term) {
+					return $.trim((term || "") + "").replace(/\s+/g, " ");
+				}
+
+				function shouldSearch(term) {
+					return normalizeAutoCompleteTerm(term).length >= minPrefixLength;
+				}
+
+				function getAutoCompleteUrl() {
+					return '/Search/AutoComplete' + ($(checkboxSelector).is(':checked') || false? '?departmentId=0' : '');
+				}
+
+				function getAutoCompleteCacheKey(requestUrl, term) {
+					return requestUrl + "|" + term.toLowerCase();
+				}
+
+				function cacheAutoCompleteResult(cacheKey, data) {
+					if (!Object.prototype.hasOwnProperty.call(autoCompleteCache, cacheKey)) {
+						autoCompleteCacheKeys.push(cacheKey);
+						if (autoCompleteCacheKeys.length > autoCompleteCacheLimit) {
+							delete autoCompleteCache[autoCompleteCacheKeys.shift()];
+						}
+					}
+					autoCompleteCache[cacheKey] = data;
+				}
+
+				function respondToPendingAutoComplete(data) {
+					var responses = pendingAutoCompleteResponses;
+					pendingAutoCompleteResponses = [];
+					for (var i = 0; i < responses.length; i++) {
+						responses[i](data);
+					}
+				}
+
+				function cancelPendingAutoComplete() {
+					clearTimeout(autoCompleteDebounceTimer);
+					autoCompleteDebounceKey = null;
+					if (currentAutoCompleteRequest != null) {
+						currentAutoCompleteRequest.abort();
+						currentAutoCompleteRequest = null;
+					}
+					currentAutoCompleteRequestKey = null;
+					respondToPendingAutoComplete([]);
+				}
+
+				function createWidgetAutoCompleteSource(options) {
+					return function (request, response) {
+						var term = normalizeAutoCompleteTerm(request.term);
+						if (!options.shouldSearch(term)) {
+							response([]);
+							return;
+						}
+
+						var requestUrl = options.url();
+						var cacheKey = getAutoCompleteCacheKey(requestUrl, term);
+						if (Object.prototype.hasOwnProperty.call(autoCompleteCache, cacheKey)) {
+							response(autoCompleteCache[cacheKey]);
+							if (options.success) {
+								options.success(autoCompleteCache[cacheKey]);
+							}
+							return;
+						}
+
+						if (currentAutoCompleteRequestKey === cacheKey || autoCompleteDebounceKey === cacheKey) {
+							pendingAutoCompleteResponses.push(response);
+							return;
+						}
+
+						cancelPendingAutoComplete();
+						autoCompleteDebounceKey = cacheKey;
+						pendingAutoCompleteResponses.push(response);
+						autoCompleteDebounceTimer = setTimeout(function () {
+							autoCompleteDebounceKey = null;
+							currentAutoCompleteRequestKey = cacheKey;
+							currentAutoCompleteRequest = $.ajax({
+								url: requestUrl,
+								dataType: "json",
+								timeout: options.timeout,
+								data: {
+									term: term,
+								},
+								success: function (data) {
+									if (currentAutoCompleteRequestKey === cacheKey) {
+										cacheAutoCompleteResult(cacheKey, data);
+										respondToPendingAutoComplete(data);
+										if (options.success) {
+											options.success(data);
+										}
+									}
+								},
+								error: function (xmlhttprequest, textstatus, message) {
+									if (textstatus === "abort") {
+										return;
+									}
+
+									if (options.error) {
+										options.error(xmlhttprequest, textstatus, message);
+									}
+
+									respondToPendingAutoComplete([]);
+								},
+								complete: function (xmlhttprequest) {
+									if (currentAutoCompleteRequest === xmlhttprequest) {
+										currentAutoCompleteRequest = null;
+										currentAutoCompleteRequestKey = null;
+									}
+								}
+							});
+						}, options.delay);
+					};
+				}
+
+				// click handler for search buttons
+				$(buttonSelector).click(function (e) {
+					e.preventDefault();
+					var $btn = $(this);
+					var $field = $btn.siblings(".widgetSearchBox");
+					var term = $field.val() + "";
+					if (!shouldSearch(term)) {
+						// do nothing until user types enough characters
+						$field.focus();
+						return;
+					}
+
+					if ($(checkboxSelector).is(':checked') || false)
+					{
+						doWidgetSearch($.trim(term), Number(0));
+					}
+					else {
+						doWidgetSearch($.trim(term), 0);
+					}
+				});
+
+				// enter key handler for the search field
+				$(searchFieldSelector).keypress(function (e) {
+					var code = e.which || e.keyCode;
+					if (code === 13) {
+						e.preventDefault();
+						var $this = $(this);
+						var term = $this.val() + "";
+						if (!shouldSearch(term)) {
+							// do nothing until user types enough characters
+							$this.focus();
+							return false;
+						}
+
+						if ($(checkboxSelector).is(':checked') || false) {
+							doWidgetSearch($.trim(term), Number(0));
+						} else {
+							doWidgetSearch($.trim(term), 0);
+						}
+						return false;
+					}
+					return true;
+				});
+
+				// autocomplete: set minLength and guard source
+				if (true) {
+					var $searchField = $(searchFieldSelector).autocomplete({
+						minLength: minPrefixLength,
+						source: createWidgetAutoCompleteSource({
+							delay: autoCompleteDebounceDelay,
+							timeout: 10000,
+							shouldSearch: shouldSearch,
+							url: getAutoCompleteUrl,
+							success: function () {
+								$('.autoCompleteError').remove();
+							},
+							error: function (xmlhttprequest, textstatus, message) {
+								if (textstatus === "timeout") {
+									if ($(searchFieldSelector).siblings('.autoCompleteError').length == 0)
+										$('<span class="autoCompleteError"><p class="alert error">Search autocomplete is currently not responding. Please try again later.</p></span>').insertAfter($(searchFieldSelector));
+								}
+							}
+						}),
+						html: true,
+						delay: 0,
+						select: function (event, ui) {
+							$(this).val(ui.item.value);
+							$(this).next().click();
+						}
+					});
+
+					$searchField.data("ui-autocomplete")._renderItem = function (ul, item) {
+						return $("<li class=\"itemList\"></li>")
+							.data("ui-autocomplete-item", item)
+							.append("<a>" + item.label + "</a>")
+							.appendTo(ul);
+					};
+				}
+
+				// keep searchBtnApplyQuery consistent with prefix rule
+				window.searchBtnApplyQuery = function() {
+					var $field = $(searchFieldSelector);
+					var term = $field.val() + "";
+					if (shouldSearch(term)) {
+						// update href for the icon/button (if present)
+						var btn = document.getElementById("btnSearchIcon");
+						if (btn) btn.href = "/Search?searchPhrase=" + encodeURIComponent($.trim(term));
+					} else {
+						var btn = document.getElementById("btnSearchIcon");
+						if (btn) btn.href = "#";
+					}
+				};
+			}
+			catch(e) {} //we're going to eat this error. Autocomplete won't work but we dont wan't to break anything else on the page.
+		});
+	</script>
+
+	<section id="widgetPreviewSearch" class="widget widgetSearch skin19 widgetOptionSet48" style="display: block;" aria-label="Search">
+				<!-- For the button on the right -->
+		<div class="widgetBody buttonRight">
+			<input class="widgetSearchBox widgetSearchBoxec030a37-353e-46ca-9fc9-0b8701bc1ec4" cp5ph="true" id="searchFieldec030a37-353e-46ca-9fc9-0b8701bc1ec4" name="searchField" onchange="searchBtnApplyQuery();" placeholder="I’m looking for . . ." type="text" value="" />
+						<a href="/Search/Results" id="btnSearchIcon" class="widgetSearchButton widgetSearchButtonec030a37-353e-46ca-9fc9-0b8701bc1ec4" role="button"><img alt="Search" class="imageHover" data-hover="/ImageRepository/Document?documentID=24719" data-image="/ImageRepository/Document?documentID=24720" src="/ImageRepository/Document?documentID=24720" /></a>
+
+			<label class="searchLabel" aria-hidden="true" for="searchFieldec030a37-353e-46ca-9fc9-0b8701bc1ec4">Search</label>
+		</div>
+
+	</section>
+
+
+<style scoped>
+	  
+		.widgetSearch ::-webkit-input-placeholder {
+		color:  #5d5d5d;
+	  }
+		.widgetSearch :-moz-placeholder { /* Firefox 18- */
+	   color:  #5d5d5d;
+	}
+		.widgetSearch ::-moz-placeholder {  /* Firefox 19+ */
+	   color:  #5d5d5d;
+	}
+	.widgetSearch :-ms-input-placeholder {
+	   color:  #5d5d5d;
+	}
+	
+
+	.widgetSearch .widgetBody .widgetSearchBoxec030a37-353e-46ca-9fc9-0b8701bc1ec4
+	{
+		color:  #5d5d5d;
+		height: 55px;
+padding-left: 2em;
+border-radius: 55px;
+border: 2px solid #e8e8e8;
+font: italic 17px Lato;
+	}
+	.widgetSearch .widgetBody .widgetSearchButtonec030a37-353e-46ca-9fc9-0b8701bc1ec4
+	{
+		
+	}
+	.widgetSearch .widgetSearch-onlyDeptec030a37-353e-46ca-9fc9-0b8701bc1ec4
+	{
+		display: inline-block;
+		color: #333;
+		
+		
+		 padding-top: 10px;
+	}
+	#ysnSearchOnlyDeptec030a37-353e-46ca-9fc9-0b8701bc1ec4
+	{
+		position: relative;
+		top: .125em;
+	}
+
+</style>
+
+<link rel="stylesheet" href="/Common/Controls/jquery-ui-1.14.2/jquery-ui.min.css">
+<link rel="stylesheet" href="/Common/Controls/jquery-ui-1.14.2/jquery-ui.theme.min.css">
+
+
+
+<script type="text/javascript">
+	//Updates search icons href to have the correct queryString
+	function searchBtnApplyQuery() {
+		document.getElementById("btnSearchIcon").href = "/Search?searchPhrase=" + document.getElementById("searchFieldec030a37-353e-46ca-9fc9-0b8701bc1ec4").value;
+	}
+</script>
+
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+	</div>
+</div><div data-cpRole="contentContainer" id="socialTS">	<div id="ccf0d72721-0ea9-447c-847f-580a7a8c5a6b" data-containerid="f0d72721-0ea9-447c-847f-580a7a8c5a6b" class="pageContent cpGrid cpGrid24 isLockedContainer showInMobile">
+				                
+
+		<div class="row outer wide"><!--
+--><div class="outer col col24 first last" style="" data-widgetcontainerid="0f9bc605-a777-486f-8be7-c1152cf79585">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col24 first last id9fb99312-5790-4eab-a39d-294437f2a2d0" style="" data-widgetcontainerid="9fb99312-5790-4eab-a39d-294437f2a2d0">	
+<div data-widget-id="0b02c2e0-44d9-435a-98da-2e7a8e4ac47f" data-widget-controller-path="/GraphicLinks/Widget">
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+	</div>
+</div>
+</div></div>
+</div>
+
+
+
+
+		<div id="bannerImagesJSON19" class="hidden"></div>
+		<div id="bannerSlideshowControls_banner1" class="bannerSlideshowControlsNew none " style="display:none">
+			<a id="arrowPrev_banner1" tabindex="0" class="arrowNew prev" aria-label="Banner Arrow Previous"><svg style=" " class=""><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#iconSlideshowArrowLeft"></use></svg></a>
+			<a id="arrowNext_banner1" tabindex="0" class="arrowNew next" aria-label="Banner Arrow Next"><svg style=" " class=""><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#iconSlideshowArrowRight"></use></svg></a>
+		</div>
+			<script type="text/javascript">
+				$(window).on("load", function () {
+					$.when(window.Pages.rwdSetupComplete)
+						.done(function () {
+							renderExternalBannerSlideshow('banner1',
+								{"BannerOptionID":19,"ThemeID":10,"SlotName":"banner1","Name":"Default","IsDefault":true,"BannerMode":2,"SlideShowSlideTiming":"5","SlideshowTransition":0,"SlideShowTransitionTiming":"1","ImageScale":true,"ImageAlignment":1,"ImageScroll":true,"MuteSound":true,"VideoType":0,"Status":40,"SlideshowControlsPosition":0,"SlideshowControlsAlignment":0,"SlideshowBannerControlsColorScheme":0,"DisplayVideoPauseButton":false,"VideoPauseButtonAlignment":1,"VideoPauseButtonControlsAlignment":0,"VideoPauseButtonStyle":"#FFFFFF","VideoPauseButtonBackgroundStyle":"#000000","VideoPauseButtonAlignmentClass":"alignRight viewport","DisplaySlideshowPauseButton":true,"SlideshowControlsColor":"#FFFFFF","SlideshowControlsBackgroundColor":"#000000","SlideshowPauseButtonClass":"isHidden","BannerImages":[{"BannerImageID":338,"BannerOptionID":19,"FileName":"/ImageRepository/Document?documentID=24718","Height":745,"Width":2200,"StartingOn":null,"StoppingOn":null,"IsLink":false,"LinkAddress":null,"Sequence":1,"RecordStatus":0,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/","AltText":""},{"BannerImageID":339,"BannerOptionID":19,"FileName":"/ImageRepository/Document?documentID=24717","Height":745,"Width":2200,"StartingOn":null,"StoppingOn":null,"IsLink":false,"LinkAddress":null,"Sequence":2,"RecordStatus":0,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/","AltText":""},{"BannerImageID":340,"BannerOptionID":19,"FileName":"/ImageRepository/Document?documentID=24716","Height":745,"Width":2200,"StartingOn":null,"StoppingOn":null,"IsLink":false,"LinkAddress":null,"Sequence":3,"RecordStatus":0,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/","AltText":""},{"BannerImageID":341,"BannerOptionID":19,"FileName":"/ImageRepository/Document?documentID=24715","Height":745,"Width":2200,"StartingOn":null,"StoppingOn":null,"IsLink":false,"LinkAddress":null,"Sequence":4,"RecordStatus":0,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/","AltText":""},{"BannerImageID":342,"BannerOptionID":19,"FileName":"/ImageRepository/Document?documentID=24714","Height":745,"Width":2200,"StartingOn":null,"StoppingOn":null,"IsLink":false,"LinkAddress":null,"Sequence":5,"RecordStatus":0,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/","AltText":""},{"BannerImageID":343,"BannerOptionID":19,"FileName":"/ImageRepository/Document?documentID=24713","Height":745,"Width":2200,"StartingOn":null,"StoppingOn":null,"IsLink":false,"LinkAddress":null,"Sequence":6,"RecordStatus":0,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/","AltText":""},{"BannerImageID":344,"BannerOptionID":19,"FileName":"/ImageRepository/Document?documentID=24712","Height":745,"Width":2200,"StartingOn":null,"StoppingOn":null,"IsLink":false,"LinkAddress":null,"Sequence":7,"RecordStatus":0,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/","AltText":""},{"BannerImageID":345,"BannerOptionID":19,"FileName":"/ImageRepository/Document?documentID=24711","Height":745,"Width":2200,"StartingOn":null,"StoppingOn":null,"IsLink":false,"LinkAddress":null,"Sequence":8,"RecordStatus":0,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/","AltText":""}],"BannerVideos":[{"BannerVideoID":2,"BannerOptionID":19,"VideoFileName":"","ImageFileName":"EmptyBannerBkg201911111023192242.png","IsLink":false,"LinkAddress":null,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/","VideoFileID":"00000000-0000-0000-0000-000000000000","ImageFileID":"00000000-0000-0000-0000-000000000000","VideoWidth":0,"VideoHeight":0,"ImageWidth":0,"ImageHeight":0,"LinkedVideoUrl":"","RecordStatus":0,"AltText":null}],"RecordStatus":0,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/"},
+								'/App_Themes/Interior/Images/',
+								'Rotating');
+						});
+				});
+			</script>
+
+</div>
+</div><!-- Content container --><div data-cpRole="structuralContainer" id="mainContainerTS">
+<div class="siteWrap"><div data-cpRole="structuralContainer" id="mainWrapTS" class="mainWrap" role="main">
+<div data-cpRole="structuralContainer" id="outerContentWrapTS" class="outerContentWrap">
+<div data-cpRole="structuralContainer" id="contentWrapTS" class="contentWrap">
+<div data-cpRole="breadCrumbs" id="breadCrumbs" class="breadCrumbContainer">		<ol class="semanticList breadCrumbs">
+			<li><a class="breadCrumb" href="/">Home</a></li><li><a class="breadCrumb" href="/35/Services">Services</a></li><li><a class="breadCrumb" href="/2106/City-Clerks-Office">City Clerk's Office</a></li><li><a class="breadCrumb" href="/91/Elections">Elections</a></li><li id="currentBCPage" data-pageid="658"><a href class="breadCrumb" aria-current="page">Sample Ballots</a></li>
+		</ol>
+
+	   
+    
+</div><div data-cpRole="mainContentContainer" id="moduleContent">
+	
+	<div id="page" class="moduleContentNew">
+		
+
+	<input id="hdnPageID" name="hdnPageID" type="hidden" value="658" />
+	<input id="hdnParentID" name="hdnParentID" type="hidden" value="91" />
+	<input id="hdnVersionID" name="hdnVersionID" type="hidden" value="39231" />
+	<input id="pageMenuTitle" name="pageMenuTitle" type="hidden" value="Sample Ballots" />
+	<input id="pageShowFeatureColumn" name="pageShowFeatureColumn" type="hidden" value="False" />
+	<input id="hdnIsLayoutPage" name="hdnIsLayoutPage" type="hidden" value="False" />
+	<input id="hdnPageStatus" name="hdnPageStatus" type="hidden" value="Published" />
+
+				<h1 id="versionHeadLine" class="headline">
+
+2026 State General Sample Ballots		</h1>
+	
+		<div id="cc08ca202d-3a22-4573-aafa-e35c9e8fbd93" data-containerid="08ca202d-3a22-4573-aafa-e35c9e8fbd93" class="pageContent cpGrid cpGrid24"  >
+			
+
+		<div class="row outer wide"><!--
+--><div class="outer col col24 first last" style="" data-widgetcontainerid="f93779fe-29e1-40cd-86a7-e74de2e28af2">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col24 first last idcdd2fb3d-c450-4493-9ad7-21a77da546a2" style="" data-widgetcontainerid="cdd2fb3d-c450-4493-9ad7-21a77da546a2">	
+
+<div data-widget-id="f2bcdb84-bf65-4b8f-8110-2a2636c81f72" data-widget-controller-path="/Layout/WidgetTable">
+	
+
+	<section id="tableWidgetf2bcdb84-bf65-4b8f-8110-2a2636c81f72" class="widget widgetTable pageStyles narrow" style="display: block;" data-elementqueryclasses='{"narrow-wide":"max-width:25em"}' aria-label="Table">
+			<div class="widgetBody">
+			<table >
+									<thead>
+						<tr>
+								<th scope="col" id="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c1">PRECINCT</th>
+								<th scope="col" id="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c2">English</th>
+						</tr>
+					</thead>
+									<tbody>
+							<tr class="textContent">
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c1" data-th="PRECINCT">P1 Edgerton Elementary School</td>
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c2" data-th="English"><a target="_blank" href="/DocumentCenter/View/38455/Maplewood-P1-PDF">P1 Sample Ballot</a></td>
+							</tr>
+							<tr class="alt textContent">
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c1" data-th="PRECINCT">P2 Edgerton Elementary School&nbsp;</td>
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c2" data-th="English"><a target="_blank" href="/DocumentCenter/View/38456/Maplewood-P2-PDF">P2 Sample Ballot</a></td>
+							</tr>
+							<tr class="textContent">
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c1" data-th="PRECINCT">P3 Gladstone Community Center</td>
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c2" data-th="English"><a target="_blank" href="/DocumentCenter/View/38457/Maplewood-P3-PDF">P3 Sample Ballot</a></td>
+							</tr>
+							<tr class="alt textContent">
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c1" data-th="PRECINCT">P4 Wakefield Park Community Building</td>
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c2" data-th="English"><a target="_blank" href="/DocumentCenter/View/38458/Maplewood-P4-PDF">P4 Sample Ballot</a></td>
+							</tr>
+							<tr class="textContent">
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c1" data-th="PRECINCT">P5 Maplewood Community Center/YMCA</td>
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c2" data-th="English"><a target="_blank" href="/DocumentCenter/View/38459/Maplewood-P5-PDF">P5 Sample Ballot</a></td>
+							</tr>
+							<tr class="alt textContent">
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c1" data-th="PRECINCT">P6 Redeeming Love Church</td>
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c2" data-th="English"><a target="_blank" href="/DocumentCenter/View/38460/Maplewood-P6-PDF">P6 Sample Ballot</a></td>
+							</tr>
+							<tr class="textContent">
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c1" data-th="PRECINCT">P7 First Evangelical Free Church&nbsp;</td>
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c2" data-th="English"><a target="_blank" href="/DocumentCenter/View/38461/Maplewood-P7-PDF">P7 Sample Ballot</a></td>
+							</tr>
+							<tr class="alt textContent">
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c1" data-th="PRECINCT">P8 ISD622 Ramsey County Library&nbsp;</td>
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c2" data-th="English"><a target="_blank" href="/DocumentCenter/View/38462/Maplewood-P8-622-PDF">P8-622 Sample Ballot</a></td>
+							</tr>
+							<tr class="textContent">
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c1" data-th="PRECINCT">P8 ISD624 Ramsey County Library&nbsp;</td>
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c2" data-th="English"><a target="_blank" href="/DocumentCenter/View/38463/Maplewood-P8-624-PDF">P8-624 Sample Ballot</a></td>
+							</tr>
+							<tr class="alt textContent">
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c1" data-th="PRECINCT">P9 Justice Alan Page Elementary&nbsp;</td>
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c2" data-th="English"><a target="_blank" href="/DocumentCenter/View/38464/Maplewood-P9-PDF">P9 Sample Ballot</a></td>
+							</tr>
+							<tr class="textContent">
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c1" data-th="PRECINCT">P10 Justice Alan Page Elementary&nbsp;</td>
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c2" data-th="English"><a target="_blank" href="/DocumentCenter/View/38465/Maplewood-P10-PDF">P10 Sample Ballot</a></td>
+							</tr>
+							<tr class="alt textContent">
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c1" data-th="PRECINCT">P11 Beaver Lake Education Center</td>
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c2" data-th="English"><a target="_blank" href="/DocumentCenter/View/38466/Maplewood-P11-PDF">P11 Sample Ballot</a></td>
+							</tr>
+							<tr class="textContent">
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c1" data-th="PRECINCT">P12 Carver Elementary&nbsp;</td>
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c2" data-th="English"><a target="_blank" href="/DocumentCenter/View/38467/Maplewood-P12-PDF">P12 Sample Ballot</a></td>
+							</tr>
+							<tr class="alt textContent">
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c1" data-th="PRECINCT">P13 Lutheran Church of Peace</td>
+										<td  headers="tf2bcdb84-bf65-4b8f-8110-2a2636c81f72c2" data-th="English"><a target="_blank" href="/DocumentCenter/View/38468/Maplewood-P13-PDF">P13 Sample Ballot</a></td>
+							</tr>
+					</tbody>
+			</table>
+	</div>
+
+	</section>
+
+
+</div>
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+		<div class="row outer wide"><!--
+--><div class="outer col col24 first last" style="" data-widgetcontainerid="a27b22a9-e237-45b6-95b2-9150e56af162">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col24 first last id0d19e480-fe31-4ced-af60-920c07182387" style="" data-widgetcontainerid="0d19e480-fe31-4ced-af60-920c07182387">	
+
+<div data-widget-id="3ef28620-9ee8-46b3-8c8f-3e4f103cfdcb" data-widget-controller-path="/Layout/WidgetTable">
+	
+
+	<section id="tableWidget3ef28620-9ee8-46b3-8c8f-3e4f103cfdcb" class="widget widgetTable pageStyles narrow" style="display: block;" data-elementqueryclasses='{"narrow-wide":"max-width:25em"}' aria-label="Table">
+			<div class="widgetBody">
+			<table >
+									<thead>
+						<tr>
+								<th scope="col" id="t3ef28620-9ee8-46b3-8c8f-3e4f103cfdcbc1">Translated Sample Ballots</th>
+						</tr>
+					</thead>
+									<tbody>
+							<tr class="textContent">
+										<td  headers="t3ef28620-9ee8-46b3-8c8f-3e4f103cfdcbc1" data-th="Translated Sample Ballots"><a target="_blank" href="https://www.maplewoodmn.gov/DocumentCenter/View/38476/MW-1-2-Hmong-style-5-PDF">Hmong P1, P2</a></td>
+							</tr>
+							<tr class="alt textContent">
+										<td  headers="t3ef28620-9ee8-46b3-8c8f-3e4f103cfdcbc1" data-th="Translated Sample Ballots"><a target="_blank" href="https://www.maplewoodmn.gov/DocumentCenter/View/38477/MW-3-4-5-6-7-8-622-9-Hmong-style-3-PDF">Hmong P3, P4, P5, P6, P7, P8-622, P9</a></td>
+							</tr>
+							<tr class="textContent">
+										<td  headers="t3ef28620-9ee8-46b3-8c8f-3e4f103cfdcbc1" data-th="Translated Sample Ballots"><a target="_blank" href="https://www.maplewoodmn.gov/DocumentCenter/View/38478/MW-8-624-Hmong-style-4-PDF">Hmong P8-624</a></td>
+							</tr>
+							<tr class="alt textContent">
+										<td  headers="t3ef28620-9ee8-46b3-8c8f-3e4f103cfdcbc1" data-th="Translated Sample Ballots"><a target="_blank" href="https://www.maplewoodmn.gov/DocumentCenter/View/38479/MW-10-Hmong-style-6-PDF">Hmong P10</a></td>
+							</tr>
+							<tr class="textContent">
+										<td  headers="t3ef28620-9ee8-46b3-8c8f-3e4f103cfdcbc1" data-th="Translated Sample Ballots"><a target="_blank" href="https://www.maplewoodmn.gov/DocumentCenter/View/38480/MW-11-12-13-Hmong-style-8-PDF">Hmong P11, P12, P13</a></td>
+							</tr>
+							<tr class="alt textContent">
+										<td  headers="t3ef28620-9ee8-46b3-8c8f-3e4f103cfdcbc1" data-th="Translated Sample Ballots"><a target="_blank" href="https://www.maplewoodmn.gov/DocumentCenter/View/38488/Ballot-Style-5-MW-1-2-Spanish-PDF">Spanish P1, P2</a></td>
+							</tr>
+							<tr class="textContent">
+										<td  headers="t3ef28620-9ee8-46b3-8c8f-3e4f103cfdcbc1" data-th="Translated Sample Ballots"><a target="_blank" href="https://www.maplewoodmn.gov/DocumentCenter/View/38486/Ballot-Style-3-MW-3-4-5-6-7-8-622-9-Spanish-PDF">Spanish P3, P4, P5, P6, P7, P8-622, P9</a></td>
+							</tr>
+							<tr class="alt textContent">
+										<td  headers="t3ef28620-9ee8-46b3-8c8f-3e4f103cfdcbc1" data-th="Translated Sample Ballots"><a target="_blank" href="https://www.maplewoodmn.gov/DocumentCenter/View/38487/Ballot-Style-4--MW-8-624-Spanish-PDF">Spanish P8-624</a></td>
+							</tr>
+							<tr class="textContent">
+										<td  headers="t3ef28620-9ee8-46b3-8c8f-3e4f103cfdcbc1" data-th="Translated Sample Ballots"><a target="_blank" href="https://www.maplewoodmn.gov/DocumentCenter/View/38489/Ballot-Style-6-MW-10-Spanish-PDF">Spanish P10</a></td>
+							</tr>
+							<tr class="alt textContent">
+										<td  headers="t3ef28620-9ee8-46b3-8c8f-3e4f103cfdcbc1" data-th="Translated Sample Ballots"><a target="_blank" href="https://www.maplewoodmn.gov/DocumentCenter/View/38490/Ballot-Style-8-MW--11-12-13-Spanish-PDF">Spanish P11, P12, P13</a></td>
+							</tr>
+							<tr class="textContent">
+										<td  headers="t3ef28620-9ee8-46b3-8c8f-3e4f103cfdcbc1" data-th="Translated Sample Ballots"><a target="_blank" href="https://www.maplewoodmn.gov/DocumentCenter/View/38490/Ballot-Style-8-MW--11-12-13-Spanish-PDF">Somali P1, P2</a></td>
+							</tr>
+							<tr class="alt textContent">
+										<td  headers="t3ef28620-9ee8-46b3-8c8f-3e4f103cfdcbc1" data-th="Translated Sample Ballots"><a target="_blank" href="https://www.maplewoodmn.gov/DocumentCenter/View/38482/Maplewood-P-3-45678-6229-Style-3-Somali-PDF">Somali P3, P4, P5, P6, P7, P8-622, P9</a></td>
+							</tr>
+							<tr class="textContent">
+										<td  headers="t3ef28620-9ee8-46b3-8c8f-3e4f103cfdcbc1" data-th="Translated Sample Ballots"><a target="_blank" href="https://www.maplewoodmn.gov/DocumentCenter/View/38483/Maplewood-P-8-624-Style-4-Somali-PDF">Somali P8-624</a></td>
+							</tr>
+							<tr class="alt textContent">
+										<td  headers="t3ef28620-9ee8-46b3-8c8f-3e4f103cfdcbc1" data-th="Translated Sample Ballots"><a target="_blank" href="https://www.maplewoodmn.gov/DocumentCenter/View/38484/Maplewood-P-10-Style-6-Somali-PDF">Somali P10</a></td>
+							</tr>
+							<tr class="textContent">
+										<td  headers="t3ef28620-9ee8-46b3-8c8f-3e4f103cfdcbc1" data-th="Translated Sample Ballots"><a target="_blank" href="https://www.maplewoodmn.gov/DocumentCenter/View/38485/Maplewood-P-1112-13-Style-8-Somali-PDF">Somali P11, P12, P13</a></td>
+							</tr>
+					</tbody>
+			</table>
+	</div>
+
+	</section>
+
+
+</div>
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+		<div class="row outer wide"><!--
+--><div class="outer col col24 first last" style="" data-widgetcontainerid="68ef3594-d5c4-4c74-acee-bded55bcc3b4">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col24 first last idd401ab08-f62b-48bb-a346-1b3e60cbf0c7" style="" data-widgetcontainerid="d401ab08-f62b-48bb-a346-1b3e60cbf0c7">	
+
+
+
+<div data-widget-id="47d64b9e-53ed-4b37-bd6e-783e07ae768c" data-moduleName="list" id="widgetText47d64b9e-53ed-4b37-bd6e-783e07ae768c" class="widget widgetText">
+	<div class="widgetBody pageStyles" id="div47d64b9e-53ed-4b37-bd6e-783e07ae768c">
+
+		<div style="min-height: 18px;">
+			<div class="textContent" >Printed copies are available at City Hall Elections Office from 8am-4:30pm, Monday-Friday.&nbsp;</div>
+		</div>
+	</div>
+</div>
+
+<style>
+	.widget .textContent p:first-child {
+		padding-top: 0px;
+		margin-top: 0px;
+	}
+
+</style>
+
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+		</div>
+
+	</div>
+
+	
+	<div class="newCP">
+
+	</div>
+</div>
+</div><aside data-cpRole="contentContainer" id="featureColumn" class="secondaryContent">	<div id="cc7366c1fe-e8fe-477d-8e03-8ced827e37fd" data-containerid="7366c1fe-e8fe-477d-8e03-8ced827e37fd" class="pageContent cpGrid cpGrid24 showInMobile">
+				                
+
+
+
+	</div>
+</aside>
+</div><div data-cpRole="structuralContainer" id="siteSidebarTS" class="siteSidebar">
+<aside data-cpRole="contentContainer" id="sidebarContainer1TS">	<div id="ccaca4caa4-cd36-4226-ad30-ab1a3bb1a4d9" data-containerid="aca4caa4-cd36-4226-ad30-ab1a3bb1a4d9" class="pageContent cpGrid cpGrid24 showInMobile">
+				                
+
+
+
+	</div>
+</aside><nav data-cpRole="nav" id="secondaryNav" class="siteNav secondaryNav">
+
+
+
+
+
+	<ol role="menu" id="secondaryMenusecondaryNav" data-parent="91" class="rootNavMenu accordionNav arrowIndicator">
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="0" id="SideItem651" data-pageid="651">
+		<div class="accordionNavItem">
+			<a href="/651/AbsenteeEarly-Voting" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">Absentee/Early Voting</a>
+		</div>
+			</li>
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem1189" data-pageid="1189">
+		<div class="accordionNavItem">
+			<a href="/1189/Campaign-Financial-Reports" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">Campaign Financial Reports</a>
+				<a href="#" role="button" class="openAccordionNav accordionSecondaryNavItem" aria-label="Campaign Financial Reports Submenu" aria-expanded="false" aria-controls="submenu-lvl1-1189"></a>
+		</div>
+					<ol aria-hidden="true" role="menu" class="accordionNavContainer accordionNavContainer--lvl1" id="submenu-lvl1-1189" style="display: none;" data-parent="1189">
+						<li class="sideNavLi subMenuItem hasAccordionChildren" role="menuitem" tabindex="0" id="SideItem2206" data-pageid="2206">
+			<div class="accordionNavItem">
+				<a href="/2206/2026-Campaign-Financial-Reports" target="_self" class="navMenuItem cpComponent" data-type="SecondaryMenuItem"><span lang="en">2026 Campaign Financial Reports</span></a>
+			</div>
+					</li>
+		<li class="sideNavLi subMenuItem hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem2205" data-pageid="2205">
+			<div class="accordionNavItem">
+				<a href="/2205/2025-Campaign-Financial-Reports" target="_self" class="navMenuItem cpComponent" data-type="SecondaryMenuItem"><span lang="en">2025 Campaign Financial Reports</span></a>
+			</div>
+					</li>
+		<li class="sideNavLi subMenuItem hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem2142" data-pageid="2142">
+			<div class="accordionNavItem">
+				<a href="/2142/2024-Campaign-Financial-Reports" target="_self" class="navMenuItem cpComponent" data-type="SecondaryMenuItem"><span lang="en">2024 Campaign Financial Reports</span></a>
+			</div>
+					</li>
+		<li class="sideNavLi subMenuItem hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem2132" data-pageid="2132">
+			<div class="accordionNavItem">
+				<a href="/2132/2023-Campaign-Financial-Reports" target="_self" class="navMenuItem cpComponent" data-type="SecondaryMenuItem"><span lang="en">2023 Campaign Financial Reports</span></a>
+			</div>
+					</li>
+		<li class="sideNavLi subMenuItem hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem2075" data-pageid="2075">
+			<div class="accordionNavItem">
+				<a href="/2075/2022-Campaign-Financial-Reports" target="_self" class="navMenuItem cpComponent" data-type="SecondaryMenuItem"><span lang="en">2022 Campaign Financial Reports</span></a>
+			</div>
+					</li>
+
+			</ol>
+	</li>
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem93" data-pageid="93">
+		<div class="accordionNavItem">
+			<a href="/93/Candidate-Information" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">Candidate Information</a>
+		</div>
+			</li>
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem94" data-pageid="94">
+		<div class="accordionNavItem">
+			<a href="/94/Election-Judge" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">Election Judge</a>
+		</div>
+			</li>
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem95" data-pageid="95">
+		<div class="accordionNavItem">
+			<a href="/95/Filing-for-City-Office" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">Filing for City Office</a>
+		</div>
+			</li>
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem97" data-pageid="97">
+		<div class="accordionNavItem">
+			<a href="/97/Polling-Locations-Precinct-Boundaries" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">Polling Locations / Precinct Boundaries</a>
+		</div>
+			</li>
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem311" data-pageid="311">
+		<div class="accordionNavItem">
+			<a href="http://www.sos.state.mn.us/elections-voting/register-to-vote" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">Voter Registration</a>
+		</div>
+			</li>
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem658" data-pageid="658">
+		<div class="accordionNavItem">
+			<a href="/658/Sample-Ballots" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">Sample Ballots</a>
+		</div>
+			</li>
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem2266" data-pageid="2266">
+		<div class="accordionNavItem">
+			<a href="/2266/Election-Judge-Training" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">Election Judge Training</a>
+		</div>
+			</li>
+
+	</ol>
+
+
+	<script type="text/javascript">
+		(function () {
+			function setupSecondaryMenuProperties() {
+				//setup menu manager properties for secondary menu
+				menuManager.isSideMenuEditable = false;
+				menuManager.sideMenuMaxSubMenuLevels = 4;
+				menuManager.sideMenuHasCustomLinks = false;
+			}
+
+			if (document.readyState === "loading") {
+				document.addEventListener("DOMContentLoaded", setupSecondaryMenuProperties, { once: true });
+				return;
+			}
+
+			setupSecondaryMenuProperties();
+		})();
+	</script>
+
+	<script type="text/javascript">
+		(function () {
+			function setupAccordionSecondaryNav() {
+				var $menuContainer = $('#secondaryNav');
+
+				$menuContainer.find('*[id^="SideItem"]').each(function () {
+					var ids = $('[id="' + this.id + '"]');
+					if (ids.length > 1)
+						$.each(ids, function (index, value) {
+							value.id = value.id + '_' + index;
+						});
+				});
+
+				$menuContainer.find('.hasAccordionChildren .openAccordionNav').off('click.secondaryNav').on('click.secondaryNav', function (e) {
+					e.preventDefault();
+					showHideAccordionMenuForSecondaryNav($(this));
+				});
+
+				$menuContainer.find(".grippy").each(function () {
+					menuManager.setupDraggableElement($(this), SIDE_MENU, '#secondaryNav');
+				});
+
+				$menuContainer.find("li").each(function () {
+					menuManager.setupDroppableAccordionElement($(this), SIDE_MENU);
+				});
+			}
+
+			if (document.readyState === "loading") {
+				document.addEventListener("DOMContentLoaded", setupAccordionSecondaryNav, { once: true });
+				return;
+			}
+
+			setupAccordionSecondaryNav();
+		})();
+	</script>
+
+
+
+</nav><aside data-cpRole="contentContainer" id="sidebarContainer2TS">	<div id="cc68ff185f-c845-486c-8a2e-b2d9e08f3fd4" data-containerid="68ff185f-c845-486c-8a2e-b2d9e08f3fd4" class="pageContent cpGrid cpGrid24 showInMobile">
+				                
+
+
+
+	</div>
+</aside>
+</div>
+</div></div>
+</div><!-- GBs --><div data-cpRole="structuralContainer" id="gbsContainerTS">
+<div class="siteWrap"><div data-cpRole="contentContainer" id="gbsTS">	<div id="ccbe900219-c3a7-4e49-9bfc-a1c1eae8955d" data-containerid="be900219-c3a7-4e49-9bfc-a1c1eae8955d" class="pageContent cpGrid cpGrid24 isLockedContainer showInMobile" data-contentcontainerbreakpoint="60">
+				                
+
+		<div class="row outer wide"><!--
+--><div class="outer col col8 first" style="" data-widgetcontainerid="41ac7df5-dbb7-4490-b6d3-9edafe4a0cfc">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col8 first last ida62ac0a4-ac87-4c0c-9810-e7aa7127957c" style="" data-widgetcontainerid="a62ac0a4-ac87-4c0c-9810-e7aa7127957c">	
+<div data-widget-id="5be26676-61ba-4eb7-b3d3-b7ef042253a0" data-widget-controller-path="/GraphicLinks/Widget">
+
+
+
+
+<div id="graphicLinkWidget5be26676-61ba-4eb7-b3d3-b7ef042253a0" class="widget widgetGraphicLinks skin22 widgetOptionSet45 wide" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' data-modulewidgettype="graphicLinks">
+	<div class="widgetHeader">
+		<div class="">
+				</div>
+	</div>
+	<div class="widgetBody cpGrid cpGrid2 ">
+		<nav class="widgetGraphicLinksNav" aria-labelledby="GraphicLinkHeaderText">
+				<div class="row   wide">
+					<!--
+--><div class="col col1 first "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="https://library.municode.com/mn/maplewood/codes/code_of_ordinances" target="_self" class="fancyButton fancyButton390 " >
+		<span>
+			<span><span class="text">City Code</span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton390.fancyButton:link,.fancyButton390.fancyButton:visited, .fancyButton390div.fancyButton{
+	padding-top: 110px;
+	background-image: url('/ImageRepository/Document?documentID=24732');
+	background-repeat: no-repeat;
+	background-position: center top;
+background-size: 100px;
+transition: all .3s cubic-bezier(0.25, 0.1, 0.47, 2.59);}
+.fancyButton390.fancyButton:hover,.fancyButton390.fancyButton:focus,.fancyButton390.fancyButton:active,.fancyButton390.fancyButton.hover{
+	background-image: url('/ImageRepository/Document?documentID=24721');
+	background-repeat: no-repeat;
+	background-position: center top;
+background-size: 105px;
+transition: all .3s cubic-bezier(0.25, 0.1, 0.47, 2.59);}
+.fancyButton390.fancyButton:link > span,.fancyButton390.fancyButton:visited > span, .fancyButton390div.fancyButton > span{
+}
+.fancyButton390.fancyButton:hover > span,.fancyButton390.fancyButton:focus > span,.fancyButton390.fancyButton:active > span,.fancyButton390.fancyButton.hover > span{
+}
+.fancyButton390.fancyButton .text{
+	color: #4a4a4a;
+	font-family: "Lato";
+	font-weight: 700;
+	text-decoration: none;
+	background-repeat: no-repeat;
+	background-position: left top;
+
+
+}
+.fancyButton390.fancyButton:hover .text,.fancyButton390.fancyButton:focus .text,.fancyButton390.fancyButton:active .text,.fancyButton390.fancyButton.hover .text{
+	text-decoration: underline;
+	background-repeat: no-repeat;
+	background-position: left top;
+
+
+}
+</style>
+
+ </li><!--
+--></ul></div><!----><div class="col col1  last"><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="https://www.governmentjobs.com/careers/maplewoodmn" target="_self" class="fancyButton fancyButton391 " >
+		<span>
+			<span><span class="text">Employment</span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton391.fancyButton:link,.fancyButton391.fancyButton:visited, .fancyButton391div.fancyButton{
+	padding-top: 110px;
+	background-image: url('/ImageRepository/Document?documentID=24722');
+	background-repeat: no-repeat;
+	background-position: center top;
+background-size: 100px;
+transition: all .3s cubic-bezier(0.25, 0.1, 0.47, 2.59);}
+.fancyButton391.fancyButton:hover,.fancyButton391.fancyButton:focus,.fancyButton391.fancyButton:active,.fancyButton391.fancyButton.hover{
+	background-image: url('/ImageRepository/Document?documentID=24723');
+	background-repeat: no-repeat;
+	background-position: center top;
+background-size: 105px;
+transition: all .3s cubic-bezier(0.25, 0.1, 0.47, 2.59);}
+.fancyButton391.fancyButton:link > span,.fancyButton391.fancyButton:visited > span, .fancyButton391div.fancyButton > span{
+}
+.fancyButton391.fancyButton:hover > span,.fancyButton391.fancyButton:focus > span,.fancyButton391.fancyButton:active > span,.fancyButton391.fancyButton.hover > span{
+}
+.fancyButton391.fancyButton .text{
+	color: #4a4a4a;
+	font-family: "Lato";
+	font-weight: 700;
+	text-decoration: none;
+	background-repeat: no-repeat;
+	background-position: left top;
+
+
+}
+.fancyButton391.fancyButton:hover .text,.fancyButton391.fancyButton:focus .text,.fancyButton391.fancyButton:active .text,.fancyButton391.fancyButton.hover .text{
+	text-decoration: underline;
+	background-repeat: no-repeat;
+	background-position: left top;
+
+
+}
+</style>
+
+ </li><!--
+--></ul></div><!--				-->
+				</div>
+			</nav>
+		</div>
+	<div class="widgetFooter">
+			</div>
+</div>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col8" style="" data-widgetcontainerid="d9ad01f5-3928-4699-b34e-511a9c13f993">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col8 first last idcd90a5a7-7262-4a74-8525-b5c976b00465" style="" data-widgetcontainerid="cd90a5a7-7262-4a74-8525-b5c976b00465">	
+<div data-widget-id="9fadd001-3651-40a3-b737-be1ee61a5942" data-widget-controller-path="/GraphicLinks/Widget">
+
+
+
+
+<div id="graphicLinkWidget9fadd001-3651-40a3-b737-be1ee61a5942" class="widget widgetGraphicLinks skin22 widgetOptionSet45 wide" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' data-modulewidgettype="graphicLinks">
+	<div class="widgetHeader">
+		<div class="">
+				</div>
+	</div>
+	<div class="widgetBody cpGrid cpGrid2 ">
+		<nav class="widgetGraphicLinksNav" aria-labelledby="GraphicLinkHeaderText">
+				<div class="row   wide">
+					<!--
+--><div class="col col1 first "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="/2053/Maplewood-Fix-It" target="_self" class="fancyButton fancyButton392 " >
+		<span>
+			<span><span class="text">Fix it Form</span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton392.fancyButton:link,.fancyButton392.fancyButton:visited, .fancyButton392div.fancyButton{
+	padding-top: 110px;
+	background-image: url('/ImageRepository/Document?documentID=24724');
+	background-repeat: no-repeat;
+	background-position: center top;
+background-size: 100px;
+transition: all .3s cubic-bezier(0.25, 0.1, 0.47, 2.59);}
+.fancyButton392.fancyButton:hover,.fancyButton392.fancyButton:focus,.fancyButton392.fancyButton:active,.fancyButton392.fancyButton.hover{
+	background-image: url('/ImageRepository/Document?documentID=24725');
+	background-repeat: no-repeat;
+	background-position: center top;
+background-size: 105px;
+transition: all .3s cubic-bezier(0.25, 0.1, 0.47, 2.59);}
+.fancyButton392.fancyButton:link > span,.fancyButton392.fancyButton:visited > span, .fancyButton392div.fancyButton > span{
+}
+.fancyButton392.fancyButton:hover > span,.fancyButton392.fancyButton:focus > span,.fancyButton392.fancyButton:active > span,.fancyButton392.fancyButton.hover > span{
+}
+.fancyButton392.fancyButton .text{
+	color: #4a4a4a;
+	font-family: "Lato";
+	font-weight: 700;
+	text-decoration: none;
+	background-repeat: no-repeat;
+	background-position: left top;
+
+
+}
+.fancyButton392.fancyButton:hover .text,.fancyButton392.fancyButton:focus .text,.fancyButton392.fancyButton:active .text,.fancyButton392.fancyButton.hover .text{
+	text-decoration: underline;
+	background-repeat: no-repeat;
+	background-position: left top;
+
+
+}
+</style>
+
+ </li><!--
+--></ul></div><!----><div class="col col1  last"><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="/1989/Public-Safety" target="_self" class="fancyButton fancyButton393 " >
+		<span>
+			<span><span class="text">Public Safety</span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton393.fancyButton:link,.fancyButton393.fancyButton:visited, .fancyButton393div.fancyButton{
+	padding-top: 110px;
+	background-image: url('/ImageRepository/Document?documentID=24730');
+	background-repeat: no-repeat;
+	background-position: center top;
+background-size: 100px;
+transition: all .3s cubic-bezier(0.25, 0.1, 0.47, 2.59);}
+.fancyButton393.fancyButton:hover,.fancyButton393.fancyButton:focus,.fancyButton393.fancyButton:active,.fancyButton393.fancyButton.hover{
+	background-image: url('/ImageRepository/Document?documentID=24731');
+	background-repeat: no-repeat;
+	background-position: center top;
+background-size: 105px;
+transition: all .3s cubic-bezier(0.25, 0.1, 0.47, 2.59);}
+.fancyButton393.fancyButton:link > span,.fancyButton393.fancyButton:visited > span, .fancyButton393div.fancyButton > span{
+}
+.fancyButton393.fancyButton:hover > span,.fancyButton393.fancyButton:focus > span,.fancyButton393.fancyButton:active > span,.fancyButton393.fancyButton.hover > span{
+}
+.fancyButton393.fancyButton .text{
+	color: #4a4a4a;
+	font-family: "Lato";
+	font-weight: 700;
+	text-decoration: none;
+	background-repeat: no-repeat;
+	background-position: left top;
+
+
+}
+.fancyButton393.fancyButton:hover .text,.fancyButton393.fancyButton:focus .text,.fancyButton393.fancyButton:active .text,.fancyButton393.fancyButton.hover .text{
+	text-decoration: underline;
+	background-repeat: no-repeat;
+	background-position: left top;
+
+
+}
+</style>
+
+ </li><!--
+--></ul></div><!--				-->
+				</div>
+			</nav>
+		</div>
+	<div class="widgetFooter">
+			</div>
+</div>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col8 last" style="" data-widgetcontainerid="2d058f12-8211-49a9-b56c-1f99c66817b3">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col8 first last idd963e1d4-3a0e-4049-9f0e-9cebd7dd6f4f" style="" data-widgetcontainerid="d963e1d4-3a0e-4049-9f0e-9cebd7dd6f4f">	
+<div data-widget-id="72ea6266-aaba-4b08-b027-552c42b4fe6a" data-widget-controller-path="/GraphicLinks/Widget">
+
+
+
+
+<div id="graphicLinkWidget72ea6266-aaba-4b08-b027-552c42b4fe6a" class="widget widgetGraphicLinks skin22 widgetOptionSet45 wide" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' data-modulewidgettype="graphicLinks">
+	<div class="widgetHeader">
+		<div class="">
+				</div>
+	</div>
+	<div class="widgetBody cpGrid cpGrid2 ">
+		<nav class="widgetGraphicLinksNav" aria-labelledby="GraphicLinkHeaderText">
+				<div class="row   wide">
+					<!--
+--><div class="col col1 first "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="/1988/Parks-Natural-Resources" target="_self" class="fancyButton fancyButton394 " >
+		<span>
+			<span><span class="text">Parks &amp; Natural Resources</span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton394.fancyButton:link,.fancyButton394.fancyButton:visited, .fancyButton394div.fancyButton{
+	padding-top: 110px;
+	background-image: url('/ImageRepository/Document?documentID=24728');
+	background-repeat: no-repeat;
+	background-position: center top;
+background-size: 100px;
+transition: all .3s cubic-bezier(0.25, 0.1, 0.47, 2.59);}
+.fancyButton394.fancyButton:hover,.fancyButton394.fancyButton:focus,.fancyButton394.fancyButton:active,.fancyButton394.fancyButton.hover{
+	background-image: url('/ImageRepository/Document?documentID=24729');
+	background-repeat: no-repeat;
+	background-position: center top;
+background-size: 105px;
+transition: all .3s cubic-bezier(0.25, 0.1, 0.47, 2.59);}
+.fancyButton394.fancyButton:link > span,.fancyButton394.fancyButton:visited > span, .fancyButton394div.fancyButton > span{
+}
+.fancyButton394.fancyButton:hover > span,.fancyButton394.fancyButton:focus > span,.fancyButton394.fancyButton:active > span,.fancyButton394.fancyButton.hover > span{
+}
+.fancyButton394.fancyButton .text{
+	color: #4a4a4a;
+	font-family: "Lato";
+	font-weight: 700;
+	text-decoration: none;
+	background-repeat: no-repeat;
+	background-position: left top;
+
+
+}
+.fancyButton394.fancyButton:hover .text,.fancyButton394.fancyButton:focus .text,.fancyButton394.fancyButton:active .text,.fancyButton394.fancyButton.hover .text{
+	text-decoration: underline;
+	background-repeat: no-repeat;
+	background-position: left top;
+
+
+}
+</style>
+
+ </li><!--
+--></ul></div><!----><div class="col col1  last"><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="http://vod.maplewoodmn.gov/CablecastPublicSite/?channel=1" target="_self" class="fancyButton fancyButton395 " >
+		<span>
+			<span><span class="text">Video on Demand</span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton395.fancyButton:link,.fancyButton395.fancyButton:visited, .fancyButton395div.fancyButton{
+	padding-top: 110px;
+	background-image: url('/ImageRepository/Document?documentID=32739');
+	background-repeat: no-repeat;
+	background-position: center top;
+background-size: 100px;
+transition: all .3s cubic-bezier(0.25, 0.1, 0.47, 2.59);}
+.fancyButton395.fancyButton:hover,.fancyButton395.fancyButton:focus,.fancyButton395.fancyButton:active,.fancyButton395.fancyButton.hover{
+	background-image: url('/ImageRepository/Document?documentID=32740');
+	background-repeat: no-repeat;
+	background-position: center top;
+background-size: 105px;
+transition: all .3s cubic-bezier(0.25, 0.1, 0.47, 2.59);}
+.fancyButton395.fancyButton:link > span,.fancyButton395.fancyButton:visited > span, .fancyButton395div.fancyButton > span{
+}
+.fancyButton395.fancyButton:hover > span,.fancyButton395.fancyButton:focus > span,.fancyButton395.fancyButton:active > span,.fancyButton395.fancyButton.hover > span{
+}
+.fancyButton395.fancyButton .text{
+	color: #4a4a4a;
+	font-family: "Lato";
+	font-weight: 700;
+	text-decoration: none;
+	background-repeat: no-repeat;
+	background-position: left top;
+
+
+}
+.fancyButton395.fancyButton:hover .text,.fancyButton395.fancyButton:focus .text,.fancyButton395.fancyButton:active .text,.fancyButton395.fancyButton.hover .text{
+	text-decoration: underline;
+	background-repeat: no-repeat;
+	background-position: left top;
+
+
+}
+.fancyButton395.fancyButton .textStyle1{
+	color: #4a4a4a;
+	font-weight: 300;
+	text-decoration: none;
+
+}
+.fancyButton395.fancyButton:hover .textStyle1, .fancyButton395.fancyButton.hover .textStyle1{
+	text-decoration: underline;
+
+}
+.fancyButton395.fancyButton .textStyle2{
+	color: rgb(74, 74, 74);
+	font-weight: 300;
+	text-decoration: none;
+
+}
+.fancyButton395.fancyButton:hover .textStyle2, .fancyButton395.fancyButton.hover .textStyle2{
+	text-decoration: underline;
+
+}
+</style>
+
+ </li><!--
+--></ul></div><!--				-->
+				</div>
+			</nav>
+		</div>
+	<div class="widgetFooter">
+			</div>
+</div>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+	</div>
+</div></div>
+</div><!-- GBs --><div data-cpRole="structuralContainer" id="gbsContainer2TS" class="fixedLeftTS">
+<div data-cpRole="contentContainer" id="gbs2TS">	<div id="ccebc37b49-0569-4a9a-844e-7cd61050232f" data-containerid="ebc37b49-0569-4a9a-844e-7cd61050232f" class="pageContent cpGrid cpGrid24 isLockedContainer showInMobile">
+				                
+
+		<div class="row outer wide"><!--
+--><div class="outer col col24 first last" style="" data-widgetcontainerid="bb328d6d-c200-4ac7-a239-dc6b62d4c880">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col24 first last id4d825c5e-27a3-49f6-b860-74652d772e2e" style="" data-widgetcontainerid="4d825c5e-27a3-49f6-b860-74652d772e2e">	
+<div data-widget-id="a8d77d4d-8e3f-406f-8709-7a082f243d11" data-widget-controller-path="/GraphicLinks/Widget">
+
+
+
+
+<div id="graphicLinkWidgeta8d77d4d-8e3f-406f-8709-7a082f243d11" class="widget widgetGraphicLinks skin24 widgetOptionSet30 wide" data-elementqueryclasses='{"wide-narrow":"min-width:60em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' data-modulewidgettype="graphicLinks">
+	<div class="widgetHeader">
+		<div class="">
+				</div>
+	</div>
+	<div class="widgetBody cpGrid cpGrid6 ">
+		<nav class="widgetGraphicLinksNav" aria-labelledby="GraphicLinkHeaderText">
+				<div class="row   wide">
+					<!--
+--><div class="col col1 first "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="/m/newsflash?cat=6" target="_self" class="fancyButton fancyButton400 " >
+		<span>
+			<span><span class="text">News</span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton400.fancyButton:link,.fancyButton400.fancyButton:visited, .fancyButton400div.fancyButton{
+	height: 75px;
+	width: 100px;
+	padding-top: 45px;
+	background-image: url('/ImageRepository/Document?documentID=24848');
+	background-repeat: no-repeat;
+	background-position: center 5px ;
+margin: auto;
+}
+.fancyButton400.fancyButton:hover,.fancyButton400.fancyButton:focus,.fancyButton400.fancyButton:active,.fancyButton400.fancyButton.hover{
+	background-image: url('/ImageRepository/Document?documentID=24849');
+	background-repeat: no-repeat;
+	background-position: center 5px ;
+}
+.fancyButton400.fancyButton:link > span,.fancyButton400.fancyButton:visited > span, .fancyButton400div.fancyButton > span{
+}
+.fancyButton400.fancyButton:hover > span,.fancyButton400.fancyButton:focus > span,.fancyButton400.fancyButton:active > span,.fancyButton400.fancyButton.hover > span{
+}
+.fancyButton400.fancyButton .text{
+	color: #fff;
+	font-size: .85em;
+	font-family: "Montserrat";
+	text-align: center;
+	font-weight: 700;
+	text-decoration: none;
+	background-repeat: no-repeat;
+	background-position: left top;
+
+
+}
+.fancyButton400.fancyButton:hover .text,.fancyButton400.fancyButton:focus .text,.fancyButton400.fancyButton:active .text,.fancyButton400.fancyButton.hover .text{
+	color: #fff;
+	text-decoration: underline;
+	background-repeat: no-repeat;
+	background-position: left top;
+
+
+}
+</style>
+
+ </li><!--
+--></ul></div><!----><div class="col col1  "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="/calendar.aspx?CID=50" target="_self" class="fancyButton fancyButton401 " >
+		<span>
+			<span><span class="text">Calendar</span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton401.fancyButton:link,.fancyButton401.fancyButton:visited, .fancyButton401div.fancyButton{
+	height: 75px;
+	width: 100px;
+	padding-top: 45px;
+	background-image: url('/ImageRepository/Document?documentID=24842');
+	background-repeat: no-repeat;
+	background-position: center 5px ;
+margin: auto;
+}
+.fancyButton401.fancyButton:hover,.fancyButton401.fancyButton:focus,.fancyButton401.fancyButton:active,.fancyButton401.fancyButton.hover{
+	background-image: url('/ImageRepository/Document?documentID=24843');
+	background-repeat: no-repeat;
+	background-position: center 5px ;
+}
+.fancyButton401.fancyButton:link > span,.fancyButton401.fancyButton:visited > span, .fancyButton401div.fancyButton > span{
+}
+.fancyButton401.fancyButton:hover > span,.fancyButton401.fancyButton:focus > span,.fancyButton401.fancyButton:active > span,.fancyButton401.fancyButton.hover > span{
+}
+.fancyButton401.fancyButton .text{
+	color: #fff;
+	font-size: .85em;
+	font-family: "Montserrat";
+	text-align: center;
+	font-weight: 700;
+	text-decoration: none;
+	background-repeat: no-repeat;
+	background-position: left top;
+
+
+}
+.fancyButton401.fancyButton:hover .text,.fancyButton401.fancyButton:focus .text,.fancyButton401.fancyButton:active .text,.fancyButton401.fancyButton.hover .text{
+	color: #fff;
+	text-decoration: underline;
+	background-repeat: no-repeat;
+	background-position: left top;
+
+
+}
+</style>
+
+ </li><!--
+--></ul></div><!----><div class="col col1  "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="https://maplewoodmn.gov/directory.aspx" target="_self" class="fancyButton fancyButton403 " >
+		<span>
+			<span><span class="text">Staff<br>Directory</span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton403.fancyButton:link,.fancyButton403.fancyButton:visited, .fancyButton403div.fancyButton{
+	height: 75px;
+	width: 100px;
+	padding-top: 45px;
+	background-image: url('/ImageRepository/Document?documentID=24850');
+	background-repeat: no-repeat;
+	background-position: center 5px ;
+margin: auto;
+}
+.fancyButton403.fancyButton:hover,.fancyButton403.fancyButton:focus,.fancyButton403.fancyButton:active,.fancyButton403.fancyButton.hover{
+	background-image: url('/ImageRepository/Document?documentID=24851');
+	background-repeat: no-repeat;
+	background-position: center 5px ;
+}
+.fancyButton403.fancyButton:link > span,.fancyButton403.fancyButton:visited > span, .fancyButton403div.fancyButton > span{
+}
+.fancyButton403.fancyButton:hover > span,.fancyButton403.fancyButton:focus > span,.fancyButton403.fancyButton:active > span,.fancyButton403.fancyButton.hover > span{
+}
+.fancyButton403.fancyButton .text{
+	color: #fff;
+	font-size: .85em;
+	font-family: "Montserrat";
+	text-align: center;
+	font-weight: 700;
+	text-decoration: none;
+	background-repeat: no-repeat;
+	background-position: left top;
+
+line-height: 1;}
+.fancyButton403.fancyButton:hover .text,.fancyButton403.fancyButton:focus .text,.fancyButton403.fancyButton:active .text,.fancyButton403.fancyButton.hover .text{
+	color: #fff;
+	text-decoration: underline;
+	background-repeat: no-repeat;
+	background-position: left top;
+
+
+}
+</style>
+
+ </li><!--
+--></ul></div><!----><div class="col col1  "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="/list.aspx" target="_self" class="fancyButton fancyButton404 " >
+		<span>
+			<span><span class="text">Email Notify</span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton404.fancyButton:link,.fancyButton404.fancyButton:visited, .fancyButton404div.fancyButton{
+	height: 75px;
+	width: 100px;
+	padding-top: 45px;
+	background-image: url(/ImageRepository/Document?documentID=24844);
+	background-repeat: no-repeat;
+	background-position: center 5px ;
+margin: auto;
+}
+.fancyButton404.fancyButton:hover,.fancyButton404.fancyButton:focus,.fancyButton404.fancyButton:active,.fancyButton404.fancyButton.hover{
+	background-image: url(/ImageRepository/Document?documentID=24845);
+	background-repeat: no-repeat;
+	background-position: center 5px ;
+}
+.fancyButton404.fancyButton:link > span,.fancyButton404.fancyButton:visited > span, .fancyButton404div.fancyButton > span{
+}
+.fancyButton404.fancyButton:hover > span,.fancyButton404.fancyButton:focus > span,.fancyButton404.fancyButton:active > span,.fancyButton404.fancyButton.hover > span{
+}
+.fancyButton404.fancyButton .text{
+	color: #fff;
+	font-size: .85em;
+	font-family: "Montserrat";
+	text-align: center;
+	font-weight: 700;
+	text-decoration: none;
+	background-repeat: no-repeat;
+	background-position: left top;
+
+line-height: 1;}
+.fancyButton404.fancyButton:hover .text,.fancyButton404.fancyButton:focus .text,.fancyButton404.fancyButton:active .text,.fancyButton404.fancyButton.hover .text{
+	color: #fff;
+	text-decoration: underline;
+	background-repeat: no-repeat;
+	background-position: left top;
+
+
+}
+</style>
+
+ </li><!--
+--></ul></div><!----><div class="col col1  "><ul class="semanticList"><!--
+--></ul></div><!----><div class="col col1  last"><ul class="semanticList"><!--
+--></ul></div><!--				-->
+				</div>
+			</nav>
+		</div>
+	<div class="widgetFooter">
+			</div>
+</div>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+	</div>
+</div>
+</div><!-- Calendar/Carousel --><!-- <div data-cpRole="structuralContainer" id="homeContainer1"> <div class="siteWrap"> <div data-cpRole="contentContainer" id="homeContent1a"></div> </div> </div> --><!-- Footer --><footer data-cpRole="structuralContainer" id="footerContainerTS">
+<div class="siteWrap"><div data-cpRole="contentContainer" id="footerTS">	<div id="cc350080d0-4e7c-41f2-9498-925e780a7809" data-containerid="350080d0-4e7c-41f2-9498-925e780a7809" class="pageContent cpGrid cpGrid24 isLockedContainer showInMobile" data-contentcontainerbreakpoint="60">
+				                
+
+		<div class="row outer wide"><!--
+--><div class="outer col col4 first" style="" data-widgetcontainerid="25fc89b7-4ca0-4d49-9477-ba8f7779ec84">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col4 first last id3734462d-2805-4435-825f-d5af3bcae072" style="" data-widgetcontainerid="3734462d-2805-4435-825f-d5af3bcae072">	
+    <div data-widget-id="c2b8753a-f0c1-4811-a3f8-f6839719a1b1" data-widget-controller-path="/InfoAdvanced/Widget">
+
+
+
+
+
+	<section id="divInfoAdvc2b8753a-f0c1-4811-a3f8-f6839719a1b1" class="widget widgetInfoAdvanced skin21 widgetOptionSet31 wide" data-modulewidgettype="infoAdv" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' aria-label="Info Advanced">
+			<header class="widgetHeader" id="headerc2b8753a-f0c1-4811-a3f8-f6839719a1b1">
+		<div class="">
+								</div>
+	</header>
+	<div class="widgetBody  cpGrid cpGrid1 ">
+		<div class="row autoWidths center wide">
+					<div class="col col1 first last">
+						<ol class="pageStyles semanticList">
+
+<li class="InfoAdvanced widgetItem fr-view">
+	<p><img src="/ImageRepository/Document?documentID=24773" alt="Site ID" title="Site ID" class="fr-fic fr-dii"></p><p><br></p>
+</li>						</ol>
+					</div>
+		</div>
+	</div>
+	<div class="widgetFooter">
+
+	</div>
+
+	</section>
+
+
+
+<script type="text/javascript">
+	//Render slideshow if info advacned items contain one.
+	$(document).ready(function (e) {
+		$('#divInfoAdvc2b8753a-f0c1-4811-a3f8-f6839719a1b1 .InfoAdvanced.widgetItem').each(function () {
+			renderSlideshowIfApplicable($(this));		
+		});
+	});
+</script></div>
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col2" style="" data-widgetcontainerid="fa0fbdcd-c5c3-484f-b380-8c9273fc4a40">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col2 first last id4c43ec6d-b348-47ff-8d60-2ca699edda17" style="" data-widgetcontainerid="4c43ec6d-b348-47ff-8d60-2ca699edda17">	
+
+<div class="widget widgetSpacer" id="89885755-da77-4dff-bd52-126e58bd7fba"></div>
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col7" style="" data-widgetcontainerid="3d38bd66-9bd3-48fa-91f0-808a1a10d8df">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col7 first last ideb92fd95-156c-45d2-9c02-b73ab885b579" style="" data-widgetcontainerid="eb92fd95-156c-45d2-9c02-b73ab885b579">	
+    <div data-widget-id="543ce5ef-ca98-4b9d-b262-43aefb4c9fb9" data-widget-controller-path="/InfoAdvanced/Widget">
+
+
+
+
+
+	<section id="divInfoAdv543ce5ef-ca98-4b9d-b262-43aefb4c9fb9" class="widget widgetInfoAdvanced skin21 widgetOptionSet5 wide" data-modulewidgettype="infoAdv" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' aria-labelledby="header543ce5ef-ca98-4b9d-b262-43aefb4c9fb9">
+			<header class="widgetHeader" id="header543ce5ef-ca98-4b9d-b262-43aefb4c9fb9">
+		<div class="">
+					<h3 >Contact Us</h3>
+								</div>
+	</header>
+	<div class="widgetBody  cpGrid cpGrid1 ">
+		<div class="row  wide">
+					<div class="col col1 first last">
+						<ol class="pageStyles semanticList">
+
+<li class="InfoAdvanced widgetItem fr-view">
+	<p><span class="widgetTitle"><strong>City Hall</strong></span><br>1830 County Road B E<br>Maplewood, MN 55109<br>Phone: <a href="tel:651-249-2000">651-249-2000</a><br>Questions? <a class="Hyperlink" href="mailto:info@maplewoodmn.gov" target="_blank" title="Give us your questions">Email Us</a></p><p><strong>Hours of Operation</strong><br>8:00am - 4:30pm<br>Monday - Friday</p>
+</li>						</ol>
+					</div>
+		</div>
+	</div>
+	<div class="widgetFooter">
+
+	</div>
+
+	</section>
+
+
+
+<script type="text/javascript">
+	//Render slideshow if info advacned items contain one.
+	$(document).ready(function (e) {
+		$('#divInfoAdv543ce5ef-ca98-4b9d-b262-43aefb4c9fb9 .InfoAdvanced.widgetItem').each(function () {
+			renderSlideshowIfApplicable($(this));		
+		});
+	});
+</script></div>
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col1" style="" data-widgetcontainerid="31b069c6-469c-4151-b596-03bd1768fdcf">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col1 first last idb50ef3cf-9e63-42c1-9b06-15b9f2e77fcc" style="" data-widgetcontainerid="b50ef3cf-9e63-42c1-9b06-15b9f2e77fcc">	
+
+<div class="widget widgetSpacer" id="bfe4514a-ca24-4fef-a3af-979d21a3f441"></div>
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col6" style="" data-widgetcontainerid="2476fc24-eb22-4ec0-be68-76c363b12890">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col6 first last id7f7b1593-8eea-4572-b3a5-27fb75975eef" style="" data-widgetcontainerid="7f7b1593-8eea-4572-b3a5-27fb75975eef">	
+	<div data-widget-id="e11dd178-b9b8-4579-a7aa-5d7db23c3075" data-widget-controller-path="/QuickLinks/Widget">
+
+
+
+
+
+
+
+
+	<section id="widgetQuicklinke11dd178-b9b8-4579-a7aa-5d7db23c3075" class="widget widgetQuickLinks skin21 widgetOptionSet41 narrow" data-modulewidgettype="quickLinks" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' aria-labelledby="quickLinksHeadere11dd178-b9b8-4579-a7aa-5d7db23c3075">
+			<header class="widgetHeader" id="quickLinksHeadere11dd178-b9b8-4579-a7aa-5d7db23c3075">
+		<div class="">
+					<h3><a  style="" href="/QuickLinks.aspx?CID=122" >Quick Links</a></h3>
+						</div>
+	</header>
+	<div class="widgetBody cpGrid cpGrid1 ">
+        <div class="row  narrow">
+				<div class="col col1 first last">
+					<ol class="semanticList">
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/faq" target="_self" aria-label="FAQs - 2019 Redesign - Footer - Quick Links" rel="">FAQs</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="https://www.municode.com/library/mn/maplewood" target="_self" aria-label="City Code - 2019 Redesign - Footer - Quick Links" rel="">City Code</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/FormCenter/Fix-It-7/Fix-it-36" target="_self" aria-label="Submit a Request - 2019 Redesign - Footer - Quick Links" rel="">Submit a Request</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/Blog.aspx?CID=1" target="_self" aria-label="Manager&#39;s Blog - 2019 Redesign - Footer - Quick Links" rel="">Manager's Blog</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="http://vod.maplewoodmn.gov/" target="_blank" aria-label="Video on Demand - 2019 Redesign - Footer - Quick Links opens in new window" rel="noopener">Video on Demand</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="https://www.ramseycountymn.gov/" target="_self" aria-label="Ramsey County - 2019 Redesign - Footer - Quick Links" rel="">Ramsey County</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="https://www.stpaul.gov/departments/saint-paul-regional-water-services" target="_self" aria-label="St Paul Regional Water Services - 2019 Redesign - Footer - Quick Links" rel="">St Paul Regional Water Services</a>
+        <div class="widgetMeta"></div>
+    </li>
+					</ol>
+				</div>
+		</div>
+        
+	</div>
+	<div class="widgetFooter">
+	</div>
+	<div class="addItemModal hidden">
+		<div class="url hidden">/QuickLinks.aspx</div>
+	</div>
+
+	</section>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col4 last" style="" data-widgetcontainerid="387f1b8f-bac7-41d9-b525-e0a3933b8204">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col4 first last id05d4469e-787f-4fd9-88d0-e08c832733af" style="" data-widgetcontainerid="05d4469e-787f-4fd9-88d0-e08c832733af">	
+	<div data-widget-id="1c7289d1-2f81-4a67-a6b6-a5f26e8b91b3" data-widget-controller-path="/QuickLinks/Widget">
+
+
+
+
+
+
+
+
+	<section id="widgetQuicklink1c7289d1-2f81-4a67-a6b6-a5f26e8b91b3" class="widget widgetQuickLinks skin21 widgetOptionSet41 narrow" data-modulewidgettype="quickLinks" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' aria-labelledby="quickLinksHeader1c7289d1-2f81-4a67-a6b6-a5f26e8b91b3">
+			<header class="widgetHeader" id="quickLinksHeader1c7289d1-2f81-4a67-a6b6-a5f26e8b91b3">
+		<div class="">
+					<h3><a  style="" href="/QuickLinks.aspx?CID=123" >Site Links</a></h3>
+						</div>
+	</header>
+	<div class="widgetBody cpGrid cpGrid1 ">
+        <div class="row  narrow">
+				<div class="col col1 first last">
+					<ol class="semanticList">
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/" target="_self" aria-label="Home - 2019 Redesign - Footer - Site Links" rel="">Home</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/sitemap" target="_self" aria-label="Site Map - 2019 Redesign - Footer - Site Links" rel="">Site Map</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/directory" target="_self" aria-label="Contact Us - 2019 Redesign - Footer - Site Links" rel="">Contact Us</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/accessibility" target="_self" aria-label="Accessibility - 2019 Redesign - Footer - Site Links" rel="">Accessibility</a>
+        <div class="widgetMeta"></div>
+    </li>
+					</ol>
+				</div>
+		</div>
+        
+	</div>
+	<div class="widgetFooter">
+	</div>
+	<div class="addItemModal hidden">
+		<div class="url hidden">/QuickLinks.aspx</div>
+	</div>
+
+	</section>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+	</div>
+</div></div>
+</footer><!-- Powered By --><div data-cpRole="structuralContainer" id="poweredByContainerTS">
+<div class="siteWrap"><div data-cpRole="contentContainer" id="poweredByTS">	<div id="ccef86a21b-e67a-47dc-affe-17afb5438fd5" data-containerid="ef86a21b-e67a-47dc-affe-17afb5438fd5" class="pageContent cpGrid cpGrid24 isLockedContainer showInMobile">
+				                
+
+		<div class="row outer wide"><!--
+--><div class="outer col col24 first last" style="" data-widgetcontainerid="927aa400-9ea6-40ff-98a1-5557242e02f2">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col24 first last id6d21def3-6531-420c-9e01-af0a30b4b4e3" style="" data-widgetcontainerid="6d21def3-6531-420c-9e01-af0a30b4b4e3">	
+ 
+	<div data-widget-id='e7b34500-f2bd-4542-bf02-8f586101ec75' data-moduleName="customHtml" id='widgetCustomHtmle7b34500-f2bd-4542-bf02-8f586101ec75' class="widget widgetCustomHtml skin21 narrow" >
+	<div class="widgetBody pageStyles" id="widgetBodye7b34500-f2bd-4542-bf02-8f586101ec75">
+		<div id="customHtmle7b34500-f2bd-4542-bf02-8f586101ec75"><div><style>
+  /* CP icon */
+  .cpBylineIconTS {
+    color: #fff;
+  }
+  /* CP Text */
+  .cpBylineTextTS,
+  .cpBylineTextTS a:link {
+    color: #fff;
+  }
+
+  .cpBylineTS {
+    text-align: center;
+  }
+  
+  .cpBylineIconTS {
+    fill: currentColor;
+    width: 39px;
+    height: 26px;
+    display: inline;
+    vertical-align: middle;
+  }
+</style>
+
+<div class="widgetItem cpBylineTS">
+  <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 100 100" class="cpBylineIconTS">
+    <path class="c" d="M73.4,23.2h-19v16.7h19c2.8,0,5,2.2,5,5c0,2.8-2.2,5-5,5h-19v28.4h5.5l11.3-11.7h2.2c11.9,0,21.6-9.7,21.6-21.6C95,33,85.3,23.2,73.4,23.2"></path>
+    <path class="p" d="M45.8,66.5H26.6C14.7,66.5,5,56.8,5,44.9C5,33,14.7,23.2,26.6,23.2h19.1v16.7H26.6c-2.8,0-5,2.2-5,5c0,2.8,2.2,5,5,5h19.1V66.5z"></path>
+  </svg>
+  <span class="cpBylineTextTS">Government Websites by <a href="https://connect.civicplus.com/referral">CivicPlus&reg;</a></span>
+</div>
+</div></div>
+	</div>
+
+	</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+	</div>
+</div></div>
+</div>
+</div>
+
+            </div>
+        </div>
+    </div>
+
+<link href="/745732998.css" rel="stylesheet" type="text/css" />
+
+<div id="SplashMessageWrapper" class="cp-Splash-wrapper">
+	<div role="dialog" aria-labelledby="cp-Splash-title" aria-describedby="editorContentDesc" aria-modal="true" tabindex="-1" id="SplashMessage" class="hidden cp-Splash cp-Splash--modal is-open">
+		<div class="cp-Splash-header">
+			<h2 class="cp-Splash-title" id="cp-Splash-title">Loading</h2>
+			<button class="cp-Splash-Btn cp-Splash-close" aria-label="Close this modal" title="Close this window">
+				<svg id="iconClose" viewBox="0 0 25 25">
+					<polygon style="fill:currentcolor"
+							 points="18.806,6.98 18.075,6.248 12.532,11.792 6.989,6.248 6.257,6.98 11.786,12.508 6.212,18.084 6.943,18.815 12.532,13.224 18.12,18.815 18.851,18.084 13.277,12.508"></polygon>
+				</svg>
+			</button>
+		</div>
+		<div class="cp-Splash-body">
+			<div class="cp-Splash-Prose editorContent fr-view" id="editorContentDesc">
+				<!-- Content from the Froala Editor will go here. -->
+				Loading
+			</div>
+		</div>
+		<div class="cp-Splash-footer">
+			<button class="cp-Splash-Btn cp-Splash-Btn--NoShow">Do Not Show Again</button>
+			<button class="cp-Splash-Btn cp-Splash-Btn--Close">Close</button>
+		</div>
+	</div>
+</div>
+
+<script src="/Assets/Scripts/APIClient.js"></script>
+<script src="/Assets/Mystique/Shared/Scripts/Moment/Moment.min.js"></script>
+<script src="/Assets/Scripts/SplashModal/SplashModalRender.js"></script>
+<script>
+
+		$(document).ready(function () {
+			var filter = {
+				targetId: '658',
+				targetType: 1
+			}
+
+			new SplashModalRender().triggerRender(filter);
+		});
+</script>
+
+
+	
+	
+	
+	
+
+
+
+	
+
+
+
+
+
+
+    <script src="/-1442400649.js" type="text/javascript"></script>
+    <!----------Google Translate (Mobile Friendly)--------->
+<style>
+  #google-translate-container {
+    position: fixed;
+    bottom: 16px;
+    right: 90px; /* moved 40px from right to left */
+    z-index: 5;
+  }
+
+  /* Select element */
+  .goog-te-combo {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+
+    width: 200px;      /* increased width */
+    height: 40px;      /* increased height */
+    border-radius: 50px;
+    background-color: white;
+
+    background-image: url("https://www.gstatic.com/images/branding/product/2x/translate_24dp.png");
+    background-position: 8px 8px;
+    background-size: 24px;
+    background-repeat: no-repeat;
+    padding-left: 40px;
+    font-size: 14px;
+    margin: 0 !important;
+  }
+
+  .google-translate-dropdown-arrow {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    border: solid black;
+    border-width: 0 2px 2px 0;
+    display: inline-block;
+    padding: 4px;
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  /* Google.com practice - hidden element */
+  .goog-te-gadget {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    clip: rect(1px, 1px, 1px, 1px);
+    z-index: -1000;
+  }
+</style>
+
+<div id="google-translate-container">
+  <i class="google-translate-dropdown-arrow"></i>
+</div>
+
+<script>
+  function googleTranslateInit() {
+    new google.translate.TranslateElement({ pageLanguage: "en" }, "google-translate-container");
+
+    const select = $(".goog-te-combo").detach();
+    $("#google-translate-container").append(select);
+  }
+
+  $(function() {
+    $.getScript("//translate.google.com/translate_a/element.js?cb=googleTranslateInit");
+  });
+</script>
+<!--------------End Google Translate----------------->
+
+	
+<!-- Fixed Nav Adjustment -->
+<script>
+  function getValueTS(elem, attr) {
+    const val = elem.css(attr);
+    if (val === undefined) return undefined;
+    const num = parseInt(val, 10);
+    if (num === NaN) return undefined;
+    return num;
+  }
+
+  function clampTS(number, min, max) {
+    return Math.min(Math.max(number, min), max);
+  }
+
+  function isPageEditingTS() {
+    return (
+      $("#doneEditing").length > 0 || // In live edit
+      typeof DesignCenter !== "undefined" // In theme manager
+    );
+  }
+
+  const bgColorRegexTS = /rgba\((\d+), (\d+), (\d+), (\d*\.?\d*)\)/;
+  function isTransparentTS(elem) {
+    const bg = elem.css('background-color');
+    if (typeof bg !== "string" || !bg.startsWith('rgba(')) return false;
+    const matchState = bg.match(bgColorRegexTS);
+    if (!matchState || matchState.length !== 5) return false;
+    const alpha = parseFloat(matchState[4], 10);
+    if (!(alpha >= 0 && alpha < 1)) return false;
+    return true;
+  }
+
+  function iterateLeftpads(cb) {
+    const containersTS = $("[class^='siteWrap'],[class*=' siteWrap']");
+    for (let i = 0; i < containersTS.length; i++) {
+      const containerTS = containersTS[i];
+      // Skip the body container and anything with data-skip-leftpad
+      if (
+        containerTS.id !== "bodyContainerTS" &&
+        containerTS.getAttribute('data-skip-leftpad') === null
+      ) {
+        cb(containerTS);
+      }
+    }
+  }
+
+  const anchor = $("#divToolbars");
+  const bodyContainerTS = $("#bodyContainerTS");
+
+  // Outer banner padding (push banner down)
+  const outerSizingTS = $("#bannerContainerTS");
+  // Inner banner padding (push banner content down) - Transparent header OR on attaching headers
+  const innerSizingTS = $("#bannerSizingTS");
+
+  const forceUnfixClassTS = "forceUnfixTS";
+
+  const fixedTopTS = $(".fixedTopTS");
+  const fixedBottomTS = $(".fixedBottomTS");
+  const fixedLeftTS = $(".fixedLeftTS");
+
+  var initialTopTS;
+  var topAttachTS;
+  if (fixedTopTS && fixedTopTS.length === 1) {
+    initialTopTS = getValueTS(fixedTopTS, 'top');
+    const attachment = fixedTopTS.attr('data-attach');
+    if (attachment) topAttachTS = $("#" + attachment);
+    if (!topAttachTS || topAttachTS.length !== 1) topAttachTS = undefined;
+  }
+
+  function resizeAdjustmentTS() {
+    const editing = isPageEditingTS();
+
+    // Fixed top script
+    (function () {
+      if (!fixedTopTS || fixedTopTS.length !== 1 || initialTopTS === undefined) return;
+
+      if (editing) {
+        fixedTopTS[0].classList.add(forceUnfixClassTS);
+      } else {
+        fixedTopTS[0].classList.remove(forceUnfixClassTS);
+      }
+
+      const topPosition = fixedTopTS.css('position');
+      if (topPosition === 'fixed') {
+        if (topAttachTS) {
+          scrollAdjustmentTS();
+        } else {
+          const anchorHeight = anchor.outerHeight() - 1;
+          fixedTopTS.css('top', anchorHeight + initialTopTS);
+        }
+      } else {
+        fixedTopTS.css('top', initialTopTS);
+      }
+
+      if (topPosition === 'fixed' || topPosition === 'absolute') {
+        // Bump the banner content down
+        if (isTransparentTS(fixedTopTS)) {
+          innerSizingTS.css('padding-top', initialTopTS + fixedTopTS.outerHeight());
+          outerSizingTS.css('padding-top', '');
+
+          try {
+            window.Pages.onResizeHandlersExecute();
+          } catch (e) { }
+        } else {
+          outerSizingTS.css('padding-top', fixedTopTS.outerHeight());
+          innerSizingTS.css('padding-top', '');
+        }
+      } else {
+        innerSizingTS.css('padding-top', '');
+        outerSizingTS.css('padding-top', '');
+      }
+    })();
+
+    // Fixed bottom script
+    (function () {
+      if (!fixedBottomTS || fixedBottomTS.length === 0) return;
+
+      // If the widget has gone narrow, force unfix
+      if (editing || fixedBottomTS.outerHeight() > 200) {
+        fixedBottomTS[0].classList.add(forceUnfixClassTS);
+      } else {
+        fixedBottomTS[0].classList.remove(forceUnfixClassTS);
+      }
+
+      if (fixedBottomTS.css('position') === 'fixed') {
+        bodyContainerTS.css('padding-bottom', fixedBottomTS.outerHeight());
+      } else {
+        bodyContainerTS.css('padding-bottom', '');
+      }
+    })();
+
+    // Fixed left script
+    (function () {
+      if (!fixedLeftTS || fixedLeftTS.length === 0) return;
+
+      if (editing) {
+        fixedLeftTS[0].classList.add(forceUnfixClassTS);
+      } else {
+        fixedLeftTS[0].classList.remove(forceUnfixClassTS);
+      }
+
+      if (fixedLeftTS.css('position') === 'fixed') {
+        const anchorHeight = anchor.outerHeight() - 1;
+        fixedLeftTS.css('top', anchorHeight);
+        const leftBoundingTS = fixedLeftTS[0].getBoundingClientRect();
+        iterateLeftpads(function (containerTS) {
+          const containerBoundingTS = containerTS.getBoundingClientRect();
+          if (containerBoundingTS.left <= leftBoundingTS.right) {
+            $(containerTS).css('padding-left', leftBoundingTS.width + 16);
+          }
+        });
+      } else {
+        fixedLeftTS.css('top', '');
+        iterateLeftpads(function (containerTS) {
+          $(containerTS).css('padding-left', '');
+        });
+      }
+    })();
+  }
+
+  function scrollAdjustmentTS() {
+    if (!fixedTopTS || fixedTopTS.length !== 1 || !topAttachTS || topAttachTS.length !== 1) return;
+    const topPosition = fixedTopTS.css('position');
+    if (topPosition === 'fixed' || topPosition === 'absolute') {
+      const anchorBounding = anchor[0].getBoundingClientRect();
+      const attachBounding = topAttachTS[0].getBoundingClientRect();
+      const scrollTop = $(window).scrollTop();
+
+      fixedTopTS.css('top', Math.max(anchorBounding.bottom - 1, attachBounding.bottom));
+    } else {
+      fixedTopTS.css('top', initialTopTS);
+    }
+  }
+
+  $(window).load(function () {
+    setTimeout(function () {
+      try {
+        resizeAdjustmentTS();
+      } catch (e) {
+        console.error(e);
+      }
+    }, 350);
+
+    $(window).scroll(function () {
+      try {
+        scrollAdjustmentTS();
+      } catch (e) {
+        console.error(e);
+      }
+    });
+
+    var adjustTimeoutTS;
+    $(window).resize(function () {
+      clearTimeout(adjustTimeoutTS);
+      adjustTimeoutTS = setTimeout(function () {
+        try {
+          resizeAdjustmentTS();
+        } catch (e) {
+          console.error(e);
+        }
+      }, 350);
+    });
+
+    $.when(window.Pages.angularToolbarComplete).done(function () {
+      try {
+        resizeAdjustmentTS();
+      } catch (e) {
+        console.error(e);
+      }
+    });
+  });
+</script>
+<!-- End Fixed Nav Adjustment -->
+
+<!-- Monsido script -->
+<script type="text/javascript">
+    window._monsido = window._monsido || {
+        token: "Xs76upXcDzmx2J6W22SBpA",
+        statistics: {
+            enabled: true,
+            cookieLessTracking: true,
+            documentTracking: {
+                enabled: true,
+                documentCls: "monsido_download",
+                documentIgnoreCls: "monsido_ignore_download",
+                documentExt: [],
+            },
+        },
+        heatmap: {
+            enabled: true,
+        },
+        pageCorrect: {
+            enabled: true,
+        },
+        pageAssistV2: {
+            enabled: true,
+            theme: "light",
+            mainColor: "#783CE2",
+            textColor: "#ffffff",
+            linkColor: "#783CE2",
+            buttonHoverColor: "#783CE2",
+            mainDarkColor: "#052942",
+            textDarkColor: "#ffffff",
+            linkColorDark: "#FFCF4B",
+            buttonHoverDarkColor: "#FFCF4B",
+            greeting: "Discover your personalization options",
+            direction: "leftbottom",
+            coordinates: "undefined undefined undefined undefined",
+            iconShape: "circle",
+            title: "Personalization Options",
+            titleText: "Welcome to PageAssist&#8482; toolbar! Adjust the options below to cater the website to your accessibility needs.",
+            iconPictureUrl: "logo",
+            logoPictureUrl: "",
+            logoPictureBase64: "",
+            languages: [""],
+            defaultLanguage: "",
+            skipTo: false,
+            alwaysOnTop: false,
+        },
+    };
+</script>
+<script type="text/javascript" async src="https://app-script.monsido.com/v2/monsido-script.js"></script>
+
+
+    <script type="text/javascript">
+        $(function () {
+            document.cookie = "responsiveGhost=0; path=/";
+        });
+        $(window).on("load", function () {
+            $('body').addClass('doneLoading').removeClass('hideContent');
+
+            if ($('#404Content').length > 0)
+                $('div#bodyWrapper').css('padding', '0px');
+        });
+    </script>
+
+    <noscript>
+        <style>
+            body.hideContent {
+                opacity: 1 !important;
+            }
+        </style>
+    </noscript>
+
+        
+<div style="display: none;">
+	<svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
+
+		<symbol id="iconArrow--left" viewbox="0 0 25 25">
+			<title>Arrow Left</title>
+			<polygon style="fill:currentcolor" points="18.044,25 19.498,23.545 8.409,12.454 19.408,1.455 17.954,0 5.502,12.452"></polygon>
+		</symbol>
+
+		<symbol id="iconArrow--right" viewbox="0 0 25 25">
+			<title>Arrow Right</title>
+			<polygon style="fill:currentcolor" points="6.957,0 5.502,1.455 16.591,12.546 5.592,23.545 7.047,25 19.498,12.548"></polygon>
+		</symbol>
+
+	</svg>
+</div>
+    <script type="text/javascript">loadCSS('//fonts.googleapis.com/css?family=Lato:300,700,900,regular|Montserrat:700,regular|Niconne:regular|Roboto:500,600,700,800,italic,regular|');</script>
+    
+
+    <div class="hidden activeWidgetSkinComponentsOnPageJson">[]</div>
+        <div style="display: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                <symbol id="iconSlideshowArrowLeft" viewBox="0 0 22.68 40">
+                    <title>Slideshow Left Arrow</title>
+                    <g>
+                        <path style="fill:currentcolor;" d="M20,40a2.67,2.67,0,0,1-1.9-.79L.79,21.9a2.68,2.68,0,0,1,0-3.79L18.1.79a2.68,2.68,0,1,1,3.79,3.79L6.47,20,21.89,35.42A2.68,2.68,0,0,1,20,40Z"></path>
+                    </g>
+                </symbol>
+                <symbol id="iconSlideshowArrowRight" viewBox="0 0 22.68 40">
+                    <title>Slideshow Right Arrow</title>
+                    <g>
+                        <path style="fill:currentcolor;" d="M2.68,0a2.67,2.67,0,0,1,1.9.79L21.89,18.1a2.68,2.68,0,0,1,0,3.79L4.58,39.21A2.68,2.68,0,0,1,.79,35.42L16.21,20,.79,4.58A2.68,2.68,0,0,1,2.68,0Z"></path>
+                    </g>
+                </symbol>
+            </svg>
+        </div>
+    
+	
+	
+
+    <div id="root-picker-outlet"></div>
+</body>
+</html>

@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Global Site Tag (gtag.js) - Google Analytics -->
+    <script src="/js/GT.js"></script>
+    
+
+    <!-- Basic -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Chatham County Board of Elections - Elections Home Page</title>
+
+    <meta name="keywords" content="Chatham County Board of Elections" />
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
+    <!-- <link rel="apple-touch-icon" href="img/apple-touch-icon.png"> -->
+    <!-- Mobile Metas -->
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <!-- Web Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800%7CShadows+Into+Light" rel="stylesheet" type="text/css">
+
+    <!-- Vendor CSS -->
+    <link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/vendor/font-awesome/css/font-awesome.min.css">
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="/css/theme-elements.css">
+
+    <!-- Skin CSS -->
+    <link rel="stylesheet" href="/css/skins/default.css">
+
+    <!-- Theme Custom CSS -->
+    <link rel="stylesheet" href="/css/custom.css">
+
+    <!-- Head Libs -->
+    <script src="/vendor/jquery/jquery.min.js"></script>
+    <script src="/js/survey.js"></script>
+</head>
+
+<body>
+    <div class="body">
+
+        <header id="header"
+                data-plugin-options="{'stickyEnabled': true, 'stickyEnableOnBoxed': true, 'stickyEnableOnMobile': true, 'stickyStartAt': 70, 'stickySetTop': '-62px', 'stickyChangeLogo': true}">
+            <div class="header-body">
+                <div class="header-container container">
+                    <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+                    <div class="header-row">
+                        <div class="header-column">
+                            <div class="header-logo">
+                                <a href="/">
+                                    <img alt="Chatham County Logo" width="100" height="100" data-sticky-width="57"
+                                         data-sticky-height="57" data-sticky-top="50" src="/images/logo.png">
+                                </a>
+                            </div>
+                            <h1 class="logo">
+                                <div class="ccTagLine">Board of Elections</div>
+                            </h1>
+                        </div>
+                        <div class="header-column">
+                            <div class="header-row">
+                                <div class="header-search hidden-xs">
+                                    <div id="PartCCheader">
+                                        <a href="https://www.chathamcountyga.gov/">
+                                            <img src="/images/Part of Chatham County Dark.png"
+                                                 alt="Part of Chatham County, GA">Part of ChathamCountyGA.gov
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="header-row">
+                                <div class="header-nav">
+                                    <button class="btn header-btn-collapse-nav" data-toggle="collapse"
+                                            data-target=".header-nav-main" aria-label="Close">
+                                        <i class="fa fa-bars"></i>
+                                    </button>
+                                    <div class="header-nav-main header-nav-main-effect-1 header-nav-main-sub-effect-1 collapse">
+                                        <nav>
+                                            <ul class="nav nav-pills" id="mainNav">
+                                                <li class="dropdown">
+                                                    <a class="dropdown-toggle">Elections</a>
+                                                    <ul class="dropdown-menu">
+                                                        <li>
+                                                            <a target="_blank" href="https://www.mvp.sos.ga.gov/MVP/mvp.do">My Voter Page - Find Poll/Sample Ballot</a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="/Archive">
+                                                                Prior Elections
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                                <li class="dropdown">
+                                                    <a class="dropdown-toggle">District Maps</a>
+                                                    <ul class="dropdown-menu">
+                                                        <li>
+                                                            <a target="_blank" href="https://chathamelections.sagis.org/">Chatham County Precincts</a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="https://www.chathamcountyga.gov/Commission/DistrictMaps" target="_blank">County Commission</a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="https://savannahga.gov/389/Aldermanic-Districts" target="_blank">
+                                                                City of Savannah Alderman
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="https://sagis.maps.arcgis.com/apps/webappviewer/index.html?id=17a7a92760c14f4abda14bc3b9fcf19c" target="_blank">School Board</a>
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                                <li>
+                                                    <a href="/ElectionResults">
+                                                        Election Results
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="https://sos.ga.gov/page/elected-officials-state-georgia" target="_blank">Elected Officials</a>
+                                                </li>
+                                                <li>
+                                                    <a href="/Archive">
+                                                        Prior Elections
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="/Ethics">
+                                                        Ethics
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="/Meetings">
+                                                        Meetings
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="/Links">
+                                                        Links
+                                                    </a>
+                                                </li>
+                                                <li class="dropdown">
+                                                    <a class="dropdown-toggle">Contact Us</a>
+                                                    <ul class="dropdown-menu">
+                                                        <li>
+                                                            <a href="/Home/ContactUs">
+                                                                Contact Us
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="/Home/BecomePollWorker">
+                                                                Become a Poll Worker
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="https://www.facebook.com/ChathamCountyElections/" target="_blank"> Follow us on Facebook</a>
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="row" id="content">
+            
+<div class="jumbotron">
+    <div class="ActionCall">
+        <h1 class="padded-multiline">
+            <span style="text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;">
+                Board of Elections<br /><br />Chatham County, GA
+            </span>
+        </h1>
+    </div>
+</div>
+
+<div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="alert alert-warning center">
+                          <h5 style="text-align: center;"><em>Early Voting begins Tuesday, October 13!&nbsp;</em><br />Find your closest Early Voting site <a href="https://voter.chathamcountyga.gov/">here</a>. Not sure what's on the ballot? Print yours at <a href="https://mvp.sos.ga.gov/s/">Georgia's My Voter Page</a>!</h5>
+<h5 style="text-align: center;">If you would like to <em>request an absentee ballot</em>, please go to <a href="https://voter.chathamcountyga.gov/HowToVote#Absentee">voter.chathamcountyga.gov/HowToVote#Absentee</a> <br />or contact<em> <a href="https://voter.chathamcountyga.gov/">Chatham County Voter Registration</a>.</em></h5>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="alert alert-danger center">
+                          <p><span style="text-decoration: underline;"><strong>The following changes to polling places will be effective for the November 3, 2026 General/Special Election.</strong></span></p>
+<p><strong>&middot; Precinct 2-09</strong> will now vote at:<br />City Church Savannah<br />1624 E. 38th Street, Savannah, GA 31404<br />Voting will be in the sanctuary of the church. This change was made because the Salvation Army closed the previous building.<br /><br /></p>
+<p><strong>&middot; Precinct 3-04</strong> - First African Baptist Church of East Savannah</p>
+<p>Voting will move from the sanctuary to the T.E. Williams Fellowship Hall belonging to the church, located across the street from the sanctuary at 501 Treat Ave. This change was requested by First African Baptist Church.</p>
+<p><a href="https://cms.chathamcountyga.gov/api/assets/elections-website/f8341bdc-d236-451b-bb9f-cf205a1e5c23/active-polling-locations-11-3-2026.pdf?version=1">Active Polling Locations 11-3-2026.pdf</a><br />************</p>
+<p>Voters can check their precinct and polling place at My Voter Page: <a href="https://mvp.sos.ga.gov/s/">https://mvp.sos.ga.gov/s/</a>. The State will upload sample ballots for the November election in the coming weeks. Please check our website (<a href="https://elections.chathamcountyga.gov/">https://elections.chathamcountyga.gov/</a>) and Facebook page (<a href="https://www.facebook.com/ChathamCountyElections">https://www.facebook.com/ChathamCountyElections</a>) for updates.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="alert alert-info center">
+                          <h2 style="text-align: center;"><span style="text-decoration: underline;"><strong>OPEN RECORDS REQUESTS</strong></span></h2>
+<h4 style="text-align: center;">Please submit all Open Records Request through the <strong>JustFOIA portal</strong>. Through this method, you will be able to track the progress of your request from submission to completion.<br />To submit a request, follow the link below, select "New Request", then select "County Open Records Request".&nbsp;</h4>
+<h4 style="text-align: center;"><strong><em><span style="text-decoration: underline;"><a href="https://chathamcountyga.justfoia.com/publicportal/">https://chathamcountyga.justfoia.com/publicportal/</a></span></em></strong></h4>
+<p style="text-align: center;">************************************************************&nbsp;<br /><br /></p>
+<h3 style="text-align: center;"><span style="text-decoration: underline;">*NEW*</span></h3>
+<h4><a href="https://sos.ga.gov/elections-division-georgia-secretary-states-office">The Elections Division of the Georgia Secretary of State&rsquo;s Office </a>has a new website (<em><a href="https://sos.ga.gov/page/cast-vote-records">https://sos.ga.gov/page/cast-vote-records</a></em>) for requesters to access <strong>Cast Vote Records</strong> for these elections:</h4>
+<ul style="text-align: left;" data-pm-slice="3 3 []">
+<li>
+<h5 style="text-align: left;" role="presentation">November 2024 General Election</h5>
+</li>
+<li style="text-align: left;">
+<h5 role="presentation">November 2025 General Election</h5>
+</li>
+<li style="text-align: left;">
+<h5 role="presentation">May 2026 General Primary/Nonpartisan General Election</h5>
+</li>
+<li style="text-align: left;">
+<h5 role="presentation">June 2026 General Primary/Nonpartisan General Runoff</h5>
+</li>
+<li style="text-align: left;">
+<h5 role="presentation">July 2026 Special Election for US Congressional District 13</h5>
+</li>
+<li>
+<h5 style="text-align: left;" role="presentation">August 2026 Special Runoff for US Congressional District 13<br /><br /></h5>
+</li>
+</ul>
+<h6 style="text-align: center;">These records are <span style="text-decoration: underline;">free to download</span> and include Cast Vote Records for every county in Georgia. If you are requesting CVRs from one of the above elections, please use this website. If you are requesting CVRs from an election not listed, please enter a JustFOIA request. <br />The State will continue to add to records to this website as they become available.</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="alert alert-warning center">
+                          <h3>SPECIAL ELECTIONS</h3>
+<p>There will be two special elections on the November 3, 2026 General Election ballot.</p>
+<p>Chatham County School Board Ad Valorem Tax Referendum - <a href="https://cms.chathamcountyga.gov/api/assets/elections-website/64985a67-cce4-4146-a8dd-52587318e5f2/call-for-election-tax-referendum-11-3-2026.pdf?version=0">CALL FOR ELECTION - TAX REFERENDUM 11-3-2026.pdf</a></p>
+<p>Savannah-Chatham County Public School System (SCCPSS) School Board Member, DISTRICT 2 - <a href="https://cms.chathamcountyga.gov/api/assets/elections-website/d53839ad-a87d-4936-accf-5f1d40ec1730/call-for-election-sccpss-november-3-2026.pdf?version=0">CALL FOR ELECTION- SCCPSS 11-3-2026.pdf</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="alert alert-danger center">
+                          <h2>Logic and Accuracy testing for Chatham County's voting machines will begin on MONDAY, SEPTEMBER 21 at the Elections Annex at 10 Mall Terrace.</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="alert alert-info center">
+                          <h4 style="text-align: center;"><span style="text-decoration: underline;">Qualifying for the Savannah-Chatham County School Board District 2 position officially closed on Aug. 19 at 12:00 PM. </span></h4>
+<p style="text-align: center;"><span data-olk-copy-source="MessageBody">The following candidates have qualified for the position:</span></p>
+<table class="x_MsoTableGrid" style="height: 192px; margin-left: auto; margin-right: auto;" border="1" width="492" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+<td valign="top" width="215" data-ogsbtc="windowtext" data-ogsbrc="windowtext" data-ogsbbc="windowtext" data-ogsblc="windowtext">
+<p class="x_MsoNormal"><strong>Qualified Candidates Name</strong></p>
+</td>
+<td valign="top" width="114" data-ogsbtc="windowtext" data-ogsbrc="windowtext" data-ogsbbc="windowtext">
+<p class="x_MsoNormal"><strong>Date Qualified</strong></p>
+</td>
+<td valign="top" width="102" data-ogsbtc="windowtext" data-ogsbrc="windowtext" data-ogsbbc="windowtext">
+<p class="x_MsoNormal"><strong>Incumbent</strong></p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="215" data-ogsbrc="windowtext" data-ogsbbc="windowtext" data-ogsblc="windowtext">
+<p class="x_MsoNormal">Valarie Grimes</p>
+</td>
+<td valign="top" width="114" data-ogsbrc="windowtext" data-ogsbbc="windowtext">
+<p class="x_MsoNormal">08/17/2026</p>
+</td>
+<td valign="top" width="102" data-ogsbrc="windowtext" data-ogsbbc="windowtext">
+<p class="x_MsoNormal">No</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="215" data-ogsbrc="windowtext" data-ogsbbc="windowtext" data-ogsblc="windowtext">
+<p class="x_MsoNormal">Mary Snowden</p>
+</td>
+<td valign="top" width="114" data-ogsbrc="windowtext" data-ogsbbc="windowtext">
+<p class="x_MsoNormal">08/17/2026</p>
+</td>
+<td valign="top" width="102" data-ogsbrc="windowtext" data-ogsbbc="windowtext">
+<p class="x_MsoNormal">No</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="215" data-ogsbrc="windowtext" data-ogsbbc="windowtext" data-ogsblc="windowtext">
+<p class="x_MsoNormal">Alfred Henry Jackson Jr.</p>
+</td>
+<td valign="top" width="114" data-ogsbrc="windowtext" data-ogsbbc="windowtext">
+<p class="x_MsoNormal">08/19/2026</p>
+</td>
+<td valign="top" width="102" data-ogsbrc="windowtext" data-ogsbbc="windowtext">
+<p class="x_MsoNormal">No</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p style="text-align: center;">&nbsp;</p>
+<p style="text-align: center;">**********************************************************************************</p>
+<p style="text-align: center;">&nbsp;</p>
+<h4 style="text-align: center;"><span style="text-decoration: underline;">Download the list of Certified Write-In Candidates here:</span> <a href="https://cms.chathamcountyga.gov/api/assets/elections-website/ce37654f-e80e-4a66-9196-829c27d621f9/2026-certified-write-in-candidates-v3.pdf?version=0">2026 Certified Write-In Candidates v3.pdf</a></h4>
+<p style="text-align: center;">For more information please visit the Secretary of State's Elections Division website: <a href="https://sos.ga.gov/november-3-2026-general-election">https://sos.ga.gov/november-3-2026-general-election&nbsp;</a></p>
+                    </div>
+                </div>
+            </div>
+
+
+    <hr />
+
+    <div class="row">
+        <div class="col-md-12">
+            <p>
+                The Board of Elections of Chatham County functions as the superintendent of elections and conducts
+                primaries and elections in accordance with State law. The Board performs all services and functions
+                necessary to support the election process. The Board establishes boundaries for voting precincts,
+                secures facilities to serve as polling locations for these precincts, recruits, selects, hires, trains
+                and assigns personnel to serve as poll officials. The board also conducts qualification for candidates,
+                develops ballots for elections, acquires, maintains, prepares and delivers equipment used to conduct
+                elections, publicizes notices as required by law and maintains elections records.
+            </p>
+            <a class="btn btn-primary btn-lg text center col-xs-12" href="/Home/ContactUs">
+                How was your voting experience? <u>Tell us!</u>
+            </a>
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-md-12">
+
+            <div class="col-md-4">
+                <p><strong>The members of the board are:</strong></p>
+                <ul>
+                    <li><a href="/Home/ContactUs">Thomas Mahoney III (Chairman)</a></li>
+                    <li><a href="/Home/ContactUs">Marianne Heimes (R)</a></li>
+                    <li><a href="/Home/ContactUs">Trish Brown (D)</a></li>
+                    <li><a href="/Home/ContactUs">James Hall (R)</a></li>
+                    <li><a href="/Home/ContactUs">Glynda Jones (D)</a></li>
+                </ul>
+                <p>
+                    <strong>Interim Director:</strong> <a href="/Home/ContactUs">
+                        Billy Wooten
+                    </a><br>
+                </p>
+            </div>
+            <div class="col-md-4 center">
+              
+                <div class="alert alert-info">
+                    <h4>MEETING NOTICE</h4>
+                    <p>
+                        The Board of Elections of Chatham County holds its regular monthly meeting on the second Monday of every month at 3:30pm. 
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4 center">
+                <a href="https://www.mvp.sos.ga.gov/MVP/mvp.do" target="_blank;">
+                    <img style="border-radius: 10px;"
+                         src="/images/My Voter Page.jpg" alt="State of GA Seal, Poll Locator and Sample Ballots" />
+                </a>
+                <br /><br />
+                <a class="btn btn-lg btn-primary" href="/Home/BecomePollWorker">Become a Poll Worker</a>
+            </div>
+        </div>
+    
+    </div>
+</div>
+
+        </div>
+
+
+        <footer id="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="footer-ribbon">
+                        <span>Useful Information</span>
+                    </div>
+                    <div class="col-md-3">
+                        <h5>CHATHAM COUNTY BOARD OF ELECTIONS</h5>
+                        <p>
+                            <a target="_blank;"
+                               href="https://maps.google.com/maps?ll=32.006148,-81.099584&amp;z=13&amp;t=m&amp;hl=en-US&amp;gl=US&amp;mapclient=embed&amp;cid=343991430760643605">
+                                <em class="fa fa-map-marker"></em> 1117 Eisenhower Drive, Suite F<br>
+                                Savannah, Georgia 31406
+                            </a>
+                        </p>
+                        <p>
+                            <a href="tel:9122014375"><em class="fa fa-phone"></em> (912) 201-4375</a><br>
+                        </p>
+
+                        <p>
+                            <a href="/Home/ContactUs">
+                                <em class="fa fa-envelope-o"></em>
+                                Contact Us
+                            </a><br>
+                            <a href="/Home/Complaint">
+                                <em class="fa fa-exclamation"></em> Submit a Complaint
+                            </a><br>
+                            <a href="http://www.mvp.sos.ga.gov/"><em class="fa fa-info-circle"></em> My Voter Page</a><br>
+                            <a href="https://www.facebook.com/ChathamCountyElections/" target="_blank" rel="noopener" class="social-icons social-icons-facebook"
+                               title="Facebook">
+                                <i class="fa fa-facebook"></i> Elections Facebook
+                            </a>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        
+
+<table class="col-md-12 table" style="color: white;">
+    <colgroup>
+        <col width="60%">
+        <col width="40%">
+    </colgroup>
+    <tbody>
+        <tr>
+            <td><strong>Election</strong></td>
+            <td><strong>Election Date</strong></td>
+        </tr>
+            <tr>
+                <td>
+                    <p>Special Election </p>
+                </td>
+                <td>
+                    <p>Mar 17, 2026</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <p>Special Election Runoff</p>
+                </td>
+                <td>
+                    <p>Apr 14, 2026</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <p>General Primary/Nonpartisan Election</p>
+                </td>
+                <td>
+                    <p>May 19, 2026</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <p>General Primary/Nonpartisan Runoff</p>
+                </td>
+                <td>
+                    <p>Jun 16, 2026</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <p>General/Special Election</p>
+                </td>
+                <td>
+                    <p>Nov 03, 2026</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <p>General/Special Election Runoff</p>
+                </td>
+                <td>
+                    <p>Dec 01, 2026</p>
+                </td>
+            </tr>
+    </tbody>
+</table>
+
+                    </div>
+                    <div class="col-md-3 center">
+                        <h5>PART OF CHATHAMCOUNTYGA.GOV</h5>
+                        <div id="PartCCfooter">
+                            <img src="/images/Chatham-County-white-150.png" alt="Chatham County Logo"><br />
+                            <div class="social-icons">
+                                <ul class="social-icons">
+                                    <li class="social-icons-facebook">
+                                        <a href="https://www.facebook.com/ChathamCounty" target="_blank" rel="noopener"
+                                           title="Facebook">
+                                            <i class="fa fa-facebook"></i>
+                                        </a>
+                                    </li>
+                                    <li class="social-icons-twitter">
+                                        <a href="https://twitter.com/ChathamGA" target="_blank" rel="noopener"
+                                           title="Twitter">
+                                            <i class="fa fa-twitter"></i>
+                                        </a>
+                                    </li>
+                                    <li class="social-icons-linkedin">
+                                        <a href="https://www.linkedin.com/company/chatham-county" target="_blank"
+                                           rel="noopener" title="Linkedin">
+                                            <i class="fa fa-linkedin"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-copyright">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <p style="color:white">© Chatham County Board of Elections</p>
+                        </div>
+                        <div class="col-md-4">
+                            <nav id="sub-menu">
+                                <ul>
+                                    <li>
+                                        <a href="https://chathamcountyga.gov/Meta/Terms">Terms of Use</a>
+                                    </li>
+                                    <li>
+                                        <a href="https://chathamcountyga.gov/Meta/Privacy">Privacy Statement</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Vendor -->
+    <script src="/vendor/jquery/jquery.min.js"></script>
+    <script src="/vendor/jquery.appear/jquery.appear.min.js"></script>
+    <script src="/vendor/jquery.easing/jquery.easing.min.js"></script>
+    <script src="/vendor/jquery-cookie/jquery-cookie.min.js"></script>
+    <script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/vendor/common/common.min.js"></script>
+    
+    <!-- Theme Base, Components and Settings -->
+    <script src="/js/theme.js"></script>
+
+    <!-- Current Page Vendor and Views -->
+    <script src="/js/views/view.home.js"></script>
+
+    <!-- Theme Initialization Files -->
+    <script src="/js/theme.init.js"></script>
+    
+</body>
+
+</html>
