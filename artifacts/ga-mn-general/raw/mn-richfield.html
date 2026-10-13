@@ -1,0 +1,2799 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+	<meta http-equiv="Content-type" content="text/html; charset=UTF-8" />
+<!-- Google Tag Manager for GA4 -->
+				<script>(function(w,d,s,l,i){w.GAMeasurementID='G-T4T51BRHBD';w[l]=w[l]||[];w[l].push({'gtm.start':
+				new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+				j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+				'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+				})(window,document,'script','cpDataLayerGA4','GTM-K73C5PS');</script>
+				<!-- End Google Tag Manager for GA4 -->
+				<script type='text/javascript'>
+					var enableTelemetry = 'false'
+					var aiConfig = {
+					instrumentationKey: '1cde048e-3185-4906-aa46-c92a7312b60f'						
+					}
+					var appInsights = window.appInsights || function (a) { function b(a) { c[a] = function () { var b = arguments; c.queue.push(function () { c[a].apply(c, b) }) } } var c = { config: a }, d = document, e = window; setTimeout(function () { var b = d.createElement('script'); b.src = a.url || 'https://js.monitor.azure.com/scripts/a/ai.0.js', d.getElementsByTagName('script')[0].parentNode.appendChild(b) }); try { c.cookie = d.cookie } catch (a) { } c.queue = []; for (var f = ['Event', 'Exception', 'Metric', 'PageView', 'Trace', 'Dependency']; f.length;)b('track' + f.pop()); if (b('setAuthenticatedUserContext'), b('clearAuthenticatedUserContext'), b('startTrackEvent'), b('stopTrackEvent'), b('startTrackPage'), b('stopTrackPage'), b('flush'), !a.disableExceptionTracking) { f = 'onerror', b('_' + f); var g = e[f]; e[f] = function (a, b, d, e, h) { var i = g && g(a, b, d, e, h); return !0 !== i && c['_' + f](a, b, d, e, h), i } } return c }(aiConfig);
+					window.appInsights = appInsights, appInsights.queue && 0 === appInsights.queue.length;
+					// Add telemetry initializer
+					appInsights.queue.push(function() {
+						appInsights.context.addTelemetryInitializer(function(envelope) {
+							var telemetryItem = envelope.data.baseData;
+							// To check the telemetry item’s type:
+							if (!false)
+							{
+								//If the telemetry is not enabled, we still want to capture Google map custom event, so only allow that
+								if (envelope.name.indexOf('.Event') == -1)
+									return false;
+							}
+						});
+					});						
+					appInsights.trackPageView();
+				</script>
+	<script>
+		function populateAntiForgery(token) {
+			var input = document.createElement("input");
+			input.name = "__RequestVerificationToken";
+			input.type = "hidden";
+			input.value = token;
+			var absPat = /^https?:\/\/|^\/\//i;
+			var forms = document.getElementsByTagName("form");
+			for (var i = 0; i < forms.length; i++) {
+				if (forms[i].method == "post" &&
+					!forms[i].querySelector('[name="__RequestVerificationToken"]') &&
+					!absPat.test(forms[i].getAttribute("action"))) {
+					forms[i].appendChild(input.cloneNode());
+				}
+			}
+		}
+
+		function getAntiForgeryToken(callback, error) {
+			var xhr = new XMLHttpRequest();
+			xhr.open("GET", "/antiforgery");
+			xhr.addEventListener("load", function() {
+				try {
+					if (this.status !== 200) {
+						throw Error("Invalid status. Could not retrieve antiforgery token.");
+					}
+					var obj = JSON.parse(this.responseText);
+					callback(obj.token);
+				} catch (e) {
+					typeof error === "function" && error(e);
+				}
+			});
+			xhr.send();
+		}
+
+		getAntiForgeryToken(function(token) {
+			if (document.readyState === "complete"
+				|| document.readyState === "loaded" 
+				|| document.readyState === "interactive") {
+				populateAntiForgery(token);
+				return;
+			}
+			document.addEventListener("DOMContentLoaded", function() {
+				populateAntiForgery(token);
+			}, false);
+		}, console.error);
+	</script>
+			
+
+	<script type="text/javascript">
+		window.departmentHeader = {};
+		window.pageSectionTracker = {};
+		window.isResponsiveEnabled = true;
+		window.isRemoveSetHeights= true;
+		if (window.isRemoveSetHeights) {
+			document.documentElement.className += ' removeSetHeights';
+		}
+		window.mainMenuMediaQuery = 'screen and (max-width: 40em)';
+		window.isMobileBrowserIncludingTablets = false;
+		window.fixedResponsiveMenu = false;
+		window.fullWidthResponsiveMenu = true;
+		window.responsiveMenuHeight = '';
+		window.responsiveMenuFontSize = '';
+		window.isContentAdvisor = false;
+		(function () {
+			window.setSizeCookie = function () {
+				document.cookie = "dpi=" + window.devicePixelRatio + "; path=/";
+				document.cookie = "viewportWidth=" + window.innerWidth + "; path=/";
+				document.cookie = "viewportHeight=" + window.innerHeight + "; path=/";
+				if (screen && screen.width && screen.height) {
+					document.cookie = "screenWidth=" + screen.width + "; path=/";
+					document.cookie = "screenHeight=" + screen.height + "; path=/";
+				}
+				document.cookie = "responsiveGhost=1; path=/";
+			};
+
+			setSizeCookie();
+		}());
+	</script>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<script async src="https://docaccess.com/docbox.js"></script>
+	
+	<meta name="category0" content="Home" />
+<meta name="category1" content="Your Government" />
+<meta name="category2" content="Departments" />
+<meta name="category3" content="City Clerk" />
+<meta name="category4" content="Elections" />
+
+	
+	<meta name="theme-color" content="rgb(26, 70, 141)">
+	<link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+	<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
+		<title>Elections | Richfield, MN</title>
+
+		<meta name="description" content="See important voter and upcoming election information.">
+			<script src="/Assets/Scripts/jQuery/jquery-3.7.1.min.js"></script>
+	<script src="/Assets/Scripts/jQuery/jquery-migrate-3.6.0.min.js" type="text/javascript"></script>
+	
+
+	<!--[if IE 6]><script language="JavaScript" type="text/javascript"> var isie6 = true; </script><![endif]-->
+	<!--[if IE 7]><script language="JavaScript" type="text/javascript"> var isie7 = true; </script><![endif]-->
+	<!--[if IE 8]><script language="JavaScript" type="text/javascript"> var isie8 = true; </script><![endif]-->
+	<!--[if IE 9]><script language="JavaScript" type="text/javascript"> var isie8 = true; </script><![endif]-->
+	<script type="text/javascript"><!--
+	var intCountryCode = 840;
+	var order = '';
+//--></script>
+	
+<link href="/-681783051.css" rel="stylesheet" type="text/css" />	<link href="/-2140275272.css" rel="stylesheet" type="text/css" />	<link href="/867093719.css" rel="stylesheet" type="text/css" />
+
+	<link rel="stylesheet" type="text/css" href="/Assets/Styles/Print.css" media="print">
+	<script type="text/javascript">
+		window.Pages = window.Pages || {};
+		// FrontEnd RWD initialization
+		window.Pages.rwdReady = $.Deferred();
+		window.Pages.toolBarDeferred = $.Deferred();
+		window.Pages.rwdSetupComplete = $.Deferred();
+		window.Pages.megaMenuLoaded = $.Deferred();
+		window.Pages.angularToolbarComplete = $.Deferred();
+		window.Pages.frontEndToolbarComplete = $.Deferred();
+	</script>
+	<!--CPHeadContent-->
+	<script src="/739942322.js" type="text/javascript"></script>
+	
+	
+	
+	
+
+
+
+
+	<!--[if lte IE 8]><link rel="stylesheet" type="text/css" href="/App_Themes/ie8.css"><![endif]-->
+	<!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="/App_Themes/ie7.css"><![endif]-->
+	<!--[if lte IE 6]><link rel="stylesheet" type="text/css" href="/App_Themes/ie6.css"><![endif]-->
+	<!--[if lt IE 9]><script type="text/javascript" src="/Scripts/html5.js"></script><![endif]-->
+
+	<script type="text/javascript">
+		setEditorVariables(false, 840);
+		function getPrintPreviewType() { return 0; } function printPreview() {pPreview(getPrintPreviewType()); }
+	</script>
+	<script src="/Assets/Scripts/AlpineJS/3.14.1/alpine.min.js" type="text/javascript" defer="defer"></script>
+</head>
+<body class="wide " >
+
+    <script>jQuery(document).click(function (event) {
+	var target = jQuery(event.target);
+	if (target.attr('src') && target.parents('.image').length && target.parents('.widget').length) {
+		var text = target.attr('title');
+		
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Image',
+				eventAction: 'Image - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.is('button') || target.hasClass('button') || target.parents().hasClass('button')) {
+		var text = "";
+		if (target.parents('.button')[0]) {
+			text = target.parents('.button').first().text();
+		} else if (target.text().length) {
+			text = target.text();
+		} else if (target.attr('title').length) {
+			text = target.attr('title');
+		}
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Button',
+				eventAction: 'Button - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.widgetCustomHtml').length) {
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Custom Html',
+				eventAction: 'Custom Html Clicked',
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.editor').length) {
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Editor',
+				eventAction: 'Editor Link Clicked',
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.GraphicLinks').length) {
+		var text = "";
+		var targetGraphicLink = target;
+		if (target.hasClass('widgetGraphicLinksLink')) {
+			targetGraphicLink = jQuery(target.children()[0]);
+		}
+		if (targetGraphicLink.hasClass('text')) {
+			text = targetGraphicLink.text();
+		} else if (targetGraphicLink.attr('src').length) {
+			if (targetGraphicLink.attr('alt').length) {
+				text = targetGraphicLink.attr('alt');
+			} else {
+				text = targetGraphicLink.attr('src');
+			}
+		} else {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Graphic Links',
+				eventAction: 'Graphic Link - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.InfoAdvanced').length) {
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Info Advanced',
+				eventAction: 'Info Advanced Clicked',
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.list').length) {
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'List',
+				eventAction: 'List Clicked',
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.megaMenuItem').length || target.parents('.topMenuItem').length) {
+		var megaMenuText = jQuery('.topMenuItem.mouseover').find('span').text();
+		var breadCrumbs = [];
+		jQuery('.breadCrumbs > li').each(function () {
+			 breadCrumbs.push(this.textContent);
+		});
+		var pageTitle = breadCrumbs.join('>');
+		var subTitleText = target.parents('.megaMenuItem').children('.widgetTitle').children().text();
+		var text = "";
+		if (pageTitle) {
+			text += pageTitle + " | ";
+		} else {
+			text += document.title + ' - ';
+		}
+		if (target.text() == "" && megaMenuText == "") {
+			text += "N/A";
+		} else if (target.text().length && megaMenuText.length) {
+			if (megaMenuText == target.text()) {
+				text += megaMenuText;
+			} else {
+				text += megaMenuText + " - " + subTitleText + " - " + target.text();
+			}
+		} else if (target.text() == "") {
+			text += megaMenuText;
+		} else {
+			text += target.text();
+		}
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Mega Menu',
+				eventAction: 'Mega Menu : ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.widgetNewsFlash').length && target.parents('.widgetItem').length) {
+		var text = jQuery(target.parents('.widgetItem')[0]).find('.widgetTitle').children().text();
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'News Flash',
+				eventAction: 'News Flash - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.hasClass('widgetQuickLinksLink') || target.find('.widgetQuickLinksLink').length) {
+		var text = target.text();
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Quick Links',
+				eventAction: 'Quick Links - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.attr('src') && target.parents('.cpSlideshow').length) {
+		var text = target.attr('title');
+		if (!text.length) {
+			text = "N/A";
+		}
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Slideshow',
+				eventAction: 'Slideshow - ' + text,
+				eventLabel: window.location.href
+			});
+	}
+	if (target.parents('.widgetText').length) {
+		ga('send',
+			{
+				hitType: 'event',
+				eventCategory: 'Text',
+				eventAction: 'Text Link Clicked',
+				eventLabel: window.location.href
+			});
+	}
+});</script>
+	<div id="popoverModal" class="cp-PopOver cp-PopOver--modal cp-AdminWrap" style="position: fixed; display: none;">
+	<div class="cp-PopOver-header">
+		<h3 class="cp-PopOver-title"></h3>
+		<button class="cp-Btn cp-PopOver-close" onclick="closePopOverModal(event)">
+			<svg class="cp-Icon--close" alt="close" title="close">
+				<use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#iconClose"></use>
+			</svg>
+		</button>
+	</div>
+	<div id="cpPopOverBody" class="cp-PopOver-body">
+		<form id="cpPopOverForm" name="cpPopOverForm" novalidate></form>
+	</div>
+	<div id="cpPopOverFooter" class="cp-PopOver-footer">
+		<div class="cp-BtnGroup" id="actionButtons">
+			<!-- Action buttons will be dynamically added here -->
+		</div>
+	</div>
+</div>
+    <div id="fb-root"></div>
+<div id=skipToContentLinks>
+<a href="#cc5f8c90dc-b4cb-431b-90ee-10648f8df655" target="_self" class="skipToContentLink">Skip to Main Content</a>
+</div>
+    <form id="frmReferenceFormForTelerikEditorDialogs"></form>
+
+        <input type="hidden" id="GoogleMapsKey" value="AIzaSyDWUuE-ifkbhxblF920N8MjpBdTg1Wt784" />
+
+
+
+    <input type="hidden" id="cpcDomain" value="https://cp-civicplusuniversity2.civicplus.com">
+    <input type="hidden" id="hdnStructureID" value="1" />
+    <input type="hidden" id="hdnContentCollectionID" value="79447849-a268-4838-b42e-23479afad3df" />
+    <input type="hidden" id="hdnWorkingCopyID" value="00000000-0000-0000-0000-000000000000" />
+    <input type="hidden" id="hdnThemeID" value="1" />
+    <input type="hidden" id="pageIsFrontEnd" value="true" />
+    <input type="hidden" id="pageModuleID" />
+    <input type="hidden" id="pagePageID" value="944" />
+
+    <div id="stickyPlaceholder"></div>
+    <div id="outer-wrap" class="outer-wrap">
+        <div id="inner-wrap" class="inner-wrap">
+                <div id="divToolbars" class="cpToolbars newCP mui-fixed" style="">
+                    
+
+
+
+<!-- Begin Signed Out Bar -->
+<div class="cpToolbar user public">
+    <div class="inner selfClear">
+        <p class="dropdown"><a href="/MyAccount/ProfileCreate" class="myConnections" id="signedOutToolbarCreateProfileButton">Create a Website Account</a> <span class="welcomeMessage">- Manage notification subscriptions, save form progress and more. &nbsp;&nbsp;</span></p>
+        <ul class="nav secondary">
+	        <li><a href="/MyAccount" class="button" id="loggedOutToolbarSignInButton">Website Sign In</a></li>
+        </ul>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#signedOutToolbarCreateProfileButton').click(function (event) {
+            event.preventDefault();
+            window.location.href = '/MyAccount/ProfileCreate?from=url&url=/&dn=' + window.location.origin;
+        });
+
+			
+				$('#loggedOutToolbarSignInButton').click(function (event) {
+					event.preventDefault();
+					window.location.href = '/MyAccount/?from=url&url=' + encodeURIComponent(window.location.href.replace(window.location.origin, '')) + '&dn=' + window.location.host;
+				});
+			
+
+		if ('False' == 'True') {
+            $('#loggedOutToolbarSignInButton').hide();
+		}
+    })
+</script>
+<!-- End Signed Out Bar -->
+
+                </div>
+            <div id="bodyWrapper">
+                <div id="mainNavHolderMobile" class="mainNavHolderMobile"></div>
+                
+<div data-cpRole="structuralContainer" id="bodyContainerTS">
+<!-- <div data-cpRole="banner" id="banner3" class="fixedBannerTS"> --><!-- Header Container --><header data-cpRole="structuralContainer" id="headerContainerTS" class="fixedTopTS">
+<div class="siteWrap3"><div data-cpRole="structuralContainer" id="flexHeader1TS" class="flexHeaderTS">
+<div data-cpRole="structuralContainer" id="logoTS">
+<div data-cpRole="banner" id="bannerLogoTS" class="bannerLogoTS empty">
+
+
+
+
+				<a id="bannerLogoTS-48" style="			display: block; text-align: left;
+" class="bannerObject" href="/" target="_self"><img alt="Richfield Minnesota Homepage" class="bannerObject" src="/ImageRepository/Document?documentID=88" /></a>
+</div>
+</div><div data-cpRole="structuralContainer" id="mainNavTS">
+<nav data-cpRole="nav" id="mainNav" class="siteNav mainNav" aria-label="Main">
+<ol id="mainNavMenu" data-parent="1" class="rootNavMenu" role="menu"><!--
+--><li id="MainItem27" class="topMenuItem" role="none" data-pageid="27" data-displaymegamenu="True"><!--
+			--><!--
+			--> <a role = "menuitem"  aria-haspopup=true aria-expanded='false' aria-controls="mainNavMegaMenu27" id = "mainNavYourGovernment" class="navMainItem mainNavItem mainNavItem1 " href="/27/Your-Government" target = "_self" >   Your Government  </a>			<!--
+			--><!--
+			--></li><!----><li id="MainItem101" class="topMenuItem" role="none" data-pageid="101" data-displaymegamenu="True"><!--
+			--><!--
+			--> <a role = "menuitem"  aria-haspopup=true aria-expanded='false' aria-controls="mainNavMegaMenu101" id = "mainNavServices" class="navMainItem mainNavItem mainNavItem2 " href="/101/Services" target = "_self" >   Services  </a>			<!--
+			--><!--
+			--></li><!----><li id="MainItem31" class="topMenuItem" role="none" data-pageid="31" data-displaymegamenu="True"><!--
+			--><!--
+			--> <a role = "menuitem"  aria-haspopup=true aria-expanded='false' aria-controls="mainNavMegaMenu31" id = "mainNavCommunity" class="navMainItem mainNavItem mainNavItem3 " href="/31/Community" target = "_self" >   Community  </a>			<!--
+			--><!--
+			--></li><!----><li id="MainItem9" class="topMenuItem" role="none" data-pageid="9" data-displaymegamenu="True"><!--
+			--><!--
+			--> <a role = "menuitem"  aria-haspopup=true aria-expanded='false' aria-controls="mainNavMegaMenu9" id = "mainNavIWantTo" class="navMainItem mainNavItem mainNavItem4 " href="/9/I-Want-To" target = "_self" >   I Want To...  </a>			<!--
+			--><!--
+			--></li><!---->
+</ol>
+
+
+	<script type="text/javascript">
+		(function () {
+			function setupMenu() {
+				const menuID = 'mainNavMenu';
+				const menuType = MAIN_MENU;
+
+				//setup menu manager properties for main menu
+				if (!menuManager.mobileMainNav && true)
+					menuManager.adjustMainItemsWidth('#' + menuID);
+				menuManager.isMainMenuEditable = false;
+				menuManager.mainMenuMaxSubMenuLevels = 4;
+				menuManager.setMOMMode(2, menuType);
+
+				//Init main menu
+				const setupDraggable = menuManager.isMainMenuEditable;
+				const urlToGetHiddenMenus = '/Pages/MenuMain/HiddenMainSubMenus?pageID=1&moduleID=&themeID=1&menuContainerID=mainNav';
+
+				menuManager.setupMenu(menuID, 'mainNav', menuType, setupDraggable, urlToGetHiddenMenus);
+				menuManager.mainMenuInit = true;
+				menuManager.mainMenuTextResizer = true;
+				if (1.00 > 0)
+					menuManager.mainMenuTextResizerRatio = 1.00;
+				if (window.isResponsiveEnabled)
+					menuManager.mainMenuReady.resolve();
+
+			}
+
+			if (document.readyState === "complete"
+				|| document.readyState === "loaded"
+				|| document.readyState === "interactive") {
+				setupMenu();
+				return;
+			}
+
+			document.addEventListener("DOMContentLoaded", setupMenu);
+		})();
+	</script>
+
+
+<aside data-cpRole="megaMenu" id="megaMenu" class="megaMenu" style="display: none;"><input type="hidden" id="megaMenuPopupDirection" value="0"><input type="hidden" id="megaMenuWidthReference" value="0"><aside role="menu" data-cpRole="contentContainer" id="mainNavMegaMenu27" class="contentTop mainNavMegaMenu megaMenuContainer pageID_27 hidden" data-orientation="horizontal">	<div id="cc485a823b-c1e1-429d-9280-4c8d66495bb2" data-containerid="485a823b-c1e1-429d-9280-4c8d66495bb2" class="pageContent cpGrid cpGrid24">
+				                
+
+
+
+	</div>
+</aside><aside role="menu" data-cpRole="contentContainer" id="mainNavMegaMenu101" class="contentTop mainNavMegaMenu megaMenuContainer pageID_101 hidden" data-orientation="horizontal">	<div id="cc24dff69d-25c1-4bfa-9a66-eb4a47751307" data-containerid="24dff69d-25c1-4bfa-9a66-eb4a47751307" class="pageContent cpGrid cpGrid24">
+				                
+
+
+
+	</div>
+</aside><aside role="menu" data-cpRole="contentContainer" id="mainNavMegaMenu31" class="contentTop mainNavMegaMenu megaMenuContainer pageID_31 hidden" data-orientation="horizontal">	<div id="ccf57c1706-fdea-41ce-b161-0087960910c5" data-containerid="f57c1706-fdea-41ce-b161-0087960910c5" class="pageContent cpGrid cpGrid24">
+				                
+
+
+
+	</div>
+</aside><aside role="menu" data-cpRole="contentContainer" id="mainNavMegaMenu9" class="contentTop mainNavMegaMenu megaMenuContainer pageID_9 hidden" data-orientation="horizontal">	<div id="cc0edf6522-d171-4b5d-ba2c-77bde6338684" data-containerid="0edf6522-d171-4b5d-ba2c-77bde6338684" class="pageContent cpGrid cpGrid24">
+				                
+
+
+
+	</div>
+</aside></aside></nav>
+</div><div data-cpRole="structuralContainer" id="searchTS">
+<div data-cpRole="contentContainer" id="searchContentTS">	<div id="cc572d6cb2-aef2-42b8-a4fa-c110881e3b0d" data-containerid="572d6cb2-aef2-42b8-a4fa-c110881e3b0d" class="pageContent cpGrid cpGrid24 isLockedContainer showInMobile">
+				                
+
+		<div class="row outer wide"><!--
+--><div class="outer col col24 first last" style="" data-widgetcontainerid="31057edf-c1c4-468b-91ca-e08e2ffc7dd0">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col24 first last idd03f28d6-743f-4e5a-b8a7-54fb608d79f3" style="" data-widgetcontainerid="d03f28d6-743f-4e5a-b8a7-54fb608d79f3">	
+<div data-widget-id="cb01f32e-71a2-4f41-abed-cf830e473331" data-widget-controller-path="/Layout/WidgetSearch">
+	
+	<script defer type="text/javascript" src="/Common/Controls/jquery-ui-1.14.2/jquery-ui.min.js"></script>
+	<script defer src="/Areas/Layout/Assets/Scripts/Search.js" type="text/javascript"></script>
+	<script defer type="text/javascript">
+
+		$(document).ready(function () {
+			try {
+				// Minimum characters required before performing a search/autocomplete
+				var minPrefixLength = 3;
+				var autoCompleteDebounceDelay = 500;
+				var searchFieldSelector = "#searchField" + 'cb01f32e-71a2-4f41-abed-cf830e473331';
+				var checkboxSelector = "#ysnSearchOnlyDept" + 'cb01f32e-71a2-4f41-abed-cf830e473331';
+				var buttonSelector = ".widgetSearchButton" + 'cb01f32e-71a2-4f41-abed-cf830e473331';
+				var autoCompleteCache = {};
+				var autoCompleteCacheKeys = [];
+				var autoCompleteCacheLimit = 25;
+				var currentAutoCompleteRequest = null;
+				var currentAutoCompleteRequestKey = null;
+				var autoCompleteDebounceTimer = null;
+				var autoCompleteDebounceKey = null;
+				var pendingAutoCompleteResponses = [];
+
+				function normalizeAutoCompleteTerm(term) {
+					return $.trim((term || "") + "").replace(/\s+/g, " ");
+				}
+
+				function shouldSearch(term) {
+					return normalizeAutoCompleteTerm(term).length >= minPrefixLength;
+				}
+
+				function getAutoCompleteUrl() {
+					return '/Search/AutoComplete' + ($(checkboxSelector).is(':checked') || false? '?departmentId=0' : '');
+				}
+
+				function getAutoCompleteCacheKey(requestUrl, term) {
+					return requestUrl + "|" + term.toLowerCase();
+				}
+
+				function cacheAutoCompleteResult(cacheKey, data) {
+					if (!Object.prototype.hasOwnProperty.call(autoCompleteCache, cacheKey)) {
+						autoCompleteCacheKeys.push(cacheKey);
+						if (autoCompleteCacheKeys.length > autoCompleteCacheLimit) {
+							delete autoCompleteCache[autoCompleteCacheKeys.shift()];
+						}
+					}
+					autoCompleteCache[cacheKey] = data;
+				}
+
+				function respondToPendingAutoComplete(data) {
+					var responses = pendingAutoCompleteResponses;
+					pendingAutoCompleteResponses = [];
+					for (var i = 0; i < responses.length; i++) {
+						responses[i](data);
+					}
+				}
+
+				function cancelPendingAutoComplete() {
+					clearTimeout(autoCompleteDebounceTimer);
+					autoCompleteDebounceKey = null;
+					if (currentAutoCompleteRequest != null) {
+						currentAutoCompleteRequest.abort();
+						currentAutoCompleteRequest = null;
+					}
+					currentAutoCompleteRequestKey = null;
+					respondToPendingAutoComplete([]);
+				}
+
+				function createWidgetAutoCompleteSource(options) {
+					return function (request, response) {
+						var term = normalizeAutoCompleteTerm(request.term);
+						if (!options.shouldSearch(term)) {
+							response([]);
+							return;
+						}
+
+						var requestUrl = options.url();
+						var cacheKey = getAutoCompleteCacheKey(requestUrl, term);
+						if (Object.prototype.hasOwnProperty.call(autoCompleteCache, cacheKey)) {
+							response(autoCompleteCache[cacheKey]);
+							if (options.success) {
+								options.success(autoCompleteCache[cacheKey]);
+							}
+							return;
+						}
+
+						if (currentAutoCompleteRequestKey === cacheKey || autoCompleteDebounceKey === cacheKey) {
+							pendingAutoCompleteResponses.push(response);
+							return;
+						}
+
+						cancelPendingAutoComplete();
+						autoCompleteDebounceKey = cacheKey;
+						pendingAutoCompleteResponses.push(response);
+						autoCompleteDebounceTimer = setTimeout(function () {
+							autoCompleteDebounceKey = null;
+							currentAutoCompleteRequestKey = cacheKey;
+							currentAutoCompleteRequest = $.ajax({
+								url: requestUrl,
+								dataType: "json",
+								timeout: options.timeout,
+								data: {
+									term: term,
+								},
+								success: function (data) {
+									if (currentAutoCompleteRequestKey === cacheKey) {
+										cacheAutoCompleteResult(cacheKey, data);
+										respondToPendingAutoComplete(data);
+										if (options.success) {
+											options.success(data);
+										}
+									}
+								},
+								error: function (xmlhttprequest, textstatus, message) {
+									if (textstatus === "abort") {
+										return;
+									}
+
+									if (options.error) {
+										options.error(xmlhttprequest, textstatus, message);
+									}
+
+									respondToPendingAutoComplete([]);
+								},
+								complete: function (xmlhttprequest) {
+									if (currentAutoCompleteRequest === xmlhttprequest) {
+										currentAutoCompleteRequest = null;
+										currentAutoCompleteRequestKey = null;
+									}
+								}
+							});
+						}, options.delay);
+					};
+				}
+
+				// click handler for search buttons
+				$(buttonSelector).click(function (e) {
+					e.preventDefault();
+					var $btn = $(this);
+					var $field = $btn.siblings(".widgetSearchBox");
+					var term = $field.val() + "";
+					if (!shouldSearch(term)) {
+						// do nothing until user types enough characters
+						$field.focus();
+						return;
+					}
+
+					if ($(checkboxSelector).is(':checked') || false)
+					{
+						doWidgetSearch($.trim(term), Number(0));
+					}
+					else {
+						doWidgetSearch($.trim(term), 0);
+					}
+				});
+
+				// enter key handler for the search field
+				$(searchFieldSelector).keypress(function (e) {
+					var code = e.which || e.keyCode;
+					if (code === 13) {
+						e.preventDefault();
+						var $this = $(this);
+						var term = $this.val() + "";
+						if (!shouldSearch(term)) {
+							// do nothing until user types enough characters
+							$this.focus();
+							return false;
+						}
+
+						if ($(checkboxSelector).is(':checked') || false) {
+							doWidgetSearch($.trim(term), Number(0));
+						} else {
+							doWidgetSearch($.trim(term), 0);
+						}
+						return false;
+					}
+					return true;
+				});
+
+				// autocomplete: set minLength and guard source
+				if (true) {
+					var $searchField = $(searchFieldSelector).autocomplete({
+						minLength: minPrefixLength,
+						source: createWidgetAutoCompleteSource({
+							delay: autoCompleteDebounceDelay,
+							timeout: 10000,
+							shouldSearch: shouldSearch,
+							url: getAutoCompleteUrl,
+							success: function () {
+								$('.autoCompleteError').remove();
+							},
+							error: function (xmlhttprequest, textstatus, message) {
+								if (textstatus === "timeout") {
+									if ($(searchFieldSelector).siblings('.autoCompleteError').length == 0)
+										$('<span class="autoCompleteError"><p class="alert error">Search autocomplete is currently not responding. Please try again later.</p></span>').insertAfter($(searchFieldSelector));
+								}
+							}
+						}),
+						html: true,
+						delay: 0,
+						select: function (event, ui) {
+							$(this).val(ui.item.value);
+							$(this).next().click();
+						}
+					});
+
+					$searchField.data("ui-autocomplete")._renderItem = function (ul, item) {
+						return $("<li class=\"itemList\"></li>")
+							.data("ui-autocomplete-item", item)
+							.append("<a>" + item.label + "</a>")
+							.appendTo(ul);
+					};
+				}
+
+				// keep searchBtnApplyQuery consistent with prefix rule
+				window.searchBtnApplyQuery = function() {
+					var $field = $(searchFieldSelector);
+					var term = $field.val() + "";
+					if (shouldSearch(term)) {
+						// update href for the icon/button (if present)
+						var btn = document.getElementById("btnSearchIcon");
+						if (btn) btn.href = "/Search?searchPhrase=" + encodeURIComponent($.trim(term));
+					} else {
+						var btn = document.getElementById("btnSearchIcon");
+						if (btn) btn.href = "#";
+					}
+				};
+			}
+			catch(e) {} //we're going to eat this error. Autocomplete won't work but we dont wan't to break anything else on the page.
+		});
+	</script>
+
+	<section id="widgetPreviewSearch" class="widget widgetSearch skin39 widgetOptionSet15" style="display: block;" aria-label="Search">
+				<!-- For the button right and inside -->
+		<div class="widgetBody buttonRightInside">
+			<input class="widgetSearchBox widgetSearchBoxcb01f32e-71a2-4f41-abed-cf830e473331" cp5ph="true" id="searchFieldcb01f32e-71a2-4f41-abed-cf830e473331" name="searchField" onchange="searchBtnApplyQuery();" placeholder="Search..." type="text" value="" />
+						<a href="/Search/Results" id="btnSearchIcon" class="widgetSearchButton widgetSearchButtoncb01f32e-71a2-4f41-abed-cf830e473331" role="button"><img alt="Search 4" class="imageHover" data-hover="/ImageRepository/Document?documentID=96" data-image="/ImageRepository/Document?documentID=97" src="/ImageRepository/Document?documentID=97" /></a>
+
+			<label class="searchLabel" aria-hidden="true" for="searchFieldcb01f32e-71a2-4f41-abed-cf830e473331">Search</label>
+		</div>
+
+	</section>
+
+
+<style scoped>
+	  
+		.widgetSearch ::-webkit-input-placeholder {
+		color: #ffff;
+	  }
+		.widgetSearch :-moz-placeholder { /* Firefox 18- */
+	   color: #ffff;
+	}
+		.widgetSearch ::-moz-placeholder {  /* Firefox 19+ */
+	   color: #ffff;
+	}
+	.widgetSearch :-ms-input-placeholder {
+	   color: #ffff;
+	}
+	
+
+	.widgetSearch .widgetBody .widgetSearchBoxcb01f32e-71a2-4f41-abed-cf830e473331
+	{
+		color: #fff;
+		font-family: Open Sans;
+font-size: 1.1em;
+font-weight: 700;
+text-transform: uppercase;
+border-radius: 100px;
+background-color: #1A468D;
+height: 65px;
+border: none;
+background-clip: padding-box;
+padding: 0 80px 0 20px;
+	}
+	.widgetSearch .widgetBody .widgetSearchButtoncb01f32e-71a2-4f41-abed-cf830e473331
+	{
+		margin: 7px;
+	}
+	.widgetSearch .widgetSearch-onlyDeptcb01f32e-71a2-4f41-abed-cf830e473331
+	{
+		display: inline-block;
+		color: #333;
+		
+		
+		 padding-top: 10px;
+	}
+	#ysnSearchOnlyDeptcb01f32e-71a2-4f41-abed-cf830e473331
+	{
+		position: relative;
+		top: .125em;
+	}
+
+</style>
+
+<link rel="stylesheet" href="/Common/Controls/jquery-ui-1.14.2/jquery-ui.min.css">
+<link rel="stylesheet" href="/Common/Controls/jquery-ui-1.14.2/jquery-ui.theme.min.css">
+
+
+
+<script type="text/javascript">
+	//Updates search icons href to have the correct queryString
+	function searchBtnApplyQuery() {
+		document.getElementById("btnSearchIcon").href = "/Search?searchPhrase=" + document.getElementById("searchFieldcb01f32e-71a2-4f41-abed-cf830e473331").value;
+	}
+</script>
+
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+	</div>
+</div>
+</div>
+</div></div>
+</header><!-- Banner --><div data-cpRole="structuralContainer" id="bannerContainerTS" class="noOverflowTS">
+<div data-cpRole="banner" id="banner1"><div data-cpRole="structuralContainer" id="bannerSizingTS">
+<div data-cpRole="structuralContainer" id="bannerContentTS">
+<div class="siteWrap3"><div data-cpRole="contentContainer" id="contentTS">	<div id="cc53601475-7a24-4c2f-9bc7-4e1461a3af62" data-containerid="53601475-7a24-4c2f-9bc7-4e1461a3af62" class="pageContent cpGrid cpGrid24 showInMobile">
+				                
+
+
+
+	</div>
+</div></div>
+</div>
+</div>
+
+
+
+
+		<div id="bannerImagesJSON2" class="hidden"></div>
+		<div id="bannerSlideshowControls_banner1" class="bannerSlideshowControlsNew none " style="display:none">
+			<a id="arrowPrev_banner1" tabindex="0" class="arrowNew prev" aria-label="Banner Arrow Previous"><svg style=" " class=""><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#iconSlideshowArrowLeft"></use></svg></a>
+			<a id="arrowNext_banner1" tabindex="0" class="arrowNew next" aria-label="Banner Arrow Next"><svg style=" " class=""><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#iconSlideshowArrowRight"></use></svg></a>
+		</div>
+			<script type="text/javascript">
+				$(window).on("load", function () {
+					$.when(window.Pages.rwdSetupComplete)
+						.done(function () {
+							renderExternalBannerSlideshow('banner1',
+								{"BannerOptionID":2,"ThemeID":1,"SlotName":"banner1","Name":"Default","IsDefault":false,"BannerMode":2,"SlideShowSlideTiming":null,"SlideshowTransition":0,"SlideShowTransitionTiming":null,"ImageScale":true,"ImageAlignment":1,"ImageScroll":true,"MuteSound":true,"VideoType":0,"Status":40,"SlideshowControlsPosition":0,"SlideshowControlsAlignment":0,"SlideshowBannerControlsColorScheme":0,"DisplayVideoPauseButton":false,"VideoPauseButtonAlignment":1,"VideoPauseButtonControlsAlignment":0,"VideoPauseButtonStyle":"#FFFFFF","VideoPauseButtonBackgroundStyle":"#000000","VideoPauseButtonAlignmentClass":"alignRight viewport","DisplaySlideshowPauseButton":true,"SlideshowControlsColor":"#FFFFFF","SlideshowControlsBackgroundColor":"#000000","SlideshowPauseButtonClass":"isHidden","BannerImages":[{"BannerImageID":57,"BannerOptionID":2,"FileName":"/ImageRepository/Document?documentID=91","Height":400,"Width":2200,"StartingOn":null,"StoppingOn":null,"IsLink":false,"LinkAddress":null,"Sequence":1,"RecordStatus":0,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/","AltText":""},{"BannerImageID":58,"BannerOptionID":2,"FileName":"/ImageRepository/Document?documentID=92","Height":400,"Width":2200,"StartingOn":null,"StoppingOn":null,"IsLink":false,"LinkAddress":null,"Sequence":2,"RecordStatus":0,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/","AltText":""},{"BannerImageID":59,"BannerOptionID":2,"FileName":"/ImageRepository/Document?documentID=90","Height":400,"Width":2200,"StartingOn":null,"StoppingOn":null,"IsLink":false,"LinkAddress":null,"Sequence":3,"RecordStatus":0,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/","AltText":""},{"BannerImageID":60,"BannerOptionID":2,"FileName":"/ImageRepository/Document?documentID=89","Height":400,"Width":2200,"StartingOn":null,"StoppingOn":null,"IsLink":false,"LinkAddress":null,"Sequence":4,"RecordStatus":0,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/","AltText":""}],"BannerVideos":[],"RecordStatus":0,"ModifiedBy":0,"ModifiedOn":"\/Date(-62135575200000)\/"},
+								'/App_Themes/Interior/Images/',
+								'Rotating');
+						});
+				});
+			</script>
+
+</div>
+</div><main data-cpRole="structuralContainer" id="mainSectionTS">
+<!-- Content container --><div data-cpRole="structuralContainer" id="mainContainerTS">
+<div class="siteWrap2"><div data-cpRole="structuralContainer" id="mainWrapTS" class="mainWrap flexTS">
+<div data-cpRole="structuralContainer" id="siteSidebarTS" class="siteSidebar">
+<aside data-cpRole="contentContainer" id="sidebarContainer1TS">	<div id="cc21c8a865-eba8-444e-96f6-c15a649832c1" data-containerid="21c8a865-eba8-444e-96f6-c15a649832c1" class="pageContent cpGrid cpGrid24 showInMobile">
+				                
+
+
+
+	</div>
+</aside><nav data-cpRole="nav" id="secondaryNav" class="siteNav secondaryNav" aria-label="Secondary">
+
+
+
+
+
+	<ol role="menu" id="secondaryMenusecondaryNav" data-parent="944" class="rootNavMenu accordionNav">
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="0" id="SideItem656" data-pageid="656">
+		<div class="accordionNavItem">
+			<a href="/656/Campaign-Finance-Reports" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">Campaign Finance Reports</a>
+				<a href="#" role="button" class="openAccordionNav accordionSecondaryNavItem" aria-label="Campaign Finance Reports Submenu" aria-expanded="false" aria-controls="submenu-lvl1-656"></a>
+		</div>
+					<ol aria-hidden="true" role="menu" class="accordionNavContainer accordionNavContainer--lvl1" id="submenu-lvl1-656" style="display: none;" data-parent="656">
+						<li class="sideNavLi subMenuItem hasAccordionChildren" role="menuitem" tabindex="0" id="SideItem1065" data-pageid="1065">
+			<div class="accordionNavItem">
+				<a href="/1065/Campaign-Finance-Reports-After-May-18-20" target="_self" class="navMenuItem cpComponent" data-type="SecondaryMenuItem"><span lang="en">Campaign Finance Reports (After May 18, 2026)</span></a>
+			</div>
+					</li>
+
+			</ol>
+	</li>
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem994" data-pageid="994">
+		<div class="accordionNavItem">
+			<a href="/994/City-Council-Filings" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">City Council Filings</a>
+		</div>
+			</li>
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem657" data-pageid="657">
+		<div class="accordionNavItem">
+			<a href="/657/Election-Judge-Information" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">Election Judge Information</a>
+		</div>
+			</li>
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem654" data-pageid="654">
+		<div class="accordionNavItem">
+			<a href="/654/Election-Resources" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">Election Resources</a>
+		</div>
+			</li>
+	<li class="topMenuItem sideNavLi hasAccordionChildren" role="menuitem" tabindex="-1" id="SideItem658" data-pageid="658">
+		<div class="accordionNavItem">
+			<a href="/658/Polling-Locations" target="_self" class="navMainItem secondaryNavItem cpComponent" data-type="SecondaryMainItem">Polling Locations</a>
+		</div>
+			</li>
+
+	</ol>
+
+
+	<script type="text/javascript">
+		(function () {
+			function setupSecondaryMenuProperties() {
+				//setup menu manager properties for secondary menu
+				menuManager.isSideMenuEditable = false;
+				menuManager.sideMenuMaxSubMenuLevels = 4;
+				menuManager.sideMenuHasCustomLinks = false;
+			}
+
+			if (document.readyState === "loading") {
+				document.addEventListener("DOMContentLoaded", setupSecondaryMenuProperties, { once: true });
+				return;
+			}
+
+			setupSecondaryMenuProperties();
+		})();
+	</script>
+
+	<script type="text/javascript">
+		(function () {
+			function setupAccordionSecondaryNav() {
+				var $menuContainer = $('#secondaryNav');
+
+				$menuContainer.find('*[id^="SideItem"]').each(function () {
+					var ids = $('[id="' + this.id + '"]');
+					if (ids.length > 1)
+						$.each(ids, function (index, value) {
+							value.id = value.id + '_' + index;
+						});
+				});
+
+				$menuContainer.find('.hasAccordionChildren .openAccordionNav').off('click.secondaryNav').on('click.secondaryNav', function (e) {
+					e.preventDefault();
+					showHideAccordionMenuForSecondaryNav($(this));
+				});
+
+				$menuContainer.find(".grippy").each(function () {
+					menuManager.setupDraggableElement($(this), SIDE_MENU, '#secondaryNav');
+				});
+
+				$menuContainer.find("li").each(function () {
+					menuManager.setupDroppableAccordionElement($(this), SIDE_MENU);
+				});
+			}
+
+			if (document.readyState === "loading") {
+				document.addEventListener("DOMContentLoaded", setupAccordionSecondaryNav, { once: true });
+				return;
+			}
+
+			setupAccordionSecondaryNav();
+		})();
+	</script>
+
+
+
+</nav><aside data-cpRole="contentContainer" id="sidebarContainer2TS">	<div id="cc9f7c3b1a-9e9b-4a40-9279-30f386933d74" data-containerid="9f7c3b1a-9e9b-4a40-9279-30f386933d74" class="pageContent cpGrid cpGrid24 showInMobile">
+				                
+
+
+
+	</div>
+</aside>
+</div><div data-cpRole="structuralContainer" id="outerContentWrapTS" class="outerContentWrap flexTS">
+<div data-cpRole="structuralContainer" id="contentWrapTS" class="contentWrap">
+<div data-cpRole="breadCrumbs" id="breadCrumbs" class="breadCrumbContainer">		<ol class="semanticList breadCrumbs">
+			<li><a class="breadCrumb" href="/">Home</a></li><li><a class="breadCrumb" href="/27/Your-Government">Your Government</a></li><li><a class="breadCrumb" href="/400/Departments">Departments</a></li><li><a class="breadCrumb" href="/411/City-Clerk">City Clerk</a></li><li id="currentBCPage" data-pageid="944"><a href class="breadCrumb" aria-current="page">Elections</a></li>
+		</ol>
+
+	   
+    
+</div><div data-cpRole="mainContentContainer" id="moduleContent">
+	
+	<div id="page" class="moduleContentNew">
+		
+
+	<input id="hdnPageID" name="hdnPageID" type="hidden" value="944" />
+	<input id="hdnParentID" name="hdnParentID" type="hidden" value="411" />
+	<input id="hdnVersionID" name="hdnVersionID" type="hidden" value="4372" />
+	<input id="pageMenuTitle" name="pageMenuTitle" type="hidden" value="Elections" />
+	<input id="pageShowFeatureColumn" name="pageShowFeatureColumn" type="hidden" value="False" />
+	<input id="hdnIsLayoutPage" name="hdnIsLayoutPage" type="hidden" value="False" />
+	<input id="hdnPageStatus" name="hdnPageStatus" type="hidden" value="Published" />
+
+				<h1 id="versionHeadLine" class="headline">
+
+Elections		</h1>
+	
+		<div id="cc5f8c90dc-b4cb-431b-90ee-10648f8df655" data-containerid="5f8c90dc-b4cb-431b-90ee-10648f8df655" class="pageContent cpGrid cpGrid24"  data-contentcontainerbreakpoint="50" >
+			
+
+		<div class="row outer wide"><!--
+--><div class="outer col col24 first last" style="" data-widgetcontainerid="b2a5078f-3749-47d8-a54b-c23a7fe84642">				
+	<div class="row nest first wide">
+	
+	<div class="inner col col24 first last id1cfaca9b-a868-4ccf-be69-3fbfc9ec8b03" style="" data-widgetcontainerid="1cfaca9b-a868-4ccf-be69-3fbfc9ec8b03">	
+<div class="widget editor pageStyles narrow" id="divEditorafa6f122-bf57-4cd9-ada8-20c6759a006f" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}'>
+	    <div class="fr-view">
+
+
+        <p><a href="/DocumentCenter/View/2200" target="_blank" rel="noopener">June 9, 2026 -- FOR IMMEDIATE RELEASE: ELECTION ADMINISTRATION UPDATES</a></p><h2 class="subhead1">2026 Election Dates</h2><p><strong>August 11, 2026 - Primary Election</strong><br><strong>November 3, 2026 - General Election</strong></p><p><strong>Want to know where to vote or what is on your ballot?&nbsp;</strong>Visit <a data-fr-linked="true" href="https://pollfinder.sos.mn.gov/" data-pasted="true">https://pollfinder.sos.mn.gov/</a> and enter your address to find out precinct information, where you vote, ballot samples, and caucus information.</p><p><strong>Want to find Election Results?&nbsp;</strong>Visit the<a href="https://www.sos.mn.gov/elections-voting/election-results/" target="_blank" rel="noopener">&nbsp;Minnesota Secretary of State</a> for results from elections conducted in the state of Minnesota.&nbsp;</p>
+    </div>
+
+<script type="text/javascript">
+	$(document).ready(function (e) {		
+	    renderSlideshowIfApplicable($('#divEditor' + 'afa6f122-bf57-4cd9-ada8-20c6759a006f'));
+	});
+</script>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+	<div class="row nest last wide">
+	
+	<div class="inner col col24 first last idea5e19a0-c7f0-4a8e-a066-a0f8b9bb4e10" style="" data-widgetcontainerid="ea5e19a0-c7f0-4a8e-a066-a0f8b9bb4e10">	
+
+	<div id="divTabbed51b9c96b-4394-4aa0-a868-881501b501e8" class="widget widgetTabbed wide skin43" data-widgetid="51b9c96b-4394-4aa0-a868-881501b501e8">
+		<ol class="tabbedWidget cpTabs  " role="tablist" aria-hidden=".ToString().ToLowerInvariant()" style=" ">
+			<!--
+					--><li class="active" role="presentation">	<a href="#tab51b9c96b-4394-4aa0-a868-881501b501e8_0" class="tabButton" id="tabBtn51b9c96b-4394-4aa0-a868-881501b501e8_0" role="tab" aria-controls="tab51b9c96b-4394-4aa0-a868-881501b501e8_0" aria-selected="true" tabindex="0"><span class="tabName editable" data-sequence="0" data-tabname="How To Vote" contenteditable="false">How To Vote</span></a>
+</li><!--
+					--><li class="" role="presentation">	<a href="#tab51b9c96b-4394-4aa0-a868-881501b501e8_1" class="tabButton" id="tabBtn51b9c96b-4394-4aa0-a868-881501b501e8_1" role="tab" aria-controls="tab51b9c96b-4394-4aa0-a868-881501b501e8_1" aria-selected="false" tabindex="-1"><span class="tabName editable" data-sequence="1" data-tabname="In-Person Absentee Voting" contenteditable="false">In-Person Absentee Voting</span></a>
+</li><!--
+					--><li class="" role="presentation">	<a href="#tab51b9c96b-4394-4aa0-a868-881501b501e8_2" class="tabButton" id="tabBtn51b9c96b-4394-4aa0-a868-881501b501e8_2" role="tab" aria-controls="tab51b9c96b-4394-4aa0-a868-881501b501e8_2" aria-selected="false" tabindex="-1"><span class="tabName editable" data-sequence="2" data-tabname="Early Voting" contenteditable="false">Early Voting</span></a>
+</li><!--
+					--><li class="" role="presentation">	<a href="#tab51b9c96b-4394-4aa0-a868-881501b501e8_3" class="tabButton" id="tabBtn51b9c96b-4394-4aa0-a868-881501b501e8_3" role="tab" aria-controls="tab51b9c96b-4394-4aa0-a868-881501b501e8_3" aria-selected="false" tabindex="-1"><span class="tabName editable" data-sequence="3" data-tabname="Primary Election" contenteditable="false">Primary Election</span></a>
+</li><!--
+					--><li class="" role="presentation">	<a href="#tab51b9c96b-4394-4aa0-a868-881501b501e8_4" class="tabButton" id="tabBtn51b9c96b-4394-4aa0-a868-881501b501e8_4" role="tab" aria-controls="tab51b9c96b-4394-4aa0-a868-881501b501e8_4" aria-selected="false" tabindex="-1"><span class="tabName editable" data-sequence="4" data-tabname="General Election" contenteditable="false">General Election</span></a>
+</li><!--
+					-->
+		</ol>
+
+		<div class="cpTabPanels">
+					<ol class="tabbedWidgetNarrow cpTabs " role="tablist" aria-hidden="True.ToString().ToLowerInvariant()" style='display: none;'>
+						<li class="active" role="presentation">	<a href="#tab51b9c96b-4394-4aa0-a868-881501b501e8_0" class="tabButton" id="tabBtnNarrow51b9c96b-4394-4aa0-a868-881501b501e8_0" role="tab" aria-controls="tab51b9c96b-4394-4aa0-a868-881501b501e8_0" aria-selected="true" tabindex="0"><span class="tabName editable" data-sequence="0" data-tabname="How To Vote" contenteditable="false">How To Vote</span></a>
+</li>
+					</ol>
+				<div class="tabbedWidget cpTabPanel showing" style="" id="tab51b9c96b-4394-4aa0-a868-881501b501e8_0" role="tabpanel" aria-labelledby="tabBtn51b9c96b-4394-4aa0-a868-881501b501e8_0" tabindex="-1">
+
+<div class="widget editor pageStyles narrow" id="divEditor0bc458e3-8ef3-48c8-9b9b-576280ae66b7" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}'>
+	    <div class="fr-view">
+
+
+        <p data-pasted="true">The city clerk is available to answer questions about voter registration and elections. The city clerk administers city, state, and federal elections in even years.</p><h2 class="subhead1">Check if you are registered to vote</h2><ul><li><a href="https://mnvotes.sos.mn.gov/voterstatuscheck/index" target="_blank" rel="noopener">Find Your Minnesota Voter Registration</a></li></ul><h2 class="subhead1" data-pasted="true">Pre-register to vote</h2><ul><li><a href="https://mnvotes.sos.mn.gov/VoterRegistration/index" target="_blank" rel="noopener">Submit an online registration</a></li><li><a href="https://www.sos.mn.gov/elections-voting/register-to-vote/register-on-paper/" target="_blank" rel="noopener">Mail in a paper registration</a></li><li>Update your Minnesota Driver&apos;s License or Identification Address when you renew your license.</li></ul><h2 class="subhead1">Deadline for pre-registration</h2><ul><li>The deadline to pre-register for the General Election is October 13, 2026<br>(Extended hours from 8:00 am -- 5:00 pm; 11:59 pm if pre-registering online).</li></ul><p>If you are not pre-registered to vote by the deadline, you can still register same day during the Early Voting window or on Election Day at your polling location.</p><p>Learn more about <a href="https://www.sos.mn.gov/elections-voting/register-to-vote/register-on-election-day/" target="_blank" rel="noopener">Election Day Registration</a>.</p><h2 class="subhead1"><strong data-pasted="true">Get an Accessible Ballot</strong></h2><p>Voters with print disabilities may request an accessible absentee ballot. To do so, apply normally online or with a downloadable application, then contact Hennepin County Government Center to let them know you want an accessible ballot.</p><p><strong style='box-sizing: border-box; font-weight: 700; color: rgb(56, 56, 56); font-family: "Open Sans"; font-size: 15.2px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgba(227, 241, 252, 0.25); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;' data-pasted="true">QUESTIONS?<br style="box-sizing: border-box;"></strong><span style='color: rgb(56, 56, 56); font-family: "Open Sans"; font-size: 15.2px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgba(227, 241, 252, 0.25); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;'>Richfield Elections Office</span><br style="box-sizing: border-box; color: rgb(56, 56, 56); font-family: &quot;Open Sans&quot;; font-size: 15.2px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgba(227, 241, 252, 0.25); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;"><span style='color: rgb(56, 56, 56); font-family: "Open Sans"; font-size: 15.2px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgba(227, 241, 252, 0.25); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;'>&nbsp;Michelle Friedrich - 612-861-9739</span><br style="box-sizing: border-box; color: rgb(56, 56, 56); font-family: &quot;Open Sans&quot;; font-size: 15.2px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgba(227, 241, 252, 0.25); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;"><span style='color: rgb(56, 56, 56); font-family: "Open Sans"; font-size: 15.2px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgba(227, 241, 252, 0.25); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;'>&nbsp;</span><a href="/cdn-cgi/l/email-protection#244942564d4140564d474c64564d474c424d414840494a0a434b52" style='box-sizing: border-box; overflow-wrap: anywhere; word-break: normal; color: rgb(26, 70, 141); text-decoration: none; font-family: "Open Sans"; font-size: 15.2px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgba(227, 241, 252, 0.25);'><span class="__cf_email__" data-cfemail="97faf1e5fef2f3e5fef4ffd7e5fef4fff1fef2fbf3faf9b9f0f8e1">[email&#160;protected]</span></a><br style="box-sizing: border-box; color: rgb(56, 56, 56); font-family: &quot;Open Sans&quot;; font-size: 15.2px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgba(227, 241, 252, 0.25); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;"><span style='color: rgb(56, 56, 56); font-family: "Open Sans"; font-size: 15.2px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgba(227, 241, 252, 0.25); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;'>&nbsp;</span><a href="http://www.richfieldmn.gov/" style='box-sizing: border-box; overflow-wrap: anywhere; word-break: normal; color: rgb(26, 70, 141); text-decoration: none; font-family: "Open Sans"; font-size: 15.2px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgba(227, 241, 252, 0.25);'>www.richfieldmn.gov</a></p>
+    </div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="text/javascript">
+	$(document).ready(function (e) {		
+	    renderSlideshowIfApplicable($('#divEditor' + '0bc458e3-8ef3-48c8-9b9b-576280ae66b7'));
+	});
+</script>
+</div>
+
+				</div>
+					<ol class="tabbedWidgetNarrow cpTabs " role="tablist" aria-hidden="True.ToString().ToLowerInvariant()" style='display: none;'>
+						<li class="" role="presentation">	<a href="#tab51b9c96b-4394-4aa0-a868-881501b501e8_1" class="tabButton" id="tabBtnNarrow51b9c96b-4394-4aa0-a868-881501b501e8_1" role="tab" aria-controls="tab51b9c96b-4394-4aa0-a868-881501b501e8_1" aria-selected="false" tabindex="-1"><span class="tabName editable" data-sequence="1" data-tabname="In-Person Absentee Voting" contenteditable="false">In-Person Absentee Voting</span></a>
+</li>
+					</ol>
+				<div class="tabbedWidget cpTabPanel " style="display: none;" id="tab51b9c96b-4394-4aa0-a868-881501b501e8_1" role="tabpanel" aria-labelledby="tabBtn51b9c96b-4394-4aa0-a868-881501b501e8_1" tabindex="-1">
+
+<div class="widget editor pageStyles narrow" id="divEditor55760992-91a0-483c-949e-4f5ac19a3cbc" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}'>
+	    <div class="fr-view">
+
+
+        <p data-pasted="true">Absentee voting is the process of voting before election day and begins 46 days prior to the election. Any eligible voter can absentee vote. Hennepin County assists the City of Richfield with absentee voting. Residents who wish to vote early by absentee ballot or direct ballot (effective in 2026, direct ballot is now referred to as Early Voting) for any election should follow the provisions. Each process requires voters to complete an application process.</p><h2 class="subhead1" data-pasted="true">Absentee Voting by Mail</h2><p>Residents may still request a ballot be delivered to them and can apply online available mid-May for elections taking place in August and November. Apply at least three weeks before an election to allow enough time for your application to be processed, for your ballot to be sent to you, and for you to return your ballot.</p><p><strong>Visit the Secretary of State website at:</strong> <a href="https://sos.mn.gov/elections-voting/other-ways-to-vote/online-absentee-application/" data-pasted="true">https://sos.mn.gov/elections-voting/other-ways-to-vote/online-absentee-application/</a>.</p><ol><li>A voter fills out an absentee ballot application.<ul><li>This <a href="https://mnvotes.sos.mn.gov/abrequest/index" target="_blank" rel="noopener">application can be filled out online</a> or with a <a href="/DocumentCenter/View/1162/Absentee-Ballot-Application-PDF" target="_blank" rel="noopener">paper absentee ballot application (PDF)</a>.<ul><li>Online applicants will need to provide an email address.</li><li>Paper applications should be mailed or emailed directly to:<br>Hennepin County Government Center<br>300 South 6th Street MC 680<br>Minneapolis, MN 55487-0012<br>Email: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="69010a471f061d0c29010c07070c190007471c1a">[email&#160;protected]</a></li></ul></li><li>Voters need to provide the last 4 of their social security number or Minnesota Driver&apos;s License / ID Number.</li></ul></li><li>The voter receives the ballot.<ul><li>A ballot and materials are mailed to the voter from Hennepin County.<ul><li>Be sure to follow the instructions provided!</li><li>A witness is <strong>required</strong>. A witness can be a Notary Public or a Minnesota resident.</li></ul></li></ul></li><li>Return the voted ballot. The ballot <strong>must&nbsp;</strong>be received before 5 pm on Election Day.<ul><li>Use the pre-paid, pre-addressed envelope to Hennepin County.</li><li>Election mail is high priority to the U.S. Post Office; however, you may choose to express courier or hand-deliver your ballot to Hennepin County.</li><li>Drop off your own ballot at the Richfield Municipal Center during regular business hours. You may drop off ballots for up to three other voters by completing a Voter Drop Off Form. Voted ballots are securely locked and couriered to Hennepin County for Absentee Ballot Board review and acceptance.</li></ul></li><li>Track my ballot<ul><li>You can track your ballot during absentee voting. View the <a href="https://mnvotes.sos.mn.gov/abstatus/index" target="_blank" rel="noopener">Secretary of State Ballot Tracker</a>.</li></ul></li></ol><h2 class="subhead1" data-pasted="true">In-Person Absentee Voting in-Person Begins at Hennepin County Government Center September 18, 2026</h2><p>This is identical to getting an absentee ballot mailed to you, except done in person at the Hennepin County Government Center. You will need to know your MN ID or SSN to fill out the application. In-Person Absentee Voting begins September 18, 2026, and continues for 28 days until the Early Voting period begins on October 16.</p><p data-pasted="true"><strong>IN-PERSON ABSENTEE VOTING LOCATION:</strong><br>Hennepin County Government Center<br>300 South 6th St, Skyway Level<br>Minneapolis, MN 55487-0012<br>612-348-5151<br>Email: <a href="/cdn-cgi/l/email-protection#375f541941584352775f52595952475e59194244"><span class="__cf_email__" data-cfemail="d9b1baf7afb6adbc99b1bcb7b7bca9b0b7f7acaa">[email&#160;protected]</span></a></p><ol><li>A voter fills out an absentee ballot application.<ul><li><strong>During the first 28 days of absentee voting</strong>, voters will either need to provide the last 4 of their social security number <strong>or&nbsp;</strong>Minnesota Driver&apos;s License / ID Number when completing the in-person ballot application. Election staff do not need to see your identification unless you are an unregistered voter or if the identifying information in the Minnesota voter registration system does not match.</li></ul></li><li>Hennepin County election staff will check you in and issue a ballot to you.<ul><li>During the first 28 days of the absentee voting period, there will be a series of envelopes that will protect your voting privacy.</li><li>During the early voting period (previously direct balloting period and 18 days prior to election day), no envelopes will be used.</li></ul></li><li>Return the ballot.<ul><li>During the 28-day absentee voting period, election staff will verify that you&apos;ve signed the signature envelope and you have a witness signature, which should be the person who can verify you completed a blank ballot, is 18 years of age, and a US citizen. Once your ballot is returned, it will be securely locked, and reviewed by an absentee ballot board.</li></ul></li><li>Track my ballot.<ul><li>You can track where your ballot during absentee voting with the <a href="https://mnvotes.sos.mn.gov/abstatus/index" target="_blank" rel="noopener">Secretary of State Ballot Tracker</a>.</li></ul></li></ol><h2 class="subhead1" data-pasted="true">What Happens to My Ballot at Hennepin County</h2><p>Before absentee ballots can be counted, they must be accepted. Learn about the process of accepting and counting absentee ballots.</p><p>The Hennepin County Elections Department has created videos that review their process:</p><ul><li><a href="https://www.youtube.com/watch?v=P_PqyBNWXjU" target="_blank" rel="noopener">English - How absentee ballots are counted (YouTube) (2021)</a></li><li><a href="https://www.youtube.com/watch?v=r-ZqgTknJkE" target="_blank" rel="noopener">Espa&ntilde;ol - Proceso de conteo de boletas de voto en ausencia (YouTube) (2020)</a></li><li><a href="https://www.youtube.com/watch?v=8eYP-cqZ0b0" target="_blank" rel="noopener">Hmoob - Txheej txheem kev lis dej num txog kev suav xam cov ntawv xaiv nom uas tus neeg ntawd tsis muaj peev xwm mus pov npav tau (YouTube) (2020)</a></li><li><a href="https://www.youtube.com/watch?v=xIQKC5be0W8" target="_blank" rel="noopener">Soomaali - Habraaca sida loo tirinayo codadka horumariska ah (YouTube) (2020)</a></li></ul>
+    </div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="text/javascript">
+	$(document).ready(function (e) {		
+	    renderSlideshowIfApplicable($('#divEditor' + '55760992-91a0-483c-949e-4f5ac19a3cbc'));
+	});
+</script>
+</div>
+
+				</div>
+					<ol class="tabbedWidgetNarrow cpTabs " role="tablist" aria-hidden="True.ToString().ToLowerInvariant()" style='display: none;'>
+						<li class="" role="presentation">	<a href="#tab51b9c96b-4394-4aa0-a868-881501b501e8_2" class="tabButton" id="tabBtnNarrow51b9c96b-4394-4aa0-a868-881501b501e8_2" role="tab" aria-controls="tab51b9c96b-4394-4aa0-a868-881501b501e8_2" aria-selected="false" tabindex="-1"><span class="tabName editable" data-sequence="2" data-tabname="Early Voting" contenteditable="false">Early Voting</span></a>
+</li>
+					</ol>
+				<div class="tabbedWidget cpTabPanel " style="display: none;" id="tab51b9c96b-4394-4aa0-a868-881501b501e8_2" role="tabpanel" aria-labelledby="tabBtn51b9c96b-4394-4aa0-a868-881501b501e8_2" tabindex="-1">
+
+<div class="widget editor pageStyles narrow" id="divEditor369eaacc-3219-434f-92c2-e07ef48aa277" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}'>
+	    <div class="fr-view">
+
+
+        <p data-pasted="true">The City of Richfield is pleased to announce the implementation of an 18-day early voting period for upcoming elections. Beginning with the Primary Election Early Voting Period, voters in Richfield will begin voting early 18 consecutive days before election day. This process is similar to voting in a polling place on Election Day.&nbsp;</p><h2 class="subhead1"><strong>EARLY VOTING DETAILS</strong></h2><ol><li>Voter completes a Voter&rsquo;s Certificate</li><li>Ballot is issued at the Richfield Municipal Center</li><li>After ballot completion, ballot is inserted directly into a tabulator</li></ol><h3 class="subhead2">EARLY VOTING DATES AND HOURS:</h3><ul><li>Monday&ndash;Friday: 8:00 am &ndash; 4:30 pm (October 16, 2026 - November 2, 2026)</li><li>Saturday: 9:00 am &ndash; 3:00 pm (October 24, 2026)</li><li>Tuesday: 8:00 am -- 7:00 pm (October 27, 2026)</li><li data-pasted="true">Saturday: 9:00 am &ndash; 3:00 pm (October 31, 2026)</li><li data-pasted="true">Sunday: 9:00 am - 3:00 pm (November 1, 2026)</li><li>Monday: 8:00 am &ndash; 5:00 pm (November 2, 2026)</li></ul><h3 class="subhead2"><strong>EARLY VOTING LOCATION:</strong></h3><p>Richfield Municipal Center<br>Council Chambers<br>6700 Portland Avenue South<br>Richfield, MN 55423</p><p><strong>WHO CAN VOTE EARLY?</strong><strong><br></strong>Any eligible voter registered in Richfield may vote during the 18-day early voting period.</p><h3 class="subhead2"><strong>WHAT TO BRING</strong></h3><ul type="disc"><li>Minnesota driver&apos;s license, state ID, or other acceptable identification (if required)</li><li>If you need to register at the time of voting, please bring <a href="https://www.sos.mn.gov/media/a0dpevwz/2026electiondayregistration.pdf" target="_blank" rel="noopener">proof of residence</a></li></ul><h3 class="subhead2"><strong>ELECTION DAY</strong></h3><p>November 3, 2026</p><p>Polls Open: 7:00 am &ndash; 8:00 pm</p><p><strong>QUESTIONS?<br></strong>Richfield Elections Office<br>&nbsp;Michelle Friedrich - 612-861-9739<br><a href="/cdn-cgi/l/email-protection#0a676c78636f6e786369624a786369626c636f666e6764246d657c"><span class="__cf_email__" data-cfemail="28454e5a414d4c5a414b40685a414b404e414d444c4546064f475e">[email&#160;protected]</span></a><br><a href="http://www.richfieldmn.gov">www.richfieldmn.gov</a></p>
+    </div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="text/javascript">
+	$(document).ready(function (e) {		
+	    renderSlideshowIfApplicable($('#divEditor' + '369eaacc-3219-434f-92c2-e07ef48aa277'));
+	});
+</script>
+</div>
+
+				</div>
+					<ol class="tabbedWidgetNarrow cpTabs " role="tablist" aria-hidden="True.ToString().ToLowerInvariant()" style='display: none;'>
+						<li class="" role="presentation">	<a href="#tab51b9c96b-4394-4aa0-a868-881501b501e8_3" class="tabButton" id="tabBtnNarrow51b9c96b-4394-4aa0-a868-881501b501e8_3" role="tab" aria-controls="tab51b9c96b-4394-4aa0-a868-881501b501e8_3" aria-selected="false" tabindex="-1"><span class="tabName editable" data-sequence="3" data-tabname="Primary Election" contenteditable="false">Primary Election</span></a>
+</li>
+					</ol>
+				<div class="tabbedWidget cpTabPanel " style="display: none;" id="tab51b9c96b-4394-4aa0-a868-881501b501e8_3" role="tabpanel" aria-labelledby="tabBtn51b9c96b-4394-4aa0-a868-881501b501e8_3" tabindex="-1">
+
+<div class="widget editor pageStyles narrow" id="divEditor73698dd5-4615-4bb1-9018-344076b982ad" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}'>
+	    <div class="fr-view">
+
+
+        <h2 class="subhead1" data-pasted="true">Primary Election 2026</h2><p><strong>August 11, 2026</strong></p><p>To view a sample ballot and see who has filed for candidacy: <a href="https://myballotmn.sos.mn.gov/">What&apos;s On My Ballot?</a></p><p>There are three ways you can vote in Minnesota:</p><ol><li>At your polling place on Election Day</li><li>Vote absentee (early) by mail</li><li>Vote absentee (early) in-person</li></ol><h2 class="subhead1" data-pasted="true">In-Person Absentee Voting and Early Voting for Primary Election</h2><p><strong>June 26 Through August 10, 2026</strong></p><p>In-Person Absentee voting is available<strong>&nbsp;</strong>Monday through Friday, 8:00 am to 4:30 pm the Hennepin County Government Center beginning June 26 (In-Person Absentee Voting), and at the Richfield Municipal Center beginning July 24 (Early Voting). Early Voting, previously Direct Balloting (inserting ballot directly into the ballot counter) begins, Friday, July 24, 2026.<br>Agent Delivery begins on Tuesday, August 4, 2026.</p><p>Richfield&apos;s Early Voting Extended Hours:&nbsp;</p><ul><li>Saturday, August 8, 2026, 9:00 am -- 3:00 pm</li><li>Monday, August 10, 2026, 8:00 am -- 5:00 pm</li></ul><h2 class="subhead1" data-pasted="true">Primary Election Day Voting</h2><p><strong>August 11, 2026</strong></p><p>Polling places are open from 7:00 am to 8:00 pm. You have a right to take the time off you need from work to vote.</p><p>View a <a href="/DocumentCenter/View/1096/Letter-to-Employers-From-Secretary-Simon-PDF" target="_blank" rel="noopener">Letter to employers from Secretary of State, Steve Simon (PDF)</a>.</p><h2 class="subhead1">Sample Ballots, Pollfinder &amp; More</h2><p><a href="https://pollfinder.sos.mn.gov/" target="_blank" rel="noopener">Minnesota Secretary of State Polling Place Finder</a></p><p>View the link above and enter your address to find:</p><ul><li>A list of candidates and questions that will appear on your ballot</li><li>A polling place finder with the address for your polling place</li><li>A sample ballot</li><li>Online information explaining the process for applying for and casting an absentee ballot if you are unable to go to the polling place on Election Day.</li><li>An explanation of voter registration procedures, with a link to information about the status of your own registration and the deadline to register or re-register if you have moved since the last time you voted.</li></ul><p><a href="/658/Polling-Locations" target="_blank" rel="noopener">Richfield Polling Locations</a></p><p>Be sure to check for your polling place location before the Primary Election on August 11, 2026! Richfield residents within Precinct 8 (Ward 3) will return to Hope Presbyterian Church in Richfield for elections in 2026 for the Primary and General Elections.</p><ul><li><a href="https://richfieldmngis.com/portal/apps/webappviewer/index.html?id=f36f9b00a7fa4677b1eeaad2fc64e45a" target="_blank" rel="noopener">Interactive Ward and Precinct Map</a> (View a <a href="/DocumentCenter/View/1095/Polling-Location-Map-2023-PDF" target="_blank" rel="noopener">Printable Version of the Map (PDF)</a>)</li></ul><h2 class="subhead1" data-pasted="true">How to Get Assistance Voting</h2><p>There are many ways to get help when you vote:&nbsp;</p><ul><li>You can bring someone to help</li><li>Ask an election judge at the polling place</li><li>Use a ballot-marking machine to help you mark your ballot located at each polling place</li><li>Or even vote from the designed polling place curbside. Learn more about <a href="https://www.sos.mn.gov/elections-voting/election-day-voting/get-help-voting/" target="_blank" rel="noopener">voting assistance</a>.</li></ul>
+    </div>
+
+<script type="text/javascript">
+	$(document).ready(function (e) {		
+	    renderSlideshowIfApplicable($('#divEditor' + '73698dd5-4615-4bb1-9018-344076b982ad'));
+	});
+</script>
+</div>
+
+				</div>
+					<ol class="tabbedWidgetNarrow cpTabs " role="tablist" aria-hidden="True.ToString().ToLowerInvariant()" style='display: none;'>
+						<li class="" role="presentation">	<a href="#tab51b9c96b-4394-4aa0-a868-881501b501e8_4" class="tabButton" id="tabBtnNarrow51b9c96b-4394-4aa0-a868-881501b501e8_4" role="tab" aria-controls="tab51b9c96b-4394-4aa0-a868-881501b501e8_4" aria-selected="false" tabindex="-1"><span class="tabName editable" data-sequence="4" data-tabname="General Election" contenteditable="false">General Election</span></a>
+</li>
+					</ol>
+				<div class="tabbedWidget cpTabPanel " style="display: none;" id="tab51b9c96b-4394-4aa0-a868-881501b501e8_4" role="tabpanel" aria-labelledby="tabBtn51b9c96b-4394-4aa0-a868-881501b501e8_4" tabindex="-1">
+
+<div class="widget editor pageStyles narrow" id="divEditor274139a4-04f6-47e2-ab5e-d997f85d23a9" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}'>
+	    <div class="fr-view">
+
+
+        <h2 class="subhead1" data-pasted="true">General Election 2026</h2><h3 class="subhead2">November 3, 2026</h3><p>To view a sample ballot and see who has filed for candidacy: <a href="https://myballotmn.sos.mn.gov/" target="_blank" rel="noopener">What&apos;s On My Ballot?</a></p><p>There are three ways you can vote in Minnesota:</p><ol><li>At your polling place on Election Day</li><li>Vote absentee (early) by mail</li><li>Vote absentee (early) in-person</li></ol><h2 class="subhead1"><span style="font-size: 15.2px;">In-Person Absentee Voting at Hennepin County Government Center for General Election</span></h2><h3 class="subhead2"><span style="font-size: 15.2px;">September 18 through November 2, 2026</span></h3><p><span style="font-size: 15.2px;">In-Person Absentee voting begins September 18, and is available Monday through Friday, 8:00 am to 4:30 pm the Hennepin County Government Center, 300 S 6th Street Minneapolis, MN 55487 (Skyway Level). Please see&nbsp;</span><span style="font-size: 15.2px;"><a href="https://www.hennepincounty.gov/services/elections/absentee-early-voting#:~:text=mailed%20ballots.-,Vote%20early%20in%20person,-Absentee%20voting%20for" target="_blank" rel="noopener">Hennepin County&rsquo;s website</a></span><span style="font-size: 15.2px;">&nbsp;for more information or call Hennepin County Elections at 612-348-5151 with questions.</span></p><h2 class="subhead1"><span style="font-size: 15.2px;">Absentee Voting Assistance at Richfield Municipal Center</span></h2><h3 class="subhead2"><span style="font-size: 15.2px;">September 18 through November 2, 2026</span></h3><p><span style="font-size: 15.2px;">Staff will be available in the City Council Chambers from 8-4:30 PM Monday through Friday to assist residents with registration questions, returning a completed mail-out ballot, or requesting a mail-out ballot from Hennepin County. <strong>Residents cannot vote in-person in Richfield until October 16.</strong></span></p><h2 class="subhead1"><span style="font-size: 15.2px;">Early Voting at Richfield Municipal Center for General Election</span></h2><h3 class="subhead2"><span style="font-size: 15.2px;">October 16 through November 2, 2026</span></h3><p><span style="font-size: 15.2px;"><strong>Early voting is available to Richfield residents at the Richfield Municipal Center beginning October 16 from 8:00 am&ndash; 4:30 pm, Monday through Friday.</strong> Early Voting is formerly known as Direct Balloting (inserting ballot directly into the ballot counter). Richfield also offers select days with extended voting hours.</span></p><h3 class="subhead2"><span style="font-size: 15.2px;">Richfield&apos;s Extended Hours for Assistance During the General Election:&nbsp;</span></h3><ul><li>Tuesday, October 13, 2026, 8:00 am -- 5:00 pm (Absentee voting assistance includes completing online request for mail-out ballot /online registration/returning of completed mail-out ballot.)</li><li>Saturday, October 24, 2026, 9:00 am &ndash; 3:00 pm (Early Voting period.)</li><li>Tuesday, October 27, 2026, 8:00 am -- 7:00 pm (Early Voting period.)</li><li style="font-size: 15.2px;">Saturday, October 31, 2026, 9:00 am &ndash; 3:00 pm (Early Voting period.)</li><li style="font-size: 15.2px;">Sunday, November 1, 2026, 9:00 am &ndash; 3:00 pm (Early Voting period.)</li><li style="font-size: 15.2px;">Monday, November 2, 2026, 8:00 am &ndash; 5:00 pm (Early Voting period.)</li></ul><p><span style="font-size: 15.2px;"><a href="https://www.sos.mn.gov/elections-voting/other-ways-to-vote/have-an-agent-pick-up-your-ballot-agent-delivery/" target="_blank" rel="noopener">Agent Delivery</a></span><span style="font-size: 15.2px;">&nbsp;begins seven days before the Election on Tuesday, October 27, 2026.&nbsp;</span></p><h2 class="subhead1"><span style="font-size: 15.2px;">General Election Day Voting</span></h2><h3 class="subhead2"><span style="font-size: 15.2px;">November 3, 2026</span></h3><p><span style="font-size: 15.2px;">Polling places are open from 7:00 am to 8:00 pm. You have a right to take the time off you need from work to vote.</span></p><p><span style="font-size: 15.2px;">View a Letter to employers from&nbsp;</span><span style="font-size: 15.2px;"><a href="/DocumentCenter/View/1096" target="_blank" rel="noopener">Secretary of State, Steve Simon (PDF).</a></span></p><h3 class="subhead2"><span style="font-size: 15.2px;">Sample Ballots, Pollfinder &amp; More</span></h3><p><span style="font-size: 15.2px;"><a href="https://pollfinder.sos.mn.gov/" target="_blank" rel="noopener">Minnesota Secretary of State Polling Place Finder</a></span></p><p><span style="font-size: 15.2px;">View the link above and enter your address to find:</span></p><ul><li style="font-size: 15.2px;">A list of candidates and questions that will appear on your ballot</li><li style="font-size: 15.2px;">A polling place finder with the address for your polling place</li><li style="font-size: 15.2px;">A sample ballot</li><li style="font-size: 15.2px;">Online information explaining the process for applying for and casting an absentee ballot if you are unable to go to the polling place on Election Day.</li><li style="font-size: 15.2px;">An explanation of voter registration procedures, with a link to information about the status of your own registration and the deadline to register or re-register if you have moved since the last time you voted.</li></ul><h3 class="subhead2"><span style="font-size: 15.2px;"><a href="https://www.richfieldmn.gov/658/Polling-Locations" target="_blank" rel="noopener">Richfield Polling Locations</a></span></h3><p><span style="font-size: 15.2px;">Be sure to check for your polling place location before the General Election on November 3, 2026! Richfield residents within Precinct 8 (Ward 3) will return to Hope Presbyterian Church in Richfield for elections in 2026 for the Primary and General Elections.</span></p><p><span style="font-size: 15.2px;"><a href="/DocumentCenter/View/1095" target="_blank" rel="noopener">(View a Printable Version of the Map (PDF)</a></span></p><h3 class="subhead2"><span style="font-size: 15.2px;">How to Get Assistance Voting</span></h3><p><span style="font-size: 15.2px;">There are many ways to get help when you vote:&nbsp;</span></p><ul><li style="font-size: 15.2px;">You can bring someone to help.</li><li style="font-size: 15.2px;">Ask an election judge at the polling place or during Early Voting.</li><li style="font-size: 15.2px;">Use a ballot-marking machine to help you mark your ballot located at each polling place.</li><li style="font-size: 15.2px;">Or even vote from the designed polling place curbside during Early Voting or on Election Day. <a href="https://www.sos.mn.gov/elections-voting/election-day-voting/get-help-voting/" target="_blank" rel="noopener">Learn more about voting assistance</a>.</li><li style="font-size: 15.2px;">Voters with print disabilities may request an accessible absentee ballot. To request an accessible absentee ballot visit <a href="https://www.sos.mn.gov/elections-voting/other-ways-to-vote/vote-early-by-mail/" target="_blank" rel="noopener">Vote Early by Mail</a>, once you have submitted your application online, contact your county election office (Hennepin County Elections 612-348-5151 and specify that you wish to receive an accessible ballot.&nbsp;</li></ul>
+    </div>
+
+<script type="text/javascript">
+	$(document).ready(function (e) {		
+	    renderSlideshowIfApplicable($('#divEditor' + '274139a4-04f6-47e2-ab5e-d997f85d23a9'));
+	});
+</script>
+</div>
+
+				</div>
+				<div class="tabbedWidget cpTabPanel " style="display: none;" id="tab51b9c96b-4394-4aa0-a868-881501b501e8_5" role="tabpanel" aria-labelledby="tabBtn51b9c96b-4394-4aa0-a868-881501b501e8_5" tabindex="-1">
+							<ol class="cpForm selfClear">
+								<li class="left">
+									<label for="txtTabName">Tab Name</label>
+								</li>
+							</ol>
+				</div>
+					</div>
+	</div>
+	<script type="text/javascript">
+		
+		$.when(window.Pages.rwdReady).done(function () {
+			var tabbedWidgetID = 'divTabbed51b9c96b-4394-4aa0-a868-881501b501e8';
+			var mediaQuerySize = 25;
+			if (mediaQuerySize > 0) {
+				var mediaElementQuery = '#' + tabbedWidgetID + ':media(this-min-width:' + mediaQuerySize + 'em)';
+				var $tabbedWidget = $('#' + tabbedWidgetID);
+				
+                // Update child widget classes based on parent state
+                var updateChildWidgetClasses = function (isParentWide) {
+                    var liveEditEnabled = getCookieValue("enableLiveEdit") === "true";
+                    if (liveEditEnabled)
+                        return;
+
+                    var $childWidgets = $tabbedWidget.find('.widget').not('[data-elementqueryclasses]');
+
+                    if (isParentWide) {
+                        $childWidgets.addClass('wide').removeClass('narrow');
+                        $tabbedWidget.find('[data-event-list-row="true"]').addClass('wide').removeClass('narrow');
+                    } else {
+                        $childWidgets.addClass('narrow').removeClass('wide');
+                        $tabbedWidget.find('[data-event-list-row="true"]').addClass('narrow').removeClass('wide');
+                    }
+                };
+				
+				window.cpMedia.unregister(mediaElementQuery).register(mediaElementQuery, {
+					deferSetup: false,
+					setup: function () {
+						var liveEditEnabled = $.cookie("enableLiveEdit") === "true";
+						if (!liveEditEnabled) {
+							$tabbedWidget.addClass('narrow').removeClass('wide');
+							cpMedia.diag('$(element).addClass("narrow"), mediaQuery: ' + mediaElementQuery);
+							$tabbedWidget.find('.tabbedWidget.cpTabs').hide().attr('aria-hidden', 'true');
+							$tabbedWidget.find('.tabbedWidgetNarrow.cpTabs').show().attr('aria-hidden', 'false');
+							$tabbedWidget.data("tabHeightSet", false);
+							
+							// Update child widget classes - parent is narrow
+							updateChildWidgetClasses(false);
+						}
+					},
+					match: function () {
+						$tabbedWidget.addClass('wide').removeClass('narrow');
+						cpMedia.diag('$(element).removeClass("narrow"), mediaQuery: ' + mediaElementQuery);
+						$tabbedWidget.find('.tabbedWidget.cpTabs').show().attr('aria-hidden', 'false');
+						$tabbedWidget.find('.tabbedWidgetNarrow.cpTabs').hide().attr('aria-hidden', 'true');
+
+						if($tabbedWidget.data("tabHeightSet") == false)
+						{
+							$tabbedWidget.data("tabHeightSet", true);
+
+							var tabbedWidgetID = 'divTabbed51b9c96b-4394-4aa0-a868-881501b501e8';
+							setTabbedWidgetsTabHeight(tabbedWidgetID);
+						}
+						$('.cpTabPanels').unbind('click');
+						
+						// Update child widget classes - parent is wide
+						updateChildWidgetClasses(true);
+					},
+					unmatch: function () {
+						var liveEditEnabled = $.cookie("enableLiveEdit") === "true";
+						if (!liveEditEnabled) {
+							$tabbedWidget.addClass('narrow').removeClass('wide');
+							cpMedia.diag('$(element).addClass("narrow"), mediaQuery: ' + mediaElementQuery);
+							$tabbedWidget.find('.tabbedWidget.cpTabs').hide().attr('aria-hidden', 'true');
+							$tabbedWidget.find('.tabbedWidgetNarrow.cpTabs').show().attr('aria-hidden', 'false');
+							
+							// Update child widget classes - parent is narrow
+							updateChildWidgetClasses(false);
+						}
+						$('.cpTabPanels').click(function() {
+							this.scrollIntoView();
+						});
+					}
+				});                
+            }
+        });
+		
+		//Used for when page is initially loaded
+		if($('#divTabbed51b9c96b-4394-4aa0-a868-881501b501e8').hasClass('narrow'))
+		{
+			$('.cpTabPanels').click(function() {
+				this.scrollIntoView();
+			});
+		}
+		
+
+		//If responsive not enabled, execute this after a timeout
+		if(!isResponsiveEnabled)
+		{
+			window.setTimeout(function(){
+				var tabbedWidgetID = 'divTabbed51b9c96b-4394-4aa0-a868-881501b501e8';
+				typeof setTabbedWidgetsTabHeight === "function" && setTabbedWidgetsTabHeight(tabbedWidgetID);
+			}, 1500);
+		}
+
+		function reinitCarousels() {
+			if (window.carouselsToInit) {
+				for (var i = 0; i < window.carouselsToInit.length; i++) {
+					carouselsToInit[i]();
+				}
+			}
+		}
+		function sizeTabbedContent(element){
+			if(window.Pages){
+				if(window.Pages.onResizeHandlers){
+					var setTabbedInterval = setInterval(function () {
+						window.Pages.onResizeHandlers.forEach(function(car){car();});
+					}, 25)
+
+
+					setTimeout(function () {
+						clearInterval(setTabbedInterval);
+						if ($.cookie("enableLiveEdit") === "true") {
+							setInterval(function () {
+								window.Pages.onResizeHandlers.forEach(function(car){car();});
+							}, 2000);
+						}
+					}, 2500);
+					element.onclick="window.setTimeout(function(){reinitCarousels();},2);"
+				}
+			}
+		}
+
+		function adjustTab(e) {
+			e.preventDefault();
+			window.setTimeout(function(){
+				reinitCarousels();
+			}, 2);
+			sizeTabbedContent(this);
+		}
+
+		var tabButtons = document.querySelectorAll("#divTabbed51b9c96b-4394-4aa0-a868-881501b501e8 .tabButton");
+
+		tabButtons.forEach(function (tabButton) {
+			tabButton.addEventListener("click", adjustTab);
+		});
+
+	</script>
+
+
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+		</div>
+
+	</div>
+
+	
+	<div class="newCP">
+
+	</div>
+</div>
+</div><aside data-cpRole="contentContainer" id="featureColumn" class="secondaryContent">	<div id="ccd6923f64-2522-4bce-8783-61ad1b416b69" data-containerid="d6923f64-2522-4bce-8783-61ad1b416b69" class="pageContent cpGrid cpGrid24 showInMobile" data-contentcontainerbreakpoint="40">
+				                
+
+
+
+	</div>
+</aside>
+</div>
+</div></div>
+</div><!-- Calendar/Carousel --><!-- <div data-cpRole="structuralContainer" id="homeContainer1">
+    <div class="siteWrap2">
+      <div data-cpRole="contentContainer" id="homeContent1a"></div>
+    </div>
+  </div> -->
+</main><!-- GBs --><div data-cpRole="structuralContainer" id="gbsContainerTS">
+<div class="siteWrap2"><div data-cpRole="contentContainer" id="gbsTS">	<div id="cc8eec4c97-7517-49e7-9dcc-63653a2e9488" data-containerid="8eec4c97-7517-49e7-9dcc-63653a2e9488" class="pageContent cpGrid cpGrid24 isLockedContainer showInMobile" data-contentcontainerbreakpoint="63">
+				                
+
+		<div class="row outer wide"><!--
+--><div class="outer col col8 first" style="" data-widgetcontainerid="ac6b88a2-b99f-4e26-a723-3fa3ffa174d9">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col8 first last id7b983fb3-eaed-4877-b2da-71aa255b4223" style="" data-widgetcontainerid="7b983fb3-eaed-4877-b2da-71aa255b4223">	
+<div data-widget-id="b2931e61-df87-4cc8-8bc9-a5e077d50fb5" data-widget-controller-path="/GraphicLinks/Widget">
+
+
+
+
+<div id="graphicLinkWidgetb2931e61-df87-4cc8-8bc9-a5e077d50fb5" class="widget widgetGraphicLinks skin45 widgetOptionSet4 wide" data-elementqueryclasses='{"wide-narrow":"min-width:22em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' data-modulewidgettype="graphicLinks">
+	<div class="widgetHeader">
+		<div class="">
+				</div>
+	</div>
+	<div class="widgetBody cpGrid cpGrid2 ">
+		<nav class="widgetGraphicLinksNav" aria-labelledby="GraphicLinkHeaderText">
+				<div class="row   wide">
+					<!--
+--><div class="col col1 first "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="/944/Elections" target="_self" class="fancyButton fancyButton137 " >
+		<span>
+			<span><span class="text"><span class="textStyle1">Elections</span></span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton137.fancyButton:link,.fancyButton137.fancyButton:visited, .fancyButton137div.fancyButton{
+	background-repeat: no-repeat;
+	background-position: left top;
+}
+.fancyButton137.fancyButton:hover,.fancyButton137.fancyButton:focus,.fancyButton137.fancyButton:active,.fancyButton137.fancyButton.hover{
+	background-repeat: no-repeat;
+	background-position: left top;
+}
+.fancyButton137.fancyButton:link > span,.fancyButton137.fancyButton:visited > span, .fancyButton137div.fancyButton > span{
+}
+.fancyButton137.fancyButton:hover > span,.fancyButton137.fancyButton:focus > span,.fancyButton137.fancyButton:active > span,.fancyButton137.fancyButton.hover > span{
+}
+.fancyButton137.fancyButton .text{
+	color: rgb(56, 56, 56);
+	font-size: 1.1em;
+	font-family: "Open Sans";
+	padding-top: 7em;
+	font-weight: 600;
+	text-decoration: none;
+	padding-top: 7em;
+	background-image: url('/ImageRepository/Document?documentID=2213');
+	background-repeat: no-repeat;
+	background-position: center .25em ;
+background-size: 4.4em;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fancyButton137.fancyButton:hover .text,.fancyButton137.fancyButton:focus .text,.fancyButton137.fancyButton:active .text,.fancyButton137.fancyButton.hover .text{
+	text-decoration: none;
+	background-repeat: no-repeat;
+	background-position: center top;
+
+
+}
+.fancyButton137.fancyButton .textStyle1{
+	color: rgb(56, 56, 56);
+	font-size: 1.1em;
+	font-weight: 600;
+	text-decoration: none;
+display: block;
+line-height: 1.3;
+position: relative;
+}
+
+.fancyButton137 .textStyle1::after {
+content: "";
+display: block;
+height: 4px;
+width: 100%;
+max-width: 0px;
+border-radius: 4px;
+background: #D21F2F;
+margin: .75em auto 0;
+transform: translate(0, -.5em);
+opacity: 0;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);}
+.fancyButton137.fancyButton:hover .textStyle1, .fancyButton137.fancyButton.hover .textStyle1{
+	text-decoration: none;
+}
+
+.fancyButton137:is(:hover, :focus, :active) .textStyle1::after {
+transform: translate(0, 0);
+max-width: 100px;
+opacity: 1;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s}
+</style>
+
+ </li><!--
+--></ul></div><!----><div class="col col1  last"><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="https://www.governmentjobs.com/careers/richfieldmn" target="_self" class="fancyButton fancyButton57 " >
+		<span>
+			<span><span class="text"><span class="textStyle1">Job Opportunities</span></span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton57.fancyButton:link,.fancyButton57.fancyButton:visited, .fancyButton57div.fancyButton{
+	background-repeat: no-repeat;
+	background-position: left top;
+}
+.fancyButton57.fancyButton:hover,.fancyButton57.fancyButton:focus,.fancyButton57.fancyButton:active,.fancyButton57.fancyButton.hover{
+	background-repeat: no-repeat;
+	background-position: left top;
+}
+.fancyButton57.fancyButton:link > span,.fancyButton57.fancyButton:visited > span, .fancyButton57div.fancyButton > span{
+}
+.fancyButton57.fancyButton:hover > span,.fancyButton57.fancyButton:focus > span,.fancyButton57.fancyButton:active > span,.fancyButton57.fancyButton.hover > span{
+}
+.fancyButton57.fancyButton .text{
+	color: rgb(56, 56, 56);
+	font-size: 1.1em;
+	font-family: "Open Sans";
+	padding-top: 7em;
+	font-weight: 600;
+	text-decoration: none;
+	padding-top: 7em;
+	background-image: url('/ImageRepository/Document?documentID=122');
+	background-repeat: no-repeat;
+	background-position: center .25em ;
+background-size: 4.4em;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fancyButton57.fancyButton:hover .text,.fancyButton57.fancyButton:focus .text,.fancyButton57.fancyButton:active .text,.fancyButton57.fancyButton.hover .text{
+	text-decoration: none;
+	background-repeat: no-repeat;
+	background-position: center top;
+
+
+}
+.fancyButton57.fancyButton .textStyle1{
+	color: rgb(56, 56, 56);
+	font-size: 1.1em;
+	font-weight: 600;
+	text-decoration: none;
+display: block;
+line-height: 1.3;
+position: relative;
+}
+
+.fancyButton57 .textStyle1::after {
+content: "";
+display: block;
+height: 4px;
+width: 100%;
+max-width: 0px;
+border-radius: 4px;
+background: #D21F2F;
+margin: .75em auto 0;
+transform: translate(0, -.5em);
+opacity: 0;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);}
+.fancyButton57.fancyButton:hover .textStyle1, .fancyButton57.fancyButton.hover .textStyle1{
+	text-decoration: none;
+}
+
+.fancyButton57:is(:hover, :focus, :active) .textStyle1::after {
+transform: translate(0, 0);
+max-width: 100px;
+opacity: 1;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s}
+</style>
+
+ </li><!--
+--></ul></div><!--				-->
+				</div>
+			</nav>
+		</div>
+	<div class="widgetFooter">
+			</div>
+</div>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col8" style="" data-widgetcontainerid="5b8a9cd3-7a47-480c-9d80-986bf8087475">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col8 first last id68d50b43-e02a-4a18-b07d-26bd0b269bf1" style="" data-widgetcontainerid="68d50b43-e02a-4a18-b07d-26bd0b269bf1">	
+<div data-widget-id="36380d2e-353c-429b-8acb-3bd511ab15bd" data-widget-controller-path="/GraphicLinks/Widget">
+
+
+
+
+<div id="graphicLinkWidget36380d2e-353c-429b-8acb-3bd511ab15bd" class="widget widgetGraphicLinks skin45 widgetOptionSet4 wide" data-elementqueryclasses='{"wide-narrow":"min-width:22em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' data-modulewidgettype="graphicLinks">
+	<div class="widgetHeader">
+		<div class="">
+				</div>
+	</div>
+	<div class="widgetBody cpGrid cpGrid2 ">
+		<nav class="widgetGraphicLinksNav" aria-labelledby="GraphicLinkHeaderText">
+				<div class="row   wide">
+					<!--
+--><div class="col col1 first "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="/159/Parks-Recreation" target="_self" class="fancyButton fancyButton58 " >
+		<span>
+			<span><span class="text"><span class="textStyle1">Parks &amp; Recreation</span></span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton58.fancyButton:link,.fancyButton58.fancyButton:visited, .fancyButton58div.fancyButton{
+	background-repeat: no-repeat;
+	background-position: left top;
+}
+.fancyButton58.fancyButton:hover,.fancyButton58.fancyButton:focus,.fancyButton58.fancyButton:active,.fancyButton58.fancyButton.hover{
+	background-repeat: no-repeat;
+	background-position: left top;
+}
+.fancyButton58.fancyButton:link > span,.fancyButton58.fancyButton:visited > span, .fancyButton58div.fancyButton > span{
+}
+.fancyButton58.fancyButton:hover > span,.fancyButton58.fancyButton:focus > span,.fancyButton58.fancyButton:active > span,.fancyButton58.fancyButton.hover > span{
+}
+.fancyButton58.fancyButton .text{
+	color: rgb(56, 56, 56);
+	font-size: 1.1em;
+	font-family: "Open Sans";
+	padding-top: 7em;
+	font-weight: 600;
+	text-decoration: none;
+	padding-top: 7em;
+	background-image: url('/ImageRepository/Document?documentID=123');
+	background-repeat: no-repeat;
+	background-position: center .25em ;
+background-size: 5em;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fancyButton58.fancyButton:hover .text,.fancyButton58.fancyButton:focus .text,.fancyButton58.fancyButton:active .text,.fancyButton58.fancyButton.hover .text{
+	text-decoration: none;
+	background-repeat: no-repeat;
+	background-position: center top;
+
+
+}
+.fancyButton58.fancyButton .textStyle1{
+	color: rgb(56, 56, 56);
+	font-size: 1.1em;
+	font-weight: 600;
+	text-decoration: none;
+display: block;
+line-height: 1.3;
+position: relative;
+}
+
+.fancyButton58 .textStyle1::after {
+content: "";
+display: block;
+height: 4px;
+width: 100%;
+max-width: 0px;
+border-radius: 4px;
+background: #D21F2F;
+margin: .75em auto 0;
+transform: translate(0, -.5em);
+opacity: 0;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);}
+.fancyButton58.fancyButton:hover .textStyle1, .fancyButton58.fancyButton.hover .textStyle1{
+	text-decoration: none;
+}
+
+.fancyButton58:is(:hover, :focus, :active) .textStyle1::after {
+transform: translate(0, 0);
+max-width: 100px;
+opacity: 1;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s}
+</style>
+
+ </li><!--
+--></ul></div><!----><div class="col col1  last"><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="/404/Motor-Vehicle-Passports" target="_self" class="fancyButton fancyButton59 " >
+		<span>
+			<span><span class="text"><span class="textStyle1">Passports &amp; Motor Vehicles</span></span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton59.fancyButton:link,.fancyButton59.fancyButton:visited, .fancyButton59div.fancyButton{
+	background-repeat: no-repeat;
+	background-position: left top;
+}
+.fancyButton59.fancyButton:hover,.fancyButton59.fancyButton:focus,.fancyButton59.fancyButton:active,.fancyButton59.fancyButton.hover{
+	background-repeat: no-repeat;
+	background-position: left top;
+}
+.fancyButton59.fancyButton:link > span,.fancyButton59.fancyButton:visited > span, .fancyButton59div.fancyButton > span{
+}
+.fancyButton59.fancyButton:hover > span,.fancyButton59.fancyButton:focus > span,.fancyButton59.fancyButton:active > span,.fancyButton59.fancyButton.hover > span{
+}
+.fancyButton59.fancyButton .text{
+	color: rgb(56, 56, 56);
+	font-size: 1.1em;
+	font-family: "Open Sans";
+	padding-top: 7em;
+	font-weight: 600;
+	text-decoration: none;
+	padding-top: 7em;
+	background-image: url('/ImageRepository/Document?documentID=124');
+	background-repeat: no-repeat;
+	background-position: center .25em ;
+background-size: 5em;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fancyButton59.fancyButton:hover .text,.fancyButton59.fancyButton:focus .text,.fancyButton59.fancyButton:active .text,.fancyButton59.fancyButton.hover .text{
+	text-decoration: none;
+	background-repeat: no-repeat;
+	background-position: center top;
+
+
+}
+.fancyButton59.fancyButton .textStyle1{
+	color: rgb(56, 56, 56);
+	font-size: 1.1em;
+	font-weight: 600;
+	text-decoration: none;
+display: block;
+line-height: 1.3;
+position: relative;
+}
+
+.fancyButton59 .textStyle1::after {
+content: "";
+display: block;
+height: 4px;
+width: 100%;
+max-width: 0px;
+border-radius: 4px;
+background: #D21F2F;
+margin: .75em auto 0;
+transform: translate(0, -.5em);
+opacity: 0;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);}
+.fancyButton59.fancyButton:hover .textStyle1, .fancyButton59.fancyButton.hover .textStyle1{
+	text-decoration: none;
+}
+
+.fancyButton59:is(:hover, :focus, :active) .textStyle1::after {
+transform: translate(0, 0);
+max-width: 100px;
+opacity: 1;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s}
+</style>
+
+ </li><!--
+--></ul></div><!--				-->
+				</div>
+			</nav>
+		</div>
+	<div class="widgetFooter">
+			</div>
+</div>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col8 last" style="" data-widgetcontainerid="a47e43d0-cfb7-41d6-b79f-d5d7fe80a40a">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col8 first last idaa059e5e-61a3-4eca-93d2-f335a002649f" style="" data-widgetcontainerid="aa059e5e-61a3-4eca-93d2-f335a002649f">	
+<div data-widget-id="9c106e2f-4e6a-4b9f-ad04-73c8bfd472f9" data-widget-controller-path="/GraphicLinks/Widget">
+
+
+
+
+<div id="graphicLinkWidget9c106e2f-4e6a-4b9f-ad04-73c8bfd472f9" class="widget widgetGraphicLinks skin45 widgetOptionSet4 wide" data-elementqueryclasses='{"wide-narrow":"min-width:22em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' data-modulewidgettype="graphicLinks">
+	<div class="widgetHeader">
+		<div class="">
+				</div>
+	</div>
+	<div class="widgetBody cpGrid cpGrid2 ">
+		<nav class="widgetGraphicLinksNav" aria-labelledby="GraphicLinkHeaderText">
+				<div class="row   wide">
+					<!--
+--><div class="col col1 first "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="/590/Wood-Lake-Nature-Center" target="_self" class="fancyButton fancyButton60 " >
+		<span>
+			<span><span class="text"><span class="textStyle1">Wood Lake Nature Center</span></span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton60.fancyButton:link,.fancyButton60.fancyButton:visited, .fancyButton60div.fancyButton{
+	background-repeat: no-repeat;
+	background-position: left top;
+}
+.fancyButton60.fancyButton:hover,.fancyButton60.fancyButton:focus,.fancyButton60.fancyButton:active,.fancyButton60.fancyButton.hover{
+	background-repeat: no-repeat;
+	background-position: left top;
+}
+.fancyButton60.fancyButton:link > span,.fancyButton60.fancyButton:visited > span, .fancyButton60div.fancyButton > span{
+}
+.fancyButton60.fancyButton:hover > span,.fancyButton60.fancyButton:focus > span,.fancyButton60.fancyButton:active > span,.fancyButton60.fancyButton.hover > span{
+}
+.fancyButton60.fancyButton .text{
+	color: rgb(56, 56, 56);
+	font-size: 1.1em;
+	font-family: "Open Sans";
+	padding-top: 7em;
+	font-weight: 600;
+	text-decoration: none;
+	padding-top: 7em;
+	background-image: url('/ImageRepository/Document?documentID=127');
+	background-repeat: no-repeat;
+	background-position: center .25em ;
+background-size: 4em;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fancyButton60.fancyButton:hover .text,.fancyButton60.fancyButton:focus .text,.fancyButton60.fancyButton:active .text,.fancyButton60.fancyButton.hover .text{
+	text-decoration: none;
+	background-repeat: no-repeat;
+	background-position: center top;
+
+
+}
+.fancyButton60.fancyButton .textStyle1{
+	color: rgb(56, 56, 56);
+	font-size: 1.1em;
+	font-weight: 600;
+	text-decoration: none;
+display: block;
+line-height: 1.3;
+position: relative;
+}
+
+.fancyButton60 .textStyle1::after {
+content: "";
+display: block;
+height: 4px;
+width: 100%;
+max-width: 0px;
+border-radius: 4px;
+background: #D21F2F;
+margin: .75em auto 0;
+transform: translate(0, -.5em);
+opacity: 0;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);}
+.fancyButton60.fancyButton:hover .textStyle1, .fancyButton60.fancyButton.hover .textStyle1{
+	text-decoration: none;
+}
+
+.fancyButton60:is(:hover, :focus, :active) .textStyle1::after {
+transform: translate(0, 0);
+max-width: 100px;
+opacity: 1;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s}
+</style>
+
+ </li><!--
+--></ul></div><!----><div class="col col1  last"><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks">
+
+<div>
+	<a href="https://www.invoicecloud.com/portal/(S(br2xlb4u4g4qcun2vrd204on))/2/Site2.aspx?G=6b76d74b-544b-450d-bd66-d8dd8859f8f4" target="_self" class="fancyButton fancyButton61 " >
+		<span>
+			<span><span class="text"><span class="textStyle1">Utility Billing</span></span></span>
+		</span>
+	</a>
+</div>
+		<style scoped="scoped">.fancyButton61.fancyButton:link,.fancyButton61.fancyButton:visited, .fancyButton61div.fancyButton{
+	background-repeat: no-repeat;
+	background-position: left top;
+}
+.fancyButton61.fancyButton:hover,.fancyButton61.fancyButton:focus,.fancyButton61.fancyButton:active,.fancyButton61.fancyButton.hover{
+	background-repeat: no-repeat;
+	background-position: left top;
+}
+.fancyButton61.fancyButton:link > span,.fancyButton61.fancyButton:visited > span, .fancyButton61div.fancyButton > span{
+}
+.fancyButton61.fancyButton:hover > span,.fancyButton61.fancyButton:focus > span,.fancyButton61.fancyButton:active > span,.fancyButton61.fancyButton.hover > span{
+}
+.fancyButton61.fancyButton .text{
+	color: rgb(56, 56, 56);
+	font-size: 1.1em;
+	font-family: "Open Sans";
+	padding-top: 7em;
+	font-weight: 600;
+	text-decoration: none;
+	padding-top: 7em;
+	background-image: url('/ImageRepository/Document?documentID=126');
+	background-repeat: no-repeat;
+	background-position: center .25em ;
+background-size: 5em;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fancyButton61.fancyButton:hover .text,.fancyButton61.fancyButton:focus .text,.fancyButton61.fancyButton:active .text,.fancyButton61.fancyButton.hover .text{
+	text-decoration: none;
+	background-repeat: no-repeat;
+	background-position: center top;
+
+
+}
+.fancyButton61.fancyButton .textStyle1{
+	color: rgb(56, 56, 56);
+	font-size: 1.1em;
+	font-weight: 600;
+	text-decoration: none;
+display: block;
+line-height: 1.3;
+position: relative;
+}
+
+.fancyButton61 .textStyle1::after {
+content: "";
+display: block;
+height: 4px;
+width: 100%;
+max-width: 0px;
+border-radius: 4px;
+background: #D21F2F;
+margin: .75em auto 0;
+transform: translate(0, -.5em);
+opacity: 0;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);}
+.fancyButton61.fancyButton:hover .textStyle1, .fancyButton61.fancyButton.hover .textStyle1{
+	text-decoration: none;
+}
+
+.fancyButton61:is(:hover, :focus, :active) .textStyle1::after {
+transform: translate(0, 0);
+max-width: 100px;
+opacity: 1;
+transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s}
+</style>
+
+ </li><!--
+--></ul></div><!--				-->
+				</div>
+			</nav>
+		</div>
+	<div class="widgetFooter">
+			</div>
+</div>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+	</div>
+</div></div>
+</div><!-- Footer --><footer data-cpRole="structuralContainer" id="footerContainerTS">
+<div class="siteWrap2"><div data-cpRole="contentContainer" id="footerTS">	<div id="cc069e4ffc-067c-4906-bdef-5f5c304f37ee" data-containerid="069e4ffc-067c-4906-bdef-5f5c304f37ee" class="pageContent cpGrid cpGrid24 isLockedContainer showInMobile" data-contentcontainerbreakpoint="63">
+				                
+
+		<div class="row outer wide"><!--
+--><div class="outer col col1 first" style="" data-widgetcontainerid="252fe40a-42bf-4eb0-9158-0bf6d89d255e">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col1 first last id95538ec4-2715-46ea-9354-cf7d4ce0fa31" style="" data-widgetcontainerid="95538ec4-2715-46ea-9354-cf7d4ce0fa31">	
+
+<div class="widget widgetSpacer" id="72715151-16ce-4362-abf0-882cbd5e7a7b"></div>
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col5" style="" data-widgetcontainerid="85c4b06e-d706-4c59-ab08-3a45de177477">				
+	<div class="row nest first wide">
+	
+	<div class="inner col col5 first last idbfaaeea7-1594-4f27-845c-73ab3e33d405" style="" data-widgetcontainerid="bfaaeea7-1594-4f27-845c-73ab3e33d405">	
+    <div data-widget-id="c32ef2a1-3d7a-4a74-99b4-7ee441d5345c" data-widget-controller-path="/InfoAdvanced/Widget">
+
+
+
+
+
+	<section id="divInfoAdvc32ef2a1-3d7a-4a74-99b4-7ee441d5345c" class="widget widgetInfoAdvanced skin39 widgetOptionSet5 wide" data-modulewidgettype="infoAdv" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' aria-label="Info Advanced">
+			<header class="widgetHeader" id="headerc32ef2a1-3d7a-4a74-99b4-7ee441d5345c">
+		<div class="">
+								</div>
+	</header>
+	<div class="widgetBody  cpGrid cpGrid1 ">
+		<div class="row  wide">
+					<div class="col col1 first last">
+						<ol class="pageStyles semanticList">
+
+<li class="InfoAdvanced widgetItem fr-view">
+	<p><a href="/"><img src="/ImageRepository/Document?documentId=93" class="fr-dib" alt="Richfield Minnesota Homepage" style="width: 196px;"></a></p>
+</li>						</ol>
+					</div>
+		</div>
+	</div>
+	<div class="widgetFooter">
+
+	</div>
+
+	</section>
+
+
+
+<script type="text/javascript">
+	//Render slideshow if info advacned items contain one.
+	$(document).ready(function (e) {
+		$('#divInfoAdvc32ef2a1-3d7a-4a74-99b4-7ee441d5345c .InfoAdvanced.widgetItem').each(function () {
+			renderSlideshowIfApplicable($(this));		
+		});
+	});
+</script></div>
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+	<div class="row nest last wide">
+	
+	<div class="inner col col5 first last id5873d8d2-065e-4eac-97e8-621eca99615c" style="" data-widgetcontainerid="5873d8d2-065e-4eac-97e8-621eca99615c">	
+<div data-widget-id="7d2790d5-c040-4076-ab07-80d3d94fc375" data-widget-controller-path="/GraphicLinks/Widget">
+
+
+
+
+<div id="graphicLinkWidget7d2790d5-c040-4076-ab07-80d3d94fc375" class="widget widgetGraphicLinks skin55 widgetOptionSet4 wide" data-elementqueryclasses='{"wide-narrow":"min-width:1em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' data-modulewidgettype="graphicLinks">
+	<div class="widgetHeader">
+		<div class="">
+				</div>
+	</div>
+	<div class="widgetBody cpGrid cpGrid4 ">
+		<nav class="widgetGraphicLinksNav" aria-labelledby="GraphicLinkHeaderText">
+				<div class="row   wide">
+					<!--
+--><div class="col col1 first "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks"><a class="widgetDesc widgetGraphicLinksLink" href="https://www.facebook.com/CityofRichfield" target="_self">
+
+<img src="/ImageRepository/Document?documentID=40" 
+     class="graphicButtonLink" alt="Facebook" 
+     onmouseover="this.src='/ImageRepository/Document?documentID=40'" 
+	onmouseout="this.src='/ImageRepository/Document?documentID=40'"
+     onfocus="this.src='/ImageRepository/Document?documentID=40'" 
+	onblur="this.src='/ImageRepository/Document?documentID=40'"> 
+</a></li><!--
+--></ul></div><!----><div class="col col1  "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks"><a class="widgetDesc widgetGraphicLinksLink" href="https://www.youtube.com/@CityofRichfield " target="_self">
+
+<img src="/ImageRepository/Document?documentID=43" 
+     class="graphicButtonLink" alt="YouTube" 
+     onmouseover="this.src='/ImageRepository/Document?documentID=43'" 
+	onmouseout="this.src='/ImageRepository/Document?documentID=43'"
+     onfocus="this.src='/ImageRepository/Document?documentID=43'" 
+	onblur="this.src='/ImageRepository/Document?documentID=43'"> 
+</a></li><!--
+--></ul></div><!----><div class="col col1  "><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks"><a class="widgetDesc widgetGraphicLinksLink" href="https://www.instagram.com/cityofrichfield/ " target="_self">
+
+<img src="/ImageRepository/Document?documentID=41" 
+     class="graphicButtonLink" alt="Instagram" 
+     onmouseover="this.src='/ImageRepository/Document?documentID=41'" 
+	onmouseout="this.src='/ImageRepository/Document?documentID=41'"
+     onfocus="this.src='/ImageRepository/Document?documentID=41'" 
+	onblur="this.src='/ImageRepository/Document?documentID=41'"> 
+</a></li><!--
+--></ul></div><!----><div class="col col1  last"><ul class="semanticList"><!--
+	    --><li class="widgetItem GraphicLinks"><a class="widgetDesc widgetGraphicLinksLink" href="https://www.linkedin.com/company/city-of-richfield/ " target="_self">
+
+<img src="/ImageRepository/Document?documentID=44" 
+     class="graphicButtonLink" alt="LinkedIn" 
+     onmouseover="this.src='/ImageRepository/Document?documentID=44'" 
+	onmouseout="this.src='/ImageRepository/Document?documentID=44'"
+     onfocus="this.src='/ImageRepository/Document?documentID=44'" 
+	onblur="this.src='/ImageRepository/Document?documentID=44'"> 
+</a></li><!--
+--></ul></div><!--				-->
+				</div>
+			</nav>
+		</div>
+	<div class="widgetFooter">
+			</div>
+</div>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col2" style="" data-widgetcontainerid="dff518b7-fa9a-4128-a360-5fc5a8cefe23">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col2 first last idb1422f36-0738-412a-84d6-9e0fdabf0816" style="" data-widgetcontainerid="b1422f36-0738-412a-84d6-9e0fdabf0816">	
+
+<div class="widget widgetSpacer" id="d621e3fd-db8a-4128-b127-15b2bb687cbc"></div>
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col4" style="" data-widgetcontainerid="3347f32a-acc3-43f1-8dfc-a81c7bb809f4">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col4 first last idb5c8849d-cee2-4cde-be32-d9d3f7783546" style="" data-widgetcontainerid="b5c8849d-cee2-4cde-be32-d9d3f7783546">	
+    <div data-widget-id="ed1d5db6-bc9a-4498-a7f5-9f35e543ee88" data-widget-controller-path="/InfoAdvanced/Widget">
+
+
+
+
+
+	<section id="divInfoAdved1d5db6-bc9a-4498-a7f5-9f35e543ee88" class="widget widgetInfoAdvanced skin37 widgetOptionSet5 wide" data-modulewidgettype="infoAdv" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' aria-labelledby="headered1d5db6-bc9a-4498-a7f5-9f35e543ee88">
+			<header class="widgetHeader" id="headered1d5db6-bc9a-4498-a7f5-9f35e543ee88">
+		<div class="">
+					<h3 >Contact Us</h3>
+								</div>
+	</header>
+	<div class="widgetBody  cpGrid cpGrid1 ">
+		<div class="row  wide">
+					<div class="col col1 first last">
+						<ol class="pageStyles semanticList">
+
+<li class="InfoAdvanced widgetItem fr-view">
+	<p>Richfield Minnesota<br>6700 Portland Avenue<br>Richfield, MN 55423<br><br>Phone:&nbsp;<a href="/">612-861-9700</a><br><br></p>
+</li>						</ol>
+					</div>
+		</div>
+	</div>
+	<div class="widgetFooter">
+
+	</div>
+
+	</section>
+
+
+
+<script type="text/javascript">
+	//Render slideshow if info advacned items contain one.
+	$(document).ready(function (e) {
+		$('#divInfoAdved1d5db6-bc9a-4498-a7f5-9f35e543ee88 .InfoAdvanced.widgetItem').each(function () {
+			renderSlideshowIfApplicable($(this));		
+		});
+	});
+</script></div>
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col1" style="" data-widgetcontainerid="41a90a58-1a7a-42d1-b130-3e8f3f88c65d">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col1 first last id9e5513fa-470b-400e-9a3b-a241215e444f" style="" data-widgetcontainerid="9e5513fa-470b-400e-9a3b-a241215e444f">	
+
+<div class="widget widgetSpacer" id="3c043fb8-ef79-4765-9ffe-335dadff03f9"></div>
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col4" style="" data-widgetcontainerid="27841372-e756-4d58-8483-8aedb9ff7277">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col4 first last id4ca22804-a7c1-427a-9098-d751a190380a" style="" data-widgetcontainerid="4ca22804-a7c1-427a-9098-d751a190380a">	
+	<div data-widget-id="8916bb01-6900-4c25-bae4-da4abbcf77c0" data-widget-controller-path="/QuickLinks/Widget">
+
+
+
+
+
+
+
+
+	<section id="widgetQuicklink8916bb01-6900-4c25-bae4-da4abbcf77c0" class="widget widgetQuickLinks skin37 widgetOptionSet39 narrow" data-modulewidgettype="quickLinks" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' aria-labelledby="quickLinksHeader8916bb01-6900-4c25-bae4-da4abbcf77c0">
+			<header class="widgetHeader" id="quickLinksHeader8916bb01-6900-4c25-bae4-da4abbcf77c0">
+		<div class="">
+					<h3><a  style="" href="/QuickLinks.aspx?CID=15" >Popular Pages</a></h3>
+						</div>
+	</header>
+	<div class="widgetBody cpGrid cpGrid1 ">
+        <div class="row  narrow">
+				<div class="col col1 first last">
+					<ol class="semanticList">
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/Calendar.aspx" target="_self" aria-label="Calendar - Helpful Links" rel="">Calendar</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/m/faq" target="_self" aria-label="FAQs - Helpful Links" rel="">FAQs</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/m/newsflash" target="_self" aria-label="News - Helpful Links" rel="">News</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/Facilities" target="_self" aria-label="Parks &amp; Facilities - Helpful Links" rel="">Parks & Facilities</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/843/Rates-Billing" target="_self" aria-label="Pay utility bill - Helpful Links" rel="">Pay utility bill</a>
+        <div class="widgetMeta"></div>
+    </li>
+					</ol>
+				</div>
+		</div>
+        
+	</div>
+	<div class="widgetFooter">
+	</div>
+	<div class="addItemModal hidden">
+		<div class="url hidden">/QuickLinks.aspx</div>
+	</div>
+
+	</section>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col2" style="" data-widgetcontainerid="b6a1cb82-df73-4722-a6ca-b95a0cb627b3">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col2 first last id6856295b-c301-4b04-86f1-3fd05a9d9215" style="" data-widgetcontainerid="6856295b-c301-4b04-86f1-3fd05a9d9215">	
+
+<div class="widget widgetSpacer" id="bee666f5-2f6d-43ec-bb42-c5c1999c781a"></div>
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col3" style="" data-widgetcontainerid="975dcb42-8880-4f4d-a3ba-6d2a2a2f279f">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col3 first last id99f31bed-16fb-4df4-be4c-fe6a8ac7effe" style="" data-widgetcontainerid="99f31bed-16fb-4df4-be4c-fe6a8ac7effe">	
+	<div data-widget-id="96da43be-9108-4511-8c8c-1d5edd25b839" data-widget-controller-path="/QuickLinks/Widget">
+
+
+
+
+
+
+
+
+	<section id="widgetQuicklink96da43be-9108-4511-8c8c-1d5edd25b839" class="widget widgetQuickLinks skin37 widgetOptionSet39 narrow" data-modulewidgettype="quickLinks" data-elementqueryclasses='{"wide-narrow":"min-width:25em"}' data-elementquerymatch='matchMultiColumn' data-elementqueryunmatch='unmatchMultiColumn' aria-labelledby="quickLinksHeader96da43be-9108-4511-8c8c-1d5edd25b839">
+			<header class="widgetHeader" id="quickLinksHeader96da43be-9108-4511-8c8c-1d5edd25b839">
+		<div class="">
+					<h3><a  style="" href="/QuickLinks.aspx?CID=16" >Site Links</a></h3>
+						</div>
+	</header>
+	<div class="widgetBody cpGrid cpGrid1 ">
+        <div class="row  narrow">
+				<div class="col col1 first last">
+					<ol class="semanticList">
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/" target="_self" aria-label="Home - Site Links" rel="">Home</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/sitemap" target="_self" aria-label="Site Map - Site Links" rel="">Site Map</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/directory.aspx" target="_self" aria-label="Contact Us - Site Links" rel="">Contact Us</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/site/accessibility" target="_self" aria-label="Accessibility - Site Links" rel="">Accessibility</a>
+        <div class="widgetMeta"></div>
+    </li>
+
+
+
+
+    <li style="position:relative" class="widgetItem QuickLinks">
+        <a class="widgetDesc widgetQuickLinksLink" href="/copyright" target="_self" aria-label="Copyright Notices - Site Links" rel="">Copyright Notices</a>
+        <div class="widgetMeta"></div>
+    </li>
+					</ol>
+				</div>
+		</div>
+        
+	</div>
+	<div class="widgetFooter">
+	</div>
+	<div class="addItemModal hidden">
+		<div class="url hidden">/QuickLinks.aspx</div>
+	</div>
+
+	</section>
+</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!----><div class="outer col col2 last" style="" data-widgetcontainerid="c53717c7-4483-40ee-b88f-e9e90886fea1">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col2 first last id4fe766f7-3ba8-4029-8ff3-0336207cf0b0" style="" data-widgetcontainerid="4fe766f7-3ba8-4029-8ff3-0336207cf0b0">	
+
+<div class="widget widgetSpacer" id="6c3d0603-5144-4333-84cd-881dcf48ee51"></div>
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+	</div>
+</div></div>
+</footer><!-- Powered By --><div data-cpRole="structuralContainer" id="poweredByContainerTS">
+<div class="siteWrap2"><div data-cpRole="contentContainer" id="poweredByTS">	<div id="cc8f3df4f7-ec94-45b4-83af-6cd4168589a5" data-containerid="8f3df4f7-ec94-45b4-83af-6cd4168589a5" class="pageContent cpGrid cpGrid24 isLockedContainer showInMobile" data-contentcontainerbreakpoint="63">
+				                
+
+		<div class="row outer wide"><!--
+--><div class="outer col col24 first last" style="" data-widgetcontainerid="b71a37d9-6d3e-4ea7-8f5b-5603e58ea763">				
+	<div class="row nest first last wide">
+	
+	<div class="inner col col24 first last ida3262c53-65ed-47a4-9136-adfd50853492" style="" data-widgetcontainerid="a3262c53-65ed-47a4-9136-adfd50853492">	
+ 
+	<div data-widget-id='56899482-e59a-41f2-b53c-adfeff66e89d' data-moduleName="customHtml" id='widgetCustomHtml56899482-e59a-41f2-b53c-adfeff66e89d' class="widget widgetCustomHtml skin39 narrow" >
+	<div class="widgetBody pageStyles" id="widgetBody56899482-e59a-41f2-b53c-adfeff66e89d">
+		<div id="customHtml56899482-e59a-41f2-b53c-adfeff66e89d"><div><style>
+  /* CP icon */
+  .cpBylineIconTS {
+    color: #ffffff;
+  }
+  /* CP Text */
+  .cpBylineTextTS,
+  .cpBylineTextTS a:link {
+    color: #ffffff;
+  }
+
+  .cpBylineTS {
+    text-align: center;
+  }
+  
+  .cpBylineIconTS {
+    fill: currentColor;
+    width: 39px;
+    height: 26px;
+    display: inline;
+    vertical-align: middle;
+  }
+</style>
+
+<div class="widgetItem cpBylineTS">
+  <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 100 100" class="cpBylineIconTS">
+    <path class="c" d="M73.4,23.2h-19v16.7h19c2.8,0,5,2.2,5,5c0,2.8-2.2,5-5,5h-19v28.4h5.5l11.3-11.7h2.2c11.9,0,21.6-9.7,21.6-21.6C95,33,85.3,23.2,73.4,23.2"></path>
+    <path class="p" d="M45.8,66.5H26.6C14.7,66.5,5,56.8,5,44.9C5,33,14.7,23.2,26.6,23.2h19.1v16.7H26.6c-2.8,0-5,2.2-5,5c0,2.8,2.2,5,5,5h19.1V66.5z"></path>
+  </svg>
+  <span class="cpBylineTextTS">Government Websites by <a href="https://connect.civicplus.com/referral">CivicPlus&reg;</a></span>
+</div>
+</div></div>
+	</div>
+
+	</div>
+
+	</div> <!-- inner column -->
+
+	</div> <!-- inner row -->
+
+			</div><!-- outer column --><!--		--></div> <!-- outer row -->
+
+
+	</div>
+</div></div>
+</div><!-- </div> -->
+</div>
+
+            </div>
+        </div>
+    </div>
+
+<link href="/745732998.css" rel="stylesheet" type="text/css" />
+
+<div id="SplashMessageWrapper" class="cp-Splash-wrapper">
+	<div role="dialog" aria-labelledby="cp-Splash-title" aria-describedby="editorContentDesc" aria-modal="true" tabindex="-1" id="SplashMessage" class="hidden cp-Splash cp-Splash--modal is-open">
+		<div class="cp-Splash-header">
+			<h2 class="cp-Splash-title" id="cp-Splash-title">Loading</h2>
+			<button class="cp-Splash-Btn cp-Splash-close" aria-label="Close this modal" title="Close this window">
+				<svg id="iconClose" viewBox="0 0 25 25">
+					<polygon style="fill:currentcolor"
+							 points="18.806,6.98 18.075,6.248 12.532,11.792 6.989,6.248 6.257,6.98 11.786,12.508 6.212,18.084 6.943,18.815 12.532,13.224 18.12,18.815 18.851,18.084 13.277,12.508"></polygon>
+				</svg>
+			</button>
+		</div>
+		<div class="cp-Splash-body">
+			<div class="cp-Splash-Prose editorContent fr-view" id="editorContentDesc">
+				<!-- Content from the Froala Editor will go here. -->
+				Loading
+			</div>
+		</div>
+		<div class="cp-Splash-footer">
+			<button class="cp-Splash-Btn cp-Splash-Btn--NoShow">Do Not Show Again</button>
+			<button class="cp-Splash-Btn cp-Splash-Btn--Close">Close</button>
+		</div>
+	</div>
+</div>
+
+<script src="/Assets/Scripts/APIClient.js"></script>
+<script src="/Assets/Mystique/Shared/Scripts/Moment/Moment.min.js"></script>
+<script src="/Assets/Scripts/SplashModal/SplashModalRender.js"></script>
+<script>
+
+		$(document).ready(function () {
+			var filter = {
+				targetId: '944',
+				targetType: 1
+			}
+
+			new SplashModalRender().triggerRender(filter);
+		});
+</script>
+
+
+	
+	
+	
+	
+
+
+
+	
+
+
+
+
+
+
+    <script src="/-1442400649.js" type="text/javascript"></script>
+    <!-- Fixed Nav Adjustment -->
+<script>
+  function getValueTS(elem, attr) {
+    const val = elem.css(attr);
+    if (val === undefined) return undefined;
+    const num = parseInt(val, 10);
+    if (num === NaN) return undefined;
+    return num;
+  }
+
+  function clampTS(number, min, max) {
+    return Math.min(Math.max(number, min), max);
+  }
+
+  function isPageEditingTS() {
+    return (
+      $("#doneEditing").length > 0 || // In live edit
+      typeof DesignCenter !== "undefined" // In theme manager
+    );
+  }
+
+  const bgColorRegexTS = /rgba\((\d+), (\d+), (\d+), (\d*\.?\d*)\)/;
+  function isTransparentTS(elem) {
+    const bg = elem.css('background-color');
+    if (typeof bg !== "string" || !bg.startsWith('rgba(')) return false;
+    const matchState = bg.match(bgColorRegexTS);
+    if (!matchState || matchState.length !== 5) return false;
+    const alpha = parseFloat(matchState[4], 10);
+    if (!(alpha >= 0 && alpha < 1)) return false;
+    return true;
+  }
+
+  function iterateLeftpads(cb) {
+    const containersTS = $("[class^='siteWrap'],[class*=' siteWrap']");
+    for (let i = 0; i < containersTS.length; i++) {
+      const containerTS = containersTS[i];
+      // Skip the body container and anything with data-skip-leftpad
+      if (
+        containerTS.id !== "bodyContainerTS" &&
+        containerTS.getAttribute('data-skip-leftpad') === null
+      ) {
+        cb(containerTS);
+      }
+    }
+  }
+
+  const anchor = $("#divToolbars");
+  const bodyContainerTS = $("#bodyContainerTS");
+
+  // Outer banner padding (push banner down)
+  const outerSizingTS = $("#bannerContainerTS");
+  // Inner banner padding (push banner content down) - Transparent header OR on attaching headers
+  const innerSizingTS = $("#bannerSizingTS");
+
+  const forceUnfixClassTS = "forceUnfixTS";
+
+  const fixedTopTS = $(".fixedTopTS");
+  const fixedBottomTS = $(".fixedBottomTS");
+  const fixedLeftTS = $(".fixedLeftTS");
+
+  var initialTopTS;
+  var topAttachTS;
+  if (fixedTopTS && fixedTopTS.length === 1) {
+    initialTopTS = getValueTS(fixedTopTS, 'top');
+    const attachment = fixedTopTS.attr('data-attach');
+    if (attachment) topAttachTS = $("#" + attachment);
+    if (!topAttachTS || topAttachTS.length !== 1) topAttachTS = undefined;
+  }
+
+  function resizeAdjustmentTS() {
+    const editing = isPageEditingTS();
+
+    // Fixed top script
+    (function () {
+      if (!fixedTopTS || fixedTopTS.length !== 1 || initialTopTS === undefined) return;
+
+      if (editing) {
+        fixedTopTS[0].classList.add(forceUnfixClassTS);
+      } else {
+        fixedTopTS[0].classList.remove(forceUnfixClassTS);
+      }
+
+      const topPosition = fixedTopTS.css('position');
+      if (topPosition === 'fixed') {
+        if (topAttachTS) {
+          scrollAdjustmentTS();
+        } else {
+          const anchorHeight = anchor.outerHeight() - 1;
+          fixedTopTS.css('top', anchorHeight + initialTopTS);
+        }
+      } else {
+        fixedTopTS.css('top', initialTopTS);
+      }
+
+      if (topPosition === 'fixed' || topPosition === 'absolute') {
+        // Bump the banner content down
+        if (isTransparentTS(fixedTopTS)) {
+          innerSizingTS.css('padding-top', initialTopTS + fixedTopTS.outerHeight());
+          outerSizingTS.css('padding-top', '');
+
+          try {
+            window.Pages.onResizeHandlersExecute();
+          } catch (e) { }
+        } else {
+          outerSizingTS.css('padding-top', fixedTopTS.outerHeight());
+          innerSizingTS.css('padding-top', '');
+        }
+      } else {
+        innerSizingTS.css('padding-top', '');
+        outerSizingTS.css('padding-top', '');
+      }
+    })();
+
+    // Fixed bottom script
+    (function () {
+      if (!fixedBottomTS || fixedBottomTS.length === 0) return;
+
+      // If the widget has gone narrow, force unfix
+      if (editing || fixedBottomTS.outerHeight() > 200) {
+        fixedBottomTS[0].classList.add(forceUnfixClassTS);
+      } else {
+        fixedBottomTS[0].classList.remove(forceUnfixClassTS);
+      }
+
+      if (fixedBottomTS.css('position') === 'fixed') {
+        bodyContainerTS.css('padding-bottom', fixedBottomTS.outerHeight());
+      } else {
+        bodyContainerTS.css('padding-bottom', '');
+      }
+    })();
+
+    // Fixed left script
+    (function () {
+      if (!fixedLeftTS || fixedLeftTS.length === 0) return;
+
+      if (editing) {
+        fixedLeftTS[0].classList.add(forceUnfixClassTS);
+      } else {
+        fixedLeftTS[0].classList.remove(forceUnfixClassTS);
+      }
+
+      if (fixedLeftTS.css('position') === 'fixed') {
+        const anchorHeight = anchor.outerHeight() - 1;
+        fixedLeftTS.css('top', anchorHeight);
+        const leftBoundingTS = fixedLeftTS[0].getBoundingClientRect();
+        iterateLeftpads(function (containerTS) {
+          const containerBoundingTS = containerTS.getBoundingClientRect();
+          if (containerBoundingTS.left <= leftBoundingTS.right) {
+            $(containerTS).css('padding-left', leftBoundingTS.width + 16);
+          }
+        });
+      } else {
+        fixedLeftTS.css('top', '');
+        iterateLeftpads(function (containerTS) {
+          $(containerTS).css('padding-left', '');
+        });
+      }
+    })();
+  }
+
+  function scrollAdjustmentTS() {
+    if (!fixedTopTS || fixedTopTS.length !== 1 || !topAttachTS || topAttachTS.length !== 1) return;
+    const topPosition = fixedTopTS.css('position');
+    if (topPosition === 'fixed' || topPosition === 'absolute') {
+      const anchorBounding = anchor[0].getBoundingClientRect();
+      const attachBounding = topAttachTS[0].getBoundingClientRect();
+      const scrollTop = $(window).scrollTop();
+
+      fixedTopTS.css('top', Math.max(anchorBounding.bottom - 1, attachBounding.bottom));
+    } else {
+      fixedTopTS.css('top', initialTopTS);
+    }
+  }
+
+  $(window).load(function () {
+    setTimeout(function () {
+      try {
+        resizeAdjustmentTS();
+      } catch (e) {
+        console.error(e);
+      }
+    }, 350);
+
+    $(window).scroll(function () {
+      try {
+        scrollAdjustmentTS();
+      } catch (e) {
+        console.error(e);
+      }
+    });
+
+    var adjustTimeoutTS;
+    $(window).resize(function () {
+      clearTimeout(adjustTimeoutTS);
+      adjustTimeoutTS = setTimeout(function () {
+        try {
+          resizeAdjustmentTS();
+        } catch (e) {
+          console.error(e);
+        }
+      }, 350);
+    });
+
+    $.when(window.Pages.angularToolbarComplete).done(function () {
+      try {
+        resizeAdjustmentTS();
+      } catch (e) {
+        console.error(e);
+      }
+    });
+  });
+</script>
+<!-- End Fixed Nav Adjustment -->
+
+
+
+
+
+<script type="text/javascript">
+    window._monsido = window._monsido || {
+        token: "hc68qzzHqebFu1EfqQnZdA",
+        statistics: {
+            enabled: true,
+            cookieLessTracking: false,
+            documentTracking: {
+                enabled: true,
+                documentCls: "docaccess-activated",
+                documentIgnoreCls: "monsido_ignore_download",
+                documentExt: ["pdf","doc","ppt","docx","pptx","PPT","DOC","PDF"],
+            },
+        },
+        heatmap: {
+            enabled: true,
+        },
+        pageAssistV2: {
+            enabled: true,
+            theme: "light",
+            mainColor: "#1A468D",
+            textColor: "#ffffff",
+            linkColor: "#006CAA",
+            buttonHoverColor: "#006CAA",
+            mainDarkColor: "#052942",
+            textDarkColor: "#ffffff",
+            linkColorDark: "#FFCF4B",
+            buttonHoverDarkColor: "#FFCF4B",
+            greeting: "Discover your personalization options",
+            direction: "leftbottom",
+            coordinates: "unset unset 3 20",
+            iconShape: "circle",
+            title: "Personalization Options",
+            titleText: "Welcome to PageAssist toolbar! Adjust the options below to cater the website to your accessibility needs.",
+            iconPictureUrl: "logo",
+            logoPictureUrl: "",
+            logoPictureBase64: "",
+            languages: ["es-MX", "en-US"],
+            defaultLanguage: "en-US",
+            skipTo: false,
+            alwaysOnTop: false,
+hotkeyEnabled: false,
+        },
+    };
+</script>
+<script type="text/javascript" async src="https://app-script.monsido.com/v2/monsido-script.js"></script>
+
+
+
+
+
+<script src="https://cdn-residentagent.civicplus.com/loader.js"></script>
+<script>
+    window.ResidentAgentWidget.load({
+        agentId: '37850dd5-46e9-4ab5-a913-b56cc910b993',
+        apiUrl: 'https://residentagent-api-production.azurewebsites.net'
+    });
+</script>
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TVTKCLDS8C"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+
+gtag('config', 'G-TVTKCLDS8C');
+</script>
+
+
+    <script type="text/javascript">
+        $(function () {
+            document.cookie = "responsiveGhost=0; path=/";
+        });
+        $(window).on("load", function () {
+            $('body').addClass('doneLoading').removeClass('hideContent');
+
+            if ($('#404Content').length > 0)
+                $('div#bodyWrapper').css('padding', '0px');
+        });
+    </script>
+
+    <noscript>
+        <style>
+            body.hideContent {
+                opacity: 1 !important;
+            }
+        </style>
+    </noscript>
+
+        
+<div style="display: none;">
+	<svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
+
+		<symbol id="iconArrow--left" viewbox="0 0 25 25">
+			<title>Arrow Left</title>
+			<polygon style="fill:currentcolor" points="18.044,25 19.498,23.545 8.409,12.454 19.408,1.455 17.954,0 5.502,12.452"></polygon>
+		</symbol>
+
+		<symbol id="iconArrow--right" viewbox="0 0 25 25">
+			<title>Arrow Right</title>
+			<polygon style="fill:currentcolor" points="6.957,0 5.502,1.455 16.591,12.546 5.592,23.545 7.047,25 19.498,12.548"></polygon>
+		</symbol>
+
+	</svg>
+</div>
+    <script type="text/javascript">loadCSS('//fonts.googleapis.com/css?family=Open+Sans:300,500,600,700,800,regular|');</script>
+    
+
+    <div class="hidden activeWidgetSkinComponentsOnPageJson">[]</div>
+        <div style="display: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+                <symbol id="iconSlideshowArrowLeft" viewBox="0 0 22.68 40">
+                    <title>Slideshow Left Arrow</title>
+                    <g>
+                        <path style="fill:currentcolor;" d="M20,40a2.67,2.67,0,0,1-1.9-.79L.79,21.9a2.68,2.68,0,0,1,0-3.79L18.1.79a2.68,2.68,0,1,1,3.79,3.79L6.47,20,21.89,35.42A2.68,2.68,0,0,1,20,40Z"></path>
+                    </g>
+                </symbol>
+                <symbol id="iconSlideshowArrowRight" viewBox="0 0 22.68 40">
+                    <title>Slideshow Right Arrow</title>
+                    <g>
+                        <path style="fill:currentcolor;" d="M2.68,0a2.67,2.67,0,0,1,1.9.79L21.89,18.1a2.68,2.68,0,0,1,0,3.79L4.58,39.21A2.68,2.68,0,0,1,.79,35.42L16.21,20,.79,4.58A2.68,2.68,0,0,1,2.68,0Z"></path>
+                    </g>
+                </symbol>
+            </svg>
+        </div>
+    
+	
+	
+
+    <div id="root-picker-outlet"></div>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a4a0aef15fbe4cb0',t:'MTc5MTkxOTAzNQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
