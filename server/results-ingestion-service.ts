@@ -12,10 +12,16 @@ import { BackgroundWork } from './background-work';
 import { resultReportInputSchema, ResultReportError, type ResultReportInput } from './results-reports';
 import type { OfficialResultsSource } from '@shared/official-results';
 
+/** The race as the adapter sees it. `type`/`level`/`title` are the authoritative election-row values so lane C
+ * can compare its reviewed contest binding with the CURRENT race after an admin edit (contract v1.2 §3).
+ * `title` is the office (races have no separate office column). */
 export interface AdapterElection {
   id: number;
   state: string | null;
   date: Date | string;
+  type: string;
+  level: string;
+  title: string;
   officialResultsUrl: string | null;
   officialResultsSource: OfficialResultsSource;
 }
@@ -106,7 +112,7 @@ export class ResultsIngestionService {
     const all = await storage.getElections({});
     return all
       .filter((e) => e.officialResultsSource && e.officialResultsSource.status === 'published')
-      .map((e) => ({ id: e.id, state: e.state ?? null, date: e.date, officialResultsUrl: e.officialResultsUrl ?? null, officialResultsSource: e.officialResultsSource! }));
+      .map((e) => ({ id: e.id, state: e.state ?? null, date: e.date, type: e.type, level: e.level, title: e.title, officialResultsUrl: e.officialResultsUrl ?? null, officialResultsSource: e.officialResultsSource! }));
   }
 
   getStatus() {
