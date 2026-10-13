@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { Building2, TrendingUp, Users, MapPin, DollarSign } from "lucide-react";
+import { Building2, TrendingUp, Users, MapPin } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
 interface CampaignData {
@@ -20,11 +20,13 @@ interface CampaignData {
   };
 }
 
-const SUBSCRIPTION_TIERS = {
-  basic: { price: 99, name: 'Basic', color: 'bg-blue-500' },
-  pro: { price: 499, name: 'Pro', color: 'bg-purple-500' },
-  enterprise: { price: 2499, name: 'Enterprise', color: 'bg-orange-500' },
-  custom: { price: 0, name: 'Custom', color: 'bg-green-500' }
+// Early access (owner decision 2026-10-13): no prices and no plan-purchase wording;
+// no payment is taken. The tier only names which features the account was given.
+const ACCESS_LEVELS = {
+  basic: { name: 'Basic', color: 'bg-blue-500' },
+  pro: { name: 'Pro', color: 'bg-purple-500' },
+  enterprise: { name: 'Enterprise', color: 'bg-orange-500' },
+  custom: { name: 'Custom', color: 'bg-green-500' }
 };
 
 export function CampaignPortal() {
@@ -116,7 +118,7 @@ export function CampaignPortal() {
             Campaign Data Portal
           </CardTitle>
           <CardDescription>
-            Register your campaign to access voter analytics and insights
+            Register your campaign to access voter analytics and insights. Early access, by invitation: no payment is taken.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -177,8 +179,8 @@ export function CampaignPortal() {
           <div className="text-sm text-muted-foreground">API Key</div>
           <code className="text-xs bg-muted px-2 py-1 rounded">{apiKey.slice(0, 20)}...</code>
           {subscription && (
-            <Badge className={SUBSCRIPTION_TIERS[subscription.tier as keyof typeof SUBSCRIPTION_TIERS]?.color}>
-              {SUBSCRIPTION_TIERS[subscription.tier as keyof typeof SUBSCRIPTION_TIERS]?.name} Plan
+            <Badge className={ACCESS_LEVELS[subscription.tier as keyof typeof ACCESS_LEVELS]?.color}>
+              {ACCESS_LEVELS[subscription.tier as keyof typeof ACCESS_LEVELS]?.name} access
             </Badge>
           )}
         </div>
@@ -349,9 +351,9 @@ export function CampaignPortal() {
       {subscription && (
         <Card>
           <CardHeader>
-            <CardTitle>Your Subscription</CardTitle>
+            <CardTitle>Your early access</CardTitle>
             <CardDescription>
-              {SUBSCRIPTION_TIERS[subscription.tier as keyof typeof SUBSCRIPTION_TIERS]?.name} Plan Features
+              {ACCESS_LEVELS[subscription.tier as keyof typeof ACCESS_LEVELS]?.name} early-access features
             </CardDescription>
           </CardHeader>
           <CardContent>

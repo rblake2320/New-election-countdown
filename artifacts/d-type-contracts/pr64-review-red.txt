@@ -1,0 +1,249 @@
+
+ RUN  v5.0.3 D:/projects/et-wt/astra-type-contracts
+
+stdout | tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > uses body-version metadata when stale HEAD describes plaintext, compression=true
+✅ S3 Backup Service initialized {
+  region: 'us-east-1',
+  bucket: 'fixture',
+  endpoint: 'AWS S3',
+  encryption: true,
+  compression: true
+}
+🔄 Uploading backup to S3: fixture
+
+stdout | tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > uses body-version metadata when stale HEAD describes plaintext, compression=true
+✅ S3 upload completed {
+  key: 'fixture',
+  originalSize: '0MB',
+  uploadedSize: '0MB',
+  compressionRatio: '100%',
+  duration: '0s'
+}
+
+stdout | tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > uses body-version metadata when stale HEAD describes plaintext, compression=true
+🔄 Downloading backup from S3: fixture
+
+stdout | tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > uses body-version metadata when stale HEAD describes plaintext, compression=true
+✅ S3 download completed {
+  key: 'fixture',
+  localPath: 'C:\\Users\\techai\\AppData\\Local\\Temp\\et-contract-test-LYZlUn\\restored.sql',
+  size: '0MB',
+  verified: 'N/A',
+  duration: '0s'
+}
+
+stdout | tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > uses body-version metadata when stale HEAD describes plaintext, compression=false
+✅ S3 Backup Service initialized {
+  region: 'us-east-1',
+  bucket: 'fixture',
+  endpoint: 'AWS S3',
+  encryption: true,
+  compression: false
+}
+🔄 Uploading backup to S3: fixture
+
+stdout | tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > uses body-version metadata when stale HEAD describes plaintext, compression=false
+✅ S3 upload completed {
+  key: 'fixture',
+  originalSize: '0MB',
+  uploadedSize: '0MB',
+  compressionRatio: 'N/A',
+  duration: '0s'
+}
+
+stdout | tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > uses body-version metadata when stale HEAD describes plaintext, compression=false
+🔄 Downloading backup from S3: fixture
+
+stdout | tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > uses body-version metadata when stale HEAD describes plaintext, compression=false
+✅ S3 download completed {
+  key: 'fixture',
+  localPath: 'C:\\Users\\techai\\AppData\\Local\\Temp\\et-contract-test-iVtklY\\restored.sql',
+  size: '0MB',
+  verified: 'N/A',
+  duration: '0s'
+}
+
+stdout | tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > authenticates ciphertext despite stale plaintext HEAD when checksum is omitted
+✅ S3 Backup Service initialized {
+  region: 'us-east-1',
+  bucket: 'fixture',
+  endpoint: 'AWS S3',
+  encryption: true,
+  compression: false
+}
+🔄 Uploading backup to S3: fixture
+
+stdout | tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > authenticates ciphertext despite stale plaintext HEAD when checksum is omitted
+✅ S3 upload completed {
+  key: 'fixture',
+  originalSize: '0MB',
+  uploadedSize: '0MB',
+  compressionRatio: 'N/A',
+  duration: '0s'
+}
+
+stdout | tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > authenticates ciphertext despite stale plaintext HEAD when checksum is omitted
+🔄 Downloading backup from S3: fixture
+
+stdout | tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > authenticates ciphertext despite stale plaintext HEAD when checksum is omitted
+✅ S3 download completed {
+  key: 'fixture',
+  localPath: 'C:\\Users\\techai\\AppData\\Local\\Temp\\et-contract-test-gFpHbR\\restored.sql',
+  size: '0MB',
+  verified: 'N/A',
+  duration: '0s'
+}
+
+stdout | tests/d-backup-contracts.test.ts
+📋 Initialized 2 built-in runbook templates
+✅ Runbook Management Service initialized
+
+stdout | tests/d-backup-contracts.test.ts
+📋 Initialized 3 built-in drill scenarios
+✅ Synthetic Drill Service initialized
+
+stdout | tests/d-backup-contracts.test.ts
+📋 Initialized 5 default monitoring rules
+✅ Backup Monitoring Service initialized
+
+ ❯ tests/d-backup-contracts.test.ts (17 tests | 3 failed) 99ms
+   ❯ S3 backup stream integrity (local transport fixture) (10)
+     × uses body-version metadata when stale HEAD describes plaintext, compression=true 11ms
+     × uses body-version metadata when stale HEAD describes plaintext, compression=false 8ms
+     × authenticates ciphertext despite stale plaintext HEAD when checksum is omitted 9ms
+ ❯ tests/d-backup-config-routes.test.ts (5 tests | 4 failed) 44ms
+   ❯ backup configuration merged contract (5)
+     × rejects enabling email without recipients inherited from the existing configuration 28ms
+     × rejects removing all recipients while the existing configuration still enables email 4ms
+     × keeps POST and PUT contract violations as client errors 4ms
+     × returns404 without writing when the update target does not exist 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/d-backup-config-routes.test.ts > backup configuration merged contract > rejects enabling email without recipients inherited from the existing configuration
+AssertionError: expected 200 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 200
+
+ ❯ tests/d-backup-config-routes.test.ts:29:29
+     27|   it('rejects enabling email without recipients inherited from the exi…
+     28|     const response = await request(app).put('/backup/monitoring/config…
+     29|     expect(response.status).toBe(400);
+       |                             ^
+     30|     expect(store.updateBackupMonitoringConfiguration).not.toHaveBeenCa…
+     31|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  tests/d-backup-config-routes.test.ts > backup configuration merged contract > rejects removing all recipients while the existing configuration still enables email
+AssertionError: expected 200 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 200
+
+ ❯ tests/d-backup-config-routes.test.ts:36:29
+     34|     store.getBackupMonitoringConfiguration.mockResolvedValue({ ...base…
+     35|     const response = await request(app).put('/backup/monitoring/config…
+     36|     expect(response.status).toBe(400);
+       |                             ^
+     37|     expect(store.updateBackupMonitoringConfiguration).not.toHaveBeenCa…
+     38|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  tests/d-backup-config-routes.test.ts > backup configuration merged contract > keeps POST and PUT contract violations as client errors
+AssertionError: expected 500 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 500
+
+ ❯ tests/d-backup-config-routes.test.ts:42:29
+     40|   it('keeps POST and PUT contract violations as client errors', async …
+     41|     const response = await request(app).post('/backup/monitoring/confi…
+     42|     expect(response.status).toBe(400);
+       |                             ^
+     43|     expect(store.createBackupMonitoringConfiguration).not.toHaveBeenCa…
+     44|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  tests/d-backup-config-routes.test.ts > backup configuration merged contract > returns404 without writing when the update target does not exist
+AssertionError: expected 200 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 200
+
+ ❯ tests/d-backup-config-routes.test.ts:56:29
+     54|     store.getBackupMonitoringConfiguration.mockResolvedValue(undefined…
+     55|     const response = await request(app).put('/backup/monitoring/config…
+     56|     expect(response.status).toBe(404);
+       |                             ^
+     57|     expect(store.updateBackupMonitoringConfiguration).not.toHaveBeenCa…
+     58|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > uses body-version metadata when stale HEAD describes plaintext, compression=true
+ FAIL  tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > uses body-version metadata when stale HEAD describes plaintext, compression=false
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/d-backup-contracts.test.ts:90:74
+     88|     sends.mockClear();
+     89|     await service.downloadBackup({ key: 'fixture', localPath: destinat…
+     90|     expect((await readFile(destination)).equals(await readFile(source)…
+       |                                                                          ^
+     91|     expect(sends.mock.calls.some(([command]) => command instanceof Hea…
+     92|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  tests/d-backup-contracts.test.ts > S3 backup stream integrity (local transport fixture) > authenticates ciphertext despite stale plaintext HEAD when checksum is omitted
+AssertionError: promise resolved "{ …(4) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "checksum": "",
++   "localPath": "C:\\Users\\techai\\AppData\\Local\\Temp\\et-contract-test-gFpHbR\\restored.sql",
++   "size": 68000,
++   "verified": false,
+  }
+
+ ❯ tests/d-backup-contracts.test.ts:100:85
+     98|     payload[0] ^= 1;
+     99|     await writeFile(destination, 'previous verified restore');
+    100|     await expect(service.downloadBackup({ key: 'fixture', localPath: d…
+       |                                                                                     ^
+    101|     expect(await readFile(destination, 'utf8')).toBe('previous verifie…
+    102|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  7 failed | 15 passed (22)
+   Start at  12:08:30
+   Duration  1.15s (environment 37%, import 31%, setup 12%, transform 11%, tests 8%, worker 1%)
+

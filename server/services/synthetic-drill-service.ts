@@ -5,9 +5,6 @@
  */
 
 import { nanoid } from 'nanoid';
-import cron from 'node-cron';
-import { disasterRecoveryCoordinator } from './disaster-recovery-coordinator';
-import { failoverOrchestrationService } from './failover-orchestration-service';
 import { notificationQueueService } from './notification-queue-service';
 import {
   FailoverDrillConfiguration,
@@ -217,42 +214,7 @@ export class SyntheticDrillService {
    * Schedule a drill configuration
    */
   async scheduleDrill(configurationId: number): Promise<void> {
-    try {
-      const { storage } = await import('../storage');
-      const config = await storage.getFailoverDrillConfiguration(configurationId);
-      
-      if (!config || !config.schedule || !config.isEnabled) {
-        console.log(`Skipping schedule for configuration ${configurationId} - not schedulable`);
-        return;
-      }
-
-      // Calculate next execution time
-      const nextExecution = this.calculateNextExecution(config.schedule);
-      
-      // Create scheduled task
-      const task = cron.schedule(config.schedule, async () => {
-        await this.executeScheduledDrill(configurationId);
-      }, {
-        scheduled: false,
-        timezone: 'UTC'
-      });
-
-      const schedule: DrillSchedule = {
-        configurationId,
-        cronExpression: config.schedule,
-        nextExecution,
-        isEnabled: true,
-        task
-      };
-
-      this.scheduledDrills.set(configurationId, schedule);
-      task.start();
-
-      console.log(`📅 Scheduled drill ${configurationId} with cron expression: ${config.schedule}`);
-
-    } catch (error) {
-      console.error(`Failed to schedule drill ${configurationId}:`, error);
-    }
+    throw new Error('DRILL_ADAPTER_UNAVAILABLE: scheduling is disabled until a real drill executor is configured');
   }
 
   /**
@@ -273,7 +235,7 @@ export class SyntheticDrillService {
   async getDrillExecutionStatus(executionId: string): Promise<DrillExecution | null> {
     try {
       const { storage } = await import('../storage');
-      return await storage.getDrillExecution(executionId);
+      return (await storage.getDrillExecution(executionId)) ?? null;
     } catch (error) {
       console.error(`Failed to get drill execution status:`, error);
       return null;
@@ -682,7 +644,7 @@ export class SyntheticDrillService {
         try {
           // Create drill step record
           const drillStep: InsertDrillStep = {
-            executionId: execution.id,
+            executionId: execution.executionId,
             stepOrder: index + 1,
             stepName: step.name,
             stepType: step.type,
@@ -748,6 +710,9 @@ export class SyntheticDrillService {
         }
       }
 
+      if (!stepResults.length || stepResults.some(step => !step.success)) {
+        throw new Error('DRILL_EXECUTION_FAILED: no successful verified drill result');
+      }
       // Calculate final RTO/RPO metrics
       const totalDuration = Math.round((Date.now() - startTime) / 1000);
       const actualRtoSeconds = rtoEndTime ? Math.round((rtoEndTime - rtoStartTime) / 1000) : totalDuration;
@@ -766,7 +731,7 @@ export class SyntheticDrillService {
         actualRpoSeconds,
         rtoAchieved,
         rpoAchieved,
-        successScore,
+        successScore: String(successScore),
         stepResults: stepResults,
         performanceMetrics: {
           totalSteps: stepResults.length,
@@ -862,102 +827,36 @@ export class SyntheticDrillService {
   /**
    * Execute failover step
    */
-  private async executeFailoverStep(step: DrillScenarioStep, config: FailoverDrillConfiguration, options: any): Promise<any> {
-    // Integrate with failover orchestration service
-    console.log(`🔄 Triggering failover for step: ${step.name}`);
-    
-    // Simulate failover execution
-    await new Promise(resolve => setTimeout(resolve, step.expectedDuration * 100)); // Simulate work
-    
-    return {
-      success: true,
-      output: {
-        failoverType: step.name,
-        duration: step.expectedDuration,
-        status: 'completed'
-      },
-      validationResults: step.validationCriteria
-    };
+  private async executeFailoverStep(step: DrillScenarioStep, config: FailoverDrillConfiguration, options: any): Promise<{ success: false; code: 'DRILL_ADAPTER_UNAVAILABLE'; error: string }> {
+    return { success: false, code: 'DRILL_ADAPTER_UNAVAILABLE', error: 'DRILL_ADAPTER_UNAVAILABLE: no verified failover executor is configured' };
   }
 
   /**
    * Execute restore step
    */
-  private async executeRestoreStep(step: DrillScenarioStep, config: FailoverDrillConfiguration, options: any): Promise<any> {
-    console.log(`💾 Executing restore for step: ${step.name}`);
-    
-    // Integrate with disaster recovery coordinator
-    // This would call actual backup restore operations
-    await new Promise(resolve => setTimeout(resolve, step.expectedDuration * 100)); // Simulate work
-    
-    return {
-      success: true,
-      output: {
-        restoreType: step.name,
-        duration: step.expectedDuration,
-        status: 'completed'
-      },
-      validationResults: step.validationCriteria
-    };
+  private async executeRestoreStep(step: DrillScenarioStep, config: FailoverDrillConfiguration, options: any): Promise<{ success: false; code: 'DRILL_ADAPTER_UNAVAILABLE'; error: string }> {
+    return { success: false, code: 'DRILL_ADAPTER_UNAVAILABLE', error: 'DRILL_ADAPTER_UNAVAILABLE: no verified restore executor is configured' };
   }
 
   /**
    * Execute validate step
    */
-  private async executeValidateStep(step: DrillScenarioStep, config: FailoverDrillConfiguration, options: any): Promise<any> {
-    console.log(`✅ Validating for step: ${step.name}`);
-    
-    // Perform validation checks
-    await new Promise(resolve => setTimeout(resolve, step.expectedDuration * 50)); // Simulate work
-    
-    return {
-      success: true,
-      output: {
-        validationType: step.name,
-        checksPerformed: Object.keys(step.validationCriteria).length,
-        allChecksPassed: true
-      },
-      validationResults: step.validationCriteria
-    };
+  private async executeValidateStep(step: DrillScenarioStep, config: FailoverDrillConfiguration, options: any): Promise<{ success: false; code: 'DRILL_ADAPTER_UNAVAILABLE'; error: string }> {
+    return { success: false, code: 'DRILL_ADAPTER_UNAVAILABLE', error: 'DRILL_ADAPTER_UNAVAILABLE: no verified validate executor is configured' };
   }
 
   /**
    * Execute health check step
    */
-  private async executeHealthCheckStep(step: DrillScenarioStep, config: FailoverDrillConfiguration, options: any): Promise<any> {
-    console.log(`🏥 Health checking for step: ${step.name}`);
-    
-    // Perform health checks
-    await new Promise(resolve => setTimeout(resolve, step.expectedDuration * 50)); // Simulate work
-    
-    return {
-      success: true,
-      output: {
-        healthCheckType: step.name,
-        servicesChecked: ['database', 'application', 'network'],
-        allHealthy: true
-      },
-      validationResults: step.validationCriteria
-    };
+  private async executeHealthCheckStep(step: DrillScenarioStep, config: FailoverDrillConfiguration, options: any): Promise<{ success: false; code: 'DRILL_ADAPTER_UNAVAILABLE'; error: string }> {
+    return { success: false, code: 'DRILL_ADAPTER_UNAVAILABLE', error: 'DRILL_ADAPTER_UNAVAILABLE: no verified healthcheck executor is configured' };
   }
 
   /**
    * Execute cleanup step
    */
-  private async executeCleanupStep(step: DrillScenarioStep, config: FailoverDrillConfiguration, options: any): Promise<any> {
-    console.log(`🧹 Cleaning up for step: ${step.name}`);
-    
-    // Perform cleanup
-    await new Promise(resolve => setTimeout(resolve, step.expectedDuration * 30)); // Simulate work
-    
-    return {
-      success: true,
-      output: {
-        cleanupType: step.name,
-        resourcesCleaned: ['test_database', 'temp_files', 'test_branches'],
-        cleanupComplete: true
-      }
-    };
+  private async executeCleanupStep(step: DrillScenarioStep, config: FailoverDrillConfiguration, options: any): Promise<{ success: false; code: 'DRILL_ADAPTER_UNAVAILABLE'; error: string }> {
+    return { success: false, code: 'DRILL_ADAPTER_UNAVAILABLE', error: 'DRILL_ADAPTER_UNAVAILABLE: no verified cleanup executor is configured' };
   }
 
   /**
@@ -1047,24 +946,8 @@ export class SyntheticDrillService {
         }
       }
 
-      // Queue notification using notification service
-      for (const channel of config.notificationChannels || []) {
-        if (channel === 'email') {
-          await notificationQueueService.queueNotification({
-            type: 'email',
-            priority: type === 'failed' ? 'high' : 'normal',
-            recipient: 'admin@electiontracker.app', // This should come from config
-            content: {
-              subject,
-              message
-            },
-            metadata: {
-              drillExecutionId: executionId,
-              configurationType: config.drillType,
-              notificationType: type
-            }
-          });
-        }
+      if (config.notificationChannels?.length) {
+        throw new Error('DRILL_NOTIFICATION_UNAVAILABLE: no verified recipient is configured');
       }
 
     } catch (error) {
@@ -1076,11 +959,7 @@ export class SyntheticDrillService {
    * Calculate next execution time from cron expression
    */
   private calculateNextExecution(cronExpression: string): Date {
-    // This is a simplified implementation
-    // In a real system, you'd use a proper cron parser
-    const now = new Date();
-    const nextHour = new Date(now.getTime() + 60 * 60 * 1000); // Default to next hour
-    return nextHour;
+    throw new Error('DRILL_ADAPTER_UNAVAILABLE: no verified scheduler is configured');
   }
 }
 

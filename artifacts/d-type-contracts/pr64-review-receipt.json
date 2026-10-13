@@ -1,0 +1,37 @@
+{
+  "reviewedCommit": "641e2b1ad8a5af5a3651db03d7f26f7a3a1e8a75",
+  "red": {
+    "failed": 7,
+    "passed": 15
+  },
+  "green": {
+    "passed": 22
+  },
+  "independentYellow": "22/22 and source review passed",
+  "fullUnit": {
+    "passed": 829,
+    "files": 93
+  },
+  "productionBuild": "exit0",
+  "typeDiagnostics": 105,
+  "newDiagnostics": 0,
+  "ownedDiagnostics": [],
+  "exitCodes": {
+    "typeExit": 2,
+    "buildExit": 0,
+    "unitExit": 0
+  },
+  "sourceSha256LF": {
+    "server/routes/track4-backup-routes.ts": "2fb1e650f1944818f766eaa8c3e82e86df9c69743f76b4758f03839de49bfa3d",
+    "server/services/backup-alert-service.ts": "ddd971418a8502105e0dd8c580a38590ea6c81bb0d8751ff6f493becb3087b40",
+    "server/services/s3-backup-service.ts": "4c81aca1c02b194e311fbc83b34bb55b06740e9bafab39c1d63e9ccd77de6287",
+    "tests/d-backup-contracts.test.ts": "c9837e2d2934bafaba3736abf30cb1c7e6f3d2730e0aa0fb773529c7ffe14d75",
+    "tests/d-backup-config-routes.test.ts": "37874da050b1de6cbca6386225bc3802805a2e6e39711f67c510e1c1062fdecd"
+  },
+  "holds": [
+    "No external S3",
+    "No shared DB",
+    "No deployment"
+  ],
+  "note": "Validator final refinement is type-only: accepts precisely the four validated configuration fields; final nonincremental compiler rerun includes it."
+}

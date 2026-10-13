@@ -1,4 +1,5 @@
 import { nanoid } from 'nanoid';
+import { notificationQueueService } from './notification-queue-service';
 import type { IStorage } from '../storage';
 import type { 
   BackupMonitoringConfiguration,
@@ -8,6 +9,8 @@ import type {
   InsertBackupAlert,
   InsertBackupHealthMetric
 } from '@shared/schema';
+
+export class BackupMonitoringConfigurationError extends Error {}
 
 export interface AlertChannel {
   type: 'email' | 'sms' | 'webhook' | 'slack';
@@ -52,8 +55,8 @@ export interface AlertContext {
 /**
  * Backup Success Alert System - Real-time monitoring and multi-channel alerting
  * 
- * This service provides actual real-time monitoring of backup operations with 
- * multi-channel alerting via SendGrid/Twilio and escalation management.
+ * Records observed backup events and queues configured email alerts.
+ * Delivery state belongs to the notification worker and its provider receipts.
  */
 export class BackupAlertService {
   private storage: IStorage;
@@ -61,13 +64,10 @@ export class BackupAlertService {
   private alertQueue: AlertContext[] = [];
   private activeAlerts = new Map<string, AlertContext>();
   
-  // Integration services (these would be injected in real implementation)
-  private sendGridService?: any; // Will be injected
-  private twilioService?: any; // Will be injected
   
   constructor(storage: IStorage) {
     this.storage = storage;
-    this.initializeMonitoring();
+    // Event-driven service: no timer claiming unimplemented health checks.
   }
 
   /**
@@ -78,12 +78,10 @@ export class BackupAlertService {
     this.validateMonitoringConfiguration(config);
     
     const newConfig = await this.storage.createBackupMonitoringConfiguration({
-      ...config,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      ...config
     });
 
-    console.log(`[BackupAlertService] Created monitoring configuration: ${newConfig.configurationName}`);
+    console.log(`[BackupAlertService] Created monitoring configuration: ${newConfig.name}`);
     
     return newConfig;
   }
@@ -109,153 +107,35 @@ export class BackupAlertService {
    * Record a health metric based on backup event
    */
   private async recordHealthMetric(event: BackupEvent): Promise<void> {
-    const metrics: InsertBackupHealthMetric[] = [];
-    
-    // Record backup completion metric
-    if (event.status === 'completed') {
-      metrics.push({
-        metricType: 'backup_success_rate',
-        metricValue: 100,
-        metricUnit: 'percentage',
-        metricTimestamp: event.endTime || new Date(),
-        source: event.source,
-        backupJobId: event.backupJobId,
-        metadata: {
-          backupType: event.backupType,
-          size: event.size,
-          duration: event.duration
-        }
-      });
-      
-      if (event.duration) {
-        metrics.push({
-          metricType: 'backup_duration',
-          metricValue: event.duration,
-          metricUnit: 'minutes',
-          metricTimestamp: event.endTime || new Date(),
-          source: event.source,
-          backupJobId: event.backupJobId,
-          metadata: {
-            backupType: event.backupType,
-            size: event.size
-          }
-        });
-      }
-    } else if (event.status === 'failed') {
-      metrics.push({
-        metricType: 'backup_success_rate',
-        metricValue: 0,
-        metricUnit: 'percentage',
-        metricTimestamp: event.endTime || new Date(),
-        source: event.source,
-        backupJobId: event.backupJobId,
-        metadata: {
-          backupType: event.backupType,
-          error: event.errorMessage
-        }
-      });
-    }
-    
-    // Record size metric
-    if (event.size) {
-      metrics.push({
-        metricType: 'backup_size',
-        metricValue: event.size,
-        metricUnit: 'bytes',
-        metricTimestamp: event.endTime || event.startTime,
-        source: event.source,
-        backupJobId: event.backupJobId,
-        metadata: {
-          backupType: event.backupType
-        }
-      });
-    }
-    
-    // Store all metrics
-    for (const metric of metrics) {
-      await this.storage.createBackupHealthMetric(metric);
-    }
+    if (event.status !== 'completed' && event.status !== 'failed') return;
+    await this.storage.createBackupHealthMetric({
+      metricType: 'event',
+      metricDate: event.endTime ?? event.startTime,
+      totalBackups: 1,
+      successfulBackups: event.status === 'completed' ? 1 : 0,
+      failedBackups: event.status === 'failed' ? 1 : 0,
+      successRate: event.status === 'completed' ? '100' : '0',
+      averageBackupDuration: event.duration === undefined ? null : Math.round(event.duration * 60),
+      averageBackupSize: event.size ?? null,
+      metricsByType: { [event.backupType]: { eventId: event.eventId, backupJobId: event.backupJobId, status: event.status } }
+    });
   }
 
   /**
    * Evaluate alert rules for a monitoring configuration
    */
   private async evaluateAlertRules(config: BackupMonitoringConfiguration, event: BackupEvent): Promise<void> {
-    if (!config.alertRules || config.alertRules.length === 0) {
-      return;
-    }
-    
-    for (const rule of config.alertRules) {
-      if (await this.shouldTriggerAlert(rule, event, config)) {
-        await this.triggerAlert(config, rule, event);
-      }
-    }
-  }
-
-  /**
-   * Determine if an alert should be triggered
-   */
-  private async shouldTriggerAlert(rule: AlertRule, event: BackupEvent, config: BackupMonitoringConfiguration): Promise<boolean> {
-    // Check if rule applies to this event type
-    if (rule.metricType === 'backup_failure' && event.status !== 'failed') {
-      return false;
-    }
-    
-    if (rule.metricType === 'backup_duration' && !event.duration) {
-      return false;
-    }
-    
-    // Evaluate rule condition
-    switch (rule.metricType) {
-      case 'backup_failure':
-        return event.status === 'failed';
-        
-      case 'backup_duration':
-        if (event.duration && typeof rule.threshold === 'number') {
-          return this.evaluateCondition(event.duration, rule.condition, rule.threshold);
-        }
-        return false;
-        
-      case 'backup_size':
-        if (event.size && typeof rule.threshold === 'number') {
-          return this.evaluateCondition(event.size, rule.condition, rule.threshold);
-        }
-        return false;
-        
-      case 'backup_missed':
-        // Check if backup should have run but didn't
-        return await this.checkMissedBackup(config, event);
-        
-      default:
-        return false;
-    }
-  }
-
-  /**
-   * Evaluate a condition
-   */
-  private evaluateCondition(value: number, condition: string, threshold: number): boolean {
-    switch (condition) {
-      case 'greater_than':
-        return value > threshold;
-      case 'less_than':
-        return value < threshold;
-      case 'equals':
-        return value === threshold;
-      case 'not_equals':
-        return value !== threshold;
-      default:
-        return false;
-    }
-  }
-
-  /**
-   * Check if a backup was missed
-   */
-  private async checkMissedBackup(config: BackupMonitoringConfiguration, event: BackupEvent): Promise<boolean> {
-    // This would implement logic to detect missed backups based on schedule
-    // For now, return false as this requires schedule analysis
-    return false;
+    if (!config.isEnabled || event.status !== 'failed') return;
+    if (config.backupTypes?.length && !config.backupTypes.includes(event.backupType)) return;
+    // This event handler emits operation-failure alerts. Aggregate threshold and
+    // missing-backup monitoring belong to BackupMonitoringService.
+    const severity = config.alertSeverity;
+    const rule: AlertRule = {
+      metricType: 'backup_failure', condition: 'equals', threshold: 'failed',
+      severity: severity === 'low' || severity === 'medium' || severity === 'critical' ? severity : 'high',
+      description: 'Backup operation failed'
+    };
+    await this.triggerAlert(config, rule, event);
   }
 
   /**
@@ -270,8 +150,9 @@ export class BackupAlertService {
       alert.configurationId === config.id &&
       alert.alertType === rule.metricType &&
       alert.severity === rule.severity &&
-      alert.backupJobId === event.backupJobId &&
-      new Date().getTime() - new Date(alert.createdAt).getTime() < 60 * 60 * 1000 // Within 1 hour
+      typeof alert.alertData === 'object' && alert.alertData !== null &&
+      'backupJobId' in alert.alertData && alert.alertData.backupJobId === event.backupJobId &&
+      (alert.createdAt !== null ? Date.now() - alert.createdAt.getTime() : Infinity) < 60 * 60 * 1000 // Within 1 hour
     );
     
     if (duplicate) {
@@ -285,17 +166,12 @@ export class BackupAlertService {
       configurationId: config.id,
       alertType: rule.metricType,
       severity: rule.severity,
-      status: 'new',
+      status: 'active',
+      title: rule.description,
       message: this.generateAlertMessage(rule, event),
-      details: {
-        event,
-        rule,
-        configuration: config.configurationName
-      },
-      backupJobId: event.backupJobId,
-      source: event.source,
-      triggerTime: new Date(),
-      createdAt: new Date()
+      affectedBackupTypes: [event.backupType],
+      alertData: { eventId: event.eventId, backupJobId: event.backupJobId, source: event.source, configuration: config.name }
+
     });
     
     // Create alert context for processing
@@ -304,8 +180,9 @@ export class BackupAlertService {
       configurationId: config.id,
       event,
       rule,
-      channels: config.notificationChannels || [],
-      escalationRules: config.escalationRules || []
+      channels: (config.alertChannels ?? []).includes('email')
+        ? (config.alertEmails ?? []).map(target => ({ type: 'email', target, priority: 1, escalationLevel: 1 })) : [],
+      escalationRules: Array.isArray(config.escalationRules) ? config.escalationRules : []
     };
     
     this.activeAlerts.set(alertId, alertContext);
@@ -332,11 +209,7 @@ export class BackupAlertService {
       }
     }
     
-    // Update alert status
-    await this.storage.updateBackupAlert(context.alertId, {
-      status: 'sent',
-      sentAt: new Date()
-    });
+    // A queued notification is not a delivered notification. Keep the alert active.
   }
 
   /**
@@ -371,46 +244,28 @@ export class BackupAlertService {
    * Send email notification (via SendGrid)
    */
   private async sendEmailNotification(email: string, severity: string, message: string): Promise<void> {
-    // In real implementation, this would use SendGrid service
-    console.log(`[BackupAlertService] EMAIL [${severity.toUpperCase()}] to ${email}: ${message}`);
-    
-    // Simulate email sending
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await notificationQueueService.queueNotification({ type: 'email', priority: severity === 'critical' ? 'urgent' : 'normal', recipient: email, content: { subject: 'Backup alert', message }, metadata: {}, maxRetries: 3, scheduledAt: new Date() });
   }
 
   /**
    * Send SMS notification (via Twilio)
    */
   private async sendSmsNotification(phone: string, message: string): Promise<void> {
-    // In real implementation, this would use Twilio service
-    console.log(`[BackupAlertService] SMS to ${phone}: ${message}`);
-    
-    // Simulate SMS sending
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await notificationQueueService.queueNotification({ type: 'sms', priority: 'high', recipient: phone, content: { message }, metadata: {}, maxRetries: 3, scheduledAt: new Date() });
   }
 
   /**
    * Send webhook notification
    */
   private async sendWebhookNotification(url: string, context: AlertContext): Promise<void> {
-    console.log(`[BackupAlertService] WEBHOOK to ${url}:`, {
-      alertId: context.alertId,
-      severity: context.rule.severity,
-      event: context.event
-    });
-    
-    // In real implementation, this would make HTTP POST request
-    await new Promise(resolve => setTimeout(resolve, 100));
+    throw new Error('BACKUP_CHANNEL_UNAVAILABLE: no approved webhook transport is configured');
   }
 
   /**
    * Send Slack notification
    */
   private async sendSlackNotification(webhook: string, context: AlertContext, message: string): Promise<void> {
-    console.log(`[BackupAlertService] SLACK to ${webhook}: ${message}`);
-    
-    // In real implementation, this would post to Slack webhook
-    await new Promise(resolve => setTimeout(resolve, 100));
+    throw new Error('BACKUP_CHANNEL_UNAVAILABLE: no approved Slack transport is configured');
   }
 
   /**
@@ -533,70 +388,24 @@ Triggered: ${new Date().toISOString()}
   /**
    * Validate monitoring configuration
    */
-  private validateMonitoringConfiguration(config: any): void {
-    if (!config.configurationName || config.configurationName.trim().length === 0) {
-      throw new Error('Configuration name is required');
+  validateMonitoringConfiguration(config: Pick<InsertBackupMonitoringConfiguration, 'name' | 'monitoringType' | 'alertChannels' | 'alertEmails'>): void {
+    if (!config.name?.trim()) throw new BackupMonitoringConfigurationError('Configuration name is required');
+    if (!['all_backups', 'backup_type'].includes(config.monitoringType)) {
+      throw new BackupMonitoringConfigurationError('Event alerts support all_backups or backup_type monitoring');
     }
-
-    if (!config.monitoringType) {
-      throw new Error('Monitoring type is required');
+    if ((config.alertChannels ?? []).some(channel => !['email', 'dashboard'].includes(channel))) {
+      throw new BackupMonitoringConfigurationError('Event alerts support dashboard and configured email delivery');
     }
-
-    if (!config.alertRules || config.alertRules.length === 0) {
-      throw new Error('At least one alert rule is required');
+    if (config.alertChannels?.includes('email') && !config.alertEmails?.length) {
+      throw new BackupMonitoringConfigurationError('Email alerts require configured recipients');
     }
-
-    if (!config.notificationChannels || config.notificationChannels.length === 0) {
-      throw new Error('At least one notification channel is required');
-    }
-  }
-
-  /**
-   * Initialize monitoring processes
-   */
-  private initializeMonitoring(): void {
-    console.log('[BackupAlertService] Initializing backup monitoring');
-    
-    // Start periodic health checks
-    this.monitoringInterval = setInterval(async () => {
-      try {
-        await this.performHealthChecks();
-      } catch (error) {
-        console.error('[BackupAlertService] Health check error:', error);
-      }
-    }, 5 * 60 * 1000); // Every 5 minutes
-  }
-
-  /**
-   * Perform periodic health checks
-   */
-  private async performHealthChecks(): Promise<void> {
-    // This would implement proactive monitoring
-    // For now, just log that it's running
-    console.log('[BackupAlertService] Performing health checks...');
   }
 
   /**
    * Simulate a backup event (for testing)
    */
   async simulateBackupEvent(eventType: BackupEvent['eventType'], backupJobId: string): Promise<void> {
-    const event: BackupEvent = {
-      eventId: nanoid(),
-      eventType,
-      backupJobId,
-      backupType: 'full',
-      source: 'production-db',
-      destination: 'backup-storage',
-      startTime: new Date(Date.now() - 10 * 60 * 1000), // 10 minutes ago
-      endTime: eventType !== 'backup_started' ? new Date() : undefined,
-      status: eventType === 'backup_completed' ? 'completed' : 
-              eventType === 'backup_failed' ? 'failed' : 'running',
-      size: eventType === 'backup_completed' ? Math.floor(Math.random() * 1000000000) : undefined,
-      duration: eventType !== 'backup_started' ? Math.floor(Math.random() * 30) + 5 : undefined,
-      errorMessage: eventType === 'backup_failed' ? 'Connection timeout' : undefined
-    };
-
-    await this.processBackupEvent(event);
+    throw new Error('SYNTHETIC_EVENT_DISABLED: simulated events cannot write operational backup health');
   }
 
   /**

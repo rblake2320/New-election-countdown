@@ -38,6 +38,14 @@ export type IngestOutcome =
   | { electionId: number; outcome: 'refused'; code: string; message: string }
   | { electionId: number; outcome: 'failed'; message: string };
 
+export interface RaceCoverage {
+  electionId: number; state: string | null; title: string; date: string;
+  mode: 'automatic' | 'manual_only';
+  reason: 'adapter_registered' | 'no_manifest' | 'manifest_not_published' | 'no_adapter';
+  sourceId: string | null; officialResultsUrl: string | null;
+}
+export interface ResultsCoverage { date: string | null; counts: { total: number; automatic: number; manualOnly: number }; races: RaceCoverage[] }
+
 export class ResultsIngestionService {
   private pollingWork = new BackgroundWork();
   private isRunning = false;
@@ -115,6 +123,31 @@ export class ResultsIngestionService {
       .map((e) => ({ id: e.id, state: e.state ?? null, date: e.date, type: e.type, level: e.level, title: e.title, officialResultsUrl: e.officialResultsUrl ?? null, officialResultsSource: e.officialResultsSource! }));
   }
 
+  /**
+   * Honest per-race coverage for a date (B's wording source, D's drill set): a race is `automatic` only when
+   * its manifest row is `published` AND an adapter is registered for that publisher; everything else is
+   * `manual_only` (admin posting with evidence) with the reason. Nothing here guesses or fetches.
+   */
+  async coverage(date?: string): Promise<ResultsCoverage> {
+    const all = await storage.getElections({});
+    const races: RaceCoverage[] = all
+      .filter((e) => !date || new Date(e.date).toISOString().slice(0, 10) === date)
+      .map((e) => {
+        const manifest = e.officialResultsSource ?? null;
+        const sourceId = manifest?.publisher ?? null;
+        const reason: RaceCoverage['reason'] = !manifest ? 'no_manifest'
+          : manifest.status !== 'published' ? 'manifest_not_published'
+          : !sourceId || !this.adapters.has(sourceId) ? 'no_adapter'
+          : 'adapter_registered';
+        return {
+          electionId: e.id, state: e.state ?? null, title: e.title, date: new Date(e.date).toISOString(),
+          mode: reason === 'adapter_registered' ? 'automatic' : 'manual_only', reason,
+          sourceId, officialResultsUrl: e.officialResultsUrl ?? null,
+        };
+      });
+    const automatic = races.filter((r) => r.mode === 'automatic').length;
+    return { date: date ?? null, counts: { total: races.length, automatic, manualOnly: races.length - automatic }, races };
+  }
   getStatus() {
     return {
       isRunning: this.isRunning,

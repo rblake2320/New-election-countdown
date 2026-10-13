@@ -239,12 +239,21 @@ export class AlertEngineService {
         event.isProcessed = true;
       }
 
-      // Return mock event for now (in real implementation, save to database)
+      // Not persisted: this engine keeps events in memory (eventHistory); the returned row mirrors the table shape.
       return {
         id: Date.now(),
-        ...event,
+        eventType: event.eventType,
+        eventData: event.eventData,
+        triggerConditions: event.triggerConditions ?? null,
+        relatedElectionId: event.relatedElectionId ?? null,
+        relatedCandidateId: event.relatedCandidateId ?? null,
+        priority: event.priority ?? 'normal',
+        isProcessed: event.isProcessed ?? false,
         processedAt: event.isProcessed ? new Date() : null,
         campaignId: null,
+        source: event.source ?? null,
+        sourceId: event.sourceId ?? null,
+        metadata: event.metadata ?? null,
         createdAt: new Date()
       };
     } catch (error) {

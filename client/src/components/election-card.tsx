@@ -420,7 +420,11 @@ export function ElectionCard({ election, viewMode = "grid" }: ElectionCardProps)
             </div>
           )}
         </section>
-      ) : null}
+      ) : (
+        <p className="text-sm text-muted-foreground" data-testid={`no-candidates-${election.id}`}>
+          Candidates not yet recorded for this race.
+        </p>
+      )}
 
       {/* Election Details */}
       {election.offices && election.offices.length > 0 && (
