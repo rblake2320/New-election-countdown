@@ -1,0 +1,119 @@
+{
+  "scope": "NC exact manual source host writer repair, offline actual retained packet",
+  "base": "57e0a5d0178dbf38039eb7759986f6d2ec54ec83",
+  "runtimeHead": "1f999b0a212e3334465ab93e4f4299b537f9bbb3",
+  "dependencyProvenance": "own physical npm ci; process-only browser download skips; unchanged package files",
+  "packet": {
+    "path": "artifacts/source-packet/nc-manual/packet.json",
+    "sha256": "9decfcbe3a24da3ae155928c9c03772bfc6b53abbd69fde4165d2097afdc6cca",
+    "committedSha256": "9decfcbe3a24da3ae155928c9c03772bfc6b53abbd69fde4165d2097afdc6cca",
+    "target": {
+      "id": 4242404,
+      "state": "NC",
+      "date": "2026-03-03",
+      "type": "primary",
+      "level": "federal",
+      "title": "North Carolina U.S. Senate Democratic Primary"
+    },
+    "source": {
+      "id": "admin_manual:NC",
+      "kind": "admin_manual",
+      "name": "Manual ingest of official North Carolina State Board of Elections raw data",
+      "url": "https://er.ncsbe.gov/enr/20260303/data/results_0.txt"
+    },
+    "capture": {
+      "key": "NC-primary-results",
+      "url": "https://er.ncsbe.gov/enr/20260303/data/results_0.txt",
+      "checkedAt": "2026-10-12T04:25:43.651136+00:00",
+      "status": 200,
+      "contentType": "text/plain",
+      "lastModified": "Wed, 08 Apr 2026 21:00:54 GMT",
+      "sha256": "a1adde2cbace4018e482d7fdc12297dac32595e7e2a175e0f6fcf87c05e3154c",
+      "bytes": 82579
+    },
+    "raw": [
+      {
+        "role": "payload",
+        "path": "raw/NC-primary-results.txt",
+        "sha256": "a1adde2cbace4018e482d7fdc12297dac32595e7e2a175e0f6fcf87c05e3154c",
+        "url": "https://er.ncsbe.gov/enr/20260303/data/results_0.txt"
+      },
+      {
+        "role": "companion",
+        "path": "raw/NC-primary-counties.txt",
+        "sha256": "3f75a12a2c49d6c089fc612ff431e10ce9f6e0a70c0c41d1eba21804f58097b0",
+        "url": "https://er.ncsbe.gov/enr/20260303/data/county.txt"
+      },
+      {
+        "role": "capture_receipt",
+        "path": "raw/NC-primary-results-proof.json",
+        "sha256": "f7b92b33d39d59bd090fcc8a4e137800c20e9e05c0a2e1b499d803074bb52f1f",
+        "url": null
+      }
+    ],
+    "totalVotes": 827755,
+    "optionCount": 6
+  },
+  "DactualOldRed": {
+    "path": "D-historical-posts-old-red.json",
+    "sha256": "d33bf869123cf1e8195f2ac34ce4e8cc8380573f78d1ff80437bef544fae06d2",
+    "evidenceStatus": 201,
+    "postStatus": 422,
+    "publicCode": "unknown_source",
+    "allowedHosts": [
+      "www.ncsbe.gov"
+    ]
+  },
+  "oldOffline": {
+    "tests": 9,
+    "passed": 7,
+    "failed": 2,
+    "failures": "actual positive blocked by exact source host; missing evidence control hits same earlier host guard"
+  },
+  "newOffline": {
+    "tests": 82,
+    "passed": 82,
+    "failed": 0,
+    "outcome": "Worked",
+    "cases": "actual unchanged NC packet acceptance/repeat0, adjacent hosts/port/wrong states/evidence/context refusal, original registry intersection/route/ingestion/packet tests"
+  },
+  "sweep": {
+    "LA": "Failed actual manifest-only admission (same class). Worked existing live-registered host admission. No exact host widened pending reviewed delegation. Existing C6 link explicitly contains --environment-- placeholder; 2022 press PDF search result fetched as404, not proof.",
+    "WA": "Worked actual initial/recount/Senate packets with exact registered IDs, URLs, dates, target types and IDs. No manual WA packet exists in supported packet catalog.",
+    "CA": "Worked actual Governor certified packet with exact registered ID/URL/date/target type/ID. No manual CA packet exists in supported catalog.",
+    "NC House": "same exact er.ncsbe.gov host; source packet schema proof is in existing packet test suite"
+  },
+  "constraints": {
+    "PGConnections": 0,
+    "browserActions": 0,
+    "sharedWrites": 0,
+    "manifestEdits": 0,
+    "liveRegistryEdits": 0,
+    "URLRewrites": 0
+  },
+  "officialSources": [
+    {
+      "url": "https://www.ncsbe.gov/results-data/election-results",
+      "retainedReceipt": "NC-delegation-retained.json",
+      "delegatedHref": "https://er.ncsbe.gov/"
+    },
+    {
+      "url": "https://www.ncsbe.gov/news/press-releases/2020/11/06/9-county-boards-elections-counting-additional-votes-today",
+      "verification": "web open 2026-10-13: official press release explicitly links https://er.ncsbe.gov/",
+      "documentSha256": null
+    }
+  ],
+  "verification": {
+    "typecheck": {
+      "command": "npm run check",
+      "exitCode": 0,
+      "receipt": "final-typecheck.log"
+    },
+    "build": {
+      "command": "npm run build",
+      "exitCode": 0,
+      "receipt": "build.log"
+    },
+    "fullSuite": "not run; 82 focused actual-packet/receiver/security tests performed"
+  }
+}
