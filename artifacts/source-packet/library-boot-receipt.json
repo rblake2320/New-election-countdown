@@ -1,0 +1,17 @@
+{
+  "outcome": "Worked",
+  "cases": [
+    {
+      "case": "probe-old-library-boot",
+      "exitCode": 1,
+      "stdout": "{\n  \"outcome\": \"Refused\",\n  \"mode\": \"dry_run_only\",\n  \"code\": \"CLI_ARGUMENT\",\n  \"message\": \"Use --packet --sha256 --target only; no post/apply mode\"\n}\n{\"marker\":\"server-style entrypoint continuation\",\"exitCode\":1}\n",
+      "stderr": ""
+    },
+    {
+      "case": "probe-library-boot",
+      "exitCode": 0,
+      "stdout": "{\"outcome\":\"Worked\",\"marker\":\"server-style entrypoint imports canonical loader without CLI execution\",\"exitCodeUnchanged\":true}\n",
+      "stderr": ""
+    }
+  ]
+}
