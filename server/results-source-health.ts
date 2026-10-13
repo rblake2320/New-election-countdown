@@ -19,6 +19,7 @@ export function decorateSourceHealth(payload:ResultsPayload,health:SourceHealthR
  const automatic=health?.automatic??automaticFallback;
  const last=health?.last_success_at??(health?.outcome==='not_published'?health.last_attempt_at:null)??payload.retrievedAt;
  if(automatic&&last){const expires=new Date(last).getTime()+(health?.ttl_seconds??AUTOMATIC_RESULTS_TTL_SECONDS)*1000;if(now>=expires){const ttlSince=new Date(expires).toISOString();if(!staleSince||ttlSince<staleSince)staleSince=ttlSince;}}
+ if(!payload.reportId&&staleSince)throw new ResultReportError(503,'source_unavailable','The admitted source observation expired before any official result was recorded',{electionId:payload.electionId,sourceId:health?.source_id??null});
  const decorated={...payload,stale:staleSince!==null,staleSince};
  Object.defineProperty(decorated,healthCacheVersion,{value:`${health?.health_version??0}:${automatic?'automatic':'manual'}:${staleSince??'fresh'}`,enumerable:false});
  return decorated;
