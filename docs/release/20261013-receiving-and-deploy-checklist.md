@@ -4,7 +4,7 @@ Deployment remains held. This checklist prepares a reviewable release; it does n
 
 ## Current verified state
 
-- Main `b5522fe` contains the source increment and all reviewed runtime repairs through PR90. Every merged PR had verify, bundle-budget and container checks green.
+- Main `57e0a5d` contains the source increment, all reviewed runtime repairs through PR90, and the portable actual-payload regression PR91. Every merged PR had verify, bundle-budget and container checks green.
 - The shared seven source tables have SHA256 `769c35bb4b850257f9409ee567da95e00b271855d510cbb0015e8557e431f93a`. Nov. 3: 506 races, 3,464 profiles, 1,448 current official-list facts, 502 results URLs, 496 known closing times. Profiles include registrations; they are not all qualified nominees.
 - Increment: 36 new official-list profiles, 87 source facts, 51 profile reuses; repeat zero new/zero source changes. All 3,444 prior complete profiles and 3,856 prior source rows were preserved.
 - D independently restored the source-only postimage and matched all 506 roster HTTP responses and all 87 new memberships/source/party/scope fields to SQL. B rendered all 506 actual payloads: 498 sourced, two not recorded, six Louisiana not applicable. No invented candidates or complete-empty race claims.
@@ -15,7 +15,7 @@ Deployment remains held. This checklist prepares a reviewable release; it does n
 
 ## Remaining receiving and external inputs
 
-1. B/D historical admin browser receiving: pinned Playwright 1.64.0 in the same new internal-only application/PostgreSQL network, no host ports, synthetic fixture admin, real retained NC/LA reports. Use an internal HTTPS proxy and an ephemeral fixture CA trusted only in the disposable browser container; preserve CSP and Secure-cookie behavior. Do not strip response headers, ignore certificate errors or change host trust. Check both widths, exact report hydration, public-list exclusion and no mutations after login. Existing 5094 stays untouched.
+1. C fixes the observed real NC report422: narrowly register official `er.ncsbe.gov` for `admin_manual:NC`, retain the original source URL and state/context guards; D retests the same packet. B/D historical admin browser receiving: pinned Playwright 1.64.0 in the same new internal-only application/PostgreSQL network, no host ports, synthetic fixture admin, real retained NC/LA reports. Use an internal HTTPS proxy and an ephemeral fixture CA trusted only in the disposable browser container; preserve CSP and Secure-cookie behavior. Do not strip response headers, ignore certificate errors or change host trust. Check both widths, exact report hydration, public-list exclusion and no mutations after login. Existing 5094 stays untouched.
 2. B owns remaining Firefox/WebKit receiving on the same isolated fixture. Preserve failure/304/recovery controls and original evidence.
 3. Portable 506-payload regression PR91 was reviewed and merged at exact green head `730b1d7`. Further changes get their own checks.
 4. AZ08/KY03 official printed rosters remain unavailable after additional official-source checks. Keep honest unknown state; do not turn primary filings, an absent write-in row or a challenge page into a general roster.
