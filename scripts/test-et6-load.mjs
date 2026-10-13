@@ -50,6 +50,13 @@ async function worker(config) {
   const interval = 1000 * config.clients / config.rps;
   const count = config.rps * config.seconds / config.clients;
   const wait = ms => new Promise(r => setTimeout(r, Math.max(0, ms)));
+  // Initialize each real client's HTTP stack before the measured schedule.
+  // Warm-up is retained separately and never counted toward the requested RPS.
+  const warmupStart = Date.now();
+  const warmupResponse = await fetch(config.base + '/api/health', { signal: AbortSignal.timeout(5000) });
+  await warmupResponse.arrayBuffer();
+  if (warmupResponse.status !== 200) throw new Error('Client warm-up health check failed');
+  const warmup = { startedAt: warmupStart, completedAt: Date.now(), status: warmupResponse.status };
   async function request(i, scheduledAt, startedAt) {
     const mode = (i + config.index) % 3;
     const path = mode === 2 ? config.paths.single : config.paths.batch;
@@ -101,7 +108,7 @@ async function worker(config) {
   }
   await Promise.all(tasks);
   await wait(config.startAt + config.seconds * 1000 - Date.now());
-  return { name: config.name, ip: config.ip, addresses, scheduled: count, records: records.sort((a, b) => a.sequence - b.sequence) };
+  return { name: config.name, ip: config.ip, addresses, warmup, scheduled: count, records: records.sort((a, b) => a.sequence - b.sequence) };
 }
 
 try {
@@ -146,7 +153,10 @@ try {
     const records = [];
     const workerErrors = [];
     outcomes.forEach((result, index) => {
-      if (result.status === 'fulfilled') records.push(...result.value.records);
+      if (result.status === 'fulfilled') {
+        records.push(...result.value.records);
+        (report.warmups ??= []).push({ rps, client: result.value.name, ...result.value.warmup });
+      }
       else workerErrors.push({ name: clients[index], error: result.reason.message });
     });
     await writeFile(resolve(evidence, `${rps}rps-requests.jsonl`), records.map(x => JSON.stringify(x)).join('\n') + '\n');

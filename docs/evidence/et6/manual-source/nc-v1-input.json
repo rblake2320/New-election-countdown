@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "electionId": 4242404,
+  "status": "unofficial",
+  "reporting": {
+    "percent": 100,
+    "basis": "precincts",
+    "precinctsReporting": 2633,
+    "precinctsTotal": 2633
+  },
+  "source": {
+    "id": "NC",
+    "kind": "admin_manual",
+    "name": "Manual ingest of official North Carolina State Board of Elections raw data",
+    "url": "https://er.ncsbe.gov/enr/20260303/data/results_0.txt",
+    "sourceContestId": "2147"
+  },
+  "sourcePayloadSha256": "a1adde2cbace4018e482d7fdc12297dac32595e7e2a175e0f6fcf87c05e3154c",
+  "asOf": null,
+  "asOfBasis": "not_provided",
+  "retrievedAt": "2026-10-12T04:25:43.651136+00:00",
+  "totalVotes": 827755,
+  "candidates": [
+    {
+      "candidateId": null,
+      "sourceCandidateId": "Roy Cooper",
+      "name": "Roy Cooper",
+      "party": "DEM",
+      "votes": 761345,
+      "percent": 91.98,
+      "isWinner": false
+    },
+    {
+      "candidateId": null,
+      "sourceCandidateId": "Justin E. Dues",
+      "name": "Justin E. Dues",
+      "party": "DEM",
+      "votes": 22295,
+      "percent": 2.69,
+      "isWinner": false
+    },
+    {
+      "candidateId": null,
+      "sourceCandidateId": "Marcus W. Williams",
+      "name": "Marcus W. Williams",
+      "party": "DEM",
+      "votes": 20336,
+      "percent": 2.46,
+      "isWinner": false
+    },
+    {
+      "candidateId": null,
+      "sourceCandidateId": "Daryl Farrow",
+      "name": "Daryl Farrow",
+      "party": "DEM",
+      "votes": 9727,
+      "percent": 1.18,
+      "isWinner": false
+    },
+    {
+      "candidateId": null,
+      "sourceCandidateId": "Orrick Quick",
+      "name": "Orrick Quick",
+      "party": "DEM",
+      "votes": 7275,
+      "percent": 0.88,
+      "isWinner": false
+    },
+    {
+      "candidateId": null,
+      "sourceCandidateId": "Robert Colon",
+      "name": "Robert Colon",
+      "party": "DEM",
+      "votes": 6777,
+      "percent": 0.82,
+      "isWinner": false
+    }
+  ],
+  "winnerCalledBy": null,
+  "certification": null,
+  "supersedesReportId": null,
+  "expectedRevision": null,
+  "idempotencyKey": "sourcepacket:c0b82f9775d41d28bae17b6bba0a00e9ce90dc1355ca9a1b5db5ed3111368e7a",
+  "note": "Identifiers are exact publisher IDs when provided, otherwise exact source printed labels scoped to the source contest; all candidateId null; no winners inferred."
+}
