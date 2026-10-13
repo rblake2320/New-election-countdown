@@ -1,0 +1,69 @@
+{
+  "outcome": "Blocked",
+  "items": [
+    {
+      "scope": "AZ-H08",
+      "attempt": {
+        "requestedUrl": "https://elections.maricopa.gov/candidates/what-is-on-my-ballot.html",
+        "startedAt": "2026-10-13T20:09:37.089242+00:00",
+        "retrievedAt": "2026-10-13T20:09:37.312356+00:00",
+        "client": "native curl default user agent; no browser/CAPTCHA/proxy changes",
+        "exitCode": 0,
+        "status": 403,
+        "url": "https://elections.maricopa.gov/candidates/what-is-on-my-ballot.html",
+        "bytes": 5531,
+        "sha256": "39ae407d9383573c703e9757e1d03b6f0894e18a53c2cf8908f33e823ea8b7ce",
+        "contentType": "text/html; charset=UTF-8",
+        "outcome": "Blocked",
+        "error": null
+      },
+      "reason": "General index native403; existing SOS portal403/authenticated sample restriction remains; no primary or staged zero report promoted."
+    },
+    {
+      "scope": "KY-H03",
+      "attempt": {
+        "requestedUrl": "https://elect.ky.gov/Candidates/Pages/default.aspx",
+        "startedAt": "2026-10-13T20:09:37.312356+00:00",
+        "retrievedAt": "2026-10-13T20:09:37.577697+00:00",
+        "client": "native curl default user agent; no browser/CAPTCHA/proxy changes",
+        "exitCode": 0,
+        "status": 403,
+        "url": "https://elect.ky.gov/Candidates/Pages/default.aspx",
+        "bytes": 1484,
+        "sha256": "8bee66e92d7ce7aad46c0121cd955aa7088ec74f21f46c5645576edf88dc7e0b",
+        "contentType": "text/html",
+        "outcome": "Blocked",
+        "error": null
+      },
+      "reason": "Independent statewide SBE candidate index403. Existing accessible SOS General filings lack qualified/certified/printed field. Jefferson held resource not accessed."
+    },
+    {
+      "scope": "AZ-H02 alternative Graham General HTML",
+      "attempt": {
+        "requestedUrl": "https://www.graham.az.gov/498/Candidates-Propositions",
+        "startedAt": "2026-10-13T20:07:47.219607+00:00",
+        "retrievedAt": "2026-10-13T20:07:47.700166+00:00",
+        "client": "native curl default user agent; no browser/CAPTCHA/proxy changes",
+        "exitCode": 0,
+        "status": 403,
+        "url": "https://www.graham.az.gov/498/Candidates-Propositions",
+        "bytes": 5435,
+        "sha256": "226c1e965e90780f0dc6ac9bed30097821c433b024924e0713799f7e95b568bd",
+        "contentType": "text/html; charset=UTF-8",
+        "outcome": "Blocked",
+        "error": null
+      },
+      "webRead": {
+        "url": "https://www.graham.az.gov/498/Candidates-Propositions",
+        "actualHeading": "2026 GENERAL - NOVEMBER 3RD / GENERAL BALLOT SECTION ONE",
+        "actualH02Rows": [
+          "REP CRANE, ELI",
+          "DEM NEZ, JONATHAN",
+          "LBT GOODWIN, CURTIS"
+        ],
+        "documentSha256": null
+      },
+      "reason": "Web tool actual read works; native403. No byte-captured document or import admission claimed."
+    }
+  ]
+}
