@@ -33,3 +33,6 @@ artifacts/source-packet/** -text -whitespace
 tests/fixtures/results-current/** -text -whitespace
 tests/fixtures/qualification/** -text -whitespace
 tests/fixtures/general-roster-506/** -text -whitespace
+
+# Preserve exact recorded browser-wire replay bytes on every checkout.
+/tests/fixtures/browser-wire/*.json -text
