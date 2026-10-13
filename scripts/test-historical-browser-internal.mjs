@@ -5,6 +5,8 @@ import {randomBytes,createHash} from 'node:crypto';
 import {readFile,writeFile,mkdir,cp,readdir,lstat} from 'node:fs/promises';
 import {resolve} from 'node:path';
 const exec=promisify(execFile);
+const mode=process.env.ET6_RECEIVING_MODE??'historical';
+if(!['historical','mixed'].includes(mode))throw Error('Unknown receiving mode');
 const image=process.env.ET6_REPAIRED_IMAGE;
 const builder=process.env.ET6_REPAIRED_BUILDER;
 if(!/^sha256:[a-f0-9]{64}$/.test(image??'')||!/^sha256:[a-f0-9]{64}$/.test(builder??''))throw Error('Immutable repaired app and matching builder required before fixture creation');
@@ -14,7 +16,7 @@ const runId=`${process.pid}-${randomBytes(4).toString('hex')}`,network=`et6-prod
 const hostname=network+'.internal',wrongHostname=network+'-wrong.internal',base='https://'+hostname;
 const names={db:network+'-db',schema:network+'-schema',restore:network+'-restore',app:network+'-app'};
 const label='org.electiontracker.et6-internal';
-const dir=resolve('docs/evidence/et6/historical-browser-internal',runId);await mkdir(dir,{recursive:true});
+const dir=resolve('docs/evidence/et6/'+(mode==='mixed'?'mixed-browser-internal':'historical-browser-internal'),runId);await mkdir(dir,{recursive:true});
 const report={outcome:'Running',startedAt:new Date().toISOString(),runId,image,builder,network,names,scope:'New disposable internal Docker network, no host ports; source-only pinned copy and synthetic auth',checks:[],cleanup:[]};
 const save=()=>writeFile(resolve(dir,'receipt.json'),JSON.stringify(report,null,2));
 const check=(name,ok)=>{report.checks.push({name,worked:!!ok});if(!ok)throw Error(name);};
@@ -37,10 +39,10 @@ try{
  const suppliedBundle=process.env.ET6_BROWSER_BUNDLE;if(!suppliedBundle)throw Error('Frozen B bundle required');
  const bundle=resolve(dir,'bundle');await cp(resolve(suppliedBundle),bundle,{recursive:true});
  const sums=await readFile(resolve(bundle,'SHA256SUMS'),'utf8');
- check('final reviewed B manifest',createHash('sha256').update(sums).digest('hex')==='45d6f411a1182952a7a45f19989782bb16f809784decdd4f564db3387bd18a82');
+ check('final reviewed B manifest',createHash('sha256').update(sums).digest('hex')===(mode==='mixed'?'1fa95eabe4323c86e1e4740661093edb8407baf88a96929eed0d6aa1fff8077a':'45d6f411a1182952a7a45f19989782bb16f809784decdd4f564db3387bd18a82'));
  const listed=new Set();for(const line of sums.trim().split(/\r?\n/)){const m=line.match(/^([a-f0-9]{64})\s+\*?(.+)$/);if(!m||m[2].includes('..')||m[2].includes(':')||m[2].startsWith('/')||m[2].startsWith('\\')||listed.has(m[2].replace(/^\.\//,'')))throw Error('Invalid bundle manifest');listed.add(m[2].replace(/^\.\//,''));check('bundle '+m[2],createHash('sha256').update(await readFile(resolve(bundle,m[2]))).digest('hex')===m[1]);}
  async function inventory(root,prefix=''){const paths=[];for(const f of await readdir(resolve(root,prefix))){const rel=(prefix?prefix+'/':'')+f;const st=await lstat(resolve(root,rel));if(st.isSymbolicLink())throw Error('Fixture files cannot be symlinks');if(st.isDirectory())paths.push(...await inventory(root,rel));else paths.push(rel);}return paths;}
- check('full B package manifest',listed.size===176&&(await inventory(bundle)).filter(p=>p!=='SHA256SUMS').every(p=>listed.has(p))&&listed.has('historical_admin_74.cjs')&&listed.has('node_modules/playwright/package.json')&&listed.has('node_modules/playwright-core/package.json'));
+ check('full B package manifest',listed.size===176&&(await inventory(bundle)).filter(p=>p!=='SHA256SUMS').every(p=>listed.has(p))&&listed.has(mode==='mixed'?'mixed_happening_now.cjs':'historical_admin_74.cjs')&&listed.has('node_modules/playwright/package.json')&&listed.has('node_modules/playwright-core/package.json'));
  const prep=resolve(dir,'tls-prep');await cp(resolve('docs/evidence/et6/internal-tls-prep'),prep,{recursive:true});
  report.prepHashes={};for(const p of await inventory(prep))report.prepHashes[p]=createHash('sha256').update(await readFile(resolve(prep,p))).digest('hex');
  report.bundleManifestSha256=createHash('sha256').update(sums).digest('hex');report.browserImage=browserImage;report.proxyImage=proxyImage;report.base=base;
@@ -70,7 +72,7 @@ try{
  await run("import pg from 'pg';const p=new pg.Pool({connectionString:process.env.DATABASE_URL});try{const r=await p.query(\"UPDATE users SET role='admin' WHERE email='et6-admin@example.test' RETURNING id\");if(r.rowCount!==1)throw Error('fixture account mismatch');}finally{await p.end();}");
  await docker('exec',names.app,'mkdir','-p','/tmp/et6-manual');
  for(const state of ['nc','la'])await docker('cp',resolve('artifacts/source-packet',state+'-manual'),names.app+':/tmp/et6-manual/');
- report.seed=await receivingScript('scripts/seed-historical-internal.mjs','historical-posts.json');
+ if(mode==='historical')report.seed=await receivingScript('scripts/seed-historical-internal.mjs','historical-posts.json');
  const proxy=network+'-tls';
  const caddy=resolve(dir,'Caddyfile');
  await writeFile(caddy,`{
@@ -109,7 +111,10 @@ https://${hostname} {
  const protectedRows=String.raw`import pg from 'pg';import{createHash}from'node:crypto';const p=new pg.Pool({connectionString:process.env.DATABASE_URL});try{const ts=(await p.query("SELECT tablename FROM pg_tables WHERE schemaname='public' AND (tablename LIKE '%result%' OR tablename='candidates') ORDER BY tablename")).rows;const result={};for(const {tablename:t}of ts){if(!/^[a-z_]+$/.test(t))throw Error('table guard');const rows=(await p.query('SELECT to_jsonb(t) row FROM public."'+t+'" t ORDER BY to_jsonb(t)::text')).rows;result[t]={count:rows.length,sha256:createHash('sha256').update(JSON.stringify(rows)).digest('hex')};}console.log(JSON.stringify(result));}finally{await p.end();}`;
  report.protectedBefore=JSON.parse(await run(protectedRows));
  report.browsers=[];
- for(const engine of ['chromium','firefox','webkit'])for(const width of [1280,390]){
+ if(mode==='mixed'){
+  const {runMixedBrowserStage}=await import('./run-mixed-browser-stage.mjs');
+  await runMixedBrowserStage({docker,exec,env,names,network,label,runId,dir,bundle,prep,caFile,browserImage,base,check,save,report});
+ }else for(const engine of ['chromium','firefox','webkit'])for(const width of [1280,390]){
   const outDir=resolve(dir,engine+'-'+width);await mkdir(outDir,{recursive:true});
   env.BASE=base;env.ADMIN_PASSWORD=fixture;env.OUT='/out';env.BROWSER=engine;env.WIDTH=String(width);
   const args=['run','--rm','--init','--name',network+'-browser','--label',`${label}=${runId}`,'--network',network,'--shm-size=1g','-v',bundle+':/harness:ro','-v',prep+':/prep:ro','-v',caFile+':/run/et6-ca/root.crt:ro','-v',outDir+':/out','-e','BASE','-e','ADMIN_PASSWORD','-e','OUT','-e','BROWSER','-e','WIDTH',browserImage,'sh','-c','sh /prep/prepare-trust.sh && runuser -u pwuser -- env HOME=/home/pwuser NODE_EXTRA_CA_CERTS=/run/et6-ca/root.crt FIREFOX_PROFILE_DIR=/tmp/et6-firefox-profile node /harness/historical_admin_74.cjs'];
@@ -134,7 +139,7 @@ https://${hostname} {
 finally{
  for(const name of [network+'-tls',names.app]){try{await writeFile(resolve(dir,name.endsWith('-tls')?'proxy.log':'app.log'),await docker('logs','--tail','160',name));}catch{/* Preserve original failure if a container was never created. */}}
  // Exact generated names and independent ownership checks; never selects existing5094.
- for(const name of [network+'-browser',network+'-tls',names.schema,names.app,names.restore,names.db]){
+ for(const name of [network+'-browser',...['firefox','webkit'].flatMap(engine=>[1280,390].map(width=>`${network}-browser-${engine}-${width}`)),network+'-tls',names.schema,names.app,names.restore,names.db]){
   try{const existing=(await docker('container','ls','-a','--format','{{.Names}}')).split(/\r?\n/);if(!existing.includes(name)){report.cleanup.push({name,outcome:'absent'});continue;}
    if(!name.startsWith(network+'-')||await docker('inspect','--format',`{{index .Config.Labels "${label}"}}`,name)!==runId)throw Error('ownership mismatch');
    await docker('rm','-f',name);report.cleanup.push({name,outcome:'removed'});
