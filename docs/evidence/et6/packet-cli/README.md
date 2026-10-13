@@ -2,7 +2,18 @@
 
 Base source: `94015bb7647415c43f01834d99cf63ced71dc6ab`. Implementation change: add `scripts/parse_official_source_packet.ts` to the existing esbuild entrypoints. All existing build semantics and the canonical CLI remain unchanged. The ESM direct-execution guard runs when invoked as `node dist/parse_official_source_packet.js`.
 
-## Actual packaged checks
+## Requested shipped WA Lands initial/recount packets
+
+Both actual production-image paths were executed successfully without mounting any packet/raw-source directory. Only target metadata (`wa-lands-target.json`, extracted from the reviewed targetBinding) was mounted read-only. Canonical emitted CLI, no alternative parser:
+
+- `/app/data/official-results/live/replay/wa/initial.packet.json`, SHA256 `c829680c33da6d5e1eb8a4caf1b3ac489d2906d5284aade91d1bf24bea747660`: Worked / dry_run_only / exit 0, **1,903,073 votes, 8 options**.
+- `/app/data/official-results/live/replay/wa/recount.packet.json`, SHA256 `637e7671bc1cbc71c859e160aac2393c26a646342f9c81f292be0d838066bff2`: Worked / dry_run_only / exit 0, **1,903,115 votes, 8 options**.
+
+Raw outputs: `wa-lands-initial-production.json`, `wa-lands-recount-production.json`; exits in corresponding `wa-lands-*-exit.txt`. Same production image ID as images.txt. Invocation for each used `docker run --rm --mount type=bind,source=<wa-lands-target.json>,target=/input/target.json,readonly electiontracker:et6-d-packet-cli node dist/parse_official_source_packet.js --packet <absolute packaged path above> --sha256 <digest above> --target /input/target.json`.
+
+The earlier WA Senate checks below are retained as an additional, different-contest check; they were not the requested shipped Lands replay packets.
+
+## Additional WA Senate packaging checks
 
 | Scenario | Observed outcome | Evidence |
 | --- | --- | --- |
