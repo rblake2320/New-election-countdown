@@ -1,0 +1,175 @@
+{
+  "pin": "1e62e1a",
+  "mode": "source handlers with isolated synthetic provider; no network or database",
+  "worked": true,
+  "checks": [
+    {
+      "name": "no-config",
+      "path": "/api/geocode",
+      "status": 503,
+      "worked": true
+    },
+    {
+      "name": "no-config",
+      "path": "/api/reverse-geocode",
+      "status": 503,
+      "worked": true
+    },
+    {
+      "name": "no-config",
+      "path": "/api/validate-address",
+      "status": 503,
+      "worked": true
+    },
+    {
+      "name": "no-config",
+      "path": "/api/elections-by-location",
+      "status": 503,
+      "worked": true
+    },
+    {
+      "name": "transport",
+      "path": "/api/geocode",
+      "status": 503,
+      "worked": true
+    },
+    {
+      "name": "transport",
+      "path": "/api/reverse-geocode",
+      "status": 503,
+      "worked": true
+    },
+    {
+      "name": "transport",
+      "path": "/api/validate-address",
+      "status": 503,
+      "worked": true
+    },
+    {
+      "name": "transport",
+      "path": "/api/elections-by-location",
+      "status": 503,
+      "worked": true
+    },
+    {
+      "name": "HTTP429",
+      "path": "/api/geocode",
+      "status": 503,
+      "worked": true
+    },
+    {
+      "name": "HTTP429",
+      "path": "/api/reverse-geocode",
+      "status": 503,
+      "worked": true
+    },
+    {
+      "name": "HTTP429",
+      "path": "/api/validate-address",
+      "status": 503,
+      "worked": true
+    },
+    {
+      "name": "HTTP429",
+      "path": "/api/elections-by-location",
+      "status": 503,
+      "worked": true
+    },
+    {
+      "name": "JSON403",
+      "path": "/api/geocode",
+      "status": 503,
+      "worked": true
+    },
+    {
+      "name": "JSON403",
+      "path": "/api/reverse-geocode",
+      "status": 503,
+      "worked": true
+    },
+    {
+      "name": "JSON403",
+      "path": "/api/validate-address",
+      "status": 503,
+      "worked": true
+    },
+    {
+      "name": "JSON403",
+      "path": "/api/elections-by-location",
+      "status": 503,
+      "worked": true
+    },
+    {
+      "name": "malformed",
+      "path": "/api/geocode",
+      "status": 503,
+      "worked": true
+    },
+    {
+      "name": "malformed",
+      "path": "/api/reverse-geocode",
+      "status": 503,
+      "worked": true
+    },
+    {
+      "name": "malformed",
+      "path": "/api/validate-address",
+      "status": 503,
+      "worked": true
+    },
+    {
+      "name": "malformed",
+      "path": "/api/elections-by-location",
+      "status": 503,
+      "worked": true
+    },
+    {
+      "name": "input400",
+      "path": "/api/geocode",
+      "status": 400,
+      "worked": true
+    },
+    {
+      "name": "input400",
+      "path": "/api/reverse-geocode",
+      "status": 400,
+      "worked": true
+    },
+    {
+      "name": "input400",
+      "path": "/api/validate-address",
+      "status": 400,
+      "worked": true
+    },
+    {
+      "name": "input400",
+      "path": "/api/elections-by-location",
+      "status": 400,
+      "worked": true
+    },
+    {
+      "name": "no-match",
+      "path": "/api/geocode",
+      "status": 404,
+      "worked": true
+    },
+    {
+      "name": "no-match",
+      "path": "/api/reverse-geocode",
+      "status": 404,
+      "worked": true
+    },
+    {
+      "name": "no-match",
+      "path": "/api/validate-address",
+      "status": 200,
+      "worked": true
+    },
+    {
+      "name": "no-match",
+      "path": "/api/elections-by-location",
+      "status": 400,
+      "worked": true
+    }
+  ]
+}

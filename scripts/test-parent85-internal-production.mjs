@@ -5,8 +5,8 @@ import {randomBytes,createHash} from 'node:crypto';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {resolve} from 'node:path';
 const exec=promisify(execFile);
-const image='sha256:e8c035c8d475cd86062a4aa94166afaf26ee1f796e63792622a0c37047ca43d6';
-const builder='sha256:f844f5658c95d5d79abc472be877e86dfca1c894a114a28c1fb7363c3c0b1c92';
+const image='sha256:7129b0452bce956e21d07266db649a66c2502106b8705c01853f1b67464da1c2';
+const builder='sha256:47a73be6f6faeb9693308805c85acb721b673d7e261863f7534acb8251ebf3b0';
 const runId=`${process.pid}-${randomBytes(4).toString('hex')}`,network=`et6-prod-${runId}`;
 const names={db:network+'-db',schema:network+'-schema',restore:network+'-restore',app:network+'-app'};
 const label='org.electiontracker.et6-internal';
@@ -54,6 +54,7 @@ try{
  report.receiving=await receivingScript('scripts/receive-parent85-production.mjs','receiving.json');
  check('actual parent HTTP/JWT/PG receiving',report.receiving.outcome==='Worked'&&report.receiving.fixtureCleanup===true);
  if(process.env.ET6_PUBLIC_LIST_RECEIVING==='1')report.publicLists=await receivingScript('scripts/receive-public-lists-internal.mjs','public-lists.json');
+ if(process.env.ET6_PUBLIC_LIST_RECEIVING==='1')report.freshness=await receivingScript('scripts/receive-candidate-freshness-internal.mjs','candidate-freshness.json');
  const sourceCheck=String.raw`import pg from 'pg';import{createHash}from'node:crypto';const p=new pg.Pool({connectionString:process.env.DATABASE_URL});const tables=['elections','candidates','candidate_source_records','general_candidate_list_snapshots','candidate_ingest_runs','election_catalog_correction_runs','official_results_sync_runs'];function canon(v){if(Array.isArray(v))return '['+v.map(canon).join(',')+']';if(v!==null&&typeof v==='object')return '{'+Object.entries(v).sort(([a],[b])=>a<b?-1:a>b?1:0).map(([k,x])=>JSON.stringify(k)+':'+canon(x)).join(',')+'}';return JSON.stringify(v);}try{const values={};for(const t of tables)values[t]=(await p.query('SELECT to_jsonb(t) AS row FROM public."'+t+'" t ORDER BY t.id')).rows.map(x=>x.row);console.log(JSON.stringify({sha256:createHash('sha256').update(canon(values)).digest('hex'),counts:Object.fromEntries(tables.map(t=>[t,values[t].length]))}));}finally{await p.end();}`;
  report.sourceAfter=JSON.parse(await run(sourceCheck));check('all seven source tables unchanged after runtime receiving',report.sourceAfter.sha256==='99d76b1c02ac17d106aa3534e43493d70f8f5e3095cbe75e5127c896584be673');
  report.outcome='Worked';

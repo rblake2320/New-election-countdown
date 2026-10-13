@@ -16,7 +16,8 @@ try{
  const counts=out.before[2].body;
  check('counts match independent SQL normalized aliases',counts.total===grouped.reduce((n,r)=>n+r.n,0)&&['Primary','General','Special'].every(k=>counts.byType[k]===(expected[k.toLowerCase()]??0)));
  out.invalidWindow=await read('/api/elections/missing-candidates?window=abc');check('invalid window400',out.invalidWindow.status===400);
- out.location=await read('/api/elections-by-location?address=Raleigh%2C%20NC');check('missing geocoder is503 rather than invalid address400',out.location.status===503);
+ out.location=await read('/api/elections-by-location?address=Raleigh%2C%20NC');check('missing geocoder is503 rather than invalid address400',out.location.status===503&&out.location.body.code==='geocoder_unavailable');
+ out.geocoder=[];for(const path of ['/api/geocode?address=Raleigh%2C%20NC','/api/reverse-geocode?lat=35.78&lng=-78.64','/api/validate-address?address=Raleigh%2C%20NC']){const r=await read(path);out.geocoder.push(r);check('configuration typed503 '+path,r.status===503&&r.body.code==='geocoder_unavailable');}
  out.empty=await read('/api/elections?search=ET6_NO_SUCH_RACE_74b95c29');check('legitimate empty filter200',out.empty.status===200&&Array.isArray(out.empty.body)&&out.empty.body.length===0);
  await pool.query('ALTER TABLE public.elections RENAME TO et6_fault_elections');renamed=true;
  out.failed=[];for(const path of paths){const r=await read(path);out.failed.push(r);check('missing relation typed503 '+path,r.status===503&&r.body.code==='listing_unavailable'&&!Array.isArray(r.body));}
