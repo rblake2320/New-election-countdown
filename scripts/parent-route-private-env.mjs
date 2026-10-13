@@ -1,0 +1,14 @@
+import { readFileSync } from 'node:fs';
+import { parse } from 'dotenv';
+import { randomBytes } from 'node:crypto';
+const env=parse(readFileSync('D:/projects/New-election-countdown/.env'));
+if(!env.DATABASE_URL)throw new Error('Owner database reference missing');
+const url=new URL(env.DATABASE_URL);
+if(!['127.0.0.1','localhost','::1','[::1]'].includes(url.hostname)||Number(url.port||5432)!==5432)throw new Error('Owner database reference is not approved local5432');
+url.hostname='127.0.0.1';url.pathname='/et_sol_data_6c78a3148c6b';
+if(url.pathname!='/et_sol_data_6c78a3148c6b'||url.pathname==='/elections')throw new Error('Private clone target guard refused');
+process.env.DATABASE_URL=url.toString();
+process.env.JWT_SECRET=env.JWT_SECRET?.length>=16?env.JWT_SECRET:process.env.JWT_SECRET?.length>=16?process.env.JWT_SECRET:randomBytes(32).toString('hex');
+process.env.NODE_ENV='production';
+process.env.SESSION_COOKIE_NAME='et.parent.review';
+delete process.env.VOTESMART_API_KEY;
