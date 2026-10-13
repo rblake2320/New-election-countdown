@@ -124,6 +124,10 @@ export class MemStorage implements IStorage {
       .map(election => ({ ...election, ...projectOfficialResultsForElection(election), candidateCount: counts.get(election.id) ?? 0 }));
   }
 
+  getElectionsStrict(filters: ElectionQueryFilters = {}): Promise<ElectionListing[]> {
+    return this.getElections(filters);
+  }
+
   async getElection(id: number): Promise<Election | undefined> {
     const election = this.elections.get(id);
     return election ? { ...election, ...projectOfficialResultsForElection(election) } : undefined;

@@ -85,6 +85,16 @@ describe('v1.3 delta 4: the writer refuses kind/URL tampering against the regist
 });
 
 describe('v1.3 deltas 2/5/6: admitted polling, foreign refusal, lifetime', () => {
+  it('cannot bypass explicit registry constraints through a worked manifest fallback', async () => {
+    resultsSourceRegistry.register({ id: 'nc-exact', kind: 'official_state_enr', name: 'NC', state: 'NC', allowedHosts: ['www.ncsbe.gov'], electionIds: [999], electionDate: '2024-03-05', phase: 'primary' });
+    elections.push({ ...ncPrimary, officialResultsSource: manifest('published', 'nc-exact') });
+    const svc = new ResultsIngestionService(); const adapter = vi.fn(async () => null);
+    svc.registerAdapter('nc-exact', adapter);
+    expect((await svc.coverage()).counts.automatic).toBe(0);
+    await svc.ingestResults();
+    expect(adapter).not.toHaveBeenCalled();
+    expect(recorded).toHaveLength(0);
+  });
   it('polls an admitted source before publication (null → not_published, status never manufactured); blocked route → not_admitted; no manifest+no registry → silent manual-only', async () => {
     elections.push(ncPrimary, akGeneral, blocked, noSource);
     resultsSourceRegistry.register({ id: 'nc-sbe-2024p', kind: 'official_state_enr', name: 'NC SBE', state: 'NC', allowedHosts: ['results.enr.clarityelections.com'], electionDate: '2024-03-05', phase: 'primary' });

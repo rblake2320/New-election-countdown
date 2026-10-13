@@ -10,6 +10,8 @@ import { ArrowLeft, Calendar, MapPin, Users, Trophy, TrendingUp, BarChart3, Eye 
 import { format } from "date-fns";
 import { CountdownTimer } from "@/components/countdown-timer";
 import { GeneralRoster } from "@/components/general-roster";
+import { useGeneralRoster } from "@/hooks/use-general-roster";
+import { candidateCountText, rowQualification } from "@/lib/candidate-qualification";
 import { OfficialResultsLink } from "@/components/official-results-link";
 import { officialResultsLink, type OfficialResultsFields } from "@/lib/official-results";
 import { getElectionTiming, type ElectionTimingInput } from "@/lib/election-timing";
@@ -60,6 +62,8 @@ export default function ElectionDetails() {
   const { data: candidates = [], isLoading: candidatesLoading } = useCandidates(electionId);
 
   const { data: pollingData, isLoading: pollingLoading } = usePollingTrends(electionId, "90");
+  // Same query key as the roster card, so this is one request, not two.
+  const { data: roster } = useGeneralRoster(electionId);
 
   // ET-6 v1.2 results (detail read with history). Polled from election day on.
   const resultsPhase = election ? getElectionTiming(election, new Date(minuteNow)).phase : "upcoming";
@@ -192,7 +196,7 @@ export default function ElectionDetails() {
             </div>
             <div className="flex items-center gap-1">
               <Users className="h-4 w-4" />
-              {candidates.length === 0 ? "Candidates not yet recorded" : `${candidates.length} ${candidates.length === 1 ? "candidate" : "candidates"}`}
+              {candidateCountText(candidates, roster)}
             </div>
           </div>
         </div>
@@ -286,6 +290,11 @@ export default function ElectionDetails() {
                         <p className="text-sm text-gray-600 dark:text-gray-300">
                           {candidate.party}
                         </p>
+                        {rowQualification(candidate, roster) && (
+                          <p className="text-xs text-muted-foreground" data-testid={`qualification-${candidate.id}`}>
+                            {rowQualification(candidate, roster)}
+                          </p>
+                        )}
                       </div>
                       {candidate.isIncumbent && (
                         <Badge variant="secondary">Incumbent</Badge>
@@ -356,6 +365,7 @@ export default function ElectionDetails() {
                 key={candidate.id}
                 candidate={candidate}
                 onClick={handleCandidateClick}
+                qualification={rowQualification(candidate, roster)}
               />
             ))}
           </div>

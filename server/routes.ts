@@ -15,6 +15,7 @@ import { registerResultsRoutes } from "./results-routes";
 import { registerResultsCoverageRoute } from "./results-coverage-routes";
 import { setupAuth, isAuthenticated } from "./auth";
 import { requireAdmin } from "./middleware/require-admin";
+import { adminElectionLookupHandler } from "./admin-election-lookup";
 import { verifySendGridWebhook, verifyTwilioWebhook } from "./webhook-verify";
 import { deliveryTrackingService } from "./services/delivery-tracking-service";
 import { mapQuestService } from "./mapquest-service";
@@ -405,6 +406,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to validate elections" });
     }
   });
+
+  // Admin historical race lookup (corrections / late certification); the public list keeps its 30-day window.
+  app.get("/api/admin/elections", ...adminOnly, adminElectionLookupHandler(storage));
 
   // Get elections with optional filters (with security validation)
   app.get("/api/elections", searchLimiter, validateInput, electionListHandler(storage));

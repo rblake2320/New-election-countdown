@@ -869,6 +869,12 @@ export class StorageFactory {
     return this.currentStorage.getElections(filters);
   }
 
+  async getElectionsStrict(filters?: ElectionQueryFilters): Promise<ElectionListing[]> {
+    // Degraded mode serves an empty cache, which an admin lookup must not present as "no such race".
+    if (this.currentStorage === this.memoryStorage) throw new Error('database unavailable (degraded in-memory storage)');
+    return this.currentStorage.getElectionsStrict(filters);
+  }
+
   async getElection(id: number): Promise<Election | undefined> {
     return this.currentStorage.getElection(id);
   }
