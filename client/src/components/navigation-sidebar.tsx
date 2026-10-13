@@ -96,12 +96,6 @@ const navigationSections = [
         icon: BarChart3, 
         tooltip: "Administrative interface for managing congressional data, member information, and legislative tracking"
       },
-      { 
-        label: "Global Observatory", 
-        path: "/global", 
-        icon: Globe, 
-        tooltip: "Worldwide election monitoring, international democratic processes, and global election calendar"
-      },
     ]
   }
 ];

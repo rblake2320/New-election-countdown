@@ -192,7 +192,7 @@ export default function ElectionDetails() {
             </div>
             <div className="flex items-center gap-1">
               <Users className="h-4 w-4" />
-              {candidates.length} {candidates.length === 1 ? "candidate" : "candidates"}
+              {candidates.length === 0 ? "Candidates not yet recorded" : `${candidates.length} ${candidates.length === 1 ? "candidate" : "candidates"}`}
             </div>
           </div>
         </div>

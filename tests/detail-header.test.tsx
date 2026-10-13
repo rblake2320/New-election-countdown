@@ -44,6 +44,12 @@ describe("election detail header (ET-36)", () => {
     expect(title.nextElementSibling!.className).toMatch(/\bflex-wrap\b/);
   });
 
+  it("a race with no candidates recorded says so instead of \"0 candidates\"", async () => {
+    mount([]);
+    expect(await screen.findByText("Candidates not yet recorded")).toBeTruthy();
+    expect(screen.queryByText(/\b0 candidates/)).toBeNull();
+  });
+
   it("a single candidate is not labelled \"1 candidates\"", async () => {
     mount(candidateRows.slice(0, 1));
     expect(await screen.findByText("1 candidate")).toBeTruthy();
