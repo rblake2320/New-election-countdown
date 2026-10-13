@@ -21,12 +21,18 @@ async function packet(relative: string) {
 }
 const ctx = { postedBy: 'test:packet-sweep', idempotencyKey: null };
 describe('supported real packet host sweep', () => {
-  it('retains LA manifest-only refusal until exact portal delegation is reviewed', async () => {
+  it('accepts actual LA runoff packet with manifest-only shape after exact portal delegation review', async () => {
     const p = await packet('la-manual/packet.json');
     expect(p.input.source.id).toBe('admin_manual:LA');
     expect(p.input.totalVotes).toBe(196212);
-    await expect(p.store.recordResultReport(p.target.id, p.input, ctx))
-      .rejects.toMatchObject({ status: 422, publicCode: 'unknown_source' });
+    const first = await p.store.recordResultReport(p.target.id, p.input, ctx);
+    expect(first.created).toBe(true);
+    expect(first.payload.totalVotes).toBe(196212);
+    expect(first.payload.candidates).toHaveLength(2);
+    expect(first.payload.source?.url).toBe(p.input.source.url);
+    const repeat = await p.store.recordResultReport(p.target.id, p.input, ctx);
+    expect(repeat.created).toBe(false);
+    expect(repeat.payload.revision).toBe(first.payload.revision);
   });
   it('keeps existing LA live-registered host admission working for the actual manual packet', async () => {
     const p = await packet('la-manual/packet.json');
@@ -34,9 +40,15 @@ describe('supported real packet host sweep', () => {
       allowedUrls: [p.input.source.url], electionDate: '2026-11-03', phase: 'primary', electionIds: [429] });
     expect((await p.store.recordResultReport(p.target.id, p.input, ctx)).created).toBe(true);
   });
-  it.each(['https://sub.voterportal.sos.la.gov/results', 'https://voterportal.sos.la.gov.evil.example/results'])('refuses LA adjacent host %s', async url => {
+  it.each(['https://sub.voterportal.sos.la.gov/results', 'https://voterportal.sos.la.gov.evil.example/results',
+    'https://voterportal.sos.la.gov:444/results', 'https://er.ncsbe.gov/results'])('refuses LA adjacent or foreign-state host %s', async url => {
     const p = await packet('la-manual/packet.json');
     await expect(p.store.recordResultReport(p.target.id, { ...p.input, source: { ...p.input.source, url } }, ctx))
+      .rejects.toMatchObject({ status: 422, publicCode: 'unknown_source' });
+  });
+  it('refuses a foreign manual source ID on the actual LA race', async () => {
+    const p = await packet('la-manual/packet.json');
+    await expect(p.store.recordResultReport(p.target.id, { ...p.input, source: { ...p.input.source, id: 'admin_manual:NC' } }, ctx))
       .rejects.toMatchObject({ status: 422, publicCode: 'unknown_source' });
   });
   it.each(['wa/initial.packet.json', 'wa/recount.packet.json', 'wa-senate/packet.json', 'ca/packet.json'])('preserves actual registered source path %s', async relative => {
