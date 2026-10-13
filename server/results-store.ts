@@ -139,7 +139,9 @@ function buildSources(rows: ManifestSourceRow[], states: string[], filterState?:
 /** The writer's source rule (v1.3): the id must be registered for the election's state (registry or manifest) AND the
  *  report's kind/URL must match that registration, so a caller cannot relabel a kind or point at a foreign URL to evade
  *  evidence rules. admin_manual URLs must sit on a registered official host when the state has any. */
-function assertSourceRegistered(input: ResultReportInput, state: string, manifestForState: ManifestSourceRow[]): void {
+/** The race the report is being recorded against; the registry admission (date/phase/election ids) is checked here, not only in polling. */
+export interface SourceRace { id: number; date: Date | string | null; type: string }
+function assertSourceRegistered(input: ResultReportInput, state: string, manifestForState: ManifestSourceRow[], race: SourceRace): void {
   const src = input.source;
   if (src.kind === 'admin_manual') {
     if (src.id !== adminManualSourceId(state)) throw new ResultReportError(422, 'unknown_source', `admin_manual source id must be ${adminManualSourceId(state)}`);
@@ -156,6 +158,9 @@ function assertSourceRegistered(input: ResultReportInput, state: string, manifes
   const reg = resultsSourceRegistry.get(src.id);
   if (reg) {
     if (reg.state !== state) throw new ResultReportError(422, 'unknown_source', `source id ${src.id} is registered for ${reg.state}, not ${state}`);
+    // Delta 1/4 at the writer boundary: a source registered for one election day/phase (or explicit ids) is not admitted into another race.
+    const admitted = resultsSourceRegistry.admittedFor({ id: race.id, state, date: race.date ?? '', type: race.type }).some((r) => r.id === reg.id);
+    if (!admitted) throw new ResultReportError(422, 'source_mismatch', `source ${src.id} is registered for ${reg.electionDate ?? 'explicit elections'}${reg.phase ? ' ' + reg.phase : ''}, not for election ${race.id}`, { registeredFor: { electionDate: reg.electionDate ?? null, phase: reg.phase ?? null, electionIds: reg.electionIds ?? [] } });
     const problem = resultsSourceRegistry.mismatch(src);
     if (problem) throw new ResultReportError(422, 'source_mismatch', `source ${src.id}: ${problem}`);
     return;
@@ -257,7 +262,7 @@ export class PgResultReportStore implements ResultReportStore {
       assertNotFuture(input);
       assertNotPreElection(input, election.rows[0].date);
       const context = electionContextOf(election.rows[0]);
-      assertSourceRegistered(input, election.rows[0].state, await this.manifestRows(client, election.rows[0].state));
+      assertSourceRegistered(input, election.rows[0].state, await this.manifestRows(client, election.rows[0].state), { id: electionId, date: election.rows[0].date, type: election.rows[0].type });
       if (EVIDENCE_REQUIRED_KINDS.has(input.source.kind) || input.status === 'certified') {
         const ev = await client.query('SELECT 1 FROM result_evidence_blobs WHERE sha256 = $1', [input.sourcePayloadSha256]);
         if (ev.rowCount === 0) throw new ResultReportError(422, 'evidence_missing', 'sourcePayloadSha256 does not reference retained evidence; upload it first (POST /api/admin/results-evidence)');
@@ -469,8 +474,9 @@ export class MemResultReportStore implements ResultReportStore {
     assertNotFuture(input);
     const date = this.electionDate(electionId);
     if (date) assertNotPreElection(input, date);
-    const state = this.currentContext(electionId).state;
-    assertSourceRegistered(input, state, this.manifest().filter((m) => m.state === state));
+    const current = this.currentContext(electionId);
+    const state = current.state;
+    assertSourceRegistered(input, state, this.manifest().filter((m) => m.state === state), { id: electionId, date: date ?? null, type: current.type });
     if ((EVIDENCE_REQUIRED_KINDS.has(input.source.kind) || input.status === 'certified') && !this.evidence.has(input.sourcePayloadSha256)) {
       throw new ResultReportError(422, 'evidence_missing', 'sourcePayloadSha256 does not reference retained evidence; upload it first (POST /api/admin/results-evidence)');
     }
