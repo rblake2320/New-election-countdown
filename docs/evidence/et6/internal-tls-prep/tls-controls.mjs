@@ -125,7 +125,8 @@ try {
   const leaf = new X509Certificate(await readFile('/run/et6-ca/leaf.crt'));
   const from = Date.parse(leaf.validFrom), to = Date.parse(leaf.validTo), now = Date.now();
   receipt.publicLeaf = { fingerprint256: leaf.fingerprint256, subjectAltName: leaf.subjectAltName, validFrom: leaf.validFrom, validTo: leaf.validTo, keyUsage: leaf.keyUsage };
-  if (leaf.ca || !leaf.checkHost(base.hostname) || leaf.checkHost(wrong.hostname) !== undefined || from > now || to <= now || to - from > 48 * 3600000 || !leaf.keyUsage?.includes('1.3.6.1.5.5.7.3.1'))
+  const hostOptions = { subject: 'never', wildcards: false, partialWildcards: false, multiLabelWildcards: false, singleLabelSubdomains: false };
+  if (leaf.subjectAltName !== 'DNS:' + base.hostname || leaf.ca || leaf.checkHost(base.hostname, hostOptions) !== base.hostname || leaf.checkHost(wrong.hostname, hostOptions) !== undefined || from > now || to <= now || to - from > 48 * 3600000 || !leaf.keyUsage?.includes('1.3.6.1.5.5.7.3.1'))
     throw new Error('Leaf must be current, non-CA, <=48h lifetime, serverAuth, matching BASE SAN and excluding WRONG_BASE');
   receipt.caTrusted = trusted;
   receipt.uid = process.getuid?.();
