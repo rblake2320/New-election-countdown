@@ -1,0 +1,11 @@
+{
+ skip_install_trust
+ fallback_sni et6-prod-148276-47c604fb.internal
+}
+https://et6-prod-148276-47c604fb.internal {
+ tls internal
+ reverse_proxy et6-prod-148276-47c604fb-app:5000
+}
+:443 {
+ reverse_proxy et6-prod-148276-47c604fb-app:5000
+}

@@ -1,0 +1,17 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.3 [39m[90m/app[39m
+
+ [32m✓[39m tests/official-result-adapters/nc-la.test.ts [2m([22m[2m43 tests[22m[2m)[22m[32m 102[2mms[22m[39m
+ [32m✓[39m tests/unit/results-nc-manual-host.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32m✓[39m tests/unit/results-manual-packet-sweep.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 1695[2mms[22m[39m
+   [32m✓[39m supported real packet host sweep [2m(11)[22m
+     [33m[2m✓[22m[39m preserves actual registered source path wa-senate/packet.json[33m 1165[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m63 passed[39m[22m[90m (63)[39m
+[2m   Start at [22m 22:16:30
+[2m   Duration [22m 3.20s[2m (environment 38%, tests 35%, setup 12%, transform 10%, import 4%, worker 1%)[22m
+
+[2m    Isolate [22m [33m3 workers spawned[39m[2m · ~806ms startup each (spawn + environment, per file)[22m
+[2m            [22m [2mat least ~403ms faster with [22m[33misolate: false[39m[2m — reuses workers across files instead of one per file[22m
+

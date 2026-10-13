@@ -1,0 +1,11 @@
+{
+ skip_install_trust
+ auto_https off
+}
+:443 {
+ tls /data/caddy/certificates/local/et6-prod-99008-502c3257.internal/et6-prod-99008-502c3257.internal.crt /data/caddy/certificates/local/et6-prod-99008-502c3257.internal/et6-prod-99008-502c3257.internal.key
+ reverse_proxy et6-prod-99008-502c3257-app:5000 {
+ header_up Host {http.request.host}
+ header_up X-Forwarded-Proto https
+ }
+}

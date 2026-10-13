@@ -1,0 +1,61 @@
+{
+ "playwright": "1.64.0",
+ "engine": "webkit",
+ "width": 1280,
+ "results": [
+  {
+   "name": "public list omits the historical races",
+   "ok": true,
+   "detail": {
+    "publicRows": 507
+   }
+  },
+  {
+   "name": "sign-in answered 2xx",
+   "ok": true,
+   "detail": 200
+  },
+  {
+   "name": "guarded lookup request made (GET) and answered 200",
+   "ok": true,
+   "detail": 200
+  },
+  {
+   "name": "race 4242404 selectable via lookup; report hydrates (revision + every vote count == server)",
+   "ok": true,
+   "detail": {
+    "revision": "r1-7b3789fb",
+    "lines": 6
+   }
+  },
+  {
+   "name": "race 4242405 selectable via lookup; report hydrates (revision + every vote count == server)",
+   "ok": true,
+   "detail": {
+    "revision": "r2-75171b6e",
+    "lines": 2
+   }
+  },
+  {
+   "name": "exactly one login POST, and it was the only non-GET allowed",
+   "ok": true,
+   "detail": 1
+  },
+  {
+   "name": "no mutation attempted after sign-in; only the exact login POST was exempt (rejected count 0)",
+   "ok": true,
+   "detail": 0
+  },
+  {
+   "name": "no page errors",
+   "ok": true,
+   "detail": []
+  },
+  {
+   "name": "every retained cookie is Secure",
+   "ok": true,
+   "detail": 1
+  }
+ ],
+ "failing": 0
+}

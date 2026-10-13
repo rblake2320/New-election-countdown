@@ -19,7 +19,7 @@ const report={outcome:'Running',startedAt:new Date().toISOString(),runId,image,b
 const save=()=>writeFile(resolve(dir,'receipt.json'),JSON.stringify(report,null,2));
 const check=(name,ok)=>{report.checks.push({name,worked:!!ok});if(!ok)throw Error(name);};
 const password=randomBytes(24).toString('hex'),jwt=randomBytes(32).toString('hex'),fixture=randomBytes(24).toString('hex');
-const env={...process.env,APP_ORIGIN:base,APP_URL:base,POSTGRES_USER:'et6_receiving',POSTGRES_DB:'et6_receiving',POSTGRES_PASSWORD:password,DATABASE_URL:`postgresql://et6_receiving:${password}@${names.db}:5432/et6_receiving`,JWT_SECRET:jwt,CANDIDATE_JWT_SECRET:jwt,ET6_FIXTURE_PASSWORD:fixture,ET6_EXPECTED_DB_HOST:names.db,OFFICIAL_RESULTS_NETWORK_ENABLED:'false'};
+const env={...process.env,APP_ORIGIN:base,APP_URL:base,POSTGRES_USER:'et6_receiving',POSTGRES_DB:'et6_receiving',POSTGRES_PASSWORD:password,DATABASE_URL:`postgresql://et6_receiving:${password}@${names.db}:5432/et6_receiving`,JWT_SECRET:jwt,CANDIDATE_JWT_SECRET:jwt,ET6_FIXTURE_PASSWORD:fixture,ET6_EXPECTED_DB_HOST:names.db,OFFICIAL_RESULTS_NETWORK_ENABLED:process.env.ET6_NETWORK_MODE??'true'};
 async function docker(...args){try{return(await exec('docker',args,{env,timeout:300000,maxBuffer:12*1024*1024})).stdout.trim();}catch(e){throw Error(`Docker ${args[0]} failed (${e.code??'unknown'}); no credential output retained`);}}
 const own=['--label',`${label}=${runId}`,'--network',network];
 const run=code=>docker('exec',names.app,'node','--input-type=module','-e',code);
@@ -32,12 +32,13 @@ async function receivingScript(file,receiptName){
 const pause=()=>new Promise(r=>setTimeout(r,1000));
 await save();
 try{
+ check('network mode declared', ['true','false'].includes(env.OFFICIAL_RESULTS_NETWORK_ENABLED));report.officialNetworkMode=env.OFFICIAL_RESULTS_NETWORK_ENABLED;
  check('TLS orchestration reviewed before creation',process.env.ET6_TLS_TRUST_READY==='reviewed');
  const suppliedBundle=process.env.ET6_BROWSER_BUNDLE;if(!suppliedBundle)throw Error('Frozen B bundle required');
  const bundle=resolve(dir,'bundle');await cp(resolve(suppliedBundle),bundle,{recursive:true});
  const sums=await readFile(resolve(bundle,'SHA256SUMS'),'utf8');
  check('final reviewed B manifest',createHash('sha256').update(sums).digest('hex')==='45d6f411a1182952a7a45f19989782bb16f809784decdd4f564db3387bd18a82');
- const listed=new Set();for(const line of sums.trim().split(/\r?\n/)){const m=line.match(/^([a-f0-9]{64})\s+\*?(.+)$/);if(!m||m[2].includes('..')||m[2].includes(':')||m[2].startsWith('/')||m[2].startsWith('\\')||listed.has(m[2]))throw Error('Invalid bundle manifest');listed.add(m[2]);check('bundle '+m[2],createHash('sha256').update(await readFile(resolve(bundle,m[2]))).digest('hex')===m[1]);}
+ const listed=new Set();for(const line of sums.trim().split(/\r?\n/)){const m=line.match(/^([a-f0-9]{64})\s+\*?(.+)$/);if(!m||m[2].includes('..')||m[2].includes(':')||m[2].startsWith('/')||m[2].startsWith('\\')||listed.has(m[2].replace(/^\.\//,'')))throw Error('Invalid bundle manifest');listed.add(m[2].replace(/^\.\//,''));check('bundle '+m[2],createHash('sha256').update(await readFile(resolve(bundle,m[2]))).digest('hex')===m[1]);}
  async function inventory(root,prefix=''){const paths=[];for(const f of await readdir(resolve(root,prefix))){const rel=(prefix?prefix+'/':'')+f;const st=await lstat(resolve(root,rel));if(st.isSymbolicLink())throw Error('Fixture files cannot be symlinks');if(st.isDirectory())paths.push(...await inventory(root,rel));else paths.push(rel);}return paths;}
  check('full B package manifest',listed.size===176&&(await inventory(bundle)).filter(p=>p!=='SHA256SUMS').every(p=>listed.has(p))&&listed.has('historical_admin_74.cjs')&&listed.has('node_modules/playwright/package.json')&&listed.has('node_modules/playwright-core/package.json'));
  const prep=resolve(dir,'tls-prep');await cp(resolve('docs/evidence/et6/internal-tls-prep'),prep,{recursive:true});
@@ -74,23 +75,25 @@ try{
  const caddy=resolve(dir,'Caddyfile');
  await writeFile(caddy,`{
  skip_install_trust
+ fallback_sni ${hostname}
 }
 https://${hostname} {
  tls internal
  reverse_proxy ${names.app}:5000
 }
+:443 {
+ reverse_proxy ${names.app}:5000
+}
 `);
  await docker('run','-d','--name',proxy,...own,'--network-alias',hostname,'--network-alias',wrongHostname,'--tmpfs','/data','--tmpfs','/config','-v',dir+':/et6-config:ro',proxyImage,'caddy','run','--config','/et6-config/Caddyfile');
  const caFile=resolve(dir,'fixture-ca.crt');
- let caReady=false;for(let i=0;i<20;i++){try{await docker('cp',proxy+':/data/caddy/pki/authorities/local/root.crt',caFile);caReady=true;break;}catch{await pause();}}check('ephemeral proxy CA ready',caReady);
+ let caReady=false;for(let i=0;i<20;i++){try{await writeFile(caFile,await docker('exec',proxy,'cat','/data/caddy/pki/authorities/local/root.crt'));caReady=true;break;}catch{await pause();}}check('ephemeral proxy CA ready',caReady);
  check('proxy has no host ports',['{}','null'].includes(await docker('inspect','--format','{{json .HostConfig.PortBindings}}',proxy)));
- // Freeze the generated leaf for BOTH DNS aliases: the negative control must
+ // Pin the generated leaf for BOTH DNS aliases: the negative control must
  // reach this exact certificate and fail hostname validation, not DNS/SNI routing.
  const leaf='/data/caddy/certificates/local/'+hostname+'/'+hostname;
  let leafReady=false;for(let i=0;i<30;i++){try{await docker('exec',proxy,'test','-s',leaf+'.crt');leafReady=true;break;}catch{await pause();}}check('exact generated leaf ready',leafReady);
- await writeFile(resolve(dir,'Caddyfile-static'),`{\n skip_install_trust\n auto_https off\n}\n:443 {\n tls ${leaf}.crt ${leaf}.key\n reverse_proxy ${names.app}:5000 {\n header_up Host {http.request.host}\n header_up X-Forwarded-Proto https\n }\n}\n`);
- await docker('exec',proxy,'caddy','reload','--config','/et6-config/Caddyfile-static');
- await docker('cp',proxy+':'+leaf+'.crt',resolve(dir,'fixture-leaf.crt'));
+ await writeFile(resolve(dir,'fixture-leaf.crt'),await docker('exec',proxy,'cat',leaf+'.crt'));
  env.BASE=base;env.WRONG_BASE='https://'+wrongHostname;
  env.UPSTREAM='http://'+names.app+':5000';
  report.tlsControls=[];
@@ -129,6 +132,7 @@ https://${hostname} {
  report.outcome='Worked';
 }catch(e){report.outcome='Failed';report.error=e.message;process.exitCode=1;}
 finally{
+ for(const name of [network+'-tls',names.app]){try{await writeFile(resolve(dir,name.endsWith('-tls')?'proxy.log':'app.log'),await docker('logs','--tail','160',name));}catch{/* Preserve original failure if a container was never created. */}}
  // Exact generated names and independent ownership checks; never selects existing5094.
  for(const name of [network+'-browser',network+'-tls',names.schema,names.app,names.restore,names.db]){
   try{const existing=(await docker('container','ls','-a','--format','{{.Names}}')).split(/\r?\n/);if(!existing.includes(name)){report.cleanup.push({name,outcome:'absent'});continue;}

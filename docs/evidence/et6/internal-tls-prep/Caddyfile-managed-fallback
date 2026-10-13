@@ -1,0 +1,13 @@
+{
+ debug
+ skip_install_trust
+ fallback_sni et6-fixture.internal
+ default_sni et6-fixture.internal
+}
+https://et6-fixture.internal {
+ tls internal
+ reverse_proxy et6-owned-app:5000
+}
+:443 {
+ reverse_proxy et6-owned-app:5000
+}

@@ -1,0 +1,640 @@
+{
+  "outcome": "Worked",
+  "scope": "D owned private historical source receiving",
+  "startedAt": "2026-10-13T22:16:57.929Z",
+  "races": [
+    {
+      "target": {
+        "id": 4242404,
+        "title": "North Carolina U.S. Senate Democratic Primary",
+        "state": "NC",
+        "date": "2026-03-03",
+        "type": "primary",
+        "level": "federal"
+      },
+      "fixtureInserted": 1,
+      "before": {
+        "status": 200,
+        "etag": "W/\"results-ids-a23934defc28-7d0128834bf6b0c6cebcc755\"",
+        "body": {
+          "schemaVersion": 1,
+          "date": null,
+          "cursor": "7d0128834bf6b0c6cebcc755",
+          "reset": true,
+          "results": [
+            {
+              "schemaVersion": 1,
+              "electionId": 4242404,
+              "reportId": null,
+              "revision": null,
+              "status": "none",
+              "reporting": null,
+              "source": null,
+              "sourcePayloadSha256": null,
+              "asOf": null,
+              "asOfBasis": null,
+              "retrievedAt": null,
+              "totalVotes": null,
+              "candidates": [],
+              "winnerCalledBy": null,
+              "certification": null,
+              "supersedesReportId": null,
+              "stale": false,
+              "staleSince": null,
+              "electionContext": null,
+              "history": []
+            }
+          ]
+        }
+      },
+      "evidence": {
+        "status": 201,
+        "etag": "W/\"73-n/eHndiuKRQk0RanBMV4pD9hYJE\"",
+        "body": {
+          "sha256": "a1adde2cbace4018e482d7fdc12297dac32595e7e2a175e0f6fcf87c05e3154c",
+          "size": 82579,
+          "contentType": "text/csv"
+        }
+      },
+      "sourceIdMapping": {
+        "packet": "admin_manual:NC",
+        "api": "admin_manual:NC"
+      },
+      "post": {
+        "status": 201,
+        "etag": "W/\"4242404-r1-7b3789fb-f67e4c3ba82bc13b355ea665\"",
+        "body": {
+          "schemaVersion": 1,
+          "electionId": 4242404,
+          "reportId": 1,
+          "revision": "r1-7b3789fb",
+          "status": "unofficial",
+          "reporting": {
+            "percent": 100,
+            "basis": "precincts",
+            "precinctsReporting": 2633,
+            "precinctsTotal": 2633
+          },
+          "source": {
+            "id": "admin_manual:NC",
+            "kind": "admin_manual",
+            "name": "Manual ingest of official North Carolina State Board of Elections raw data",
+            "url": "https://er.ncsbe.gov/enr/20260303/data/results_0.txt",
+            "sourceContestId": "2147"
+          },
+          "sourcePayloadSha256": "a1adde2cbace4018e482d7fdc12297dac32595e7e2a175e0f6fcf87c05e3154c",
+          "asOf": null,
+          "asOfBasis": "not_provided",
+          "retrievedAt": "2026-10-12T04:25:43.651Z",
+          "totalVotes": 827755,
+          "candidates": [
+            {
+              "candidateId": null,
+              "sourceCandidateId": "Roy Cooper",
+              "name": "Roy Cooper",
+              "party": "DEM",
+              "votes": 761345,
+              "percent": 91.98,
+              "isWinner": false
+            },
+            {
+              "candidateId": null,
+              "sourceCandidateId": "Justin E. Dues",
+              "name": "Justin E. Dues",
+              "party": "DEM",
+              "votes": 22295,
+              "percent": 2.69,
+              "isWinner": false
+            },
+            {
+              "candidateId": null,
+              "sourceCandidateId": "Marcus W. Williams",
+              "name": "Marcus W. Williams",
+              "party": "DEM",
+              "votes": 20336,
+              "percent": 2.46,
+              "isWinner": false
+            },
+            {
+              "candidateId": null,
+              "sourceCandidateId": "Daryl Farrow",
+              "name": "Daryl Farrow",
+              "party": "DEM",
+              "votes": 9727,
+              "percent": 1.18,
+              "isWinner": false
+            },
+            {
+              "candidateId": null,
+              "sourceCandidateId": "Orrick Quick",
+              "name": "Orrick Quick",
+              "party": "DEM",
+              "votes": 7275,
+              "percent": 0.88,
+              "isWinner": false
+            },
+            {
+              "candidateId": null,
+              "sourceCandidateId": "Robert Colon",
+              "name": "Robert Colon",
+              "party": "DEM",
+              "votes": 6777,
+              "percent": 0.82,
+              "isWinner": false
+            }
+          ],
+          "winnerCalledBy": null,
+          "certification": null,
+          "supersedesReportId": null,
+          "stale": false,
+          "staleSince": null,
+          "electionContext": {
+            "state": "NC",
+            "electionDate": "2026-03-03",
+            "type": "primary",
+            "level": "federal",
+            "office": "North Carolina U.S. Senate Democratic Primary"
+          },
+          "history": []
+        }
+      },
+      "postedAt": "2026-10-13T22:16:58.247Z",
+      "repeat": {
+        "status": 200,
+        "etag": "W/\"4242404-r1-7b3789fb-f67e4c3ba82bc13b355ea665\"",
+        "body": {
+          "schemaVersion": 1,
+          "electionId": 4242404,
+          "reportId": 1,
+          "revision": "r1-7b3789fb",
+          "status": "unofficial",
+          "reporting": {
+            "percent": 100,
+            "basis": "precincts",
+            "precinctsReporting": 2633,
+            "precinctsTotal": 2633
+          },
+          "source": {
+            "id": "admin_manual:NC",
+            "kind": "admin_manual",
+            "name": "Manual ingest of official North Carolina State Board of Elections raw data",
+            "url": "https://er.ncsbe.gov/enr/20260303/data/results_0.txt",
+            "sourceContestId": "2147"
+          },
+          "sourcePayloadSha256": "a1adde2cbace4018e482d7fdc12297dac32595e7e2a175e0f6fcf87c05e3154c",
+          "asOf": null,
+          "asOfBasis": "not_provided",
+          "retrievedAt": "2026-10-12T04:25:43.651Z",
+          "totalVotes": 827755,
+          "candidates": [
+            {
+              "candidateId": null,
+              "sourceCandidateId": "Roy Cooper",
+              "name": "Roy Cooper",
+              "party": "DEM",
+              "votes": 761345,
+              "percent": 91.98,
+              "isWinner": false
+            },
+            {
+              "candidateId": null,
+              "sourceCandidateId": "Justin E. Dues",
+              "name": "Justin E. Dues",
+              "party": "DEM",
+              "votes": 22295,
+              "percent": 2.69,
+              "isWinner": false
+            },
+            {
+              "candidateId": null,
+              "sourceCandidateId": "Marcus W. Williams",
+              "name": "Marcus W. Williams",
+              "party": "DEM",
+              "votes": 20336,
+              "percent": 2.46,
+              "isWinner": false
+            },
+            {
+              "candidateId": null,
+              "sourceCandidateId": "Daryl Farrow",
+              "name": "Daryl Farrow",
+              "party": "DEM",
+              "votes": 9727,
+              "percent": 1.18,
+              "isWinner": false
+            },
+            {
+              "candidateId": null,
+              "sourceCandidateId": "Orrick Quick",
+              "name": "Orrick Quick",
+              "party": "DEM",
+              "votes": 7275,
+              "percent": 0.88,
+              "isWinner": false
+            },
+            {
+              "candidateId": null,
+              "sourceCandidateId": "Robert Colon",
+              "name": "Robert Colon",
+              "party": "DEM",
+              "votes": 6777,
+              "percent": 0.82,
+              "isWinner": false
+            }
+          ],
+          "winnerCalledBy": null,
+          "certification": null,
+          "supersedesReportId": null,
+          "stale": false,
+          "staleSince": null,
+          "electionContext": {
+            "state": "NC",
+            "electionDate": "2026-03-03",
+            "type": "primary",
+            "level": "federal",
+            "office": "North Carolina U.S. Senate Democratic Primary"
+          },
+          "history": []
+        }
+      },
+      "changed": {
+        "status": 200,
+        "etag": "W/\"results-ids-a23934defc28-5d1f55a5c049ede6e2cca9f0\"",
+        "body": {
+          "schemaVersion": 1,
+          "date": null,
+          "cursor": "5d1f55a5c049ede6e2cca9f0",
+          "reset": true,
+          "results": [
+            {
+              "schemaVersion": 1,
+              "electionId": 4242404,
+              "reportId": 1,
+              "revision": "r1-7b3789fb",
+              "status": "unofficial",
+              "reporting": {
+                "percent": 100,
+                "basis": "precincts",
+                "precinctsReporting": 2633,
+                "precinctsTotal": 2633
+              },
+              "source": {
+                "id": "admin_manual:NC",
+                "kind": "admin_manual",
+                "name": "Manual ingest of official North Carolina State Board of Elections raw data",
+                "url": "https://er.ncsbe.gov/enr/20260303/data/results_0.txt",
+                "sourceContestId": "2147"
+              },
+              "sourcePayloadSha256": "a1adde2cbace4018e482d7fdc12297dac32595e7e2a175e0f6fcf87c05e3154c",
+              "asOf": null,
+              "asOfBasis": "not_provided",
+              "retrievedAt": "2026-10-12T04:25:43.651Z",
+              "totalVotes": 827755,
+              "candidates": [
+                {
+                  "candidateId": null,
+                  "sourceCandidateId": "Roy Cooper",
+                  "name": "Roy Cooper",
+                  "party": "DEM",
+                  "votes": 761345,
+                  "percent": 91.98,
+                  "isWinner": false
+                },
+                {
+                  "candidateId": null,
+                  "sourceCandidateId": "Justin E. Dues",
+                  "name": "Justin E. Dues",
+                  "party": "DEM",
+                  "votes": 22295,
+                  "percent": 2.69,
+                  "isWinner": false
+                },
+                {
+                  "candidateId": null,
+                  "sourceCandidateId": "Marcus W. Williams",
+                  "name": "Marcus W. Williams",
+                  "party": "DEM",
+                  "votes": 20336,
+                  "percent": 2.46,
+                  "isWinner": false
+                },
+                {
+                  "candidateId": null,
+                  "sourceCandidateId": "Daryl Farrow",
+                  "name": "Daryl Farrow",
+                  "party": "DEM",
+                  "votes": 9727,
+                  "percent": 1.18,
+                  "isWinner": false
+                },
+                {
+                  "candidateId": null,
+                  "sourceCandidateId": "Orrick Quick",
+                  "name": "Orrick Quick",
+                  "party": "DEM",
+                  "votes": 7275,
+                  "percent": 0.88,
+                  "isWinner": false
+                },
+                {
+                  "candidateId": null,
+                  "sourceCandidateId": "Robert Colon",
+                  "name": "Robert Colon",
+                  "party": "DEM",
+                  "votes": 6777,
+                  "percent": 0.82,
+                  "isWinner": false
+                }
+              ],
+              "winnerCalledBy": null,
+              "certification": null,
+              "supersedesReportId": null,
+              "stale": false,
+              "staleSince": null,
+              "electionContext": {
+                "state": "NC",
+                "electionDate": "2026-03-03",
+                "type": "primary",
+                "level": "federal",
+                "office": "North Carolina U.S. Senate Democratic Primary"
+              },
+              "history": []
+            }
+          ]
+        }
+      },
+      "cached": {
+        "status": 304,
+        "etag": "W/\"results-ids-a23934defc28-5d1f55a5c049ede6e2cca9f0\"",
+        "body": null
+      },
+      "sql": {
+        "lines": 6,
+        "total": "827755"
+      }
+    },
+    {
+      "target": {
+        "id": 4242405,
+        "title": "Louisiana U.S. Senate Democratic Primary Runoff",
+        "state": "LA",
+        "date": "2026-06-27",
+        "type": "primary_runoff",
+        "level": "federal"
+      },
+      "fixtureInserted": 1,
+      "before": {
+        "status": 200,
+        "etag": "W/\"results-ids-256dad2b4a28-a464503642245526b65e279d\"",
+        "body": {
+          "schemaVersion": 1,
+          "date": null,
+          "cursor": "a464503642245526b65e279d",
+          "reset": true,
+          "results": [
+            {
+              "schemaVersion": 1,
+              "electionId": 4242405,
+              "reportId": null,
+              "revision": null,
+              "status": "none",
+              "reporting": null,
+              "source": null,
+              "sourcePayloadSha256": null,
+              "asOf": null,
+              "asOfBasis": null,
+              "retrievedAt": null,
+              "totalVotes": null,
+              "candidates": [],
+              "winnerCalledBy": null,
+              "certification": null,
+              "supersedesReportId": null,
+              "stale": false,
+              "staleSince": null,
+              "electionContext": null,
+              "history": []
+            }
+          ]
+        }
+      },
+      "evidence": {
+        "status": 201,
+        "etag": "W/\"7a-XORKJF5JuNilt9qse+xU2cwS97Q\"",
+        "body": {
+          "sha256": "8207fef79e8ef25d665671fb5e8ce796164b7dc1513430ea1eac214106dabc31",
+          "size": 2405,
+          "contentType": "application/json"
+        }
+      },
+      "sourceIdMapping": {
+        "packet": "admin_manual:LA",
+        "api": "admin_manual:LA"
+      },
+      "post": {
+        "status": 201,
+        "etag": "W/\"4242405-r2-75171b6e-f3b94260c67093faf58e9d05\"",
+        "body": {
+          "schemaVersion": 1,
+          "electionId": 4242405,
+          "reportId": 2,
+          "revision": "r2-75171b6e",
+          "status": "unofficial",
+          "reporting": {
+            "percent": null,
+            "basis": "precincts",
+            "precinctsReporting": 3722,
+            "precinctsTotal": 3722
+          },
+          "source": {
+            "id": "admin_manual:LA",
+            "kind": "admin_manual",
+            "name": "Manual ingest of official Louisiana Secretary of State raw data",
+            "url": "https://voterportal.sos.la.gov/ElectionResults/ElectionResults/Data?blob=20260627/Votes_Multiparish.htm",
+            "sourceContestId": "70156"
+          },
+          "sourcePayloadSha256": "8207fef79e8ef25d665671fb5e8ce796164b7dc1513430ea1eac214106dabc31",
+          "asOf": null,
+          "asOfBasis": "not_provided",
+          "retrievedAt": "2026-10-12T05:05:48.518Z",
+          "totalVotes": 196212,
+          "candidates": [
+            {
+              "candidateId": null,
+              "sourceCandidateId": "124649",
+              "name": "\"Jamie\" Davis",
+              "party": "DEM",
+              "votes": 156789,
+              "percent": null,
+              "isWinner": false
+            },
+            {
+              "candidateId": null,
+              "sourceCandidateId": "124648",
+              "name": "Gary Crockett",
+              "party": "DEM",
+              "votes": 39423,
+              "percent": null,
+              "isWinner": false
+            }
+          ],
+          "winnerCalledBy": null,
+          "certification": null,
+          "supersedesReportId": null,
+          "stale": false,
+          "staleSince": null,
+          "electionContext": {
+            "state": "LA",
+            "electionDate": "2026-06-27",
+            "type": "primary_runoff",
+            "level": "federal",
+            "office": "Louisiana U.S. Senate Democratic Primary Runoff"
+          },
+          "history": []
+        }
+      },
+      "postedAt": "2026-10-13T22:16:58.316Z",
+      "repeat": {
+        "status": 200,
+        "etag": "W/\"4242405-r2-75171b6e-f3b94260c67093faf58e9d05\"",
+        "body": {
+          "schemaVersion": 1,
+          "electionId": 4242405,
+          "reportId": 2,
+          "revision": "r2-75171b6e",
+          "status": "unofficial",
+          "reporting": {
+            "percent": null,
+            "basis": "precincts",
+            "precinctsReporting": 3722,
+            "precinctsTotal": 3722
+          },
+          "source": {
+            "id": "admin_manual:LA",
+            "kind": "admin_manual",
+            "name": "Manual ingest of official Louisiana Secretary of State raw data",
+            "url": "https://voterportal.sos.la.gov/ElectionResults/ElectionResults/Data?blob=20260627/Votes_Multiparish.htm",
+            "sourceContestId": "70156"
+          },
+          "sourcePayloadSha256": "8207fef79e8ef25d665671fb5e8ce796164b7dc1513430ea1eac214106dabc31",
+          "asOf": null,
+          "asOfBasis": "not_provided",
+          "retrievedAt": "2026-10-12T05:05:48.518Z",
+          "totalVotes": 196212,
+          "candidates": [
+            {
+              "candidateId": null,
+              "sourceCandidateId": "124649",
+              "name": "\"Jamie\" Davis",
+              "party": "DEM",
+              "votes": 156789,
+              "percent": null,
+              "isWinner": false
+            },
+            {
+              "candidateId": null,
+              "sourceCandidateId": "124648",
+              "name": "Gary Crockett",
+              "party": "DEM",
+              "votes": 39423,
+              "percent": null,
+              "isWinner": false
+            }
+          ],
+          "winnerCalledBy": null,
+          "certification": null,
+          "supersedesReportId": null,
+          "stale": false,
+          "staleSince": null,
+          "electionContext": {
+            "state": "LA",
+            "electionDate": "2026-06-27",
+            "type": "primary_runoff",
+            "level": "federal",
+            "office": "Louisiana U.S. Senate Democratic Primary Runoff"
+          },
+          "history": []
+        }
+      },
+      "changed": {
+        "status": 200,
+        "etag": "W/\"results-ids-256dad2b4a28-5738a0fc67e663f138e206c4\"",
+        "body": {
+          "schemaVersion": 1,
+          "date": null,
+          "cursor": "5738a0fc67e663f138e206c4",
+          "reset": true,
+          "results": [
+            {
+              "schemaVersion": 1,
+              "electionId": 4242405,
+              "reportId": 2,
+              "revision": "r2-75171b6e",
+              "status": "unofficial",
+              "reporting": {
+                "percent": null,
+                "basis": "precincts",
+                "precinctsReporting": 3722,
+                "precinctsTotal": 3722
+              },
+              "source": {
+                "id": "admin_manual:LA",
+                "kind": "admin_manual",
+                "name": "Manual ingest of official Louisiana Secretary of State raw data",
+                "url": "https://voterportal.sos.la.gov/ElectionResults/ElectionResults/Data?blob=20260627/Votes_Multiparish.htm",
+                "sourceContestId": "70156"
+              },
+              "sourcePayloadSha256": "8207fef79e8ef25d665671fb5e8ce796164b7dc1513430ea1eac214106dabc31",
+              "asOf": null,
+              "asOfBasis": "not_provided",
+              "retrievedAt": "2026-10-12T05:05:48.518Z",
+              "totalVotes": 196212,
+              "candidates": [
+                {
+                  "candidateId": null,
+                  "sourceCandidateId": "124649",
+                  "name": "\"Jamie\" Davis",
+                  "party": "DEM",
+                  "votes": 156789,
+                  "percent": null,
+                  "isWinner": false
+                },
+                {
+                  "candidateId": null,
+                  "sourceCandidateId": "124648",
+                  "name": "Gary Crockett",
+                  "party": "DEM",
+                  "votes": 39423,
+                  "percent": null,
+                  "isWinner": false
+                }
+              ],
+              "winnerCalledBy": null,
+              "certification": null,
+              "supersedesReportId": null,
+              "stale": false,
+              "staleSince": null,
+              "electionContext": {
+                "state": "LA",
+                "electionDate": "2026-06-27",
+                "type": "primary_runoff",
+                "level": "federal",
+                "office": "Louisiana U.S. Senate Democratic Primary Runoff"
+              },
+              "history": []
+            }
+          ]
+        }
+      },
+      "cached": {
+        "status": 304,
+        "etag": "W/\"results-ids-256dad2b4a28-5738a0fc67e663f138e206c4\"",
+        "body": null
+      },
+      "sql": {
+        "lines": 2,
+        "total": "196212"
+      }
+    }
+  ],
+  "completedAt": "2026-10-13T22:16:58.344Z"
+}

@@ -1,0 +1,7 @@
+{
+ skip_install_trust
+}
+https://et6-prod-99008-502c3257.internal {
+ tls internal
+ reverse_proxy et6-prod-99008-502c3257-app:5000
+}

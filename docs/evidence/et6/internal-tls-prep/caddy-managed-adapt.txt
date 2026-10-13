@@ -1,0 +1,112 @@
+{"level":"warn","ts":1791929628.504254,"logger":"caddyfile","msg":"Caddyfile input is not formatted; run 'caddy fmt --overwrite' to fix inconsistencies","file":"/prep/Caddyfile-managed-fallback","line":2}
+{
+	"logging": {
+		"logs": {
+			"default": {
+				"level": "DEBUG"
+			}
+		}
+	},
+	"apps": {
+		"http": {
+			"servers": {
+				"srv0": {
+					"listen": [
+						":443"
+					],
+					"routes": [
+						{
+							"match": [
+								{
+									"host": [
+										"et6-fixture.internal"
+									]
+								}
+							],
+							"handle": [
+								{
+									"handler": "subroute",
+									"routes": [
+										{
+											"handle": [
+												{
+													"handler": "reverse_proxy",
+													"upstreams": [
+														{
+															"dial": "et6-owned-app:5000"
+														}
+													]
+												}
+											]
+										}
+									]
+								}
+							],
+							"terminal": true
+						},
+						{
+							"handle": [
+								{
+									"handler": "subroute",
+									"routes": [
+										{
+											"handle": [
+												{
+													"handler": "reverse_proxy",
+													"upstreams": [
+														{
+															"dial": "et6-owned-app:5000"
+														}
+													]
+												}
+											]
+										}
+									]
+								}
+							],
+							"terminal": true
+						}
+					],
+					"tls_connection_policies": [
+						{
+							"match": {
+								"sni": [
+									"",
+									"et6-fixture.internal"
+								]
+							},
+							"default_sni": "et6-fixture.internal"
+						},
+						{
+							"default_sni": "et6-fixture.internal",
+							"fallback_sni": "et6-fixture.internal"
+						}
+					]
+				}
+			}
+		},
+		"pki": {
+			"certificate_authorities": {
+				"local": {
+					"install_trust": false
+				}
+			}
+		},
+		"tls": {
+			"automation": {
+				"policies": [
+					{
+						"subjects": [
+							"et6-fixture.internal"
+						],
+						"issuers": [
+							{
+								"module": "internal"
+							}
+						]
+					}
+				]
+			}
+		}
+	}
+}
