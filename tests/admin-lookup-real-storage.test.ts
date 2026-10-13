@@ -1,6 +1,6 @@
 /**
  * D's PR #81 RED: the REAL DatabaseStorage swallows "endpoint has been disabled" into [] (public
- * behaviour, kept), so the admin historical lookup answered 200 [] instead of 503. The lookup now uses
+ * legacy storage behaviour; old public RED retained separately), so the admin historical lookup answered 200 [] instead of 503. The lookup now uses
  * getElectionsStrict. These run the real DatabaseStorage + real query builder + the real express handler;
  * only the query is replaced by one that fails like a disabled endpoint.
  */
@@ -24,11 +24,11 @@ const q = '/api/admin/elections?from=2026-03-03&to=2026-03-03';
 const appFor = (storage: any) => express().get('/api/admin/elections', adminElectionLookupHandler(storage));
 
 describe('admin lookup on the real DatabaseStorage', () => {
-  it('precondition: the public path still swallows the disabled endpoint into [] (unchanged behaviour)', async () => {
+  it('legacy storage fallback still resolves [], but the public strict handler refuses it', async () => {
     const storage = new DatabaseStorage();
     await expect(storage.getElections({} as any)).resolves.toEqual([]);
     const res = await request(express().get('/api/elections', electionListHandler(storage))).get('/api/elections');
-    expect([res.status, res.body]).toEqual([200, []]);
+    expect([res.status, res.body.code]).toEqual([503, 'listing_unavailable']);
   });
   it('strict path rejects with the database error', async () => {
     const error: any = await new DatabaseStorage().getElectionsStrict({} as any).then(() => null, e => e);

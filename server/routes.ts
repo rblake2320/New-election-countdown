@@ -1,4 +1,4 @@
-import { electionListHandler } from "./election-list-handler";
+import { electionListHandler, sendElectionListingUnavailable } from "./election-list-handler";
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
@@ -160,6 +160,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register candidate portal routes
   registerCandidatePortalRoutes(app);
+
+  // Enhanced election search with AI
+  app.get("/api/elections/search", async (req, res) => {
+    try {
+      const { query, enhance = false } = req.query;
+
+      if (!query || typeof query !== 'string') {
+        return res.status(400).json({ error: "Search query is required" });
+      }
+
+      // Search existing elections
+      const elections = await storage.getElectionsStrict({
+        search: query,
+        state: undefined,
+        type: undefined,
+        level: undefined,
+        timeframe: undefined,
+        timeRange: undefined,
+        party: undefined,
+        electionType: undefined
+      } as any);
+
+      let aiEnhancement: unknown = null;
+      if (enhance === 'true') {
+        try {
+          aiEnhancement = await perplexityCongressService.searchWithAI(
+            `Find additional election information for: ${query}`
+          );
+        } catch (error) {
+          console.error('AI enhancement failed:', error);
+        }
+      }
+
+      res.json({
+        elections,
+        aiEnhancement,
+        totalResults: elections.length
+      });
+    } catch (error) {
+      sendElectionListingUnavailable(res);
+    }
+  });
 
   // Register elections routes with degraded mode handling
   app.use("/api/elections", electionDegradedModeHandler, electionsRouter);
@@ -992,7 +1034,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get elections for the location's state, prioritizing local elections
-      const stateElections = await storage.getElections({
+      const stateElections = await storage.getElectionsStrict({
         state: location.state,
         level: ["Local", "State", "Federal"],
         timeframe: undefined,
@@ -1059,7 +1101,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error('Elections by location error:', error);
-      res.status(500).json({ error: "Failed to get elections by location" });
+      sendElectionListingUnavailable(res);
     }
   });
 
@@ -2432,48 +2474,6 @@ Please provide specific, factual information with sources where possible. Focus 
       res.json(scrapedData);
     } catch (error) {
       res.status(500).json({ error: "Failed to scrape election data" });
-    }
-  });
-
-  // Enhanced election search with AI
-  app.get("/api/elections/search", async (req, res) => {
-    try {
-      const { query, enhance = false } = req.query;
-
-      if (!query || typeof query !== 'string') {
-        return res.status(400).json({ error: "Search query is required" });
-      }
-
-      // Search existing elections
-      const elections = await storage.getElections({
-        search: query,
-        state: undefined,
-        type: undefined,
-        level: undefined,
-        timeframe: undefined,
-        timeRange: undefined,
-        party: undefined,
-        electionType: undefined
-      } as any);
-
-      let aiEnhancement: unknown = null;
-      if (enhance === 'true') {
-        try {
-          aiEnhancement = await perplexityCongressService.searchWithAI(
-            `Find additional election information for: ${query}`
-          );
-        } catch (error) {
-          console.error('AI enhancement failed:', error);
-        }
-      }
-
-      res.json({
-        elections,
-        aiEnhancement,
-        totalResults: elections.length
-      });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to search elections" });
     }
   });
 
