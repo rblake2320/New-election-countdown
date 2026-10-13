@@ -1,0 +1,86 @@
+{
+  "base": "5fe2423963e2c0dce9c34448acaa9b1e9b7ddeb3",
+  "testOnly": true,
+  "childBudgetMs": 5000,
+  "fullRuns": [
+    {
+      "name": "full",
+      "success": true,
+      "passed": 1210,
+      "failed": 0,
+      "testFiles": 122,
+      "rawSha256": "11241cb724758c6d85d3849515eb9a18d0d71e9d7da6aaffaa878fb80a4703f2",
+      "gzipSha256": "805bc101526bbee8f7e93e0fa05f23262839366fea0578604a1fc66a3706cf4b",
+      "bootCases": [
+        {
+          "title": "retains old negative: bundled CLI import runs argv guard and poisons server exitCode",
+          "status": "passed",
+          "durationMs": 419.28579999999965
+        },
+        {
+          "title": "canonical pure library import emits only boot marker and leaves exitCode unchanged",
+          "status": "passed",
+          "durationMs": 257.27760000000035
+        }
+      ]
+    },
+    {
+      "name": "full-repeat",
+      "success": true,
+      "passed": 1210,
+      "failed": 0,
+      "testFiles": 122,
+      "rawSha256": "c17c2b52a41b2ed33dc4ae992dddd5be4851b2f1b4236f338b59a585887fcc9d",
+      "gzipSha256": "99bbcaad4b8fa571b25f332bd3e96d221eef06fa431eae059a8c6e47f4e6a5b1",
+      "bootCases": [
+        {
+          "title": "retains old negative: bundled CLI import runs argv guard and poisons server exitCode",
+          "status": "passed",
+          "durationMs": 151.5728999999999
+        },
+        {
+          "title": "canonical pure library import emits only boot marker and leaves exitCode unchanged",
+          "status": "passed",
+          "durationMs": 186.95150000000012
+        }
+      ]
+    }
+  ],
+  "fullRepeatPhaseEvents": [
+    {
+      "phase": "compile",
+      "elapsedMs": 216.74109999999996,
+      "budgetMs": 5000,
+      "status": 0,
+      "signal": null,
+      "error": null,
+      "wrapperSha256": [
+        "f433a48b99ce18de6177dbf4c07698ac3f22b93afcbf300f6c7d2d01915b4c10",
+        "2131607528313f430981fae2cb2d544837b6ec0aeb789c2b933443cbf8a2dc4e"
+      ]
+    },
+    {
+      "phase": "runtime",
+      "probe": "probe-old-library-boot",
+      "elapsedMs": 149.45719999999983,
+      "budgetMs": 5000,
+      "status": 1,
+      "signal": null,
+      "error": null
+    },
+    {
+      "phase": "runtime",
+      "probe": "probe-library-boot",
+      "elapsedMs": 185.9672999999998,
+      "budgetMs": 5000,
+      "status": 0,
+      "signal": null,
+      "error": null
+    }
+  ],
+  "compilerInvocationsPerSuite": 1,
+  "wrapperSha256": [
+    "f433a48b99ce18de6177dbf4c07698ac3f22b93afcbf300f6c7d2d01915b4c10",
+    "2131607528313f430981fae2cb2d544837b6ec0aeb789c2b933443cbf8a2dc4e"
+  ]
+}
