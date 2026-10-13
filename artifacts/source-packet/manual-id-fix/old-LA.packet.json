@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "purpose": "dry_run_only",
+  "parser": "la_official",
+  "context": {
+    "state": "LA",
+    "electionDate": "2026-06-27",
+    "phase": "primary_runoff",
+    "level": "federal",
+    "office": "U.S. Senate",
+    "district": null,
+    "party": "DEM"
+  },
+  "targetBinding": {
+    "id": 4242405,
+    "state": "LA",
+    "date": "2026-06-27",
+    "type": "primary_runoff",
+    "level": "federal",
+    "title": "Louisiana U.S. Senate Democratic Primary Runoff"
+  },
+  "reviewedBinding": {
+    "target": {
+      "id": 4242405,
+      "state": "LA",
+      "date": "2026-06-27",
+      "type": "primary_runoff",
+      "level": "federal",
+      "title": "Louisiana U.S. Senate Democratic Primary Runoff"
+    },
+    "sourceContext": {
+      "state": "LA",
+      "electionDate": "2026-06-27",
+      "phase": "primary_runoff",
+      "level": "federal",
+      "office": "U.S. Senate",
+      "district": null,
+      "party": "DEM"
+    }
+  },
+  "publisher": {
+    "id": "LA",
+    "kind": "admin_manual",
+    "name": "Manual ingest of official Louisiana Secretary of State raw data",
+    "url": "https://voterportal.sos.la.gov/ElectionResults/ElectionResults/Data?blob=20260627/Votes_Multiparish.htm"
+  },
+  "files": [
+    {
+      "role": "payload",
+      "path": "raw/LA-Jun27-votes.raw.json",
+      "sha256": "8207fef79e8ef25d665671fb5e8ce796164b7dc1513430ea1eac214106dabc31",
+      "url": "https://voterportal.sos.la.gov/ElectionResults/ElectionResults/Data?blob=20260627/Votes_Multiparish.htm"
+    },
+    {
+      "role": "companion",
+      "path": "raw/LA-Jun27-races.raw.json",
+      "sha256": "cf1e6a52f5554f0bb4959f6b9ad7cc583e53f70e57ca28b62346f7c8c01be637",
+      "url": "https://voterportal.sos.la.gov/ElectionResults/ElectionResults/Data?blob=20260627/RacesCandidates_Multiparish.htm"
+    },
+    {
+      "role": "capture_receipt",
+      "path": "raw/LA-Jun27-votes-raw-proof.json",
+      "sha256": "aed4c472684da5f76d0d796a17a51a0ccda797b43dbc27a0716bc2249791523d",
+      "url": null
+    }
+  ],
+  "reviewedCertification": false,
+  "sourceContestId": "70156",
+  "localContestId": null,
+  "expectedTotals": {
+    "totalVotes": 196212,
+    "optionCount": 2
+  }
+}

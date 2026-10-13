@@ -1,0 +1,17 @@
+"""Actual official NC/LA recordings, explicitly MANUAL unofficial ingest."""
+import pathlib,json,hashlib,shutil
+repo=pathlib.Path(__file__).resolve().parents[1]; fixtures=repo/'tests/fixtures/official-result-adapters'
+proofs=pathlib.Path('C:/Users/techai/.codex/tmp/sol-results-sources-group2/research/results-group2')
+def make(folder,kind,context,target,sourceid,localid,payload,companion,capture,payloadurl,companionurl,total,count,name):
+    root=repo/'artifacts/source-packet'/folder;(root/'raw').mkdir(parents=True,exist_ok=True);files=[]
+    for role,source,url in [('payload',fixtures/payload,payloadurl),('companion',fixtures/companion,companionurl),('capture_receipt',proofs/capture,None)]:
+        dest=root/'raw'/source.name;shutil.copyfile(source,dest);files.append({'role':role,'path':'raw/'+source.name,'sha256':hashlib.sha256(dest.read_bytes()).hexdigest(),'url':url})
+    packet={'version':1,'purpose':'dry_run_only','parser':kind,'context':context,'targetBinding':target,'reviewedBinding':{'target':target,'sourceContext':context},'publisher':{'id':'admin_manual:'+context['state'],'kind':'admin_manual','name':name,'url':payloadurl},'files':files,'reviewedCertification':False,'sourceContestId':sourceid,'localContestId':localid,'expectedTotals':{'totalVotes':total,'optionCount':count}}
+    for name,value in [('packet.json',packet),('target-binding.json',target)]: (root/name).write_bytes((json.dumps(value,indent=2)+'\n').encode())
+    print(folder,hashlib.sha256((root/'packet.json').read_bytes()).hexdigest())
+context={'state':'NC','electionDate':'2026-03-03','phase':'primary','level':'federal','office':'U.S. Senate','district':None,'party':'DEM'}
+make('nc-manual','nc_official',context,{'id':4242404,'state':'NC','date':'2026-03-03','type':'primary','level':'federal','title':'North Carolina U.S. Senate Democratic Primary'},'2147','2147','NC-primary-results.txt','NC-primary-counties.txt','NC-primary-results-proof.json','https://er.ncsbe.gov/enr/20260303/data/results_0.txt','https://er.ncsbe.gov/enr/20260303/data/county.txt',827755,6,'Manual ingest of official North Carolina State Board of Elections raw data')
+context={'state':'NC','electionDate':'2026-03-03','phase':'primary','level':'federal','office':'U.S. House','district':'01','party':'REP'}
+make('nc-house-manual','nc_official',context,{'id':4242406,'state':'NC','date':'2026-03-03','type':'primary','level':'federal','title':'North Carolina U.S. House District 01 Republican Primary'},'2107','2107','NC-primary-results.txt','NC-primary-counties.txt','NC-primary-results-proof.json','https://er.ncsbe.gov/enr/20260303/data/results_0.txt','https://er.ncsbe.gov/enr/20260303/data/county.txt',67376,5,'Manual ingest of official North Carolina State Board of Elections raw data')
+context={'state':'LA','electionDate':'2026-06-27','phase':'primary_runoff','level':'federal','office':'U.S. Senate','district':None,'party':'DEM'}
+make('la-manual','la_official',context,{'id':4242405,'state':'LA','date':'2026-06-27','type':'primary_runoff','level':'federal','title':'Louisiana U.S. Senate Democratic Primary Runoff'},'70156',None,'LA-Jun27-votes.raw.json','LA-Jun27-races.raw.json','LA-Jun27-votes-raw-proof.json','https://voterportal.sos.la.gov/ElectionResults/ElectionResults/Data?blob=20260627/Votes_Multiparish.htm','https://voterportal.sos.la.gov/ElectionResults/ElectionResults/Data?blob=20260627/RacesCandidates_Multiparish.htm',196212,2,'Manual ingest of official Louisiana Secretary of State raw data')
