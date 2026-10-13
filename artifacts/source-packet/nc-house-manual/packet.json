@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "purpose": "dry_run_only",
+  "parser": "nc_official",
+  "context": {
+    "state": "NC",
+    "electionDate": "2026-03-03",
+    "phase": "primary",
+    "level": "federal",
+    "office": "U.S. House",
+    "district": "01",
+    "party": "REP"
+  },
+  "targetBinding": {
+    "id": 4242406,
+    "state": "NC",
+    "date": "2026-03-03",
+    "type": "primary",
+    "level": "federal",
+    "title": "North Carolina U.S. House District 01 Republican Primary"
+  },
+  "reviewedBinding": {
+    "target": {
+      "id": 4242406,
+      "state": "NC",
+      "date": "2026-03-03",
+      "type": "primary",
+      "level": "federal",
+      "title": "North Carolina U.S. House District 01 Republican Primary"
+    },
+    "sourceContext": {
+      "state": "NC",
+      "electionDate": "2026-03-03",
+      "phase": "primary",
+      "level": "federal",
+      "office": "U.S. House",
+      "district": "01",
+      "party": "REP"
+    }
+  },
+  "publisher": {
+    "id": "NC",
+    "kind": "admin_manual",
+    "name": "Manual ingest of official North Carolina State Board of Elections raw data",
+    "url": "https://er.ncsbe.gov/enr/20260303/data/results_0.txt"
+  },
+  "files": [
+    {
+      "role": "payload",
+      "path": "raw/NC-primary-results.txt",
+      "sha256": "a1adde2cbace4018e482d7fdc12297dac32595e7e2a175e0f6fcf87c05e3154c",
+      "url": "https://er.ncsbe.gov/enr/20260303/data/results_0.txt"
+    },
+    {
+      "role": "companion",
+      "path": "raw/NC-primary-counties.txt",
+      "sha256": "3f75a12a2c49d6c089fc612ff431e10ce9f6e0a70c0c41d1eba21804f58097b0",
+      "url": "https://er.ncsbe.gov/enr/20260303/data/county.txt"
+    },
+    {
+      "role": "capture_receipt",
+      "path": "raw/NC-primary-results-proof.json",
+      "sha256": "f7b92b33d39d59bd090fcc8a4e137800c20e9e05c0a2e1b499d803074bb52f1f",
+      "url": null
+    }
+  ],
+  "reviewedCertification": false,
+  "sourceContestId": "2107",
+  "localContestId": "2107",
+  "expectedTotals": {
+    "totalVotes": 67376,
+    "optionCount": 5
+  }
+}
