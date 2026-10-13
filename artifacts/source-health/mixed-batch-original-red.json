@@ -1,0 +1,31 @@
+{
+  "outcome": "Failed",
+  "scenario": "one unavailable first-capture plus two independently healthy recorded races",
+  "healthy": [
+    {
+      "electionId": 4242401,
+      "totalVotes": 1903073,
+      "stale": false,
+      "status": 200
+    },
+    {
+      "electionId": 910002,
+      "totalVotes": 196212,
+      "stale": false,
+      "status": 200
+    }
+  ],
+  "actual": {
+    "status": 503,
+    "etag": "W/\"a1-yQKooN6UpsIeQkhUC1Gn1pQcViY\"",
+    "body": {
+      "error": "The admitted official results source is unavailable",
+      "code": "source_unavailable",
+      "details": {
+        "electionId": 910003,
+        "sourceId": "health-unavailable-first"
+      }
+    }
+  },
+  "required": "typed per-race unavailable representation while preserving healthy results; parent owns shared batch amendment"
+}

@@ -16,7 +16,7 @@
  */
 import { storage } from './storage';
 import { BackgroundWork } from './background-work';
-import { resultReportInputSchema, ResultReportError,electionContextOf, type ResultReportInput } from './results-reports';
+import { resultReportInputSchema, ResultReportError,electionContextOf, type ResultReportInput,type ElectionContext } from './results-reports';
 import { resultsSourceRegistry, type RegisteredSource } from './results-source-registry';
 import type { OfficialResultsSource } from '@shared/official-results';
 
@@ -153,16 +153,17 @@ export class ResultsIngestionService {
 
   /** Ingest one admitted race through one adapter. Exposed for tests and D's replay harness. */
   async ingestOne(election: AdapterElection, source: AdmittedSource, adapter: ResultsAdapter, signal: AbortSignal = new AbortController().signal): Promise<IngestOutcome> {
-    const outcome=await this.ingestOneCore(election,source,adapter,signal);
+    const capturedContext=electionContextOf({...election,state:election.state??''}),sourceId=source.id;
+    const outcome=await this.ingestOneCore(election,source,adapter,signal,capturedContext);
     if(signal.aborted)return {electionId:election.id,outcome:'failed',sourceId:source.id,message:'ingestion intentionally aborted',aborted:true};
     if(outcome.outcome==='not_published'||outcome.outcome==='refused'||outcome.outcome==='failed'&&!outcome.aborted){
-      try{await storage.recordResultSourceHealth({electionId:election.id,sourceId:source.id,context:electionContextOf({...election,state:election.state??''}),outcome:outcome.outcome==='not_published'?'not_published':'failed',automatic:true,signal});}
+      try{await storage.recordResultSourceHealth({electionId:election.id,sourceId,context:capturedContext,outcome:outcome.outcome==='not_published'?'not_published':'failed',automatic:true,signal});}
       catch(error){if(signal.aborted)return{electionId:election.id,outcome:'failed',sourceId:source.id,message:'ingestion intentionally aborted',aborted:true};return{electionId:election.id,outcome:'refused',sourceId:source.id,code:error instanceof ResultReportError?error.publicCode:'source_health_unavailable',message:'Source health could not be persisted'};}
     }
     return outcome;
   }
 
-  private async ingestOneCore(election: AdapterElection, source: AdmittedSource, adapter: ResultsAdapter, signal: AbortSignal): Promise<IngestOutcome> {
+  private async ingestOneCore(election: AdapterElection, source: AdmittedSource, adapter: ResultsAdapter, signal: AbortSignal,capturedContext:ElectionContext): Promise<IngestOutcome> {
     const sourceId = source.id;
     const abortedOutcome = (): IngestOutcome => ({ electionId: election.id, outcome: 'failed', sourceId, message: 'ingestion aborted before the snapshot was written', aborted: true });
     if (signal.aborted) return abortedOutcome(); // never call a source after stop
@@ -184,7 +185,7 @@ export class ResultsIngestionService {
         return { electionId: election.id, outcome: 'refused', sourceId, code: 'ap_disabled', message: 'AP results are disabled by the owner' };
       }
       if (signal.aborted) return abortedOutcome();
-      const result = await storage.recordResultReport(election.id, input, { postedBy: `ingest:${sourceId}`, idempotencyKey: null,signal });
+      const result = await storage.recordResultReport(election.id, input, { postedBy: `ingest:${sourceId}`, idempotencyKey: null,signal,expectedContext:capturedContext });
       if (!result.created) return { electionId: election.id, outcome: 'unchanged', sourceId };
       return { electionId: election.id, outcome: 'recorded', sourceId, reportId: result.payload.reportId!, revision: result.payload.revision! };
     } catch (error) {

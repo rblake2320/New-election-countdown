@@ -1,11 +1,11 @@
 {
-  "sourceHead": "8a9f737e16dc00edb7b7dc5153e625e029b61a3e",
+  "sourceHead": "fe41c9e5c445de54bb92e84ba30cef0eec6864c4",
   "processTimezone": "host default",
-  "database": "et_sol_health_71f2557e8c064006877f4a2896f5d30d",
+  "database": "et_sol_health_7755993da44d48228dc35f59e271f3fd",
   "mode": "actual compiled private fixture; official recorded bytes, simulated source outages, no provider calls",
   "coreSha256": {
-    "before": "0e49f7aa042fe3ae9408263c0858a49b6c272068908ae5dd05b1fafdf89357cc",
-    "after": "677826cd3ec8c0ecd132e5df17b5dc9d6691d6315dde6ec7b95f95d13a781175"
+    "before": "b662dc71040a732c072164e7a833fc451401714cbd7ac287ec133e81c0ba779c",
+    "after": "14c671aa8d45c2dcfcc5fa9ea0343147a484fc5a2befad8771d957393b2586f5"
   },
   "checks": [
     {
@@ -65,7 +65,7 @@
       "outcome": "Worked",
       "freshProcess": {
         "stale": true,
-        "staleSince": "2026-10-13T19:48:55.268Z",
+        "staleSince": "2026-10-13T20:00:18.080Z",
         "revision": "r1-c01fe8d4",
         "totalVotes": 1903073,
         "status": "certified"
@@ -92,6 +92,14 @@
       "outcome": "Worked"
     },
     {
+      "scenario": "canonical mixed batchHTTP200 preserves healthy WA/LA and returns exact-context error for excluded failed ID; unchanged error ETag/cursor304",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "healthy first-source notpublished recovery clears outage without forged report and invalidates cached mixed batch",
+      "outcome": "Worked"
+    },
+    {
       "scenario": "intentional already-stopped ingest writes no health or report rows",
       "outcome": "Worked"
     },
@@ -113,7 +121,7 @@
     {
       "scenario": "actual pool-size1 writer releases committed client before response read and settles without starvation",
       "outcome": "Worked",
-      "elapsedMs": 18,
+      "elapsedMs": 14,
       "waiting": 0
     },
     {
@@ -173,8 +181,8 @@
     "revision": "r1-c01fe8d4",
     "stale": false
   },
-  "mixedBatchRed": {
-    "outcome": "Failed",
+  "mixedBatchGreen": {
+    "outcome": "Worked",
     "scenario": "one unavailable first-capture plus two independently healthy recorded races",
     "healthy": [
       {
@@ -191,18 +199,403 @@
       }
     ],
     "actual": {
-      "status": 503,
-      "etag": "W/\"a1-yQKooN6UpsIeQkhUC1Gn1pQcViY\"",
+      "status": 200,
+      "etag": "W/\"results-ids-09574c2b2c32-75c952b95d3e8a9e6cae734d\"",
       "body": {
-        "error": "The admitted official results source is unavailable",
-        "code": "source_unavailable",
-        "details": {
-          "electionId": 910003,
-          "sourceId": "health-unavailable-first"
-        }
+        "schemaVersion": 1,
+        "date": null,
+        "cursor": "75c952b95d3e8a9e6cae734d",
+        "reset": true,
+        "results": [
+          {
+            "schemaVersion": 1,
+            "electionId": 910002,
+            "reportId": 3,
+            "revision": "r3-aa0ac711",
+            "status": "unofficial",
+            "reporting": {
+              "percent": null,
+              "basis": "precincts",
+              "precinctsReporting": 3722,
+              "precinctsTotal": 3722
+            },
+            "source": {
+              "id": "health-recorded-LA",
+              "kind": "official_state_enr",
+              "name": "Official LA recorded replay",
+              "url": "https://voterportal.sos.la.gov/ElectionResults/ElectionResults/Data?blob=20260627/Votes_Multiparish.htm",
+              "sourceContestId": "70156"
+            },
+            "sourcePayloadSha256": "8207fef79e8ef25d665671fb5e8ce796164b7dc1513430ea1eac214106dabc31",
+            "asOf": null,
+            "asOfBasis": "not_provided",
+            "retrievedAt": "2026-10-13T20:00:17.707Z",
+            "totalVotes": 196212,
+            "candidates": [
+              {
+                "candidateId": null,
+                "sourceCandidateId": "124649",
+                "name": "\"Jamie\" Davis",
+                "party": "DEM",
+                "votes": 156789,
+                "percent": null,
+                "isWinner": false
+              },
+              {
+                "candidateId": null,
+                "sourceCandidateId": "124648",
+                "name": "Gary Crockett",
+                "party": "DEM",
+                "votes": 39423,
+                "percent": null,
+                "isWinner": false
+              }
+            ],
+            "winnerCalledBy": null,
+            "certification": null,
+            "supersedesReportId": null,
+            "stale": false,
+            "staleSince": null,
+            "electionContext": {
+              "state": "LA",
+              "electionDate": "2026-06-27",
+              "type": "primary_runoff",
+              "level": "federal",
+              "office": "Private historical LA Senate DEM primary_runoff"
+            },
+            "history": []
+          },
+          {
+            "schemaVersion": 1,
+            "electionId": 4242401,
+            "reportId": 1,
+            "revision": "r1-c01fe8d4",
+            "status": "certified",
+            "reporting": null,
+            "source": {
+              "id": "wa-sos-2024-primary-lands",
+              "kind": "official_state_page",
+              "name": "Washington Secretary of State",
+              "url": "https://www.sos.wa.gov/sites/default/files/2024-09/TotalsforWeb_AllCandidates.xlsx",
+              "sourceContestId": "WA:2024-08-06:primary:state:Commissioner of Public Lands"
+            },
+            "sourcePayloadSha256": "1d11cc471c4e6bfb62f690cbfd8a248cd649989acc3d479273809316d8f3d466",
+            "asOf": null,
+            "asOfBasis": "not_provided",
+            "retrievedAt": "2026-10-12T04:27:30.691Z",
+            "totalVotes": 1903073,
+            "candidates": [
+              {
+                "candidateId": null,
+                "sourceCandidateId": "Jaime Herrera Beutler",
+                "name": "Jaime Herrera Beutler",
+                "party": "(Prefers Republican Party)",
+                "votes": 419297,
+                "percent": null,
+                "isWinner": false
+              },
+              {
+                "candidateId": null,
+                "sourceCandidateId": "Dave Upthegrove",
+                "name": "Dave Upthegrove",
+                "party": "(Prefers Democratic Party)",
+                "votes": 396300,
+                "percent": null,
+                "isWinner": false
+              },
+              {
+                "candidateId": null,
+                "sourceCandidateId": "Sue Kuehl Pederson",
+                "name": "Sue Kuehl Pederson",
+                "party": "(Prefers Republican Party)",
+                "votes": 396249,
+                "percent": null,
+                "isWinner": false
+              },
+              {
+                "candidateId": null,
+                "sourceCandidateId": "Patrick DePoe",
+                "name": "Patrick DePoe",
+                "party": "(Prefers Democratic Party)",
+                "votes": 267924,
+                "percent": null,
+                "isWinner": false
+              },
+              {
+                "candidateId": null,
+                "sourceCandidateId": "Allen Lebovitz",
+                "name": "Allen Lebovitz",
+                "party": "(Prefers Democratic Party)",
+                "votes": 194114,
+                "percent": null,
+                "isWinner": false
+              },
+              {
+                "candidateId": null,
+                "sourceCandidateId": "Kevin Van De Wege",
+                "name": "Kevin Van De Wege",
+                "party": "(Prefers Democratic Party)",
+                "votes": 143170,
+                "percent": null,
+                "isWinner": false
+              },
+              {
+                "candidateId": null,
+                "sourceCandidateId": "Jeralee Anderson",
+                "name": "Jeralee Anderson",
+                "party": "(Prefers Democratic Party)",
+                "votes": 84351,
+                "percent": null,
+                "isWinner": false
+              },
+              {
+                "candidateId": null,
+                "sourceCandidateId": "Write-In",
+                "name": "Write-In",
+                "party": null,
+                "votes": 1668,
+                "percent": null,
+                "isWinner": false
+              }
+            ],
+            "winnerCalledBy": null,
+            "certification": {
+              "url": "https://www.sos.wa.gov/sites/default/files/2024-08/Certification%20of%20Results%20-%202024%20Primary.pdf",
+              "certifiedAt": null
+            },
+            "supersedesReportId": null,
+            "stale": false,
+            "staleSince": null,
+            "electionContext": {
+              "state": "WA",
+              "electionDate": "2024-08-06",
+              "type": "Primary",
+              "level": "state",
+              "office": "Washington Commissioner of Public Lands Primary"
+            },
+            "history": []
+          }
+        ],
+        "errors": [
+          {
+            "electionId": 910003,
+            "code": "source_unavailable",
+            "message": "The admitted official results source is unavailable",
+            "sourceId": "health-unavailable-first",
+            "failedSince": "2026-10-13T20:00:18.398Z",
+            "electionContext": {
+              "state": "NC",
+              "electionDate": "2026-03-03",
+              "type": "primary",
+              "level": "federal",
+              "office": "Private exact never-published NC DEM control"
+            }
+          }
+        ]
       }
-    },
-    "required": "typed per-race unavailable representation while preserving healthy results; parent owns shared batch amendment"
+    }
+  },
+  "mixedRecovered": {
+    "status": 200,
+    "etag": "W/\"results-ids-09574c2b2c32-a93d8f1a2d1d554d61c2b10e\"",
+    "body": {
+      "schemaVersion": 1,
+      "date": null,
+      "cursor": "a93d8f1a2d1d554d61c2b10e",
+      "reset": true,
+      "results": [
+        {
+          "schemaVersion": 1,
+          "electionId": 910002,
+          "reportId": 3,
+          "revision": "r3-aa0ac711",
+          "status": "unofficial",
+          "reporting": {
+            "percent": null,
+            "basis": "precincts",
+            "precinctsReporting": 3722,
+            "precinctsTotal": 3722
+          },
+          "source": {
+            "id": "health-recorded-LA",
+            "kind": "official_state_enr",
+            "name": "Official LA recorded replay",
+            "url": "https://voterportal.sos.la.gov/ElectionResults/ElectionResults/Data?blob=20260627/Votes_Multiparish.htm",
+            "sourceContestId": "70156"
+          },
+          "sourcePayloadSha256": "8207fef79e8ef25d665671fb5e8ce796164b7dc1513430ea1eac214106dabc31",
+          "asOf": null,
+          "asOfBasis": "not_provided",
+          "retrievedAt": "2026-10-13T20:00:17.707Z",
+          "totalVotes": 196212,
+          "candidates": [
+            {
+              "candidateId": null,
+              "sourceCandidateId": "124649",
+              "name": "\"Jamie\" Davis",
+              "party": "DEM",
+              "votes": 156789,
+              "percent": null,
+              "isWinner": false
+            },
+            {
+              "candidateId": null,
+              "sourceCandidateId": "124648",
+              "name": "Gary Crockett",
+              "party": "DEM",
+              "votes": 39423,
+              "percent": null,
+              "isWinner": false
+            }
+          ],
+          "winnerCalledBy": null,
+          "certification": null,
+          "supersedesReportId": null,
+          "stale": false,
+          "staleSince": null,
+          "electionContext": {
+            "state": "LA",
+            "electionDate": "2026-06-27",
+            "type": "primary_runoff",
+            "level": "federal",
+            "office": "Private historical LA Senate DEM primary_runoff"
+          },
+          "history": []
+        },
+        {
+          "schemaVersion": 1,
+          "electionId": 910003,
+          "reportId": null,
+          "revision": null,
+          "status": "none",
+          "reporting": null,
+          "source": null,
+          "sourcePayloadSha256": null,
+          "asOf": null,
+          "asOfBasis": null,
+          "retrievedAt": null,
+          "totalVotes": null,
+          "candidates": [],
+          "winnerCalledBy": null,
+          "certification": null,
+          "supersedesReportId": null,
+          "stale": false,
+          "staleSince": null,
+          "electionContext": null,
+          "history": []
+        },
+        {
+          "schemaVersion": 1,
+          "electionId": 4242401,
+          "reportId": 1,
+          "revision": "r1-c01fe8d4",
+          "status": "certified",
+          "reporting": null,
+          "source": {
+            "id": "wa-sos-2024-primary-lands",
+            "kind": "official_state_page",
+            "name": "Washington Secretary of State",
+            "url": "https://www.sos.wa.gov/sites/default/files/2024-09/TotalsforWeb_AllCandidates.xlsx",
+            "sourceContestId": "WA:2024-08-06:primary:state:Commissioner of Public Lands"
+          },
+          "sourcePayloadSha256": "1d11cc471c4e6bfb62f690cbfd8a248cd649989acc3d479273809316d8f3d466",
+          "asOf": null,
+          "asOfBasis": "not_provided",
+          "retrievedAt": "2026-10-12T04:27:30.691Z",
+          "totalVotes": 1903073,
+          "candidates": [
+            {
+              "candidateId": null,
+              "sourceCandidateId": "Jaime Herrera Beutler",
+              "name": "Jaime Herrera Beutler",
+              "party": "(Prefers Republican Party)",
+              "votes": 419297,
+              "percent": null,
+              "isWinner": false
+            },
+            {
+              "candidateId": null,
+              "sourceCandidateId": "Dave Upthegrove",
+              "name": "Dave Upthegrove",
+              "party": "(Prefers Democratic Party)",
+              "votes": 396300,
+              "percent": null,
+              "isWinner": false
+            },
+            {
+              "candidateId": null,
+              "sourceCandidateId": "Sue Kuehl Pederson",
+              "name": "Sue Kuehl Pederson",
+              "party": "(Prefers Republican Party)",
+              "votes": 396249,
+              "percent": null,
+              "isWinner": false
+            },
+            {
+              "candidateId": null,
+              "sourceCandidateId": "Patrick DePoe",
+              "name": "Patrick DePoe",
+              "party": "(Prefers Democratic Party)",
+              "votes": 267924,
+              "percent": null,
+              "isWinner": false
+            },
+            {
+              "candidateId": null,
+              "sourceCandidateId": "Allen Lebovitz",
+              "name": "Allen Lebovitz",
+              "party": "(Prefers Democratic Party)",
+              "votes": 194114,
+              "percent": null,
+              "isWinner": false
+            },
+            {
+              "candidateId": null,
+              "sourceCandidateId": "Kevin Van De Wege",
+              "name": "Kevin Van De Wege",
+              "party": "(Prefers Democratic Party)",
+              "votes": 143170,
+              "percent": null,
+              "isWinner": false
+            },
+            {
+              "candidateId": null,
+              "sourceCandidateId": "Jeralee Anderson",
+              "name": "Jeralee Anderson",
+              "party": "(Prefers Democratic Party)",
+              "votes": 84351,
+              "percent": null,
+              "isWinner": false
+            },
+            {
+              "candidateId": null,
+              "sourceCandidateId": "Write-In",
+              "name": "Write-In",
+              "party": null,
+              "votes": 1668,
+              "percent": null,
+              "isWinner": false
+            }
+          ],
+          "winnerCalledBy": null,
+          "certification": {
+            "url": "https://www.sos.wa.gov/sites/default/files/2024-08/Certification%20of%20Results%20-%202024%20Primary.pdf",
+            "certifiedAt": null
+          },
+          "supersedesReportId": null,
+          "stale": false,
+          "staleSince": null,
+          "electionContext": {
+            "state": "WA",
+            "electionDate": "2024-08-06",
+            "type": "Primary",
+            "level": "state",
+            "office": "Washington Commissioner of Public Lands Primary"
+          },
+          "history": []
+        }
+      ]
+    }
   },
   "oldPoolRed": {
     "outcome": "Failed",
@@ -330,7 +723,7 @@
     },
     "stale": {
       "status": 200,
-      "etag": "W/\"4242401-r1-c01fe8d4-ca44534a84252f60b766da1e\"",
+      "etag": "W/\"4242401-r1-c01fe8d4-79b1af44c98c8ed32df82cba\"",
       "body": {
         "schemaVersion": 1,
         "electionId": 4242401,
@@ -431,7 +824,7 @@
         },
         "supersedesReportId": null,
         "stale": true,
-        "staleSince": "2026-10-13T19:48:55.268Z",
+        "staleSince": "2026-10-13T20:00:18.080Z",
         "electionContext": {
           "state": "WA",
           "electionDate": "2024-08-06",
@@ -558,18 +951,18 @@
     },
     "freshBatch": {
       "status": 200,
-      "etag": "W/\"results-ids-650e634b3f74-7e6c23c234ca06222f2ec404\"",
+      "etag": "W/\"results-ids-650e634b3f74-b7666b1799ba5a531f6e642f\"",
       "body": {
         "schemaVersion": 1,
         "date": null,
-        "cursor": "7e6c23c234ca06222f2ec404",
+        "cursor": "b7666b1799ba5a531f6e642f",
         "reset": true,
         "results": [
           {
             "schemaVersion": 1,
             "electionId": 910001,
             "reportId": 2,
-            "revision": "r2-e217cf32",
+            "revision": "r2-2981b4bd",
             "status": "unofficial",
             "reporting": {
               "percent": 100,
@@ -587,7 +980,7 @@
             "sourcePayloadSha256": "a1adde2cbace4018e482d7fdc12297dac32595e7e2a175e0f6fcf87c05e3154c",
             "asOf": null,
             "asOfBasis": "not_provided",
-            "retrievedAt": "2026-10-13T19:48:54.929Z",
+            "retrievedAt": "2026-10-13T20:00:17.706Z",
             "totalVotes": 827755,
             "candidates": [
               {
@@ -663,7 +1056,7 @@
             "schemaVersion": 1,
             "electionId": 910002,
             "reportId": 3,
-            "revision": "r3-f78bad65",
+            "revision": "r3-aa0ac711",
             "status": "unofficial",
             "reporting": {
               "percent": null,
@@ -681,7 +1074,7 @@
             "sourcePayloadSha256": "8207fef79e8ef25d665671fb5e8ce796164b7dc1513430ea1eac214106dabc31",
             "asOf": null,
             "asOfBasis": "not_provided",
-            "retrievedAt": "2026-10-13T19:48:54.930Z",
+            "retrievedAt": "2026-10-13T20:00:17.707Z",
             "totalVotes": 196212,
             "candidates": [
               {
@@ -832,18 +1225,18 @@
     },
     "staleBatch": {
       "status": 200,
-      "etag": "W/\"results-ids-650e634b3f74-c2e33a516a229aaf87dabc38\"",
+      "etag": "W/\"results-ids-650e634b3f74-305fcbf2b4fdca2aa0f66c0f\"",
       "body": {
         "schemaVersion": 1,
         "date": null,
-        "cursor": "c2e33a516a229aaf87dabc38",
+        "cursor": "305fcbf2b4fdca2aa0f66c0f",
         "reset": true,
         "results": [
           {
             "schemaVersion": 1,
             "electionId": 910001,
             "reportId": 2,
-            "revision": "r2-e217cf32",
+            "revision": "r2-2981b4bd",
             "status": "unofficial",
             "reporting": {
               "percent": 100,
@@ -861,7 +1254,7 @@
             "sourcePayloadSha256": "a1adde2cbace4018e482d7fdc12297dac32595e7e2a175e0f6fcf87c05e3154c",
             "asOf": null,
             "asOfBasis": "not_provided",
-            "retrievedAt": "2026-10-13T19:48:54.929Z",
+            "retrievedAt": "2026-10-13T20:00:17.706Z",
             "totalVotes": 827755,
             "candidates": [
               {
@@ -923,7 +1316,7 @@
             "certification": null,
             "supersedesReportId": null,
             "stale": true,
-            "staleSince": "2026-10-13T19:48:55.271Z",
+            "staleSince": "2026-10-13T20:00:18.084Z",
             "electionContext": {
               "state": "NC",
               "electionDate": "2026-03-03",
@@ -937,7 +1330,7 @@
             "schemaVersion": 1,
             "electionId": 910002,
             "reportId": 3,
-            "revision": "r3-f78bad65",
+            "revision": "r3-aa0ac711",
             "status": "unofficial",
             "reporting": {
               "percent": null,
@@ -955,7 +1348,7 @@
             "sourcePayloadSha256": "8207fef79e8ef25d665671fb5e8ce796164b7dc1513430ea1eac214106dabc31",
             "asOf": null,
             "asOfBasis": "not_provided",
-            "retrievedAt": "2026-10-13T19:48:54.930Z",
+            "retrievedAt": "2026-10-13T20:00:17.707Z",
             "totalVotes": 196212,
             "candidates": [
               {
@@ -981,7 +1374,7 @@
             "certification": null,
             "supersedesReportId": null,
             "stale": true,
-            "staleSince": "2026-10-13T19:48:55.276Z",
+            "staleSince": "2026-10-13T20:00:18.088Z",
             "electionContext": {
               "state": "LA",
               "electionDate": "2026-06-27",
@@ -1091,7 +1484,7 @@
             },
             "supersedesReportId": null,
             "stale": true,
-            "staleSince": "2026-10-13T19:48:55.268Z",
+            "staleSince": "2026-10-13T20:00:18.080Z",
             "electionContext": {
               "state": "WA",
               "electionDate": "2024-08-06",
@@ -1106,18 +1499,18 @@
     },
     "recoveredBatch": {
       "status": 200,
-      "etag": "W/\"results-ids-650e634b3f74-df5af03eb61306912ea77f09\"",
+      "etag": "W/\"results-ids-650e634b3f74-c1f7866d21d1b289faae1bc2\"",
       "body": {
         "schemaVersion": 1,
         "date": null,
-        "cursor": "df5af03eb61306912ea77f09",
+        "cursor": "c1f7866d21d1b289faae1bc2",
         "reset": true,
         "results": [
           {
             "schemaVersion": 1,
             "electionId": 910001,
             "reportId": 2,
-            "revision": "r2-e217cf32",
+            "revision": "r2-2981b4bd",
             "status": "unofficial",
             "reporting": {
               "percent": 100,
@@ -1135,7 +1528,7 @@
             "sourcePayloadSha256": "a1adde2cbace4018e482d7fdc12297dac32595e7e2a175e0f6fcf87c05e3154c",
             "asOf": null,
             "asOfBasis": "not_provided",
-            "retrievedAt": "2026-10-13T19:48:54.929Z",
+            "retrievedAt": "2026-10-13T20:00:17.706Z",
             "totalVotes": 827755,
             "candidates": [
               {
@@ -1211,7 +1604,7 @@
             "schemaVersion": 1,
             "electionId": 910002,
             "reportId": 3,
-            "revision": "r3-f78bad65",
+            "revision": "r3-aa0ac711",
             "status": "unofficial",
             "reporting": {
               "percent": null,
@@ -1229,7 +1622,7 @@
             "sourcePayloadSha256": "8207fef79e8ef25d665671fb5e8ce796164b7dc1513430ea1eac214106dabc31",
             "asOf": null,
             "asOfBasis": "not_provided",
-            "retrievedAt": "2026-10-13T19:48:54.930Z",
+            "retrievedAt": "2026-10-13T20:00:17.707Z",
             "totalVotes": 196212,
             "candidates": [
               {
@@ -1380,13 +1773,23 @@
     },
     "unavailable": {
       "status": 503,
-      "etag": "W/\"a1-yQKooN6UpsIeQkhUC1Gn1pQcViY\"",
+      "etag": "W/\"1be-r65i97fkVbgdnTEPKhkeGbG+2ZE\"",
       "body": {
         "error": "The admitted official results source is unavailable",
         "code": "source_unavailable",
         "details": {
           "electionId": 910003,
-          "sourceId": "health-unavailable-first"
+          "code": "source_unavailable",
+          "message": "The admitted official results source is unavailable",
+          "sourceId": "health-unavailable-first",
+          "failedSince": "2026-10-13T20:00:18.398Z",
+          "electionContext": {
+            "state": "NC",
+            "electionDate": "2026-03-03",
+            "type": "primary",
+            "level": "federal",
+            "office": "Private exact never-published NC DEM control"
+          }
         }
       }
     },

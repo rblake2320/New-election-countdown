@@ -10,7 +10,8 @@
 import type { Pool, PoolClient } from 'pg';
 import { createHash } from 'node:crypto';
 import { resultsSourceRegistry } from './results-source-registry';
-import {assertResultsNotAborted,decorateSourceHealth,readSourceHealth,writeSourceHealth,MemSourceHealth,healthCacheVersion,sourceHealthCacheKey,type SourceHealthEvent,type HealthRead} from './results-source-health';
+import {assertResultsNotAborted,decorateSourceHealth,readSourceHealth,writeSourceHealth,MemSourceHealth,healthCacheVersion,sourceHealthCacheKey,SourceUnavailableError,type SourceHealthEvent,type HealthRead} from './results-source-health';
+import type{LiveResultReadError}from'@shared/live-election-results';
 import {
   ResultReportError, assertNotFuture, buildResultsPayload, canonicalInputHash, contextMatches, electionContextOf, reportContextOf, revisionFor,
   etagFor,publishedContentHash,resultElectionDay,type ElectionContext, type ResultLineRow, type ResultReportInput, type ResultReportRow, type ResultsPayload,
@@ -22,6 +23,8 @@ const CONTEXT_MATCH_SQL = `r.context_state = e.state AND r.context_election_date
 
 export interface RecordContext {
   signal?:AbortSignal;
+  /** Captured by the automatic adapter before its awaited fetch; never supplied by a public body. */
+  expectedContext?:ElectionContext;
   /** admin user id, 'ingest:<adapter>' or 'replay:<drill>' — never from the request body */
   postedBy: string;
   idempotencyKey: string | null;
@@ -52,6 +55,7 @@ export interface ResultsListQuery {
  * committed late with a lower id.
  */
 export interface ResultsListPayload {
+  errors?:LiveResultReadError[];
   schemaVersion: 1;
   date: string | null;
   cursor: string;
@@ -182,8 +186,8 @@ function stripHistory(p: ResultsPayload): ResultsPayload {
   const out={...p,history:[]};Object.defineProperty(out,healthCacheVersion,{value:sourceHealthCacheKey(p),enumerable:false});return out;
 }
 
-export function snapshotCursor(results: ResultsPayload[]): string {
-  const canon = results.map((r) => etagFor(r)).sort().join('|');
+export function snapshotCursor(results: ResultsPayload[],errors:LiveResultReadError[]=[]): string {
+  const canon = [...results.map((r) => etagFor(r)),...errors.map(e=>JSON.stringify([e,sourceHealthCacheKey(e)]))].sort().join('|');
   return createHash('sha256').update(canon).digest('hex').slice(0, 24);
 }
 
@@ -227,7 +231,7 @@ export class PgResultReportStore implements ResultReportStore {
       : [];
     const payload=buildResultsPayload(electionId, latest, lines, history.rows, current);
     const health=await readSourceHealth(this.pool,[healthReadFor(electionId,current,payload.source?.id??null,election.rows[0].official_results_source?.publisher)]);
-    return decorateSourceHealth(payload,health.get(electionId)??null,latest?.posted_by.startsWith('ingest:')??false);
+    return decorateSourceHealth(payload,health.get(electionId)??null,latest?.posted_by.startsWith('ingest:')??false,Date.now(),current);
   }
 
   async listResultsPayloads(query: ResultsListQuery): Promise<ResultsListPayload> {
@@ -254,11 +258,13 @@ export class PgResultReportStore implements ResultReportStore {
     for (const l of lines) { const arr = linesByReport.get(l.report_id) ?? []; arr.push(l); linesByReport.set(l.report_id, arr); }
     const reads=rows.map(r=>healthReadFor(r.e_id,electionContextOf({state:r.e_state,date:r.e_date,type:r.e_type,level:r.e_level,title:r.e_title}),r.source_id??null,r.e_source?.publisher));
     const health=await readSourceHealth(this.pool,reads);
-    const results = rows.map((r) => {
+    const errors:LiveResultReadError[]=[];
+    const results:ResultsPayload[]=[];for(const r of rows){
       const current = electionContextOf({ state: r.e_state, date: r.e_date, type: r.e_type, level: r.e_level, title: r.e_title });
-      return decorateSourceHealth(stripHistory(buildResultsPayload(r.e_id, r.id === null ? null : r, r.id === null ? [] : linesByReport.get(r.id) ?? [], [], current)),health.get(r.e_id)??null,r.posted_by?.startsWith('ingest:')??false);
-    });
-    return { schemaVersion: 1, date: query.date ?? null, cursor: snapshotCursor(results), reset: true, results };
+      try{results.push(decorateSourceHealth(stripHistory(buildResultsPayload(r.e_id,r.id===null?null:r,r.id===null?[]:linesByReport.get(r.id)??[],[],current)),health.get(r.e_id)??null,r.posted_by?.startsWith('ingest:')??false,Date.now(),current));}
+      catch(error){if(!(error instanceof SourceUnavailableError))throw error;errors.push(error.readError);}
+    }
+    return { schemaVersion: 1, date: query.date ?? null, cursor: snapshotCursor(results,errors), reset: true, results,...(errors.length?{errors}:{}) };
   }
 
   async recordResultReport(electionId: number, input: ResultReportInput, ctx: RecordContext): Promise<RecordOutcome> {
@@ -278,6 +284,7 @@ export class PgResultReportStore implements ResultReportStore {
       assertNotFuture(input);
       assertNotPreElection(input, election.rows[0].date);
       const context = electionContextOf(election.rows[0]);
+      if(ctx.expectedContext&&!contextMatches(ctx.expectedContext,context))throw new ResultReportError(409,'election_context_changed','Race context changed while the official source was being fetched');
       const fresh=async()=>{await writeSourceHealth(client,{electionId,sourceId:input.source.id,context,outcome:'success',automatic:ctx.postedBy.startsWith('ingest:'),signal:ctx.signal});assertResultsNotAborted(ctx.signal);};
       const replayHealth=async(row:ResultReportRow)=>{
         const current=await client.query<{id:number}>(`SELECT id FROM election_result_reports WHERE election_id=$1 AND source_id=$2 AND source_contest_id=$3 AND context_state=$4 AND context_election_date=$5::date AND context_type=$6 AND context_level=$7 AND context_office=$8 ORDER BY id DESC LIMIT 1`,[electionId,input.source.id,input.source.sourceContestId,context.state,context.electionDate,context.type,context.level,context.office]);
@@ -494,11 +501,11 @@ export class MemResultReportStore implements ResultReportStore {
     if (query.date) ids = this.electionIdsOn(query.date);
     if (query.ids) ids = query.ids.slice(0, LIST_MAX_IDS).filter((id) => this.electionExists(id));
     const results: ResultsPayload[] = [];
+    const errors:LiveResultReadError[]=[];
     for (const id of [...new Set(ids)].sort((a, b) => a - b)) {
-      const p = await this.getResultsPayload(id);
-      if (p) results.push(stripHistory(p));
+      try{const p=await this.getResultsPayload(id);if(p)results.push(stripHistory(p));}catch(error){if(!(error instanceof SourceUnavailableError))throw error;errors.push(error.readError);}
     }
-    return { schemaVersion: 1, date: query.date ?? null, cursor: snapshotCursor(results), reset: true, results };
+    return { schemaVersion: 1, date: query.date ?? null, cursor: snapshotCursor(results,errors), reset: true, results,...(errors.length?{errors}:{}) };
   }
 
   async getResultsPayload(electionId: number): Promise<ResultsPayload | null> {
@@ -507,7 +514,7 @@ export class MemResultReportStore implements ResultReportStore {
     const history = this.reports.filter((r) => r.election_id === electionId).sort((a, b) => b.id - a.id).slice(0, HISTORY_LIMIT);
     const latest = history.find((r) => contextMatches(reportContextOf(r), current)) ?? null;
     const payload=buildResultsPayload(electionId, latest, latest ? [...(this.lines.get(latest.id) ?? [])].sort((a, b) => Number(b.votes) - Number(a.votes)) : [], history, current);
-    return decorateSourceHealth(payload,this.sourceHealth.read(healthReadFor(electionId,current,latest?.source_id??null,this.manifest().find(r=>r.election_id===electionId)?.publisher)),latest?.posted_by.startsWith('ingest:')??false);
+    return decorateSourceHealth(payload,this.sourceHealth.read(healthReadFor(electionId,current,latest?.source_id??null,this.manifest().find(r=>r.election_id===electionId)?.publisher)),latest?.posted_by.startsWith('ingest:')??false,Date.now(),current);
   }
 
   async recordResultReport(electionId: number, input: ResultReportInput, ctx: RecordContext): Promise<RecordOutcome> {
@@ -518,6 +525,7 @@ export class MemResultReportStore implements ResultReportStore {
     const date = this.electionDate(electionId);
     if (date) assertNotPreElection(input, date);
     const current = this.currentContext(electionId);
+    if(ctx.expectedContext&&!contextMatches(ctx.expectedContext,current))throw new ResultReportError(409,'election_context_changed','Race context changed while the official source was being fetched');
     const state = current.state;
     const fresh=()=>this.sourceHealth.write({electionId,sourceId:input.source.id,context:current,outcome:'success',automatic:ctx.postedBy.startsWith('ingest:'),signal:ctx.signal},true);
     const replayHealth=(row:ResultReportRow)=>{const latest=this.reports.filter(r=>r.election_id===electionId&&r.source_id===input.source.id&&r.source_contest_id===input.source.sourceContestId&&contextMatches(reportContextOf(r),current)).sort((a,b)=>b.id-a.id)[0];if(latest?.id===row.id)fresh();assertResultsNotAborted(ctx.signal);};
