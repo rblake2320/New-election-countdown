@@ -6,6 +6,7 @@
 
 import {
   S3Client,
+  type PutObjectCommandInput,
   PutObjectCommand,
   GetObjectCommand,
   DeleteObjectCommand,
@@ -19,9 +20,13 @@ import { Upload } from '@aws-sdk/lib-storage';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { createReadStream, createWriteStream, stat } from 'fs';
 import { promisify } from 'util';
-import { createHash, createCipher, createDecipher, randomBytes } from 'crypto';
-import { gzip, gunzip } from 'zlib';
-import { pipeline } from 'stream';
+import { createHash, createCipheriv, createDecipheriv, randomBytes } from 'crypto';
+import { mkdtemp, rm, rename } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join, dirname } from 'node:path';
+import { createGzip, createGunzip } from 'zlib';
+import { Readable, Transform } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 import { nanoid } from 'nanoid';
 import {
   BackupOperation,
@@ -31,9 +36,7 @@ import {
 } from '@shared/schema';
 
 const statAsync = promisify(stat);
-const pipelineAsync = promisify(pipeline);
-const gzipAsync = promisify(gzip);
-const gunzipAsync = promisify(gunzip);
+
 
 export interface S3BackupConfig {
   endpoint?: string;
@@ -52,7 +55,7 @@ export interface UploadOptions {
   key: string;
   metadata?: Record<string, string>;
   tags?: Record<string, string>;
-  storageClass?: string;
+  storageClass?: S3BackupConfig['storageClass'];
   serverSideEncryption?: boolean;
   contentType?: string;
 }
@@ -82,7 +85,7 @@ export interface RetentionPolicy {
 export class S3BackupService {
   private s3Client: S3Client;
   private config: S3BackupConfig;
-  private encryptionKey: Buffer;
+  private encryptionKey: Buffer | undefined;
 
   constructor(config: S3BackupConfig) {
     this.config = {
@@ -132,54 +135,54 @@ export class S3BackupService {
   }> {
     const startTime = Date.now();
     console.log(`🔄 Uploading backup to S3: ${options.key}`);
+    let stagingDirectory: string | undefined;
 
     try {
       // Get file stats
       const fileStats = await statAsync(filePath);
       const originalSize = fileStats.size;
 
-      // Prepare the upload stream
-      let uploadStream = createReadStream(filePath);
-      let finalSize = originalSize;
-      let checksum = await this.calculateFileChecksum(filePath);
-
-      // Apply compression if enabled
-      if (this.config.enableCompression) {
-        const gzipStream = gzip();
-        uploadStream = uploadStream.pipe(gzipStream);
-        
-        // For compressed files, we'll calculate size during upload
-        finalSize = 0; // Will be updated during upload
-      }
-
-      // Apply encryption if enabled
-      if (this.config.enableEncryption && this.config.encryptionMethod === 'AES256') {
-        const cipher = createCipher('aes-256-cbc', this.encryptionKey);
-        uploadStream = uploadStream.pipe(cipher);
-      }
+      // Stage a complete authenticated payload before publishing its metadata.
+      // pipeline propagates source/transform errors and temporary files are removed below.
+      stagingDirectory = await mkdtemp(join(tmpdir(), 'election-backup-'));
+      const stagedPath = join(stagingDirectory, 'payload');
+      const sourceHash = createHash('sha256');
+      const transforms: Transform[] = [new Transform({
+        transform(chunk, encoding, callback) { sourceHash.update(chunk); callback(null, chunk); }
+      })];
+      if (this.config.enableCompression) transforms.push(createGzip());
+      const locallyEncrypted = this.config.enableEncryption && this.config.encryptionMethod === 'AES256';
+      const iv = locallyEncrypted ? randomBytes(12) : undefined;
+      const cipher = iv ? createCipheriv('aes-256-gcm', this.requireEncryptionKey(), iv) : undefined;
+      if (cipher) transforms.push(cipher);
+      await pipeline([createReadStream(filePath), ...transforms, createWriteStream(stagedPath, { mode: 0o600 })]);
+      const uploadStream = createReadStream(stagedPath);
+      let finalSize = (await statAsync(stagedPath)).size;
+      const checksum = sourceHash.digest('hex');
 
       // Prepare upload parameters
-      const uploadParams = {
+      const uploadParams: PutObjectCommandInput = {
         Bucket: this.config.bucket,
         Key: options.key,
         Body: uploadStream,
         ContentType: options.contentType || 'application/octet-stream',
         StorageClass: options.storageClass || this.config.storageClass,
         Metadata: {
+          ...options.metadata,
           originalSize: originalSize.toString(),
           compressed: this.config.enableCompression ? 'true' : 'false',
-          encrypted: this.config.enableEncryption ? 'true' : 'false',
+          encrypted: locallyEncrypted ? 'true' : 'false',
+          ...(cipher && iv ? { cipher: 'aes-256-gcm-v1', iv: iv.toString('hex'), authTag: cipher.getAuthTag().toString('hex') } : {}),
           checksum: checksum,
           uploadedAt: new Date().toISOString(),
-          ...options.metadata
         },
-        ...(this.config.encryptionMethod === 'aws:kms' && {
+        ...(this.config.enableEncryption && this.config.encryptionMethod === 'aws:kms' && {
           ServerSideEncryption: 'aws:kms',
           SSEKMSKeyId: this.config.kmsKeyId
         }),
         ...(options.tags && {
           Tagging: Object.entries(options.tags)
-            .map(([key, value]) => `${key}=${value}`)
+            .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
             .join('&')
         })
       };
@@ -238,6 +241,8 @@ export class S3BackupService {
       const duration = Math.round((Date.now() - startTime) / 1000);
       console.error(`❌ S3 upload failed after ${duration}s:`, error);
       throw new Error(`S3 upload failed: ${error instanceof Error ? error.message : String(error)}`);
+     } finally {
+      if (stagingDirectory) await rm(stagingDirectory, { recursive: true, force: true });
     }
   }
 
@@ -252,6 +257,7 @@ export class S3BackupService {
   }> {
     const startTime = Date.now();
     console.log(`🔄 Downloading backup from S3: ${options.key}`);
+    let stagingDirectory: string | undefined;
 
     try {
       // Get object metadata first
@@ -277,42 +283,40 @@ export class S3BackupService {
         throw new Error('No data received from S3');
       }
 
-      // Create the download stream pipeline
-      let downloadStream = response.Body as NodeJS.ReadableStream;
-      
-      // Apply decryption if needed
-      if (isEncrypted && this.config.enableEncryption) {
-        const decipher = createDecipher('aes-256-cbc', this.encryptionKey);
-        downloadStream = downloadStream.pipe(decipher);
+      if (!(response.Body instanceof Readable)) throw new Error('S3 did not return a Node readable stream');
+      const transforms: Transform[] = [];
+      if (isEncrypted) {
+        if (metadata.cipher !== 'aes-256-gcm-v1' || !/^[0-9a-f]{24}$/i.test(metadata.iv ?? '') || !/^[0-9a-f]{32}$/i.test(metadata.authtag ?? metadata.authTag ?? '')) {
+          throw new Error('Unsupported or incomplete encrypted backup metadata; legacy archives require explicit migration');
+        }
+        const decipher = createDecipheriv('aes-256-gcm', this.requireEncryptionKey(), Buffer.from(metadata.iv, 'hex'));
+        decipher.setAuthTag(Buffer.from(metadata.authtag ?? metadata.authTag, 'hex'));
+        transforms.push(decipher);
       }
-
-      // Apply decompression if needed
-      if (isCompressed) {
-        const gunzipStream = gunzip();
-        downloadStream = downloadStream.pipe(gunzipStream);
-      }
-
-      // Write to local file
-      const writeStream = createWriteStream(options.localPath);
-      await pipelineAsync(downloadStream, writeStream);
+      if (isCompressed) transforms.push(createGunzip());
+      stagingDirectory = await mkdtemp(join(dirname(options.localPath), '.backup-restore-'));
+      const stagedPath = join(stagingDirectory, 'payload');
+      await pipeline([response.Body, ...transforms, createWriteStream(stagedPath, { mode: 0o600 })]);
 
       // Get final file stats
-      const finalStats = await statAsync(options.localPath);
+      const finalStats = await statAsync(stagedPath);
       const duration = Math.round((Date.now() - startTime) / 1000);
 
       // Verify checksum if requested and available
       let verified = false;
       let actualChecksum = '';
       
-      if (options.verifyChecksum && originalChecksum) {
-        actualChecksum = await this.calculateFileChecksum(options.localPath);
+      if (options.verifyChecksum) {
+        if (!originalChecksum) throw new Error("Backup checksum is missing");
+        actualChecksum = await this.calculateFileChecksum(stagedPath);
         verified = actualChecksum === originalChecksum;
         
         if (!verified) {
-          console.warn(`⚠️ Checksum verification failed for ${options.key}`);
+          throw new Error(`Checksum verification failed for ${options.key}`);
         }
       }
 
+      await rename(stagedPath, options.localPath);
       console.log(`✅ S3 download completed`, {
         key: options.key,
         localPath: options.localPath,
@@ -332,6 +336,8 @@ export class S3BackupService {
       const duration = Math.round((Date.now() - startTime) / 1000);
       console.error(`❌ S3 download failed after ${duration}s:`, error);
       throw new Error(`S3 download failed: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      if (stagingDirectory) await rm(stagingDirectory, { recursive: true, force: true });
     }
   }
 
@@ -514,17 +520,16 @@ export class S3BackupService {
   /**
    * Get or create encryption key for local file encryption
    */
-  private getOrCreateEncryptionKey(): Buffer {
-    // In production, this should be stored securely (e.g., AWS KMS, HashiCorp Vault)
-    const keyEnvVar = process.env.BACKUP_ENCRYPTION_KEY;
-    
-    if (keyEnvVar) {
-      return Buffer.from(keyEnvVar, 'hex');
-    }
+  private getOrCreateEncryptionKey(): Buffer | undefined {
+    const value = process.env.BACKUP_ENCRYPTION_KEY;
+    if (!value) return undefined;
+    if (!/^[0-9a-f]{64}$/i.test(value)) throw new Error('BACKUP_ENCRYPTION_KEY must contain exactly 32 bytes encoded as hexadecimal');
+    return Buffer.from(value, 'hex');
+  }
 
-    // Generate a random key (THIS IS NOT SECURE FOR PRODUCTION)
-    console.warn('⚠️ Using randomly generated encryption key - not secure for production!');
-    return randomBytes(32);
+  private requireEncryptionKey(): Buffer {
+    if (!this.encryptionKey) throw new Error('A persistent BACKUP_ENCRYPTION_KEY is required for local backup encryption');
+    return this.encryptionKey;
   }
 
   /**
@@ -589,14 +594,17 @@ export function createS3BackupService(storageLocation: BackupStorageLocation): S
     throw new Error(`Invalid storage type: ${storageLocation.type}. Expected 's3'.`);
   }
 
+  if (storageLocation.encryptionMethod && !['AES256', 'aws:kms'].includes(storageLocation.encryptionMethod)) {
+    throw new Error('Unsupported S3 encryption method');
+  }
   const config: S3BackupConfig = {
     region: storageLocation.region || 'us-east-1',
     bucket: storageLocation.bucket!,
     accessKeyId: storageLocation.accessKeyId!,
     secretAccessKey: process.env[`${storageLocation.name.toUpperCase()}_SECRET_KEY`] || '',
     endpoint: storageLocation.endpoint || undefined,
-    enableEncryption: storageLocation.isEncrypted,
-    encryptionMethod: storageLocation.encryptionMethod as any || 'AES256'
+    enableEncryption: storageLocation.isEncrypted ?? true,
+    encryptionMethod: storageLocation.encryptionMethod === 'aws:kms' ? 'aws:kms' : 'AES256'
   };
 
   return new S3BackupService(config);

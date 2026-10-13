@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { storage } from '../storage';
 import { BackupAlertService } from '../services/backup-alert-service';
 import { 
+  insertBackupMonitoringConfigurationSchema,
   BackupMonitoringConfiguration,
   BackupAlert,
   BackupHealthMetric
@@ -15,34 +16,13 @@ const router = Router();
 const backupAlertService = new BackupAlertService(storage);
 
 // Validation schemas
-const createMonitoringConfigSchema = z.object({
-  configurationName: z.string().min(1),
-  monitoringType: z.enum(['backup_completion', 'backup_failure', 'backup_duration', 'backup_size']),
-  targetSources: z.array(z.string()).min(1),
-  alertRules: z.array(z.object({
-    metricType: z.string(),
-    condition: z.enum(['greater_than', 'less_than', 'equals', 'not_equals', 'contains']),
-    threshold: z.union([z.number(), z.string()]),
-    severity: z.enum(['low', 'medium', 'high', 'critical']),
-    description: z.string()
-  })).min(1),
-  notificationChannels: z.array(z.object({
-    type: z.enum(['email', 'sms', 'webhook', 'slack']),
-    target: z.string(),
-    priority: z.number().min(1),
-    escalationLevel: z.number().min(1)
-  })).min(1),
-  escalationRules: z.array(z.any()).optional(),
-  isEnabled: z.boolean().default(true),
-  description: z.string().optional(),
-  checkInterval: z.number().positive().optional(),
-  retentionPeriod: z.number().positive().optional()
-});
-
-const simulateEventSchema = z.object({
-  eventType: z.enum(['backup_started', 'backup_completed', 'backup_failed', 'backup_warning']),
-  backupJobId: z.string().min(1)
-});
+const createMonitoringConfigSchema = insertBackupMonitoringConfigurationSchema.extend({
+  name: z.string().trim().min(1),
+  monitoringType: z.enum(['all_backups', 'backup_type']),
+  alertChannels: z.array(z.enum(['email', 'dashboard'])).default(['dashboard']),
+  alertEmails: z.array(z.string().email()).optional(),
+  isEnabled: z.boolean().default(true)
+}).strict();
 
 // GET /api/v1/track4/backup/monitoring/configurations - Get monitoring configurations
 router.get('/monitoring/configurations', isAuthenticated, async (req, res) => {
@@ -389,32 +369,8 @@ router.get('/health/summary', isAuthenticated, async (req, res) => {
 });
 
 // POST /api/v1/track4/backup/simulate - Simulate backup event (for testing)
-router.post('/simulate', isAuthenticated, async (req, res) => {
-  try {
-    const { eventType, backupJobId } = simulateEventSchema.parse(req.body);
-    
-    await backupAlertService.simulateBackupEvent(eventType, backupJobId);
-    
-    res.json({
-      success: true,
-      message: `Simulated ${eventType} event for backup job ${backupJobId}`
-    });
-  } catch (error) {
-    console.error('[Track4BackupRoutes] Error simulating backup event:', error);
-    
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({
-        success: false,
-        error: 'Validation error',
-        details: error.errors
-      });
-    }
-    
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
+router.post('/simulate', isAuthenticated, async (_req, res) => {
+  res.status(503).json({ success: false, code: 'SYNTHETIC_EVENT_DISABLED', error: 'Simulated events cannot write operational backup health.' });
 });
 
 // GET /api/v1/track4/backup/dashboard - Get backup monitoring dashboard
