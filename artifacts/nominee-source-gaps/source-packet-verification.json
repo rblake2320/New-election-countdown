@@ -1,0 +1,33 @@
+{
+  "outcome": "Worked",
+  "checks": [
+    {
+      "scenario": "retained packet index byte hashes",
+      "count": 35,
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "draft row/date/state/scope count conservation, all unknown incumbents null",
+      "rows": 28,
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "actual retained PDF hashes and every extracted first-source ballot label",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "actual 2026 guide names and explicit Governor role, identity only",
+      "names": 4,
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "actual Illinois general bytes and independently source-labelled Governor identities",
+      "physicalGeneralRows": 6,
+      "governors": 3,
+      "outcome": "Worked"
+    }
+  ],
+  "rawContactContainingSourcesReadOnlyNotEmitted": true,
+  "pinalByteCaptureClaim": false,
+  "noDatabaseOrNetworkAccess": true
+}
