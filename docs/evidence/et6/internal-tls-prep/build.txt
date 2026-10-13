@@ -1,0 +1,92 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 327B 0.0s done
+#1 DONE 0.1s
+
+#2 [internal] load metadata for mcr.microsoft.com/playwright@sha256:06a9939e57531807f8d5fd76ce44b53165ffb7d7501d87ab10e285c20b1e971f
+#2 DONE 0.3s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.1s
+
+#4 [1/2] FROM mcr.microsoft.com/playwright@sha256:06a9939e57531807f8d5fd76ce44b53165ffb7d7501d87ab10e285c20b1e971f
+#4 resolve mcr.microsoft.com/playwright@sha256:06a9939e57531807f8d5fd76ce44b53165ffb7d7501d87ab10e285c20b1e971f
+#4 resolve mcr.microsoft.com/playwright@sha256:06a9939e57531807f8d5fd76ce44b53165ffb7d7501d87ab10e285c20b1e971f 0.2s done
+#4 DONE 0.5s
+
+#5 [2/2] RUN apt-get update && apt-get install -y --no-install-recommends libnss3-tools && rm -rf /var/lib/apt/lists/*
+#5 1.034 Get:1 https://deb.nodesource.com/node_24.x nodistro InRelease [12.1 kB]
+#5 1.044 Get:2 http://security.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+#5 1.170 Get:3 https://deb.nodesource.com/node_24.x nodistro/main amd64 Packages [9293 B]
+#5 1.371 Get:4 http://azure.archive.ubuntu.com/ubuntu noble InRelease [256 kB]
+#5 1.698 Get:5 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+#5 1.810 Get:6 http://security.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [2122 kB]
+#5 1.828 Get:7 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+#5 1.923 Get:8 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 Packages [19.3 MB]
+#5 2.950 Get:9 http://security.ubuntu.com/ubuntu noble-security/main amd64 Packages [1409 kB]
+#5 3.238 Get:10 http://security.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1548 kB]
+#5 3.473 Get:11 http://security.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [55.6 kB]
+#5 5.018 Get:12 http://azure.archive.ubuntu.com/ubuntu noble/restricted amd64 Packages [117 kB]
+#5 5.031 Get:13 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 Packages [1808 kB]
+#5 5.261 Get:14 http://azure.archive.ubuntu.com/ubuntu noble/multiverse amd64 Packages [331 kB]
+#5 5.293 Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1728 kB]
+#5 5.454 Get:16 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [61.7 kB]
+#5 5.455 Get:17 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [2231 kB]
+#5 5.679 Get:18 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [2166 kB]
+#5 5.840 Get:19 http://azure.archive.ubuntu.com/ubuntu noble-backports/main amd64 Packages [49.0 kB]
+#5 5.843 Get:20 http://azure.archive.ubuntu.com/ubuntu noble-backports/universe amd64 Packages [36.0 kB]
+#5 5.847 Get:21 http://azure.archive.ubuntu.com/ubuntu noble-backports/multiverse amd64 Packages [669 B]
+#5 6.280 Fetched 33.6 MB in 6s (6036 kB/s)
+#5 6.280 Reading package lists...
+#5 7.410 Reading package lists...
+#5 8.610 Building dependency tree...
+#5 8.948 Reading state information...
+#5 9.279 The following NEW packages will be installed:
+#5 9.279   libnss3-tools
+#5 9.813 0 upgraded, 1 newly installed, 0 to remove and 7 not upgraded.
+#5 9.813 Need to get 615 kB of archives.
+#5 9.813 After this operation, 2193 kB of additional disk space will be used.
+#5 9.813 Get:1 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libnss3-tools amd64 2:3.98-1ubuntu0.2 [615 kB]
+#5 11.00 debconf: delaying package configuration, since apt-utils is not installed
+#5 11.06 Fetched 615 kB in 1s (437 kB/s)
+#5 11.11 Selecting previously unselected package libnss3-tools.
+#5 11.11 (Reading database ... 
+(Reading database ... 5%
+(Reading database ... 10%
+(Reading database ... 15%
+(Reading database ... 20%
+(Reading database ... 25%
+(Reading database ... 30%
+(Reading database ... 35%
+(Reading database ... 40%
+(Reading database ... 45%
+(Reading database ... 50%
+(Reading database ... 55%
+(Reading database ... 60%
+(Reading database ... 65%
+(Reading database ... 70%
+(Reading database ... 75%
+(Reading database ... 80%
+(Reading database ... 85%
+(Reading database ... 90%
+(Reading database ... 95%
+(Reading database ... 100%
+(Reading database ... 34955 files and directories currently installed.)
+#5 11.18 Preparing to unpack .../libnss3-tools_2%3a3.98-1ubuntu0.2_amd64.deb ...
+#5 11.19 Unpacking libnss3-tools (2:3.98-1ubuntu0.2) ...
+#5 11.30 Setting up libnss3-tools (2:3.98-1ubuntu0.2) ...
+#5 DONE 11.4s
+
+#6 exporting to image
+#6 exporting layers
+#6 exporting layers 0.4s done
+#6 exporting manifest sha256:de7bf3c0c667ccbda7a113c6f8467f7fdae682301b1a7e443664362deab41787 0.0s done
+#6 exporting config sha256:2917f148efdff2ebdc4958f2f4f4ab5fb8d166ab2ccb4491948642522d514fe5 0.0s done
+#6 exporting attestation manifest sha256:9d9420f477695038c6dce16d1b0d60ae489da1d5958fcbe754da8a35607cc912 0.1s done
+#6 exporting manifest list sha256:7b13b1d7a5be26b94fd703b92382ad650719b9f939c4f3ffe710bc8c9a49591a
+#6 exporting manifest list sha256:7b13b1d7a5be26b94fd703b92382ad650719b9f939c4f3ffe710bc8c9a49591a 0.0s done
+#6 naming to docker.io/library/electiontracker:et6-playwright-trust-20261013 done
+#6 unpacking to docker.io/library/electiontracker:et6-playwright-trust-20261013 0.1s done
+#6 DONE 0.7s
