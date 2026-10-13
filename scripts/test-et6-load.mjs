@@ -115,7 +115,7 @@ try {
     const name = `et6-load-${runId}-${index}`;
     clients.push(name);
     await docker('run', '-d', '--name', name, '--label', `${loadLabel}=${runId}`, '--label', `${ownerLabel}=${resources.runId}`,
-      '--network', resources.network, '--read-only', '--cap-drop', 'ALL', '--security-opt', 'no-new-privileges',
+      '--network', resources.network, '--no-healthcheck', '--read-only', '--cap-drop', 'ALL', '--security-opt', 'no-new-privileges',
       '--entrypoint', 'node', image, '-e', 'setInterval(()=>{},1000)');
     const ip = await docker('inspect', '--format', `{{(index .NetworkSettings.Networks "${resources.network}").IPAddress}}`, name);
     requireThat(ip && !report.identities.some(x => x.ip === ip), 'Client source IP missing or duplicated');
