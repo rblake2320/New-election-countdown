@@ -137,10 +137,23 @@ export const liveResultReportInputSchema = resultObject.extend({
   note: z.string().trim().max(4000).nullable(),
 }).strict().superRefine(validateRecorded);
 
+/** A failed source read is an outcome for a race, never a healthy zero/none
+ * result and never a reason to discard other races' recorded snapshots. */
+export const liveResultReadErrorSchema = z.object({
+  electionId: id,
+  code: z.literal('source_unavailable'),
+  message: z.string().trim().min(1).max(300),
+  sourceId: token.nullable(),
+  failedSince: timestamp,
+  electionContext: liveResultElectionContextSchema,
+}).strict();
+export type LiveResultReadError = z.infer<typeof liveResultReadErrorSchema>;
+
 export const liveResultsBatchSchema = z.object({
   schemaVersion: z.literal(1),
   date: calendarDate.nullable(),
   results: z.array(liveElectionResultsSchema).max(2000),
+  errors: z.array(liveResultReadErrorSchema).max(2000).optional(),
   cursor: token,
   reset: z.literal(true),
 }).strict().superRefine((value, ctx) => {
@@ -150,6 +163,12 @@ export const liveResultsBatchSchema = z.object({
     ids.add(row.electionId);
     if (row.history.length) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['results', index, 'history'], message: 'Batch contains current snapshots only; history belongs to the detail read' });
     if (value.date !== null && row.electionContext !== null && row.electionContext.electionDate !== value.date) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['results', index, 'electionContext', 'electionDate'], message: 'Recorded contest does not belong to the requested date' });
+  });
+  if (value.results.length + (value.errors?.length ?? 0) > 2000) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Batch outcomes exceed the scope bound' });
+  (value.errors ?? []).forEach((row, index) => {
+    if (ids.has(row.electionId)) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['errors', index, 'electionId'], message: 'One batch outcome per election is required' });
+    ids.add(row.electionId);
+    if (value.date !== null && row.electionContext.electionDate !== value.date) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['errors', index, 'electionContext', 'electionDate'], message: 'A source failure must match the requested election date' });
   });
 });
 

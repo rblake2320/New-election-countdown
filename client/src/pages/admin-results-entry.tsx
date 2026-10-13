@@ -149,6 +149,31 @@ const POST_ERRORS: Record<string, string> = {
   invalid_report: "The server refused the report:",
 };
 
+// Race lookup (D's REAL ADMIN GAP): the public list stops 30 days back, so the admin form asks the
+// admin-only GET /api/admin/elections for an explicit, bounded date window (400 days, 600 races).
+const LOOKUP_MAX_DAYS = 400;
+const isoDay = (offsetDays: number) => new Date(Date.now() + offsetDays * 86_400_000).toISOString().slice(0, 10);
+const daysBetween = (from: string, to: string) => Math.round((Date.parse(to) - Date.parse(from)) / 86_400_000);
+interface Lookup { from: string; to: string; q: string }
+const defaultLookup = (): Lookup => ({ from: isoDay(-7), to: isoDay(7), q: "" });
+
+class LookupError extends Error {}
+async function fetchAdminElections(l: Lookup, signal?: AbortSignal): Promise<Election[]> {
+  const params = new URLSearchParams({ from: l.from, to: l.to });
+  if (l.q.trim()) params.set("q", l.q.trim());
+  const res = await fetch(`/api/admin/elections?${params}`, { credentials: "include", signal });
+  const body = await res.json().catch(() => null) as { code?: string; error?: string } | Election[] | null;
+  if (!res.ok) {
+    const code = body && !Array.isArray(body) ? body.code : undefined;
+    throw new LookupError(code === "range_too_large" ? `That range is too large (more than ${LOOKUP_MAX_DAYS} days or 600 races). Narrow it.`
+      : code === "invalid_query" ? "The server could not read those dates. Check the From and To dates."
+      : res.status === 401 || res.status === 403 ? "You do not have permission to look up races."
+      : `The list of races could not be loaded (${res.status}).`);
+  }
+  if (!Array.isArray(body)) throw new LookupError("The list of races could not be loaded: the response was not a list.");
+  return body;
+}
+
 const selectClass = "h-10 w-full rounded-md border border-input bg-background px-3 text-sm";
 
 export default function AdminResultsEntry() {
@@ -164,15 +189,23 @@ export default function AdminResultsEntry() {
   const [posting, setPosting] = useState(false);
 
   // Hooks run on every render; the access check below only changes what renders.
-  const { data: elections = [], isLoading: electionsLoading } = useQuery<Election[]>({
-    queryKey: ["/api/elections"],
+  const [lookup, setLookup] = useState<Lookup>(defaultLookup);
+  const [lookupDraft, setLookupDraft] = useState<Lookup>(lookup);
+  const [lookupProblem, setLookupProblem] = useState<string | null>(null);
+  const { data: elections = [], isLoading: electionsLoading, error: electionsError, refetch: refetchElections } = useQuery<Election[]>({
+    queryKey: ["/api/admin/elections", lookup.from, lookup.to, lookup.q],
+    queryFn: ({ signal }) => fetchAdminElections(lookup, signal),
     enabled: isAdmin,
-    select: data => {
-      const now = Date.now(), week = 7 * 24 * 60 * 60 * 1000;
-      return data.filter(e => Math.abs(new Date(e.date).getTime() - now) <= week)
-        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    },
   });
+  const applyLookup = () => {
+    const d = lookupDraft;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d.from) || !/^\d{4}-\d{2}-\d{2}$/.test(d.to)) { setLookupProblem("Enter both dates."); return; }
+    if (d.to < d.from) { setLookupProblem("From must be on or before To."); return; }
+    if (daysBetween(d.from, d.to) > LOOKUP_MAX_DAYS) { setLookupProblem(`Choose a range of at most ${LOOKUP_MAX_DAYS} days.`); return; }
+    setLookupProblem(null);
+    setLookup(d);
+  };
+  const resetLookup = () => { const d = defaultLookup(); setLookupDraft(d); setLookup(d); setLookupProblem(null); };
   const { data: candidates, isLoading: candidatesLoading } = useQuery<Candidate[]>({
     queryKey: ["/api/elections", selectedElectionId, "candidates"],
     queryFn: ({ signal }) => getJson<Candidate[]>(`/api/elections/${selectedElectionId}/candidates`, signal),
@@ -304,7 +337,7 @@ export default function AdminResultsEntry() {
       <Card>
         <CardHeader>
           <CardTitle>Race</CardTitle>
-          <CardDescription>Elections from 7 days ago to 7 days ahead</CardDescription>
+          <CardDescription>Races from {lookup.from} to {lookup.to}{lookup.q.trim() ? ` matching "${lookup.q.trim()}"` : ""}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <Select onValueChange={v => switchTo(Number(v))} value={selectedElectionId?.toString()} disabled={electionsLoading}>
@@ -313,7 +346,28 @@ export default function AdminResultsEntry() {
               {elections.map(e => <SelectItem key={e.id} value={e.id.toString()}>{e.title} ({e.state})</SelectItem>)}
             </SelectContent>
           </Select>
-          {!electionsLoading && elections.length === 0 && <p className="text-sm text-muted-foreground">No elections from 7 days ago to 7 days ahead.</p>}
+          {electionsError && (
+            <Alert variant="destructive" role="alert">
+              <AlertDescription className="flex flex-wrap items-center gap-3">
+                {electionsError.message}
+                <Button size="sm" variant="outline" onClick={() => refetchElections()}>Try again</Button>
+              </AlertDescription>
+            </Alert>
+          )}
+          {!electionsLoading && !electionsError && elections.length === 0 && <p className="text-sm text-muted-foreground">No races from {lookup.from} to {lookup.to}.</p>}
+          <details className="rounded-md border p-3 text-sm" data-testid="lookup-older">
+            <summary className="cursor-pointer font-medium">Look up older races (late corrections or certifications)</summary>
+            <div className="mt-3 grid gap-3 sm:grid-cols-4">
+              <div><Label htmlFor="lookup-from">From</Label><Input id="lookup-from" type="date" value={lookupDraft.from} onChange={e => setLookupDraft(d => ({ ...d, from: e.target.value }))} /></div>
+              <div><Label htmlFor="lookup-to">To</Label><Input id="lookup-to" type="date" value={lookupDraft.to} onChange={e => setLookupDraft(d => ({ ...d, to: e.target.value }))} /></div>
+              <div><Label htmlFor="lookup-q">Title contains</Label><Input id="lookup-q" value={lookupDraft.q} onChange={e => setLookupDraft(d => ({ ...d, q: e.target.value }))} /></div>
+              <div className="flex items-end gap-2">
+                <Button size="sm" onClick={applyLookup} data-testid="button-lookup">Show races</Button>
+                <Button size="sm" variant="outline" onClick={resetLookup}>This week</Button>
+              </div>
+            </div>
+            {lookupProblem && <p role="alert" className="mt-2 text-destructive">{lookupProblem}</p>}
+          </details>
           {pendingSwitch !== null && (
             <Alert role="alert">
               <AlertTriangle className="h-4 w-4" />
