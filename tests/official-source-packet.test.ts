@@ -1,0 +1,39 @@
+import { createHash } from 'node:crypto';
+import { readFileSync, mkdtempSync, cpSync, writeFileSync, symlinkSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { resolve, join } from 'node:path';
+import { describe,it,expect } from 'vitest';
+import { bridgeOfficialContest, type OfficialBridgeInput } from '../server/official-result-adapters/bridge';
+import { parseWashingtonLandsRecount, WA_LANDS_CONTEXT } from '../server/official-result-adapters/wa';
+import { parseOfficialSourcePacket,officialSourcePacketSchema } from '../scripts/parse_official_source_packet';
+const root=resolve('artifacts/source-packet/wa'),packetPath=join(root,'initial.packet.json');
+const sha=(raw:Uint8Array)=>createHash('sha256').update(raw).digest('hex');
+const target={id:4242401,state:'WA',date:'2024-08-06',type:'Primary',level:'state',title:'Washington Commissioner of Public Lands Primary'};
+const packet=officialSourcePacketSchema.parse(JSON.parse(readFileSync(packetPath,'utf8')));
+const payload=readFileSync(join(root,'raw/wa-2024-recount-all-candidates.xlsx')),pdf=readFileSync(join(root,'raw/wa-2024-original-certification.pdf'));
+const certUrl='https://www.sos.wa.gov/sites/default/files/2024-08/Certification%20of%20Results%20-%202024%20Primary.pdf';
+const base:OfficialBridgeInput={publisher:packet.publisher,retrievedAt:'2026-10-12T04:27:30.691594+00:00',target,reviewedTarget:target,reviewedContext:WA_LANDS_CONTEXT,rawPayload:payload,rawCertificates:[{url:certUrl,bytes:pdf}]};
+const parsed=await parseWashingtonLandsRecount(payload,{context:WA_LANDS_CONTEXT,snapshot:'initial',certificationBytes:pdf});
+function scratch(){const dir=mkdtempSync(join(tmpdir(),'sol-source-packet-test-'));cpSync(root,join(dir,'packet'),{recursive:true});return {dir,path:join(dir,'packet/initial.packet.json')};}
+async function mutation(change:(value:typeof packet)=>void){const s=scratch(),value=structuredClone(packet);change(value);const bytes=Buffer.from(JSON.stringify(value));writeFileSync(s.path,bytes);return parseOfficialSourcePacket(s.path,sha(bytes),target);}
+describe('Actual raw packet→V1 bridge',()=>{
+  it('defaults to unofficial even when parser has verified certificate proof',()=>{const input=bridgeOfficialContest(parsed,base);expect(input.status).toBe('unofficial');expect(input.certification).toBeNull();expect(input.asOf).toBeNull();expect(input.candidates.every(c=>c.candidateId===null&&!c.isWinner)).toBe(true);expect(input.candidates[0]?.sourceCandidateId).toBe('Allen Lebovitz');});
+  it('requires explicit certification and exact PDF proof; preserves null dates',()=>{const input=bridgeOfficialContest(parsed,{...base,reviewedCertification:true});expect(input.status).toBe('certified');expect(input.certification).toEqual({url:certUrl,certifiedAt:null});});
+  it('preserves genuine publisher IDs separately from inferred person IDs',()=>{const value=structuredClone(parsed);value.options[0]={...value.options[0]!,sourceCandidateId:'12',identifierBasis:'publisher_id'};const input=bridgeOfficialContest(value,base);expect(input.candidates[0]?.sourceCandidateId).toBe('12');expect(input.candidates[0]?.candidateId).toBeNull();});
+  it('refuses raw/certification mismatch or missing certificate',()=>{expect(()=>bridgeOfficialContest(parsed,{...base,rawPayload:Buffer.from('wrong')})).toThrow(/raw payload/);expect(()=>bridgeOfficialContest(parsed,{...base,reviewedCertification:true,rawCertificates:[]})).toThrow(/certification bytes/);expect(()=>bridgeOfficialContest({...parsed,certificationEvidence:[]},{...base,reviewedCertification:true})).toThrow(/requires actual/);});
+  for(const [key,value] of Object.entries({id:4242402,state:'CA',date:'2026-11-03',type:'General',level:'federal',title:'Other race'}))it(`refuses rewritten authoritative target ${key}`,()=>{expect(()=>bridgeOfficialContest(parsed,{...base,target:{...target,[key]:value}})).toThrow(/reviewed binding/);});
+  it('refuses certification context relabelling',()=>{const value=structuredClone(parsed);const proof=value.certificationEvidence[0];if(!proof)throw new Error('missing fixtureproof');proof.context.electionDate='2026-11-03';expect(()=>bridgeOfficialContest(value,{...base,reviewedCertification:true})).toThrow(/electionDate/);});
+  it('refuses target phase even if both target tuples are rewritten together',()=>{expect(()=>bridgeOfficialContest(parsed,{...base,target:{...target,type:'General'},reviewedTarget:{...target,type:'General'}})).toThrow(/phase/);});
+  it('derives stable full-input idempotency; changed actual retrieval gets a different key',()=>{expect(bridgeOfficialContest(parsed,base).idempotencyKey).toBe(bridgeOfficialContest(parsed,base).idempotencyKey);expect(bridgeOfficialContest(parsed,{...base,retrievedAt:'2026-10-12T04:28:30Z'}).idempotencyKey).not.toBe(bridgeOfficialContest(parsed,base).idempotencyKey);});
+  it('runs actual pinned portable packet and binds real capture clock',async()=>{const receipt=await parseOfficialSourcePacket(packetPath,sha(readFileSync(packetPath)),target);expect(receipt.input.totalVotes).toBe(1903073);expect(receipt.input.retrievedAt).toBe(base.retrievedAt);expect(receipt.input.certification?.certifiedAt).toBeNull();});
+  it('keeps original/amended actual returns on SAME source contest with different counts and keys',async()=>{
+    const before=await parseOfficialSourcePacket(packetPath,sha(readFileSync(packetPath)),target),afterPath=join(root,'recount.packet.json'),after=await parseOfficialSourcePacket(afterPath,sha(readFileSync(afterPath)),target);
+    expect(before.input.source?.sourceContestId).toBe(after.input.source?.sourceContestId);expect(before.input.electionId).toBe(after.input.electionId);
+    expect(before.input.totalVotes).not.toBe(after.input.totalVotes);expect(before.input.idempotencyKey).not.toBe(after.input.idempotencyKey);
+  });
+  it('refuses manifest digest mismatch and changed expected totals',async()=>{await expect(parseOfficialSourcePacket(packetPath,'0'.repeat(64),target)).rejects.toThrow(/manifest/);await expect(mutation(p=>{p.expectedTotals.totalVotes++;})).rejects.toThrow(/expected totals/);});
+  it('refuses changed raw source bytes',async()=>{const s=scratch();writeFileSync(join(s.dir,'packet/raw/wa-2024-recount-all-candidates.xlsx'),'damaged');await expect(parseOfficialSourcePacket(s.path,sha(readFileSync(s.path)),target)).rejects.toThrow(/Raw payload/);});
+  it('refuses traversal/absolute paths and duplicate roles',async()=>{await expect(mutation(p=>{p.files[0]!.path='../outside';})).rejects.toThrow(/relative paths/);await expect(mutation(p=>{p.files[0]!.path='C:/outside';})).rejects.toThrow(/relative paths/);await expect(mutation(p=>{p.files.push(p.files[0]!);})).rejects.toThrow(/ambiguous file roles/);});
+  it('refuses missing or mismatched actual capture receipt',async()=>{await expect(mutation(p=>{p.files=p.files.filter(f=>f.role!=='capture_receipt');})).rejects.toThrow(/capture_receipt absent/);await expect(mutation(p=>{p.publisher.url='https://www.sos.wa.gov/other';})).rejects.toThrow(/Publisher URL/);});
+  it('refuses real filesystem symlink escape',async()=>{const s=scratch(),outside=join(s.dir,'outside.xlsx');writeFileSync(outside,payload);symlinkSync(outside,join(s.dir,'packet/link.xlsx'),'file');const value=structuredClone(packet);value.files[0]!.path='link.xlsx';const bytes=Buffer.from(JSON.stringify(value));writeFileSync(s.path,bytes);await expect(parseOfficialSourcePacket(s.path,sha(bytes),target)).rejects.toThrow(/outside packet/);});
+});

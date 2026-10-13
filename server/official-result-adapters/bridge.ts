@@ -45,9 +45,10 @@ export function bridgeOfficialContest(parsedInput:unknown,input:OfficialBridgeIn
     name:option.name,party:option.party,votes:option.votes,percent:option.percent,isWinner:false}));
   const basisNote='Identifiers are exact publisher IDs when provided, otherwise exact source printed labels scoped to the source contest; all candidateId null; no winners inferred.';
   const certificateNote=certification?` Certification raw SHA256: ${parsed.certificationEvidence.map(proof=>proof.sha256).join(',')}.`:'';
-  const identity=hash(Buffer.from(JSON.stringify({publisher,target,context:parsed.context,sourceContestId:parsed.sourceContestId,payload:parsed.sourcePayloadSha256,options:parsed.options,status,certification,expectedRevision:input.expectedRevision??null,supersedesReportId:input.supersedesReportId??null})));
-  return liveResultReportInputSchema.parse({schemaVersion:1,electionId:target.id,status,reporting:parsed.reporting,
+  const body={schemaVersion:1,electionId:target.id,status,reporting:parsed.reporting,
     source:{...publisher,sourceContestId:parsed.sourceContestId},sourcePayloadSha256:parsed.sourcePayloadSha256,
     asOf:parsed.asOf,asOfBasis:parsed.asOfBasis,retrievedAt,totalVotes:parsed.totalVotes,candidates,winnerCalledBy:null,certification,
-    supersedesReportId:input.supersedesReportId??null,expectedRevision:input.expectedRevision??null,idempotencyKey:`sourcepacket:${identity}`,note:basisNote+certificateNote});
+    supersedesReportId:input.supersedesReportId??null,expectedRevision:input.expectedRevision??null,note:basisNote+certificateNote};
+  const identity=hash(Buffer.from(JSON.stringify(body)));
+  return liveResultReportInputSchema.parse({...body,idempotencyKey:`sourcepacket:${identity}`});
 }

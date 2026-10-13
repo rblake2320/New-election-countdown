@@ -1,7 +1,7 @@
 {
   "outcome": "Worked",
   "mode": "dry_run_only",
-  "manifestSha256": "31c846a01cb024d130d1f779573528f9e07f5ad2a2a1af2e6d6d446a32f11b5c",
+  "manifestSha256": "feffcee07149f9672b48e77424bd8c445bd4084c99d96bc9c3d0649908e32fd0",
   "files": [
     {
       "role": "payload",
@@ -71,6 +71,23 @@
     "undervote": 89818,
     "ballotTotal": 1994096
   },
+  "certificationEvidence": [
+    {
+      "url": "https://www.sos.wa.gov/sites/default/files/2024-08/Certification%20of%20Results%20-%202024%20Primary.pdf",
+      "sha256": "f75e558434a6633786614cc3b2696916bf81d651c79d4a0868104ca8546849ac",
+      "dateRaw": "22nd day of August, 2024",
+      "certifiedAt": null,
+      "context": {
+        "state": "WA",
+        "electionDate": "2024-08-06",
+        "phase": "primary",
+        "level": "state",
+        "office": "Commissioner of Public Lands",
+        "district": null,
+        "party": null
+      }
+    }
+  ],
   "input": {
     "schemaVersion": 1,
     "electionId": 4242401,
@@ -81,7 +98,7 @@
       "kind": "official_state_page",
       "name": "Washington Secretary of State",
       "url": "https://www.sos.wa.gov/sites/default/files/2024-09/TotalsforWeb_AllCandidates.xlsx",
-      "sourceContestId": "Sheet1:Commissioner of Public Lands:Initial"
+      "sourceContestId": "WA:2024-08-06:primary:state:Commissioner of Public Lands"
     },
     "sourcePayloadSha256": "1d11cc471c4e6bfb62f690cbfd8a248cd649989acc3d479273809316d8f3d466",
     "asOf": null,
@@ -169,7 +186,7 @@
     },
     "supersedesReportId": null,
     "expectedRevision": null,
-    "idempotencyKey": "sourcepacket:28b857afbf45a9aa31f8d11cc69df9f33ca41fd5753e98910675ee44a0053fad",
+    "idempotencyKey": "sourcepacket:4523edd8c47be43b62fd0eca70b4d751cc49d5f97e927fc6435434846fb1cdf3",
     "note": "Identifiers are exact publisher IDs when provided, otherwise exact source printed labels scoped to the source contest; all candidateId null; no winners inferred. Certification raw SHA256: f75e558434a6633786614cc3b2696916bf81d651c79d4a0868104ca8546849ac."
   }
 }

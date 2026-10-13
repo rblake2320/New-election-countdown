@@ -5,6 +5,9 @@ import { OfficialResultParseError, officialContestContextSchema, parsedOfficialC
 
 export const WA_LANDS_CONTEXT: OfficialContestContext = { state: 'WA', electionDate: '2024-08-06', phase: 'primary', level: 'state', office: 'Commissioner of Public Lands', district: null, party: null };
 export const WA_LANDS_WORKBOOK_SHA256 = '1d11cc471c4e6bfb62f690cbfd8a248cd649989acc3d479273809316d8f3d466';
+// Derived qualified printed-role key, not an invented official numeric ID.
+// Original/amended returns are revisions of this SAME source contest.
+export const WA_LANDS_SOURCE_CONTEST_ID = 'WA:2024-08-06:primary:state:Commissioner of Public Lands';
 export const WA_SENATE_CONTEXT: OfficialContestContext = { state:'WA',electionDate:'2024-08-06',phase:'primary',level:'federal',office:'U.S. Senate',district:null,party:null };
 export const WA_CONGRESSIONAL_WORKBOOK_SHA256 = '380e54147db4068f16d1f1339ae274c680bfbb8bc2699b77d27d12386ddd8a5b';
 const certificate = {
@@ -57,7 +60,7 @@ export async function parseWashingtonLandsRecount(bytes: Buffer, input: {
   const totalVotes = options.reduce((sum, option) => sum + option.votes, 0);
   const overvote = integer(totals[25 + offset]), undervote = integer(totals[28 + offset]), ballotTotal = integer(totals[31 + offset]);
   if (totalVotes + overvote + undervote !== ballotTotal) refuse('Ballot counts do not conserve option counts');
-  return parsedOfficialContestSchema.parse({ context, sourceContestId: `Sheet1:Commissioner of Public Lands:${input.snapshot === 'initial' ? 'Initial' : 'Recount'}`,
+  return parsedOfficialContestSchema.parse({ context, sourceContestId: WA_LANDS_SOURCE_CONTEST_ID,
     sourcePayloadSha256: book.sha256, asOf: null, asOfBasis: 'not_provided',
     asOfRaw: input.snapshot === 'recount' ? 'Sept 4 @ 1PM' : null, reporting: null,
     totalVotes, options, publisherMetrics: { overvote, undervote, ballotTotal },
