@@ -8,6 +8,7 @@ import { pool } from "../db";
 import { isAuthenticated } from "../auth";
 import { projectOfficialResultsForElection } from '../../shared/official-results';
 import { candidateSourceMarkers } from '../candidate-source-markers';
+import { candidateRecordUpdatedAt } from '../candidate-record-freshness';
 
 export const electionsRouter = Router();
 
@@ -227,7 +228,7 @@ electionsRouter.get("/:id/candidates", async (req, res) => {
 
               // Issues and data source information
               data_issues: enrichedData.voteSmartData?.issues || [],
-              last_data_update: enrichedData.voteSmartData?.lastUpdated || new Date().toISOString(),
+              last_data_update: candidateRecordUpdatedAt(candidate),
 
               // Additional identifiers for data linking
               external_ids: candidateExternalIds(candidate),
@@ -256,7 +257,7 @@ electionsRouter.get("/:id/candidates", async (req, res) => {
           data_issues: voteSmartService ?
             ['VoteSmart data not yet available for this candidate'] :
             ['VoteSmart API key required for comprehensive candidate data - configure VOTESMART_API_KEY to unlock detailed biographies, positions, and voting records'],
-          last_data_update: new Date().toISOString(),
+          last_data_update: candidateRecordUpdatedAt(candidate),
           external_ids: candidateExternalIds(candidate),
               source: candidateSourceMarkers(candidate)
         };
@@ -282,7 +283,7 @@ electionsRouter.get("/:id/candidates", async (req, res) => {
             has_ratings: false
           },
           data_issues: [`Data enrichment temporarily unavailable: ${enrichmentError instanceof Error ? enrichmentError.message : 'Unknown error'}`],
-          last_data_update: new Date().toISOString(),
+          last_data_update: candidateRecordUpdatedAt(candidate),
           external_ids: candidateExternalIds(candidate),
               source: candidateSourceMarkers(candidate)
         };
@@ -369,7 +370,7 @@ interface CandidateDetailResponse {
   voting_summary: string | null;
   interest_group_ratings: VoteSmartRating[];
   data_issues: string[];
-  last_data_update: string;
+  last_data_update: string | null;
   created_at: Date | null;
   updated_at: Date | null;
 }
@@ -438,7 +439,7 @@ electionsRouter.get("/:electionId/candidates/:candidateId", async (req, res) => 
       voting_summary: null,
       interest_group_ratings: [],
       data_issues: [],
-      last_data_update: new Date().toISOString(),
+      last_data_update: candidateRecordUpdatedAt(candidate),
       created_at: candidate.createdAt,
       updated_at: candidate.updatedAt
     };
@@ -480,7 +481,8 @@ electionsRouter.get("/:electionId/candidates/:candidateId", async (req, res) => 
           baseResponse.data_completeness.has_ratings = true;
         }
         baseResponse.data_issues = vsData.issues ?? [];
-        baseResponse.last_data_update = vsData.lastUpdated ?? new Date().toISOString();
+        // VoteSmart's aggregate lastUpdated is a generated capture clock;
+        // preserve the persisted candidate record update time above.
       }
 
       const alreadyExplained = baseResponse.data_issues.some((issue) => /votesmart/i.test(issue));
