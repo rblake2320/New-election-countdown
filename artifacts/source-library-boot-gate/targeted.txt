@@ -1,0 +1,24 @@
+
+> rest-express@1.0.0 test
+> vitest run tests/official-source-library-boot.test.ts --reporter=verbose
+
+
+ RUN  v5.0.3 D:/projects/et-wt/sol-results-source-health
+
+stdout | tests/official-source-library-boot.test.ts > Actual bundled server-style packet import boundary
+{"phase":"compile","elapsedMs":112.81040000000002,"budgetMs":5000,"status":0,"signal":null,"error":null,"wrapperSha256":["f433a48b99ce18de6177dbf4c07698ac3f22b93afcbf300f6c7d2d01915b4c10","2131607528313f430981fae2cb2d544837b6ec0aeb789c2b933443cbf8a2dc4e"]}
+
+stdout | tests/official-source-library-boot.test.ts > Actual bundled server-style packet import boundary > retains old negative: bundled CLI import runs argv guard and poisons server exitCode
+{"phase":"runtime","probe":"probe-old-library-boot","elapsedMs":50.764099999999985,"budgetMs":5000,"status":1,"signal":null,"error":null}
+
+stdout | tests/official-source-library-boot.test.ts > Actual bundled server-style packet import boundary > canonical pure library import emits only boot marker and leaves exitCode unchanged
+{"phase":"runtime","probe":"probe-library-boot","elapsedMs":48.75569999999993,"budgetMs":5000,"status":0,"signal":null,"error":null}
+
+ ✓ tests/official-source-library-boot.test.ts > Actual bundled server-style packet import boundary > retains old negative: bundled CLI import runs argv guard and poisons server exitCode 52ms
+ ✓ tests/official-source-library-boot.test.ts > Actual bundled server-style packet import boundary > canonical pure library import emits only boot marker and leaves exitCode unchanged 49ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  15:41:26
+   Duration  788ms (environment 43%, tests 33%, setup 18%, transform 4%, worker 1%, import 1%)
+
