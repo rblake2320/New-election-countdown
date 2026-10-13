@@ -1,0 +1,322 @@
+{
+  "inputs": {
+    "scripts/source_gap_runtime_pin_sd.mjs": {
+      "bytes": 2218,
+      "imports": [
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:path",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:crypto",
+          "kind": "import-statement",
+          "external": true
+        }
+      ],
+      "format": "esm"
+    },
+    "server/louisiana-house-catalog.ts": {
+      "bytes": 5978,
+      "imports": [
+        {
+          "path": "node:crypto",
+          "kind": "import-statement",
+          "external": true
+        }
+      ],
+      "format": "esm"
+    },
+    "server/fec-candidate-sync.ts": {
+      "bytes": 15799,
+      "imports": [
+        {
+          "path": "server/louisiana-house-catalog.ts",
+          "kind": "import-statement",
+          "original": "./louisiana-house-catalog"
+        }
+      ],
+      "format": "esm"
+    },
+    "server/candidate-nominee-sync.ts": {
+      "bytes": 33464,
+      "imports": [
+        {
+          "path": "server/louisiana-house-catalog.ts",
+          "kind": "import-statement",
+          "original": "./louisiana-house-catalog"
+        },
+        {
+          "path": "node:crypto",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "zod",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "server/fec-candidate-sync.ts",
+          "kind": "import-statement",
+          "original": "./fec-candidate-sync"
+        }
+      ],
+      "format": "esm"
+    },
+    "server/official-results-error.ts": {
+      "bytes": 257,
+      "imports": [],
+      "format": "esm"
+    },
+    "shared/official-results.ts": {
+      "bytes": 8398,
+      "imports": [
+        {
+          "path": "zod",
+          "kind": "import-statement",
+          "external": true
+        }
+      ],
+      "format": "esm"
+    },
+    "server/official-results-manifest.ts": {
+      "bytes": 11063,
+      "imports": [
+        {
+          "path": "node:crypto",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:fs/promises",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:path",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "zod",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "server/official-results-error.ts",
+          "kind": "import-statement",
+          "original": "./official-results-error"
+        },
+        {
+          "path": "shared/official-results.ts",
+          "kind": "import-statement",
+          "original": "../shared/official-results"
+        }
+      ],
+      "format": "esm"
+    },
+    "scripts/source_data_rollback.ts": {
+      "bytes": 9943,
+      "imports": [
+        {
+          "path": "pg",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:crypto",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:path",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:child_process",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "server/official-results-manifest.ts",
+          "kind": "import-statement",
+          "original": "../server/official-results-manifest"
+        }
+      ],
+      "format": "esm"
+    },
+    "scripts/verify_source_gap_full_private_sd.mjs": {
+      "bytes": 9778,
+      "imports": [
+        {
+          "path": "scripts/source_gap_runtime_pin_sd.mjs",
+          "kind": "import-statement",
+          "original": "./source_gap_runtime_pin_sd.mjs"
+        },
+        {
+          "path": "pg",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "dotenv",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:path",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:crypto",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "server/candidate-nominee-sync.ts",
+          "kind": "import-statement",
+          "original": "../server/candidate-nominee-sync.ts"
+        },
+        {
+          "path": "scripts/source_data_rollback.ts",
+          "kind": "import-statement",
+          "original": "./source_data_rollback.ts"
+        }
+      ],
+      "format": "esm"
+    }
+  },
+  "outputs": {
+    "artifacts/source-gap-private-sd/reproducible-full-gate.mjs": {
+      "imports": [
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:path",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:crypto",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "pg",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "dotenv",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:path",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:crypto",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:crypto",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "zod",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:crypto",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:fs",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:path",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "node:child_process",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "zod",
+          "kind": "import-statement",
+          "external": true
+        },
+        {
+          "path": "zod",
+          "kind": "import-statement",
+          "external": true
+        }
+      ],
+      "exports": [],
+      "entryPoint": "scripts/verify_source_gap_full_private_sd.mjs",
+      "inputs": {
+        "scripts/source_gap_runtime_pin_sd.mjs": {
+          "bytesInOutput": 2258
+        },
+        "scripts/verify_source_gap_full_private_sd.mjs": {
+          "bytesInOutput": 10512
+        },
+        "server/louisiana-house-catalog.ts": {
+          "bytesInOutput": 699
+        },
+        "server/candidate-nominee-sync.ts": {
+          "bytesInOutput": 30762
+        },
+        "server/fec-candidate-sync.ts": {
+          "bytesInOutput": 413
+        },
+        "scripts/source_data_rollback.ts": {
+          "bytesInOutput": 8370
+        },
+        "server/official-results-manifest.ts": {
+          "bytesInOutput": 1589
+        },
+        "shared/official-results.ts": {
+          "bytesInOutput": 4904
+        }
+      },
+      "bytes": 59976
+    }
+  }
+}

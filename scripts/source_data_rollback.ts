@@ -40,9 +40,14 @@ export function loadPrivateSnapshot(path:string,authorize:DatabaseAuthorization=
 /** Compare the complete postimage under locks; restore only allowlisted rows in one transaction. */
 export async function rollbackSourceRows(pool:pg.Pool,before:SourceSnapshot,after:SourceSnapshot,options:{faultAfterWrites?:number;authorizeDatabase?:DatabaseAuthorization}={}):Promise<{hash:string;restoredRows:number;deletedInsertedRows:number}>{
   const authorize=options.authorizeDatabase??requirePrivateDatabase;authorize(before.database);authorize(after.database);if(before.database!==after.database||sourceHash(before.tables)!==before.hash||sourceHash(after.tables)!==after.hash)throw new SourceReleaseRefused('SNAPSHOT_HASH_MISMATCH','Rollback snapshots are not bound to the same approved database');
-  const client=await pool.connect();let restoredRows=0,deletedInsertedRows=0,writes=0;
+  const client=await pool.connect();let restoredRows=0,deletedInsertedRows=0,writes=0,admitted=false;
   try{
-    await guard(client,before.database,authorize);await client.query('BEGIN ISOLATION LEVEL SERIALIZABLE');await client.query("SET LOCAL statement_timeout='60s'");await client.query("SET LOCAL lock_timeout='5s'");await client.query('SELECT pg_advisory_xact_lock($1)',[2026110301]);await client.query('LOCK TABLE '+DATA_TABLES.map(t=>'public.'+t).join(',')+' IN SHARE ROW EXCLUSIVE MODE');
+    const admission=await client.query<{admitted:boolean}>('SELECT pg_try_advisory_lock($1) AS admitted',[2026110301]);
+    if(admission.rows[0]?.admitted!==true)throw new SourceReleaseRefused('SOURCE_WRITER_BUSY','Rollback refused before transaction because source writer admission is busy');
+    admitted=true;
+    await client.query('BEGIN ISOLATION LEVEL SERIALIZABLE');await client.query("SET LOCAL statement_timeout='60s'");await client.query("SET LOCAL lock_timeout='5s'");
+    await client.query('LOCK TABLE '+DATA_TABLES.map(t=>'public.'+t).join(',')+' IN SHARE ROW EXCLUSIVE MODE');
+    await guard(client,before.database,authorize);
     const current=await snapshot(client,before.database,false,authorize);if(current.hash!==after.hash)throw new SourceReleaseRefused('POSTIMAGE_DRIFT','Rollback refused because source data changed after the retained postimage');
     // Current partial UNIQUE markers must be retired before older versions reactivate.
     for(const t of ['candidate_source_records','general_candidate_list_snapshots'] as const)await client.query(`UPDATE public.${t} SET is_current=false WHERE is_current=true`);
@@ -59,5 +64,9 @@ export async function rollbackSourceRows(pool:pg.Pool,before:SourceSnapshot,afte
       }
     }
     const restored=await snapshot(client,before.database,false,authorize);if(restored.hash!==before.hash)throw new SourceReleaseRefused('RESTORE_HASH_MISMATCH','Restored source row hash differs from original');await client.query('COMMIT');return{hash:restored.hash,restoredRows,deletedInsertedRows};
-  }catch(error){await client.query('ROLLBACK').catch(()=>{});throw error;}finally{client.release();}
+  }catch(error){await client.query('ROLLBACK').catch(()=>{});throw error;}finally{
+    let cleanupError:SourceReleaseRefused|undefined;
+    if(admitted){try{const released=await client.query<{released:boolean}>('SELECT pg_advisory_unlock($1) AS released',[2026110301]);if(released.rows[0]?.released!==true)cleanupError=new SourceReleaseRefused('ROLLBACK_LOCK_CLEANUP_FAILED','Rollback admission lock could not be released');}catch{cleanupError=new SourceReleaseRefused('ROLLBACK_LOCK_CLEANUP_FAILED','Rollback admission connection failed during cleanup');}}
+    client.release(Boolean(cleanupError));if(cleanupError)throw cleanupError;
+  }
 }

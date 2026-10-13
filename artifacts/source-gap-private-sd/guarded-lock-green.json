@@ -1,0 +1,132 @@
+{
+  "runtimeImporterHead": "72f7e8e6e5ac3fb93a7d31993c094565c1de1310",
+  "database": "et_sol_data_6c78a3148c6b",
+  "manifestSha": "f83bee609922a2213213d26fdd956c248a69a14718936ff2f39a757c0821223a",
+  "checks": [
+    {
+      "scenario": "wrong expected preimage refuses before source/audit writes",
+      "outcome": "Worked",
+      "callbackCalled": true,
+      "snapshotHash": "1322b3367130f43557be09f22033d9481b087d66d54f2bb74ada567f16c88eb2",
+      "code": "PREIMAGE_DRIFT",
+      "message": "Preimage differs"
+    },
+    {
+      "scenario": "busy admission refuses before BEGIN/callback/writes",
+      "outcome": "Worked",
+      "kind": "advisory",
+      "attempt": {
+        "callbackCalled": false,
+        "code": null,
+        "message": "Source identity writer is busy; guarded source apply refused before transaction"
+      },
+      "durationMs": 7.903300000000058
+    },
+    {
+      "scenario": "after marker commit fresh retry rejects actual committed drift",
+      "outcome": "Worked",
+      "kind": "advisory",
+      "attempt": {
+        "callbackCalled": false,
+        "code": null,
+        "message": "Source identity writer is busy; guarded source apply refused before transaction"
+      },
+      "durationMs": 7.903300000000058,
+      "actualCommittedHash": "cef36db58dc9d8ea678f974b03a6b417d303d61dba7f4a4413cd50aa7f71c884",
+      "retry": {
+        "callbackCalled": true,
+        "snapshotHash": "cef36db58dc9d8ea678f974b03a6b417d303d61dba7f4a4413cd50aa7f71c884",
+        "code": "PREIMAGE_DRIFT",
+        "message": "Preimage differs"
+      }
+    },
+    {
+      "scenario": "fresh connection acquires admission after advisory refusal",
+      "outcome": "Worked",
+      "pid": 2164,
+      "admitted": true,
+      "released": true
+    },
+    {
+      "scenario": "marker cleanup exact baseline after advisory",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "plain table writer commit visible after first table-lock query",
+      "outcome": "Worked",
+      "kind": "table",
+      "waitObserved": true,
+      "actualCommittedHash": "c54673ab448c7f46db12f728de7c80a180702b9e47fbb3b90ab26349b09b562e",
+      "attempt": {
+        "callbackCalled": true,
+        "snapshotHash": "c54673ab448c7f46db12f728de7c80a180702b9e47fbb3b90ab26349b09b562e",
+        "code": "PREIMAGE_DRIFT",
+        "message": "Preimage differs"
+      }
+    },
+    {
+      "scenario": "fresh connection acquires admission after table refusal",
+      "outcome": "Worked",
+      "pid": 2166,
+      "admitted": true,
+      "released": true
+    },
+    {
+      "scenario": "marker cleanup exact baseline after table",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "same pool1 callback refusal 0",
+      "outcome": "Worked",
+      "callbackCalled": true,
+      "snapshotHash": "1322b3367130f43557be09f22033d9481b087d66d54f2bb74ada567f16c88eb2",
+      "code": "INJECTED_CALLBACK_REFUSAL",
+      "message": "Private injected callback refusal before all application writes"
+    },
+    {
+      "scenario": "no reentrant admission depth after pool1 refusal 0",
+      "outcome": "Worked",
+      "pid": 2168,
+      "admitted": true,
+      "released": true
+    },
+    {
+      "scenario": "same pool1 callback refusal 1",
+      "outcome": "Worked",
+      "callbackCalled": true,
+      "snapshotHash": "1322b3367130f43557be09f22033d9481b087d66d54f2bb74ada567f16c88eb2",
+      "code": "INJECTED_CALLBACK_REFUSAL",
+      "message": "Private injected callback refusal before all application writes"
+    },
+    {
+      "scenario": "no reentrant admission depth after pool1 refusal 1",
+      "outcome": "Worked",
+      "pid": 2170,
+      "admitted": true,
+      "released": true
+    },
+    {
+      "scenario": "same pool1 callback refusal 2",
+      "outcome": "Worked",
+      "callbackCalled": true,
+      "snapshotHash": "1322b3367130f43557be09f22033d9481b087d66d54f2bb74ada567f16c88eb2",
+      "code": "INJECTED_CALLBACK_REFUSAL",
+      "message": "Private injected callback refusal before all application writes"
+    },
+    {
+      "scenario": "no reentrant admission depth after pool1 refusal 2",
+      "outcome": "Worked",
+      "pid": 2171,
+      "admitted": true,
+      "released": true
+    },
+    {
+      "scenario": "all original source data/audit rows preserved",
+      "outcome": "Worked"
+    }
+  ],
+  "nomineeApplicationWrites": 0,
+  "beforeHash": "1322b3367130f43557be09f22033d9481b087d66d54f2bb74ada567f16c88eb2",
+  "afterHash": "1322b3367130f43557be09f22033d9481b087d66d54f2bb74ada567f16c88eb2",
+  "outcome": "Worked"
+}

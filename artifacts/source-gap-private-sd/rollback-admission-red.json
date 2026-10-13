@@ -1,0 +1,51 @@
+{
+  "runtimeImporterHead": "72f7e8e6e5ac3fb93a7d31993c094565c1de1310",
+  "database": "et_sol_data_6c78a3148c6b",
+  "manifestSha": "f83bee609922a2213213d26fdd956c248a69a14718936ff2f39a757c0821223a",
+  "checks": [
+    {
+      "scenario": "old rollback advisory refuses committed source drift before mutations",
+      "outcome": "Failed",
+      "kind": "advisory",
+      "immutableHelper": "72f7e8e:scripts/source_data_rollback.ts",
+      "faultAfterWrites": 1,
+      "waitObserved": true,
+      "actualCommittedHash": "2e86d52edc6cfbb592dca870a6a3707ece76f8e92c61508a551e6d876516ee8d",
+      "attempt": {
+        "code": "INJECTED_ROLLBACK_FAILURE",
+        "message": "Private rollback fault control"
+      }
+    },
+    {
+      "scenario": "rollback advisory control cleanup restores exact baseline",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "old rollback table refuses committed source drift before mutations",
+      "outcome": "Failed",
+      "kind": "table",
+      "immutableHelper": "72f7e8e:scripts/source_data_rollback.ts",
+      "faultAfterWrites": 1,
+      "waitObserved": true,
+      "actualCommittedHash": "c5b687e5290fda336c9d0362997ad909ae4526254fb10138e630576f58e62711",
+      "attempt": {
+        "code": "INJECTED_ROLLBACK_FAILURE",
+        "message": "Private rollback fault control"
+      }
+    },
+    {
+      "scenario": "rollback table control cleanup restores exact baseline",
+      "outcome": "Worked"
+    },
+    {
+      "scenario": "all original source data/audit rows preserved",
+      "outcome": "Worked"
+    }
+  ],
+  "nomineeApplicationWrites": 0,
+  "beforeHash": "1322b3367130f43557be09f22033d9481b087d66d54f2bb74ada567f16c88eb2",
+  "mode": "immutable-old-rollback-admission-red",
+  "rollbackApplicationWritesCommitted": 0,
+  "afterHash": "1322b3367130f43557be09f22033d9481b087d66d54f2bb74ada567f16c88eb2",
+  "outcome": "Failed"
+}
