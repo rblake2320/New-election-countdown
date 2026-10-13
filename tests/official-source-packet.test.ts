@@ -5,7 +5,7 @@ import { resolve, join } from 'node:path';
 import { describe,it,expect } from 'vitest';
 import { bridgeOfficialContest, type OfficialBridgeInput } from '../server/official-result-adapters/bridge';
 import { parseWashingtonLandsRecount, WA_LANDS_CONTEXT } from '../server/official-result-adapters/wa';
-import { parseOfficialSourcePacket,officialSourcePacketSchema } from '../scripts/parse_official_source_packet';
+import { parseOfficialSourcePacket,loadReviewedPacketBytes,officialSourcePacketSchema } from '../server/official-result-adapters/packet';
 const root=resolve('artifacts/source-packet/wa'),packetPath=join(root,'initial.packet.json');
 const sha=(raw:Uint8Array)=>createHash('sha256').update(raw).digest('hex');
 const target={id:4242401,state:'WA',date:'2024-08-06',type:'Primary',level:'state',title:'Washington Commissioner of Public Lands Primary'};
@@ -17,6 +17,12 @@ const parsed=await parseWashingtonLandsRecount(payload,{context:WA_LANDS_CONTEXT
 function scratch(){const dir=mkdtempSync(join(tmpdir(),'sol-source-packet-test-'));cpSync(root,join(dir,'packet'),{recursive:true});return {dir,path:join(dir,'packet/initial.packet.json')};}
 async function mutation(change:(value:typeof packet)=>void){const s=scratch(),value=structuredClone(packet);change(value);const bytes=Buffer.from(JSON.stringify(value));writeFileSync(s.path,bytes);return parseOfficialSourcePacket(s.path,sha(bytes),target);}
 describe('Actual raw packet→V1 bridge',()=>{
+  it('exports independently hash-verified evidence bytes and bounded resolved paths for the writer',()=>{
+    const loaded=loadReviewedPacketBytes(packetPath,sha(readFileSync(packetPath)));
+    expect(loaded.files.length).toBe(3);for(const file of loaded.files){expect(sha(file.bytes)).toBe(file.sha256);expect(file.resolvedPath.startsWith(root)).toBe(true);}
+    expect(loaded.files.find(file=>file.role==='payload')?.bytes.equals(payload)).toBe(true);
+    expect(loaded.files.find(file=>file.role==='certificate')?.bytes.equals(pdf)).toBe(true);
+  });
   it('defaults to unofficial even when parser has verified certificate proof',()=>{const input=bridgeOfficialContest(parsed,base);expect(input.status).toBe('unofficial');expect(input.certification).toBeNull();expect(input.asOf).toBeNull();expect(input.candidates.every(c=>c.candidateId===null&&!c.isWinner)).toBe(true);expect(input.candidates[0]?.sourceCandidateId).toBe('Allen Lebovitz');});
   it('requires explicit certification and exact PDF proof; preserves null dates',()=>{const input=bridgeOfficialContest(parsed,{...base,reviewedCertification:true});expect(input.status).toBe('certified');expect(input.certification).toEqual({url:certUrl,certifiedAt:null});});
   it('preserves genuine publisher IDs separately from inferred person IDs',()=>{const value=structuredClone(parsed);value.options[0]={...value.options[0]!,sourceCandidateId:'12',identifierBasis:'publisher_id'};const input=bridgeOfficialContest(value,base);expect(input.candidates[0]?.sourceCandidateId).toBe('12');expect(input.candidates[0]?.candidateId).toBeNull();});
